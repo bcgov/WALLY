@@ -1,16 +1,18 @@
 <template>
-  <v-app>
-    <w-header></w-header>
-    <router-view/>
-  </v-app>
+    <v-toolbar dark color="primary" app>
+      <v-toolbar-title class="headline">
+        <span>
+          Water Allocation
+        </span>
+      </v-toolbar-title>
+    </v-toolbar>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import WHeader from './components/Header.vue';
+
 @Component({
   components: {
-    WHeader,
   },
 })
 export default class Home extends Vue {}
