@@ -14,6 +14,6 @@ import { Component, Vue } from 'vue-property-decorator';
 })
 export default class Home extends Vue {
   // initial data
-  msg = "Welcome to your Vue app";
+  private msg = 'Welcome to your Vue app!';
 }
 </script>
