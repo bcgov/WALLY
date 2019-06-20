@@ -11,6 +11,13 @@
   },
   "dependencies": {
     "core-js": "^2.6.5",
+    "esri-leaflet": "^2.2.4",
+    "leaflet": "^1.5.1",
+    "leaflet-fullscreen": "^1.0.2",
+    "leaflet-geosearch": "^2.7.0",
+    "leaflet-lasso": "^2.0.4",
+    "leaflet.locatecontrol": "^0.67.0",
+    "lodash": "^4.17.11",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.1.0",
