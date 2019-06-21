@@ -1,0 +1,2 @@
+export const SEARCH_LOCATIONS = 'SEARCH_LOCATIONS'
+export const SEARCH_WELLS = 'SEARCH_WELLS'
