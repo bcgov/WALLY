@@ -46,30 +46,6 @@ limitations under the License.
                         href="#"
                         @click.stop.prevent="geolocate()"></a>
             </l-control>
-            <l-control position="topright" class="leaflet-control leaflet-bar search-as-i-move-control form-inline p-2">
-                <div v-if="pendingSearch">
-                    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-                    <strong class="pl-1">Loading...</strong>
-                </div>
-                <div v-else-if="showSearchThisAreaButton">
-                    <b-button
-                            id="search-this-area-btn"
-                            variant="light"
-                            size="sm"
-                            @click.stop="triggerSearch">
-                        Search this area <span class="pl-1 fa fa-refresh"></span>
-                    </b-button>
-                </div>
-                <div class="ml-1" v-else>
-                    <b-form-checkbox
-                            id="search-as-i-move-checkbox"
-                            :checked="searchOnMapMove"
-                            @input="searchOnMapMove = $event"
-                            @click.stop="null">
-                        Search as I move the map
-                    </b-form-checkbox>
-                </div>
-            </l-control>
             <l-control-scale position="bottomleft" metric />
             <l-control position="bottomright">
                 <div class="active-search-info d-inline-flex flex-wrap justify-content-end ml-5" v-if="activeSearch">

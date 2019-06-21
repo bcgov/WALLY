@@ -29,7 +29,11 @@ export default new Vuex.Store({
     state: {
         searchBounds: {},
         searchParams: {},
-
+        // lastSearchTrigger: null,
+        locationSearchResults: [],
+        pendingSearch: null,
+        searchResultFilters: {},
+        pendingLocationSearch: null,
     },
     mutations: {
         [SET_SEARCH_BOUNDS] (state, payload) {
@@ -42,4 +46,24 @@ export default new Vuex.Store({
     actions: {
 
     },
+    getters: {
+        // lastSearchTrigger (state) {
+        //     return state.lastSearchTrigger
+        // },
+        // pendingSearch (state) {
+        //     return state.pendingSearch
+        // },
+        // searchParams (state) {
+        //     return state.searchParams
+        // },
+        // searchResultFilters (state) {
+        //     return state.searchResultFilters
+        // },
+        // locationSearchResults (state) {
+        //     return state.locationSearchResults
+        // },
+        // pendingLocationSearch (state) {
+        //     return state.pendingLocationSearch
+        // },
+    }
 });

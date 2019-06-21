@@ -10,6 +10,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "@types/leaflet": "^1.4.4",
     "core-js": "^2.6.5",
     "esri-leaflet": "^2.2.4",
     "leaflet": "^1.5.1",
@@ -18,10 +19,12 @@
     "leaflet-lasso": "^2.0.4",
     "leaflet.locatecontrol": "^0.67.0",
     "lodash": "^4.17.11",
+    "lodash.debounce": "^4.0.8",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
     "vue-property-decorator": "^8.1.0",
     "vue-router": "^3.0.3",
+    "vue2-leaflet": "^2.1.1",
     "vuetify": "^1.5.5",
     "vuex": "^3.0.1"
   },
