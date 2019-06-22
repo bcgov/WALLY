@@ -59,7 +59,7 @@ services:
       - '80:80'
       - '8090:8080'
   db:
-    image: postgres:11
+    image: mdillon/postgis:11
     env_file:
       - env-postgres.env
     environment:

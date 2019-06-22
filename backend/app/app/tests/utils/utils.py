@@ -1,6 +1,5 @@
 import random
 import string
-
 import requests
 
 from app.core import config
