@@ -13,9 +13,7 @@ if bind_env:
 else:
     use_bind = f"{host}:{port}"
 
-cores = multiprocessing.cpu_count()
-workers_per_core = float(workers_per_core_str)
-default_web_concurrency = workers_per_core * cores
+default_web_concurrency = 4
 if web_concurrency_str:
     web_concurrency = int(web_concurrency_str)
     assert web_concurrency > 0
@@ -35,7 +33,6 @@ log_data = {
     "workers": workers,
     "bind": bind,
     # Additional, non-gunicorn variables
-    "workers_per_core": workers_per_core,
     "host": host,
     "port": port,
 }
