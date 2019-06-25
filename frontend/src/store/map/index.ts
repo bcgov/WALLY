@@ -3,16 +3,19 @@ import Vuex from 'vuex';
 
 import {
     SEARCH_LOCATIONS,
-    SEARCH_WELLS
+    SEARCH_WELLS,
+    FETCH_WELL_LOCATIONS
 } from './actions.types'
 
 import {
     SET_SEARCH_BOUNDS,
     SET_SEARCH_PARAMS,
+    SET_LOCATION_SEARCH_RESULTS,
     SET_SEARCH_RESULT_FILTERS
 } from './mutations.types'
 
-Vue.use(Vuex);
+// @ts-ignore
+import ApiService from '../../services/ApiService'
 
 const cleanParams = (payload: { [s: string]: unknown; } | ArrayLike<unknown>) => {
     // Clear any null or empty string values, to keep URLs clean.
@@ -25,7 +28,8 @@ const cleanParams = (payload: { [s: string]: unknown; } | ArrayLike<unknown>) =>
     }, {})
 }
 
-export default new Vuex.Store({
+// @ts-ignore
+export default {
     state: {
         searchBounds: {},
         searchParams: {},
@@ -36,15 +40,28 @@ export default new Vuex.Store({
         pendingLocationSearch: null,
     },
     mutations: {
-        [SET_SEARCH_BOUNDS] (state, payload) {
+        [SET_SEARCH_BOUNDS] (state: { searchBounds: any; }, payload: any) {
             state.searchBounds = payload
         },
-        [SET_SEARCH_PARAMS] (state, payload) {
+        [SET_SEARCH_PARAMS] (state: { searchParams: {}; }, payload: ArrayLike<unknown> | { [s: string]: unknown; }) {
             state.searchParams = cleanParams(payload)
         },
+        [SET_LOCATION_SEARCH_RESULTS] (state: { locationSearchResults: any; }, payload: any) {
+            state.locationSearchResults = payload
+        }
     },
     actions: {
-
+        // @ts-ignore
+        [FETCH_WELL_LOCATIONS] ({ commit }) {
+            return new Promise((resolve, reject) => {
+                ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
+                .then((response: { data: any; }) => {
+                    commit(SET_LOCATION_SEARCH_RESULTS, response.data)
+                }).catch((error: any) => {
+                    reject(error)
+                })
+            })
+        }
     },
     getters: {
         // lastSearchTrigger (state) {
@@ -59,11 +76,11 @@ export default new Vuex.Store({
         // searchResultFilters (state) {
         //     return state.searchResultFilters
         // },
-        // locationSearchResults (state) {
-        //     return state.locationSearchResults
-        // },
+        locationSearchResults (state: { locationSearchResults: any; }) {
+            return state.locationSearchResults
+        },
         // pendingLocationSearch (state) {
         //     return state.pendingLocationSearch
         // },
     }
-});
+}

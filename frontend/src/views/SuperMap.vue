@@ -47,20 +47,6 @@ limitations under the License.
                         @click.stop.prevent="geolocate()"></a>
             </l-control>
             <l-control-scale position="bottomleft" metric />
-            <l-control position="bottomright">
-                <div class="active-search-info d-inline-flex flex-wrap justify-content-end ml-5" v-if="activeSearch">
-                    <div class="active-search-text py-1 px-3 mb-1">
-                        <strong>Wells that match active search criteria are displayed.</strong>
-                    </div>
-                    <b-button
-                            class="ml-md-1 mb-1"
-                            variant="primary"
-                            size="sm"
-                            @click.stop="clearSearch()">
-                        Clear search criteria
-                    </b-button>
-                </div>
-            </l-control>
             <!-- esri layer is added on mount -->
             <l-wms-tile-layer
                     base-url="https://openmaps.gov.bc.ca/geo/pub/WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW/ows?"
@@ -70,32 +56,33 @@ limitations under the License.
                     :transparent="true"
                     :visible="true"
                     :z-index="2" />
-            <l-feature-group ref="wellMarkers">
-                <l-circle-marker
-                        v-for="marker in markers"
-                        :key="marker.wellTagNumber"
-                        :lat-lng="marker.latLng"
-                        :visible="true"
-                        :draggable="false"
-                        :radius="6"
-                        :weight="1"
-                        :fill-opacity="1.0"
-                        color="#000"
-                        fill-color="#0162fe"
-                        @click="openPopup(marker)">
-                </l-circle-marker>
-                <l-popup>
-                    <div>
-                        Well Tag Number: <router-link v-if="selectedMarker" :to="{ name: 'wells-detail', params: {id: selectedMarker.wellTagNumber} }">{{ selectedMarker.wellTagNumber }}</router-link>
-                    </div>
-                    <div>
-                        Identification Plate Number: <span v-if="selectedMarker">{{ selectedMarker.idPlateNumber }}</span>
-                    </div>
-                    <div>
-                        Address: <span v-if="selectedMarker">{{ selectedMarker.address }}</span>
-                    </div>
-                </l-popup>
-            </l-feature-group>
+
+<!--            <l-feature-group ref="wellMarkers">-->
+<!--                <l-circle-marker-->
+<!--                        v-for="marker in markers"-->
+<!--                        :key="marker.wellTagNumber"-->
+<!--                        :lat-lng="marker.latLng"-->
+<!--                        :visible="true"-->
+<!--                        :draggable="false"-->
+<!--                        :radius="6"-->
+<!--                        :weight="1"-->
+<!--                        :fill-opacity="1.0"-->
+<!--                        color="#000"-->
+<!--                        fill-color="#0162fe"-->
+<!--                        @click="openPopup(marker)">-->
+<!--                </l-circle-marker>-->
+<!--                <l-popup>-->
+<!--                    <div>-->
+<!--                        Well Tag Number: <router-link v-if="selectedMarker" :to="{ name: 'wells-detail', params: {id: selectedMarker.wellTagNumber} }">{{ selectedMarker.wellTagNumber }}</router-link>-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        Identification Plate Number: <span v-if="selectedMarker">{{ selectedMarker.idPlateNumber }}</span>-->
+<!--                    </div>-->
+<!--                    <div>-->
+<!--                        Address: <span v-if="selectedMarker">{{ selectedMarker.address }}</span>-->
+<!--                    </div>-->
+<!--                </l-popup>-->
+<!--            </l-feature-group>-->
         </l-map>
         <div class="attribution">
             <a href="http://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> | Powered by <a href="https://www.esri.com">Esri</a>
@@ -106,6 +93,7 @@ limitations under the License.
 <script>
     import debounce from 'lodash.debounce'
     import L from 'leaflet'
+    import Supercluster from 'supercluster'
     import { tiledMapLayer } from 'esri-leaflet'
     import {
         LCircleMarker,
@@ -114,7 +102,8 @@ limitations under the License.
         LFeatureGroup,
         LMap,
         LPopup,
-        LWMSTileLayer
+        LWMSTileLayer,
+        LGeoJson
     } from 'vue2-leaflet'
     import { mapGetters } from 'vuex'
     import { SEARCH_LOCATIONS, SEARCH_WELLS } from '../store/map/actions.types.ts'
@@ -124,6 +113,9 @@ limitations under the License.
         SET_SEARCH_RESULT_FILTERS
     } from '../store/map/mutations.types.ts'
     import { MAP_TRIGGER } from '../store/map/triggers.types.ts'
+    import ApiService from "../services/ApiService";
+    import {SET_LOCATION_SEARCH_RESULTS} from "../store/map/mutations.types";
+    import {FETCH_WELL_LOCATIONS} from "../store/map/actions.types";
 
     // There is a known issue using leaflet with webpack, this is a workaround
     // Fix courtesy of: https://github.com/PaulLeCam/react-leaflet/issues/255
@@ -145,12 +137,13 @@ limitations under the License.
             'l-feature-group': LFeatureGroup,
             'l-map': LMap,
             'l-popup': LPopup,
-            'l-wms-tile-layer': LWMSTileLayer
+            'l-wms-tile-layer': LWMSTileLayer,
+            'l-geo-json': LGeoJson
         },
         props: {},
         data () {
             return {
-                zoom: 5,
+                zoom: 7,
                 center: [54.5, -126.5],
                 maxBounds: [
                     [46.07323062540835, -140.27343750000003],
@@ -170,11 +163,7 @@ limitations under the License.
         },
         computed: {
             ...mapGetters({
-                lastSearchTrigger: 'lastSearchTrigger',
-                locations: 'locationSearchResults',
-                pendingSearch: 'pendingLocationSearch',
-                searchParams: 'searchParams',
-                searchResultFilters: 'searchResultFilters'
+                locations: 'locationSearchResults'
             }),
             searchBoundBox () {
                 const sw = this.bounds.getSouthWest()
@@ -186,33 +175,28 @@ limitations under the License.
                     ne_long: ne.lng
                 }
             },
-            markers () {
-                return this.locations.filter(location => location.latitude !== null && location.longitude !== null).map(location => {
-                    let address = location.street_address
-                    if (location.city !== undefined && location.city !== null && location.city.toString().trim() !== '') {
-                        address = `${address}, ${location.city}`
-                    }
-
-                    return {
-                        wellTagNumber: location.well_tag_number,
-                        latLng: L.latLng(location.latitude, location.longitude),
-                        idPlateNumber: location.identification_plate_number || '',
-                        address: address
-                    }
-                })
-            },
+            // markers () {
+            //     return this.locations.filter(location => location.latitude !== null && location.longitude !== null).map(location => {
+            //         let address = location.street_address
+            //         if (location.city !== undefined && location.city !== null && location.city.toString().trim() !== '') {
+            //             address = `${address}, ${location.city}`
+            //         }
+            //
+            //         return {
+            //             wellTagNumber: location.well_tag_number,
+            //             latLng: L.latLng(location.latitude, location.longitude),
+            //             idPlateNumber: location.identification_plate_number || '',
+            //             address: address
+            //         }
+            //     })
+            // },
             atMaxZoom () {
                 return this.zoom === this.maxZoom
             },
-            activeSearch () {
-                return (
-                    Object.entries(this.searchParams).length > 0 ||
-                    Object.entries(this.searchResultFilters).length > 0
-                )
-            },
             showSearchThisAreaButton () {
                 return (!this.searchOnMapMove && this.movedSinceLastSearch && this.zoom >= 9)
-            }
+            },
+
         },
         methods: {
             resetView () {
@@ -236,8 +220,9 @@ limitations under the License.
             centerUpdated (center) {
                 this.center = center
                 this.$emit('moved', center)
+                this.updateMap()
 
-                this.mapMoved()
+                // this.mapMoved()
             },
             boundsUpdated (bounds) {
                 this.bounds = bounds
@@ -256,7 +241,7 @@ limitations under the License.
             }, 500),
             triggerSearch () {
                 this.$store.dispatch(SEARCH_LOCATIONS)
-                this.$store.dispatch(SEARCH_WELLS, { trigger: MAP_TRIGGER, constrain: true })
+                this.$store.dispatch(SEARCH_WELLS, { trigger: MAP_TRIGGER, constrain: false })
             },
             clearSearch () {
                 this.$store.commit(SET_SEARCH_PARAMS, {})
@@ -318,21 +303,81 @@ limitations under the License.
                     }
                     originalMouseDown.call(mapObject.boxZoom, newEvent)
                 }
-            }
-        },
-        watch: {
-            locations (locations) {
-                if (!this.zoomToMarkersActive && this.lastSearchTrigger !== MAP_TRIGGER) {
-                    this.zoomToMarkers()
+            },
+            searchWellLocations () {
+                this.$store.dispatch(FETCH_WELL_LOCATIONS)
+            },
+            updateMap () {
+                if (!this.ready) return;
+                let bounds = this.$refs.map.mapObject.getBounds();
+                let bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+                let zoom = this.$refs.map.mapObject.getZoom();
+                let clusters = this.index.getClusters(bbox, zoom);
+                this.markers.clearLayers();
+                this.markers.addData(clusters);
+            },
+            createClusterIcon(feature, latlng) {
+                if (feature.properties && !feature.properties.cluster) return L.marker(latlng);
+
+                var count = feature.properties ? feature.properties.point_count : 0;
+                var size =
+                    count < 100 ? 'small' :
+                        count < 1000 ? 'medium' : 'large';
+                var icon = L.divIcon({
+                    html: '<div><span>' + count + '</span></div>',
+                    className: 'marker-cluster marker-cluster-' + size,
+                    iconSize: L.point(40, 40)
+                });
+
+                return L.marker(latlng, {
+                    icon: icon
+                });
+            },
+            initSuperCluster(features) {
+                if(!this.index) {
+                    this.index = new Supercluster({
+                        radius: 60,
+                        extent: 256,
+                        maxZoom: 18
+                    }).load(features.length > 100000 ? features.splice(0, 100000) : features); // Expects an array of Features.
+
+                    this.markers = L.geoJSON(null, {
+                        pointToLayer: this.createClusterIcon
+                    }).addTo(this.$refs.map.mapObject);
+
+                    this.markers.on('click', function(e) {
+                        let center = e.latlng;
+                        if(e.layer.feature.properties){
+                            let clusterId = e.layer.feature.properties.cluster_id;
+                            let expansionZoom;
+                            if (clusterId) {
+                                expansionZoom = this.index.getClusterExpansionZoom(clusterId);
+                                this.$refs.map.mapObject.flyTo(center, expansionZoom);
+                            }
+                        } else {
+                            L.popup()
+                                .setLatLng(center)
+                                .setContent('<p><br />This is a nice popup.<br /></p>')
+                                .openOn(this.$refs.map.mapObject);
+                        }
+                    }, this);
+
+                    this.ready = true;
+                    this.updateMap();
                 }
-                this.movedSinceLastSearch = false
-                this.searchOnMapMove = true
-            }
+            },
         },
         mounted () {
             this.$nextTick(() => {
                 this.initEsriLayer()
                 this.initZoomBox()
+                // this.searchWellLocations()
+                ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
+                    .then((response) => {
+                        this.initSuperCluster(response.data.features)
+                    }).catch((error) => {
+                        console.log(error)
+                })
             })
         },
         beforeDestroy () {
@@ -344,7 +389,7 @@ limitations under the License.
     @import "~leaflet/dist/leaflet.css";
 
     #map {
-        height: 600px;
+        height: 1000px;
     }
     .search-map {
 
@@ -426,5 +471,51 @@ limitations under the License.
                 opacity: 1;
             }
         }
+
+    }
+    .geolocate {
+        background-image: url('../assets/images/geolocate.png');
+        width: 30px;
+        height: 30px;
+        left: 2px;
+        box-shadow: 0px 0px 5px 1px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+    }
+    .geolocate:hover {
+        opacity: 0.8;
+    }
+    .marker-cluster-small {
+        background-color: rgba(181, 226, 140, 0.6);
+    }
+    .marker-cluster-small div {
+        background-color: rgba(110, 204, 57, 0.6);
+    }
+    .marker-cluster-medium {
+        background-color: rgba(241, 211, 87, 0.6);
+    }
+    .marker-cluster-medium div {
+        background-color: rgba(240, 194, 12, 0.6);
+    }
+    .marker-cluster-large {
+        background-color: rgba(253, 156, 115, 0.6);
+    }
+    .marker-cluster-large div {
+        background-color: rgba(241, 128, 23, 0.6);
+    }
+    .marker-cluster {
+        background-clip: padding-box;
+        border-radius: 20px;
+    }
+    .marker-cluster div {
+        width: 30px;
+        height: 30px;
+        margin-left: 5px;
+        margin-top: 5px;
+        text-align: center;
+        border-radius: 15px;
+        font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    }
+    .marker-cluster span {
+        line-height: 30px;
     }
 </style>
