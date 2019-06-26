@@ -9,5 +9,9 @@ Vue.use(Vuetify, {
   iconfont: 'md',
   theme: {
     primary: '#003366',
+    secondary: '#F2F2F2',
+    accent: '#FCBA19',
+    error: '#D8292F',
+    success: '#2E8540'
   },
 });
