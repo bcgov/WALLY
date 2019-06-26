@@ -6,7 +6,7 @@ COPY package*.json /app/
 
 RUN npm ci
 
-COPY ./ /app/
+COPY . .
 
 RUN ls && pwd && ls tests/unit
 RUN npm run test:unit
