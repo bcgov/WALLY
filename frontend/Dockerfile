@@ -1,4 +1,4 @@
-FROM openshift/nodejs:8 as build
+FROM node:10 as build
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ RUN npm run test:unit
 RUN npm run build
 
 
-FROM openshift/nginx:1.12
+FROM nginx:1.12
 
 COPY --from=build /app/dist/ /usr/share/nginx/html
 
