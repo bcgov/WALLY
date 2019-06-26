@@ -11,7 +11,7 @@ COPY . .
 RUN npm run build
 
 
-FROM nginx:mainline
+FROM docker.io/nginx:mainline
 
 COPY --from=build /app/dist/ /usr/share/nginx/html
 
