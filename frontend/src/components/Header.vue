@@ -37,7 +37,6 @@ header {
   display: flex;
   height: 65px;
   top: 0px;
-  position: fixed;
   width: 100%;
 }
 

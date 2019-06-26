@@ -389,7 +389,7 @@ limitations under the License.
     @import "~leaflet/dist/leaflet.css";
 
     #map {
-        height: 1000px;
+        height: calc(100vh - 90px);
     }
     .search-map {
 
