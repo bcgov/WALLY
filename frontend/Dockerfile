@@ -8,6 +8,7 @@ RUN npm ci
 
 COPY ./ /app/
 
+RUN ls && pwd && ls tests/unit
 RUN npm run test:unit
 
 RUN npm run build
