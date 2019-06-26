@@ -8,16 +8,16 @@ RUN npm ci
 
 COPY . .
 
-RUN ls && pwd && ls tests/unit
-RUN npm run test:unit
-
 RUN npm run build
 
 
-FROM nginx:1.12
+FROM nginx:mainline
 
 COPY --from=build /app/dist/ /usr/share/nginx/html
 
 COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
+RUN chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
+
 EXPOSE 8080
+CMD ["nginx", "-g", "daemon off;"]
