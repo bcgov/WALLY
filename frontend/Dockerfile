@@ -18,4 +18,4 @@ COPY --from=build /app/dist/ /usr/share/nginx/html
 COPY --from=build /app/nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 8080
-CMD /tmp/scripts/run
+CMD /usr/libexec/s2i/run
