@@ -3,6 +3,7 @@
 </template>
 
 <script>
+    /* tslint:disable */
     import L from 'leaflet'
     import { tiledMapLayer } from 'esri-leaflet'
     import { filter } from 'lodash'
