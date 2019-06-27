@@ -15,3 +15,13 @@ import WHeader from './components/Header.vue';
 })
 export default class Home extends Vue {}
 </script>
+
+<style>
+body {
+     font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
+     color: '#494949'
+}
+a {
+  color: #1A5A96;
+}
+</style>

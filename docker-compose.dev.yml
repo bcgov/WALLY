@@ -1,0 +1,44 @@
+version: '3.3'
+services:
+  backend: 
+    build: 
+      context: ./backend
+      dockerfile: backend.dockerfile
+      args: 
+        env: dev
+    networks: 
+      default: 
+        aliases: 
+          - ${DOMAIN}
+    command: /start-reload.sh
+    volumes:
+      - ./backend/app:/app
+    env_file:
+      - env-postgres.env
+      - env-backend.env
+    environment:
+      - SERVER_NAME=${DOMAIN}
+      - SERVER_HOST=http://${DOMAIN}
+      - PORT=8888
+    ports:
+      - '8888:8888'
+    depends_on: 
+      - db
+  backend-tests:
+    build:
+      context: ./backend
+      dockerfile: tests.dockerfile
+    command: bash -c "while true; do sleep 1; done"
+    env_file:
+      - env-backend.env
+      - env-postgres.env
+    environment:
+      - SERVER_NAME=backend
+    volumes:
+      - ./backend/app:/app
+  db:
+    image: mdillon/postgis:11
+    env_file:
+      - env-postgres.env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
