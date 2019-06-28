@@ -37,17 +37,17 @@
               </v-list-tile>
             </template>
           <div v-if="item.choices && item.choices.length" class="mt-3">
-            <v-list-tile
+            <div
               v-for="choice in item.choices"
               :key="choice.id"
             >
-              <v-list-tile-content class="pl-3">
+              <p class="pl-3">
                 <label class="checkbox">{{choice.name}}
                   <input type="checkbox" @input="handleSelectLayer(choice.id)" :checked="activeMapLayers[choice.id]">
                   <span class="checkmark"></span>
                 </label>
-              </v-list-tile-content>
-            </v-list-tile>
+              </p>
+            </div>
           </div>
           </v-list-group>
         </v-list>
