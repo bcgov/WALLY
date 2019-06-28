@@ -202,8 +202,8 @@ export default {
         [SET_MAP_LAYER_STATE] (state: { activeMapLayers: any; }, payload: { name: string, status: boolean }) {
             state.activeMapLayers[payload.name] = payload.status
         },
-        [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: { name: string, items: any[] }) {
-            state.mapLayerSelections[payload.name] = payload.items;
+        [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: any) {
+            state.mapLayerSelections = payload;
         }
     },
     actions: {
