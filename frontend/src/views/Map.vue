@@ -76,7 +76,7 @@
             }
         },
         computed: {
-            ...mapGetters(['externalDataSources'])
+            ...mapGetters(['externalDataSources', 'activeMapLayers'])
         },
         watch: {
             aquifers: function (newAquifers, oldAquifers) {
