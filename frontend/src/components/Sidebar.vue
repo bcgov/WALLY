@@ -2,7 +2,6 @@
   <v-navigation-drawer
     v-model="drawer"
     app
-    primary
     class="wally-sidenav"
   >
 
@@ -73,7 +72,7 @@ import { Component, Vue } from 'vue-property-decorator';
 })
 export default class Sidebar extends Vue {
   // initial data
-  tab = null;
+  tabs = null;
   drawer = true;
   items = [
     {
