@@ -39,11 +39,11 @@
 
           <v-list-tile
             v-for="choice in item.choices"
-            :key="choice"
+            :key="choice.id"
           >
             <v-list-tile-content class="pl-3">
-              <label class="checkbox">{{choice}}
-                <input type="checkbox">
+              <label class="checkbox">{{choice.name}}
+                <input type="checkbox" @input="handleSelectLayer(choice.id)" :checked="activeMapLayers[choice.id]">
                 <span class="checkmark"></span>
               </label>
             </v-list-tile-content>
@@ -55,9 +55,16 @@
         <v-list dense>
           <v-list-tile>
             <v-list-tile-content class="pl-3">
-              <p>Select an object to view details.</p>
+              <v-list-tile-title><h2>Selected objects:</h2></v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
+
+          <v-list-tile v-for="(item, i) in selectedMapObjects" :key="i">
+            <v-list-tile-content class="pl-3">
+              <p class="mt-3"><a :href="item.web_uri" _target="blank">{{ item.name }}</a></p>
+            </v-list-tile-content>
+          </v-list-tile>
+
         </v-list>
       </v-tab-item>
     </v-tabs>
@@ -66,12 +73,40 @@
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import { mapGetters } from 'vuex';
+import { Getter } from '../store';
+import { SET_MAP_LAYER_STATE } from '../store/map/mutations.types'
+
 @Component({
   components: {
   },
 })
 export default class Sidebar extends Vue {
   // initial data
+
+  get selectedMapObjects () {
+    let flat = []
+    Object.keys(this.mapLayerSelections).forEach((a) => {
+      flat = flat.concat(this.mapLayerSelections[a])
+    })
+    return flat
+  }
+
+  get mapLayers () {
+    return this.$store.getters.mapLayers
+  }
+
+  get dataLayers () {
+    return this.$store.getters.dataLayers
+  }
+  get activeMapLayers () {
+    return this.$store.getters.activeMapLayers
+  }
+
+  get mapLayerSelections () {
+    return this.$store.getters.mapLayerSelections
+  }
+
   tabs = null;
   drawer = true;
   items = [
@@ -79,27 +114,21 @@ export default class Sidebar extends Vue {
       title: 'Layers',
       icon: 'layers',
       action: 'layers',
-      choices: [
-        'Artesian wells',
-        'Cadastral',
-        'Ecocat - Water related reports',
-        'Groundwater licences',
-        'Observation wells - active',
-        'Observation wells - inactive',
-        'Wells - All'
-      ]
+      choices: this.mapLayers
     },
     {
       title: 'Data Sources',
       icon: 'library_books',
       action: 'library_books',
-      choices: [
-        'Canada Climate Data',
-        'Canada Precipitation Data',
-      ]
+      choices: this.dataLayers
     }
   ]
   mini = true
+
+  handleSelectLayer(layerId) {
+    this.$store.commit(SET_MAP_LAYER_STATE, { name: layerId, status: !this.activeMapLayers[layerId]})
+  }
+
 }
 </script>
 <style lang="scss">

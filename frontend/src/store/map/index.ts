@@ -11,7 +11,9 @@ import {
     SET_SEARCH_BOUNDS,
     SET_SEARCH_PARAMS,
     SET_LOCATION_SEARCH_RESULTS,
-    SET_DATA_SOURCES
+    SET_DATA_SOURCES,
+    SET_MAP_LAYER_STATE,
+    SET_MAP_OBJECT_SELECTIONS
 } from './mutations.types'
 
 // @ts-ignore
@@ -29,6 +31,70 @@ const cleanParams = (payload: { [s: string]: unknown; } | ArrayLike<unknown>) =>
     }, {})
 }
 
+const WMS_ARTESIAN = 'WMS_ARTESIAN'
+const WMS_CADASTRAL = 'WMS_CADASTRAL'
+const WMS_ECOCAT = 'WMS_ECOCAT'
+const WMS_GWLIC = 'WMS_GWLIC'
+const WMS_OBS_ACTIVE = 'WMS_OBS_ACTIVE'
+const WMS_OBS_INACTIVE = 'WMS_OBS_INACTIVE'
+const WMS_WELLS = 'WMS_WELLS'
+const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980_2010'
+
+// temporary hardcoded list of map layers
+const DEMO_MAP_LAYERS = [
+    {   
+        id: WMS_ARTESIAN,
+        name: 'Artesian wells',
+        uri: '',
+        geojson: ''
+    },
+    {
+        id: WMS_CADASTRAL,
+        name: 'Cadastral',
+        uri: '',
+        geojson: ''
+    },
+    {
+        id: WMS_ECOCAT,
+        name: 'Ecocat - Water related reports',
+        uri: '',
+        geojson: ''
+    },
+    {
+        id: WMS_GWLIC,
+        name: 'Groundwater licences',
+        uri: '',
+        geojson: ''
+    },
+    {
+        id: WMS_OBS_ACTIVE,
+        name: 'Observation wells - active',
+        uri: '',
+        geojson: ''
+    },
+    {
+        id: WMS_OBS_INACTIVE,
+        name: 'Observation wells - inactive',
+        uri: '',
+        geojson: ''
+    },
+    {
+        id: WMS_WELLS,
+        name: 'Wells - All',
+        uri: '',
+        geojson: ''
+    }
+]
+
+const DEMO_DATA_LAYERS = [
+    {
+        id: DATA_CAN_CLIMATE_NORMALS_1980_2010,
+        name: 'Canadian Climate Normals 1980-2010',
+        uri: '',
+        geojson: ''
+    }
+]
+
 // @ts-ignore
 export default {
     state: {
@@ -39,7 +105,86 @@ export default {
         pendingSearch: null,
         searchResultFilters: {},
         pendingLocationSearch: null,
-        externalDataSources: [],
+        externalDataSources: { features: [] },
+        dataLayers: [
+            {
+                id: DATA_CAN_CLIMATE_NORMALS_1980_2010,
+                name: 'Canadian Climate Normals 1980-2010',
+                uri: '',
+                geojson: ''
+            }
+        ],
+        mapLayers: [
+            {   
+                id: WMS_ARTESIAN,
+                name: 'Artesian wells',
+                uri: '',
+                geojson: ''
+            },
+            {
+                id: WMS_CADASTRAL,
+                name: 'Cadastral',
+                uri: '',
+                geojson: ''
+            },
+            {
+                id: WMS_ECOCAT,
+                name: 'Ecocat - Water related reports',
+                uri: '',
+                geojson: ''
+            },
+            {
+                id: WMS_GWLIC,
+                name: 'Groundwater licences',
+                uri: '',
+                geojson: ''
+            },
+            {
+                id: WMS_OBS_ACTIVE,
+                name: 'Observation wells - active',
+                uri: '',
+                geojson: ''
+            },
+            {
+                id: WMS_OBS_INACTIVE,
+                name: 'Observation wells - inactive',
+                uri: '',
+                geojson: ''
+            },
+            {
+                id: WMS_WELLS,
+                name: 'Wells - All',
+                uri: '',
+                geojson: ''
+            }
+        ],
+        activeMapLayers: {
+            [WMS_ARTESIAN]: false,
+            [WMS_CADASTRAL]: false,
+            [WMS_ECOCAT]: false,
+            [WMS_GWLIC]: false,
+            [WMS_OBS_ACTIVE]: false,
+            [WMS_OBS_INACTIVE]: false,
+            [WMS_WELLS]: false,
+            [DATA_CAN_CLIMATE_NORMALS_1980_2010]: true
+        },
+        mapLayerSelections: {
+            [WMS_ARTESIAN]: [],
+            [WMS_CADASTRAL]: [],
+            [WMS_ECOCAT]: [],
+            [WMS_GWLIC]: [],
+            [WMS_OBS_ACTIVE]: [],
+            [WMS_OBS_INACTIVE]: [],
+            [WMS_WELLS]: [],
+            [DATA_CAN_CLIMATE_NORMALS_1980_2010]: [
+                {
+                    id: 'cb7d1bf2-66ec-4ff0-8e95-9af7b6a1de18',
+                    name: 'Canadian Climate Normals 1981-2010 Station Data - N VANCOUVER WHARVES',
+                    web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=833&dispBack=0',
+                    coordinates: [-123.12, 49.31]
+                }
+            ]
+        }
     },
     mutations: {
         [SET_SEARCH_BOUNDS] (state: { searchBounds: any; }, payload: any) {
@@ -53,6 +198,12 @@ export default {
         },
         [SET_DATA_SOURCES] (state: { externalDataSources: any; }, payload: any) {
             state.externalDataSources = payload
+        },
+        [SET_MAP_LAYER_STATE] (state: { activeMapLayers: any; }, payload: { name: string, status: boolean }) {
+            state.activeMapLayers[payload.name] = payload.status
+        },
+        [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: { name: string, items: any[] }) {
+            state.mapLayerSelections[payload.name] = payload.items;
         }
     },
     actions: {
@@ -123,6 +274,18 @@ export default {
         // },
         externalDataSources (state: { externalDataSources: any; }) {
             return state.externalDataSources
-        }
+        },
+        activeMapLayers (state: { activeMapLayers: any; }) {
+            return state.activeMapLayers
+        },
+        mapLayerSelections (state: { mapLayerSelections: any; }) {
+            return state.mapLayerSelections
+        },
+        mapLayers (state: { mapLayers: any; }) {
+            return state.mapLayers
+        },
+        dataLayers (state: { dataLayers: any; }) {
+            return state.dataLayers
+        },
     }
 }

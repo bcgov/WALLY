@@ -19,8 +19,9 @@
     import WellsAllLegend from '../assets/images/wells-all.png'
     import Supercluster from 'supercluster'
     import ApiService from "../services/ApiService";
+    import { mapGetters } from 'vuex';
     import betterWms from '../components/L.TileLayer.BetterWMS'
-
+    import { FETCH_DATA_SOURCES } from '../store/map/actions.types'
     const provider = new EsriProvider()
     const searchControl = new GeoSearchControl({
         provider: provider,
@@ -59,6 +60,8 @@
                 this.initLeaflet()
                 this.initMap()
             })
+
+            this.$store.dispatch(FETCH_DATA_SOURCES)
         },
         data () {
             return {
@@ -71,6 +74,9 @@
                 wellMarkers: null,
                 wellMarkersLayerGroup: L.layerGroup()
             }
+        },
+        computed: {
+            ...mapGetters(['externalDataSources'])
         },
         watch: {
             aquifers: function (newAquifers, oldAquifers) {
@@ -123,13 +129,18 @@
                 // Add map layers.
                 tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
 
+                L.geoJSON(this.externalDataSources.features, {
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup('<h3>'+feature.properties.name+'</h3><p><a href="'+feature.properties.web_uri+'" target="_blank">Web link</a></p>');
+                    }
+                }).addTo(this.map)
 
                 this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
 
                 this.listenForLayerToggle()
                 this.listenForLayerAdd()
                 this.listenForLayerRemove()
-                this.listenForMapMovement()
+                // this.listenForMapMovement()
                 this.listenForReset()
                 this.listenForAreaSelect()
 
