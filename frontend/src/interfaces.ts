@@ -3,5 +3,5 @@ export interface IDataSource {
     name: string;
     api_uri?: string;
     web_uri?: string;
-    coordinates: Array<number>;
+    coordinates: number[];
 }
