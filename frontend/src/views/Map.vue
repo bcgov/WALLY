@@ -3,6 +3,7 @@
 </template>
 
 <script>
+/* tslint:disable */
     import L from 'leaflet'
     import { tiledMapLayer } from 'esri-leaflet'
     import { filter } from 'lodash'
@@ -471,9 +472,8 @@
     @import "~leaflet/dist/leaflet.css";
     .map {
         width: 100%;
-        height: calc(100vh - 90px);
+        height: calc(100vh - 64px);
     }
-
     .leaflet-control-geosearch a.reset {
         display: none;
     }
