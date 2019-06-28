@@ -18,10 +18,7 @@
         
       </v-tab>
       <v-tab>
-        Detail view
-      </v-tab>
-      <v-tab>
-        Reporting
+        Data
       </v-tab>
 
       <v-tab-item>
@@ -60,15 +57,6 @@
           <v-list-tile>
             <v-list-tile-content class="pl-3">
               <p>Select an object to view details.</p>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list>
-      </v-tab-item>
-      <v-tab-item>
-        <v-list dense>
-          <v-list-tile>
-            <v-list-tile-content class="pl-3">
-              <p>Select an area to create a report.</p>
             </v-list-tile-content>
           </v-list-tile>
         </v-list>
