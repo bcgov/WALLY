@@ -22,6 +22,7 @@
     import { mapGetters } from 'vuex';
     import betterWms from '../components/L.TileLayer.BetterWMS'
     import { FETCH_DATA_SOURCES } from '../store/map/actions.types'
+
     const provider = new EsriProvider()
     const searchControl = new GeoSearchControl({
         provider: provider,
@@ -117,7 +118,7 @@
                     preferCanvas: true,
                     minZoom: 4,
                     maxZoom: 17
-                }).setView([53.8, -124.5], 6)
+                }).setView([53.8, -124.5], 9)
                 L.control.scale().addTo(this.map)
 
                 this.map.addControl(this.getFullScreenControl())
@@ -278,8 +279,43 @@
             },
             listenForAreaSelect () {
                 this.map.on('lasso.finished', (event) => {
-                    this.map.fitBounds(event.latLngs)
-                    console.log(event.latLngs)
+                    let lats = event.latLngs.map(l => l.lat)
+                    let lngs = event.latLngs.map(l => l.lng)
+
+                    let min = L.latLng(Math.min(...lats), Math.min(...lngs))
+                    let max = L.latLng(Math.max(...lats), Math.max(...lngs))
+                    let bounds = [min.lng, min.lat, max.lng, max.lat]
+
+                    console.log(bounds)
+                    this.getMapObjects(bounds)
+                })
+            },
+            getMapObjects (bounds) {
+                let size = this.map.getSize(),
+                params = {
+                    request: 'GetMap',
+                    service: 'WMS',
+                    srs: 'EPSG:4326',
+                    version: '1.1.1',
+                    format: 'application/json;type=topojson',
+                    bbox: bounds.join(','),
+                    height: size.y,
+                    width: size.x,
+                    layers: 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP'
+                };
+                ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP/ows"
+                + L.Util.getParamString(params))
+                    .then((response) => {
+                        console.log(response.data)
+                        let points = response.data.objects[params.layers].geometries
+                        console.log(points)
+                        // let parser = new DOMParser()
+                        // let xmlDoc = parser.parseFromString(response.data, "text/xml")
+                        // console.log(xmlDoc)
+                        // let json = xmlToJson(xmlDoc)
+                        // console.log(json)
+                    }).catch((error) => {
+                    console.log(error)
                 })
             },
             listenForLayerRemove () {
