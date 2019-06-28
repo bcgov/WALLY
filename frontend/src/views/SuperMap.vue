@@ -91,6 +91,8 @@ limitations under the License.
 </template>
 
 <script>
+/* tslint:disable */
+
     import debounce from 'lodash.debounce'
     import L from 'leaflet'
     import Supercluster from 'supercluster'
@@ -388,9 +390,7 @@ limitations under the License.
 <style lang="scss">
     @import "~leaflet/dist/leaflet.css";
 
-    #map {
-        height: calc(100vh - 90px);
-    }
+
     .search-map {
 
         &.zoom-box-crosshair {

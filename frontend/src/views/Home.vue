@@ -1,18 +1,20 @@
 <template>
   <div class="home">
-    <SuperMap/>
+    <Map/>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import Map from './Map.vue'
-import SuperMap from './SuperMap.vue'
+import Map from './Map.vue';
+import Sidebar from '../components/Sidebar.vue';
+import SuperMap from './SuperMap.vue';
 
 @Component({
   components: {
     Map,
-    SuperMap
+    SuperMap,
+    Sidebar
   },
 })
 export default class Home extends Vue {
