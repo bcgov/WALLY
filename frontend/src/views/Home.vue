@@ -1,15 +1,14 @@
 <template>
   <div class="home">
-    <Sidebar/>
-    <!-- <Map/> -->
+    <Map/>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import Map from './Map.vue'
-import Sidebar from '../components/Sidebar.vue'
-import SuperMap from './SuperMap.vue'
+import Map from './Map.vue';
+import Sidebar from '../components/Sidebar.vue';
+import SuperMap from './SuperMap.vue';
 
 @Component({
   components: {
