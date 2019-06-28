@@ -343,7 +343,7 @@ limitations under the License.
 
                     this.markers = L.geoJSON(null, {
                         pointToLayer: this.createClusterIcon
-                    }).addTo(this.$refs.map.mapObject);
+                    })
 
                     this.markers.on('click', function(e) {
                         let center = e.latlng;
@@ -361,6 +361,8 @@ limitations under the License.
                                 .openOn(this.$refs.map.mapObject);
                         }
                     }, this);
+
+                    this.markers.addTo(this.$refs.map.mapObject);
 
                     this.ready = true;
                     this.updateMap();

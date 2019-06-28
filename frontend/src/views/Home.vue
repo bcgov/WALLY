@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <SuperMap/>
+    <Map/>
   </div>
 </template>
 
