@@ -267,6 +267,7 @@
             listenForAreaSelect () {
                 this.map.on('lasso.finished', (event) => {
                     this.map.fitBounds(event.latLngs)
+                    console.log(event.latLngs)
                 })
             },
             listenForLayerRemove () {
