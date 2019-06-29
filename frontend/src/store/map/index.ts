@@ -40,61 +40,6 @@ const WMS_OBS_INACTIVE = 'WMS_OBS_INACTIVE'
 const WMS_WELLS = 'WMS_WELLS'
 const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980_2010'
 
-// temporary hardcoded list of map layers
-const DEMO_MAP_LAYERS = [
-    {   
-        id: WMS_ARTESIAN,
-        name: 'Artesian wells',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_CADASTRAL,
-        name: 'Cadastral',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_ECOCAT,
-        name: 'Ecocat - Water related reports',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_GWLIC,
-        name: 'Groundwater licences',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_OBS_ACTIVE,
-        name: 'Observation wells - active',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_OBS_INACTIVE,
-        name: 'Observation wells - inactive',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_WELLS,
-        name: 'Wells - All',
-        uri: '',
-        geojson: ''
-    }
-]
-
-const DEMO_DATA_LAYERS = [
-    {
-        id: DATA_CAN_CLIMATE_NORMALS_1980_2010,
-        name: 'Canadian Climate Normals 1980-2010',
-        uri: '',
-        geojson: ''
-    }
-]
-
 // @ts-ignore
 export default {
     state: {
@@ -111,7 +56,32 @@ export default {
                 id: DATA_CAN_CLIMATE_NORMALS_1980_2010,
                 name: 'Canadian Climate Normals 1980-2010',
                 uri: '',
-                geojson: ''
+                geojson: [
+                    {
+                        id: 'cb7d1bf2-66ec-4ff0-8e95-9af7b6a1de18',
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-123.12, 49.31]
+                        },
+                        properties: {
+                            name: 'Canadian Climate Normals 1981-2010 Station Data - N VANCOUVER WHARVES',
+                            web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=833&dispBack=0',
+                        }
+                    },
+                    {
+                        id: 'cb7d1bf2-66ec-4ff0-8e95-9af7b6a1de11',
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-123.19, 49.13]
+                        },
+                        properties: {
+                            name: 'Canadian Climate Normals 1981-2010 Station Data - STEVESTON',
+                            web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=869&dispBack=0',
+                        }
+                    }
+                ]
             }
         ],
         mapLayers: [
@@ -137,7 +107,14 @@ export default {
                 id: WMS_GWLIC,
                 name: 'Groundwater licences',
                 uri: '',
-                geojson: ''
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW/ows?',
+                wms_cfg: {
+                    format: 'image/png',
+                    layers: 'pub:WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
+                    transparent: true,
+                    name: 'Groundwater licences',
+                    overlay: true
+                }
             },
             {
                 id: WMS_OBS_ACTIVE,
@@ -166,7 +143,7 @@ export default {
             [WMS_OBS_ACTIVE]: false,
             [WMS_OBS_INACTIVE]: false,
             [WMS_WELLS]: false,
-            [DATA_CAN_CLIMATE_NORMALS_1980_2010]: true
+            [DATA_CAN_CLIMATE_NORMALS_1980_2010]: false
         },
         mapLayerSelections: {
             [WMS_ARTESIAN]: [],
@@ -227,6 +204,12 @@ export default {
                     name: 'Canadian Climate Normals 1981-2010 Station Data - N VANCOUVER WHARVES',
                     web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=833&dispBack=0',
                     coordinates: [-123.12, 49.31]
+                },
+                {
+                    id: 'cb7d1bf2-66ec-4ff0-8e95-9af7b6a1de11',
+                    name: 'Canadian Climate Normals 1981-2010 Station Data - STEVESTON',
+                    web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=869&dispBack=0',
+                    coordinates: [-123.19, 49.13]
                 }
             ]
 
@@ -243,6 +226,18 @@ export default {
                         properties: {
                             name: 'Canadian Climate Normals 1981-2010 Station Data - N VANCOUVER WHARVES',
                             web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=833&dispBack=0',
+                        }
+                    },
+                    {
+                        id: 'cb7d1bf2-66ec-4ff0-8e95-9af7b6a1de11',
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [-123.19, 49.13]
+                        },
+                        properties: {
+                            name: 'Canadian Climate Normals 1981-2010 Station Data - STEVESTON',
+                            web_uri: 'http://climate.weather.gc.ca/climate_normals/results_1981_2010_e.html?searchType=stnProv&lstProvince=BC&txtCentralLatMin=0&txtCentralLatSec=0&txtCentralLongMin=0&txtCentralLongSec=0&stnID=869&dispBack=0',
                         }
                     }
                 ]

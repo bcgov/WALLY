@@ -65,7 +65,8 @@
         },
         data () {
             return {
-                activeLayers: [],
+                activeLayers: [], // deprecated for Wally POC demo
+                activeLayersV2: {}, // new activeLayers object for Wally. 
                 map: null,
                 legendControlContent: null,
                 layerControls: null,
@@ -76,7 +77,7 @@
             }
         },
         computed: {
-            ...mapGetters(['externalDataSources', 'activeMapLayers'])
+            ...mapGetters(['externalDataSources', 'activeMapLayers', 'dataLayers', 'mapLayers'])
         },
         watch: {
             aquifers: function (newAquifers, oldAquifers) {
@@ -100,6 +101,42 @@
                     this.addWellsToMap(newWells)
                 }
             },
+            activeMapLayers: {
+                handler (newLayer, old) {
+                    Object.keys(newLayer).forEach((key) => {
+                        if (newLayer[key] && !this.activeLayersV2[key]) {
+                            // a new layer was added
+
+                            const layers = this.dataLayers.concat(this.mapLayers)
+
+                            const layer = layers.find((x) => {
+                                return x.id = key
+                            })
+
+                            console.log(layer)
+
+                            // stop if layer wasn't found in the array we searched
+                            if (!layer) {
+                                return
+                            }
+
+                            // inspect the layer to determine how to load it
+                            if (layer['wms']) {
+                                this.addWMSLayer(layer['wms_url'], layer['wms_cfg'])
+                            } else if (layer['geojson']) {
+                                console.log('geojson found')
+                                this.addGeoJSONLayer(layer)
+                            }
+                        } else if (!newLayer[key] && !!this.activeLayersV2[key]) {
+                            const layer = this.dataLayers.find((x) => {
+                                return x.id = key
+                            })
+                            this.removeLayer(layer)
+                        }
+                    })
+                },
+                deep: true
+            }
         },
         methods: {
             initLeaflet () {
@@ -111,6 +148,19 @@
                     iconUrl: require('../assets/images/marker-icon.png'),
                     shadowUrl: require('../assets/images/marker-shadow.png')
                 })
+            },
+            addGeoJSONLayer (layer) {
+                this.activeLayersV2[layer.id] = L.geoJSON(layer.geojson)
+                this.activeLayersV2[layer.id].addTo(this.map)
+            },
+            addWMSLayer(layer) {
+                this.activeLayersV2[layer.id] = betterWms(layer.wms_url, layer.wms_cfg)
+                this.activeLayersV2[layer.id].addTo(this.map)
+            },
+            removeLayer (layer) {
+                this.map.removeLayer(this.activeLayersV2[layer.id])
+                delete this.activeLayersV2[layer.id]
+
             },
             initMap () {
                 this.map = L.map(this.$el, {
@@ -129,11 +179,11 @@
                 // Add map layers.
                 tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
 
-                L.geoJSON(this.externalDataSources.features, {
-                    onEachFeature: function (feature, layer) {
-                        layer.bindPopup('<h3>'+feature.properties.name+'</h3><p><a href="'+feature.properties.web_uri+'" target="_blank">Web link</a></p>');
-                    }
-                }).addTo(this.map)
+                // L.geoJSON(this.externalDataSources.features, {
+                //     onEachFeature: function (feature, layer) {
+                //         layer.bindPopup('<h3>'+feature.properties.name+'</h3><p><a href="'+feature.properties.web_uri+'" target="_blank">Web link</a></p>');
+                //     }
+                // }).addTo(this.map)
 
                 this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
 
@@ -144,13 +194,13 @@
                 this.listenForReset()
                 this.listenForAreaSelect()
 
-                ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
-                    .then((response) => {
-                        this.wells = response.data.features
-                        // this.initSuperCluster(response.data.features)
-                    }).catch((error) => {
-                    console.log(error)
-                })
+                // ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
+                //     .then((response) => {
+                //         this.wells = response.data.features
+                //         // this.initSuperCluster(response.data.features)
+                //     }).catch((error) => {
+                //     console.log(error)
+                // })
             },
             updateMapObjects () {
                 if (!this.ready) return;
