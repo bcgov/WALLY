@@ -27,7 +27,7 @@
             :key="item.title"
             v-model="item.active"
             :prepend-icon="item.action"
-            value="true"
+            :value="true"
           >
             <template v-slot:activator>
               <v-list-tile>
@@ -127,7 +127,7 @@ export default class Sidebar extends Vue {
   mini = true
 
   handleSelectLayer(layerId) {
-    this.$store.commit(SET_MAP_LAYER_STATE, { name: layerId, status: !this.activeMapLayers[layerId]})
+    this.$store.commit(SET_MAP_LAYER_STATE, { id: layerId, status: !this.activeMapLayers[layerId]})
   }
 
 }

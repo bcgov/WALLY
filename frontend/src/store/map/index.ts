@@ -13,8 +13,13 @@ import {
     SET_LOCATION_SEARCH_RESULTS,
     SET_DATA_SOURCES,
     SET_MAP_LAYER_STATE,
-    SET_MAP_OBJECT_SELECTIONS
+    SET_MAP_OBJECT_SELECTIONS,
+    ADD_LAYER,
+    REMOVE_LAYER
 } from './mutations.types'
+
+// @ts-ignore
+import EventBus from '@/services/EventBus.js'
 
 // @ts-ignore
 import ApiService from '../../services/ApiService'
@@ -87,26 +92,44 @@ export default {
         mapLayers: [
             {   
                 id: WMS_ARTESIAN,
-                name: 'Artesian wells',
-                uri: '',
-                geojson: ''
+                name: 'Artesian wells', // FIXME: artesian wells may be "covered" by the same well from the well layer.
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?',
+                wms_cfg: {
+                    format: 'image/png',
+                    layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                    styles: 'Water_Wells_Artesian',
+                    transparent: true,
+                    name: 'Artesian wells',
+                    overlay: true
+                }
             },
             {
                 id: WMS_CADASTRAL,
                 name: 'Cadastral',
-                uri: '',
-                geojson: ''
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW/ows?',
+                wms_cfg: {
+                        format: 'image/png',
+                        layers: 'pub:WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
+                        transparent: true,
+                        name: 'Cadastral',
+                        overlay: true
+                    }
             },
             {
                 id: WMS_ECOCAT,
                 name: 'Ecocat - Water related reports',
-                uri: '',
-                geojson: ''
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW/ows?',
+                wms_cfg: {
+                        format: 'image/png',
+                        layers: 'pub:WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
+                        transparent: true,
+                        name: 'Ecocat - Water related reports',
+                        overlay: true
+                    }
             },
             {
                 id: WMS_GWLIC,
                 name: 'Groundwater licences',
-                uri: '',
                 wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW/ows?',
                 wms_cfg: {
                     format: 'image/png',
@@ -119,20 +142,40 @@ export default {
             {
                 id: WMS_OBS_ACTIVE,
                 name: 'Observation wells - active',
-                uri: '',
-                geojson: ''
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?',
+                wms_cfg: {
+                        format: 'image/png',
+                        layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                        styles: 'Provincial_Groundwater_Observation_Wells_Active',
+                        transparent: true,
+                        name: 'Observation wells - active',
+                        overlay: true
+                    }
             },
             {
                 id: WMS_OBS_INACTIVE,
                 name: 'Observation wells - inactive',
-                uri: '',
-                geojson: ''
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?',
+                wms_cfg: {
+                        format: 'image/png',
+                        layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                        styles: 'Provincial_Groundwater_Observation_Wells_Inactive',
+                        transparent: true,
+                        name: 'Observation wells - inactive',
+                        overlay: true
+                    }
             },
             {
                 id: WMS_WELLS,
                 name: 'Wells - All',
-                uri: '',
-                geojson: ''
+                wms_url: 'https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?',
+                wms_cfg: {
+                        format: 'image/png',
+                        layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                        transparent: true,
+                        name: 'Wells - All',
+                        overlay: true
+                    }
             }
         ],
         activeMapLayers: {
@@ -176,8 +219,10 @@ export default {
         [SET_DATA_SOURCES] (state: { externalDataSources: any; }, payload: any) {
             state.externalDataSources = payload
         },
-        [SET_MAP_LAYER_STATE] (state: { activeMapLayers: any; }, payload: { name: string, status: boolean }) {
-            state.activeMapLayers[payload.name] = payload.status
+        [SET_MAP_LAYER_STATE] (state: { activeMapLayers: any; }, payload: { id: string, status: boolean }) {
+            state.activeMapLayers[payload.id] = payload.status
+            const action = payload.status ? 'added' : 'removed'
+            EventBus.$emit(`layer:${action}`, payload.id) // Map.vue will listen for this event to add layers
         },
         [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: any) {
             state.mapLayerSelections = payload;
@@ -267,20 +312,23 @@ export default {
         // pendingLocationSearch (state) {
         //     return state.pendingLocationSearch
         // },
-        externalDataSources (state: { externalDataSources: any; }) {
+        externalDataSources (state: { externalDataSources: any }) {
             return state.externalDataSources
         },
-        activeMapLayers (state: { activeMapLayers: any; }) {
+        activeMapLayers (state: { activeMapLayers: any }) {
             return state.activeMapLayers
         },
-        mapLayerSelections (state: { mapLayerSelections: any; }) {
+        mapLayerSelections (state: { mapLayerSelections: any }) {
             return state.mapLayerSelections
         },
-        mapLayers (state: { mapLayers: any; }) {
+        mapLayers (state: { mapLayers: any }) {
             return state.mapLayers
         },
-        dataLayers (state: { dataLayers: any; }) {
+        dataLayers (state: { dataLayers: any }) {
             return state.dataLayers
         },
+        allLayers (state: { dataLayers: any, mapLayers: any }) {
+            return [...state.dataLayers, ...state.mapLayers]
+        }
     }
 }

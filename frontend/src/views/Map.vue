@@ -23,6 +23,8 @@
     import betterWms from '../components/L.TileLayer.BetterWMS'
     import { FETCH_DATA_SOURCES } from '../store/map/actions.types'
 
+    import EventBus from '@/services/EventBus.js'
+
     const provider = new EsriProvider()
     const searchControl = new GeoSearchControl({
         provider: provider,
@@ -63,6 +65,13 @@
             })
 
             this.$store.dispatch(FETCH_DATA_SOURCES)
+
+            EventBus.$on('layer:added', this.handleAddLayer)
+            EventBus.$on('layer:removed', this.handleRemoveLayer)
+        },
+        beforeDestroy () {
+            EventBus.$off('layer:added', this.handleAddLayer)
+            EventBus.$off('layer:removed', this.handleRemoveLayer)
         },
         data () {
             return {
@@ -71,14 +80,13 @@
                 map: null,
                 legendControlContent: null,
                 layerControls: null,
-                mapLayers: null,
                 wells: [],
                 wellMarkers: null,
                 wellMarkersLayerGroup: L.layerGroup()
             }
         },
         computed: {
-            ...mapGetters(['externalDataSources', 'activeMapLayers', 'dataLayers', 'mapLayers'])
+            ...mapGetters(['externalDataSources', 'activeMapLayers', 'dataLayers', 'mapLayers', 'allLayers'])
         },
         watch: {
             aquifers: function (newAquifers, oldAquifers) {
@@ -101,42 +109,6 @@
                     })
                     this.addWellsToMap(newWells)
                 }
-            },
-            activeMapLayers: {
-                handler (newLayer, old) {
-                    Object.keys(newLayer).forEach((key) => {
-                        if (newLayer[key] && !this.activeLayersV2[key]) {
-                            // a new layer was added
-
-                            const layers = this.dataLayers.concat(this.mapLayers)
-
-                            const layer = layers.find((x) => {
-                                return x.id = key
-                            })
-
-                            console.log(layer)
-
-                            // stop if layer wasn't found in the array we searched
-                            if (!layer) {
-                                return
-                            }
-
-                            // inspect the layer to determine how to load it
-                            if (layer['wms']) {
-                                this.addWMSLayer(layer['wms_url'], layer['wms_cfg'])
-                            } else if (layer['geojson']) {
-                                console.log('geojson found')
-                                this.addGeoJSONLayer(layer)
-                            }
-                        } else if (!newLayer[key] && !!this.activeLayersV2[key]) {
-                            const layer = this.dataLayers.find((x) => {
-                                return x.id = key
-                            })
-                            this.removeLayer(layer)
-                        }
-                    })
-                },
-                deep: true
             }
         },
         methods: {
@@ -150,15 +122,53 @@
                     shadowUrl: require('../assets/images/marker-shadow.png')
                 })
             },
+            handleAddLayer (layerId) {
+                const layer = this.allLayers.find((x) => {
+                        return x.id === layerId
+                })
+
+                console.log(layer)
+
+                // stop if layer wasn't found in the array we searched
+                if (!layer) {
+                    return
+                }
+
+                // inspect the layer to determine how to load it
+                if (layer['wms_url']) {
+                    console.log('wms found')
+                    this.addWMSLayer(layer)
+                } else if (layer['geojson']) {
+                    console.log('geojson found')
+                    this.addGeoJSONLayer(layer)
+                }
+            },
+            handleRemoveLayer (layerId) {
+                const layer = this.allLayers.find((x) => {
+                        return x.id === layerId
+                })
+                this.removeLayer(layer)
+
+            },
             addGeoJSONLayer (layer) {
-                this.activeLayersV2[layer.id] = L.geoJSON(layer.geojson)
+                this.activeLayersV2[layer.id] = L.geoJSON(layer.geojson, {
+                    onEachFeature: function (feature, layer) {
+                        layer.bindPopup('<h3>'+feature.properties.name+'</h3><p><a href="'+feature.properties.web_uri+'" target="_blank">Web link</a></p>');
+                    }
+                })
                 this.activeLayersV2[layer.id].addTo(this.map)
             },
             addWMSLayer(layer) {
+                if (!layer.id || !layer.wms_url || !layer.wms_cfg) {
+                    return
+                }
                 this.activeLayersV2[layer.id] = betterWms(layer.wms_url, layer.wms_cfg)
                 this.activeLayersV2[layer.id].addTo(this.map)
             },
             removeLayer (layer) {
+                if (!this.activeLayersV2[layer.id]) {
+                    return
+                }
                 this.map.removeLayer(this.activeLayersV2[layer.id])
                 delete this.activeLayersV2[layer.id]
 
@@ -202,6 +212,11 @@
                 //     }).catch((error) => {
                 //     console.log(error)
                 // })
+                this.activeMapLayers.forEach((layerActive) => {
+                    if (layerActive) {
+                        EventBus.$emit('layer:added', layerActive)
+                    }
+                })
             },
             updateMapObjects () {
                 if (!this.ready) return;
