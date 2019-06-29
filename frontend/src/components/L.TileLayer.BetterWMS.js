@@ -1,6 +1,7 @@
 import * as L from "leaflet";
 import ApiService from "../services/ApiService";
 import {round} from "lodash";
+import {SET_SINGLE_MAP_OBJECT_SELECTION} from "../store/map/mutations.types"
 
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
@@ -60,10 +61,11 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         // if (err) { console.log(err); return; } // do nothing if there's an error
 
         // Otherwise show the content in a popup, or something.
-        L.popup({ maxWidth: 800})
-            .setLatLng(latlng)
-            .setContent(content)
-            .openOn(this._map);
+        this.$store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, content)
+        // L.popup({ maxWidth: 800})
+        //     .setLatLng(latlng)
+        //     .setContent(content)
+        //     .openOn(this._map);
     }
 });
 

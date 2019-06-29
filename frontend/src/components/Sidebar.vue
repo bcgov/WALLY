@@ -14,7 +14,7 @@
     >
       <v-tab>
         Mapping
-        
+
       </v-tab>
       <v-tab>
         Data
@@ -62,14 +62,14 @@
 
           <v-list-tile v-for="(item, i) in selectedMapObjects" :key="i">
             <v-list-tile-content class="pl-3">
-              <p class="mt-3"><a :href="item.web_uri" _target="blank">{{ item.name }}</a></p>
+              <p class="mt-3"><a :href="item.web_uri" _target="blank">{{ JSON.stringify(item)}}</a></p>
             </v-list-tile-content>
           </v-list-tile>
 
         </v-list>
       </v-tab-item>
     </v-tabs>
-    
+
   </v-navigation-drawer>
 </template>
 <script lang="ts">
@@ -86,7 +86,7 @@ export default class Sidebar extends Vue {
   // initial data
 
   get selectedMapObjects () {
-    let flat = []
+    let flat: any[] | never[] = []
     Object.keys(this.mapLayerSelections).forEach((a) => {
       flat = flat.concat(this.mapLayerSelections[a])
     })

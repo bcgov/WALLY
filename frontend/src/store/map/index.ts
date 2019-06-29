@@ -1,10 +1,14 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { Feature, Point, FeatureCollection } from 'geojson';
+import L from 'leaflet'
 
 import {
     FETCH_WELL_LOCATIONS,
-    FETCH_DATA_SOURCES
+    FETCH_DATA_SOURCES,
+    FETCH_MAP_OBJECTS,
+    CLEAR_MAP_SELECTIONS,
+    SELECT_SINGLE_MAP_OBJECT
 } from './actions.types'
 
 import {
@@ -13,7 +17,9 @@ import {
     SET_LOCATION_SEARCH_RESULTS,
     SET_DATA_SOURCES,
     SET_MAP_LAYER_STATE,
-    SET_MAP_OBJECT_SELECTIONS
+    SET_MAP_OBJECT_SELECTIONS,
+    SET_SINGLE_MAP_OBJECT_SELECTION,
+    SET_MAP_SELECTION_OBJECTS_EMPTY
 } from './mutations.types'
 
 // @ts-ignore
@@ -31,23 +37,25 @@ const cleanParams = (payload: { [s: string]: unknown; } | ArrayLike<unknown>) =>
     }, {})
 }
 
-const WMS_ARTESIAN = 'WMS_ARTESIAN'
-const WMS_CADASTRAL = 'WMS_CADASTRAL'
-const WMS_ECOCAT = 'WMS_ECOCAT'
-const WMS_GWLIC = 'WMS_GWLIC'
-const WMS_OBS_ACTIVE = 'WMS_OBS_ACTIVE'
-const WMS_OBS_INACTIVE = 'WMS_OBS_INACTIVE'
-const WMS_WELLS = 'WMS_WELLS'
+// Layer Names
+const WMS_WATER_RIGHTS_LICENSES = 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP'
+// const WMS_ARTESIAN = 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW'
+const WMS_CADASTRAL = 'WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW'
+const WMS_ECOCAT = 'WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW'
+const WMS_GWLIC = 'WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW'
+// const WMS_OBS_ACTIVE = 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW'
+// const WMS_OBS_INACTIVE = 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW'
+const WMS_WELLS = 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW'
 const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980_2010'
 
 // temporary hardcoded list of map layers
 const DEMO_MAP_LAYERS = [
-    {   
-        id: WMS_ARTESIAN,
-        name: 'Artesian wells',
-        uri: '',
-        geojson: ''
-    },
+    // {
+    //     id: WMS_ARTESIAN,
+    //     name: 'Artesian wells',
+    //     uri: '',
+    //     geojson: ''
+    // },
     {
         id: WMS_CADASTRAL,
         name: 'Cadastral',
@@ -66,18 +74,18 @@ const DEMO_MAP_LAYERS = [
         uri: '',
         geojson: ''
     },
-    {
-        id: WMS_OBS_ACTIVE,
-        name: 'Observation wells - active',
-        uri: '',
-        geojson: ''
-    },
-    {
-        id: WMS_OBS_INACTIVE,
-        name: 'Observation wells - inactive',
-        uri: '',
-        geojson: ''
-    },
+    // {
+    //     id: WMS_OBS_ACTIVE,
+    //     name: 'Observation wells - active',
+    //     uri: '',
+    //     geojson: ''
+    // },
+    // {
+    //     id: WMS_OBS_INACTIVE,
+    //     name: 'Observation wells - inactive',
+    //     uri: '',
+    //     geojson: ''
+    // },
     {
         id: WMS_WELLS,
         name: 'Wells - All',
@@ -115,12 +123,12 @@ export default {
             }
         ],
         mapLayers: [
-            {   
-                id: WMS_ARTESIAN,
-                name: 'Artesian wells',
-                uri: '',
-                geojson: ''
-            },
+            // {
+            //     id: WMS_ARTESIAN,
+            //     name: 'Artesian wells',
+            //     uri: '',
+            //     geojson: ''
+            // },
             {
                 id: WMS_CADASTRAL,
                 name: 'Cadastral',
@@ -139,18 +147,18 @@ export default {
                 uri: '',
                 geojson: ''
             },
-            {
-                id: WMS_OBS_ACTIVE,
-                name: 'Observation wells - active',
-                uri: '',
-                geojson: ''
-            },
-            {
-                id: WMS_OBS_INACTIVE,
-                name: 'Observation wells - inactive',
-                uri: '',
-                geojson: ''
-            },
+            // {
+            //     id: WMS_OBS_ACTIVE,
+            //     name: 'Observation wells - active',
+            //     uri: '',
+            //     geojson: ''
+            // },
+            // {
+            //     id: WMS_OBS_INACTIVE,
+            //     name: 'Observation wells - inactive',
+            //     uri: '',
+            //     geojson: ''
+            // },
             {
                 id: WMS_WELLS,
                 name: 'Wells - All',
@@ -159,22 +167,23 @@ export default {
             }
         ],
         activeMapLayers: {
-            [WMS_ARTESIAN]: false,
+            [WMS_WATER_RIGHTS_LICENSES]: true,
+            // [WMS_ARTESIAN]: false,
             [WMS_CADASTRAL]: false,
             [WMS_ECOCAT]: false,
             [WMS_GWLIC]: false,
-            [WMS_OBS_ACTIVE]: false,
-            [WMS_OBS_INACTIVE]: false,
+            // [WMS_OBS_ACTIVE]: false,
+            // [WMS_OBS_INACTIVE]: false,
             [WMS_WELLS]: false,
-            [DATA_CAN_CLIMATE_NORMALS_1980_2010]: true
+            [DATA_CAN_CLIMATE_NORMALS_1980_2010]: false
         },
         mapLayerSelections: {
-            [WMS_ARTESIAN]: [],
+            // [WMS_ARTESIAN]: [],
             [WMS_CADASTRAL]: [],
             [WMS_ECOCAT]: [],
             [WMS_GWLIC]: [],
-            [WMS_OBS_ACTIVE]: [],
-            [WMS_OBS_INACTIVE]: [],
+            // [WMS_OBS_ACTIVE]: [],
+            // [WMS_OBS_INACTIVE]: [],
             [WMS_WELLS]: [],
             [DATA_CAN_CLIMATE_NORMALS_1980_2010]: [
                 {
@@ -184,7 +193,8 @@ export default {
                     coordinates: [-123.12, 49.31]
                 }
             ]
-        }
+        },
+        mapLayerSingleSelection: {}
     },
     mutations: {
         [SET_SEARCH_BOUNDS] (state: { searchBounds: any; }, payload: any) {
@@ -202,11 +212,49 @@ export default {
         [SET_MAP_LAYER_STATE] (state: { activeMapLayers: any; }, payload: { name: string, status: boolean }) {
             state.activeMapLayers[payload.name] = payload.status
         },
+        [SET_SINGLE_MAP_OBJECT_SELECTION] (state: { mapLayerSingleSelection: any; }, payload: any) {
+            state.mapLayerSingleSelection = payload;
+        },
         [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: any) {
             state.mapLayerSelections = payload;
+        },
+        [SET_MAP_SELECTION_OBJECTS_EMPTY] (state: {mapLayerSelections: any}, payload: any){
+            state.mapLayerSelections = []
         }
     },
     actions: {
+        // @ts-ignore
+        [SELECT_SINGLE_MAP_OBJECT] ({commit}, content) {
+            commit(SET_SINGLE_MAP_OBJECT_SELECTION, content)
+        },
+        // @ts-ignore
+        [CLEAR_MAP_SELECTIONS] ({commit}) {
+            commit(SET_MAP_SELECTION_OBJECTS_EMPTY)
+        },
+        // @ts-ignore
+        [FETCH_MAP_OBJECTS] ({commit}, payload) {
+            let params = {
+                request: 'GetMap',
+                service: 'WMS',
+                srs: 'EPSG:4326',
+                version: '1.1.1',
+                format: 'application/json;type=topojson',
+                bbox: payload.bounds,
+                height: payload.size.y,
+                width: payload.size.x,
+                layers: payload.layer
+            };
+            ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/" + payload.layer + "/ows" + L.Util.getParamString(params))
+                .then((response: { data: { objects: { [x: string]: { geometries: any; }; }; }; }) => {
+                    console.log(response.data)
+                    let points = response.data.objects[params.layers].geometries
+                    console.log(points)
+                    commit(SET_MAP_OBJECT_SELECTIONS, {[payload.layer]: points})
+                }).catch((error: any) => {
+                    console.log(error)
+                })
+        },
+
         // @ts-ignore
         [FETCH_WELL_LOCATIONS] ({ commit }) {
             return new Promise((resolve, reject) => {

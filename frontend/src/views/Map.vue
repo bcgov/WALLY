@@ -21,7 +21,7 @@
     import ApiService from "../services/ApiService";
     import { mapGetters } from 'vuex';
     import betterWms from '../components/L.TileLayer.BetterWMS'
-    import { FETCH_DATA_SOURCES } from '../store/map/actions.types'
+import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
 
     const provider = new EsriProvider()
     const searchControl = new GeoSearchControl({
@@ -119,104 +119,104 @@
                     minZoom: 4,
                     maxZoom: 17
                 }).setView([53.8, -124.5], 9)
-                L.control.scale().addTo(this.map)
 
+                L.control.scale().addTo(this.map)
                 this.map.addControl(this.getFullScreenControl())
                 this.map.addControl(searchControl)
                 this.map.addControl(this.getAreaSelectControl())
-                this.map.addControl(this.getLegendControl())
+                // this.map.addControl(this.getLegendControl())
                 this.map.addControl(this.getLocateControl())
 
                 // Add map layers.
                 tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
 
-                L.geoJSON(this.externalDataSources.features, {
-                    onEachFeature: function (feature, layer) {
-                        layer.bindPopup('<h3>'+feature.properties.name+'</h3><p><a href="'+feature.properties.web_uri+'" target="_blank">Web link</a></p>');
-                    }
-                }).addTo(this.map)
+                // L.geoJSON(this.externalDataSources.features, {
+                //     onEachFeature: function (feature, layer) {
+                //         layer.bindPopup('<h3>'+feature.properties.name+'</h3><p><a href="'+feature.properties.web_uri+'" target="_blank">Web link</a></p>');
+                //     }
+                // }).addTo(this.map)
 
-                this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
+                // this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
 
-                this.listenForLayerToggle()
-                this.listenForLayerAdd()
-                this.listenForLayerRemove()
+                // this.listenForLayerToggle()
+                // this.listenForLayerAdd()
+                // this.listenForLayerRemove()
                 // this.listenForMapMovement()
                 this.listenForReset()
                 this.listenForAreaSelect()
 
-                ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
-                    .then((response) => {
-                        this.wells = response.data.features
-                        // this.initSuperCluster(response.data.features)
-                    }).catch((error) => {
-                    console.log(error)
-                })
+                // ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
+                //     .then((response) => {
+                //         this.wells = response.data.features
+                //         // this.initSuperCluster(response.data.features)
+                //     }).catch((error) => {
+                //     console.log(error)
+                // })
             },
-            updateMapObjects () {
-                if (!this.ready) return;
-                let bounds = this.map.getBounds();
-                let bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
-                let zoom = this.map.getZoom();
-                let clusters = this.wellSuperCluster.getClusters(bbox, zoom);
-                this.wellMarkers.clearLayers();
-                this.wellMarkers.addData(clusters);
-            },
-            addWellsToMap () {
-                if(!this.wellSuperCluster) {
-                    this.wellSuperCluster = new Supercluster({
-                        radius: 60,
-                        extent: 256,
-                        maxZoom: 18
-                    }).load(this.wells.length > 100000 ? this.wells.splice(0, 100000) : this.wells); // Expects an array of Features.
-
-                    this.wellMarkersLayerGroup = L.layerGroup()
-
-                    this.wellMarkers = L.geoJSON(null, {
-                        pointToLayer: this.createClusterIcon
-                    })
-
-                    this.wellMarkers.on('click', function(e) {
-                        let center = e.latlng;
-                        if(e.layer.feature.properties){
-                            let clusterId = e.layer.feature.properties.cluster_id;
-                            let expansionZoom;
-                            if (clusterId) {
-                                expansionZoom = this.wellSuperCluster.getClusterExpansionZoom(clusterId);
-                                this.map.flyTo(center, expansionZoom);
-                            }
-                        } else {
-                            L.popup()
-                                .setLatLng(center)
-                                .setContent('<p><br />This is a nice popup.<br /></p>')
-                                .openOn(this.map);
-                        }
-                    }, this);
-
-                    this.wellMarkers.addTo(this.wellMarkersLayerGroup)
-
-                    this.ready = true;
-                    this.updateLayers()
-                    this.updateMapObjects();
-                }
-            },
-            createClusterIcon(feature, latlng) {
-                if (feature.properties && !feature.properties.cluster) return L.marker(latlng);
-
-                var count = feature.properties ? feature.properties.point_count : 0;
-                var size =
-                    count < 100 ? 'small' :
-                        count < 1000 ? 'medium' : 'large';
-                var icon = L.divIcon({
-                    html: '<div><span>' + count + '</span></div>',
-                    className: 'marker-cluster marker-cluster-' + size,
-                    iconSize: L.point(40, 40)
-                });
-
-                return L.marker(latlng, {
-                    icon: icon
-                });
-            },
+            // updateMapObjects () {
+            //     if (!this.ready) return;
+            //     let bounds = this.map.getBounds();
+            //     let bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
+            //     let zoom = this.map.getZoom();
+            //     let clusters = this.wellSuperCluster.getClusters(bbox, zoom);
+            //     this.wellMarkers.clearLayers();
+            //     this.wellMarkers.addData(clusters);
+            // },
+            // addWellsToMap () {
+            //     if(!this.wellSuperCluster) {
+            //         this.wellSuperCluster = new Supercluster({
+            //             radius: 60,
+            //             extent: 256,
+            //             maxZoom: 18
+            //         }).load(this.wells.length > 100000 ? this.wells.splice(0, 100000) : this.wells); // Expects an array of Features.
+            //
+            //         this.wellMarkersLayerGroup = L.layerGroup()
+            //
+            //         this.wellMarkers = L.geoJSON(null, {
+            //             pointToLayer: this.createClusterIcon
+            //         })
+            //
+            //         this.wellMarkers.on('click', function(e) {
+            //             let center = e.latlng;
+            //             if(e.layer.feature.properties){
+            //                 let clusterId = e.layer.feature.properties.cluster_id;
+            //                 let expansionZoom;
+            //                 if (clusterId) {
+            //                     expansionZoom = this.wellSuperCluster.getClusterExpansionZoom(clusterId);
+            //                     this.map.flyTo(center, expansionZoom);
+            //                 }
+            //             } else {
+            //                 L.popup()
+            //                     .setLatLng(center)
+            //                     .setContent('<p><br />This is a nice popup.<br /></p>')
+            //                     .openOn(this.map);
+            //             }
+            //         }, this);
+            //
+            //         this.wellMarkers.addTo(this.wellMarkersLayerGroup)
+            //
+            //         this.ready = true;
+            //         this.updateLayers()
+            //         this.updateMapObjects();
+            //     }
+            // },
+            // createClusterIcon(feature, latlng) {
+            //     if (feature.properties && !feature.properties.cluster) return L.marker(latlng);
+            //
+            //     var count = feature.properties ? feature.properties.point_count : 0;
+            //     var size =
+            //         count < 100 ? 'small' :
+            //             count < 1000 ? 'medium' : 'large';
+            //     var icon = L.divIcon({
+            //         html: '<div><span>' + count + '</span></div>',
+            //         className: 'marker-cluster marker-cluster-' + size,
+            //         iconSize: L.point(40, 40)
+            //     });
+            //
+            //     return L.marker(latlng, {
+            //         icon: icon
+            //     });
+            // },
             updateLayers () {
                 this.map.removeControl(this.layerControls)
                 this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
@@ -284,39 +284,44 @@
 
                     let min = L.latLng(Math.min(...lats), Math.min(...lngs))
                     let max = L.latLng(Math.max(...lats), Math.max(...lngs))
-                    let bounds = [min.lng, min.lat, max.lng, max.lat]
+                    let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
 
                     console.log(bounds)
                     this.getMapObjects(bounds)
                 })
             },
             getMapObjects (bounds) {
-                let size = this.map.getSize(),
-                params = {
-                    request: 'GetMap',
-                    service: 'WMS',
-                    srs: 'EPSG:4326',
-                    version: '1.1.1',
-                    format: 'application/json;type=topojson',
-                    bbox: bounds.join(','),
-                    height: size.y,
-                    width: size.x,
-                    layers: 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP'
-                };
-                ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP/ows"
-                + L.Util.getParamString(params))
-                    .then((response) => {
-                        console.log(response.data)
-                        let points = response.data.objects[params.layers].geometries
-                        console.log(points)
-                        // let parser = new DOMParser()
-                        // let xmlDoc = parser.parseFromString(response.data, "text/xml")
-                        // console.log(xmlDoc)
-                        // let json = xmlToJson(xmlDoc)
-                        // console.log(json)
-                    }).catch((error) => {
-                    console.log(error)
-                })
+                let size = this.map.getSize()
+                for (let [key, value] of Object.entries(this.activeMapLayers)) {
+                    if(value) {
+                        this.$store.dispatch(FETCH_MAP_OBJECTS, {bounds: bounds, size: size, layer: key})
+                    }
+                }
+                // params = {
+                //     request: 'GetMap',
+                //     service: 'WMS',
+                //     srs: 'EPSG:4326',
+                //     version: '1.1.1',
+                //     format: 'application/json;type=topojson',
+                //     bbox: bounds.join(','),
+                //     height: size.y,
+                //     width: size.x,
+                //     layers: 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP'
+                // };
+                // ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP/ows"
+                // + L.Util.getParamString(params))
+                //     .then((response) => {
+                //         console.log(response.data)
+                //         let points = response.data.objects[params.layers].geometries
+                //         console.log(points)
+                //         // let parser = new DOMParser()
+                //         // let xmlDoc = parser.parseFromString(response.data, "text/xml")
+                //         // console.log(xmlDoc)
+                //         // let json = xmlToJson(xmlDoc)
+                //         // console.log(json)
+                //     }).catch((error) => {
+                //     console.log(error)
+                // })
             },
             listenForLayerRemove () {
                 this.map.on('layerremove', (e) => {
