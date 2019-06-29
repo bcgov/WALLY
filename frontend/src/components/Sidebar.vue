@@ -17,7 +17,7 @@
         
       </v-tab>
       <v-tab>
-        Data
+        Data Viewer
       </v-tab>
 
       <v-tab-item>
