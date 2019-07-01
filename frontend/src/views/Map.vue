@@ -3,7 +3,7 @@
 </template>
 
 <script>
-/* tslint:disable */
+    /* tslint:disable */
     import L from 'leaflet'
     import { tiledMapLayer } from 'esri-leaflet'
     import { filter } from 'lodash'
@@ -21,7 +21,7 @@
     import ApiService from "../services/ApiService";
     import { mapGetters } from 'vuex';
     import betterWms from '../components/L.TileLayer.BetterWMS'
-import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
+    import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
 
     const provider = new EsriProvider()
     const searchControl = new GeoSearchControl({
@@ -66,14 +66,15 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
         },
         data () {
             return {
-                activeLayers: [],
+                // activeLayers: [],
                 map: null,
                 legendControlContent: null,
                 layerControls: null,
                 mapLayers: null,
                 wells: [],
                 wellMarkers: null,
-                wellMarkersLayerGroup: L.layerGroup()
+                wellMarkersLayerGroup: L.layerGroup(),
+                activeLayerGroup: L.layerGroup()
             }
         },
         computed: {
@@ -101,6 +102,10 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
                     this.addWellsToMap(newWells)
                 }
             },
+            activeMapLayers: function(newLayers, oldLayers) { // remove and re-add the new main layergroup
+                this.map.removeLayer(this.activeLayerGroup)
+                this.activeLayerGroup = L.layerGroup(this.activeLayers()).addTo(this.map)
+            }
         },
         methods: {
             initLeaflet () {
@@ -128,7 +133,13 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
                 this.map.addControl(this.getLocateControl())
 
                 // Add map layers.
-                tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+                // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+                // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(this.map)
+                this.activeLayerGroup.addTo(this.map)
 
                 // L.geoJSON(this.externalDataSources.features, {
                 //     onEachFeature: function (feature, layer) {
@@ -142,16 +153,10 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
                 // this.listenForLayerAdd()
                 // this.listenForLayerRemove()
                 // this.listenForMapMovement()
-                this.listenForReset()
+                // this.listenForReset()
                 this.listenForAreaSelect()
 
-                // ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
-                //     .then((response) => {
-                //         this.wells = response.data.features
-                //         // this.initSuperCluster(response.data.features)
-                //     }).catch((error) => {
-                //     console.log(error)
-                // })
+
             },
             // updateMapObjects () {
             //     if (!this.ready) return;
@@ -217,10 +222,10 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
             //         icon: icon
             //     });
             // },
-            updateLayers () {
-                this.map.removeControl(this.layerControls)
-                this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
-            },
+            // updateLayers () {
+            //     this.map.removeLayer(this.activeLayerGroup)
+            //     this.activeLayerGroup = L.layerGroup(this.activeLayers()).addTo(this.map)
+            // },
             getLocateControl () {
                 const locateButton = L.control.locate({ position: 'topleft' })
                 locateButton.onClick = (ev) => {
@@ -266,17 +271,17 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
                     }
                 }))()
             },
-            listenForLayerToggle () {
-                this.$on('activeLayers', (data) => {
-                    let innerContent = `<ul class="p-0 m-0" style="list-style-type: none;">`
-                    innerContent += `<li class="m-1 text-center">Legend</li>`
-                    data.map(l => {
-                        innerContent += `<li class="m-1"><img src="${l.legend}"> ${l.layerName}</li>`
-                    })
-                    innerContent += `</ul>`
-                    this.legendControlContent.innerHTML = innerContent
-                })
-            },
+            // listenForLayerToggle () {
+            //     this.$on('activeLayers', (data) => {
+            //         let innerContent = `<ul class="p-0 m-0" style="list-style-type: none;">`
+            //         innerContent += `<li class="m-1 text-center">Legend</li>`
+            //         data.map(l => {
+            //             innerContent += `<li class="m-1"><img src="${l.legend}"> ${l.layerName}</li>`
+            //         })
+            //         innerContent += `</ul>`
+            //         this.legendControlContent.innerHTML = innerContent
+            //     })
+            // },
             listenForAreaSelect () {
                 this.map.on('lasso.finished', (event) => {
                     let lats = event.latLngs.map(l => l.lat)
@@ -292,70 +297,30 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
             },
             getMapObjects (bounds) {
                 let size = this.map.getSize()
-                for (let [key, value] of Object.entries(this.activeMapLayers)) {
-                    if(value) {
-                        this.$store.dispatch(FETCH_MAP_OBJECTS, {bounds: bounds, size: size, layer: key})
-                    }
-                }
-                // params = {
-                //     request: 'GetMap',
-                //     service: 'WMS',
-                //     srs: 'EPSG:4326',
-                //     version: '1.1.1',
-                //     format: 'application/json;type=topojson',
-                //     bbox: bounds.join(','),
-                //     height: size.y,
-                //     width: size.x,
-                //     layers: 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP'
-                // };
-                // ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP/ows"
-                // + L.Util.getParamString(params))
-                //     .then((response) => {
-                //         console.log(response.data)
-                //         let points = response.data.objects[params.layers].geometries
-                //         console.log(points)
-                //         // let parser = new DOMParser()
-                //         // let xmlDoc = parser.parseFromString(response.data, "text/xml")
-                //         // console.log(xmlDoc)
-                //         // let json = xmlToJson(xmlDoc)
-                //         // console.log(json)
-                //     }).catch((error) => {
-                //     console.log(error)
-                // })
-            },
-            listenForLayerRemove () {
-                this.map.on('layerremove', (e) => {
-                    const layerId = e.layer._leaflet_id
-                    const legend = e.layer.options.legend
-                    if (legend) {
-                        this.activeLayers = filter(this.activeLayers, o => o.layerId !== layerId)
-                        this.$emit('activeLayers', this.activeLayers)
-                    }
+                this.activeMapLayers.forEach((layer) => {
+                    this.$store.dispatch(FETCH_MAP_OBJECTS, {bounds: bounds, size: size, layer: layer.wmsLayer})
                 })
+                // for(layer of this.activeMapLayers) {
+                //     this.$store.dispatch(FETCH_MAP_OBJECTS, {bounds: bounds, size: size, layer: layer})
+                // }
+                // for (let [key, value] of Object.entries(this.activeMapLayers)) {
+                //     if(value) {
+                //         this.$store.dispatch(FETCH_MAP_OBJECTS, {bounds: bounds, size: size, layer: key})
+                //     }
+                // }
             },
-            listenForLayerAdd () {
-                this.map.on('layeradd', (e) => {
-                    const layerId = e.layer._leaflet_id
-                    const layerName = e.layer.options.name
-                    const legend = e.layer.options.legend
-                    if (legend) {
-                        this.activeLayers.push({layerId, layerName, legend})
-                        this.$emit('activeLayers', this.activeLayers)
-                    }
-                })
-            },
-            listenForReset () {
-                this.$parent.$on('resetLayers', (data) => {
-                    if (this.map) {
-                        this.map.eachLayer((layer) => {
-                            if (layer.wmsParams && layer.wmsParams.overlay) {
-                                this.map.removeLayer(layer)
-                            }
-                        })
-                        this.map.setView([54.5, -126.5], 5)
-                    }
-                })
-            },
+            // listenForReset () {
+            //     this.$parent.$on('resetLayers', (data) => {
+            //         if (this.map) {
+            //             this.map.eachLayer((layer) => {
+            //                 if (layer.wmsParams && layer.wmsParams.overlay) {
+            //                     this.map.removeLayer(layer)
+            //                 }
+            //             })
+            //             this.map.setView([54.5, -126.5], 5)
+            //         }
+            //     })
+            // },
             getFeaturesOnMap (map) {
                 const layersInBound = []
                 const bounds = map.getBounds()
@@ -443,77 +408,94 @@ import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
             //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW',
             //     transparent: true
             // }).addTo(this.map)
-            toggleLayers () {
-                return {
-                    // 'Artesian wells': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
-                    //     format: 'image/png',
-                    //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
-                    //     styles: 'Water_Wells_Artesian',
-                    //     transparent: true,
-                    //     name: 'Artesian wells',
-                    //     legend: ArtesianLegend,
-                    //     overlay: true
-                    // }),
-                    'Water Rights Licenses': betterWms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV/ows?', {
-                        format: 'image/png',
-                        layers: 'pub:WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
-                        transparent: true,
-                        name: 'Water rights licenses',
-                        legend: ArtesianLegend,
-                        overlay: true
-                    }),
-                    // 'Cadastral': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW/ows?', {
-                    //     format: 'image/png',
-                    //     layers: 'pub:WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
-                    //     transparent: true,
-                    //     name: 'Cadastral',
-                    //     legend: CadastralLegend,
-                    //     overlay: true
-                    // }),
-                    // 'Ecocat - Water related reports': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW/ows?', {
-                    //     format: 'image/png',
-                    //     layers: 'pub:WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
-                    //     transparent: true,
-                    //     name: 'Ecocat - Water related reports',
-                    //     legend: EcocatWaterLegend,
-                    //     overlay: true
-                    // }),
-                    'Groundwater licences': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW/ows?', {
-                        format: 'image/png',
-                        layers: 'pub:WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
-                        transparent: true,
-                        name: 'Groundwater licences',
-                        legend: GWaterLicenceLegend,
-                        overlay: true
-                    }),
-                    // 'Observation wells - active': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
-                    //     format: 'image/png',
-                    //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
-                    //     styles: 'Provincial_Groundwater_Observation_Wells_Active',
-                    //     transparent: true,
-                    //     name: 'Observation wells - active',
-                    //     legend: OWellsActiveLegend,
-                    //     overlay: true
-                    // }),
-                    // 'Observation wells - inactive': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
-                    //     format: 'image/png',
-                    //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
-                    //     styles: 'Provincial_Groundwater_Observation_Wells_Inactive',
-                    //     transparent: true,
-                    //     name: 'Observation wells - inactive',
-                    //     legend: OWellsInactiveLegend,
-                    //     overlay: true
-                    // }),
-                    // 'Wells - All': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
-                    //     format: 'image/png',
-                    //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
-                    //     transparent: true,
-                    //     name: 'Wells - All',
-                    //     legend: WellsAllLegend,
-                    //     overlay: true
-                    // }),
-                    'Wells - All': this.wellMarkersLayerGroup
-                }
+
+            activeLayers () {
+                let layers = []
+                this.activeMapLayers.forEach((layer) => {
+                    layers.push(
+                        betterWms("https://openmaps.gov.bc.ca/geo/pub/" + layer.wmsLayer + "/ows?",
+                            {
+                                format: 'image/png',
+                                layers: 'pub:' + layer.wmsLayer,
+                                styles: layer.wmsStyle,
+                                transparent: true,
+                                name: layer.name,
+                                overlay: true
+                            })
+                    )
+                })
+                return layers
+
+                // return {
+                // 'Artesian wells': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                //     styles: 'Water_Wells_Artesian',
+                //     transparent: true,
+                //     name: 'Artesian wells',
+                //     legend: ArtesianLegend,
+                //     overlay: true
+                // }),
+                // 'Water Rights Licenses': betterWms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
+                //     transparent: true,
+                //     name: 'Water rights licenses',
+                //     legend: ArtesianLegend,
+                //     overlay: true
+                // }),
+                // 'Cadastral': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
+                //     transparent: true,
+                //     name: 'Cadastral',
+                //     legend: CadastralLegend,
+                //     overlay: true
+                // }),
+                // 'Ecocat - Water related reports': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
+                //     transparent: true,
+                //     name: 'Ecocat - Water related reports',
+                //     legend: EcocatWaterLegend,
+                //     overlay: true
+                // }),
+                // 'Groundwater licences': betterWms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
+                //     transparent: true,
+                //     name: 'Groundwater licences',
+                //     legend: GWaterLicenceLegend,
+                //     overlay: true
+                // }),
+                // 'Observation wells - active': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                //     styles: 'Provincial_Groundwater_Observation_Wells_Active',
+                //     transparent: true,
+                //     name: 'Observation wells - active',
+                //     legend: OWellsActiveLegend,
+                //     overlay: true
+                // }),
+                // 'Observation wells - inactive': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                //     styles: 'Provincial_Groundwater_Observation_Wells_Inactive',
+                //     transparent: true,
+                //     name: 'Observation wells - inactive',
+                //     legend: OWellsInactiveLegend,
+                //     overlay: true
+                // }),
+                // 'Wells - All': L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW/ows?', {
+                //     format: 'image/png',
+                //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+                //     transparent: true,
+                //     name: 'Wells - All',
+                //     legend: WellsAllLegend,
+                //     overlay: true
+                // }),
+                // 'Wells - All': this.wellMarkersLayerGroup
+                // }
             }
         }
     }

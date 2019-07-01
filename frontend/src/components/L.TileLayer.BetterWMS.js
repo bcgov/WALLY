@@ -2,6 +2,7 @@ import * as L from "leaflet";
 import ApiService from "../services/ApiService";
 import {round} from "lodash";
 import {SET_SINGLE_MAP_OBJECT_SELECTION} from "../store/map/mutations.types"
+import store from "../store"
 
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
@@ -60,8 +61,10 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     showGetFeatureInfo: function (latlng, content) {
         // if (err) { console.log(err); return; } // do nothing if there's an error
 
+        // this._map.removeLayer(this.point)
         // Otherwise show the content in a popup, or something.
-        this.$store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, content)
+        store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, content)
+        // this.point = L.point(40,40).setLatLng(latlng).addTo(this._map)
         // L.popup({ maxWidth: 800})
         //     .setLatLng(latlng)
         //     .setContent(content)
