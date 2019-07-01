@@ -56,18 +56,20 @@
             </v-list-tile-content>
           </v-list-tile>
 
-          <ul v-for="(value, propertyName) in mapLayerSelections">
-            <div><b>{{propertyName}}</b></div>
-            <br/>
-            <li v-for="(prop, propName) in value">
-              <div v-for="(p, v) in prop.properties">
-                <div v-if="v.includes('NAME')">
-                  <b>{{v}}:</b> {{p}}
-                </div>
-              </div>
+          <ul v-for="layerGroup in mapLayerSelections">
+            <div v-for="(value, propertyName) in layerGroup">
+              <div><b>{{propertyName}}</b></div>
               <br/>
-              <v-divider style="margin-bottom: 15px;"></v-divider>
-            </li>
+              <li v-for="(prop, propName) in value">
+                <div v-for="(p, v) in prop.properties">
+                  <div v-if="v.includes('NAME')">
+                    <b>{{v}}:</b> {{p}}
+                  </div>
+                </div>
+                <br/>
+                <v-divider style="margin-bottom: 15px;"></v-divider>
+              </li>
+            </div>
           </ul>
 
 <!--          <v-list-tile-->
@@ -83,7 +85,7 @@
       </v-tab-item>
 
       <v-tab-item>
-        <span v-html="mapLayerSingleSelectionContent"></span>
+        <span v-html="mapLayerSingleSelectionContent.content"></span>
       </v-tab-item>
     </v-tabs>
 
@@ -104,13 +106,13 @@
   export default class Sidebar extends Vue {
     // initial data
 
-    get selectedMapObjects () {
-      let flat: any[] | never[] = []
-      Object.keys(this.mapLayerSelections).forEach((a) => {
-        flat = flat.concat(this.mapLayerSelections[a])
-      })
-      return flat
-    }
+    // get selectedMapObjects () {
+    //   let flat: any[] | never[] = []
+    //   Object.keys(this.mapLayerSelections).forEach((a) => {
+    //     flat = flat.concat(this.mapLayerSelections[a])
+    //   })
+    //   return flat
+    // }
 
     get mapLayerSingleSelectionContent () {
       return this.$store.getters.mapLayerSingleSelection

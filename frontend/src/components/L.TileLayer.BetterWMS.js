@@ -61,10 +61,12 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     showGetFeatureInfo: function (latlng, content) {
         // if (err) { console.log(err); return; } // do nothing if there's an error
 
+        if(content.includes(this.wmsParams.layers.replace("pub:", ""))) { //Dirty hack to check errors, getFeature should get json
+            store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, { point: latlng, content: content })
+        }
         // this._map.removeLayer(this.point)
         // Otherwise show the content in a popup, or something.
-        store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, content)
-        // this.point = L.point(40,40).setLatLng(latlng).addTo(this._map)
+        // this.point = new L.Marker(latlng).addTo(this._map)
         // L.popup({ maxWidth: 800})
         //     .setLatLng(latlng)
         //     .setContent(content)

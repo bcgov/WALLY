@@ -21,7 +21,8 @@ import {
     SET_MAP_LAYER_STATE,
     SET_MAP_OBJECT_SELECTIONS,
     SET_SINGLE_MAP_OBJECT_SELECTION,
-    SET_MAP_SELECTION_OBJECTS_EMPTY
+    SET_MAP_SELECTION_OBJECTS_EMPTY,
+    SET_SINGLE_MAP_SELECTION_OBJECTS_EMPTY
 } from './mutations.types'
 
 // @ts-ignore
@@ -172,28 +173,14 @@ export default {
         [SET_DATA_SOURCES] (state: { externalDataSources: any; }, payload: any) {
             state.externalDataSources = payload
         },
-        // [SET_MAP_LAYER_STATE] (state: { activeMapLayers: any }, payload: { layerId: string }) {
-        //     if(mapLayerIsActive(layerId)) {
-        //         state.activeMapLayers = state.activeMapLayers.filter(function(obj) {
-        //             return obj.id !== layerId;
-        //         })
-        //     } else {
-        //         state.activeMapLayers.push(
-        //             MAP_LAYERS.filter(function(obj) {
-        //                 return obj.id == layerId;
-        //             })
-        //         )
-        //     }
-        //     state.activeMapLayers[payload.name] = payload.status
-        // },
         [SET_SINGLE_MAP_OBJECT_SELECTION] (state: { mapLayerSingleSelection: any; }, payload: any) {
             state.mapLayerSingleSelection = payload;
         },
-        [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: any) {
-            state.mapLayerSelections = payload;
+        [SET_SINGLE_MAP_SELECTION_OBJECTS_EMPTY] (state: {mapLayerSingleSelection: any}, payload: any){
+            state.mapLayerSingleSelection = {}
         },
-        [SET_MAP_SELECTION_OBJECTS_EMPTY] (state: {mapLayerSelections: any}, payload: any){
-            state.mapLayerSelections = []
+        [SET_MAP_OBJECT_SELECTIONS] (state: { mapLayerSelections: any; }, payload: any) {
+            state.mapLayerSelections.push(payload);
         },
         [SET_MAP_SELECTION_OBJECTS_EMPTY] (state: {mapLayerSelections: any}, payload: any){
             state.mapLayerSelections = []
@@ -214,8 +201,8 @@ export default {
     },
     actions: {
         // @ts-ignore
-        [SELECT_SINGLE_MAP_OBJECT] ({commit}, content) {
-            commit(SET_SINGLE_MAP_OBJECT_SELECTION, content)
+        [SELECT_SINGLE_MAP_OBJECT] ({commit}, payload) {
+            commit(SET_SINGLE_MAP_OBJECT_SELECTION, payload)
         },
         // @ts-ignore
         [CLEAR_MAP_SELECTIONS] ({commit}) {
@@ -234,6 +221,7 @@ export default {
                 width: payload.size.x,
                 layers: payload.layer
             };
+            commit(SET_SINGLE_MAP_SELECTION_OBJECTS_EMPTY)
             ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/" + payload.layer + "/ows" + L.Util.getParamString(params))
                 .then((response: { data: { objects: { [x: string]: { geometries: any; }; }; }; }) => {
                     console.log(response.data)

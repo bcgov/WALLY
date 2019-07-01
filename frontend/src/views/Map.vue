@@ -19,9 +19,10 @@
     import WellsAllLegend from '../assets/images/wells-all.png'
     import Supercluster from 'supercluster'
     import ApiService from "../services/ApiService";
+
     import { mapGetters } from 'vuex';
     import betterWms from '../components/L.TileLayer.BetterWMS'
-    import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS} from '../store/map/actions.types'
+    import {FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS, CLEAR_MAP_SELECTIONS} from '../store/map/actions.types'
 
     const provider = new EsriProvider()
     const searchControl = new GeoSearchControl({
@@ -52,8 +53,7 @@
     }
 
     export default {
-        name: 'AquiferMap',
-        props: ['aquifers', 'searchAddress'],
+        name: 'WallyMap',
         mounted () {
             // There seems to be an issue loading leaflet immediately on mount, we use nextTick to ensure
             // that the view has been rendered at least once before injecting the map.
@@ -66,7 +66,6 @@
         },
         data () {
             return {
-                // activeLayers: [],
                 map: null,
                 legendControlContent: null,
                 layerControls: null,
@@ -74,24 +73,18 @@
                 wells: [],
                 wellMarkers: null,
                 wellMarkersLayerGroup: L.layerGroup(),
-                activeLayerGroup: L.layerGroup()
+                activeLayerGroup: L.layerGroup(),
+                markerLayerGroup: L.layerGroup()
             }
         },
         computed: {
-            ...mapGetters(['externalDataSources', 'activeMapLayers'])
+            ...mapGetters([
+                'externalDataSources',
+                'activeMapLayers',
+                'mapLayerSelections',
+                'mapLayerSingleSelection'])
         },
         watch: {
-            aquifers: function (newAquifers, oldAquifers) {
-                if (this.map) {
-                    this.map.eachLayer((layer) => {
-                        if (layer.options.type === 'geojsonfeature') {
-                            this.map.removeLayer(layer)
-                        }
-                    })
-                    this.map.removeLayer(L.geoJSON)
-                    this.addAquifersToMap(newAquifers)
-                }
-            },
             wells: function (newWells, oldWells) {
                 if (this.map) {
                     this.map.eachLayer((layer) => {
@@ -104,7 +97,29 @@
             },
             activeMapLayers: function(newLayers, oldLayers) { // remove and re-add the new main layergroup
                 this.map.removeLayer(this.activeLayerGroup)
-                this.activeLayerGroup = L.layerGroup(this.activeLayers()).addTo(this.map)
+                this.activeLayerGroup = L.layerGroup(this.buildActiveLayers()).addTo(this.map)
+            },
+            mapLayerSingleSelection: function (newSelection, oldSelection) {
+                // this.map.removeLayer(this.markerLayerGroup)
+                // this.markerLayerGroup = L.layerGroup()
+                // L.marker(newSelection.point).addTo(this.markerLayerGroup).addTo(this.map)
+                let p = newSelection.point
+                if(p) {
+                    L.popup()
+                        .setLatLng(p)
+                        .setContent(p.toString())
+                        .openOn(this.map);
+                }
+            },
+            mapLayerSelections: function (newSelections, oldSelections) {
+                if(typeof (this.mapLayerSelections) == 'Array') {
+                    this.mapLayerSelections.forEach((selection) => {
+                        selection.forEach((point) => {
+                            L.marker(L.latlng(point.coordinates)).addTo(this.markerLayerGroup)
+                        })
+                    })
+                    this.markerLayerGroup.addTo(this.map)
+                }
             }
         },
         methods: {
@@ -127,19 +142,21 @@
 
                 L.control.scale().addTo(this.map)
                 this.map.addControl(this.getFullScreenControl())
-                this.map.addControl(searchControl)
+                // this.map.addControl(searchControl)
                 this.map.addControl(this.getAreaSelectControl())
                 // this.map.addControl(this.getLegendControl())
                 this.map.addControl(this.getLocateControl())
 
                 // Add map layers.
                 // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
-                // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                }).addTo(this.map)
+                tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+                // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                //     maxZoom: 19,
+                //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                // }).addTo(this.map)
                 this.activeLayerGroup.addTo(this.map)
+                this.markerLayerGroup.addTo(this.map)
+
 
                 // L.geoJSON(this.externalDataSources.features, {
                 //     onEachFeature: function (feature, layer) {
@@ -158,79 +175,10 @@
 
 
             },
-            // updateMapObjects () {
-            //     if (!this.ready) return;
-            //     let bounds = this.map.getBounds();
-            //     let bbox = [bounds.getWest(), bounds.getSouth(), bounds.getEast(), bounds.getNorth()];
-            //     let zoom = this.map.getZoom();
-            //     let clusters = this.wellSuperCluster.getClusters(bbox, zoom);
-            //     this.wellMarkers.clearLayers();
-            //     this.wellMarkers.addData(clusters);
-            // },
-            // addWellsToMap () {
-            //     if(!this.wellSuperCluster) {
-            //         this.wellSuperCluster = new Supercluster({
-            //             radius: 60,
-            //             extent: 256,
-            //             maxZoom: 18
-            //         }).load(this.wells.length > 100000 ? this.wells.splice(0, 100000) : this.wells); // Expects an array of Features.
-            //
-            //         this.wellMarkersLayerGroup = L.layerGroup()
-            //
-            //         this.wellMarkers = L.geoJSON(null, {
-            //             pointToLayer: this.createClusterIcon
-            //         })
-            //
-            //         this.wellMarkers.on('click', function(e) {
-            //             let center = e.latlng;
-            //             if(e.layer.feature.properties){
-            //                 let clusterId = e.layer.feature.properties.cluster_id;
-            //                 let expansionZoom;
-            //                 if (clusterId) {
-            //                     expansionZoom = this.wellSuperCluster.getClusterExpansionZoom(clusterId);
-            //                     this.map.flyTo(center, expansionZoom);
-            //                 }
-            //             } else {
-            //                 L.popup()
-            //                     .setLatLng(center)
-            //                     .setContent('<p><br />This is a nice popup.<br /></p>')
-            //                     .openOn(this.map);
-            //             }
-            //         }, this);
-            //
-            //         this.wellMarkers.addTo(this.wellMarkersLayerGroup)
-            //
-            //         this.ready = true;
-            //         this.updateLayers()
-            //         this.updateMapObjects();
-            //     }
-            // },
-            // createClusterIcon(feature, latlng) {
-            //     if (feature.properties && !feature.properties.cluster) return L.marker(latlng);
-            //
-            //     var count = feature.properties ? feature.properties.point_count : 0;
-            //     var size =
-            //         count < 100 ? 'small' :
-            //             count < 1000 ? 'medium' : 'large';
-            //     var icon = L.divIcon({
-            //         html: '<div><span>' + count + '</span></div>',
-            //         className: 'marker-cluster marker-cluster-' + size,
-            //         iconSize: L.point(40, 40)
-            //     });
-            //
-            //     return L.marker(latlng, {
-            //         icon: icon
-            //     });
-            // },
-            // updateLayers () {
-            //     this.map.removeLayer(this.activeLayerGroup)
-            //     this.activeLayerGroup = L.layerGroup(this.activeLayers()).addTo(this.map)
-            // },
             getLocateControl () {
                 const locateButton = L.control.locate({ position: 'topleft' })
                 locateButton.onClick = (ev) => {
                     this.map.locate({setView: true, maxZoom: 12})
-                    this.$parent.fetchResults()
                 }
                 return locateButton
             },
@@ -247,7 +195,7 @@
                     },
                     onAdd: function (map) {
                         var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
-                        container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single"><span class="fa fa-hand-paper-o"></span></a>'
+                        container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
                         container.onclick = function (map) {
                             lasso.enable()
                         }
@@ -297,6 +245,8 @@
             },
             getMapObjects (bounds) {
                 let size = this.map.getSize()
+
+                this.$store.dispatch(CLEAR_MAP_SELECTIONS)
                 this.activeMapLayers.forEach((layer) => {
                     this.$store.dispatch(FETCH_MAP_OBJECTS, {bounds: bounds, size: size, layer: layer.wmsLayer})
                 })
@@ -409,7 +359,7 @@
             //     transparent: true
             // }).addTo(this.map)
 
-            activeLayers () {
+            buildActiveLayers () {
                 let layers = []
                 this.activeMapLayers.forEach((layer) => {
                     layers.push(
@@ -550,6 +500,9 @@
     }
     .geolocate:hover {
         opacity: 0.8;
+    }
+    .select-box-icon {
+        background-image: url('../assets/images/select-zoom.png');
     }
 
     .leaflet-popup-link .popup-link {
