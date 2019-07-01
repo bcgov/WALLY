@@ -43,9 +43,12 @@ const cleanParams = (payload: { [s: string]: unknown; } | ArrayLike<unknown>) =>
 const WMS_WATER_RIGHTS_LICENSES = 'WATER_RIGHTS_LICENSES'
 const WMS_GROUND_WATER_LICENSES = 'GROUND_WATER_LICENSES'
 const WMS_ARTESIAN = 'ARTESIAN'
+const WMS_SNOW_STATIONS = 'WMS_SNOW_STATIONS'
 const WMS_CADASTRAL = 'CADASTRAL'
+const WMS_FRESH_WATER_STREAM = 'WMS_FRESH_WATER_STREAM'
 const WMS_ECOCAT = 'ECOCAT'
 const WMS_GWLIC = 'GWLIC'
+const WMS_WILD_FIRE_WEATHER_STATIONS = 'WMS_WILD_FIRE_WEATHER_STATIONS'
 const WMS_OBS_ACTIVE = 'OBS_ACTIVE'
 const WMS_OBS_INACTIVE = 'OBS_INACTIVE'
 const WMS_WELLS = 'WELLS'
@@ -67,16 +70,34 @@ export const MAP_LAYERS = [
         wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
         wmsStyle: '',
     },
+    // {
+    //     id: WMS_ARTESIAN,
+    //         name: 'Artesian Wells',
+    //     wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+    //     wmsStyle: 'Water_Wells_Artesian',
+    // },
+    // {
+    //     id: WMS_CADASTRAL,
+    //         name: 'Cadastral',
+    //     wmsLayer: 'WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
+    //     wmsStyle: '',
+    // },
     {
-        id: WMS_ARTESIAN,
-            name: 'Artesian Wells',
-        wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
-        wmsStyle: 'Water_Wells_Artesian',
+        id: WMS_SNOW_STATIONS,
+        name: 'Automated Snow Weather Station Locations',
+        wmsLayer: 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP',
+        wmsStyle: '',
     },
     {
-        id: WMS_CADASTRAL,
-            name: 'Cadastral',
-        wmsLayer: 'WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
+        id: WMS_FRESH_WATER_STREAM,
+        name: 'Freshwater Atlas Stream Directions',
+        wmsLayer: 'WHSE_BASEMAPPING.FWA_STREAM_DIRECTIONS_SP',
+        wmsStyle: '',
+    },
+    {
+        id: WMS_WILD_FIRE_WEATHER_STATIONS,
+        name: 'BC Wildfire Active Weather Stations',
+        wmsLayer: 'WHSE_LAND_AND_NATURAL_RESOURCE.PROT_WEATHER_STATIONS_SP',
         wmsStyle: '',
     },
     {
@@ -91,15 +112,10 @@ export const MAP_LAYERS = [
         wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
         wmsStyle: '',
     },
-    {
-        id: WMS_WELLS,
-            name: 'Wells - All',
-        wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
-        wmsStyle: '',
-    },
-    // [WMS_ECOCAT]: {
-    //     name: 'Ecocat - Water related reports',
-    //     wmsLayer: 'WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
+    // {
+    //     id: WMS_WELLS,
+    //         name: 'Wells - All',
+    //     wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
     //     wmsStyle: '',
     // },
 ]

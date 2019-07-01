@@ -56,16 +56,19 @@
             </v-list-tile-content>
           </v-list-tile>
 
-<!--          <ul v-for="(value, propertyName) in mapLayerSelections">-->
-<!--            <div><b>{{propertyName}}</b></div>-->
-<!--            <br/>-->
-<!--            <li v-for="(prop, propName) in value">-->
-<!--              <div v-for="(p, v) in prop.properties">-->
-<!--                <b>{{v}}:</b> {{p}}-->
-<!--              </div>-->
-<!--              <br/>-->
-<!--            </li>-->
-<!--          </ul>-->
+          <ul v-for="(value, propertyName) in mapLayerSelections">
+            <div><b>{{propertyName}}</b></div>
+            <br/>
+            <li v-for="(prop, propName) in value">
+              <div v-for="(p, v) in prop.properties">
+                <div v-if="v.includes('NAME')">
+                  <b>{{v}}:</b> {{p}}
+                </div>
+              </div>
+              <br/>
+              <v-divider style="margin-bottom: 15px;"></v-divider>
+            </li>
+          </ul>
 
 <!--          <v-list-tile-->
 <!--                  v-for="(item, i) in selectedMapObjects"-->
