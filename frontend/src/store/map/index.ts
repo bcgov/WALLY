@@ -14,9 +14,6 @@ import {
 } from './actions.types'
 
 import {
-    SET_SEARCH_BOUNDS,
-    SET_SEARCH_PARAMS,
-    SET_LOCATION_SEARCH_RESULTS,
     SET_DATA_SOURCES,
     SET_MAP_LAYER_STATE,
     SET_MAP_OBJECT_SELECTIONS,
@@ -28,6 +25,8 @@ import {
 // @ts-ignore
 import ApiService from '../../services/ApiService'
 import { IDataSource } from '@/interfaces';
+// @ts-ignore
+import EventBus from '@/services/EventBus.js'
 
 const cleanParams = (payload: { [s: string]: unknown; } | ArrayLike<unknown>) => {
     // Clear any null or empty string values, to keep URLs clean.
@@ -161,15 +160,6 @@ export default {
         mapLayerSingleSelection: {}
     },
     mutations: {
-        [SET_SEARCH_BOUNDS] (state: { searchBounds: any; }, payload: any) {
-            state.searchBounds = payload
-        },
-        [SET_SEARCH_PARAMS] (state: { searchParams: {}; }, payload: ArrayLike<unknown> | { [s: string]: unknown; }) {
-            state.searchParams = cleanParams(payload)
-        },
-        [SET_LOCATION_SEARCH_RESULTS] (state: { locationSearchResults: any; }, payload: any) {
-            state.locationSearchResults = payload
-        },
         [SET_DATA_SOURCES] (state: { externalDataSources: any; }, payload: any) {
             state.externalDataSources = payload
         },
@@ -191,11 +181,13 @@ export default {
                     return obj.id == layerId;
                 })
             )
+            EventBus.$emit(`layer:added`, layerId)
         },
         [REMOVE_ACTIVE_MAP_LAYER] (state: {activeMapLayers: any}, layerId: any){
             state.activeMapLayers = state.activeMapLayers.filter(function(obj: any) {
                 return obj.id !== layerId;
             })
+            EventBus.$emit(`layer:removed`, layerId)
         },
 
     },
@@ -234,16 +226,16 @@ export default {
         },
 
         // @ts-ignore
-        [FETCH_WELL_LOCATIONS] ({ commit }) {
-            return new Promise((resolve, reject) => {
-                ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
-                    .then((response: { data: any; }) => {
-                        commit(SET_LOCATION_SEARCH_RESULTS, response.data)
-                    }).catch((error: any) => {
-                    reject(error)
-                })
-            })
-        },
+        // [FETCH_WELL_LOCATIONS] ({ commit }) {
+        //     return new Promise((resolve, reject) => {
+        //         ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
+        //             .then((response: { data: any; }) => {
+        //                 commit(SET_LOCATION_SEARCH_RESULTS, response.data)
+        //             }).catch((error: any) => {
+        //             reject(error)
+        //         })
+        //     })
+        // },
         // @ts-ignore
         [FETCH_DATA_SOURCES] ({ commit }) {
 

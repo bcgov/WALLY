@@ -109,14 +109,8 @@ limitations under the License.
     } from 'vue2-leaflet'
     import { mapGetters } from 'vuex'
     import { SEARCH_LOCATIONS, SEARCH_WELLS } from '../store/map/actions.types.ts'
-    import {
-        SET_SEARCH_BOUNDS,
-        SET_SEARCH_PARAMS,
-        SET_SEARCH_RESULT_FILTERS
-    } from '../store/map/mutations.types.ts'
     import { MAP_TRIGGER } from '../store/map/triggers.types.ts'
     import ApiService from "../services/ApiService";
-    import {SET_LOCATION_SEARCH_RESULTS} from "../store/map/mutations.types";
     import {FETCH_WELL_LOCATIONS} from "../store/map/actions.types";
 
     // There is a known issue using leaflet with webpack, this is a workaround
@@ -228,7 +222,6 @@ limitations under the License.
             },
             boundsUpdated (bounds) {
                 this.bounds = bounds
-                this.$store.commit(SET_SEARCH_BOUNDS, this.searchBoundBox)
             },
             mapMoved: debounce(function () {
                 if (this.zoomToMarkersActive) {
@@ -244,12 +237,6 @@ limitations under the License.
             triggerSearch () {
                 this.$store.dispatch(SEARCH_LOCATIONS)
                 this.$store.dispatch(SEARCH_WELLS, { trigger: MAP_TRIGGER, constrain: false })
-            },
-            clearSearch () {
-                this.$store.commit(SET_SEARCH_PARAMS, {})
-                this.$store.commit(SET_SEARCH_RESULT_FILTERS, {})
-
-                this.triggerSearch()
             },
             geolocate () {
                 this.$refs.map.mapObject.locate()
@@ -376,12 +363,12 @@ limitations under the License.
                 this.initEsriLayer()
                 this.initZoomBox()
                 // this.searchWellLocations()
-                ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
-                    .then((response) => {
-                        this.initSuperCluster(response.data.features)
-                    }).catch((error) => {
-                        console.log(error)
-                })
+                // ApiService.getRaw("https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/locations")
+                //     .then((response) => {
+                //         this.initSuperCluster(response.data.features)
+                //     }).catch((error) => {
+                //         console.log(error)
+                // })
             })
         },
         beforeDestroy () {
