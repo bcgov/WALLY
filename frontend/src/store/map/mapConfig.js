@@ -1,0 +1,71 @@
+// Layer Names
+export const WMS_WATER_RIGHTS_LICENSES = 'WATER_RIGHTS_LICENSES'
+export const WMS_GROUND_WATER_LICENSES = 'GROUND_WATER_LICENSES'
+export const WMS_ARTESIAN = 'ARTESIAN'
+export const WMS_SNOW_STATIONS = 'WMS_SNOW_STATIONS'
+export const WMS_CADASTRAL = 'CADASTRAL'
+export const WMS_FRESH_WATER_STREAM = 'WMS_FRESH_WATER_STREAM'
+export const WMS_ECOCAT = 'ECOCAT'
+export const WMS_GWLIC = 'GWLIC'
+export const WMS_WILD_FIRE_WEATHER_STATIONS = 'WMS_WILD_FIRE_WEATHER_STATIONS'
+export const WMS_OBS_ACTIVE = 'OBS_ACTIVE'
+export const WMS_OBS_INACTIVE = 'OBS_INACTIVE'
+export const WMS_WELLS = 'WELLS'
+export const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980_2010'
+
+// Layer Configs
+export const MAP_LAYERS = [
+  {
+    id: WMS_WATER_RIGHTS_LICENSES,
+    name: 'Water Rights Licenses',
+    wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_ARTESIAN,
+    name: 'Artesian Wells',
+    wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
+    wmsStyle: 'Water_Wells_Artesian'
+  },
+  {
+    id: WMS_CADASTRAL,
+    name: 'Cadastral',
+    wmsLayer: 'WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_SNOW_STATIONS,
+    name: 'Automated Snow Weather Station Locations',
+    wmsLayer: 'WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_FRESH_WATER_STREAM,
+    name: 'Freshwater Atlas Stream Directions',
+    wmsLayer: 'WHSE_BASEMAPPING.FWA_STREAM_DIRECTIONS_SP',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_WILD_FIRE_WEATHER_STATIONS,
+    name: 'BC Wildfire Active Weather Stations',
+    wmsLayer: 'WHSE_LAND_AND_NATURAL_RESOURCE.PROT_WEATHER_STATIONS_SP',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_ECOCAT,
+    name: 'Ecocat - Water related reports',
+    wmsLayer: 'WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_GROUND_WATER_LICENSES,
+    name: 'Ground Water Licenses',
+    wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
+    wmsStyle: ''
+  }
+]
+
+export const PROPERTY_FEATURE_NAMES =
+{
+  'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV': 'WLS_WRL_SYSID'
+}

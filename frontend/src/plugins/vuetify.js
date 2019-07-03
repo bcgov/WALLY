@@ -14,5 +14,5 @@ Vue.use(Vuetify, {
     accent: '#FCBA19',
     error: '#D8292F',
     success: '#2E8540'
-  },
-});
+  }
+})
