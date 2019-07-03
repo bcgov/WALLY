@@ -309,7 +309,7 @@ export default {
           this.updateMapObjects(map)
         })
       })
-    },
+    }
     // addAquifersToMap (aquifers) {
     //   const self = this
     //   function popUpLinkHandler (e) {
