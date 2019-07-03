@@ -50,20 +50,20 @@ RUN yum list epel\* && \
 # so let's move them.
 
 RUN diff --brief -r \
-    /opt/rh/rh-postgresql10/root/usr/share/pgsql/extension /usr/pgsql10/share/extension | \
-    grep '/usr/pgsql10/share/extension' | \
+    /opt/rh/rh-postgresql10/root/usr/share/pgsql/extension /usr/pgsql-10/share/extension | \
+    grep '/usr/pgsql-10/share/extension' | \
     tr ':' '/' |  \
     awk '{ print $3 $4 }' | \
     xargs cp -vt /opt/rh/rh-postgresql10/root/usr/share/pgsql/extension && \
-    cp -a /usr/pgsql10/share/contrib/* /opt/rh/rh-postgresql10/root/usr/share/pgsql/contrib/ && \
-    diff --brief /usr/pgsql10/lib /opt/rh/rh-postgresql10/root/usr/lib64/pgsql | \
+    cp -a /usr/pgsql-10/share/contrib/* /opt/rh/rh-postgresql10/root/usr/share/pgsql/contrib/ && \
+    diff --brief /usr/pgsql-10/lib /opt/rh/rh-postgresql10/root/usr/lib64/pgsql | \
     grep -v '/opt/rh/rh-postgresql10/root/usr/lib64/pgsql' | \
     tr ':' '/' |  \
     awk '{ print $3 $4 }' | \
     xargs cp -vt /opt/rh/rh-postgresql10/root/usr/lib64/pgsql && \
-    cp -a /usr/pgsql10/bin/pgsql2shp /usr/pgsql10/bin/raster2pgsql \
-    /usr/pgsql10/bin/shp2pgsql /opt/rh/rh-postgresql10/root/usr/bin/ && \
-    rm -rf /usr/pgsql10
+    cp -a /usr/pgsql-10/bin/pgsql2shp /usr/pgsql-10/bin/raster2pgsql \
+    /usr/pgsql-10/bin/shp2pgsql /opt/rh/rh-postgresql10/root/usr/bin/ && \
+    rm -rf /usr/pgsql-10
 
 # PostgreSQL user in /etc/passwd
 USER 26
