@@ -6,6 +6,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
-    map: map,
+    map
   }
 })

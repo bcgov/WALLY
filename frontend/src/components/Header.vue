@@ -10,23 +10,18 @@
         </div>
     </div>
     <div class="other">
-    <!-- 
+    <!--
       This place is for anything that needs to be right aligned
-      beside the logo.  
+      beside the logo.
     -->
       &nbsp;
     </div>
   </header>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-
-@Component({
-  components: {
-  },
-})
-export default class Home extends Vue {}
+<script>
+import Vue from 'vue'
+export default class WHeader extends Vue {}
 </script>
 <style>
 header {
