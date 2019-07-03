@@ -12,7 +12,7 @@ ENV PATH=$HOME/.local/bin/:$PATH \
 ENV SUMMARY="PostgreSQL 10 with PostGIS 2.5 extension." \
     DESCRIPTION="This image extends the RHEL7 base PostgreSQL 10 \
 image by adding PostGIS 2.5 from postgresql.org and dependencies \
-from fedoraproeject.org needed to support GDAL."
+from fedoraproject.org needed to support GDAL."
 
 LABEL summary="$SUMMARY" \
   description="$DESCRIPTION" \
@@ -31,7 +31,7 @@ RUN yum repolist > /dev/null && \
     yum-config-manager --enable rhel-7-server-extras-rpms && \
     yum-config-manager --enable rhel-7-server-fastrack-rpms && \
     yum install curl && \
-    curl -O https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-redhat10-10-2.noarch.rpm && \
+    curl -O https://download.postgresql.org/pub/repos/yum/10/redhat/rhel-7-x86_64/pgdg-redhat10-10-2.noarch.rpm && \
     curl -O https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     yum -y localinstall pgdg-redhat10-10-2.noarch.rpm epel-release-latest-7.noarch.rpm && \
     yum -y update && \
@@ -46,8 +46,8 @@ RUN yum list epel\* && \
     yum -y install epel-release postgis25_10.x86_64 postgis25_10-client.x86_64 postgis25_10-utils.x86_64 && \
     yum clean all -y
 
-# The install does not put them in the same place as the other PostgreSQL exteions
-# so lets move them.
+# The install does not put them in the same place as the other PostgreSQL extensions
+# so let's move them.
 
 RUN diff --brief -r \
     /opt/rh/rh-postgresql10/root/usr/share/pgsql/extension /usr/pgsql10/share/extension | \
