@@ -8,7 +8,7 @@ USER 0
 
 RUN set -x && \
     #yum repolist all && \
-    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
+    # yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm && \
     #yum "--enablerepo=$YUM_REPOS" list available && \
     yum "--enablerepo=$YUM_REPOS" install -y gettext curl jq locales hostname rh-git29 rh-python36 rh-python36-python-pip && \
     #scl enable rh-python36 'pip3 freeze' && \
