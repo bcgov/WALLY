@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: wally-frontend-template
+objects:
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    spec:
+      failedBuildsHistoryLimit: 5
+      output:
+        to:
+          kind: ImageStreamTag
+          name: 'wally:latest'
+      postCommit: {}
+      resources:
+        limits:
+          cpu: '2'
+          memory: 2Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+      runPolicy: Serial
+      source:
+        contextDir: frontend
+        git:
+          ref: develop
+          uri: 'git@github.com:bcgov-c/wally.git'
+        secrets:
+          - destinationDir: .
+            secret:
+              name: wally-at-github
+        sourceSecret:
+          name: wally-at-github
+        type: Git
+      strategy:
+        dockerStrategy:
+          from:
+            kind: ImageStreamTag
+            name: 'nginx:1.12'
+            namespace: openshift
+        type: Docker
+      successfulBuildsHistoryLimit: 5
+      triggers:
+        - imageChange:
+            lastTriggeredImageID: >-
+              docker-registry.default.svc:5000/openshift/nginx@sha256:aa8e7eafad1a5535c240474be98bd90be40de250408e36b7f1398d252bf65c63
+          type: ImageChange
+        - type: ConfigChange
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewBuild
+      labels:
+        build: wally-frontend
+      name: wally-frontend
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    spec:
+      lookupPolicy:
+        local: false
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewBuild
+      generation: 3
+      labels:
+        build: wally
+      name: wally
