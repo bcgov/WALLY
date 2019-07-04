@@ -50,44 +50,30 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-list dense>
-          <v-list-tile>
-            <v-list-tile-content class="pl-3">
-              <v-list-tile-title><h2>Selected objects:</h2></v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-
-<!--          <ul v-for="layerGroup in mapLayerSelections">-->
-<!--            <div v-for="(value, propertyName) in layerGroup">-->
-<!--              <div><b>{{propertyName}}</b></div>-->
-<!--              <br/>-->
-<!--              <li v-for="(prop, propName) in value">-->
-<!--                <div v-for="(p, v) in prop.properties">-->
-<!--                  <div v-if="v.includes('NAME')">-->
-<!--                    <b>{{v}}:</b> {{p}}-->
-<!--                  </div>-->
-<!--                </div>-->
-<!--                <br/>-->
-<!--                <v-divider style="margin-bottom: 15px;"></v-divider>-->
-<!--              </li>-->
-<!--            </div>-->
-<!--          </ul>-->
-          <div v-for="layerGroup in mapLayerSelections" :key="layerGroup.key">
-            <div v-for="(value, propertyName) in layerGroup" :key="value">
-              <div><b>{{propertyName}}</b></div>
-              <v-list-tile
-                v-for="(prop, propName) in value"
-                :key="propName"
-                @click="handleSelectListItem(item)">
-                <div v-for="(p, v) in prop.properties" :key="v">
-                  <v-list-tile-content class="pl-3">
-                    <p class="mt-3"><b>{{v}}:</b> {{p}}</p>
+        <v-toolbar>
+          <v-toolbar-title>Selected Points</v-toolbar-title>
+        </v-toolbar>
+        <div v-for="(layerGroup, groupIndex) in mapLayerSelections" :key="layerGroup.key">
+          <div v-for="(value, name) in layerGroup" :key="value">
+            <v-list two-line subheader>
+              <v-subheader>{{mapLayerName(name)}}</v-subheader>
+              <v-divider  :key="`subheader-${groupIndex}`"></v-divider>
+              <template v-for="(prop, propIndex) in value">
+                <v-list-tile :key="propIndex" avatar ripple @click="">
+                  <v-list-tile-content>
+                    <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
+                    <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
                   </v-list-tile-content>
-                </div>
-              </v-list-tile>
-            </div>
+<!--                    <v-list-tile-action>-->
+<!--                      <v-list-tile-action-text>{{ item.action }}</v-list-tile-action-text>-->
+<!--                      <v-icon color="grey lighten-1">star_border</v-icon>-->
+<!--                    </v-list-tile-action>-->
+                </v-list-tile>
+                <v-divider  :key="`divider-${propIndex}`"></v-divider>
+              </template>
+            </v-list>
           </div>
-        </v-list>
+        </div>
       </v-tab-item>
 
       <v-tab-item>
@@ -99,7 +85,7 @@
 </template>
 <script>
 import { ADD_ACTIVE_MAP_LAYER, REMOVE_ACTIVE_MAP_LAYER } from '../store/map/actions.types.js'
-import { MAP_LAYERS } from '../store/map/mapConfig'
+import { MAP_LAYERS, LAYER_PROPERTY_MAPPINGS, LAYER_PROPERTY_NAMES } from '../store/map/mapConfig'
 import { mapState, mapGetters } from 'vuex'
 
 export default {
@@ -153,8 +139,14 @@ export default {
     handleSelectListItem (item) {
 
     },
-    mapLineTitle () {
-
+    mapLayerItemTitle (property) {
+      return LAYER_PROPERTY_NAMES[LAYER_PROPERTY_MAPPINGS[property]]
+    },
+    mapLayerItemValue (property) {
+      return LAYER_PROPERTY_MAPPINGS[property]
+    },
+    mapLayerName (layerId) {
+      return this.activeMapLayers.find(e => e.wmsLayer === layerId).name
     },
     mapLayerIsActive (id) {
       if (this.activeMapLayers) {
