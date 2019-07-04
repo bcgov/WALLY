@@ -59,7 +59,7 @@
               <v-subheader>{{mapLayerName(name)}}</v-subheader>
               <v-divider  :key="`subheader-${groupIndex}`"></v-divider>
               <template v-for="(prop, propIndex) in value">
-                <v-list-tile :key="propIndex" avatar ripple @click="">
+                <v-list-tile :key="propIndex" avatar ripple>
                   <v-list-tile-content>
                     <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
                     <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
