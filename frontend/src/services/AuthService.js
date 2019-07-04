@@ -1,62 +1,59 @@
-import ApiService from './ApiService.js'
-import Vue from 'Vue'
+import Keycloak from 'keycloak-js'
 import EventBus from './EventBus.js'
+import router from '../router.js'
 
 const kcConfig = {
   realm: 'gwells',
-  authServer: 'https://sso-test.pathfinder.gov.bc.ca/auth',
-  sslRequired:	'external',
-  resource:	'wally-test',
+  url: 'https://sso-test.pathfinder.gov.bc.ca/auth',
   publicClient: true,
   confidentialPort: 0,
-  clientId: 'wally-test',
+  clientId: 'wally-test'
 }
 
 export class AuthService {
-  kc = 'keycloak'
-
+  kc
   accessToken
   idToken
   expiresAt
   name
-  authenticated = this.kc.authenticated
+  authenticated
+
+  constructor () {
+    this.kc = Keycloak(kcConfig)
+  }
+
+  init (options) {
+    return new Promise((resolve, reject) => {
+      this.kc.init(options).success((r) => {
+        resolve()
+      }).error((e) => {
+        reject(new Error('unable to initialize Keycloak'))
+      })
+    })
+  }
+
+  setSession (next) {
+    this.name = this.kc.idTokenParsed['given_name']
+
+    // required for allowing header to update the name.
+    EventBus.$emit('auth:update', { name: this.name, authenticated: this.isAuthenticated() })
+    router.push(next)
+  }
 
   login (next) {
-    // check for logged-in hint kept in localStorage.
-    // this helps skip a step if it's likely that the user still
-    // has a valid session with the SSO service.
-    const loggedIn = JSON.parse(localStorage.getItem('loggedIn'))
-    const expiresAt = JSON.parse(localStorage.getItem('expiresAt'))
-
-
-    if (loggedIn && expiresAt) {
-
-      // try renewing the session.  This has the effect of providing a new access
-      // token, even if the client currently does not have one, as long as the user
-      // still has a valid SSO session.
-      this.renewSession().then(() => {
-
-        // if a 'next' route was provided, send user there after successfully authenticating.
-        // otherwise, they should arrive at the home screen.
-        if (next) {
-          router.push(next)
-        } else {
-          router.push({ name: 'home' })
-        }
-        EventBus.$emit('authChange', { authenticated: true })
-      }).catch((e) => {
-        // session could not be renewed, start normal login process.
-        this.logout()
-        this.kc.login()
-      })
-    } else {
-      this.kc.login()
+    if (this.kc.authenticated) {
+      this.setSession(next)
+      return
     }
+    this.kc.login().success((authenticated) => {
+      this.setSession(next)
+    })
   }
+
   logout () {
     localStorage.removeItem('loggedIn')
     localStorage.removeItem('expiresAt')
-    this.kc.clearToken()
+    this.kc.logout()
   }
 
   renewSession (ifExpiresIn = 3600) {
@@ -64,11 +61,18 @@ export class AuthService {
       this.kc.updateToken(ifExpiresIn).success((r) => {
         if (r) {
           // successfully refreshed
-          console.log('refreshed')
         } else {
           // unsuccessful
         }
       })
     })
+  }
+
+  isAuthenticated () {
+    return this.kc.authenticated
+  }
+
+  hasRole (role) {
+    return this.kc.hasRealmRole(role)
   }
 }

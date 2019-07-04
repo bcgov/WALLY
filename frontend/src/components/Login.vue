@@ -12,8 +12,8 @@ export default {
     return {}
   },
   created () {
-    const next = this.$route.query.redirect
-    this.$auth.login(next)
+    console.log('logging in')
+    this.$auth.login('/')
   }
 }
 </script>
