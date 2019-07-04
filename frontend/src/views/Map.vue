@@ -88,17 +88,17 @@ export default {
           .setContent(p.toString())
           .openOn(this.map)
       }
-    },
-    mapLayerSelections: function (newSelections, oldSelections) {
-      if (this.mapLayerSelections.length > 0) {
-        this.mapLayerSelections.forEach((selection) => {
-          selection.forEach((point) => {
-            L.marker(L.latlng(point.coordinates)).addTo(this.markerLayerGroup)
-          })
-        })
-        this.markerLayerGroup.addTo(this.map)
-      }
     }
+    // mapLayerSelections: function (newSelections, oldSelections) {
+    //   if (this.mapLayerSelections.length > 0) {
+    //     this.mapLayerSelections.forEach((selection) => {
+    //       selection.forEach((point) => {
+    //         L.marker(L.latlng(point.coordinates)).addTo(this.markerLayerGroup)
+    //       })
+    //     })
+    //     this.markerLayerGroup.addTo(this.map)
+    //   }
+    // }
   },
   methods: {
     initLeaflet () {
