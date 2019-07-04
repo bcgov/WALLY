@@ -11,7 +11,7 @@ import EventBus from '../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
 import betterWms from '../components/L.TileLayer.BetterWMS'
 import { FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS, CLEAR_MAP_SELECTIONS } from '../store/map/actions.types'
-import * as _ from "lodash";
+import * as _ from "lodash"
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -86,7 +86,7 @@ export default {
       if (p) {
         L.popup()
           .setLatLng(p)
-          .setContent("Lat: " + _.round(p.lat, 5) + " Lng: " + _.round(p.lng, 5))
+          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
           .openOn(this.map)
       }
     }
@@ -179,7 +179,7 @@ export default {
           position: 'topleft'
         },
         onAdd: function (map) {
-          var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
+          let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
           container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
           container.onclick = function (map) {
             lasso.enable()
