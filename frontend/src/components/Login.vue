@@ -12,7 +12,6 @@ export default {
     return {}
   },
   created () {
-    console.log('logging in')
     this.$auth.login('/')
   }
 }
