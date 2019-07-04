@@ -11,7 +11,7 @@ import EventBus from '../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
 import betterWms from '../components/L.TileLayer.BetterWMS'
 import { FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS, CLEAR_MAP_SELECTIONS } from '../store/map/actions.types'
-import * as _ from "lodash"
+import * as _ from 'lodash'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -266,7 +266,6 @@ export default {
         let max = L.latLng(Math.max(...lats), Math.max(...lngs))
         let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
 
-        console.log(bounds)
         this.getMapObjects(bounds)
       })
     },
