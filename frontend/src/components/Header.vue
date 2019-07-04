@@ -37,6 +37,7 @@ export default {
     }
   },
   created () {
+    this.name = this.$auth.name
     EventBus.$on('auth:update', this.setName)
   },
   beforeDestroy () {
