@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    v-bind:width="350"
+    v-bind:width="335"
     app
     class="wally-sidenav"
   >
@@ -131,7 +131,12 @@ export default {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: this.dataLayers
+          choices: [{
+            id: 'Climate Normals 1980-2010',
+            name: 'Canadian Climate Normals 1980-2010',
+            uri: '',
+            geojson: ''
+          }]
         }
       ],
       mini: true,
@@ -141,9 +146,8 @@ export default {
     }
   },
   computed: {
-    ...mapState([
-      'dataLayers']),
     ...mapGetters([
+      'dataLayers',
       'activeMapLayers',
       'mapLayerSelections',
       'mapLayerSingleSelection'
@@ -194,7 +198,10 @@ export default {
     },
     mapLayerIsActive (id) {
       if (this.activeMapLayers) {
-        return this.activeMapLayers.filter(e => e.id === id).length > 0
+        let layers = this.activeMapLayers.filter(e => e.id === id)
+        if(layers && layers.length){
+          return layers.length > 0
+        }
       } else {
         return false
       }
