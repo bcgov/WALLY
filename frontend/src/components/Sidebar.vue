@@ -58,7 +58,7 @@
           <div v-for="(layerGroup, groupIndex) in selectedObjects" :key="`objs-${layerGroup}${groupIndex}`">
             <div v-for="(value, name) in layerGroup" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
-                <v-subheader>{{mapLayerName(name)}}</v-subheader>
+                <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
                 <v-divider :key="`subheader-${value}${name}`"></v-divider>
                 <template v-for="(prop, propIndex) in value">
                   <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleSelectListItem(prop)">
@@ -82,7 +82,7 @@
       <v-tab-item>
 <!--        <span v-html="mapLayerSingleSelection.content"></span>-->
         <v-card v-if="selectedObject">
-          <v-card-title class="subheading font-weight-bold">{{mapLayerName(trimId(selectedObject.id)).slice(0, -1)}}</v-card-title>
+          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(selectedObject.id) }}</v-card-title>
 
           <v-divider></v-divider>
 
@@ -136,7 +136,8 @@ export default {
       ],
       mini: true,
       selectedObject: { content: { properties: {} } },
-      selectedObjects: {}
+      selectedObjects: {},
+      subHeading: ''
     }
   },
   computed: {
@@ -168,12 +169,8 @@ export default {
       }
       this.$store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, item)
     },
-    trimId (feature) {
-      if (feature) {
-        return typeof (feature.id) === 'string' ? feature.id.substr(0, feature.id.lastIndexOf('.')) : ''
-      } else {
-        return ''
-      }
+    trimId (id) {
+      return typeof (id) === 'string' ? id.substr(0, id.lastIndexOf('.')) : ''
     },
     humanReadable (val) {
       return readable(val)
@@ -185,9 +182,15 @@ export default {
       return LAYER_PROPERTY_MAPPINGS[property]
     },
     mapLayerName (layerId) {
-      let layer = this.activeMapLayers.find(e => e.wmsLayer === layerId)
+      let layer = MAP_LAYERS.find(e => e.wmsLayer === layerId)
       if (layer) { return layer.name }
-      return ''
+    },
+    mapSubheading (id) {
+      let name = this.mapLayerName(this.trimId(id))
+      if(name) {
+        name = name.slice(0, -1)
+        return name
+      }
     },
     mapLayerIsActive (id) {
       if (this.activeMapLayers) {
