@@ -49,7 +49,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
       width: size.x,
       layers: this.wmsParams.layers,
       query_layers: this.wmsParams.layers,
-      info_format: 'text/html'
+      info_format: 'application/json'
     }
 
     params[params.version === '1.3.0' ? 'i' : 'x'] = round(point.x)
@@ -60,9 +60,8 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
   showGetFeatureInfo: function (latlng, content) {
     // if (err) { console.log(err); return; } // do nothing if there's an error
-
-    if (content.includes(this.wmsParams.layers.replace('pub:', ''))) { // Dirty hack to check errors, getFeature should get json
-      store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, { point: latlng, content: content })
+    if (content && content.features && content.features.length > 0) {
+      store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, { id: content.features[0].id, coordinates: [latlng.lat, latlng.lng], properties: content.features[0].properties })
     }
     // this._map.removeLayer(this.point)
     // Otherwise show the content in a popup, or something.

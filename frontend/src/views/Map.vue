@@ -11,6 +11,7 @@ import EventBus from '../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
 import betterWms from '../components/L.TileLayer.BetterWMS'
 import { FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS, CLEAR_MAP_SELECTIONS } from '../store/map/actions.types'
+import * as _ from 'lodash'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -67,13 +68,13 @@ export default {
   },
   computed: {
     ...mapState([
-      'mapLayerSingleSelection',
       'externalDataSources'
     ]),
     ...mapGetters([
       'allLayers',
       'activeMapLayers',
-      'mapLayerSelections'
+      'mapLayerSelections',
+      'mapLayerSingleSelection'
     ])
   },
   watch: {
@@ -81,11 +82,11 @@ export default {
       // this.map.removeLayer(this.markerLayerGroup)
       // this.markerLayerGroup = L.layerGroup()
       // L.marker(newSelection.point).addTo(this.markerLayerGroup).addTo(this.map)
-      let p = newSelection.point
+      let p = L.latLng(newSelection.coordinates)
       if (p) {
         L.popup()
           .setLatLng(p)
-          .setContent(p.toString())
+          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
           .openOn(this.map)
       }
     }
@@ -178,7 +179,7 @@ export default {
           position: 'topleft'
         },
         onAdd: function (map) {
-          var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
+          let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
           container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
           container.onclick = function (map) {
             lasso.enable()
@@ -265,7 +266,6 @@ export default {
         let max = L.latLng(Math.max(...lats), Math.max(...lngs))
         let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
 
-        console.log(bounds)
         this.getMapObjects(bounds)
       })
     },

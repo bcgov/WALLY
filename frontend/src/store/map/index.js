@@ -2,6 +2,7 @@ import L from 'leaflet'
 
 import {
   FETCH_DATA_SOURCES,
+  FETCH_MAP_OBJECT,
   FETCH_MAP_OBJECTS,
   CLEAR_MAP_SELECTIONS,
   SELECT_SINGLE_MAP_OBJECT,
@@ -14,7 +15,7 @@ import {
   SET_MAP_OBJECT_SELECTIONS,
   SET_SINGLE_MAP_OBJECT_SELECTION,
   SET_MAP_SELECTION_OBJECTS_EMPTY,
-  SET_SINGLE_MAP_SELECTION_OBJECTS_EMPTY
+  SET_SINGLE_MAP_SELECTION_OBJECT_EMPTY
 } from './mutations.types'
 
 import Vue from 'vue'
@@ -45,7 +46,7 @@ export default {
     ],
     activeMapLayers: [],
     mapLayerSelections: [],
-    mapLayerSingleSelection: { content: {} }
+    mapLayerSingleSelection: { content: { properties: {} } }
   },
   mutations: {
     [SET_DATA_SOURCES] (state, payload) {
@@ -54,7 +55,7 @@ export default {
     [SET_SINGLE_MAP_OBJECT_SELECTION] (state, payload) {
       state.mapLayerSingleSelection = payload
     },
-    [SET_SINGLE_MAP_SELECTION_OBJECTS_EMPTY] (state, payload) {
+    [SET_SINGLE_MAP_SELECTION_OBJECT_EMPTY] (state, payload) {
       state.mapLayerSingleSelection = {}
     },
     [SET_MAP_OBJECT_SELECTIONS] (state, payload) {
@@ -79,15 +80,30 @@ export default {
     }
   },
   actions: {
-    // @ts-ignore
     [SELECT_SINGLE_MAP_OBJECT] ({ commit }, payload) {
       commit(SET_SINGLE_MAP_OBJECT_SELECTION, payload)
     },
-    // @ts-ignore
     [CLEAR_MAP_SELECTIONS] ({ commit }) {
       commit(SET_MAP_SELECTION_OBJECTS_EMPTY)
     },
-    // @ts-ignore
+    [FETCH_MAP_OBJECT] ({ commit }, payload) {
+      let params = {
+        service: 'WFS',
+        version: '2.0.0',
+        request: 'GetFeature',
+        typeNames: 'namespace:featuretype',
+        featureID: payload,
+        info_format: 'application/json'
+      }
+      commit(SET_SINGLE_MAP_SELECTION_OBJECT_EMPTY)
+      ApiService.getRaw('https://openmaps.gov.bc.ca/geo/pub/' + payload.layer + '/ows' + L.Util.getParamString(params))
+        .then((response) => {
+          console.log(response.data)
+          commit(SET_SINGLE_MAP_OBJECT_SELECTION, response.data)
+        }).catch((error) => {
+        console.log(error)
+      })
+    },
     [FETCH_MAP_OBJECTS] ({ commit }, payload) {
       let params = {
         request: 'GetMap',
@@ -100,7 +116,7 @@ export default {
         width: payload.size.x,
         layers: payload.layer
       }
-      commit(SET_SINGLE_MAP_SELECTION_OBJECTS_EMPTY)
+      commit(SET_MAP_SELECTION_OBJECTS_EMPTY)
       ApiService.getRaw('https://openmaps.gov.bc.ca/geo/pub/' + payload.layer + '/ows' + L.Util.getParamString(params))
         .then((response) => {
           console.log(response.data)

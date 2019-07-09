@@ -1,6 +1,7 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
+    v-bind:width="335"
     app
     class="wally-sidenav"
   >
@@ -53,40 +54,60 @@
         <v-toolbar>
           <v-toolbar-title>Selected Points</v-toolbar-title>
         </v-toolbar>
-        <div v-for="(layerGroup, groupIndex) in mapLayerSelections" :key="layerGroup.key">
-          <div v-for="(value, name) in layerGroup" :key="value">
-            <v-list two-line subheader>
-              <v-subheader>{{mapLayerName(name)}}</v-subheader>
-              <v-divider  :key="`subheader-${groupIndex}`"></v-divider>
-              <template v-for="(prop, propIndex) in value">
-                <v-list-tile :key="propIndex" avatar ripple>
-                  <v-list-tile-content>
-                    <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
-                    <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
-                  </v-list-tile-content>
-<!--                    <v-list-tile-action>-->
-<!--                      <v-list-tile-action-text>{{ item.action }}</v-list-tile-action-text>-->
-<!--                      <v-icon color="grey lighten-1">star_border</v-icon>-->
-<!--                    </v-list-tile-action>-->
-                </v-list-tile>
-                <v-divider  :key="`divider-${propIndex}`"></v-divider>
-              </template>
-            </v-list>
+        <div v-if="selectedObjects.length > 0">
+          <div v-for="(layerGroup, groupIndex) in selectedObjects" :key="`objs-${layerGroup}${groupIndex}`">
+            <div v-for="(value, name) in layerGroup" :key="`layerGroup-${value}${name}`">
+              <v-list two-line subheader>
+                <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
+                <v-divider :key="`subheader-${value}${name}`"></v-divider>
+                <template v-for="(prop, propIndex) in value">
+                  <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleSelectListItem(prop)">
+                    <v-list-tile-content>
+                      <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
+                      <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
+                    </v-list-tile-content>
+  <!--                    <v-list-tile-action>-->
+  <!--                      <v-list-tile-action-text>{{ item.action }}</v-list-tile-action-text>-->
+  <!--                      <v-icon color="grey lighten-1">star_border</v-icon>-->
+  <!--                    </v-list-tile-action>-->
+                  </v-list-tile>
+                  <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
+                </template>
+              </v-list>
+            </div>
           </div>
         </div>
       </v-tab-item>
 
       <v-tab-item>
-        <span v-html="mapLayerSingleSelection.content"></span>
+<!--        <span v-html="mapLayerSingleSelection.content"></span>-->
+        <v-card v-if="selectedObject">
+          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(selectedObject.id) }}</v-card-title>
+
+          <v-divider></v-divider>
+
+          <v-list dense>
+            <template v-for="(value, name, index) in selectedObject.properties">
+              <v-list-tile :key="`tile-{$value}${index}`">
+                <v-list-tile-content><b>{{ humanReadable(name) }}:</b></v-list-tile-content>
+                <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>
+              </v-list-tile>
+              <v-divider :key="`divider-${index}`"></v-divider>
+            </template>
+          </v-list>
+        </v-card>
       </v-tab-item>
     </v-tabs>
 
   </v-navigation-drawer>
 </template>
 <script>
-import { ADD_ACTIVE_MAP_LAYER, REMOVE_ACTIVE_MAP_LAYER } from '../store/map/actions.types.js'
+import { ADD_ACTIVE_MAP_LAYER, REMOVE_ACTIVE_MAP_LAYER ,FETCH_MAP_OBJECT} from '../store/map/actions.types.js'
+import { SET_SINGLE_MAP_OBJECT_SELECTION } from '../store/map/mutations.types'
 import { MAP_LAYERS, LAYER_PROPERTY_MAPPINGS, LAYER_PROPERTY_NAMES } from '../store/map/mapConfig'
 import { mapState, mapGetters } from 'vuex'
+import { readable } from '../helpers'
+
 
 export default {
   name: 'Sidebar',
@@ -110,16 +131,23 @@ export default {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: this.dataLayers
+          choices: [{
+            id: 'Climate Normals 1980-2010',
+            name: 'Canadian Climate Normals 1980-2010',
+            uri: '',
+            geojson: ''
+          }]
         }
       ],
-      mini: true
+      mini: true,
+      selectedObject: { content: { properties: {} } },
+      selectedObjects: {},
+      subHeading: ''
     }
   },
   computed: {
-    ...mapState([
-      'dataLayers']),
     ...mapGetters([
+      'dataLayers',
       'activeMapLayers',
       'mapLayerSelections',
       'mapLayerSingleSelection'
@@ -137,7 +165,19 @@ export default {
       }
     },
     handleSelectListItem (item) {
-
+      // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
+      if ('LATITUDE' in item.properties && 'LONGITUDE' in item.properties) {
+        item.coordinates = [item.properties['LATITUDE'], item.properties['LONGITUDE']]
+      } else {
+        item.coordinates = null
+      }
+      this.$store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, item)
+    },
+    trimId (id) {
+      return typeof (id) === 'string' ? id.substr(0, id.lastIndexOf('.')) : ''
+    },
+    humanReadable (val) {
+      return readable(val)
     },
     mapLayerItemTitle (property) {
       return LAYER_PROPERTY_NAMES[LAYER_PROPERTY_MAPPINGS[property]]
@@ -146,11 +186,22 @@ export default {
       return LAYER_PROPERTY_MAPPINGS[property]
     },
     mapLayerName (layerId) {
-      return this.activeMapLayers.find(e => e.wmsLayer === layerId).name
+      let layer = MAP_LAYERS.find(e => e.wmsLayer === layerId)
+      if (layer) { return layer.name }
+    },
+    mapSubheading (id) {
+      let name = this.mapLayerName(this.trimId(id))
+      if (name) {
+        name = name.slice(0, -1)
+        return name
+      }
     },
     mapLayerIsActive (id) {
       if (this.activeMapLayers) {
-        return this.activeMapLayers.filter(e => e.id === id).length > 0
+        let layers = this.activeMapLayers.filter(e => e.id === id)
+        if (layers && layers.length) {
+          return layers.length > 0
+        }
       } else {
         return false
       }
@@ -158,13 +209,19 @@ export default {
   },
   watch: {
     mapLayerSingleSelection (value) {
-      if (value) {
+      if (value && value.properties) {
+        this.selectedObject = value
         this.setTabById(2)
+      } else {
+        this.selectedObject = null
       }
     },
     mapLayerSelections (value) {
-      if (value) {
+      if (value.length > 0) {
         this.setTabById(1)
+        this.selectedObjects = value
+      } else {
+        this.selectedObjects = []
       }
     }
   }
