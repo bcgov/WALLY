@@ -9,7 +9,7 @@ void notifyStageStatus (String name, String status) {
         GitHubHelper.getPullRequestLastCommitId(this),
         status,
         "${env.BUILD_URL}",
-        "Stage '${name}'",
+        "${name}",
         "Stage: ${name}"
     )
 }
@@ -53,6 +53,12 @@ pipeline {
   environment {
     GIT_REPO = "git@github.com:bcgov-c/wally.git"
     NAME = JOB_BASE_NAME.toLowerCase()
+
+    // project names
+    TOOLS_PROJECT = "bfpeyx-tools"
+    DEV_PROJECT = "bfpeyx-dev"
+    TEST_PROJECT = "bfpeyx-test"
+    PROD_PROJECT = "bfpeyx-prod"
   }
   stages {
     stage('Build') {
@@ -81,9 +87,19 @@ pipeline {
     stage('Deploy') {
       steps {
         script {
+          var project = DEV_PROJECT
           openshift.withCluster() {
-            openshift.withProject() {
-              echo "Deploying!"
+            openshift.withProject(project) {
+              var deployment = openshift.apply(openshift.process("-f",
+                "openshift/frontend.deploy.yaml",
+                "NAME=${NAME}",
+                "HOST=wally-${NAME}.pathfinder.gov.bc.ca",
+                "NAMESPACE=${project}"
+              ))
+              echo "Deploying to a dev environment"
+              openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
+              deployment.rollout().status()
+              echo "Successfully deployed"
             }
           }
         }
