@@ -111,7 +111,7 @@ pipeline {
               ))
               echo "Deploying to a dev environment"
               openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
-              deployment.rollout().status()
+              deployment.narrow('dc').rollout().status()
               echo "Successfully deployed"
             }
           }
