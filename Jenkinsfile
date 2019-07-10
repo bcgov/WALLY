@@ -22,6 +22,7 @@ pipeline {
 
               echo "Starting build (frontend)"
               openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
+              echo "Success! Build completed."
             }
           }
         }
