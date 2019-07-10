@@ -103,7 +103,7 @@ pipeline {
           def project = DEV_PROJECT
           openshift.withCluster() {
             openshift.withProject(project) {
-              var deployment = openshift.apply(openshift.process("-f",
+              def deployment = openshift.apply(openshift.process("-f",
                 "openshift/frontend.deploy.yaml",
                 "NAME=${NAME}",
                 "HOST=wally-${NAME}.pathfinder.gov.bc.ca",
