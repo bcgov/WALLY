@@ -12,9 +12,7 @@ pipeline {
         script {
           openshift.withCluster() {
             openshift.withProject() {
-              notifyStageStatus('Backend', 'PENDING')
-
-              echo "Applying frontend template..."
+              echo "Applying template (frontend)"
               def bcWeb = openshift.process('-f',
                 'openshift/frontend.build.yaml',
                 "NAME=${NAME}",
@@ -22,7 +20,7 @@ pipeline {
                 "GIT_REF=pull/${CHANGE_ID}/head"
               )
 
-              echo "Building ImageStream ${REPO_NAME}-backend..."
+              echo "Starting build (frontend)"
               openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
             }
           }
