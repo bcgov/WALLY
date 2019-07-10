@@ -10,7 +10,6 @@ pipeline {
     stage('Build') {
       steps {
         script {
-          abortAllPreviousBuildInProgress(currentBuild)
           openshift.withCluster() {
             openshift.withProject() {
               notifyStageStatus('Backend', 'PENDING')
