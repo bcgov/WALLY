@@ -39,7 +39,7 @@ objects:
         env: ${NAME}
         component: frontend
         name: wally-${NAME}-frontend
-      name: wally-${NAME}-frontend
+      name: wally-${NAME}
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     spec:
