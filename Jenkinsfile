@@ -72,6 +72,11 @@ pipeline {
     stage('Build') {
       steps {
         script {
+          echo "Cancelling previous builds..."
+          timeout(10) {
+              abortAllPreviousBuildInProgress(currentBuild)
+          }
+          echo "Previous builds cancelled"
           openshift.withCluster() {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
@@ -95,7 +100,7 @@ pipeline {
     stage('Deploy') {
       steps {
         script {
-          var project = DEV_PROJECT
+          def project = DEV_PROJECT
           openshift.withCluster() {
             openshift.withProject(project) {
               var deployment = openshift.apply(openshift.process("-f",
