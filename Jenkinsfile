@@ -3,7 +3,7 @@
 pipeline {
   agent any
   environment {
-    GIT_REPO = "https://www.github.com/bcgov-c/wally.git"
+    GIT_REPO = "git@github.com:bcgov-c/wally.git"
     NAME = JOB_BASE_NAME.toLowerCase()
   }
   stages {
