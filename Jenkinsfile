@@ -48,6 +48,14 @@ def withStatus(String name, Closure body) {
   }
 }
 
+// Print stack trace of error
+@NonCPS
+private static String stackTraceAsString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw));
+    return sw.toString()
+}
+
 pipeline {
   agent any
   environment {
