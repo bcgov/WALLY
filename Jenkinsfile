@@ -1,5 +1,18 @@
 #!groovy
 @Library('bcgov-library') _
+import bcgov.GitHubHelper
+
+// Notify stage status and pass to Jenkins-GitHub library
+void notifyStageStatus (String name, String status) {
+    GitHubHelper.createCommitStatus(
+        this,
+        GitHubHelper.getPullRequestLastCommitId(this),
+        status,
+        "${env.BUILD_URL}",
+        "Stage '${name}'",
+        "Stage: ${name}"
+    )
+}
 
 // Run an action in a stage with GitHub notifications and stage retries on failure.
 // Because the GitHub notification uses the `name` argument, make sure name is unique
