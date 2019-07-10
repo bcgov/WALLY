@@ -96,7 +96,7 @@ objects:
       test: false
       triggers:
         - imageChangeParams:
-            automatic: false
+            automatic: true
             containerNames:
               - wally
             from:
