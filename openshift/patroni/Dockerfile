@@ -30,6 +30,7 @@ RUN set -x && \
     ln -s $VENV_DIR/bin/patronictl $APP_ROOT/bin/patronictl && \
     $VENV_DIR/bin/pip --isolated freeze && \
     fix-permissions $APP_ROOT && \
+    fix-permissions /var/run/postgresql && \
     yum '--enablerepo=*' clean all
 
 COPY contrib/root /
