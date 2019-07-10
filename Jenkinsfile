@@ -1,5 +1,4 @@
 #!groovy
-import bcgov.GitHubHelper
 
 pipeline {
   agent any
