@@ -6,7 +6,7 @@ parameters:
   description: The name assigned to all of the resources defined in this template.
   required: true
   value: test
-- name: GIT_URL
+- name: GIT_REPO
   displayName: Git Repo URL
   description: The URL to your Git repo.
   required: true
@@ -40,7 +40,7 @@ objects:
         contextDir: frontend
         git:
           ref: "${GIT_REF}"
-          uri: "${GIT_URL}"
+          uri: "${GIT_REPO}"
         secrets:
           - destinationDir: .
             secret:
