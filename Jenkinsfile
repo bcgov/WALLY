@@ -57,13 +57,14 @@ Integer createDeployment (String suffix) {
             'task':"deploy:pull:${CHANGE_ID}"
         ]
     )
+    echo "deployment ID: ${ghDeploymentId}"
     return ghDeploymentId
 
 }
 
 // Create deployment status and pass to Jenkins-GitHub library
 void createDeploymentStatus (Integer ghDeploymentId, String status, String stageUrl) {
-
+    echo "creating deployment status (${status})"
     new GitHubHelper().createDeploymentStatus(
         this,
         ghDeploymentId,
