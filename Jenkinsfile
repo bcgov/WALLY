@@ -103,16 +103,28 @@ pipeline {
           def project = DEV_PROJECT
           openshift.withCluster() {
             openshift.withProject(project) {
-              def deployment = openshift.apply(openshift.process("-f",
-                "openshift/frontend.deploy.yaml",
-                "NAME=${NAME}",
-                "HOST=wally-${NAME}.pathfinder.gov.bc.ca",
-                "NAMESPACE=${project}"
-              ))
-              echo "Deploying to a dev environment"
-              openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
-              deployment.narrow('dc').rollout().status()
-              echo "Successfully deployed"
+              withStatus(env.STAGE_NAME) {
+                def frontend = openshift.apply(openshift.process("-f",
+                  "openshift/frontend.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=wally-${NAME}.pathfinder.gov.bc.ca",
+                  "NAMESPACE=${project}"
+                ))
+
+                def database = openshift.apply(openshift.process("-f",
+                  "openshift/database.deploy.yaml",
+                  "NAME=wally-psql",
+                  "REPLICAS=1",
+                  "SUFFIX=-${NAME}",
+                  "IMAGE_STREAM_NAMESPACE=${DEV_PROJECT}"
+                ))
+
+                echo "Deploying to a dev environment"
+                openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
+                frontend.narrow('dc').rollout().status()
+                database.narrow('dc').rollout().status()
+                echo "Successfully deployed"
+              }
             }
           }
         }

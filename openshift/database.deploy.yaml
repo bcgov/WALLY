@@ -11,32 +11,12 @@ metadata:
     tags: postgresql
   name: patroni-pgsql-persistent
 labels:
-  app: ${NAME}${SUFFIX}
-  phase: deploy
-  app.kubernetes.io/instance: ${NAME}${SUFFIX}
-  app.kubernetes.io/component: database
-  app.kubernetes.io/name: patroni  
-  app.kubernetes.io/managed-by: template
-  app.kubernetes.io/version: "10"
+  app: wally${SUFFIX}
+  instance: ${NAME}${SUFFIX}
+  component: database
+  name: ${NAME}${SUFFIX}
+  version: "10"
 objects:
-# It doesn't seem to be used/needed - remote it?
-#- apiVersion: v1
-#  kind: Service
-#  metadata:
-#    creationTimestamp: null
-#    labels:
-#      cluster-name: ${NAME}${SUFFIX}
-#    name: ${NAME}${SUFFIX}
-#  spec:
-#    ports:
-#    - name: 'postgresql'
-#      port: 5432
-#      protocol: TCP
-#      targetPort: 5432
-#    sessionAffinity: None
-#    type: ClusterIP
-#  status:
-#    loadBalancer: {}
 - apiVersion: v1
   kind: Service
   metadata:
@@ -58,35 +38,6 @@ objects:
     type: ClusterIP
   status:
     loadBalancer: {}
-#- apiVersion: v1
-#  kind: Service
-#  metadata:
-#    creationTimestamp: null
-#    labels:
-#      cluster-name: ${NAME}${SUFFIX}
-#    name: ${NAME}-replica${SUFFIX}
-#  spec:
-#    ports:
-#    - port: 5432
-##      name: 'postgresql'
-#      protocol: TCP
-#      targetPort: 5432
-#    selector:
-#      cluster-name: ${NAME}${SUFFIX}
-#      app.kubernetes.io/name: patroni
-#      role: replica
-#    sessionAffinity: None
-#    type: ClusterIP
-#  status:
-#    loadBalancer: {}
-# - apiVersion: v1
-#   kind: ConfigMap
-#   metadata:
-#     name: ${NAME}${SUFFIX}-config
-# - apiVersion: v1
-#   kind: ConfigMap
-#   metadata:
-#     name: ${NAME}${SUFFIX}-leader
 - apiVersion: apps/v1
   kind: StatefulSet
   metadata:
@@ -97,7 +48,7 @@ objects:
     name: ${NAME}${SUFFIX}
   spec:
     podManagementPolicy: OrderedReady
-    replicas: 3
+    replicas: "${REPLICAS}"
     revisionHistoryLimit: 10
     selector:
       matchLabels:
@@ -140,37 +91,37 @@ objects:
             valueFrom:
               secretKeyRef:
                 key: superuser-username
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: PATRONI_SUPERUSER_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: superuser-password
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: PATRONI_REPLICATION_USERNAME
             valueFrom:
               secretKeyRef:
                 key: replication-username
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: PATRONI_REPLICATION_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: replication-password
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: APP_USER
             valueFrom:
               secretKeyRef:
                 key: app-db-username
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: APP_PASSWORD
             valueFrom:
               secretKeyRef:
                 key: app-db-password
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: APP_DATABASE
             valueFrom:
               secretKeyRef:
                 key: app-db-name
-                name: ${NAME}${SUFFIX}
+                name: ${NAME}
           - name: PATRONI_SCOPE
             value: ${NAME}${SUFFIX}
           - name: PATRONI_NAME
@@ -316,6 +267,9 @@ parameters:
   displayName: Application Name
   name: NAME
   value: wally-psql
+- description: Number of replicas to start with
+  name: REPLICAS
+  value: '3'
 - name: SUFFIX
   description: A suffix appended to all artifact's name (NAME)
 - description: Starting amount of CPU the container can use.
@@ -338,6 +292,7 @@ parameters:
     resides.
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
+  required: true
   value: bfpeyx-tools
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag

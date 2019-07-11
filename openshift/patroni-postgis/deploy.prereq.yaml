@@ -67,4 +67,4 @@ parameters:
   value: wally
 - name: APP_DB_PASSWORD
   generate: expression
-from: '[a-zA-Z0-9]{32}'
+  from: '[a-zA-Z0-9]{32}'
