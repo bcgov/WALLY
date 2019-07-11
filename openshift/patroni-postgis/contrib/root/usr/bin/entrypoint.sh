@@ -1,20 +1,19 @@
 #!/bin/bash
-set -Eeu
-export ENABLE_REPLICATION=${ENABLE_REPLICATION:-false}
-export_vars=$(cgroup-limits) ; export $export_vars
 
-source "${CONTAINER_SCRIPTS_PATH}/common.sh"
-generate_passwd_file
+if [[ $UID -ge 10000 ]]; then
+    GID=$(id -g)
+    sed -e "s/^postgres:x:[^:]*:[^:]*:/postgres:x:$UID:$GID:/" /etc/passwd > /tmp/passwd
+    cat /tmp/passwd > /etc/passwd
+    rm /tmp/passwd
+fi
 
-export PGDATA=$HOME/data/userdata
-export PATRONI_POSTGRESQL_DATA_DIR=$PGDATA
-
+# FIX -> FATAL:  data directory "..." has group or world access
 mkdir -p "$PATRONI_POSTGRESQL_DATA_DIR"
 chmod 700 "$PATRONI_POSTGRESQL_DATA_DIR"
 
-cat > "$APP_DATA/patroni.yml" <<__EOF__
+cat > /home/postgres/patroni.yml <<__EOF__
 bootstrap:
-#  post_bootstrap: /usr/share/scripts/patroni/post_init.sh
+  post_bootstrap: /usr/share/scripts/patroni/post_init.sh
   dcs:
     postgresql:
       use_pg_rewind: true
@@ -46,4 +45,4 @@ unset PATRONI_SUPERUSER_PASSWORD PATRONI_REPLICATION_PASSWORD
 export KUBERNETES_NAMESPACE=$PATRONI_KUBERNETES_NAMESPACE
 export POD_NAME=$PATRONI_NAME
 
-exec patroni "$APP_DATA/patroni.yml"
+exec /usr/bin/python3 /usr/local/bin/patroni /home/postgres/patroni.yml
