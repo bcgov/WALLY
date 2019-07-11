@@ -14,7 +14,7 @@ void notifyStageStatus (String name, String status) {
     )
 }
 
-Integer createDeployment (String suffix) {
+Long createDeployment (String suffix) {
     def ghDeploymentId = new GitHubHelper().createDeployment(
         this,
         "pull/${CHANGE_ID}/head",
@@ -29,7 +29,7 @@ Integer createDeployment (String suffix) {
 }
 
 // Create deployment status and pass to Jenkins-GitHub library
-void createDeploymentStatus (String ghDeploymentId, String status, String stageUrl, Closure body) {
+void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl, Closure body) {
     echo "creating deployment status (${status})"
     new GitHubHelper().createDeploymentStatus(
         this,
