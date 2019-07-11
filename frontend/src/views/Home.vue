@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Map from './Map'
+import Map from '../components/Map'
 
 export default {
   name: 'Home',
