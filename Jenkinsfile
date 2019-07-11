@@ -8,7 +8,7 @@ void notifyStageStatus (String name, String status) {
         this,
         GitHubHelper.getPullRequestLastCommitId(this),
         status,
-        "${env.BUILD_URL}",
+        "${BUILD_URL}",
         "${name}",
         "Stage: ${name}"
     )
@@ -48,14 +48,13 @@ def withStatus(String name, Closure body) {
   }
 }
 
-@NonCPS
-private static Integer createDeployment (String suffix) {
+Integer createDeployment (String suffix) {
     def ghDeploymentId = new GitHubHelper().createDeployment(
         this,
-        "pull/${env.CHANGE_ID}/head",
+        "pull/${CHANGE_ID}/head",
         [
             'environment':"${suffix}",
-            'task':"deploy:pull:${env.CHANGE_ID}"
+            'task':"deploy:pull:${CHANGE_ID}"
         ]
     )
     return ghDeploymentId
