@@ -14,6 +14,9 @@ void notifyStageStatus (String name, String status) {
     )
 }
 
+// createDeployment gets a new deployment ID from GitHub.
+// this lets us display notifications on GitHub when new environments
+// are deployed (e.g. on a pull request page)
 Long createDeployment (String suffix) {
     def ghDeploymentId = new GitHubHelper().createDeployment(
         this,
@@ -28,7 +31,7 @@ Long createDeployment (String suffix) {
 
 }
 
-// Create deployment status and pass to Jenkins-GitHub library
+// Create deployment status for a deployment ID (call createDeployment first)
 void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl) {
     echo "creating deployment status (${status})"
     new GitHubHelper().createDeploymentStatus(
@@ -133,12 +136,13 @@ pipeline {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
 
-                echo 'Creating pending deployment at GitHub'
+                // create deployment object at GitHub and give it a pending status.
+                // this creates a notice on the pull request page indicating that a deployment
+                // is pending.
                 def deployment = createDeployment('DEV')
-                echo "${deployment.getClass()}"
                 createDeploymentStatus(deployment, 'PENDING', host)
-                echo 'done creating pending deployment'
 
+                // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
                   "openshift/frontend.deploy.yaml",
                   "NAME=${NAME}",
@@ -146,6 +150,7 @@ pipeline {
                   "NAMESPACE=${project}"
                 ))
 
+                // apply database template
                 def database = openshift.apply(openshift.process("-f",
                   "openshift/database.deploy.yaml",
                   "NAME=wally-psql",
@@ -155,10 +160,15 @@ pipeline {
                 ))
 
                 echo "Deploying to a dev environment"
+
+                // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
+
+                // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
 
+                // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
                 echo "Successfully deployed"
               }
