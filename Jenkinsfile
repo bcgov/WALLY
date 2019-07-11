@@ -29,7 +29,7 @@ Integer createDeployment (String suffix) {
 }
 
 // Create deployment status and pass to Jenkins-GitHub library
-void createDeploymentStatus (Integer ghDeploymentId, String status, String stageUrl, Closure body) {
+void createDeploymentStatus (String ghDeploymentId, String status, String stageUrl, Closure body) {
     echo "creating deployment status (${status})"
     new GitHubHelper().createDeploymentStatus(
         this,
@@ -135,7 +135,7 @@ pipeline {
 
                 echo 'Creating pending deployment at GitHub'
                 def deployment = createDeployment('DEV')
-                echo "${deployment}"
+                echo "${deployment.getClass()}"
                 createDeploymentStatus(deployment, 'PENDING', host)
                 echo 'done creating pending deployment'
 
