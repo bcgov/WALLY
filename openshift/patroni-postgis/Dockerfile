@@ -1,4 +1,4 @@
-FROM postgres:10
+FROM registry.hub.docker.com/library/postgres:10
 
 # Patroni install from https://github.com/zalando/patroni
 # OpenShift config from https://github.com/BCDevOps/platform-services
