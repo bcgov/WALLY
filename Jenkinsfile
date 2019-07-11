@@ -38,7 +38,7 @@ void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl
         this,
         ghDeploymentId,
         "${status}",
-        ['targetUrl':"https://${stageUrl}/gwells"]
+        ['targetUrl':"https://${stageUrl}/"]
     )
 
 }
