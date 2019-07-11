@@ -14,6 +14,32 @@ void notifyStageStatus (String name, String status) {
     )
 }
 
+Integer createDeployment (String suffix) {
+    def ghDeploymentId = new GitHubHelper().createDeployment(
+        this,
+        "pull/${CHANGE_ID}/head",
+        [
+            'environment':"${suffix}",
+            'task':"deploy:pull:${CHANGE_ID}"
+        ]
+    )
+    echo "deployment ID: ${ghDeploymentId}"
+    return ghDeploymentId
+
+}
+
+// Create deployment status and pass to Jenkins-GitHub library
+void createDeploymentStatus (Integer ghDeploymentId, String status, String stageUrl) {
+    echo "creating deployment status (${status})"
+    new GitHubHelper().createDeploymentStatus(
+        this,
+        ghDeploymentId,
+        "${status}",
+        ['targetUrl':"https://${stageUrl}/gwells"]
+    )
+
+}
+
 // Run an action in a stage with GitHub notifications and stage retries on failure.
 // Because the GitHub notification uses the `name` argument, make sure name is unique
 // each time using this wrapper.
@@ -48,31 +74,6 @@ def withStatus(String name, Closure body) {
   }
 }
 
-Integer createDeployment (String suffix) {
-    def ghDeploymentId = new GitHubHelper().createDeployment(
-        this,
-        "pull/${CHANGE_ID}/head",
-        [
-            'environment':"${suffix}",
-            'task':"deploy:pull:${CHANGE_ID}"
-        ]
-    )
-    echo "deployment ID: ${ghDeploymentId}"
-    return ghDeploymentId
-
-}
-
-// Create deployment status and pass to Jenkins-GitHub library
-void createDeploymentStatus (Integer ghDeploymentId, String status, String stageUrl) {
-    echo "creating deployment status (${status})"
-    new GitHubHelper().createDeploymentStatus(
-        this,
-        ghDeploymentId,
-        "${status}",
-        ['targetUrl':"https://${stageUrl}/gwells"]
-    )
-
-}
 
 // Print stack trace of error
 @NonCPS
@@ -103,23 +104,23 @@ pipeline {
               abortAllPreviousBuildInProgress(currentBuild)
           }
           echo "Previous builds cancelled"
-          openshift.withCluster() {
-            openshift.withProject() {
-              withStatus(env.STAGE_NAME) {
-                echo "Applying template (frontend)"
-                def bcWeb = openshift.process('-f',
-                  'openshift/frontend.build.yaml',
-                  "NAME=${NAME}",
-                  "GIT_REPO=${GIT_REPO}",
-                  "GIT_REF=pull/${CHANGE_ID}/head"
-                )
+          // openshift.withCluster() {
+          //   openshift.withProject() {
+          //     withStatus(env.STAGE_NAME) {
+          //       echo "Applying template (frontend)"
+          //       def bcWeb = openshift.process('-f',
+          //         'openshift/frontend.build.yaml',
+          //         "NAME=${NAME}",
+          //         "GIT_REPO=${GIT_REPO}",
+          //         "GIT_REF=pull/${CHANGE_ID}/head"
+          //       )
 
-                echo "Starting build (frontend)"
-                openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
-                echo "Success! Build completed."
-              }
-            }
-          }
+          //       echo "Starting build (frontend)"
+          //       openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
+          //       echo "Success! Build completed."
+          //     }
+          //   }
+          // }
         }
       }
     }
@@ -134,6 +135,7 @@ pipeline {
 
                 echo 'Creating pending deployment at GitHub'
                 def deployment = createDeployment('DEV')
+                echo "${deployment}"
                 createDeploymentStatus(deployment, 'PENDING', host)
                 echo 'done creating pending deployment'
 
