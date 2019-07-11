@@ -9,8 +9,8 @@ void notifyStageStatus (String name, String status) {
         GitHubHelper.getPullRequestLastCommitId(this),
         status,
         "${BUILD_URL}",
-        "${name}",
-        "Stage: ${name}"
+        "Stage: ${name}",
+        "${name}"
     )
 }
 
