@@ -63,8 +63,7 @@ private static Integer createDeployment (String suffix) {
 }
 
 // Create deployment status and pass to Jenkins-GitHub library
-void createDeploymentStatus (Int id, String status, String stageUrl) {
-
+void createDeploymentStatus (Integer ghDeploymentId, String status, String stageUrl) {
 
     new GitHubHelper().createDeploymentStatus(
         this,
@@ -132,7 +131,7 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
-                
+
                 def deployment = createDeployment('DEV')
                 createDeploymentStatus(deployment, 'PENDING', host)
 
