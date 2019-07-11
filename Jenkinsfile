@@ -118,7 +118,7 @@ pipeline {
                   "NAME=wally-psql",
                   "REPLICAS=1",
                   "SUFFIX=-${NAME}",
-                  "IMAGE_STREAM_NAMESPACE=${DEV_PROJECT}"
+                  "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 
                 echo "Deploying to a dev environment"
