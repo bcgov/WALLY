@@ -10,8 +10,8 @@ import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
 import EventBus from '../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
 import betterWms from '../components/L.TileLayer.BetterWMS'
-import { FETCH_DATA_SOURCES, FETCH_MAP_OBJECTS, CLEAR_MAP_SELECTIONS } from '../store/map/actions.types'
 import * as _ from 'lodash'
+import {wmsBaseURl} from "../utils/wmsUtils";
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -46,60 +46,30 @@ export default {
 
     EventBus.$on('layer:added', this.handleAddLayer)
     EventBus.$on('layer:removed', this.handleRemoveLayer)
+    EventBus.$on('feature:added', this.handleAddFeature)
 
-    this.$store.dispatch(FETCH_DATA_SOURCES)
+    // this.$store.dispatch(FETCH_DATA_SOURCES)
   },
   beforeDestroy () {
     EventBus.$off('layer:added', this.handleAddLayer)
     EventBus.$off('layer:removed', this.handleRemoveLayer)
+    EventBus.off('feature:added', this.handleAddFeature)
+
   },
   data () {
     return {
       map: null,
-      legendControlContent: null,
-      layerControls: null,
-      wells: [],
-      wellMarkers: null,
-      wellMarkersLayerGroup: L.layerGroup(),
+      // legendControlContent: null,
       activeLayerGroup: L.layerGroup(),
       markerLayerGroup: L.layerGroup(),
       activeLayers: {}
     }
   },
   computed: {
-    ...mapState([
-      'externalDataSources'
-    ]),
     ...mapGetters([
-      'allLayers',
-      'activeMapLayers',
-      'mapLayerSelections',
-      'mapLayerSingleSelection'
+      'allMapLayers',
+      'activeMapLayers'
     ])
-  },
-  watch: {
-    mapLayerSingleSelection: function (newSelection, oldSelection) {
-      // this.map.removeLayer(this.markerLayerGroup)
-      // this.markerLayerGroup = L.layerGroup()
-      // L.marker(newSelection.point).addTo(this.markerLayerGroup).addTo(this.map)
-      let p = L.latLng(newSelection.coordinates)
-      if (p) {
-        L.popup()
-          .setLatLng(p)
-          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-          .openOn(this.map)
-      }
-    }
-    // mapLayerSelections: function (newSelections, oldSelections) {
-    //   if (this.mapLayerSelections.length > 0) {
-    //     this.mapLayerSelections.forEach((selection) => {
-    //       selection.forEach((point) => {
-    //         L.marker(L.latlng(point.coordinates)).addTo(this.markerLayerGroup)
-    //       })
-    //     })
-    //     this.markerLayerGroup.addTo(this.map)
-    //   }
-    // }
   },
   methods: {
     initLeaflet () {
@@ -121,43 +91,21 @@ export default {
 
       L.control.scale().addTo(this.map)
       this.map.addControl(this.getFullScreenControl())
-      // this.map.addControl(searchControl)
       this.map.addControl(this.getAreaSelectControl())
       // this.map.addControl(this.getLegendControl())
       this.map.addControl(this.getLocateControl())
 
-      // Add map layers.
-      // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+      // BCGov map tiles
       tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+      //Open Street Map tiles
       // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       //     maxZoom: 19,
       //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       // }).addTo(this.map)
 
-      // L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW/ows?', {
-      //     format: 'image/png',
-      //     layers: 'pub:WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW',
-      //     styles: 'PMBC_Parcel_Fabric_Cadastre_Outlined',
-      //     transparent: true
-      // }).addTo(this.map)
-
-      // // Aquifer outlines
-      // L.tileLayer.wms('https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW/ows?', {
-      //     format: 'image/png',
-      //     layers: 'pub:WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW',
-      //     transparent: true
-      // }).addTo(this.map)
-
       this.activeLayerGroup.addTo(this.map)
       this.markerLayerGroup.addTo(this.map)
 
-      // this.layerControls = L.control.layers(null, this.toggleLayers(), {collapsed: false}).addTo(this.map)
-
-      // this.listenForLayerToggle()
-      // this.listenForLayerAdd()
-      // this.listenForLayerRemove()
-      // this.listenForMapMovement()
-      // this.listenForReset()
       this.listenForAreaSelect()
     },
     getLocateControl () {
@@ -188,8 +136,17 @@ export default {
         }
       }))()
     },
+    handleAddFeature (f) {
+      let p = L.latLng(f.lat, f.lng)
+      if (p) {
+        L.popup()
+          .setLatLng(p)
+          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
+          .openOn(this.map)
+      }
+    },
     handleAddLayer (layerId) {
-      const layer = this.allLayers.find((x) => {
+      const layer = this.allMapLayers.find((x) => { // TODO Handle Data Sources here as well
         return x.id === layerId
       })
       // stop if layer wasn't found in the array we searched
@@ -204,7 +161,7 @@ export default {
       }
     },
     handleRemoveLayer (layerId) {
-      const layer = this.allLayers.find((x) => {
+      const layer = this.allMapLayers.find((x) => {
         return x.id === layerId
       })
       this.removeLayer(layer)
@@ -222,7 +179,7 @@ export default {
         return
       }
 
-      this.activeLayers[layer.id] = betterWms('https://openmaps.gov.bc.ca/geo/pub/' + layer.wmsLayer + '/ows?',
+      this.activeLayers[layer.id] = betterWms(wmsBaseURl + layer.wmsLayer + '/ows?',
         {
           format: 'image/png',
           layers: 'pub:' + layer.wmsLayer,
@@ -271,10 +228,9 @@ export default {
     },
     getMapObjects (bounds) {
       let size = this.map.getSize()
-
-      this.$store.dispatch(CLEAR_MAP_SELECTIONS)
+      this.$store.commit('clearFeatureLayers')
       this.activeMapLayers.forEach((layer) => {
-        this.$store.dispatch(FETCH_MAP_OBJECTS, { bounds: bounds, size: size, layer: layer.wmsLayer })
+        this.$store.dispatch('getLayerFeatures', { bounds: bounds, size: size, layer: layer.wmsLayer })
       })
     },
     // listenForReset () {
@@ -289,65 +245,6 @@ export default {
     //         }
     //     })
     // },
-    getFeaturesOnMap (map) {
-      const layersInBound = []
-      const bounds = map.getBounds()
-      map.eachLayer((layer) => {
-        if (layer.feature && bounds.overlaps(layer.getBounds())) {
-          layersInBound.push(layer)
-        }
-      })
-      return layersInBound
-    },
-    listenForMapMovement () {
-      const events = ['zoomend', 'moveend']
-      events.map(eventName => {
-        this.map.on(eventName, (e) => {
-          const map = e.target
-          // const layersInBound = this.getFeaturesOnMap(map)
-          // this.$parent.$emit('featuresOnMap', layersInBound)
-          this.updateMapObjects(map)
-        })
-      })
-    }
-    // addAquifersToMap (aquifers) {
-    //   const self = this
-    //   function popUpLinkHandler (e) {
-    //     let routeData = self.$router.resolve({
-    //       name: 'aquifers-view',
-    //       params: {
-    //         id: this.id
-    //       }
-    //     })
-    //     window.open(routeData.href, '_blank')
-    //   }
-    //   function getPopUp (aquifer) {
-    //     const container = L.DomUtil.create('div', 'leaflet-popup-aquifer')
-    //     const popUpLink = L.DomUtil.create('div', 'leaflet-popup-link')
-    //     popUpLink.innerHTML = `<p>Aquifer ID: <span class="popup-link">${aquifer.id}</span></p>
-    //       <p>Aquifer name: ${aquifer.name || ''}</p>
-    //       <p>Aquifer subtype: ${aquifer.subtype || ''}</p>`
-    //     L.DomEvent.on(popUpLink, 'click', popUpLinkHandler.bind(aquifer))
-    //     container.appendChild(popUpLink)
-    //     return container
-    //   }
-    //   if (aquifers !== undefined && aquifers.constructor === Array && aquifers.length > 0) {
-    //     var myStyle = {
-    //       'color': 'purple'
-    //     }
-    //     aquifers = aquifers.filter((a) => a.gs)
-    //     aquifers.forEach(aquifer => {
-    //       L.geoJSON(aquifer.gs, {
-    //         aquifer_id: aquifer['id'],
-    //         style: myStyle,
-    //         type: 'geojsonfeature',
-    //         onEachFeature: function (feature, layer) {
-    //           layer.bindPopup(getPopUp(aquifer))
-    //         }
-    //       }).addTo(this.map)
-    //     })
-    //   }
-    // }
   }
 }
 </script>
