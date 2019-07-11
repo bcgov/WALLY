@@ -101,13 +101,15 @@ pipeline {
       steps {
         script {
           def project = DEV_PROJECT
+          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
+                createDeploymentStatus('DEV', 'PENDING', host)
                 def frontend = openshift.apply(openshift.process("-f",
                   "openshift/frontend.deploy.yaml",
                   "NAME=${NAME}",
-                  "HOST=wally-${NAME}.pathfinder.gov.bc.ca",
+                  "HOST=${host}",
                   "NAMESPACE=${project}"
                 ))
 
@@ -123,6 +125,7 @@ pipeline {
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
+                createDeploymentStatus('DEV', 'SUCCESS', host)
                 echo "Successfully deployed"
               }
             }
