@@ -131,8 +131,10 @@ pipeline {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
 
+                echo 'Creating pending deployment at GitHub'
                 def deployment = createDeployment('DEV')
                 createDeploymentStatus(deployment, 'PENDING', host)
+                echo 'done creating pending deployment'
 
                 def frontend = openshift.apply(openshift.process("-f",
                   "openshift/frontend.deploy.yaml",
