@@ -48,6 +48,33 @@ def withStatus(String name, Closure body) {
   }
 }
 
+@NonCPS
+private static Integer createDeployment (String suffix) {
+    def ghDeploymentId = new GitHubHelper().createDeployment(
+        this,
+        "pull/${env.CHANGE_ID}/head",
+        [
+            'environment':"${suffix}",
+            'task':"deploy:pull:${env.CHANGE_ID}"
+        ]
+    )
+    return ghDeploymentId
+
+}
+
+// Create deployment status and pass to Jenkins-GitHub library
+void createDeploymentStatus (Int id, String status, String stageUrl) {
+
+
+    new GitHubHelper().createDeploymentStatus(
+        this,
+        ghDeploymentId,
+        "${status}",
+        ['targetUrl':"https://${stageUrl}/gwells"]
+    )
+
+}
+
 // Print stack trace of error
 @NonCPS
 private static String stackTraceAsString(Throwable t) {
@@ -105,7 +132,10 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
-                createDeploymentStatus('DEV', 'PENDING', host)
+                
+                def deployment = createDeployment('DEV')
+                createDeploymentStatus(deployment, 'PENDING', host)
+
                 def frontend = openshift.apply(openshift.process("-f",
                   "openshift/frontend.deploy.yaml",
                   "NAME=${NAME}",
@@ -125,7 +155,8 @@ pipeline {
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
-                createDeploymentStatus('DEV', 'SUCCESS', host)
+
+                createDeploymentStatus(deployment, 'PENDING', host)
                 echo "Successfully deployed"
               }
             }
