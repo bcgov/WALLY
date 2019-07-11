@@ -29,7 +29,7 @@ Long createDeployment (String suffix) {
 }
 
 // Create deployment status and pass to Jenkins-GitHub library
-void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl, Closure body) {
+void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl) {
     echo "creating deployment status (${status})"
     new GitHubHelper().createDeploymentStatus(
         this,
