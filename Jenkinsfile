@@ -104,23 +104,23 @@ pipeline {
               abortAllPreviousBuildInProgress(currentBuild)
           }
           echo "Previous builds cancelled"
-          // openshift.withCluster() {
-          //   openshift.withProject() {
-          //     withStatus(env.STAGE_NAME) {
-          //       echo "Applying template (frontend)"
-          //       def bcWeb = openshift.process('-f',
-          //         'openshift/frontend.build.yaml',
-          //         "NAME=${NAME}",
-          //         "GIT_REPO=${GIT_REPO}",
-          //         "GIT_REF=pull/${CHANGE_ID}/head"
-          //       )
+          openshift.withCluster() {
+            openshift.withProject() {
+              withStatus(env.STAGE_NAME) {
+                echo "Applying template (frontend)"
+                def bcWeb = openshift.process('-f',
+                  'openshift/frontend.build.yaml',
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=pull/${CHANGE_ID}/head"
+                )
 
-          //       echo "Starting build (frontend)"
-          //       openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
-          //       echo "Success! Build completed."
-          //     }
-          //   }
-          // }
+                echo "Starting build (frontend)"
+                openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
+                echo "Success! Build completed."
+              }
+            }
+          }
         }
       }
     }
@@ -159,7 +159,7 @@ pipeline {
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
 
-                createDeploymentStatus(deployment, 'PENDING', host)
+                createDeploymentStatus(deployment, 'SUCCESS', host)
                 echo "Successfully deployed"
               }
             }
