@@ -58,13 +58,13 @@
           <div v-for="(layerGroup, groupIndex) in featureLayers" :key="`objs-${layerGroup}${groupIndex}`">
             <div v-for="(value, name) in layerGroup" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
-                <v-subheader><b>{{utils.mapLayerName(name)}}</b></v-subheader>
+                <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
                 <v-divider :key="`subheader-${value}${name}`"></v-divider>
                 <template v-for="(prop, propIndex) in value">
                   <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleSelectListItem(prop)">
                     <v-list-tile-content>
-                      <v-list-tile-title>{{utils.mapLayerItemTitle(name)}}</v-list-tile-title>
-                      <v-list-tile-sub-title class="text--primary">{{prop.properties[utils.mapLayerItemValue(name)]}}</v-list-tile-sub-title>
+                      <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
+                      <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
                   <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
@@ -77,7 +77,7 @@
 
       <v-tab-item>
         <v-card v-if="featureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ utils.mapSubheading(featureInfo.id) }}</v-card-title>
+          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(featureInfo.id) }}</v-card-title>
 
           <v-divider></v-divider>
 
@@ -108,9 +108,9 @@ export default {
     return {
       active_tab: 0,
       tabs: [
-        { id: 1, name: 'Map Layers' },
-        { id: 2, name: 'Layer Data' },
-        { id: 3, name: 'Feature Info' }
+        { id: 1, name: 'Layers' },
+        { id: 2, name: 'Features' },
+        { id: 3, name: 'Info' }
       ],
       drawer: true,
       items: [
@@ -163,10 +163,23 @@ export default {
       }
       this.$store.commit('setFeatureInfo', item)
     },
+    humanReadable: val => humanReadable(val),
+    mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
+    mapLayerItemValue: val => utils.mapLayerItemValue(val),
+    mapLayerName: val => utils.mapLayerName(val),
+    mapSubheading: val => utils.mapSubheading(val)
   },
   watch: {
-    featureInfo: value => { if(value && value.properties) { this.setTabById(2) } },
-    featureLayers: value => { if(value.length > 0) { this.setTabById(1) } },
+    featureInfo (value) {
+      if (value && value.properties) {
+        this.setTabById(2)
+      }
+    },
+    featureLayers (value) {
+      if (value.length > 0) {
+        this.setTabById(1)
+      }
+    }
   }
 }
 </script>

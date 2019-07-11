@@ -1,8 +1,8 @@
-import L from "leaflet";
+import L from 'leaflet'
 
 export const wmsBaseURl = 'https://openmaps.gov.bc.ca/geo/pub/'
 
-export function wmsParamString( payload ) {
+export function wmsParamString (payload) {
   let params = {
     request: 'GetMap',
     service: 'WMS',

@@ -1,9 +1,5 @@
-import Vue from 'vue/types'
-import Vuex from 'vuex/types'
 import EventBus from '../services/EventBus.js'
-import * as utils from "../utils/mapUtils";
-
-Vue.use(Vuex)
+import * as utils from '../utils/mapUtils'
 
 export default {
   state: {
@@ -30,7 +26,7 @@ export default {
   },
   getters: {
     activeMapLayers: state => state.activeMapLayers,
-    isMapLayerActive: state => layer => !!state.activeMapLayers[layer],
-    allMapLayers: () => utils.MAP_LAYERS
+    isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x.id === layerId),
+    allMapLayers: () => utils.MAP_LAYERS,
   }
 }

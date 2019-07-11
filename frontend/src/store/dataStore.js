@@ -1,9 +1,5 @@
-import Vue from 'vue/types'
-import Vuex from 'vuex/types'
 import EventBus from '../services/EventBus.js'
-import * as utils from "../utils/dataUtils";
-
-Vue.use(Vuex)
+import * as utils from '../utils/dataUtils'
 
 export default {
   state: {
@@ -13,7 +9,7 @@ export default {
 
   },
   mutations: {
-    addDataSource({ commit }, payload) {
+    addDataSource (state, payload) {
       state.activeDataSources.push(
         utils.DATA_SOURCES.find(function (source) {
           return source.id === payload
