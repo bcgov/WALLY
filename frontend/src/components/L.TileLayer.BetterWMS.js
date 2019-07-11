@@ -1,7 +1,5 @@
 import * as L from 'leaflet'
-import ApiService from '@/services/ApiService'
 import { round } from 'lodash'
-import { SET_SINGLE_MAP_OBJECT_SELECTION } from '../store/map/mutations.types'
 import store from '../store'
 
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
@@ -21,14 +19,8 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
   },
 
   getFeatureInfo: function (evt) {
-    // Make an AJAX request to the server and hope for the best
     let url = this.getFeatureInfoUrl(evt.latlng)
-    let showResults = L.Util.bind(this.showGetFeatureInfo, this)
-    ApiService.getRaw(url).then((response) => {
-      showResults(evt.latlng, response.data)
-    }).catch((error) => {
-      showResults(error)
-    })
+    store.dispatch('getFeatureInfo', { url: url, lat: evt.latlng.lat, lng: evt.latlng.lng })
   },
 
   getFeatureInfoUrl: function (latlng) {
@@ -56,21 +48,8 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     params[params.version === '1.3.0' ? 'j' : 'y'] = round(point.y)
 
     return this._url + L.Util.getParamString(params, this._url, true)
-  },
-
-  showGetFeatureInfo: function (latlng, content) {
-    // if (err) { console.log(err); return; } // do nothing if there's an error
-    if (content && content.features && content.features.length > 0) {
-      store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, { id: content.features[0].id, coordinates: [latlng.lat, latlng.lng], properties: content.features[0].properties })
-    }
-    // this._map.removeLayer(this.point)
-    // Otherwise show the content in a popup, or something.
-    // this.point = new L.Marker(latlng).addTo(this._map)
-    // L.popup({ maxWidth: 800})
-    //     .setLatLng(latlng)
-    //     .setContent(content)
-    //     .openOn(this._map);
   }
+
 })
 
 export default function (url, options) {
