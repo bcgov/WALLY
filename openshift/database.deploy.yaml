@@ -48,7 +48,7 @@ objects:
     name: ${NAME}${SUFFIX}
   spec:
     podManagementPolicy: OrderedReady
-    replicas: "${REPLICAS}"
+    replicas: ${{REPLICAS}}
     revisionHistoryLimit: 10
     selector:
       matchLabels:
