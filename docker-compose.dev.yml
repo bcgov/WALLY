@@ -2,8 +2,7 @@ version: '3.3'
 services:
   backend: 
     build: 
-      context: ./backend2
-      dockerfile: Dockerfile
+      context: ./backend
       args: 
         env: dev
     networks: 
@@ -12,7 +11,7 @@ services:
           - ${DOMAIN}
     command: /app/start-reload.sh
     volumes:
-      - ./backend2:/app
+      - ./backend:/app
     env_file:
       - env-postgres.env
       - env-backend.env
