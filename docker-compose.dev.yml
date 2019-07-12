@@ -2,40 +2,40 @@ version: '3.3'
 services:
   backend: 
     build: 
-      context: ./backend
-      dockerfile: backend.dockerfile
+      context: ./backend2
+      dockerfile: Dockerfile
       args: 
         env: dev
     networks: 
       default: 
         aliases: 
           - ${DOMAIN}
-    command: /start-reload.sh
+    command: /app/start-reload.sh
     volumes:
-      - ./backend/app:/app
+      - ./backend2:/app
     env_file:
       - env-postgres.env
       - env-backend.env
     environment:
       - SERVER_NAME=${DOMAIN}
       - SERVER_HOST=http://${DOMAIN}
-      - PORT=8888
+      - PORT=8000
     ports:
-      - '8888:8888'
+      - '8000:8000'
     depends_on: 
       - db
-  backend-tests:
-    build:
-      context: ./backend
-      dockerfile: tests.dockerfile
-    command: bash -c "while true; do sleep 1; done"
-    env_file:
-      - env-backend.env
-      - env-postgres.env
-    environment:
-      - SERVER_NAME=backend
-    volumes:
-      - ./backend/app:/app
+  # backend-tests:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: tests.dockerfile
+  #   command: bash -c "while true; do sleep 1; done"
+  #   env_file:
+  #     - env-backend.env
+  #     - env-postgres.env
+  #   environment:
+  #     - SERVER_NAME=backend
+  #   volumes:
+  #     - ./backend/app:/app
   db:
     image: mdillon/postgis:11
     env_file:
