@@ -28,7 +28,7 @@ objects:
       name: wally-${NAME}-api
     name: wally-${NAME}-api
   spec:
-    replicas: 0
+    replicas: 1
     revisionHistoryLimit: 10
     selector:
       app: wally-${NAME}
@@ -73,7 +73,7 @@ objects:
                 key: app-db-name
                 name: wally-psql
           - name: POSTGRES_SERVER
-            value: psql-master
+            value: wally-psql-master-${NAME}
           image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api
