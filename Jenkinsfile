@@ -128,7 +128,7 @@ pipeline {
                 timeout(10) {
                   echo "Starting build (frontend)"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
-                  def bcApi openshift.apply(bcApiTemplate).narrow('bc').startBuild()
+                  def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
                   def apiBuilds = bcApi.narrow('builds')
 
