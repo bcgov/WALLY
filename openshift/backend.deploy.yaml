@@ -116,7 +116,7 @@ objects:
       env: ${NAME}
       component: api
       name: wally-${NAME}-api
-    name: wally-api
+    name: wally-${NAME}-api
   spec:
     ports:
     - name: 8000-tcp
