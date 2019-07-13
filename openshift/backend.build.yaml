@@ -22,10 +22,12 @@ objects:
   metadata:
     annotations:
       openshift.io/generated-by: OpenShiftNewApp
-    creationTimestamp: 2019-07-13T01:52:53Z
     labels:
-      app: wally-api
-    name: wally-api
+      component: api
+      name: wally-${NAME}-api
+      env: "${NAME}"
+      app: wally-${NAME}
+    name: wally-${NAME}-api
   spec:
     failedBuildsHistoryLimit: 5
     nodeSelector: null
@@ -71,9 +73,4 @@ objects:
     lookupPolicy:
       local: false
 metadata:
-  resourceVersion: ""
-  selfLink: ""
-  labels:
-    app: wally
-    component: api
-    name: wally-api
+  name: wally-backend-build-template

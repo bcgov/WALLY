@@ -63,9 +63,10 @@ objects:
         openshift.io/generated-by: OpenShiftNewBuild
       labels:
         component: frontend
-        name: wally-web-${NAME}
+        name: wally-${NAME}-web
+        app: wally-${NAME}
         env: "${NAME}"
-      name: wally-web-${NAME}
+      name: wally-${NAME}-web
   - apiVersion: image.openshift.io/v1
     kind: ImageStream
     spec:
