@@ -1,0 +1,131 @@
+apiVersion: v1
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all of the resources defined in this template.
+  required: true
+  value: wally-test
+- name: HOST
+  displayName: Host
+  description: The hostname to deploy this template to.
+  required: true
+  value: wally-test.pathfinder.gov.bc.ca
+- name: NAMESPACE
+  displayName: Namespace
+  description: The namespace to apply this template to.
+  required: true
+  value: bfpeyx-test
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: 2019-07-13T01:52:53Z
+    generation: 4
+    labels:
+      app: wally-${NAME}
+    name: wally-${NAME}-api
+  spec:
+    replicas: 0
+    revisionHistoryLimit: 10
+    selector:
+      app: wally-${NAME}
+      deploymentconfig: wally-${NAME}-api
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+      spec:
+        containers:
+        - env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                key: app-db-username
+                name: wally-psql
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                key: app-db-password
+                name: wally-psql
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                key: app-db-name
+                name: wally-psql
+          - name: POSTGRES_SERVER
+            value: psql-master
+          image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
+          imagePullPolicy: Always
+          name: wally-${NAME}-api
+          ports:
+          - containerPort: 8000
+            protocol: TCP
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 512Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - wally-${NAME}-api
+        from:
+          kind: ImageStreamTag
+          name: wally-api:${NAME}
+          namespace: ${NAMESPACE}
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: wally-${NAME}
+      env: ${NAME}
+      component: api
+      name: wally-${NAME}-api
+    name: wally-api
+  spec:
+    ports:
+    - name: 8000-tcp
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+    selector:
+      app: wally-${NAME}
+      env: ${NAME}
+      component: api
+      name: wally-${NAME}-api
+    sessionAffinity: None
+    type: ClusterIP
+kind: Template
+metadata:
+  labels:
+    app: wally-${NAME}
+    env: ${NAME}
+    component: api
+    name: wally-${NAME}-api
