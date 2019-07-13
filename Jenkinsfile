@@ -179,7 +179,7 @@ pipeline {
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 
-                def api = openshift.apply(openshift.process("-f",
+                def backend = openshift.apply(openshift.process("-f",
                   "openshift/backend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
@@ -195,7 +195,7 @@ pipeline {
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
-                api.narrow.('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
