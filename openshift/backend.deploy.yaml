@@ -31,7 +31,9 @@ objects:
     revisionHistoryLimit: 10
     selector:
       app: wally-${NAME}
-      deploymentconfig: wally-${NAME}-api
+      env: ${NAME}
+      component: api
+      name: wally-${NAME}-api
     strategy:
       activeDeadlineSeconds: 21600
       resources: {}
