@@ -21,10 +21,11 @@ objects:
   metadata:
     annotations:
       openshift.io/generated-by: OpenShiftNewApp
-    creationTimestamp: 2019-07-13T01:52:53Z
-    generation: 4
     labels:
       app: wally-${NAME}
+      env: ${NAME}
+      component: api
+      name: wally-${NAME}-api
     name: wally-${NAME}-api
   spec:
     replicas: 0
@@ -48,6 +49,11 @@ objects:
       metadata:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
+        labels:
+            app: wally-${NAME}
+            env: ${NAME}
+            component: api
+            name: wally-${NAME}-api
       spec:
         containers:
         - env:
