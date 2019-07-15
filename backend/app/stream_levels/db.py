@@ -24,7 +24,6 @@ class StreamStation(BaseTable):
     regional_office_id = Column(String)
     hyd_status = Column(String)
     sed_status = Column(String)
-    # TODO: Must refactor to Point. Also, float does not seem appropriate for coordinates, but that's the data we have.
     latitude = Column(DOUBLE_PRECISION)
     longitude = Column(DOUBLE_PRECISION)
     drainage_area_gross = Column(DOUBLE_PRECISION)
