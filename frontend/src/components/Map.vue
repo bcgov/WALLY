@@ -39,10 +39,10 @@ export default {
   mounted () {
     // There seems to be an issue loading leaflet immediately on mount, we use nextTick to ensure
     // that the view has been rendered at least once before injecting the map.
-    this.$nextTick(function () {
+    // this.$nextTick(function () {
       this.initLeaflet()
       this.initMap()
-    })
+    // })
 
     EventBus.$on('layer:added', this.handleAddLayer)
     EventBus.$on('layer:removed', this.handleRemoveLayer)
@@ -249,9 +249,9 @@ export default {
 }
 </script>
 <style>
-    @import '~leaflet-geosearch/assets/css/leaflet.css';
-    @import '~leaflet-fullscreen/dist/leaflet.fullscreen.css';
-    @import "~leaflet/dist/leaflet.css";
+    @import '../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
+    @import '../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css';
+    @import "../../node_modules/leaflet/dist/leaflet.css";
     .map {
         width: 100%;
         height: calc(100vh - 64px);
