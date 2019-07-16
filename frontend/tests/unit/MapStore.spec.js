@@ -1,11 +1,7 @@
-import {mount, shallowMount, createLocalVue} from "@vue/test-utils";
-import Sidebar from '../../src/components/Sidebar'
+import {createLocalVue} from "@vue/test-utils";
 import {MAP_LAYERS} from "../../src/utils/mapUtils";
 import Vuex from 'vuex'
-import Vue from "vue";
 import * as map from '../../src/store/mapStore'
-import * as wms from '../../src/store/wmsStore'
-import * as data from '../../src/store/dataStore'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
