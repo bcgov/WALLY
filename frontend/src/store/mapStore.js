@@ -26,7 +26,7 @@ export default {
   },
   getters: {
     activeMapLayers: state => state.activeMapLayers,
-    isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x.id === layerId),
-    allMapLayers: () => utils.MAP_LAYERS,
+    isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x && x.id === layerId),
+    allMapLayers: () => utils.MAP_LAYERS
   }
 }

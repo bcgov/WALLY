@@ -1,10 +1,7 @@
-import Vue from 'vue';
-import Vuetify from 'vuetify/lib';
-import 'vuetify/src/stylus/app.styl';
+import Vue from 'vue'
+import Vuetify from 'vuetify/lib'
+import 'vuetify/src/stylus/app.styl'
 import 'material-design-icons-iconfont/dist/material-design-icons.css'
-
-// Helpers
-import colors from 'vuetify/es5/util/colors';
 
 Vue.use(Vuetify, {
   iconfont: 'md',
