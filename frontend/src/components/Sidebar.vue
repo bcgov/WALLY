@@ -40,7 +40,7 @@
               >
                 <p class="pl-3">
                   <label class="checkbox">{{choice.name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.id)" :checked="mapLayerIsActive(choice.id)">
+                    <input type="checkbox" @input="handleSelectLayer(choice.id)" :checked="isMapLayerActive(choice.id)">
                     <span class="checkmark"></span>
                   </label>
                 </p>
@@ -54,8 +54,8 @@
         <v-toolbar>
           <v-toolbar-title>Selected Points</v-toolbar-title>
         </v-toolbar>
-        <div v-if="selectedObjects.length > 0">
-          <div v-for="(layerGroup, groupIndex) in selectedObjects" :key="`objs-${layerGroup}${groupIndex}`">
+        <div v-if="featureLayers.length > 0">
+          <div v-for="(layerGroup, groupIndex) in featureLayers" :key="`objs-${layerGroup}${groupIndex}`">
             <div v-for="(value, name) in layerGroup" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
                 <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
@@ -66,10 +66,6 @@
                       <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
                       <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
                     </v-list-tile-content>
-  <!--                    <v-list-tile-action>-->
-  <!--                      <v-list-tile-action-text>{{ item.action }}</v-list-tile-action-text>-->
-  <!--                      <v-icon color="grey lighten-1">star_border</v-icon>-->
-  <!--                    </v-list-tile-action>-->
                   </v-list-tile>
                   <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
                 </template>
@@ -80,14 +76,13 @@
       </v-tab-item>
 
       <v-tab-item>
-<!--        <span v-html="mapLayerSingleSelection.content"></span>-->
-        <v-card v-if="selectedObject">
-          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(selectedObject.id) }}</v-card-title>
+        <v-card v-if="featureInfo">
+          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(featureInfo.id) }}</v-card-title>
 
           <v-divider></v-divider>
 
           <v-list dense>
-            <template v-for="(value, name, index) in selectedObject.properties">
+            <template v-for="(value, name, index) in featureInfo.properties">
               <v-list-tile :key="`tile-{$value}${index}`">
                 <v-list-tile-content><b>{{ humanReadable(name) }}:</b></v-list-tile-content>
                 <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>
@@ -101,13 +96,11 @@
 
   </v-navigation-drawer>
 </template>
-<script>
-import { ADD_ACTIVE_MAP_LAYER, REMOVE_ACTIVE_MAP_LAYER ,FETCH_MAP_OBJECT} from '../store/map/actions.types.js'
-import { SET_SINGLE_MAP_OBJECT_SELECTION } from '../store/map/mutations.types'
-import { MAP_LAYERS, LAYER_PROPERTY_MAPPINGS, LAYER_PROPERTY_NAMES } from '../store/map/mapConfig'
-import { mapState, mapGetters } from 'vuex'
-import { readable } from '../helpers'
 
+<script>
+import { mapGetters } from 'vuex'
+import { humanReadable } from '../helpers'
+import * as utils from '../utils/mapUtils'
 
 export default {
   name: 'Sidebar',
@@ -115,9 +108,9 @@ export default {
     return {
       active_tab: 0,
       tabs: [
-        { id: 1, name: 'Mapping' },
-        { id: 2, name: 'Data' },
-        { id: 3, name: 'Point' }
+        { id: 1, name: 'Layers' },
+        { id: 2, name: 'Features' },
+        { id: 3, name: 'Info' }
       ],
       drawer: true,
       items: [
@@ -125,13 +118,13 @@ export default {
           title: 'Layers',
           icon: 'layers',
           action: 'layers',
-          choices: MAP_LAYERS
+          choices: utils.MAP_LAYERS
         },
         {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: [{
+          choices: [{ // TODO update to use DATA_SOURCE from dataUtils
             id: 'Climate Normals 1980-2010',
             name: 'Canadian Climate Normals 1980-2010',
             uri: '',
@@ -140,17 +133,14 @@ export default {
         }
       ],
       mini: true,
-      selectedObject: { content: { properties: {} } },
-      selectedObjects: {},
       subHeading: ''
     }
   },
   computed: {
     ...mapGetters([
-      'dataLayers',
-      'activeMapLayers',
-      'mapLayerSelections',
-      'mapLayerSingleSelection'
+      'isMapLayerActive',
+      'featureInfo',
+      'featureLayers'
     ])
   },
   methods: {
@@ -158,10 +148,10 @@ export default {
       this.active_tab = id
     },
     handleSelectLayer (id) {
-      if (this.mapLayerIsActive(id)) {
-        this.$store.commit(REMOVE_ACTIVE_MAP_LAYER, id)
+      if (this.isMapLayerActive(id)) {
+        this.$store.commit('removeMapLayer', id)
       } else {
-        this.$store.commit(ADD_ACTIVE_MAP_LAYER, id)
+        this.$store.commit('addMapLayer', id)
       }
     },
     handleSelectListItem (item) {
@@ -171,57 +161,23 @@ export default {
       } else {
         item.coordinates = null
       }
-      this.$store.commit(SET_SINGLE_MAP_OBJECT_SELECTION, item)
+      this.$store.commit('setFeatureInfo', item)
     },
-    trimId (id) {
-      return typeof (id) === 'string' ? id.substr(0, id.lastIndexOf('.')) : ''
-    },
-    humanReadable (val) {
-      return readable(val)
-    },
-    mapLayerItemTitle (property) {
-      return LAYER_PROPERTY_NAMES[LAYER_PROPERTY_MAPPINGS[property]]
-    },
-    mapLayerItemValue (property) {
-      return LAYER_PROPERTY_MAPPINGS[property]
-    },
-    mapLayerName (layerId) {
-      let layer = MAP_LAYERS.find(e => e.wmsLayer === layerId)
-      if (layer) { return layer.name }
-    },
-    mapSubheading (id) {
-      let name = this.mapLayerName(this.trimId(id))
-      if (name) {
-        name = name.slice(0, -1)
-        return name
-      }
-    },
-    mapLayerIsActive (id) {
-      if (this.activeMapLayers) {
-        let layers = this.activeMapLayers.filter(e => e.id === id)
-        if (layers && layers.length) {
-          return layers.length > 0
-        }
-      } else {
-        return false
-      }
-    }
+    humanReadable: val => humanReadable(val),
+    mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
+    mapLayerItemValue: val => utils.mapLayerItemValue(val),
+    mapLayerName: val => utils.mapLayerName(val),
+    mapSubheading: val => utils.mapSubheading(val)
   },
   watch: {
-    mapLayerSingleSelection (value) {
+    featureInfo (value) {
       if (value && value.properties) {
-        this.selectedObject = value
         this.setTabById(2)
-      } else {
-        this.selectedObject = null
       }
     },
-    mapLayerSelections (value) {
+    featureLayers (value) {
       if (value.length > 0) {
         this.setTabById(1)
-        this.selectedObjects = value
-      } else {
-        this.selectedObjects = []
       }
     }
   }

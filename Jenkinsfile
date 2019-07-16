@@ -8,10 +8,39 @@ void notifyStageStatus (String name, String status) {
         this,
         GitHubHelper.getPullRequestLastCommitId(this),
         status,
-        "${env.BUILD_URL}",
-        "${name}",
-        "Stage: ${name}"
+        "${BUILD_URL}",
+        "Stage: ${name}",
+        "${name}"
     )
+}
+
+// createDeployment gets a new deployment ID from GitHub.
+// this lets us display notifications on GitHub when new environments
+// are deployed (e.g. on a pull request page)
+Long createDeployment (String suffix) {
+    def ghDeploymentId = new GitHubHelper().createDeployment(
+        this,
+        "pull/${CHANGE_ID}/head",
+        [
+            'environment':"${suffix}",
+            'task':"deploy:pull:${CHANGE_ID}"
+        ]
+    )
+    echo "deployment ID: ${ghDeploymentId}"
+    return ghDeploymentId
+
+}
+
+// Create deployment status for a deployment ID (call createDeployment first)
+void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl) {
+    echo "creating deployment status (${status})"
+    new GitHubHelper().createDeploymentStatus(
+        this,
+        ghDeploymentId,
+        "${status}",
+        ['targetUrl':"https://${stageUrl}/"]
+    )
+
 }
 
 // Run an action in a stage with GitHub notifications and stage retries on failure.
@@ -48,6 +77,7 @@ def withStatus(String name, Closure body) {
   }
 }
 
+
 // Print stack trace of error
 @NonCPS
 private static String stackTraceAsString(Throwable t) {
@@ -81,16 +111,36 @@ pipeline {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
                 echo "Applying template (frontend)"
-                def bcWeb = openshift.process('-f',
+                def bcWebTemplate = openshift.process('-f',
                   'openshift/frontend.build.yaml',
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
                   "GIT_REF=pull/${CHANGE_ID}/head"
                 )
 
-                echo "Starting build (frontend)"
-                openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
-                echo "Success! Build completed."
+                def bcApiTemplate = openshift.process('-f',
+                  'openshift/backend.build.yaml',
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=pull/${CHANGE_ID}/head"
+                )
+
+                timeout(10) {
+                  echo "Starting build (frontend)"
+                  def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
+                  def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
+                  def webBuilds = bcWeb.narrow('builds')
+                  def apiBuilds = bcApi.narrow('builds')
+
+                  sleep(5)
+                  webBuilds.untilEach(1) { // We want a minimum of 1 build
+                      return it.object().status.phase == "Complete"
+                  }
+                  apiBuilds.untilEach(1) { // We want a minimum of 1 build
+                      return it.object().status.phase == "Complete"
+                  } 
+                }
+                echo "Success! Builds completed."
               }
             }
           }
@@ -101,18 +151,56 @@ pipeline {
       steps {
         script {
           def project = DEV_PROJECT
+          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           openshift.withCluster() {
             openshift.withProject(project) {
-              def deployment = openshift.apply(openshift.process("-f",
-                "openshift/frontend.deploy.yaml",
-                "NAME=${NAME}",
-                "HOST=wally-${NAME}.pathfinder.gov.bc.ca",
-                "NAMESPACE=${project}"
-              ))
-              echo "Deploying to a dev environment"
-              openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
-              deployment.narrow('dc').rollout().status()
-              echo "Successfully deployed"
+              withStatus(env.STAGE_NAME) {
+
+                // create deployment object at GitHub and give it a pending status.
+                // this creates a notice on the pull request page indicating that a deployment
+                // is pending.
+                def deployment = createDeployment('DEV')
+                createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply frontend application template
+                def frontend = openshift.apply(openshift.process("-f",
+                  "openshift/frontend.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
+                // apply database template
+                def database = openshift.apply(openshift.process("-f",
+                  "openshift/database.deploy.yaml",
+                  "NAME=wally-psql",
+                  "REPLICAS=1",
+                  "SUFFIX=-${NAME}",
+                  "IMAGE_STREAM_NAMESPACE=${project}"
+                ))
+
+                def backend = openshift.apply(openshift.process("-f",
+                  "openshift/backend.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
+                echo "Deploying to a dev environment"
+
+                // tag images into dev project.  This triggers re-deploy.
+                openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
+                openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${DEV_PROJECT}/wally-api:${NAME}")
+
+                // wait for any deployments to finish updating.
+                frontend.narrow('dc').rollout().status()
+                database.narrow('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
+
+                // update GitHub deployment status.
+                createDeploymentStatus(deployment, 'SUCCESS', host)
+                echo "Successfully deployed"
+              }
             }
           }
         }

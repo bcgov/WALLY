@@ -1,5 +1,6 @@
 <template>
   <div class="home">
+    <Contextbar/>
     <Sidebar/>
     <Map/>
   </div>
@@ -8,6 +9,7 @@
 <script>
 import Map from './Map'
 import Sidebar from '../components/Sidebar'
+import Contextbar from './components/Contextbar'
 
 export default {
   name: 'Home',
