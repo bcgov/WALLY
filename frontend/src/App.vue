@@ -1,7 +1,5 @@
 <template>
   <v-app>
-    <Sidebar/>
-    <Contextbar/>
     <WHeader></WHeader>
     <v-content>
       <v-container fluid class="pa-0 ma-0">
@@ -13,15 +11,11 @@
 
 <script>
 import WHeader from './components/Header'
-import Contextbar from './components/Contextbar'
-import Sidebar from './components/Sidebar'
 
 export default {
   name: 'app',
   components: {
-    Sidebar,
     WHeader,
-    Contextbar
   }
 }
 </script>
