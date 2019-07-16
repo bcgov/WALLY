@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Map from './Map'
+import Map from '../components/Map'
 import Sidebar from '../components/Sidebar'
 import Contextbar from '../components/Contextbar'
 
