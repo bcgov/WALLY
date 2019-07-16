@@ -13,6 +13,7 @@
     "chart.js": "^2.8.0",
     "core-js": "^2.6.5",
     "esri-leaflet": "^2.2.4",
+    "keycloak-js": "^6.0.1",
     "leaflet": "^1.5.1",
     "leaflet-fullscreen": "^1.0.2",
     "leaflet-geosearch": "^2.7.0",
