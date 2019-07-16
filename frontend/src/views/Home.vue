@@ -9,13 +9,14 @@
 <script>
 import Map from './Map'
 import Sidebar from '../components/Sidebar'
-import Contextbar from './components/Contextbar'
+import Contextbar from '../components/Contextbar'
 
 export default {
   name: 'Home',
   components: {
     Map,
-    Sidebar
+    Sidebar,
+    Contextbar
   }
 }
 </script>
