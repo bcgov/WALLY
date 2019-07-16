@@ -4,7 +4,7 @@
 python /app/app/db/wait_for_db.py
 
 # Run migrations
-alembic -c alembic/alembic.ini upgrade head
+# alembic -c alembic/alembic.ini upgrade head
 
 # Create initial data in DB
 python /app/app/initial_data.py

@@ -1,6 +1,6 @@
-from sqlalchemy import Column, Integer, Float, String
+from sqlalchemy import Column, Integer, ForeignKey, Float, String
 from typing import List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, relationship
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 from app.db.base_class import BaseTable
@@ -33,5 +33,61 @@ class StreamStation(BaseTable):
     sed_status = Column(Integer)
 
 
+class MonthlyLevel(BaseTable):
+    """
+    Water level at a stream flow monitoring station, grouped by month.
+    Note: daily data is also available on this table.
+    """
+    __tablename__ = "dly_levels"
+
+    station_number = Column(String, ForeignKey(
+        'stations.station_number'), primary_key=True)
+    year = Column(Integer, primary_key=True)
+    month = Column(Integer, primary_key=True)
+    full_month = Column(Integer)
+    no_days = Column(Integer)
+    precision_code = Column(Integer)
+    monthly_mean = Column(DOUBLE_PRECISION)
+    monthly_total = Column(DOUBLE_PRECISION)
+    min = Column(DOUBLE_PRECISION)
+    max = Column(DOUBLE_PRECISION)
+
+
+class MonthlyFlow(BaseTable):
+    """
+    Water flows at a stream flow monitoring station, grouped by month.
+    Note: daily data is also available on this table.
+    """
+    __tablename__ = "dly_flows"
+
+    station_number = Column(String, ForeignKey(
+        'stations.station_number'), primary_key=True)
+    year = Column(Integer, primary_key=True)
+    month = Column(Integer, primary_key=True)
+    full_month = Column(Integer)
+    no_days = Column(Integer)
+    monthly_mean = Column(DOUBLE_PRECISION)
+    monthly_total = Column(DOUBLE_PRECISION)
+    min = Column(DOUBLE_PRECISION)
+    max = Column(DOUBLE_PRECISION)
+
+
 def get_stations(db: Session) -> List[streams_v1.StreamStation]:
+    """ list all stream monitoring stations in BC """
     return db.query(StreamStation).filter(StreamStation.prov_terr_state_loc == 'BC').all()
+
+
+def get_monthly_levels_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
+    """ fetch monthly stream levels for a specified station_number and year """
+    return db.query(MonthlyLevel).filter(
+        MonthlyLevel.station_number == station,
+        MonthlyLevel.year == year
+    ).all()
+
+
+def get_monthly_flows_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyFlow]:
+    """ fetch monthly stream levels for a specified station_number and year """
+    return db.query(MonthlyFlow).filter(
+        MonthlyFlow.station_number == station,
+        MonthlyFlow.year == year
+    ).all()

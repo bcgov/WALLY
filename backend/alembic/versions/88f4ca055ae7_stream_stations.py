@@ -6,7 +6,7 @@ Create Date: 2019-07-15 16:27:54.990523
 
 """
 from alembic import op
-from sqlalchemy import Column, String, Integer
+from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
 # revision identifiers, used by Alembic.
@@ -32,6 +32,35 @@ def upgrade():
         Column('rhbn', Integer),
         Column('real_time', Integer),
         Column('sed_status', Integer),
+    )
+
+    op.create_table(
+        'dly_levels',
+        Column('station_number', String, ForeignKey(
+            'stations.station_number'), primary_key=True),
+        Column('year', Integer, primary_key=True),
+        Column('month', Integer, primary_key=True),
+        Column('full_month', Integer),
+        Column('no_days', Integer),
+        Column('precision_code', Integer),
+        Column('monthly_mean', DOUBLE_PRECISION),
+        Column('monthly_total', DOUBLE_PRECISION),
+        Column('min', DOUBLE_PRECISION),
+        Column('max', DOUBLE_PRECISION),
+    )
+
+    op.create_table(
+        'dly_flows',
+        Column('station_number', String, ForeignKey(
+            'stations.station_number'), primary_key=True),
+        Column('year', Integer, primary_key=True),
+        Column('month', Integer, primary_key=True),
+        Column('full_month', Integer),
+        Column('no_days', Integer),
+        Column('monthly_mean', DOUBLE_PRECISION),
+        Column('monthly_total', DOUBLE_PRECISION),
+        Column('min', DOUBLE_PRECISION),
+        Column('max', DOUBLE_PRECISION),
     )
 
 
