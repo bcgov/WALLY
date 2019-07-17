@@ -55,3 +55,4 @@ virtualenv==16.6.1
 virtualenv-clone==0.5.3
 websockets==7.0
 wrapt==1.11.2
+factory-boy==2.12.0

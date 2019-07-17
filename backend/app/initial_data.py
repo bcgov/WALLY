@@ -1,13 +1,18 @@
 import logging
 
 from app.db.session import db_session
+from app.stream_levels.factory import StationFactory
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def init():
-    # use the db_session to populate fixture data
+    # generate stream station and flow/level data
+    stn = StationFactory()
+
+    db_session.add(stn)
+    db_session.commit()
     pass
 
 

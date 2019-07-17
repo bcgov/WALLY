@@ -8,6 +8,47 @@ from app.db.base_class import BaseTable
 import app.stream_levels.models as streams_v1
 
 
+class MonthlyLevel(BaseTable):
+    """
+    Water level at a stream flow monitoring station, grouped by month.
+    Note: daily data is also available on this table.
+    """
+    __tablename__ = "dly_levels"
+
+    station_number = Column(String, ForeignKey(
+        'stations.station_number'), primary_key=True)
+    year = Column(Integer, primary_key=True)
+    month = Column(Integer, primary_key=True)
+    full_month = Column(Integer)
+    no_days = Column(Integer)
+    precision_code = Column(Integer)
+    monthly_mean = Column(DOUBLE_PRECISION)
+    monthly_total = Column(DOUBLE_PRECISION)
+    min = Column(DOUBLE_PRECISION)
+    max = Column(DOUBLE_PRECISION)
+    station = relationship("StreamStation", back_populates="monthly_levels")
+
+
+class MonthlyFlow(BaseTable):
+    """
+    Water flows at a stream flow monitoring station, grouped by month.
+    Note: daily data is also available on this table.
+    """
+    __tablename__ = "dly_flows"
+
+    station_number = Column(String, ForeignKey(
+        'stations.station_number'), primary_key=True)
+    year = Column(Integer, primary_key=True)
+    month = Column(Integer, primary_key=True)
+    full_month = Column(Integer)
+    no_days = Column(Integer)
+    monthly_mean = Column(DOUBLE_PRECISION)
+    monthly_total = Column(DOUBLE_PRECISION)
+    min = Column(DOUBLE_PRECISION)
+    max = Column(DOUBLE_PRECISION)
+    station = relationship("StreamStation", back_populates="monthly_flows")
+
+
 class StreamStation(BaseTable):
     """ 
     A station where stream data is collected
@@ -31,45 +72,8 @@ class StreamStation(BaseTable):
     rhbn = Column(Integer)
     real_time = Column(Integer)
     sed_status = Column(Integer)
-
-
-class MonthlyLevel(BaseTable):
-    """
-    Water level at a stream flow monitoring station, grouped by month.
-    Note: daily data is also available on this table.
-    """
-    __tablename__ = "dly_levels"
-
-    station_number = Column(String, ForeignKey(
-        'stations.station_number'), primary_key=True)
-    year = Column(Integer, primary_key=True)
-    month = Column(Integer, primary_key=True)
-    full_month = Column(Integer)
-    no_days = Column(Integer)
-    precision_code = Column(Integer)
-    monthly_mean = Column(DOUBLE_PRECISION)
-    monthly_total = Column(DOUBLE_PRECISION)
-    min = Column(DOUBLE_PRECISION)
-    max = Column(DOUBLE_PRECISION)
-
-
-class MonthlyFlow(BaseTable):
-    """
-    Water flows at a stream flow monitoring station, grouped by month.
-    Note: daily data is also available on this table.
-    """
-    __tablename__ = "dly_flows"
-
-    station_number = Column(String, ForeignKey(
-        'stations.station_number'), primary_key=True)
-    year = Column(Integer, primary_key=True)
-    month = Column(Integer, primary_key=True)
-    full_month = Column(Integer)
-    no_days = Column(Integer)
-    monthly_mean = Column(DOUBLE_PRECISION)
-    monthly_total = Column(DOUBLE_PRECISION)
-    min = Column(DOUBLE_PRECISION)
-    max = Column(DOUBLE_PRECISION)
+    monthly_flows = relationship("MonthlyFlow", back_populates="station")
+    monthly_levels = relationship("MonthlyLevel", back_populates="station")
 
 
 def get_stations(db: Session) -> List[streams_v1.StreamStation]:

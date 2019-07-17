@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.stream_levels.db as streams_repo
 import app.stream_levels.models as streams_v1
+from . import factory
 
 router = APIRouter()
 
@@ -19,7 +20,6 @@ logger = getLogger("api")
 @router.get("/streams", response_model=List[streams_v1.StreamStation])
 def list_stations(db: Session = Depends(get_db)):
     """ Returns available stream monitoring stations """
-
     return streams_repo.get_stations(db)
 
 
