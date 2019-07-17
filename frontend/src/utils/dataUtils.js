@@ -1,6 +1,11 @@
 export const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980_2010'
+export const HYDROMETRIC_STREAM_FLOW = 'HYDROMETRIC_STREAM_FLOW'
 
-export const DATA_SOURCES = [
+export const DATA_LAYERS = [
+  {
+    id: HYDROMETRIC_STREAM_FLOW,
+    endpoint: '/streams'
+  },
   {
     id: DATA_CAN_CLIMATE_NORMALS_1980_2010, // TODO possibly wrap this above the geojson object
     type: 'FeatureCollection',
