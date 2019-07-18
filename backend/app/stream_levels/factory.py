@@ -31,8 +31,8 @@ class MonthlyLevelFactory(factory.alchemy.SQLAlchemyModelFactory):
     # some variation in yearly data for visualization/testing.
     monthly_mean = factory.Sequence(lambda n: (BASE_FLOWS[n % 12] + (0.1 * (n//12))))
     monthly_total = factory.Sequence(lambda n: (BASE_FLOWS[n % 12] + (0.1 * (n//12))) * 30)
-    min = factory.Sequence(lambda n: (BASE_FLOWS[n % 12] + (0.1 * (n//12))) - 5)
-    max = factory.Sequence(lambda n: (BASE_FLOWS[n % 12] + (0.1 * (n//12))) + 5)
+    min = factory.Sequence(lambda n: (BASE_FLOWS[n % 12] + (0.1 * (n//12))) - 0.5)
+    max = factory.Sequence(lambda n: (BASE_FLOWS[n % 12] + (0.1 * (n//12))) + 0.5)
     station = None
 
 
