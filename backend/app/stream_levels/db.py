@@ -1,3 +1,4 @@
+from geojson import FeatureCollection, Feature, Point
 from sqlalchemy import Column, Integer, ForeignKey, Float, String
 from typing import List
 from sqlalchemy.orm import Session, relationship
@@ -76,9 +77,20 @@ class StreamStation(BaseTable):
     monthly_levels = relationship("MonthlyLevel", back_populates="station")
 
 
-def get_stations(db: Session) -> List[streams_v1.StreamStation]:
-    """ list all stream monitoring stations in BC """
-    return db.query(StreamStation).filter(StreamStation.prov_terr_state_loc == 'BC').all()
+def get_stations(db: Session) -> FeatureCollection:
+    """ list all stream monitoring stations in BC as a FeatureCollection """
+    stations = db.query(StreamStation).filter(StreamStation.prov_terr_state_loc == 'BC').all()
+
+    points = [
+        Feature(
+            geometry=Point((stn.longitude, stn.latitude)),
+            id=stn.station_number,
+            properties={"station_name": stn.station_name}
+        ) for stn in stations
+    ]
+
+    fc = FeatureCollection(points)
+    return fc
 
 
 def get_monthly_levels_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
