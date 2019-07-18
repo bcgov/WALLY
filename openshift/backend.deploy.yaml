@@ -49,6 +49,34 @@ objects:
         maxUnavailable: 25%
         timeoutSeconds: 600
         updatePeriodSeconds: 1
+        pre:
+          failurePolicy: Abort
+          execNewPod:
+            command:
+              - "/bin/bash"
+              - "-c"
+              - "/app/prestart.sh"
+            containerName: wally-${NAME}-api
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: wally-psql
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-password
+                  name: wally-psql
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-name
+                  name: wally-psql
+            - name: POSTGRES_SERVER
+              value: wally-psql-master-${NAME}
+            - name: WALLY_ENV
+              value: "${ENVIRONMENT}"
       type: Rolling
     template:
       metadata:
