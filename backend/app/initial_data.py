@@ -1,5 +1,5 @@
 import logging
-
+import os
 from app.db.session import db_session
 from app.stream_levels.factory import StationFactory
 
@@ -20,7 +20,13 @@ def create_stream_levels_data():
 
 
 def main():
-    logger.info("Creating initial data")
+    # just another failsafe to prevent fixture data in production
+    env = os.getenv('WALLY_ENV')
+    if env == 'PROD' or env == 'PRODUCTION':
+        logger.error(f"Skipping fixture data due to environment ({env})")
+        return
+
+    logger.info("Creating initial fixture data")
     create_stream_levels_data()
     logger.info("Initial data created")
 
