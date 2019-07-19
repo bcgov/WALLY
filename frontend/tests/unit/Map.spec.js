@@ -1,5 +1,5 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
-import Map from '../../src/components/Map.vue';
+import Map from '../../src/components/map/Map.vue';
 import {MAP_LAYERS, WMS_WATER_RIGHTS_LICENSES} from "../../src/utils/mapUtils";
 import Vuex from 'vuex'
 
