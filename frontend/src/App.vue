@@ -12,14 +12,12 @@
 </template>
 
 <script>
-import Sidebar from './components/Sidebar'
 import WHeader from './components/Header'
 import ContextBar from './components/contextbar/ContextBar'
 
 export default {
   name: 'app',
   components: {
-    Sidebar,
     WHeader,
     ContextBar
   }

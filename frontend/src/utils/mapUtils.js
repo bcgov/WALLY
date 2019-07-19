@@ -110,8 +110,8 @@ export function mapLayerName (layerId) {
 }
 
 export function mapSubheading (id) {
-  let name = this.mapLayerName(trimId(id))
-  if(name) {
+  let name = mapLayerName(trimId(id))
+  if (name) {
     name = name.slice(0, -1)
     return name
   }

@@ -14,14 +14,36 @@
       This place is for anything that needs to be right aligned
       beside the logo.
     -->
-      &nbsp;
+      {{ name }}
     </div>
   </header>
 </template>
 
 <script>
-import Vue from 'vue'
-export default class WHeader extends Vue {}
+import EventBus from '../services/EventBus.js'
+export default {
+  name: 'Header',
+  data () {
+    return {
+      name: ''
+    }
+  },
+  methods: {
+    setName (payload) {
+      const { name, authenticated } = payload
+      if (authenticated) {
+        this.name = name
+      }
+    }
+  },
+  created () {
+    this.name = this.$auth.name
+    EventBus.$on('auth:update', this.setName)
+  },
+  beforeDestroy () {
+    EventBus.$off('auth:update', this.setName)
+  }
+}
 </script>
 <style>
 header {
@@ -54,7 +76,10 @@ header .banner {
 
 header .other {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   flex-grow: 1;
+  font-weight: bold;
   /* border-style: dotted;
   border-width: 1px;
   border-color: lightgrey; */

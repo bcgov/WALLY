@@ -111,16 +111,36 @@ pipeline {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
                 echo "Applying template (frontend)"
-                def bcWeb = openshift.process('-f',
+                def bcWebTemplate = openshift.process('-f',
                   'openshift/frontend.build.yaml',
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
                   "GIT_REF=pull/${CHANGE_ID}/head"
                 )
 
-                echo "Starting build (frontend)"
-                openshift.apply(bcWeb).narrow('bc').startBuild('-w').logs('-f')
-                echo "Success! Build completed."
+                def bcApiTemplate = openshift.process('-f',
+                  'openshift/backend.build.yaml',
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=pull/${CHANGE_ID}/head"
+                )
+
+                timeout(10) {
+                  echo "Starting build (frontend)"
+                  def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
+                  def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
+                  def webBuilds = bcWeb.narrow('builds')
+                  def apiBuilds = bcApi.narrow('builds')
+
+                  sleep(5)
+                  webBuilds.untilEach(1) { // We want a minimum of 1 build
+                      return it.object().status.phase == "Complete"
+                  }
+                  apiBuilds.untilEach(1) { // We want a minimum of 1 build
+                      return it.object().status.phase == "Complete"
+                  } 
+                }
+                echo "Success! Builds completed."
               }
             }
           }
@@ -159,14 +179,23 @@ pipeline {
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 
+                def backend = openshift.apply(openshift.process("-f",
+                  "openshift/backend.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
+                openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${DEV_PROJECT}/wally-api:${NAME}")
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)

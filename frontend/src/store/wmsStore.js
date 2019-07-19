@@ -24,7 +24,7 @@ export default {
       ApiService.getRaw(wmsBaseURl + payload.layer + '/ows' + wmsParamString(payload))
         .then((response) => {
           let points = response.data.objects[payload.layer].geometries // TODO Test functional
-          commit("setLayerFeatures", { [payload.layer]: points })
+          commit('setLayerFeatures', { [payload.layer]: points })
         }).catch((error) => {
           console.log(error)
         })
