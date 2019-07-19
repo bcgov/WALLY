@@ -49,25 +49,4 @@
   </v-navigation-drawer>
 </template>
 
-<script>
-import RandomChart from './charts/RandomChart'
-import CircleChart from './charts/CircleChart'
-
-export default {
-  name: 'Contextbar',
-  components: {CircleChart, RandomChart},
-  data () {
-    return {
-      drawer: {
-        open: true,
-        mini: true
-      }
-    }
-  },
-  methods: {
-    toggleContextBar () {
-      this.drawer.mini = !this.drawer.mini
-    }
-  }
-}
-</script>
+<script src="./ContextBar.js">
