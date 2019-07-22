@@ -22,6 +22,7 @@
     <div v-if="!drawer.mini">
       <v-container>
         <RandomChart />
+        <BarChart :chart-data="bar_data"></BarChart>
         <v-divider></v-divider>
         <v-card style="margin-top: 25px">
           <v-img

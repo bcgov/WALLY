@@ -14,12 +14,14 @@
 <script>
 import WHeader from './components/Header'
 import ContextBar from './components/contextbar/ContextBar'
+import Sidebar from './components/Sidebar'
 
 export default {
   name: 'app',
   components: {
     WHeader,
-    ContextBar
+    ContextBar,
+    Sidebar
   }
 }
 </script>
