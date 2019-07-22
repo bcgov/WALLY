@@ -79,13 +79,21 @@ class StreamStation(BaseTable):
 
 def get_stations(db: Session) -> FeatureCollection:
     """ list all stream monitoring stations in BC as a FeatureCollection """
-    stations = db.query(StreamStation).filter(StreamStation.prov_terr_state_loc == 'BC').all()
+    stations = db.query(StreamStation).filter(
+        StreamStation.prov_terr_state_loc == 'BC').all()
 
+    # add properties to geojson Feature objects
     points = [
         Feature(
             geometry=Point((stn.longitude, stn.latitude)),
             id=stn.station_number,
-            properties={"station_name": stn.station_name}
+            properties={
+                "name": stn.station_name,
+                "type": "stream_levels",
+                "description": "Stream discharge and water level data",
+                "stream_flows_url": f"/api/v1/streams/{stn.station_number}/flows",
+                "stream_levels_url": f"/api/v1/streams/{stn.station_number}/levels"
+            }
         ) for stn in stations
     ]
 

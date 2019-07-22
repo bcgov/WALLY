@@ -11,14 +11,14 @@ export default {
   mutations: {
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
-        utils.MAP_LAYERS.find(function (layer) {
+        utils.MAP_LAYERS.find((layer) => {
           return layer.id === payload
         })
       )
       EventBus.$emit(`layer:added`, payload)
     },
     removeMapLayer (state, payload) {
-      state.activeMapLayers = state.activeMapLayers.filter(function (layer) {
+      state.activeMapLayers = state.activeMapLayers.filter((layer) => {
         return layer.id !== payload
       })
       EventBus.$emit(`layer:removed`, payload)

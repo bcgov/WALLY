@@ -40,7 +40,7 @@
               >
                 <p class="pl-3">
                   <label class="checkbox">{{choice.name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.id)" :checked="isMapLayerActive(choice.id)">
+                    <input type="checkbox" @input="handleSelectLayer(choice.id, choice.type, choice.url)" :checked="isMapLayerActive(choice.id)">
                     <span class="checkmark"></span>
                   </label>
                 </p>
@@ -101,6 +101,7 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../helpers'
 import * as utils from '../utils/mapUtils'
+import * as dataUtils from '../utils/dataUtils'
 
 export default {
   name: 'Sidebar',
@@ -124,12 +125,7 @@ export default {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: [{ // TODO update to use DATA_SOURCE from dataUtils
-            id: 'Climate Normals 1980-2010',
-            name: 'Canadian Climate Normals 1980-2010',
-            uri: '',
-            geojson: ''
-          }]
+          choices: dataUtils.DATA_LAYERS
         }
       ],
       mini: true,
@@ -139,6 +135,7 @@ export default {
   computed: {
     ...mapGetters([
       'isMapLayerActive',
+      'isDataSourceActive',
       'featureInfo',
       'featureLayers'
     ])
@@ -147,11 +144,25 @@ export default {
     setTabById (id) {
       this.active_tab = id
     },
-    handleSelectLayer (id) {
+    handleSelectLayer (id, type, resource) {
+      if (type === dataUtils.API_DATASOURCE) {
+        this.updateDataLayer(id, resource)
+      } else {
+        this.updateMapLayer(id)
+      }
+    },
+    updateMapLayer (id) {
       if (this.isMapLayerActive(id)) {
         this.$store.commit('removeMapLayer', id)
       } else {
         this.$store.commit('addMapLayer', id)
+      }
+    },
+    updateDataLayer (id, url) {
+      if (this.isDataSourceActive(id)) {
+        this.$store.commit('removeDataSource', id)
+      } else {
+        this.$store.dispatch('getDataSource', { id: id, url: url })
       }
     },
     handleSelectListItem (item) {
