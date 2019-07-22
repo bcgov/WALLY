@@ -21,7 +21,7 @@
     </v-toolbar>
     <div v-if="!drawer.mini">
       <v-container>
-        <RandomChart />
+<!--        <RandomChart />-->
         <BarChart :chart-data="bar_data"></BarChart>
         <v-divider></v-divider>
         <v-card style="margin-top: 25px">

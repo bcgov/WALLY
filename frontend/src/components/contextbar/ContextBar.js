@@ -1,3 +1,4 @@
+import { mapGetters } from 'vuex'
 import RandomChart from '../charts/RandomChart'
 import CircleChart from '../charts/CircleChart'
 import BarChart from '../charts/BarChart.js'
@@ -37,9 +38,39 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters([
+      'featureLayers'
+    ])
+  },
   methods: {
     toggleContextBar () {
       this.drawer.mini = !this.drawer.mini
+    },
+    populateChartData (items) {
+      // console.log('populating data.....')
+      if (items.length > 0) {
+        this.bar_data.labels = this.bar_data.datasets[0].data = []
+
+        items.forEach((layerGroup, groupIndex) => {
+          Object.keys(layerGroup).map(key => {
+            layerGroup[key].forEach(item => {
+              // Depends on the type of data
+              this.bar_data.labels.push(item.properties.LICENCE_NUMBER)
+              this.bar_data.datasets[0].data.push(item.properties.QUANTITY)
+            })
+          })
+        })
+      }
+    }
+  },
+  watch: {
+    featureLayers (value) {
+      // console.log('selected some features')
+      if (value.length > 0) {
+        this.populateChartData(value)
+        // TODO: Reload chart
+      }
     }
   }
 }
