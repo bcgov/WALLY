@@ -44,7 +44,7 @@
           </v-card-actions>
         </v-card>
         <v-divider style="margin-top: 25px"></v-divider>
-        <CircleChart/>
+<!--        <CircleChart/>-->
       </v-container>
     </div>
   </v-navigation-drawer>

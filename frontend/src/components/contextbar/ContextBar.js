@@ -13,26 +13,12 @@ export default {
         mini: true
       },
       bar_data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: [],
         datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
+          label: 'Bar chart',
+          data: [],
+          backgroundColor: [],
+          borderColor: [],
           borderWidth: 1
         }]
       }
@@ -43,6 +29,32 @@ export default {
       'featureLayers'
     ])
   },
+  mounted () {
+    this.bar_data = {
+      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      datasets: [{
+        label: 'Water Quantity',
+        data: [12, 19, 3, 5, 2, 3],
+        backgroundColor: [
+          'rgba(255, 99, 132, 0.2)',
+          'rgba(54, 162, 235, 0.2)',
+          'rgba(255, 206, 86, 0.2)',
+          'rgba(75, 192, 192, 0.2)',
+          'rgba(153, 102, 255, 0.2)',
+          'rgba(255, 159, 64, 0.2)'
+        ],
+        borderColor: [
+          'rgba(255, 99, 132, 1)',
+          'rgba(54, 162, 235, 1)',
+          'rgba(255, 206, 86, 1)',
+          'rgba(75, 192, 192, 1)',
+          'rgba(153, 102, 255, 1)',
+          'rgba(255, 159, 64, 1)'
+        ],
+        borderWidth: 1
+      }]
+    }
+  },
   methods: {
     toggleContextBar () {
       this.drawer.mini = !this.drawer.mini
@@ -50,14 +62,17 @@ export default {
     populateChartData (items) {
       // console.log('populating data.....')
       if (items.length > 0) {
-        this.bar_data.labels = this.bar_data.datasets[0].data = []
+        this.bar_data.labels = []
+        this.bar_data.datasets[0].data = []
 
         items.forEach((layerGroup, groupIndex) => {
           Object.keys(layerGroup).map(key => {
             layerGroup[key].forEach(item => {
               // Depends on the type of data
+              console.log(item.properties.LICENCE_NUMBER, item.properties.QUANTITY, item.properties)
               this.bar_data.labels.push(item.properties.LICENCE_NUMBER)
               this.bar_data.datasets[0].data.push(item.properties.QUANTITY)
+              console.log(this.bar_data)
             })
           })
         })
