@@ -48,7 +48,7 @@ export default {
     EventBus.$on('layer:removed', this.handleRemoveLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
 
-    // this.$store.dispatch(FETCH_DATA_SOURCES)
+    // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
   beforeDestroy () {
     EventBus.$off('layer:added', this.handleAddLayer)

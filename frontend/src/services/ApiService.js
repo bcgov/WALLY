@@ -2,6 +2,7 @@ import axios from 'axios'
 import qs from 'querystring'
 
 const ApiService = {
+
   init () {
     axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL
     this.baseURL = axios.defaults.baseURL
@@ -40,6 +41,9 @@ const ApiService = {
   },
   get (resource, record) {
     return axios.get(`${resource}/${record}`)
+  },
+  getApi (resource) {
+    return axios.get(this.baseURL + resource)
   },
   getRaw (url) {
     return axios.get(url)

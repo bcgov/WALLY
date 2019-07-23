@@ -1,20 +1,27 @@
 import EventBus from '../services/EventBus.js'
 import * as utils from '../utils/dataUtils'
+import ApiService from '../services/ApiService'
 
 export default {
   state: {
-    activeDataSources: []
+    activeDataLayers: []
   },
   actions: {
-
+    getDataLayer ({ commit }, payload) {
+      ApiService.getRaw(payload.url).then((res) => {
+        commit('addDataSource', {
+          id: payload.id,
+          data: res.data
+        })
+        EventBus.$emit(`dataLayer:added`, payload)
+      }).catch((error) => {
+        console.log(error) // TODO create error state item and mutation
+      })
+    }
   },
   mutations: {
     addDataSource (state, payload) {
-      state.activeDataSources.push(
-        utils.DATA_SOURCES.find(function (source) {
-          return source.id === payload
-        })
-      )
+      state.activeDataSources.push(payload)
       EventBus.$emit(`dataSource:added`, payload)
     },
     removeDataSource (state, payload) {
@@ -27,6 +34,6 @@ export default {
   getters: {
     activeDataSources: state => state.activeDataSources,
     isDataSourceActive: state => source => !!state.activeDataSources[source],
-    allDataSources: () => utils.DATA_SOURCES
+    allDataSources: () => utils.DATA_LAYERS
   }
 }
