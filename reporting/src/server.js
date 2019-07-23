@@ -2,6 +2,7 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import React from 'react';
+import axios from 'axios'
 import { ReactPDF } from './app'
 
 const CONTENT_TYPE = 'Content-Type';
@@ -43,6 +44,22 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
             props['data'] = Object.assign({}, data)
             const buffer = await creatChart()
             // console.log(buffer)
+
+            let radius = 0.05
+            let url = 'http://maps.gov.bc.ca/arcserver/services/province/roads_wm/MapServer/WMSServer?REQUEST=GetMap' +
+                '&SERVICE=WMS&SRS=EPSG:4326&STYLES=&VERSION=1.1.1&LAYERS=0&FORMAT=image%2Fpng&HEIGHT=600&WIDTH=887' +
+                '&BBOX=' + (props['data']['coordinates'][1] - radius) + ',' + (props['data']['coordinates'][0] - radius) + ','
+                + (props['data']['coordinates'][1] + radius) + ',' + (props['data']['coordinates'][0] + radius)
+
+            console.log(url)
+            await axios({
+                url: url,
+                method: 'get',
+                responseType: 'arraybuffer'
+            }).then((res) => {
+                props['map'] = { data: new Buffer.from(res.data), format: 'png' }
+            })
+
             props['chart'] = { data: buffer, format: 'png' }
             const readStream = await renderReact(reactTemplate, props);
 
@@ -62,7 +79,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     server.use(bodyParser.json({ limit: '1mb' }));
     server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
-    const whitelist = ['http://localhost:8080', 'http://127.0.0.1:8080']
+    const whitelist = ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://maps.gov.bc.ca']
     const corsOptions = {
         origin: function(origin, callback) {
             if (whitelist.indexOf(origin) !== -1) {
@@ -72,7 +89,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
             }
         }
     }
-    server.use(cors(corsOptions))
+    server.use(cors())
 
     server.get('/favicon.ico', (request, response) => response.status('404').end());
 

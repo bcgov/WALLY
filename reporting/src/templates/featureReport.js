@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
 class FeatureReport extends React.Component {
     constructor(props) {
         super(props)
-        console.log(props)
+        // console.log(props)
     }
 
     render() {
@@ -84,6 +84,7 @@ class FeatureReport extends React.Component {
                             <Text style={styles.header}>Location</Text>
                             <Text style={styles.info}>Latitude: {this.props.data.coordinates[0]}</Text>
                             <Text style={styles.info}>Longitude: {this.props.data.coordinates[1]}</Text>
+                            <Image src={this.props.map} style={styles.chart}/>
 
                             <Text style={styles.header}>Properties</Text>
                             <List style={styles.section}>
