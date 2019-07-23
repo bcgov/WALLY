@@ -2,26 +2,28 @@
 Map layers (layers module) API endpoints/handlers.
 """
 from logging import getLogger
-import time
-from geojson import FeatureCollection
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.stream_levels.db as streams_repo
 import app.stream_levels.models as streams_v1
-from . import factory
+
+logger = getLogger("api")
 
 router = APIRouter()
 
 
-logger = getLogger("api")
-
-
 @router.get("/streams")
 def list_stations(db: Session = Depends(get_db)):
-    """ Returns available stream monitoring stations """
+    """ List available stream monitoring stations """
     return streams_repo.get_stations(db)
+
+
+@router.get("/streams/{station_number}", response_model=streams_v1.StreamStation)
+def get_station(station_number: str, db: Session = Depends(get_db)):
+    """ Get information about a stream monitoring station """
+    return streams_repo.get_station_details(db, station_number)
 
 
 @router.get("/streams/{station_number}/levels", response_model=List[streams_v1.MonthlyLevel])

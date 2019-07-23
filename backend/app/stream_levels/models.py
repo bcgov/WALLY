@@ -2,8 +2,8 @@
 API data models.
 These are external facing data models/schemas that users see.
 """
-from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
+from pydantic import BaseModel, Schema
 
 
 class StreamStation(BaseModel):
@@ -22,6 +22,10 @@ class StreamStation(BaseModel):
     drainage_area_effect: Optional[float]
     rhbn: int
     real_time: int
+    flow_years: List[int] = Schema(
+        [], description="Years for which flow data is available")
+    level_years: List[int] = Schema(
+        [], description="Years for which stream level data is available")
 
     class Config:
         orm_mode = True

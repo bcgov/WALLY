@@ -1,6 +1,10 @@
-from geojson import FeatureCollection, Feature, Point
-from sqlalchemy import Column, Integer, ForeignKey, Float, String
+"""
+Database tables and data access functions for Water Survey of Canada's
+National Water Data Archive Hydrometic Data
+"""
 from typing import List
+from geojson import FeatureCollection, Feature, Point
+from sqlalchemy import Column, Integer, ForeignKey, String
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
@@ -115,3 +119,27 @@ def get_monthly_flows_by_station(db: Session, station: str, year: int) -> List[s
         MonthlyFlow.station_number == station,
         MonthlyFlow.year == year
     ).all()
+
+
+def get_station_details(db: Session, station: str) -> streams_v1.StreamStation:
+    """
+    fetch details for a given stream monitoring station, including a list of years
+    for which relevant data is available.
+    """
+
+    # get basic station info
+    stn = db.query(StreamStation).get(station)
+
+    # get distinct yearly values for flows and levels readings at this station
+    # to hint to users which years contain data
+    flow_years = db.query(MonthlyFlow).filter(
+        MonthlyFlow.station_number == station).distinct("year")
+    level_years = db.query(MonthlyLevel).filter(
+        MonthlyLevel.station_number == station).distinct("year")
+
+    # combine queries into the StreamStation API model
+    data = streams_v1.StreamStation(
+        flow_years=[row.year for row in flow_years],
+        level_years=[row.year for row in level_years],
+        **stn.__dict__)
+    return data
