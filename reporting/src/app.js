@@ -7,11 +7,11 @@ export {
     ReactPDF, Document, Page, View, Image, Text, Canvas, Link, Note, Font, StyleSheet
 }
 
-import report from './templates/report';
+import featureReport from './templates/featureReport';
 import chart from './templates/chart';
 
 const templates = {
-    report,
+    featureReport,
     chart
 };
 

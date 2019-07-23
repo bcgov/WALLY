@@ -1,8 +1,33 @@
 const { CanvasRenderService } = require('chartjs-node-canvas');
 
-const width = 400;
+const width = 500;
 const height = 400;
-const configuration = {
+
+const lineConfig = {
+    type: 'line',
+    data: {
+        labels: [ 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May' ],
+        datasets: [
+            {
+                label: 'Precipitation Levels 2017 (mm)',
+                backgroundColor: '#086CA2',
+                data: [ 26, 2, 5, 16, 111, 200, 254, 140, 75, 31, 20, 30 ]
+            }
+        ]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    callback: (value) => value + 'mm'
+                }
+            }]
+        }
+    }
+};
+
+const barConfig = {
     type: 'bar',
     data: {
         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
@@ -53,9 +78,9 @@ const chartCallback = (ChartJS) => {
     });
 };
 
-(async () => {
+export default async () => {
     const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-    const image = await canvasRenderService.renderToBuffer(configuration);
-    const dataUrl = await canvasRenderService.renderToDataURL(configuration);
-    const stream = canvasRenderService.renderToStream(configuration);
-})();
+    return await canvasRenderService.renderToBuffer(lineConfig);
+    // const dataUrl = await canvasRenderService.renderToDataURL(configuration);
+    // const stream = canvasRenderService.renderToStream(configuration);
+}

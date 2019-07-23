@@ -5,6 +5,7 @@ const ApiService = {
   init () {
     axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL
     this.baseURL = axios.defaults.baseURL
+    this.reportingServiceURL = process.env.REPORTING_SERVICE_URL || 'http://localhost:3000'
 
     axios.interceptors.request.use(function (request) {
       // log requests to console while logging is on
@@ -44,8 +45,8 @@ const ApiService = {
   getRaw (url) {
     return axios.get(url)
   },
-  post (resource, params) {
-    return axios.post(resource, params)
+  post (resource, params, headers = null) {
+    return axios.post(resource, params, headers)
   },
   patch (resource, record, params) {
     return axios.patch(`${resource}/${record}`, params)

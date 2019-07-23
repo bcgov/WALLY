@@ -18,7 +18,9 @@
     "body-parser": "^1.19.0",
     "chart.js": "^2.8.0",
     "chartjs-node-canvas": "^2.4.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
+    "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },

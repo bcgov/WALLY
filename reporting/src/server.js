@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import cors from 'cors'
 import React from 'react';
 import { ReactPDF } from './app'
 
@@ -7,6 +8,8 @@ const CONTENT_TYPE = 'Content-Type';
 const INFO = 'info';
 const WARN = 'warning';
 const ERROR = 'error';
+
+import creatChart from './charts'
 
 const defaultLogger = (level, message) => {
     console.log(`${new Date()} ${level}: ${message}`);
@@ -36,8 +39,12 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
                 response.status(404).end();
                 return;
             }
-
-            const readStream = await renderReact(reactTemplate, data);
+            let props = {}
+            props['data'] = Object.assign({}, data)
+            const buffer = await creatChart()
+            // console.log(buffer)
+            props['chart'] = { data: buffer, format: 'png' }
+            const readStream = await renderReact(reactTemplate, props);
 
             response.set(CONTENT_TYPE, 'application/pdf');
             readStream.pipe(response);
@@ -54,6 +61,18 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
 
     server.use(bodyParser.json({ limit: '1mb' }));
     server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
+
+    const whitelist = ['http://localhost:8080', 'http://127.0.0.1:8080']
+    const corsOptions = {
+        origin: function(origin, callback) {
+            if (whitelist.indexOf(origin) !== -1) {
+                callback(null, true)
+            } else {
+                callback(new Error('Not allowed by CORS'))
+            }
+        }
+    }
+    server.use(cors(corsOptions))
 
     server.get('/favicon.ico', (request, response) => response.status('404').end());
 

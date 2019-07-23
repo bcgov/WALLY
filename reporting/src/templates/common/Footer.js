@@ -6,16 +6,16 @@ import {
 
 const styles = StyleSheet.create({
     container: {
-        flexDirection: 'row',
+        flexDirection: 'col',
         borderTopWidth: 2,
         backgroundColor: colors.blue,
         borderTopColor: colors.yellow,
         borderTopStyle: 'solid',
-        alignItems: 'space-between',
+        alignItems: 'space-between'
     },
     disclaimerColumn: {
         alignSelf: 'center',
-        justifySelf: 'center',
+        justifySelf: 'center'
     },
     disclaimerText: {
         fontSize: 10,
@@ -33,10 +33,9 @@ const styles = StyleSheet.create({
 export default () => (
     <View style={styles.container}>
         <Text style={styles.disclaimerText}>
-            Disclaimer: Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-            Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an
-            unknown printer took a galley of type and scrambled it to make a type specimen book.
-            It has survived not only five centuries, but also the leap into electronic typesetting.
+            Annotations:
+            Walmsly, N., & Pearce, G. (2010). Towards Sustainable Water Resources Management: Bringing the Strategic Approach up-to-date. Irrigation & Drainage Systems, 24(3/4), 191–203.
+            USGS - Earth's water distribution
         </Text>
     </View>
 );
