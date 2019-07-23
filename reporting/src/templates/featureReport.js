@@ -84,17 +84,21 @@ class FeatureReport extends React.Component {
                             <Text style={styles.header}>Location</Text>
                             <Text style={styles.info}>Latitude: {this.props.data.coordinates[0]}</Text>
                             <Text style={styles.info}>Longitude: {this.props.data.coordinates[1]}</Text>
-                            <Image src={this.props.map} style={styles.chart}/>
+                            <Image src={this.props.map} style={styles.chart} />
 
-                            <Text style={styles.header}>Properties</Text>
+                            <Text style={styles.header} break>Properties</Text>
                             <List style={styles.section}>
                                 {items.map((item, i) => (
                                     <Item key={i}>{item[0]}: {item[1]}</Item>
                                 ))}
                             </List>
-                            <Image src={this.props.chart} style={styles.chart}/>
+                            <Image src={this.props.chart1} style={styles.chart}/>
+                            <Image src={this.props.chart2} style={styles.chart}/>
                         </View>
-                        <View style={styles.section}>
+                        <View style={styles.section} break>
+                            <Text></Text>
+                        </View>
+                        <View style={styles.section} break>
                             <Text></Text>
                         </View>
                     </View>

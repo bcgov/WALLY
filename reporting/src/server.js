@@ -42,7 +42,8 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
             }
             let props = {}
             props['data'] = Object.assign({}, data)
-            const buffer = await creatChart()
+            const buffer1 = await creatChart(true)
+            const buffer2 = await creatChart(false)
             // console.log(buffer)
 
             let radius = 0.05
@@ -60,7 +61,8 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
                 props['map'] = { data: new Buffer.from(res.data), format: 'png' }
             })
 
-            props['chart'] = { data: buffer, format: 'png' }
+            props['chart1'] = { data: buffer1, format: 'png' }
+            props['chart2'] = { data: buffer2, format: 'png' }
             const readStream = await renderReact(reactTemplate, props);
 
             response.set(CONTENT_TYPE, 'application/pdf');

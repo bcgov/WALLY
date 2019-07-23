@@ -78,9 +78,10 @@ const chartCallback = (ChartJS) => {
     });
 };
 
-export default async () => {
+export default async (config) => {
+    let chart = config ? lineConfig : barConfig
     const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
-    return await canvasRenderService.renderToBuffer(lineConfig);
+    return await canvasRenderService.renderToBuffer(chart);
     // const dataUrl = await canvasRenderService.renderToDataURL(configuration);
     // const stream = canvasRenderService.renderToStream(configuration);
 }
