@@ -81,28 +81,10 @@ class StreamStation(BaseTable):
     monthly_levels = relationship("MonthlyLevel", back_populates="station")
 
 
-def get_stations(db: Session) -> FeatureCollection:
+def get_stations(db: Session):
     """ list all stream monitoring stations in BC as a FeatureCollection """
-    stations = db.query(StreamStation).filter(
+    return db.query(StreamStation).filter(
         StreamStation.prov_terr_state_loc == 'BC').all()
-
-    # add properties to geojson Feature objects
-    points = [
-        Feature(
-            geometry=Point((stn.longitude, stn.latitude)),
-            id=stn.station_number,
-            properties={
-                "name": stn.station_name,
-                "type": "stream_levels",
-                "description": "Stream discharge and water level data",
-                "stream_flows_url": f"/api/v1/streams/{stn.station_number}/flows",
-                "stream_levels_url": f"/api/v1/streams/{stn.station_number}/levels"
-            }
-        ) for stn in stations
-    ]
-
-    fc = FeatureCollection(points)
-    return fc
 
 
 def get_monthly_levels_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
@@ -127,19 +109,16 @@ def get_station_details(db: Session, station: str) -> streams_v1.StreamStation:
     for which relevant data is available.
     """
 
-    # get basic station info
-    stn = db.query(StreamStation).get(station)
+    return db.query(StreamStation).get(station)
 
-    # get distinct yearly values for flows and levels readings at this station
-    # to hint to users which years contain data
-    flow_years = db.query(MonthlyFlow).filter(
+
+def get_available_flow_years(db: Session, station: str):
+    """ fetch a list of years for which stream flow data is available """
+    return db.query(MonthlyFlow).filter(
         MonthlyFlow.station_number == station).distinct("year")
-    level_years = db.query(MonthlyLevel).filter(
-        MonthlyLevel.station_number == station).distinct("year")
 
-    # combine queries into the StreamStation API model
-    data = streams_v1.StreamStation(
-        flow_years=[row.year for row in flow_years],
-        level_years=[row.year for row in level_years],
-        **stn.__dict__)
-    return data
+
+def get_available_level_years(db: Session, station: str):
+    """ fetch a list of years for which stream level data is available """
+    return db.query(MonthlyLevel).filter(
+        MonthlyLevel.station_number == station).distinct("year")

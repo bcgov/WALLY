@@ -8,7 +8,7 @@ from pydantic import BaseModel, Schema
 
 class StreamStation(BaseModel):
     """
-    API data model for a station where stream flow data is collected.
+    Information about a monitoring station where stream flow data is collected.
     """
     station_number: str
     station_name: str
@@ -26,6 +26,12 @@ class StreamStation(BaseModel):
         [], description="Years for which flow data is available")
     level_years: List[int] = Schema(
         [], description="Years for which stream level data is available")
+    stream_flows_url: Optional[str] = Schema(
+        None, description="URL where stream flow data is accessible")
+    stream_levels_url: Optional[str] = Schema(
+        None, description="URL where stream level data is accessible")
+    external_urls: List[dict] = Schema(
+        [], description="External links (e.g. links out to the original source of data")
 
     class Config:
         orm_mode = True
