@@ -13,7 +13,7 @@
 
 <script>
 import WHeader from './components/Header'
-import ContextBar from './components/contextbar/ContextBar'
+import ContextBar from './components/contextbar/ContextBar.vue'
 import Sidebar from './components/Sidebar'
 
 export default {

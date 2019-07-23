@@ -12,6 +12,7 @@ export default {
         open: true,
         mini: true
       },
+      bar_key: 0,
       bar_data: {
         labels: [],
         datasets: [{
@@ -20,7 +21,8 @@ export default {
           backgroundColor: [],
           borderColor: [],
           borderWidth: 1
-        }]
+        }],
+        visible: true
       }
     }
   },
@@ -64,6 +66,7 @@ export default {
       if (items.length > 0) {
         this.bar_data.labels = []
         this.bar_data.datasets[0].data = []
+        this.bar_data.visible = true
 
         items.forEach((layerGroup, groupIndex) => {
           Object.keys(layerGroup).map(key => {
@@ -84,7 +87,7 @@ export default {
       // console.log('selected some features')
       if (value.length > 0) {
         this.populateChartData(value)
-        // TODO: Reload chart
+        this.bar_key++
       }
     }
   }
