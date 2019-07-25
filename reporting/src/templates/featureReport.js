@@ -4,6 +4,27 @@ import Header from './common/Header'
 import Footer from './common/Footer'
 import font from '../assets/MyriadWebPro.ttf'
 import List, { Item } from './common/List';
+import { renderReact } from "../app";
+import createChart, {exampleData, exampleData2} from "../charts";
+import locationToMapImage from "../transformers/locationToMapImage";
+import {fullMonthNames, shortMonthNames} from "../styles/labels";
+
+const generateFeatureReport = async (data) => {
+    let props = {}
+    props['data'] = Object.assign({}, data)
+
+    // Transformers
+    props['map'] = await locationToMapImage(props.data.coordinates)
+    props['chart1'] = await createChart('line', exampleData, {
+        xLabels: shortMonthNames,
+        ylabel: 'Precipitation Levels 2017 (mm)'
+    })
+    props['chart2'] = await createChart('bar', exampleData2, {
+        xLabels: fullMonthNames,
+        ylabel: '# of Votes'
+    })
+    return await renderReact(FeatureReport, props)
+}
 
 Font.register({
     family: 'MyriadWebPro',
@@ -54,7 +75,6 @@ const styles = StyleSheet.create({
         paddingLeft: 10
     }
 })
-
 
 class FeatureReport extends React.Component {
     constructor(props) {
@@ -109,4 +129,4 @@ class FeatureReport extends React.Component {
     }
 }
 
-export default FeatureReport;
+export default generateFeatureReport;

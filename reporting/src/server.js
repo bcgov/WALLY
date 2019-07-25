@@ -1,16 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors'
-import React from 'react';
-import axios from 'axios'
-import { ReactPDF } from './app'
 
 const CONTENT_TYPE = 'Content-Type';
 const INFO = 'info';
 const WARN = 'warning';
 const ERROR = 'error';
-
-import creatChart from './charts'
 
 const defaultLogger = (level, message) => {
     console.log(`${new Date()} ${level}: ${message}`);
@@ -21,11 +16,6 @@ const getBaseTemplate = (templates, template) => {
         return templates[template];
     }
     throw new Error(`No template defined with name ${template}`);
-};
-
-const renderReact = async (template, data) => {
-    const rootElemComponent = React.createElement(template, data);
-    return ReactPDF.renderToStream(rootElemComponent);
 };
 
 const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
@@ -40,31 +30,9 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
                 response.status(404).end();
                 return;
             }
-            let props = {}
-            props['data'] = Object.assign({}, data)
-            const buffer1 = await creatChart(true)
-            const buffer2 = await creatChart(false)
-            // console.log(buffer)
 
-            let radius = 0.05
-            let url = 'http://maps.gov.bc.ca/arcserver/services/province/roads_wm/MapServer/WMSServer?REQUEST=GetMap' +
-                '&SERVICE=WMS&SRS=EPSG:4326&STYLES=&VERSION=1.1.1&LAYERS=0&FORMAT=image%2Fpng&HEIGHT=600&WIDTH=887' +
-                '&BBOX=' + (props['data']['coordinates'][1] - radius) + ',' + (props['data']['coordinates'][0] - radius) + ','
-                + (props['data']['coordinates'][1] + radius) + ',' + (props['data']['coordinates'][0] + radius)
-
-            console.log(url)
-            await axios({
-                url: url,
-                method: 'get',
-                responseType: 'arraybuffer'
-            }).then((res) => {
-                props['map'] = { data: new Buffer.from(res.data), format: 'png' }
-            })
-
-            props['chart1'] = { data: buffer1, format: 'png' }
-            props['chart2'] = { data: buffer2, format: 'png' }
-            const readStream = await renderReact(reactTemplate, props);
-
+            // Render React Template
+            const readStream = await reactTemplate(data)
             response.set(CONTENT_TYPE, 'application/pdf');
             readStream.pipe(response);
 

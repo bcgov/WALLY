@@ -8,11 +8,15 @@ export {
 }
 
 import featureReport from './templates/featureReport';
-import chart from './templates/chart';
+import React from "react";
 
 const templates = {
-    featureReport,
-    chart
+    featureReport
+};
+
+export const renderReact = async (template, props) => {
+    const rootElemComponent = React.createElement(template, props);
+    return ReactPDF.renderToStream(rootElemComponent);
 };
 
 const port = process.env.PORT || 3000;
