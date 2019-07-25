@@ -1,17 +1,17 @@
 import logging
 import os
 from app.db.session import db_session
-from app.stream_levels.factory import StationFactory
+from app.hydat.factory import StationFactory
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def create_stream_levels_data():
+def create_hydat_data():
     """generate stream station and flow/level data"""
 
     # logger
-    logger = logging.getLogger("stream_levels")
+    logger = logging.getLogger("hydat")
     stations = StationFactory.create_batch(3)
     for stn in stations:
         logger.info(f"Adding stream station {stn.station_number} - {stn.station_name}")
@@ -27,7 +27,7 @@ def main():
         return
 
     logger.info("Creating initial fixture data")
-    create_stream_levels_data()
+    create_hydat_data()
     logger.info("Initial data created")
 
 

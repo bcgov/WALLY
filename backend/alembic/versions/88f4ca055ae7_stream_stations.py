@@ -8,15 +8,20 @@ Create Date: 2019-07-15 16:27:54.990523
 from alembic import op
 from sqlalchemy import Column, String, Integer, ForeignKey
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
-
+import logging
 # revision identifiers, used by Alembic.
 revision = '88f4ca055ae7'
 down_revision = '4375f087337e'
 branch_labels = None
 depends_on = None
 
+logger = logging.getLogger("alembic")
+
 
 def upgrade():
+    op.execute("create schema if not exists hydat")
+    op.execute('SET search_path TO hydat')
+    logger.info("creating table hydat.stations")
     op.create_table(
         'stations',
         Column('station_number', String, primary_key=True),
@@ -34,10 +39,12 @@ def upgrade():
         Column('sed_status', Integer),
     )
 
+    logger.info("creating table hydat.dly_levels")
+
     op.create_table(
         'dly_levels',
         Column('station_number', String, ForeignKey(
-            'stations.station_number'), primary_key=True),
+            'hydat.stations.station_number'), primary_key=True),
         Column('year', Integer, primary_key=True),
         Column('month', Integer, primary_key=True),
         Column('full_month', Integer),
@@ -49,10 +56,12 @@ def upgrade():
         Column('max', DOUBLE_PRECISION),
     )
 
+    logger.info("creating table hydat.dly_flows")
+
     op.create_table(
         'dly_flows',
         Column('station_number', String, ForeignKey(
-            'stations.station_number'), primary_key=True),
+            'hydat.stations.station_number'), primary_key=True),
         Column('year', Integer, primary_key=True),
         Column('month', Integer, primary_key=True),
         Column('full_month', Integer),
@@ -62,6 +71,7 @@ def upgrade():
         Column('min', DOUBLE_PRECISION),
         Column('max', DOUBLE_PRECISION),
     )
+    op.execute('SET search_path TO public')
 
 
 def downgrade():

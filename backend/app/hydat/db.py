@@ -4,24 +4,38 @@ National Water Data Archive Hydrometic Data
 """
 from typing import List
 from geojson import FeatureCollection, Feature, Point
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey, String, MetaData
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
-from app.db.base_class import BaseTable
+import app.hydat.models as streams_v1
 
-import app.stream_levels.models as streams_v1
+# SQLAlchemy model base classes.
+# The models in this app use the `hydat` schema, representing
+# data that comes from the Canada Water Survey Hydrometric Data database.
 
 
-class MonthlyLevel(BaseTable):
+class HydatBase(object):
+    __abstract__ = True
+    metadata = MetaData(
+        schema="hydat"
+    )
+
+
+HydatTable = declarative_base(cls=HydatBase)
+
+
+class MonthlyLevel(HydatTable):
     """
     Water level at a stream flow monitoring station, grouped by month.
     Note: daily data is also available on this table.
     """
     __tablename__ = "dly_levels"
+    __table_args__ = {'schema': 'hydat'}
 
     station_number = Column(String, ForeignKey(
-        'stations.station_number'), primary_key=True)
+        'hydat.stations.station_number'), primary_key=True)
     year = Column(Integer, primary_key=True)
     month = Column(Integer, primary_key=True)
     full_month = Column(Integer)
@@ -34,15 +48,16 @@ class MonthlyLevel(BaseTable):
     station = relationship("StreamStation", back_populates="monthly_levels")
 
 
-class MonthlyFlow(BaseTable):
+class MonthlyFlow(HydatTable):
     """
     Water flows at a stream flow monitoring station, grouped by month.
     Note: daily data is also available on this table.
     """
     __tablename__ = "dly_flows"
+    __table_args__ = {'schema': 'hydat'}
 
     station_number = Column(String, ForeignKey(
-        'stations.station_number'), primary_key=True)
+        'hydat.stations.station_number'), primary_key=True)
     year = Column(Integer, primary_key=True)
     month = Column(Integer, primary_key=True)
     full_month = Column(Integer)
@@ -54,7 +69,7 @@ class MonthlyFlow(BaseTable):
     station = relationship("StreamStation", back_populates="monthly_flows")
 
 
-class StreamStation(BaseTable):
+class StreamStation(HydatTable):
     """ 
     A station where stream data is collected
     Data and schema from National Water Data Archive
@@ -63,6 +78,7 @@ class StreamStation(BaseTable):
 
     """
     __tablename__ = "stations"
+    __table_args__ = {'schema': 'hydat'}
 
     station_number = Column(String, primary_key=True)
     station_name = Column(String)
