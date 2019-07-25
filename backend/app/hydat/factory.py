@@ -6,7 +6,7 @@ import factory
 from typing import Optional
 from app.db.session import db_session
 
-from . import db
+from . import db_models
 
 # base values to help generate a steady curve
 BASE_FLOWS = [1.1, 1.1, 1.2, 1.3, 1.2, 1, .9, .9, 1, 1.1, 1.2, 1.2]
@@ -16,7 +16,7 @@ DEFAULT_COORDS = {"lat": 49.25, "lng": -123}
 class MonthlyLevelFactory(factory.alchemy.SQLAlchemyModelFactory):
     """ factory to generate stream level values """
     class Meta:
-        model = db.MonthlyLevel
+        model = db_models.DlyLevel
         sqlalchemy_session = db_session
 
     station_number = None
@@ -39,7 +39,7 @@ class MonthlyLevelFactory(factory.alchemy.SQLAlchemyModelFactory):
 class MonthlyFlowFactory(factory.alchemy.SQLAlchemyModelFactory):
     """ factory to generate flow values """
     class Meta:
-        model = db.MonthlyFlow
+        model = db_models.DlyFlow
         sqlalchemy_session = db_session
 
     station_number = None
@@ -62,7 +62,7 @@ class StationFactory(factory.alchemy.SQLAlchemyModelFactory):
     """ factory to generate water level stations """
 
     class Meta:
-        model = db.StreamStation
+        model = db_models.Station
         sqlalchemy_session = db_session
         exclude = ('_stream_name',)
 
@@ -74,8 +74,8 @@ class StationFactory(factory.alchemy.SQLAlchemyModelFactory):
     station_name = factory.LazyAttribute(lambda o: f"{o._stream_name} Creek")
     prov_terr_state_loc = 'BC'
     regional_office_id = 'VI123'
-    latitude = factory.Faker('coordinate', center=DEFAULT_COORDS["lat"], radius=1)
-    longitude = factory.Faker('coordinate', center=DEFAULT_COORDS["lng"], radius=1)
+    latitude = factory.Faker('coordinate', center=DEFAULT_COORDS["lat"], radius=0.1)
+    longitude = factory.Faker('coordinate', center=DEFAULT_COORDS["lng"], radius=0.1)
     drainage_area_gross = 500
     drainage_area_effect = 3000
     rhbn = 0

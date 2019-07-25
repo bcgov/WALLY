@@ -10,7 +10,8 @@ Warning: the original database schema did not include any foreign key constraint
 
 """
 # coding: utf-8
-from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Text, text
+from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Text, text, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 
@@ -112,7 +113,8 @@ class DlyFlow(Base):
         {'schema': 'hydat'}
     )
 
-    station_number = Column(Text, primary_key=True, nullable=False)
+    station_number = Column(Text, ForeignKey(
+        'hydat.stations.station_number'), primary_key=True, nullable=False)
     year = Column(BigInteger, primary_key=True, nullable=False)
     month = Column(BigInteger, primary_key=True, nullable=False)
     full_month = Column(BigInteger)
@@ -185,6 +187,7 @@ class DlyFlow(Base):
     flow_symbol30 = Column(Text)
     flow31 = Column(DOUBLE_PRECISION)
     flow_symbol31 = Column(Text)
+    station = relationship("Station", back_populates="dly_flows")
 
 
 class DlyLevel(Base):
@@ -194,7 +197,8 @@ class DlyLevel(Base):
         {'schema': 'hydat'}
     )
 
-    station_number = Column(Text, primary_key=True, nullable=False)
+    station_number = Column(Text, ForeignKey(
+        'hydat.stations.station_number'), primary_key=True, nullable=False)
     year = Column(BigInteger, primary_key=True, nullable=False)
     month = Column(BigInteger, primary_key=True, nullable=False)
     precision_code = Column(BigInteger)
@@ -268,6 +272,7 @@ class DlyLevel(Base):
     level_symbol30 = Column(Text)
     level31 = Column(DOUBLE_PRECISION)
     level_symbol31 = Column(Text)
+    station = relationship("Station", back_populates="dly_levels")
 
 
 class MeasurementCode(Base):
@@ -543,6 +548,8 @@ class Station(Base):
     contributor_id = Column(BigInteger)
     operator_id = Column(BigInteger, index=True)
     datum_id = Column(BigInteger)
+    dly_flows = relationship("DlyFlow", back_populates="station")
+    dly_levels = relationship("DlyLevel", back_populates="station")
 
 
 class StnDataCollection(Base):

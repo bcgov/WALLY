@@ -6,7 +6,7 @@ Create Date: 2019-07-15 16:27:54.990523
 
 """
 from alembic import op
-from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Table, Text, PrimaryKeyConstraint
+from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Table, Text, PrimaryKeyConstraint, ForeignKey
 
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 import logging
@@ -29,6 +29,25 @@ def upgrade():
         Column('agency_id', BigInteger, unique=True, primary_key=True),
         Column('agency_en', Text),
         Column('agency_fr', Text),
+    )
+
+    op.create_table(
+        'stations',
+        Column('station_number', Text, unique=True, primary_key=True),
+        Column('station_name', Text),
+        Column('prov_terr_state_loc', Text),
+        Column('regional_office_id', Text),
+        Column('hyd_status', Text),
+        Column('sed_status', Text),
+        Column('latitude', DOUBLE_PRECISION),
+        Column('longitude', DOUBLE_PRECISION),
+        Column('drainage_area_gross', DOUBLE_PRECISION),
+        Column('drainage_area_effect', DOUBLE_PRECISION),
+        Column('rhbn', BigInteger),
+        Column('real_time', BigInteger),
+        Column('contributor_id', BigInteger),
+        Column('operator_id', BigInteger, index=True),
+        Column('datum_id', BigInteger),
     )
 
     op.create_table(
@@ -95,7 +114,8 @@ def upgrade():
 
     op.create_table(
         'dly_flows',
-        Column('station_number', Text, primary_key=True),
+        Column('station_number', Text, ForeignKey(
+            'hydat.stations.station_number'), primary_key=True),
         Column('year', BigInteger, primary_key=True),
         Column('month', BigInteger, primary_key=True),
         Column('full_month', BigInteger),
@@ -173,7 +193,8 @@ def upgrade():
 
     op.create_table(
         'dly_levels',
-        Column('station_number', Text, primary_key=True),
+        Column('station_number', Text, ForeignKey(
+            'hydat.stations.station_number'), primary_key=True),
         Column('year', BigInteger, primary_key=True),
         Column('month', BigInteger, primary_key=True),
         Column('precision_code', BigInteger),
@@ -468,25 +489,6 @@ def upgrade():
         Column('sampling_vertical_symbol', Text, unique=True, primary_key=True),
         Column('sampling_vertical_en', Text),
         Column('sampling_vertical_fr', Text),
-    )
-
-    op.create_table(
-        'stations',
-        Column('station_number', Text, unique=True, primary_key=True),
-        Column('station_name', Text),
-        Column('prov_terr_state_loc', Text),
-        Column('regional_office_id', Text),
-        Column('hyd_status', Text),
-        Column('sed_status', Text),
-        Column('latitude', DOUBLE_PRECISION),
-        Column('longitude', DOUBLE_PRECISION),
-        Column('drainage_area_gross', DOUBLE_PRECISION),
-        Column('drainage_area_effect', DOUBLE_PRECISION),
-        Column('rhbn', BigInteger),
-        Column('real_time', BigInteger),
-        Column('contributor_id', BigInteger),
-        Column('operator_id', BigInteger, index=True),
-        Column('datum_id', BigInteger),
     )
 
     op.create_table(
