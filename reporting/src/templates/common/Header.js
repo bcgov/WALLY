@@ -25,10 +25,12 @@ const styles = StyleSheet.create({
         height: 66
     },
     titleContainer: {
-        flex: 1
+        flex: 2,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center'
     },
     title: {
-        alignSelf: 'center',
         fontSize: 24,
         fontFamily: 'MyriadWebPro',
         fontWeight: 'bold',

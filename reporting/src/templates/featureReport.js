@@ -2,8 +2,8 @@ import React from 'react'
 import {Page, Text, View, Image, Document, Font, StyleSheet} from '../app'
 import Header from './common/Header'
 import Footer from './common/Footer'
-import font from '../assets/MyriadWebPro.ttf'
 import List, { Item } from './common/List';
+import font from '../assets/MyriadWebPro.ttf'
 import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2} from "../charts";
 import locationToMapImage from "../transformers/locationToMapImage";
@@ -26,18 +26,7 @@ const generateFeatureReport = async (data) => {
     return await renderReact(FeatureReport, props)
 }
 
-Font.register({
-    family: 'MyriadWebPro',
-    src: font,
-    fontStyle: 'normal',
-    fontWeight: 'bold'
-});
-
 const styles = StyleSheet.create({
-    page: {
-        flexDirection: 'column',
-        justifyContent: 'space-between'
-    },
     container: {
         flexDirection: 'column',
         justifyContent: 'flex-start'
@@ -87,44 +76,32 @@ class FeatureReport extends React.Component {
         const createDate = Date()
 
         return (
-            <Document>
-                <Page size="A4" style={styles.page}>
-                    <Header/>
-                    <View style={styles.container}>
-                        <Text style={styles.date}>
-                        Report Created: {createDate}
-                        </Text>
-                        <Text style={styles.Title}>
-                            {this.props.data.featureName}
-                        </Text>
-                        <View style={styles.section}>
-                            <Text style={styles.header}>Id</Text>
-                            <Text style={styles.info}>{this.props.data.id}</Text>
+            <View style={styles.container}>
+                <Text style={styles.date}>
+                Report Created: {createDate}
+                </Text>
+                <Text style={styles.Title}>
+                    {this.props.data.featureName}
+                </Text>
+                <View style={styles.section}>
+                    <Text style={styles.header}>Id</Text>
+                    <Text style={styles.info}>{this.props.data.id}</Text>
 
-                            <Text style={styles.header}>Location</Text>
-                            <Text style={styles.info}>Latitude: {this.props.data.coordinates[0]}</Text>
-                            <Text style={styles.info}>Longitude: {this.props.data.coordinates[1]}</Text>
-                            <Image src={this.props.map} style={styles.chart} />
+                    <Text style={styles.header}>Location</Text>
+                    <Text style={styles.info}>Latitude: {this.props.data.coordinates[0]}</Text>
+                    <Text style={styles.info}>Longitude: {this.props.data.coordinates[1]}</Text>
+                    <Image src={this.props.map} style={styles.chart} />
 
-                            <Text style={styles.header} break>Properties</Text>
-                            <List style={styles.section}>
-                                {items.map((item, i) => (
-                                    <Item key={i}>{item[0]}: {item[1]}</Item>
-                                ))}
-                            </List>
-                            <Image src={this.props.chart1} style={styles.chart}/>
-                            <Image src={this.props.chart2} style={styles.chart}/>
-                        </View>
-                        <View style={styles.section} break>
-                            <Text></Text>
-                        </View>
-                        <View style={styles.section} break>
-                            <Text></Text>
-                        </View>
-                    </View>
-                    <Footer/>
-                </Page>
-            </Document>
+                    <Text style={styles.header} break>Properties</Text>
+                    <List style={styles.section}>
+                        {items.map((item, i) => (
+                            <Item key={i}>{item[0]}: {item[1]}</Item>
+                        ))}
+                    </List>
+                    <Image src={this.props.chart1} style={styles.chart}/>
+                    <Image src={this.props.chart2} style={styles.chart}/>
+                </View>
+            </View>
         );
     }
 }

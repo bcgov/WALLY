@@ -59,7 +59,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
             }
         }
     }
-    server.use(cors())
+    server.use(cors()) // TODO update cors to only trusted hosts using above options whitelist
 
     server.get('/favicon.ico', (request, response) => response.status('404').end());
 

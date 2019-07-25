@@ -1,3 +1,4 @@
+import React from "react";
 import createRenderServer from '../src/server'
 import ReactPDF, {
     Document, Page, View, Image, Text, Canvas, Link, Note, Font, StyleSheet
@@ -6,17 +7,19 @@ import ReactPDF, {
 export {
     ReactPDF, Document, Page, View, Image, Text, Canvas, Link, Note, Font, StyleSheet
 }
-
+import layout from './templates'
 import featureReport from './templates/featureReport';
-import React from "react";
 
 const templates = {
     featureReport
 };
 
 export const renderReact = async (template, props) => {
-    const rootElemComponent = React.createElement(template, props);
-    return ReactPDF.renderToStream(rootElemComponent);
+    // Create report template
+    const templateElemComponent = React.createElement(template, props);
+    // Add generated report template as a child to our template layout
+    let rootLayoutComponent = React.createElement(layout, { childTemplate: templateElemComponent });
+    return ReactPDF.renderToStream(rootLayoutComponent);
 };
 
 const port = process.env.PORT || 3000;
