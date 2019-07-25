@@ -10,112 +10,28 @@ from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 
 import app.hydat.models as streams_v1
-
-# SQLAlchemy model base classes.
-# The models in this app use the `hydat` schema, representing
-# data that comes from the Canada Water Survey Hydrometric Data database.
-
-
-class HydatBase(object):
-    __abstract__ = True
-    metadata = MetaData(
-        schema="hydat"
-    )
-
-
-HydatTable = declarative_base(cls=HydatBase)
-
-
-class MonthlyLevel(HydatTable):
-    """
-    Water level at a stream flow monitoring station, grouped by month.
-    Note: daily data is also available on this table.
-    """
-    __tablename__ = "dly_levels"
-    __table_args__ = {'schema': 'hydat'}
-
-    station_number = Column(String, ForeignKey(
-        'hydat.stations.station_number'), primary_key=True)
-    year = Column(Integer, primary_key=True)
-    month = Column(Integer, primary_key=True)
-    full_month = Column(Integer)
-    no_days = Column(Integer)
-    precision_code = Column(Integer)
-    monthly_mean = Column(DOUBLE_PRECISION)
-    monthly_total = Column(DOUBLE_PRECISION)
-    min = Column(DOUBLE_PRECISION)
-    max = Column(DOUBLE_PRECISION)
-    station = relationship("StreamStation", back_populates="monthly_levels")
-
-
-class MonthlyFlow(HydatTable):
-    """
-    Water flows at a stream flow monitoring station, grouped by month.
-    Note: daily data is also available on this table.
-    """
-    __tablename__ = "dly_flows"
-    __table_args__ = {'schema': 'hydat'}
-
-    station_number = Column(String, ForeignKey(
-        'hydat.stations.station_number'), primary_key=True)
-    year = Column(Integer, primary_key=True)
-    month = Column(Integer, primary_key=True)
-    full_month = Column(Integer)
-    no_days = Column(Integer)
-    monthly_mean = Column(DOUBLE_PRECISION)
-    monthly_total = Column(DOUBLE_PRECISION)
-    min = Column(DOUBLE_PRECISION)
-    max = Column(DOUBLE_PRECISION)
-    station = relationship("StreamStation", back_populates="monthly_flows")
-
-
-class StreamStation(HydatTable):
-    """ 
-    A station where stream data is collected
-    Data and schema from National Water Data Archive
-    https://www.canada.ca/en/environment-climate-change/services/water-overview/ \
-        quantity/monitoring/survey/data-products-services/national-archive-hydat.html
-
-    """
-    __tablename__ = "stations"
-    __table_args__ = {'schema': 'hydat'}
-
-    station_number = Column(String, primary_key=True)
-    station_name = Column(String)
-    prov_terr_state_loc = Column(String)
-    regional_office_id = Column(String)
-    hyd_status = Column(String)
-    sed_status = Column(String)
-    latitude = Column(DOUBLE_PRECISION)
-    longitude = Column(DOUBLE_PRECISION)
-    drainage_area_gross = Column(DOUBLE_PRECISION)
-    drainage_area_effect = Column(DOUBLE_PRECISION)
-    rhbn = Column(Integer)
-    real_time = Column(Integer)
-    sed_status = Column(Integer)
-    monthly_flows = relationship("MonthlyFlow", back_populates="station")
-    monthly_levels = relationship("MonthlyLevel", back_populates="station")
+from app.hydat.db_models import DlyFlow, Station, DlyLevel
 
 
 def get_stations(db: Session):
     """ list all stream monitoring stations in BC as a FeatureCollection """
-    return db.query(StreamStation).filter(
-        StreamStation.prov_terr_state_loc == 'BC').all()
+    return db.query(Station).filter(
+        Station.prov_terr_state_loc == 'BC').all()
 
 
 def get_monthly_levels_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
     """ fetch monthly stream levels for a specified station_number and year """
-    return db.query(MonthlyLevel).filter(
-        MonthlyLevel.station_number == station,
-        MonthlyLevel.year == year
+    return db.query(DlyLevel).filter(
+        DlyLevel.station_number == station,
+        DlyLevel.year == year
     ).all()
 
 
 def get_monthly_flows_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyFlow]:
     """ fetch monthly stream levels for a specified station_number and year """
-    return db.query(MonthlyFlow).filter(
-        MonthlyFlow.station_number == station,
-        MonthlyFlow.year == year
+    return db.query(DlyFlow).filter(
+        DlyFlow.station_number == station,
+        DlyFlow.year == year
     ).all()
 
 
@@ -125,16 +41,16 @@ def get_station_details(db: Session, station: str) -> streams_v1.StreamStation:
     for which relevant data is available.
     """
 
-    return db.query(StreamStation).get(station)
+    return db.query(Station).get(station)
 
 
 def get_available_flow_years(db: Session, station: str):
     """ fetch a list of years for which stream flow data is available """
-    return db.query(MonthlyFlow).filter(
-        MonthlyFlow.station_number == station).distinct("year")
+    return db.query(DlyFlow).filter(
+        DlyFlow.station_number == station).distinct("year")
 
 
 def get_available_level_years(db: Session, station: str):
     """ fetch a list of years for which stream level data is available """
-    return db.query(MonthlyLevel).filter(
-        MonthlyLevel.station_number == station).distinct("year")
+    return db.query(DlyLevel).filter(
+        DlyLevel.station_number == station).distinct("year")
