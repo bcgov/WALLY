@@ -17,11 +17,14 @@ const generateFeatureReport = async (data) => {
     props['map'] = await locationToMapImage(props.data.coordinates)
     props['chart1'] = await createChart('line', exampleData, {
         xLabels: shortMonthNames,
-        ylabel: 'Precipitation Levels 2017 (mm)'
+        ylabel: 'Precipitation Levels 2017 (mm)',
+        title: 'Monthly Precipitation Levels 2017 (mm)',
+        suffix: 'mm'
     })
     props['chart2'] = await createChart('bar', exampleData2, {
         xLabels: fullMonthNames,
-        ylabel: '# of Votes'
+        ylabel: '# of Votes',
+        title: 'Number of Votes'
     })
     return await renderReact(FeatureReport, props)
 }
@@ -31,9 +34,27 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start'
     },
+    Title: {
+        fontFamily: 'MyriadWebPro',
+        fontSize: 22,
+        marginTop: 10,
+        marginLeft: 10
+    },
     section: {
-        margin: 10,
-        padding: 20,
+        marginHorizontal: 20
+    },
+    header: {
+        fontFamily: 'MyriadWebPro',
+        fontWeight: 'bold',
+        fontSize: 16,
+        marginTop: 10,
+        padding: 5
+    },
+    text: {
+        fontFamily: 'MyriadWebPro',
+        fontSize: 12,
+        paddingTop: 2,
+        paddingLeft: 10
     },
     chart: {
         width: 400,
@@ -45,23 +66,6 @@ const styles = StyleSheet.create({
         fontFamily: 'MyriadWebPro',
         fontSize: 10,
         margin: 10
-    },
-    Title: {
-        fontFamily: 'MyriadWebPro',
-        fontSize: 18,
-        margin: 10
-    },
-    header: {
-        fontFamily: 'MyriadWebPro',
-        fontWeight: 'bold',
-        fontSize: 16,
-        marginTop: 20,
-        padding: 5
-    },
-    info: {
-        fontFamily: 'MyriadWebPro',
-        fontSize: 12,
-        paddingLeft: 10
     }
 })
 
@@ -85,11 +89,11 @@ class FeatureReport extends React.Component {
                 </Text>
                 <View style={styles.section}>
                     <Text style={styles.header}>Id</Text>
-                    <Text style={styles.info}>{this.props.data.id}</Text>
+                    <Text style={styles.text}>{this.props.data.id}</Text>
 
                     <Text style={styles.header}>Location</Text>
-                    <Text style={styles.info}>Latitude: {this.props.data.coordinates[0]}</Text>
-                    <Text style={styles.info}>Longitude: {this.props.data.coordinates[1]}</Text>
+                    <Text style={styles.text}>Latitude: {this.props.data.coordinates[0]}</Text>
+                    <Text style={styles.text}>Longitude: {this.props.data.coordinates[1]}</Text>
                     <Image src={this.props.map} style={styles.chart} />
 
                     <Text style={styles.header} break>Properties</Text>

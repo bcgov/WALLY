@@ -6,6 +6,7 @@ import colors from '../styles/colors'
 
 export default (data, settings) => {
     const {
+        title = '',
         xLabels = '',
         yLabel = '',
         prefix = '',
@@ -28,6 +29,10 @@ export default (data, settings) => {
             }]
         },
         options: {
+            title: {
+                display: title !== '',
+                text: title
+            },
             scales: {
                 yAxes: [{
                     ticks: {
