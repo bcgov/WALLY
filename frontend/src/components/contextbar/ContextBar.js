@@ -33,25 +33,25 @@ export default {
   },
   mounted () {
     this.bar_data = {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+      labels: [],
       datasets: [{
-        label: 'Water Quantity',
-        data: [12, 19, 3, 5, 2, 3],
+        label: 'Quantity',
+        data: [],
         backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(255, 206, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(255, 159, 64, 0.2)'
+          // 'rgba(255, 99, 132, 0.2)',
+          // 'rgba(54, 162, 235, 0.2)',
+          // 'rgba(255, 206, 86, 0.2)',
+          // 'rgba(75, 192, 192, 0.2)',
+          // 'rgba(153, 102, 255, 0.2)',
+          // 'rgba(255, 159, 64, 0.2)'
         ],
         borderColor: [
-          'rgba(255, 99, 132, 1)',
-          'rgba(54, 162, 235, 1)',
-          'rgba(255, 206, 86, 1)',
-          'rgba(75, 192, 192, 1)',
-          'rgba(153, 102, 255, 1)',
-          'rgba(255, 159, 64, 1)'
+          // 'rgba(255, 99, 132, 1)',
+          // 'rgba(54, 162, 235, 1)',
+          // 'rgba(255, 206, 86, 1)',
+          // 'rgba(75, 192, 192, 1)',
+          // 'rgba(153, 102, 255, 1)',
+          // 'rgba(255, 159, 64, 1)'
         ],
         borderWidth: 1
       }]
@@ -75,6 +75,8 @@ export default {
               console.log(item.properties.LICENCE_NUMBER, item.properties.QUANTITY, item.properties)
               this.bar_data.labels.push(item.properties.LICENCE_NUMBER)
               this.bar_data.datasets[0].data.push(item.properties.QUANTITY)
+              this.bar_data.datasets[0].borderColor.push('rgba(54, 162, 235, 1)')
+              this.bar_data.datasets[0].backgroundColor.push('rgba(54, 162, 235, 0.2)')
               console.log(this.bar_data)
             })
           })
