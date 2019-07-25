@@ -2,12 +2,14 @@ export const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980
 export const HYDROMETRIC_STREAM_FLOW = 'HYDROMETRIC_STREAM_FLOW'
 export const API_DATASOURCE = 'API_DATASOURCE'
 
+const API_URL = process.env.VUE_APP_AXIOS_BASE_URL
+
 export const DATA_LAYERS = [
   {
     id: HYDROMETRIC_STREAM_FLOW,
     name: 'Hydrometric Stream Flow',
     type: API_DATASOURCE,
-    url: 'http://localhost:8000/api/v1/hydat'
+    url: `${API_URL}/api/v1/hydat`
   },
   {
     id: DATA_CAN_CLIMATE_NORMALS_1980_2010, // TODO possibly wrap this above the geojson object
