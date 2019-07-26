@@ -1,0 +1,145 @@
+apiVersion: v1
+parameters:
+  - name: NAME
+    displayName: Name
+    description: The name assigned to all of the resources defined in this template.
+    required: true
+    value: wally-test
+  - name: HOST
+    displayName: Host
+    description: The hostname to deploy this template to.
+    required: true
+    value: wally-test.pathfinder.gov.bc.ca
+  - name: NAMESPACE
+    displayName: Namespace
+    description: The namespace to apply this template to.
+    required: true
+    value: bfpeyx-test
+objects:
+  - apiVersion: v1
+    kind: Service
+    spec:
+      ports:
+        - name: 3000-tcp
+          port: 3000
+          protocol: TCP
+          targetPort: 3000
+      selector:
+        app: wally-reports-${NAME}
+        env: ${NAME}
+        component: reporting
+        name: wally-${NAME}-reports
+      sessionAffinity: None
+      type: ClusterIP
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: wally-reports-${NAME}
+        env: ${NAME}
+        component: reporting
+        name: wally-${NAME}-reports
+      name: wally-reports-${NAME}
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 10
+      selector:
+        app: wally-reports-${NAME}
+        env: ${NAME}
+        component: reporting
+        name: wally-${NAME}-reports
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            app: wally-reports-${NAME}
+            env: ${NAME}
+            component: reporting
+            name: wally-${NAME}-reports
+        spec:
+          containers:
+            - image: >-
+                docker-registry.default.svc:5000/${NAMESPACE}/wally-reports:${NAME}
+              imagePullPolicy: Always
+              name: wally-reports
+              ports:
+                - containerPort: 3000
+                  protocol: TCP
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: 50m
+                  memory: 128Mi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+      test: false
+      triggers:
+        - imageChangeParams:
+            automatic: true
+            containerNames:
+              - wally-reports
+            from:
+              kind: ImageStreamTag
+              name: wally-reports:${NAME}
+              namespace: ${NAMESPACE}
+          type: ImageChange
+        - type: ConfigChange
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      generation: 18
+      labels:
+        app: wally-reports-${NAME}
+        component: reporting
+        name: wally-${NAME}-reports
+      name: wally-${NAME}-reports
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: ${HOST}
+      port:
+        targetPort: 3000-tcp
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: wally-reports-${NAME}
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-reports-${NAME}
+        env: ${NAME}
+        component: reporting
+        name: wally-${NAME}-reports
+      name: wally-${NAME}-reports
+kind: Template
+metadata:
+  resourceVersion: ''
+  selfLink: ''
+  labels:
+    app: wally-reports-${NAME}
+    env: ${NAME}
+    component: reporting
+    name: wally-${NAME}-reports
