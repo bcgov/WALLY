@@ -25,7 +25,7 @@ objects:
           protocol: TCP
           targetPort: 3000
       selector:
-        app: wally-reports-${NAME}
+        app: wally-${NAME}
         env: ${NAME}
         component: reporting
         name: wally-${NAME}-reports
@@ -35,7 +35,7 @@ objects:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
       labels:
-        app: wally-reports-${NAME}
+        app: wally-${NAME}
         env: ${NAME}
         component: reporting
         name: wally-${NAME}-reports
@@ -46,7 +46,7 @@ objects:
       replicas: 1
       revisionHistoryLimit: 10
       selector:
-        app: wally-reports-${NAME}
+        app: wally-${NAME}
         env: ${NAME}
         component: reporting
         name: wally-${NAME}-reports
@@ -66,7 +66,7 @@ objects:
             openshift.io/generated-by: OpenShiftNewApp
           creationTimestamp: null
           labels:
-            app: wally-reports-${NAME}
+            app: wally-${NAME}
             env: ${NAME}
             component: reporting
             name: wally-${NAME}-reports
@@ -110,7 +110,7 @@ objects:
         openshift.io/generated-by: OpenShiftNewApp
       generation: 18
       labels:
-        app: wally-reports-${NAME}
+        app: wally-${NAME}
         component: reporting
         name: wally-${NAME}-reports
       name: wally-${NAME}-reports
@@ -129,7 +129,7 @@ objects:
       wildcardPolicy: None
     metadata:
       labels:
-        app: wally-reports-${NAME}
+        app: wally-${NAME}
         env: ${NAME}
         component: reporting
         name: wally-${NAME}-reports
@@ -139,7 +139,7 @@ metadata:
   resourceVersion: ''
   selfLink: ''
   labels:
-    app: wally-reports-${NAME}
+    app: wally-${NAME}
     env: ${NAME}
     component: reporting
     name: wally-${NAME}-reports

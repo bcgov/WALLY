@@ -64,7 +64,7 @@ objects:
       labels:
         component: reporting
         name: wally-${NAME}-reports
-        app: wally-reports-${NAME}
+        app: wally-${NAME}
         env: "${NAME}"
       name: wally-${NAME}-reports
   - apiVersion: image.openshift.io/v1
