@@ -223,7 +223,7 @@ pipeline {
                     containers: [
                         containerTemplate(
                             name: 'jnlp',
-                            image: 'bfpeyx-tools/apitest',
+                            image: 'docker-registry.default.svc:5000/bfpeyx-tools/apitest',
                             resourceRequestCpu: '500m',
                             resourceLimitCpu: '800m',
                             resourceRequestMemory: '512Mi',
