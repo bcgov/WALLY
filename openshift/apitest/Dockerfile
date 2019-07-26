@@ -36,4 +36,3 @@ USER 1001
 # useful for verification of install
 # RUN go version
 # RUN go env
-ENTRYPOINT [ "apitest" ]
