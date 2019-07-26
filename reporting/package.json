@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/app.js",
   "scripts": {
-    "dev": "node --exec babel-node build/src/app.js",
+    "serve": "babel-node build/src/app.js",
     "start": "npm run build && babel-node build/src/app.js",
     "clean": "rm -Rf build",
     "build": "babel src --out-dir build/src",
