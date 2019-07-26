@@ -215,8 +215,8 @@ pipeline {
             openshift.withProject(TOOLS_PROJECT) {
               withStatus(env.STAGE_NAME) {
                 podTemplate(
-                    label: "apitest-${NAME}",
-                    name: "apitest-${NAME}",
+                    label: "apitest-${NAME}-${BUILD_NUMBER}",
+                    name: "apitest-${NAME}-${BUILD_NUMBER}",
                     serviceAccount: 'jenkins',
                     cloud: 'openshift',
                     activeDeadlineSeconds: 1800,
@@ -242,7 +242,7 @@ pipeline {
                         )
                     ]
                 ) {
-                    node("apitest-${NAME}") {
+                    node("apitest-${NAME}-${BUILD_NUMBER}") {
                         checkout scm
                         dir('backend/api-tests') {
                             try {
