@@ -7,7 +7,8 @@
     "dev": "node --exec babel-node build/src/app.js",
     "start": "npm run build && babel-node build/src/app.js",
     "clean": "rm -Rf build",
-    "build": "babel src --out-dir build/src"
+    "build": "babel src --out-dir build/src",
+    "test": "jest"
   },
   "author": "Water Team",
   "license": "ISC",
@@ -21,6 +22,7 @@
     "chartjs-node-canvas": "^2.4.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "lodash": "^4.17.15",
     "prop-types": "^15.7.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
@@ -30,6 +32,8 @@
     "@babel/core": "^7.5.5",
     "@babel/node": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
-    "@babel/preset-react": "^7.0.0"
+    "@babel/preset-react": "^7.0.0",
+    "babel-jest": "^24.8.0",
+    "jest": "^24.8.0"
   }
 }
