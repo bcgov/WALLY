@@ -91,6 +91,19 @@
             </template>
           </v-list>
         </v-card>
+        <v-btn
+          absolute
+          dark
+          fab
+          top
+          right
+          small
+          @click="createReportFromSelection"
+          color="blue"
+          style="margin-top: 28px"
+        >
+          <v-icon>cloud_download</v-icon>
+        </v-btn>
       </v-tab-item>
     </v-tabs>
 
@@ -162,6 +175,14 @@ export default {
         item.coordinates = null
       }
       this.$store.commit('setFeatureInfo', item)
+    },
+    createReportFromSelection () {
+      if (this.active_tab === 1) {
+        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+      } else if (this.active_tab === 2) {
+        this.$store.dispatch('downloadFeatureReport',
+          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
+      }
     },
     humanReadable: val => humanReadable(val),
     mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
