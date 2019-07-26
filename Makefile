@@ -3,3 +3,6 @@ migrate:
 
 loaddata:
 	docker-compose exec -T backend /bin/bash -c "cd app && python initial_data.py"
+
+pytest:
+	docker-compose exec -T backend /bin/bash -c "pytest ./tests/ -W ignore::DeprecationWarning"
