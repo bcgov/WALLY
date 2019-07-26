@@ -250,9 +250,7 @@ pipeline {
                                   apitest -f hydat.apitest.yaml
                                   """
                                 }
-
-                        } finally {
-                        
+                            finally {
                       }
                     }
                   }
