@@ -247,7 +247,7 @@ pipeline {
                         dir('backend/api-tests') {
                             try {
                                 sh """
-                                  apitest -f hydat.apitest.yaml
+                                  apitest -f hydat.apitest.yaml -e host=$BASE_URL
                                   """
                                 }
                             finally {
