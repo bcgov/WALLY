@@ -4,6 +4,7 @@ Main application entrypoint that initializes FastAPI and registers the endpoints
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 
 from app import config
@@ -14,7 +15,7 @@ app = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
 
 
 # CORS
-origins = []
+origins = ["*"]
 
 # Set all CORS enabled origins
 if config.BACKEND_CORS_ORIGINS:
@@ -29,6 +30,8 @@ if config.BACKEND_CORS_ORIGINS:
         allow_methods=["*"],
         allow_headers=["*"],
     ),
+
+app.add_middleware(GZipMiddleware)
 
 app.include_router(api_router, prefix=config.API_V1_STR)
 

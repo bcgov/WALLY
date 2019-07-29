@@ -40,7 +40,7 @@
               >
                 <p class="pl-3">
                   <label class="checkbox">{{choice.name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.id)" :checked="isMapLayerActive(choice.id)">
+                    <input type="checkbox" @input="handleSelectLayer(choice.id, choice.type, choice.url)" :checked="isMapLayerActive(choice.id)">
                     <span class="checkmark"></span>
                   </label>
                 </p>

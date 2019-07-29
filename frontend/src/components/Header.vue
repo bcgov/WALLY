@@ -37,7 +37,7 @@ export default {
     }
   },
   created () {
-    this.name = this.$auth.name
+    this.name = (this.$auth && this.$auth.name) || '' // fallback value if auth status not yet available
     EventBus.$on('auth:update', this.setName)
   },
   beforeDestroy () {

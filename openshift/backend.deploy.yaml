@@ -15,6 +15,11 @@ parameters:
   description: The namespace to apply this template to.
   required: true
   value: bfpeyx-test
+- name: ENVIRONMENT
+  displayName: Environment
+  description: The environment that these template objects will run in (e.g. dev, test, prod)
+  value: TEST
+  required: true
 objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
@@ -44,6 +49,34 @@ objects:
         maxUnavailable: 25%
         timeoutSeconds: 600
         updatePeriodSeconds: 1
+        pre:
+          failurePolicy: Abort
+          execNewPod:
+            command:
+              - "/bin/bash"
+              - "-c"
+              - "/app/prestart.sh"
+            containerName: wally-${NAME}-api
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: wally-psql
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-password
+                  name: wally-psql
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-name
+                  name: wally-psql
+            - name: POSTGRES_SERVER
+              value: wally-psql-master-${NAME}
+            - name: WALLY_ENV
+              value: "${ENVIRONMENT}"
       type: Rolling
     template:
       metadata:
@@ -74,6 +107,8 @@ objects:
                 name: wally-psql
           - name: POSTGRES_SERVER
             value: wally-psql-master-${NAME}
+          - name: WALLY_ENV
+            value: "${ENVIRONMENT}"
           image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api

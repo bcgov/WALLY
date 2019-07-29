@@ -110,7 +110,7 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
-                echo "Applying template (frontend)"
+                echo "Applying templates"
                 def bcWebTemplate = openshift.process('-f',
                   'openshift/frontend.build.yaml',
                   "NAME=${NAME}",
@@ -126,7 +126,7 @@ pipeline {
                 )
 
                 timeout(10) {
-                  echo "Starting build (frontend)"
+                  echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
@@ -183,7 +183,8 @@ pipeline {
                   "openshift/backend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
-                  "NAMESPACE=${project}"
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
                 ))
 
                 echo "Deploying to a dev environment"
