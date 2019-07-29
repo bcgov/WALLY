@@ -1,7 +1,5 @@
 <template>
   <v-app>
-    <Sidebar/>
-    <ContextBar/>
     <WHeader></WHeader>
     <v-content>
       <v-container fluid class="pa-0 ma-0">
@@ -13,13 +11,11 @@
 
 <script>
 import WHeader from './components/Header'
-import ContextBar from './components/contextbar/ContextBar'
 
 export default {
   name: 'app',
   components: {
-    WHeader,
-    ContextBar
+    WHeader
   }
 }
 </script>
@@ -27,7 +23,7 @@ export default {
 <style lang="scss">
   body {
     font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
-    color: '#494949'
+    color: #494949;
   }
   a {
     color: #1A5A96;
@@ -48,7 +44,6 @@ export default {
 
   @font-face {
     font-family: 'Noto Sans';
-    font-style: bold;
     font-weight: 700;
     src: url('./assets/fonts/NotoSans-Bold.eot'); /* IE9 Compat Modes */
     src: local('Noto Sans'), local('NotoSans'),
