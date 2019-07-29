@@ -7,11 +7,11 @@ import L from 'leaflet'
 import { tiledMapLayer } from 'esri-leaflet'
 import 'leaflet-lasso'
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
-import EventBus from '../services/EventBus.js'
+import EventBus from '../../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
-import betterWms from '../components/L.TileLayer.BetterWMS'
+import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
-import { wmsBaseURl } from '../utils/wmsUtils'
+import { wmsBaseURl } from '../../utils/wmsUtils'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -82,9 +82,9 @@ export default {
       // Fix courtesy of: https://github.com/PaulLeCam/react-leaflet/issues/255
       delete L.Icon.Default.prototype._getIconUrl
       L.Icon.Default.mergeOptions({
-        iconRetinaUrl: require('../assets/images/marker-icon-2x.png'),
-        iconUrl: require('../assets/images/marker-icon.png'),
-        shadowUrl: require('../assets/images/marker-shadow.png')
+        iconRetinaUrl: require('../../assets/images/marker-icon-2x.png'),
+        iconUrl: require('../../assets/images/marker-icon.png'),
+        shadowUrl: require('../../assets/images/marker-shadow.png')
       })
     },
     initMap () {
@@ -282,9 +282,9 @@ export default {
 }
 </script>
 <style>
-    @import '../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
-    @import '../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css';
-    @import "../../node_modules/leaflet/dist/leaflet.css";
+    @import '../../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
+    @import '../../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css';
+    @import "../../../node_modules/leaflet/dist/leaflet.css";
     .map {
         width: 100%;
         height: calc(100vh - 64px);
@@ -309,7 +309,7 @@ export default {
         cursor: move;
     }
     .geolocate {
-        background-image: url('../assets/images/geolocate.png');
+        background-image: url('../../assets/images/geolocate.png');
         width: 30px;
         height: 30px;
         left: 2px;
@@ -333,7 +333,7 @@ export default {
         opacity: 0.8;
     }
     .select-box-icon {
-        background-image: url('../assets/images/select-zoom.png');
+        background-image: url('../../assets/images/select-zoom.png');
     }
 
     .leaflet-popup-link .popup-link {
