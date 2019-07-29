@@ -117,11 +117,11 @@ objects:
             protocol: TCP
           resources:
             requests:
-              cpu: 50m
-              memory: 256Mi
-            limits:
-              cpu: 100m
+              cpu: 200m
               memory: 512Mi
+            limits:
+              cpu: '1'
+              memory: 1Gi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
         dnsPolicy: ClusterFirst
