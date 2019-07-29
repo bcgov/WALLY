@@ -91,6 +91,19 @@
             </template>
           </v-list>
         </v-card>
+        <v-btn
+          absolute
+          dark
+          fab
+          top
+          right
+          small
+          @click="createReportFromSelection"
+          color="blue"
+          style="margin-top: 28px"
+        >
+          <v-icon>cloud_download</v-icon>
+        </v-btn>
       </v-tab-item>
     </v-tabs>
 
