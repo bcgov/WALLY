@@ -207,5 +207,60 @@ pipeline {
         }
       }
     }
+    stage('API tests') {
+      steps {
+        script {
+          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
+          openshift.withCluster() {
+            openshift.withProject(TOOLS_PROJECT) {
+              withStatus(env.STAGE_NAME) {
+                podTemplate(
+                    label: "apitest-${NAME}-${BUILD_NUMBER}",
+                    name: "apitest-${NAME}-${BUILD_NUMBER}",
+                    serviceAccount: 'jenkins',
+                    cloud: 'openshift',
+                    activeDeadlineSeconds: 1800,
+                    containers: [
+                        containerTemplate(
+                            name: 'jnlp',
+                            image: 'docker-registry.default.svc:5000/bfpeyx-tools/apitest',
+                            imagePullPolicy: 'Always',
+                            resourceRequestCpu: '500m',
+                            resourceLimitCpu: '800m',
+                            resourceRequestMemory: '512Mi',
+                            resourceLimitMemory: '1Gi',
+                            activeDeadlineSeconds: '600',
+                            podRetention: 'never',
+                            workingDir: '/tmp',
+                            command: '',
+                            args: '${computer.jnlpmac} ${computer.name}',
+                            envVars: [
+                                envVar(
+                                    key:'BASE_URL',
+                                    value: "https://${host}"
+                                )
+                            ]
+                        )
+                    ]
+                ) {
+                    node("apitest-${NAME}-${BUILD_NUMBER}") {
+                        checkout scm
+                        dir('backend/api-tests') {
+                            try {
+                                sh """
+                                  apitest -f hydat.apitest.yaml -e host=$BASE_URL
+                                  """
+                                }
+                            finally {
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
