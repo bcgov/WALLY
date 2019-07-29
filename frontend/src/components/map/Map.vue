@@ -11,7 +11,7 @@ import EventBus from '../../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
 import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
-import { wmsBaseURl } from '../utils/wmsUtils'
+import { wmsBaseURl } from '../../utils/wmsUtils'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
