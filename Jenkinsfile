@@ -110,7 +110,7 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
-                echo "Applying template (frontend)"
+                echo "Applying templates"
                 def bcWebTemplate = openshift.process('-f',
                   'openshift/frontend.build.yaml',
                   "NAME=${NAME}",
@@ -126,7 +126,7 @@ pipeline {
                 )
 
                 timeout(10) {
-                  echo "Starting build (frontend)"
+                  echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
@@ -183,7 +183,8 @@ pipeline {
                   "openshift/backend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
-                  "NAMESPACE=${project}"
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
                 ))
 
                 echo "Deploying to a dev environment"
@@ -200,6 +201,61 @@ pipeline {
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
                 echo "Successfully deployed"
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('API tests') {
+      steps {
+        script {
+          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
+          openshift.withCluster() {
+            openshift.withProject(TOOLS_PROJECT) {
+              withStatus(env.STAGE_NAME) {
+                podTemplate(
+                    label: "apitest-${NAME}-${BUILD_NUMBER}",
+                    name: "apitest-${NAME}-${BUILD_NUMBER}",
+                    serviceAccount: 'jenkins',
+                    cloud: 'openshift',
+                    activeDeadlineSeconds: 1800,
+                    containers: [
+                        containerTemplate(
+                            name: 'jnlp',
+                            image: 'docker-registry.default.svc:5000/bfpeyx-tools/apitest',
+                            imagePullPolicy: 'Always',
+                            resourceRequestCpu: '500m',
+                            resourceLimitCpu: '800m',
+                            resourceRequestMemory: '512Mi',
+                            resourceLimitMemory: '1Gi',
+                            activeDeadlineSeconds: '600',
+                            podRetention: 'never',
+                            workingDir: '/tmp',
+                            command: '',
+                            args: '${computer.jnlpmac} ${computer.name}',
+                            envVars: [
+                                envVar(
+                                    key:'BASE_URL',
+                                    value: "https://${host}"
+                                )
+                            ]
+                        )
+                    ]
+                ) {
+                    node("apitest-${NAME}-${BUILD_NUMBER}") {
+                        checkout scm
+                        dir('backend/api-tests') {
+                            try {
+                                sh """
+                                  apitest -f hydat.apitest.yaml -e host=$BASE_URL
+                                  """
+                                }
+                            finally {
+                      }
+                    }
+                  }
+                }
               }
             }
           }

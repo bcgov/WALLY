@@ -4,18 +4,19 @@ import ApiService from '../services/ApiService'
 
 export default {
   state: {
-    activeDataLayers: []
+    activeDataSources: []
   },
   actions: {
-    getDataLayer ({ commit }, payload) {
-      ApiService.getRaw(payload.url).then((res) => {
+    getDataSource ({ commit }, payload) {
+      const { id, url } = payload
+      ApiService.getRaw(url).then((res) => {
         commit('addDataSource', {
-          id: payload.id,
+          id: id,
           data: res.data
         })
-        EventBus.$emit(`dataLayer:added`, payload)
+        EventBus.$emit(`dataSource:updated`, payload)
       }).catch((error) => {
-        console.log(error) // TODO create error state item and mutation
+        console.error(error) // TODO create error state item and mutation
       })
     }
   },
@@ -33,7 +34,7 @@ export default {
   },
   getters: {
     activeDataSources: state => state.activeDataSources,
-    isDataSourceActive: state => source => !!state.activeDataSources[source],
+    isDataSourceActive: state => id => !!state.activeDataSources.find((x) => x && x.id === id),
     allDataSources: () => utils.DATA_LAYERS
   }
 }
