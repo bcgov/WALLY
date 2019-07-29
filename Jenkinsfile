@@ -145,14 +145,14 @@ pipeline {
                   // the previous step waited for builds to finish (whether successful or not),
                   // so here we check for errors.
                   webBuilds.withEach {
-                    if it.object().status.phase == "Failed" {
+                    if (it.object().status.phase == "Failed") {
                       bcWeb.logs()
                       error('Frontend build failed')
                     }
                   }
 
                   apiBuilds.withEach {
-                    if it.object().status.phase == "Failed" {
+                    if (it.object().status.phase == "Failed") {
                       bcApi.logs()
                       error('Backend build failed')
                     }
