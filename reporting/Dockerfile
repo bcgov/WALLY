@@ -8,6 +8,8 @@ RUN npm ci
 
 COPY . .
 
+RUN chmod +x /src/app.js
+
 RUN npm run build
 
 EXPOSE 3000
