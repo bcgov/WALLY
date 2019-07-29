@@ -89,7 +89,7 @@ private static String stackTraceAsString(Throwable t) {
 pipeline {
   agent any
   environment {
-    GIT_REPO = "git@github.com:bcgov-c/wally.git"
+    GIT_REPO = "https://github.com/bcgov-c/wally.git"
     NAME = JOB_BASE_NAME.toLowerCase()
 
     // project names

@@ -41,12 +41,8 @@ objects:
         git:
           ref: "${GIT_REF}"
           uri: "${GIT_REPO}"
-        secrets:
-          - destinationDir: .
-            secret:
-              name: wally-at-github
         sourceSecret:
-          name: wally-at-github
+          name: wally-github-token
         type: Git
       strategy:
         dockerStrategy:
