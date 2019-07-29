@@ -8,7 +8,7 @@ RUN npm ci
 
 COPY . .
 
-RUN chmod +x /src/app.js
+RUN chmod +x /app/src/app.js
 
 RUN npm run build
 
