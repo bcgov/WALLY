@@ -1,6 +1,6 @@
 import * as L from 'leaflet'
 import { round } from 'lodash'
-import store from '../store'
+import store from '../../store'
 
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 

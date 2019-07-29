@@ -22,6 +22,7 @@
     <div v-if="!drawer.mini">
       <v-container>
         <RandomChart />
+        <BarChart :chart-data="bar_data"></BarChart>
         <v-divider></v-divider>
         <v-card style="margin-top: 25px">
           <v-img
@@ -49,25 +50,4 @@
   </v-navigation-drawer>
 </template>
 
-<script>
-import RandomChart from './charts/RandomChart'
-import CircleChart from './charts/CircleChart'
-
-export default {
-  name: 'Contextbar',
-  components: {CircleChart, RandomChart},
-  data () {
-    return {
-      drawer: {
-        open: true,
-        mini: true
-      }
-    }
-  },
-  methods: {
-    toggleContextBar () {
-      this.drawer.mini = !this.drawer.mini
-    }
-  }
-}
-</script>
+<script src="./ContextBar.js">

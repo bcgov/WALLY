@@ -3,7 +3,7 @@ Map layers (layers module) API endpoints/handlers.
 """
 from logging import getLogger
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
@@ -55,6 +55,9 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
     # get basic station info
     stn = streams_repo.get_station_details(db, station_number)
 
+    if not stn:
+        raise HTTPException(status_code=404, detail="Station not found")
+
     # get list of years for which data is available at this station
     # this helps hint at which years are worth displaying on selection boxes, etc.
     flow_years = streams_repo.get_available_flow_years(db, station_number)
@@ -82,6 +85,10 @@ def list_monthly_levels_by_year(station_number: str, year: int = 2018, db: Sessi
 
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html
     """
+    # check station exists
+    stn = streams_repo.get_station_details(db, station_number)
+    if not stn:
+        raise HTTPException(status_code=404, detail="Station not found")
 
     return streams_repo.get_monthly_levels_by_station(db, station_number, year)
 
@@ -91,5 +98,10 @@ def list_monthly_flows_by_year(station_number: str, year: int = 2018, db: Sessio
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html """
+
+    # check station exists
+    stn = streams_repo.get_station_details(db, station_number)
+    if not stn:
+        raise HTTPException(status_code=404, detail="Station not found")
 
     return streams_repo.get_monthly_flows_by_station(db, station_number, year)

@@ -1,5 +1,5 @@
 import {mount, shallowMount, createLocalVue} from "@vue/test-utils";
-import Sidebar from '../../src/components/Sidebar'
+import Sidebar from '../../src/components/sidebar/Sidebar.vue'
 import {MAP_LAYERS} from "../../src/utils/mapUtils";
 import Vuex from 'vuex'
 import Vuetify from "vuetify";
