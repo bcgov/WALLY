@@ -35,6 +35,7 @@ export default {
   computed: {
     ...mapGetters([
       'isMapLayerActive',
+      'isDataSourceActive',
       'featureInfo',
       'featureLayers'
     ])
@@ -43,14 +44,25 @@ export default {
     setTabById (id) {
       this.active_tab = id
     },
-    createReportFromSelection () {
-      return null
+    handleSelectLayer (id, type, resource) {
+      if (type === dataUtils.API_DATASOURCE) {
+        this.updateDataLayer(id, resource)
+      } else {
+        this.updateMapLayer(id)
+      }
     },
-    handleSelectLayer (id) {
+    updateMapLayer (id) {
       if (this.isMapLayerActive(id)) {
         this.$store.commit('removeMapLayer', id)
       } else {
         this.$store.commit('addMapLayer', id)
+      }
+    },
+    updateDataLayer (id, url) {
+      if (this.isDataSourceActive(id)) {
+        this.$store.commit('removeDataSource', id)
+      } else {
+        this.$store.dispatch('getDataSource', { id: id, url: url })
       }
     },
     handleSelectListItem (item) {
@@ -61,6 +73,14 @@ export default {
         item.coordinates = null
       }
       this.$store.commit('setFeatureInfo', item)
+    },
+    createReportFromSelection () {
+      if (this.active_tab === 1) {
+        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+      } else if (this.active_tab === 2) {
+        this.$store.dispatch('downloadFeatureReport',
+          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
+      }
     },
     humanReadable: val => humanReadable(val),
     mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
