@@ -1,25 +1,23 @@
-import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
-import Map from '../../src/components/map/Map.vue';
-import {MAP_LAYERS, WMS_WATER_RIGHTS_LICENSES} from "../../src/utils/mapUtils";
+import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
+import Map from '../../src/components/map/Map.vue'
+import { MAP_LAYERS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/mapUtils'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
 describe('Map Object Tests', () => {
-
   it('has a map attribute', () => {
     const wrapper = mount(Map, {
       attachToDocument: true
-    });
+    })
     expect(wrapper.attributes('id')).toBe('map')
-  });
+  })
 
   it('has a map object that is not null', () => {
     const wrapper = mount(Map)
     expect(wrapper.vm.map == null).toBe(false)
-  });
-
+  })
 })
 
 describe('Map Layer Tests', () => {

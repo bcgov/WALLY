@@ -1,6 +1,7 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
+import * as dataUtils from '../../utils/dataUtils'
 
 export default {
   name: 'Sidebar',
@@ -24,12 +25,7 @@ export default {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: [{ // TODO update to use DATA_SOURCE from dataUtils
-            id: 'Climate Normals 1980-2010',
-            name: 'Canadian Climate Normals 1980-2010',
-            uri: '',
-            geojson: ''
-          }]
+          choices: dataUtils.DATA_LAYERS
         }
       ],
       mini: true,
@@ -46,6 +42,9 @@ export default {
   methods: {
     setTabById (id) {
       this.active_tab = id
+    },
+    createReportFromSelection () {
+      return null
     },
     handleSelectLayer (id) {
       if (this.isMapLayerActive(id)) {

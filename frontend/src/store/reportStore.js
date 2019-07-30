@@ -1,4 +1,4 @@
-import ApiService, {reportingServiceURL} from "../services/ApiService";
+import ApiService, { reportingServiceURL } from '../services/ApiService'
 
 export default {
   state: {
@@ -6,17 +6,17 @@ export default {
   },
   actions: {
     downloadFeatureReport ({ commit }, payload) {
-      ApiService.post(reportingServiceURL + '/featureReport', payload, {responseType: 'arraybuffer'})
+      ApiService.post(reportingServiceURL + '/featureReport', payload, { responseType: 'arraybuffer' })
         .then((res) => {
-        console.log(res)
-        let blob = new Blob([res.data], { type: 'application/pdf' })
-        let link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.download = 'WaterReport.pdf'
-        link.click()
-      }).catch((error) => {
-        console.log(error)
-      })
+          console.log(res)
+          let blob = new Blob([res.data], { type: 'application/pdf' })
+          let link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.download = 'WaterReport.pdf'
+          link.click()
+        }).catch((error) => {
+          console.log(error)
+        })
     },
     downloadLayersReport ({ commit }, payload) {
       // TODO Implement in reporting service
@@ -31,7 +31,7 @@ export default {
       //   }).catch((error) => {
       //   console.log(error)
       // })
-    },
+    }
   },
   mutations: {
 
