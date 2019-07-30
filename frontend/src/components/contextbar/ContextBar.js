@@ -2,7 +2,7 @@ import { mapGetters } from 'vuex'
 import RandomChart from '../charts/RandomChart'
 import CircleChart from '../charts/CircleChart'
 import BarChart from '../charts/BarChart.js'
-import chartColors from '../../utils/colorUtils'
+import chartColors from '../../constants/colors'
 
 export default {
   name: 'ContextBar',
