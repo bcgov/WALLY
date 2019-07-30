@@ -125,12 +125,21 @@ pipeline {
                   "GIT_REF=pull/${CHANGE_ID}/head"
                 )
 
+                def bcPdfTemplate = openshift.process('-f',
+                  'openshift/reporting.build.yaml',
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=pull/${CHANGE_ID}/head"
+                )
+
                 timeout(10) {
                   echo "Starting build (frontend)"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
+                  def bcPdf = openshift.apply(bcPdfTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
                   def apiBuilds = bcApi.narrow('builds')
+                  def pdfBuilds = bcPdf.narrow('builds')
 
                   sleep(5)
                   webBuilds.untilEach(1) { // We want a minimum of 1 build
@@ -138,7 +147,10 @@ pipeline {
                   }
                   apiBuilds.untilEach(1) { // We want a minimum of 1 build
                       return it.object().status.phase == "Complete"
-                  } 
+                  }
+                  pdfBuilds.untilEach(1) { // We want a minimum of 1 build
+                      return it.object().status.phase == "Complete"
+                  }
                 }
                 echo "Success! Builds completed."
               }
@@ -186,6 +198,13 @@ pipeline {
                   "NAMESPACE=${project}"
                 ))
 
+                def reporting = openshift.apply(openshift.process("-f",
+                  "openshift/reporting.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
@@ -196,6 +215,7 @@ pipeline {
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
+                reporting.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
