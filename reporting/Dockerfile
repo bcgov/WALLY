@@ -2,10 +2,9 @@ FROM node:10
 
 WORKDIR /app
 
-COPY package*.json /app/
+RUN chgrp -R 0 /app/ && chmod -R g=u /app/
 
-RUN chgrp -R 0 /app/ && \
-    chmod -R g=u /app/
+COPY package*.json /app/
 
 RUN npm ci
 
