@@ -8,7 +8,7 @@
 
 <script>
 import Map from '../components/map/Map'
-import Sidebar from '../components/Sidebar'
+import Sidebar from '../components/sidebar/Sidebar.vue'
 import ContextBar from '../components/contextbar/ContextBar.vue'
 
 export default {

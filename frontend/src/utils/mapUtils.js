@@ -14,6 +14,8 @@ export const WMS_WELLS = 'WELLS'
 export const WMS_GROUND_WATER_AQUIFERS = 'WMS_GROUND_WATER_AQUIFERS'
 export const WMS_STREAM_RESTRICTIONS = 'WMS_STREAM_RESTRICTIONS'
 export const WMS_ALLOC_RESTRICTIONS_VIEW = 'WMS_ALLOC_RESTRICTIONS_VIEW'
+export const WMS_FRESHWATER_WATERSHEDS = 'WMS_FRESHWATER_WATERSHEDS'
+export const WMS_BC_MAJOR_WATERSHEDS = 'WMS_BC_MAJOR_WATERSHEDS'
 
 // Layer Configs
 export const MAP_LAYERS = [
@@ -21,6 +23,18 @@ export const MAP_LAYERS = [
     id: WMS_WATER_RIGHTS_LICENSES,
     name: 'Water Rights Licenses',
     wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_FRESHWATER_WATERSHEDS,
+    name: 'Freshwater Atlas Watersheds',
+    wmsLayer: 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_BC_MAJOR_WATERSHEDS,
+    name: 'BC Major Watersheds',
+    wmsLayer: 'WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS',
     wmsStyle: ''
   },
   {
