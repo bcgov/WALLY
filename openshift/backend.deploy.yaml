@@ -165,48 +165,6 @@ objects:
       name: wally-${NAME}-api
     sessionAffinity: None
     type: ClusterIP
-- apiVersion: route.openshift.io/v1
-  kind: Route
-  spec:
-    host: ${HOST}
-    path: /docs
-    port:
-      targetPort: 8000-tcp
-    tls:
-      termination: edge
-    to:
-      kind: Service
-      name: wally-${NAME}-api
-      weight: 100
-    wildcardPolicy: None
-  metadata:
-    labels:
-      app: wally-${NAME}
-      env: ${NAME}
-      component: api
-      name: wally-${NAME}-api-docs
-    name: wally-${NAME}-api-docs
-- apiVersion: route.openshift.io/v1
-  kind: Route
-  spec:
-    host: ${HOST}
-    path: /api
-    port:
-      targetPort: 8000-tcp
-    tls:
-      termination: edge
-    to:
-      kind: Service
-      name: wally-${NAME}-api
-      weight: 100
-    wildcardPolicy: None
-  metadata:
-    labels:
-      app: wally-${NAME}
-      env: ${NAME}
-      component: api
-      name: wally-${NAME}-api
-    name: wally-${NAME}-api
 kind: Template
 metadata:
   labels:

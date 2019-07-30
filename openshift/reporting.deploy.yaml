@@ -114,26 +114,6 @@ objects:
         component: reporting
         name: wally-${NAME}-reports
       name: wally-${NAME}-reports
-  - apiVersion: route.openshift.io/v1
-    kind: Route
-    spec:
-      host: ${HOST}
-      port:
-        targetPort: 3000-tcp
-      tls:
-        termination: edge
-      to:
-        kind: Service
-        name: wally-reports-${NAME}
-        weight: 100
-      wildcardPolicy: None
-    metadata:
-      labels:
-        app: wally-${NAME}
-        env: ${NAME}
-        component: reporting
-        name: wally-${NAME}-reports
-      name: wally-${NAME}-reports
 kind: Template
 metadata:
   resourceVersion: ''
