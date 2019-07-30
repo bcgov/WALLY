@@ -48,7 +48,7 @@ objects:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: 'node:10'
+            name: 'nodejs:10'
             namespace: openshift
         type: Docker
       successfulBuildsHistoryLimit: 5
