@@ -10,7 +10,7 @@ parameters:
   displayName: Git Repo URL
   description: The URL to your Git repo.
   required: true
-  value: git@github.com:bcgov-c/wally.git
+  value: https://github.com/bcgov-c/wally.git
 - name: GIT_REF
   displayName: Git Reference
   description: The git reference or branch.
@@ -48,7 +48,7 @@ objects:
         ref: "${GIT_REF}"
         uri: "${GIT_REPO}"
       sourceSecret:
-        name: wally-at-github
+        name: wally-github-token
       type: Git
     strategy:
       dockerStrategy:

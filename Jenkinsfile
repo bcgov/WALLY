@@ -89,7 +89,7 @@ private static String stackTraceAsString(Throwable t) {
 pipeline {
   agent any
   environment {
-    GIT_REPO = "git@github.com:bcgov-c/wally.git"
+    GIT_REPO = "https://github.com/bcgov-c/wally.git"
     NAME = JOB_BASE_NAME.toLowerCase()
 
     // project names
@@ -133,12 +133,30 @@ pipeline {
                   def apiBuilds = bcApi.narrow('builds')
 
                   sleep(5)
-                  webBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
+
+                  // wait for builds to run.
+                  webBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
                   }
-                  apiBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
-                  } 
+                  apiBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
+                  }
+
+                  // the previous step waited for builds to finish (whether successful or not),
+                  // so here we check for errors.
+                  webBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcWeb.logs()
+                      error('Frontend build failed')
+                    }
+                  }
+
+                  apiBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcApi.logs()
+                      error('Backend build failed')
+                    }
+                  }
                 }
                 echo "Success! Builds completed."
               }
