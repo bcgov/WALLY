@@ -90,7 +90,7 @@ objects:
               - name: WALLY_ENV
                 value: "${ENVIRONMENT}"
               image: >-
-                docker-registry.default.svc:5000/bfpeyx-dev/keycloak-gatekeeper
+                quay.io/keycloak/keycloak-gatekeeper:6.0.1
               imagePullPolicy: Always
               name: wally-${NAME}-gatekeeper
               resources: {}
