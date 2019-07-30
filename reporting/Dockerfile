@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY package*.json /app/
 
-RUN chmod u+x /app/
+RUN chgrp -R 0 /app/ && \
+    chmod -R g=u /app/
 
 RUN npm ci
 
