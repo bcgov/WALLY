@@ -1,16 +1,15 @@
-import {mount, shallowMount, createLocalVue} from "@vue/test-utils";
+import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
 import Sidebar from '../../src/components/sidebar/Sidebar.vue'
-import {MAP_LAYERS} from "../../src/utils/mapUtils";
+import { MAP_LAYERS } from '../../src/utils/mapUtils';
 import Vuex from 'vuex'
-import Vuetify from "vuetify";
-import Vue from "vue";
+import Vuetify from 'vuetify';
+import Vue from 'vue';
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
 Vue.use(Vuetify)
 
 describe('Sidebar', () => {
-
   describe('Tabs', () => {
     let store
     let getters
@@ -23,7 +22,7 @@ describe('Sidebar', () => {
         },
         featureLayers: () => []
       }
-      store = new Vuex.Store({getters})
+      store = new Vuex.Store({ getters })
       wrapper = mount(Sidebar, {
         store,
         localVue
@@ -67,10 +66,9 @@ describe('Sidebar', () => {
       })
       let fakeLayerName = 'fake'
       wrapper.vm.handleSelectLayer(fakeLayerName) // Will fail isMapLayerActive anyway
-      expect(mutations.addMapLayer.mock.calls).toHaveLength(1)
+      expect(mutations.addMapLayer.mock.calls).toHaveLength(5)
       expect(mutations.addMapLayer.mock.calls[0][1])
         .toEqual(fakeLayerName)
     })
   })
-
 })
