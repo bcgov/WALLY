@@ -205,6 +205,14 @@ pipeline {
                   "ENVIRONMENT=DEV"
                 ))
 
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "openshift/gatekeeper.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
+                ))
+
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
@@ -215,6 +223,7 @@ pipeline {
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
