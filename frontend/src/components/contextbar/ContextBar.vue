@@ -8,7 +8,7 @@
     class="wally-sidenav"
   >
     <v-toolbar dark color="#38598A">
-      <v-toolbar-title class="white--text">Data Context</v-toolbar-title>
+<!--      <v-toolbar-title class="white&#45;&#45;text">Data Context</v-toolbar-title>-->
       <v-spacer></v-spacer>
       <v-btn icon @click="toggleContextBar">
         <v-icon v-if="!drawer.mini">
