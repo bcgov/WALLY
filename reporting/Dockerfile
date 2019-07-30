@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY package*.json /app/
 
+RUN chmod u+x /app/
+
 RUN npm ci
 
 COPY . .
-
-RUN chmod +x /app/src/app.js
 
 RUN npm run build
 
