@@ -11,7 +11,7 @@ import EventBus from '../../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
 import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
-import {wmsBaseURl} from "../../utils/wmsUtils";
+import {wmsBaseURL} from "../../utils/wmsUtils";
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -179,7 +179,7 @@ export default {
         return
       }
 
-      this.activeLayers[layer.id] = betterWms(wmsBaseURl + layer.wmsLayer + '/ows?',
+      this.activeLayers[layer.id] = betterWms(wmsBaseURL + layer.wmsLayer + '/ows?',
         {
           format: 'image/png',
           layers: 'pub:' + layer.wmsLayer,
