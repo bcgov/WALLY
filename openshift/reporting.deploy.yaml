@@ -118,6 +118,7 @@ objects:
     kind: Route
     spec:
       host: ${HOST}
+      path: /reporting
       port:
         targetPort: 3000-tcp
       tls:
