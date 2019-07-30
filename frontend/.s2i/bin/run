@@ -20,12 +20,10 @@ envsubst_config() {
   if ls "$NGINX_TEMPL" > /dev/null 2>&1 ; then
     echo "---> substituting environment variables in templates"
         envsubst < "$NGINX_TEMPL" > "$NGINX_CONF"
-      fi
-    done
   fi
 }
 
 envsubst_config
 
 
-exec nginx -g "daemon off;"
+exec nginx -g "daemon off;" -c "$NGINX_CONF"
