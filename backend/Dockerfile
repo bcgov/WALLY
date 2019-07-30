@@ -7,8 +7,9 @@ COPY ./requirements.txt /
 RUN pip install -r /requirements.txt
 
 COPY . /app
-
 ENV PYTHONPATH=/app
+
+RUN pytest /app/app/tests/ -W ignore::DeprecationWarning
 
 EXPOSE 8000
 
