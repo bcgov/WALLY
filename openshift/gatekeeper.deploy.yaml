@@ -80,7 +80,7 @@ objects:
                 - '--redirection-url'
                 - 'https://${HOST}'
                 - '--upstream-url'
-                - 'wally-${NAME}:8080'
+                - 'http://wally-${NAME}:8080'
                 - '--discovery-url'
                 - '$(DISCOVERY_URL)'
               envFrom:
