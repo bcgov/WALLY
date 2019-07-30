@@ -54,6 +54,14 @@ export default {
         this.$store.commit('addMapLayer', id)
       }
     },
+    createReportFromSelection () {
+      if (this.active_tab === 1) {
+        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+      } else if (this.active_tab === 2) {
+        this.$store.dispatch('downloadFeatureReport',
+          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
+      }
+    },
     handleSelectListItem (item) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
       if ('LATITUDE' in item.properties && 'LONGITUDE' in item.properties) {
