@@ -78,7 +78,7 @@ objects:
                 - '--client-secret'
                 - '$CLIENT_SECRET'
                 - '--redirection-url'
-                - '${HOST}'
+                - 'https://${HOST}'
                 - '--upstream-url'
                 - 'wally-${NAME}:8080'
                 - '--discovery-url'
