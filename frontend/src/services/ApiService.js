@@ -1,7 +1,7 @@
 import axios from 'axios'
 import qs from 'querystring'
 
-export const reportingServiceURL = process.env.VUE_APP_REPORTING_SERVICE_URL || 'http://localhost:3000'
+export const reportingServiceURL = process.env.VUE_APP_REPORTING_BASE_URL || 'http://localhost:3000/reporting'
 
 const ApiService = {
 
