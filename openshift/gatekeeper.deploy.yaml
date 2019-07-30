@@ -46,8 +46,9 @@ objects:
       replicas: 1
       revisionHistoryLimit: 10
       selector:
-        app: keycloak-gatekeeper
-        deploymentconfig: keycloak-gatekeeper
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
       strategy:
         activeDeadlineSeconds: 21600
         resources: {}
