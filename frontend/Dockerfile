@@ -8,8 +8,8 @@ RUN npm ci
 
 COPY . .
 
-RUN npm run build
-
+# run unit tests and build
+RUN npm run test:unit && npm run build
 
 FROM nginx:1.12
 

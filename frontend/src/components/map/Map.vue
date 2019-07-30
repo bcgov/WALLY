@@ -7,11 +7,11 @@ import L from 'leaflet'
 import { tiledMapLayer } from 'esri-leaflet'
 import 'leaflet-lasso'
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
-import EventBus from '../services/EventBus.js'
+import EventBus from '../../services/EventBus.js'
 import { mapState, mapGetters } from 'vuex'
-import betterWms from '../components/L.TileLayer.BetterWMS'
+import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
-import {wmsBaseURl} from "../utils/wmsUtils";
+import { wmsBaseURl } from '../../utils/wmsUtils'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -40,12 +40,14 @@ export default {
     // There seems to be an issue loading leaflet immediately on mount, we use nextTick to ensure
     // that the view has been rendered at least once before injecting the map.
     // this.$nextTick(function () {
-      this.initLeaflet()
-      this.initMap()
+    this.initLeaflet()
+    this.initMap()
     // })
 
     EventBus.$on('layer:added', this.handleAddLayer)
     EventBus.$on('layer:removed', this.handleRemoveLayer)
+    EventBus.$on('dataSource:added', this.handleAddDataSource)
+    EventBus.$on('dataSource:removed', this.handleRemoveDataSource)
     EventBus.$on('feature:added', this.handleAddFeature)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
@@ -53,8 +55,9 @@ export default {
   beforeDestroy () {
     EventBus.$off('layer:added', this.handleAddLayer)
     EventBus.$off('layer:removed', this.handleRemoveLayer)
-    EventBus.off('feature:added', this.handleAddFeature)
-
+    EventBus.$off('dataSource:added', this.handleAddDataSource)
+    EventBus.$off('dataSource:removed', this.handleRemoveDataSource)
+    EventBus.$off('feature:added', this.handleAddFeature)
   },
   data () {
     return {
@@ -68,7 +71,9 @@ export default {
   computed: {
     ...mapGetters([
       'allMapLayers',
-      'activeMapLayers'
+      'activeMapLayers',
+      'allDataSources',
+      'activeDataSources'
     ])
   },
   methods: {
@@ -77,9 +82,9 @@ export default {
       // Fix courtesy of: https://github.com/PaulLeCam/react-leaflet/issues/255
       delete L.Icon.Default.prototype._getIconUrl
       L.Icon.Default.mergeOptions({
-        iconRetinaUrl: require('../assets/images/marker-icon-2x.png'),
-        iconUrl: require('../assets/images/marker-icon.png'),
-        shadowUrl: require('../assets/images/marker-shadow.png')
+        iconRetinaUrl: require('../../assets/images/marker-icon-2x.png'),
+        iconUrl: require('../../assets/images/marker-icon.png'),
+        shadowUrl: require('../../assets/images/marker-shadow.png')
       })
     },
     initMap () {
@@ -97,7 +102,7 @@ export default {
 
       // BCGov map tiles
       tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
-      //Open Street Map tiles
+      // Open Street Map tiles
       // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       //     maxZoom: 19,
       //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -166,10 +171,38 @@ export default {
       })
       this.removeLayer(layer)
     },
+    handleAddDataSource (source) {
+      const layer = this.activeDataSources.find((x) => {
+        return x.id === source.id
+      })
+      this.addGeoJSONLayer(layer)
+    },
+    handleRemoveDataSource (id) {
+      this.removeLayer(id)
+    },
     addGeoJSONLayer (layer) {
-      this.activeLayers[layer.id] = L.geoJSON(layer.geojson, {
+      if (!layer || !layer.data) {
+        console.error('invalid format for data source')
+        return
+      }
+
+      // layer.data should have a "features" or "geojson" property, which
+      // must be a list of geojson Features.  For example, layer.data could be
+      // a FeatureCollection format object. The 'features' list will be added to the map.
+      let features
+      if (layer.data.features && layer.data.features.length) {
+        features = layer.data.features
+      } else if (layer.data.geojson && layer.data.geojson.length) {
+        features = layer.data.geojson
+      }
+      if (!features) {
+        console.error('could not find a features list or object to add to map')
+        return
+      }
+
+      this.activeLayers[layer.id] = L.geoJSON(features, {
         onEachFeature: function (feature, layer) {
-          layer.bindPopup('<h3>' + feature.properties.name + '</h3><p><a href="' + feature.properties.web_uri + '" target="_blank">Web link</a></p>')
+          layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
         }
       })
       this.activeLayers[layer.id].addTo(this.map)
@@ -178,7 +211,6 @@ export default {
       if (!layer.id || !layer.wmsLayer || !layer.name) {
         return
       }
-
       this.activeLayers[layer.id] = betterWms(wmsBaseURl + layer.wmsLayer + '/ows?',
         {
           format: 'image/png',
@@ -192,11 +224,12 @@ export default {
       this.activeLayers[layer.id].addTo(this.map)
     },
     removeLayer (layer) {
-      if (!this.activeLayers[layer.id]) {
+      const id = layer.id || layer
+      if (!id || !this.activeLayers[id]) {
         return
       }
-      this.map.removeLayer(this.activeLayers[layer.id])
-      delete this.activeLayers[layer.id]
+      this.map.removeLayer(this.activeLayers[id])
+      delete this.activeLayers[id]
     },
     // getLegendControl () {
     //   const self = this
@@ -232,7 +265,7 @@ export default {
       this.activeMapLayers.forEach((layer) => {
         this.$store.dispatch('getLayerFeatures', { bounds: bounds, size: size, layer: layer.wmsLayer })
       })
-    },
+    }
     // listenForReset () {
     //     this.$parent.$on('resetLayers', (data) => {
     //         if (this.map) {
@@ -249,9 +282,9 @@ export default {
 }
 </script>
 <style>
-    @import '../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
-    @import '../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css';
-    @import "../../node_modules/leaflet/dist/leaflet.css";
+    @import '../../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
+    @import '../../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css';
+    @import "../../../node_modules/leaflet/dist/leaflet.css";
     .map {
         width: 100%;
         height: calc(100vh - 64px);
@@ -276,7 +309,7 @@ export default {
         cursor: move;
     }
     .geolocate {
-        background-image: url('../assets/images/geolocate.png');
+        background-image: url('../../assets/images/geolocate.png');
         width: 30px;
         height: 30px;
         left: 2px;
@@ -300,7 +333,7 @@ export default {
         opacity: 0.8;
     }
     .select-box-icon {
-        background-image: url('../assets/images/select-zoom.png');
+        background-image: url('../../assets/images/select-zoom.png');
     }
 
     .leaflet-popup-link .popup-link {

@@ -1,22 +1,22 @@
 <template>
   <div class="home">
-    <Contextbar/>
+    <ContextBar/>
     <Sidebar/>
     <Map/>
   </div>
 </template>
 
 <script>
-import Map from '../components/Map'
-import Sidebar from '../components/Sidebar'
-import Contextbar from '../components/Contextbar'
+import Map from '../components/map/Map'
+import Sidebar from '../components/sidebar/Sidebar.vue'
+import ContextBar from '../components/contextbar/ContextBar.vue'
 
 export default {
   name: 'Home',
   components: {
     Map,
     Sidebar,
-    Contextbar
+    ContextBar
   }
 }
 </script>

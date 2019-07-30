@@ -89,7 +89,7 @@ private static String stackTraceAsString(Throwable t) {
 pipeline {
   agent any
   environment {
-    GIT_REPO = "git@github.com:bcgov-c/wally.git"
+    GIT_REPO = "https://github.com/bcgov-c/wally.git"
     NAME = JOB_BASE_NAME.toLowerCase()
 
     // project names
@@ -110,7 +110,7 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
-                echo "Applying template (frontend)"
+                echo "Applying templates"
                 def bcWebTemplate = openshift.process('-f',
                   'openshift/frontend.build.yaml',
                   "NAME=${NAME}",
@@ -133,7 +133,7 @@ pipeline {
                 )
 
                 timeout(10) {
-                  echo "Starting build (frontend)"
+                  echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
                   def bcPdf = openshift.apply(bcPdfTemplate).narrow('bc').startBuild()
@@ -142,15 +142,41 @@ pipeline {
                   def pdfBuilds = bcPdf.narrow('builds')
 
                   sleep(5)
-                  webBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
+
+                  // wait for builds to run.
+                  webBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
                   }
-                  apiBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
+                  apiBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
                   }
-                  pdfBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
+                  pdfBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
+                   }
+
+                  // the previous step waited for builds to finish (whether successful or not),
+                  // so here we check for errors.
+                  webBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcWeb.logs()
+                      error('Frontend build failed')
+                    }
                   }
+
+                  apiBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcApi.logs()
+                      error('Backend build failed')
+                    }
+                  }
+
+                  pdfBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcPdf.logs()
+                      error('Reporting build failed')
+                    }
+                  }
+
                 }
                 echo "Success! Builds completed."
               }
@@ -195,7 +221,8 @@ pipeline {
                   "openshift/backend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
-                  "NAMESPACE=${project}"
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
                 ))
 
                 def reporting = openshift.apply(openshift.process("-f",
@@ -220,6 +247,61 @@ pipeline {
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
                 echo "Successfully deployed"
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('API tests') {
+      steps {
+        script {
+          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
+          openshift.withCluster() {
+            openshift.withProject(TOOLS_PROJECT) {
+              withStatus(env.STAGE_NAME) {
+                podTemplate(
+                    label: "apitest-${NAME}-${BUILD_NUMBER}",
+                    name: "apitest-${NAME}-${BUILD_NUMBER}",
+                    serviceAccount: 'jenkins',
+                    cloud: 'openshift',
+                    activeDeadlineSeconds: 1800,
+                    containers: [
+                        containerTemplate(
+                            name: 'jnlp',
+                            image: 'docker-registry.default.svc:5000/bfpeyx-tools/apitest',
+                            imagePullPolicy: 'Always',
+                            resourceRequestCpu: '500m',
+                            resourceLimitCpu: '800m',
+                            resourceRequestMemory: '512Mi',
+                            resourceLimitMemory: '1Gi',
+                            activeDeadlineSeconds: '600',
+                            podRetention: 'never',
+                            workingDir: '/tmp',
+                            command: '',
+                            args: '${computer.jnlpmac} ${computer.name}',
+                            envVars: [
+                                envVar(
+                                    key:'BASE_URL',
+                                    value: "https://${host}"
+                                )
+                            ]
+                        )
+                    ]
+                ) {
+                    node("apitest-${NAME}-${BUILD_NUMBER}") {
+                        checkout scm
+                        dir('backend/api-tests') {
+                            try {
+                                sh """
+                                  apitest -f hydat.apitest.yaml -e host=$BASE_URL
+                                  """
+                                }
+                            finally {
+                      }
+                    }
+                  }
+                }
               }
             }
           }
