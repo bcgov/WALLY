@@ -15,7 +15,7 @@ FROM nginx:1.12
 
 COPY --from=build /app/dist/ /tmp/src
 
-COPY --from=build /app/nginx.conf /tmp/src/nginx.conf
+COPY --from=build /app/nginx.conf.tmpl /tmp/src/nginx.conf.tmpl
 
 RUN /usr/libexec/s2i/assemble
 
