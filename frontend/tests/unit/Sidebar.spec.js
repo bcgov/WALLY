@@ -66,7 +66,7 @@ describe('Sidebar', () => {
       })
       let fakeLayerName = 'fake'
       wrapper.vm.handleSelectLayer(fakeLayerName) // Will fail isMapLayerActive anyway
-      expect(mutations.addMapLayer.mock.calls).toHaveLength(5)
+      expect(mutations.addMapLayer.mock.calls).toHaveLength(1)
       expect(mutations.addMapLayer.mock.calls[0][1])
         .toEqual(fakeLayerName)
     })
