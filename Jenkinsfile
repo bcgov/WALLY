@@ -237,6 +237,7 @@ pipeline {
                 // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
                 openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${DEV_PROJECT}/wally-api:${NAME}")
+                openshift.tag("${TOOLS_PROJECT}/wally-reporting:${NAME}", "${DEV_PROJECT}/wally-reporting:${NAME}")
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
