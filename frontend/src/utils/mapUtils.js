@@ -75,7 +75,7 @@ export const MAP_LAYERS = [
     id: WMS_STREAM_RESTRICTIONS,
     name: 'Stream With Water Allocation Restrictions',
     wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_STREAM_RESTRICTIONS_SP',
-    wmsStyle: ''
+    wmsStyle: 'Water_Allocation_Restrictions_Primary_Type'
   },
   {
     id: WMS_ALLOC_RESTRICTIONS_VIEW,
