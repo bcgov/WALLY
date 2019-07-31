@@ -1,14 +1,13 @@
 import axios from 'axios'
 import qs from 'querystring'
 
-export const reportingServiceURL = process.env.VUE_APP_REPORTING_SERVICE_URL || 'http://localhost:3000'
+export const reportingServiceURL = process.env.VUE_APP_REPORTING_URL
 
 const ApiService = {
 
   init () {
     axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL
     this.baseURL = axios.defaults.baseURL
-
 
     axios.interceptors.request.use(function (request) {
       // log requests to console while logging is on

@@ -28,7 +28,7 @@ objects:
         app: wally-${NAME}
         env: ${NAME}
         component: reporting
-        name: wally-${NAME}-reports
+        name: wally-${NAME}-reporting
       sessionAffinity: None
       type: ClusterIP
     metadata:
@@ -38,8 +38,8 @@ objects:
         app: wally-${NAME}
         env: ${NAME}
         component: reporting
-        name: wally-${NAME}-reports
-      name: wally-reports-${NAME}
+        name: wally-${NAME}-reporting
+      name: wally-reporting-${NAME}
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     spec:
@@ -49,7 +49,7 @@ objects:
         app: wally-${NAME}
         env: ${NAME}
         component: reporting
-        name: wally-${NAME}-reports
+        name: wally-${NAME}-reporting
       strategy:
         activeDeadlineSeconds: 21600
         resources: {}
@@ -69,23 +69,23 @@ objects:
             app: wally-${NAME}
             env: ${NAME}
             component: reporting
-            name: wally-${NAME}-reports
+            name: wally-${NAME}-reporting
         spec:
           containers:
             - image: >-
-                docker-registry.default.svc:5000/${NAMESPACE}/wally-reports:${NAME}
+                docker-registry.default.svc:5000/${NAMESPACE}/wally-reporting:${NAME}
               imagePullPolicy: Always
-              name: wally-reports
+              name: wally-reporting
               ports:
                 - containerPort: 3000
                   protocol: TCP
               resources:
                 requests:
-                  cpu: 50m
-                  memory: 128Mi
+                  cpu: 200m
+                  memory: 256Mi
                 limits:
-                  cpu: 50m
-                  memory: 128Mi
+                  cpu: 500m
+                  memory: 256Mi
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
           dnsPolicy: ClusterFirst
@@ -98,10 +98,10 @@ objects:
         - imageChangeParams:
             automatic: true
             containerNames:
-              - wally-reports
+              - wally-reporting
             from:
               kind: ImageStreamTag
-              name: wally-reports:${NAME}
+              name: wally-reporting:${NAME}
               namespace: ${NAMESPACE}
           type: ImageChange
         - type: ConfigChange
@@ -112,8 +112,29 @@ objects:
       labels:
         app: wally-${NAME}
         component: reporting
-        name: wally-${NAME}-reports
-      name: wally-${NAME}-reports
+        name: wally-${NAME}-reporting
+      name: wally-${NAME}-reporting
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: ${HOST}
+      path: /reporting
+      port:
+        targetPort: 3000-tcp
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: wally-reporting-${NAME}
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-${NAME}
+        env: ${NAME}
+        component: reporting
+        name: wally-${NAME}-reporting
+      name: wally-${NAME}-reporting
 kind: Template
 metadata:
   resourceVersion: ''
@@ -122,4 +143,4 @@ metadata:
     app: wally-${NAME}
     env: ${NAME}
     component: reporting
-    name: wally-${NAME}-reports
+    name: wally-${NAME}-reporting
