@@ -17,10 +17,8 @@ if [ ! -v NGINX_LOG_TO_VOLUME -a -v NGINX_LOG_PATH ]; then
 fi
 
 envsubst_config() {
-  if ls "$NGINX_TEMPL" > /dev/null 2>&1 ; then
     echo "---> substituting environment variables in templates"
         envsubst '$WALLY_BACKEND_SERVICE $WALLY_REPORTING_SERVICE' < "$NGINX_TEMPL" > "$NGINX_CONF"
-  fi
 }
 
 envsubst_config
