@@ -73,10 +73,6 @@ objects:
         spec:
           containers:
           - env:
-            - name: VUE_APP_REPORTING_BASE_URL
-              value: ${HOST}/reporting
-            - name: VUE_APP_AXIOS_BASE_URL
-              value: ${HOST}/api
             image: >-
               docker-registry.default.svc:5000/${NAMESPACE}/wally-web:${NAME}
             imagePullPolicy: Always
