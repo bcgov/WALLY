@@ -126,10 +126,5 @@ http {
             access_log off;
             add_header Cache-Control "public";
         }
-
-        # Any route containing a file extension (e.g. /devicesfile.js)
-        location ~ ^.+\..+$ {
-            try_files $uri =404;
-        }
     }
 }
