@@ -93,16 +93,19 @@ http {
         location /api {
             proxy_pass http://${WALLY_BACKEND_SERVICE}:8000;
             proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
         }
 
         location /docs {
             proxy_pass http://${WALLY_BACKEND_SERVICE}:8000;
             proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
         }
 
         # location /reporting {
         #     proxy_pass http://${WALLY_REPORTING_SERVICE}:3000;
-    #         proxy_set_header Host $host;
+        #     proxy_set_header Host $host;
+        #     proxy_set_header X-Real-IP $remote_addr;
         # }
 
         location / {
