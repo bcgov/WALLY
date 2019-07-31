@@ -16,12 +16,7 @@ if [ ! -v NGINX_LOG_TO_VOLUME -a -v NGINX_LOG_PATH ]; then
     /bin/ln -s /dev/stderr ${NGINX_LOG_PATH}/error.log
 fi
 
-envsubst_config() {
-    echo "---> substituting environment variables in templates"
-        envsubst '$WALLY_BACKEND_SERVICE $WALLY_REPORTING_SERVICE' < "$NGINX_TEMPL" > "$NGINX_CONF"
-}
-
-envsubst_config
-
+echo "---> substituting environment variables in templates"
+envsubst '$WALLY_BACKEND_SERVICE $WALLY_REPORTING_SERVICE' < "$NGINX_TEMPL" > "$NGINX_CONF"
 
 exec nginx -g "daemon off;" -c "$NGINX_CONF"
