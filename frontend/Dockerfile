@@ -17,7 +17,4 @@ COPY --from=build /app/dist/ /tmp/src
 
 COPY --from=build /app/nginx.conf.tmpl /tmp/src/nginx.conf.tmpl
 
-RUN /usr/libexec/s2i/assemble
-
 EXPOSE 8080
-CMD /usr/libexec/s2i/run
