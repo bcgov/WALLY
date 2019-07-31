@@ -1,7 +1,7 @@
 #!/bin/bash
 
 NGINX_CONF=${NGINX_CONF-/opt/app-root/etc/nginx.conf}
-NGINX_TEMPL=${NGINX_TEMPL-/opt/app-root/etc/nginx.conf.tmpl}
+NGINX_TEMPL=${NGINX_TEMPL-/opt/app-root/src/nginx.conf.tmpl}
 
 source /opt/app-root/etc/generate_container_user
 
