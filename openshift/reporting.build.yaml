@@ -26,7 +26,7 @@ objects:
       output:
         to:
           kind: ImageStreamTag
-          name: wally-reports:${NAME}
+          name: wally-reporting:${NAME}
       postCommit: {}
       resources:
         limits:
@@ -41,18 +41,14 @@ objects:
         git:
           ref: "${GIT_REF}"
           uri: "${GIT_REPO}"
-        secrets:
-          - destinationDir: .
-            secret:
-              name: wally-at-github
         sourceSecret:
-          name: wally-at-github
+          name: wally-github-token
         type: Git
       strategy:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: 'node:10'
+            name: 'nodejs:10'
             namespace: openshift
         type: Docker
       successfulBuildsHistoryLimit: 5
@@ -63,10 +59,10 @@ objects:
         openshift.io/generated-by: OpenShiftNewBuild
       labels:
         component: reporting
-        name: wally-${NAME}-reports
+        name: wally-${NAME}-reporting
         app: wally-${NAME}
         env: "${NAME}"
-      name: wally-${NAME}-reports
+      name: wally-${NAME}-reporting
   - apiVersion: image.openshift.io/v1
     kind: ImageStream
     spec:
@@ -78,6 +74,6 @@ objects:
       generation: 3
       labels:
         component: reporting
-        name: wally-reports
+        name: wally-reporting
         env: tools
-      name: wally-reports
+      name: wally-reporting
