@@ -63,8 +63,8 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
 
     server.get('/favicon.ico', (request, response) => response.status('404').end());
 
-    server.get('/:template', (req, res) => createPdf(req.params.template, req.query, res));
-    server.post('/:template', (req, res) => {
+    server.get('/*/:template', (req, res) => createPdf(req.params.template, req.query, res));
+    server.post('/*/:template', (req, res) => {
         const data = req.body;
         Object.keys(req.query).forEach((value) => {
             if (data[value]) {
