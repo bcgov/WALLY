@@ -100,10 +100,10 @@ http {
             proxy_set_header Host $host;
         }
 
-        location /reporting/ {
-            proxy_set_header Host $host;
-            proxy_pass http://${WALLY_REPORTING_SERVICE}:3000/;
-        }
+        # location /reporting/ {
+        #     proxy_set_header Host $host;
+        #     proxy_pass http://${WALLY_REPORTING_SERVICE}:3000/;
+        # }
 
         location / {
             # First attempt to serve request as file, then
