@@ -65,6 +65,14 @@ export default {
         this.$store.dispatch('getDataSource', { id: id, url: url })
       }
     },
+    createReportFromSelection () {
+      if (this.active_tab === 1) {
+        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+      } else if (this.active_tab === 2) {
+        this.$store.dispatch('downloadFeatureReport',
+          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
+      }
+    },
     handleSelectListItem (item) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
       if ('LATITUDE' in item.properties && 'LONGITUDE' in item.properties) {
@@ -73,14 +81,6 @@ export default {
         item.coordinates = null
       }
       this.$store.commit('setFeatureInfo', item)
-    },
-    createReportFromSelection () {
-      if (this.active_tab === 1) {
-        this.$store.dispatch('downloadLayersReport', this.featureLayers)
-      } else if (this.active_tab === 2) {
-        this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
-      }
     },
     humanReadable: val => humanReadable(val),
     mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
