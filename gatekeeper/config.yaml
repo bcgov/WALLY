@@ -2,8 +2,5 @@ enable-default-deny: true
 listen: :3000
 resources:
 - uri: /*
-  methods:
-  - GET
   roles:
   - wally-view
-  require-any-role: true
