@@ -29,6 +29,5 @@ export const DATA_LAYERS = [
         }
       }
     ]
-
   }
 ]
