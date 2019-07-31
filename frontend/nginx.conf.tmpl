@@ -91,17 +91,14 @@ http {
         include      /opt/app-root/etc/nginx.default.d/*.conf;
 
         location /api/ {
-            proxy_set_header Host $host;
             proxy_pass http://${WALLY_BACKEND_SERVICE}:8000/;
         }
 
         location /docs/ {
             proxy_pass http://${WALLY_BACKEND_SERVICE}:8000/;
-            proxy_set_header Host $host;
         }
 
         # location /reporting/ {
-        #     proxy_set_header Host $host;
         #     proxy_pass http://${WALLY_REPORTING_SERVICE}:3000/;
         # }
 
