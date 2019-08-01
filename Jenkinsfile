@@ -132,7 +132,7 @@ pipeline {
                   "GIT_REF=pull/${CHANGE_ID}/head"
                 )
 
-                timeout(10) {
+                timeout(15) {
                   echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
