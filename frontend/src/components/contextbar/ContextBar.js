@@ -2,7 +2,8 @@ import { mapGetters } from 'vuex'
 import RandomChart from '../charts/RandomChart'
 import CircleChart from '../charts/CircleChart'
 import BarChart from '../charts/BarChart.js'
-import chartColors from '../../constants/colors'
+import { chartColors } from '../../constants/colors'
+import { dataSource } from '../../utils/dataSourceMetaSchema'
 
 export default {
   name: 'ContextBar',
@@ -37,8 +38,8 @@ export default {
       labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
       datasets: [{
         label: 'Water Quantity',
-        data: [12, 19, 3, 5, 2, 3],
-        backgroundColor: chartColors.backgroundColor,
+        data: [],
+        backgroundColor: chartColors.background,
         borderColor: chartColors.border,
         borderWidth: 1
       }]
@@ -49,24 +50,34 @@ export default {
       this.drawer.mini = !this.drawer.mini
     },
     populateChartData (items) {
-      // console.log('populating data.....')
-      if (items.length > 0) {
-        this.bar_data.labels = []
-        this.bar_data.datasets[0].data = []
-        this.bar_data.visible = true
+      // Clear data
+      this.bar_data.labels = []
+      this.bar_data.datasets = []
+      this.bar_data.visible = true
 
-        items.forEach((layerGroup, groupIndex) => {
-          Object.keys(layerGroup).map(key => {
-            layerGroup[key].forEach(item => {
-              // Depends on the type of data
-              console.log(item.properties.LICENCE_NUMBER, item.properties.QUANTITY, item.properties)
-              this.bar_data.labels.push(item.properties.LICENCE_NUMBER)
-              this.bar_data.datasets[0].data.push(item.properties.QUANTITY)
-              console.log(this.bar_data)
+      items.length > 0 && items.forEach(layers => {
+        // Go through each layer
+        Object.keys(layers).map(layer => {
+          const tempDataset = {
+            label: '',
+            data: [],
+            backgroundColor: chartColors.background,
+            borderColor: chartColors.border,
+            borderWidth: 1
+          }
+          tempDataset.label = dataSource[layer].highlight_fields.label
+          layers[layer].forEach(item => {
+            // Depends on the type of data
+            dataSource[layer].highlight_fields.data_labels.forEach(label => {
+              this.bar_data.labels.push(item.properties[label])
+            })
+            dataSource[layer].highlight_fields.datasets.forEach((dataset, i) => {
+              tempDataset.data.push(item.properties[dataset])
             })
           })
+          this.bar_data.datasets.push(tempDataset)
         })
-      }
+      })
     }
   },
   watch: {
