@@ -14,8 +14,8 @@ RUN npm run test:unit && npm run build
 FROM nginx:1.12
 
 COPY --from=build /app/dist/ /tmp/src
-
-COPY --from=build /app/nginx.conf /tmp/src/nginx.conf
+COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
+COPY --from=build /app/nginx.conf.tmpl /opt/app-root/etc/nginx.conf.tmpl
 
 RUN /usr/libexec/s2i/assemble
 

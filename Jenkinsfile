@@ -132,7 +132,7 @@ pipeline {
                   "GIT_REF=pull/${CHANGE_ID}/head"
                 )
 
-                timeout(10) {
+                timeout(15) {
                   echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
@@ -225,6 +225,14 @@ pipeline {
                   "ENVIRONMENT=DEV"
                 ))
 
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "openshift/gatekeeper.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
+                ))
+                
                 def reporting = openshift.apply(openshift.process("-f",
                   "openshift/reporting.deploy.yaml",
                   "NAME=${NAME}",
@@ -243,6 +251,7 @@ pipeline {
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
                 reporting.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
@@ -285,7 +294,32 @@ pipeline {
                                 envVar(
                                     key:'BASE_URL',
                                     value: "https://${host}"
-                                )
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_HOST',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_HOST'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_PASS',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_PASS'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_USER',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_USER'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_ID',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_ID'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_SECRET',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_SECRET'
+                                ),
                             ]
                         )
                     ]
@@ -295,7 +329,13 @@ pipeline {
                         dir('backend/api-tests') {
                             try {
                                 sh """
-                                  apitest -f hydat.apitest.yaml -e host=$BASE_URL
+                                  apitest -f hydat.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET
                                   """
                                 }
                             finally {
