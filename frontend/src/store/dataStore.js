@@ -18,6 +18,13 @@ export default {
       }).catch((error) => {
         console.error(error) // TODO create error state item and mutation
       })
+    },
+    getDataSourceFeatures({ commit }, payload) {
+      // TODO: ApiService call to hydat data, send in payload.id
+      let feature = payload.feature
+      ApiService.getRaw(utils.API_URL + feature.properties.url).then((res) => {
+        console.log('response', res)
+      })
     }
   },
   mutations: {

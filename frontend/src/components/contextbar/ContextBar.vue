@@ -50,4 +50,4 @@
   </v-navigation-drawer>
 </template>
 
-<script src="./ContextBar.js">
+<script src="./ContextBar.js"></script>
