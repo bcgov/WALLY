@@ -45,7 +45,7 @@ export default {
       this.active_tab = id
     },
     handleSelectLayer (id, type, resource) {
-      if (type === dataUtils.API_DATASOURCE) {
+      if (type === dataUtils.API_DATAMART) {
         this.updateDataLayer(id, resource)
       } else {
         this.updateMapLayer(id)

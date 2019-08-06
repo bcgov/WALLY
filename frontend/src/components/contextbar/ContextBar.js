@@ -3,7 +3,7 @@ import RandomChart from '../charts/RandomChart'
 import CircleChart from '../charts/CircleChart'
 import BarChart from '../charts/BarChart.js'
 import { chartColors } from '../../constants/colors'
-import { dataMart } from '../../utils/dataMartMetadata'
+import { dataMarts } from '../../utils/dataMartMetadata'
 
 export default {
   name: 'ContextBar',
@@ -65,13 +65,13 @@ export default {
             borderColor: chartColors.border,
             borderWidth: 1
           }
-          tempDataset.label = dataMart[layer].highlight_fields.label
+          tempDataset.label = dataMarts[layer].highlight_fields.label
           layers[layer].forEach(item => {
             // Depends on the type of data
-            dataMart[layer].highlight_fields.data_labels.forEach(label => {
+            dataMarts[layer].highlight_fields.data_labels.forEach(label => {
               this.bar_data.labels.push(item.properties[label])
             })
-            dataMart[layer].highlight_fields.datasets.forEach((dataset, i) => {
+            dataMarts[layer].highlight_fields.datasets.forEach((dataset, i) => {
               tempDataset.data.push(item.properties[dataset])
             })
           })

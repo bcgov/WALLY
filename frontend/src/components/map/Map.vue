@@ -1,5 +1,5 @@
 <template>
-    <div id="map" class="map"/>
+    <div id="map" class="map"></div>
 </template>
 <style>
     @import '../../../node_modules/leaflet-geosearch/assets/css/leaflet.css';

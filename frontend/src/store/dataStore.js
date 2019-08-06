@@ -21,7 +21,7 @@ export default {
         console.error(error) // TODO create error state item and mutation
       })
     },
-    getDataMartInfo ({commit}, payload) {
+    getDataMartInfo ({ commit }, payload) {
       // TODO: Complete this request
       // ApiService.getRaw(payload.url).then( (res) => {
       //   commit('setDataMartInfo', {

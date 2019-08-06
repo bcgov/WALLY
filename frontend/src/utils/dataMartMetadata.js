@@ -1,4 +1,4 @@
-export const dataMarts= {
+export const dataMarts = {
   'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV': {
     id: 1,
     name: 'Water Rights',
