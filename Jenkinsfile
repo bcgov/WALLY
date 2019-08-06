@@ -349,5 +349,84 @@ pipeline {
         }
       }
     }
+    stage('Deploy to Staging') {
+      steps {
+        script {
+          def project = TEST_PROJECT
+          def env_name = "staging"
+          def host = "wally-staging.pathfinder.gov.bc.ca"
+          openshift.withCluster() {
+            openshift.withProject(project) {
+              withStatus(env.STAGE_NAME) {
+
+                // create deployment object at GitHub and give it a pending status.
+                // this creates a notice on the pull request page indicating that a deployment
+                // is pending.
+                def deployment = createDeployment('DEV')
+                createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply frontend application template
+                def frontend = openshift.apply(openshift.process("-f",
+                  "openshift/frontend.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
+                // apply database template
+                def database = openshift.apply(openshift.process("-f",
+                  "openshift/database.deploy.yaml",
+                  "NAME=wally-psql",
+                  "REPLICAS=3",
+                  "SUFFIX=-${env_name}",
+                  "IMAGE_STREAM_NAMESPACE=${project}"
+                ))
+
+                def backend = openshift.apply(openshift.process("-f",
+                  "openshift/backend.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=STAGING"
+                ))
+
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "openshift/gatekeeper.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
+                ))
+                
+                def reporting = openshift.apply(openshift.process("-f",
+                  "openshift/reporting.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
+                echo "Deploying to a dev environment"
+
+                // tag images into dev project.  This triggers re-deploy.
+                openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${project}/wally-web:${env_name}")
+                openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${project}/wally-api:${env_name}")
+                openshift.tag("${TOOLS_PROJECT}/wally-reporting:${NAME}", "${project}/wally-reporting:${env_name}")
+
+                // wait for any deployments to finish updating.
+                frontend.narrow('dc').rollout().status()
+                database.narrow('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
+                reporting.narrow('dc').rollout().status()
+
+                // update GitHub deployment status.
+                createDeploymentStatus(deployment, 'SUCCESS', host)
+                echo "Successfully deployed"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
