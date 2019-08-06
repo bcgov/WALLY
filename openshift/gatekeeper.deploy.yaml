@@ -113,15 +113,6 @@ objects:
       test: false
       triggers:
         - type: ConfigChange
-        - imageChangeParams:
-            automatic: true
-            containerNames:
-              - keycloak-gatekeeper
-            from:
-              kind: ImageStreamTag
-              name: 'keycloak-gatekeeper:latest'
-              namespace: bfpeyx-dev
-          type: ImageChange
     metadata:
       annotations:
         openshift.io/generated-by: OpenShiftNewApp
