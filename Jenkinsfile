@@ -362,7 +362,7 @@ pipeline {
                 // create deployment object at GitHub and give it a pending status.
                 // this creates a notice on the pull request page indicating that a deployment
                 // is pending.
-                def deployment = createDeployment('DEV')
+                def deployment = createDeployment('Staging')
                 createDeploymentStatus(deployment, 'PENDING', host)
 
                 // apply frontend application template
@@ -379,6 +379,7 @@ pipeline {
                   "NAME=wally-psql",
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
+                  "PVC_SIZE=10Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 

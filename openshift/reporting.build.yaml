@@ -23,6 +23,7 @@ objects:
     kind: BuildConfig
     spec:
       failedBuildsHistoryLimit: 5
+      completionDeadlineSeconds: 1800
       output:
         to:
           kind: ImageStreamTag
@@ -35,7 +36,7 @@ objects:
         requests:
           cpu: 500m
           memory: 1Gi
-      runPolicy: Serial
+      runPolicy: SerialLatestOnly
       source:
         contextDir: reporting
         git:
