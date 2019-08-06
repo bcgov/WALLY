@@ -37,14 +37,14 @@ describe('Map Layer Tests', () => {
   })
 
   it('adding layer by id adds to activeLayers', () => {
-    wrapper.vm.handleAddLayer(WMS_WATER_RIGHTS_LICENSES)
+    wrapper.vm.handleAddWMSLayer(WMS_WATER_RIGHTS_LICENSES)
     expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(false)
   })
 
   it('remove layer by id decreases activeLayers', () => {
-    wrapper.vm.handleAddLayer(WMS_WATER_RIGHTS_LICENSES)
+    wrapper.vm.handleAddWMSLayer(WMS_WATER_RIGHTS_LICENSES)
     expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(false)
-    wrapper.vm.handleRemoveLayer(WMS_WATER_RIGHTS_LICENSES)
+    wrapper.vm.handleRemoveWMSLayer(WMS_WATER_RIGHTS_LICENSES)
     expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(true)
   })
 })

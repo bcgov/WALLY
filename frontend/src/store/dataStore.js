@@ -4,44 +4,63 @@ import ApiService from '../services/ApiService'
 
 export default {
   state: {
-    activeDataSources: []
+    activeDataMarts: [],
+    dataMartInfo: { content: { properties: {} } },
+    dataMartLayers: []
   },
   actions: {
-    getDataSource ({ commit }, payload) {
+    getDataMart ({ commit }, payload) {
       const { id, url } = payload
       ApiService.getRaw(url).then((res) => {
-        commit('addDataSource', {
+        commit('addDataMart', {
           id: id,
           data: res.data
         })
-        EventBus.$emit(`dataSource:updated`, payload)
+        EventBus.$emit(`dataMart:updated`, payload)
       }).catch((error) => {
         console.error(error) // TODO create error state item and mutation
       })
     },
-    getDataSourceFeatures({ commit }, payload) {
+    getDataMartInfo ({commit}, payload) {
+      // TODO: Complete this request
+      // ApiService.getRaw(payload.url).then( (res) => {
+      //   commit('setDataMartInfo', {
+      //
+      //   })
+      // })
+    },
+    getDataMartFeatures ({ commit }, payload) {
       // TODO: ApiService call to hydat data, send in payload.id
       let feature = payload.feature
       ApiService.getRaw(utils.API_URL + feature.properties.url).then((res) => {
         console.log('response', res)
+        // TODO: setLayerFeatures,w
+        let points = feature.points
+        commit('setDataMartFeatures', { [payload.layer]: points })
+      }).catch(error => {
+        console.log(error)
       })
     }
   },
   mutations: {
-    addDataSource (state, payload) {
-      state.activeDataSources.push(payload)
-      EventBus.$emit(`dataSource:added`, payload)
+    addDataMart (state, payload) {
+      state.activeDataMarts.push(payload)
+      EventBus.$emit(`dataMart:added`, payload)
     },
-    removeDataSource (state, payload) {
-      state.activeDataSources = state.activeDataSources.filter(function (source) {
-        return source.id !== payload
+    removeDataMart (state, payload) {
+      state.activeDataMarts = state.activeDataMarts.filter(function (datamart) {
+        return datamart.id !== payload
       })
-      EventBus.$emit(`dataSource:removed`, payload)
-    }
+      EventBus.$emit(`dataMart:removed`, payload)
+    },
+    setDataMartFeatures: (state, payload) => { state.dataMartLayers.push(payload) }
+    // TODO: setFeatureInfo state.featureInfo =?
+    // TODO: setLayerFeatures state.featureLayer.push(payload)
   },
   getters: {
-    activeDataSources: state => state.activeDataSources,
-    isDataSourceActive: state => id => !!state.activeDataSources.find((x) => x && x.id === id),
-    allDataSources: () => utils.DATA_LAYERS
+    activeDataMarts: state => state.activeDataMarts,
+    isDataMartActive: state => id => !!state.activeDataMarts.find((x) => x && x.id === id),
+    allDataMarts: () => utils.DATA_LAYERS,
+    dataMartLayers: state => state.dataMartLayers
   }
 }

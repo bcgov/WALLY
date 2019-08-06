@@ -35,7 +35,7 @@ export default {
   computed: {
     ...mapGetters([
       'isMapLayerActive',
-      'isDataSourceActive',
+      'isDataMartActive',
       'featureInfo',
       'featureLayers'
     ])
@@ -59,10 +59,10 @@ export default {
       }
     },
     updateDataLayer (id, url) {
-      if (this.isDataSourceActive(id)) {
-        this.$store.commit('removeDataSource', id)
+      if (this.isDataMartActive(id)) {
+        this.$store.commit('removeDataMart', id)
       } else {
-        this.$store.dispatch('getDataSource', { id: id, url: url })
+        this.$store.dispatch('getDataMart', { id: id, url: url })
       }
     },
     createReportFromSelection () {
