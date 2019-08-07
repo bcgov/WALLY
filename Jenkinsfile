@@ -205,6 +205,7 @@ pipeline {
                   "openshift/frontend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
+                  "REPLICAS=1",
                   "NAMESPACE=${project}"
                 ))
 
@@ -222,6 +223,7 @@ pipeline {
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
+                  "REPLICAS=1",
                   "ENVIRONMENT=DEV"
                 ))
 
@@ -230,6 +232,7 @@ pipeline {
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
+                  "REPLICAS=1",
                   "ENVIRONMENT=DEV"
                 ))
                 
@@ -237,6 +240,7 @@ pipeline {
                   "openshift/reporting.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
+                  "REPLICAS=1",
                   "NAMESPACE=${project}"
                 ))
 

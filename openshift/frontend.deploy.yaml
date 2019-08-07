@@ -16,7 +16,7 @@ parameters:
   required: true
   value: bfpeyx-test
 - name: REPLICAS
-  value: 1
+  value: '1'
 objects:
   - apiVersion: v1
     kind: Service
