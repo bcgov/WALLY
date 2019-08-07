@@ -2,7 +2,7 @@ FROM python:3.7
 
 WORKDIR /app/
 
-RUN apt-get update && apt-get install -y pgloader && \
+RUN apt-get update && apt-get install -y pgloader \
     && rm -rf /var/lib/apt/lists/* 
 
 COPY ./requirements.txt /
