@@ -1,5 +1,5 @@
 curl http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/Hydat_sqlite3_20190717.zip -o /tmp/hydat.zip && \
-unzip /tmp/hydat.zip && \
+unzip /tmp/hydat.zip -d /tmp && \
 pgloader \
     --type sqlite \
     --with "create no tables" \
