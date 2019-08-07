@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: importer
-        image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:v1
+        image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
         command: ['/dataload/load_hydat.sh']
         resources:
           requests:
