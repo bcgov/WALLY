@@ -2,6 +2,10 @@ FROM python:3.7
 
 WORKDIR /app/
 
+RUN apt-get install pgloader && apt-get autoremove -y \
+    && apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/* /root/.cache
+
 COPY ./requirements.txt /
 
 RUN pip install -r /requirements.txt

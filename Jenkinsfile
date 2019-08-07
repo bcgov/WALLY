@@ -396,7 +396,7 @@ pipeline {
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
-                  "ENVIRONMENT=DEV"
+                  "ENVIRONMENT=STAGING"
                 ))
                 
                 def reporting = openshift.apply(openshift.process("-f",
