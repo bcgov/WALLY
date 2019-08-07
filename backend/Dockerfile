@@ -2,9 +2,8 @@ FROM python:3.7
 
 WORKDIR /app/
 
-RUN apt-get install pgloader && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/* /root/.cache
+RUN apt-get update && apt-get install -y pgloader && \
+    && rm -rf /var/lib/apt/lists/* 
 
 COPY ./requirements.txt /
 

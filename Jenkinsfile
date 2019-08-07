@@ -197,7 +197,7 @@ pipeline {
                 // create deployment object at GitHub and give it a pending status.
                 // this creates a notice on the pull request page indicating that a deployment
                 // is pending.
-                def deployment = createDeployment('DEV')
+                def deployment = createDeployment('dev')
                 createDeploymentStatus(deployment, 'PENDING', host)
 
                 // apply frontend application template
@@ -362,7 +362,7 @@ pipeline {
                 // create deployment object at GitHub and give it a pending status.
                 // this creates a notice on the pull request page indicating that a deployment
                 // is pending.
-                def deployment = createDeployment('Staging')
+                def deployment = createDeployment('staging')
                 createDeploymentStatus(deployment, 'PENDING', host)
 
                 // apply frontend application template
