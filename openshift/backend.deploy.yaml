@@ -35,7 +35,7 @@ objects:
       name: wally-${NAME}-api
     name: wally-${NAME}-api
   spec:
-    replicas: ${{REPLICAS}}
+    replicas: ${REPLICAS}
     revisionHistoryLimit: 10
     selector:
       app: wally-${NAME}
