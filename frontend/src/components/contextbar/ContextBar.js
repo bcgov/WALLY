@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'featureLayers'
+      'dataMartLayers'
     ])
   },
   mounted () {
@@ -81,7 +81,7 @@ export default {
     }
   },
   watch: {
-    featureLayers (value) {
+    dataMartLayers (value) {
       // console.log('selected some features')
       if (value.length > 0) {
         this.populateChartData(value)

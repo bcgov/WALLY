@@ -41,8 +41,8 @@ export default {
 
     EventBus.$on('layer:added', this.handleAddWMSLayer)
     EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
-    EventBus.$on('dataMart:added', this.handleAddDataMartLayer)
-    EventBus.$on('dataMart:removed', this.handleRemoveDataMartLayer)
+    EventBus.$on('dataMart:added', this.handleAddApiLayer)
+    EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
@@ -50,8 +50,8 @@ export default {
   beforeDestroy () {
     EventBus.$off('layer:added', this.handleAddWMSLayer)
     EventBus.$off('layer:removed', this.handleRemoveWMSLayer)
-    EventBus.$off('dataMart:added', this.handleAddDataMartLayer)
-    EventBus.$off('dataMart:removed', this.handleRemoveDataMartLayer)
+    EventBus.$off('dataMart:added', this.handleAddApiLayer)
+    EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
   },
   data () {
@@ -166,13 +166,13 @@ export default {
       })
       this.removeLayer(layer)
     },
-    handleAddDataMartLayer (datamart) {
+    handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
         return x.id === datamart.id
       })
       this.addGeoJSONLayer(layer)
     },
-    handleRemoveDataMartLayer (id) {
+    handleRemoveApiLayer (id) {
       this.removeLayer(id)
     },
     addGeoJSONLayer (layer) {
@@ -251,7 +251,7 @@ export default {
         // TODO: Dispatch getLayerFeatures on this data source layer
 
         event.layers.forEach(layer => {
-          this.$store.dispatch('getDataMartFeatures', { feature: layer.feature })
+          this.$store.dispatch('getDataMartFeatures', { type: 'api', feature: layer.feature })
         })
 
         let lats = event.latLngs.map(l => l.lat)
@@ -267,12 +267,13 @@ export default {
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
       let size = this.map.getSize()
-      this.$store.commit('clearFeatureLayers')
+      this.$store.commit('clearDataMartFeatures')
       console.log('active map layers', this.activeMapLayers, this.activeDataMarts)
 
       this.activeMapLayers.forEach((layer) => {
-        console.log("what layer?", layer)
-        this.$store.dispatch('getLayerFeatures', { bounds: bounds, size: size, layer: layer.wmsLayer })
+        console.log('what layer?', layer)
+        this.$store.dispatch('getDataMartFeatures', { type: 'wms', bounds: bounds, size: size, layer: layer.wmsLayer })
+        // this.$store.dispatch('getLayerFeatures', { bounds: bounds, size: size, layer: layer.wmsLayer })
       })
     }
     // listenForReset () {

@@ -54,8 +54,8 @@
         <v-toolbar>
           <v-toolbar-title>Selected Points</v-toolbar-title>
         </v-toolbar>
-        <div v-if="featureLayers.length > 0">
-          <div v-for="(layerGroup, groupIndex) in featureLayers" :key="`objs-${layerGroup}${groupIndex}`">
+        <div v-if="dataMartLayers.length > 0">
+          <div v-for="(layerGroup, groupIndex) in dataMartLayers" :key="`objs-${layerGroup}${groupIndex}`">
             <div v-for="(value, name) in layerGroup" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
                 <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
@@ -76,13 +76,13 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-card v-if="featureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(featureInfo.id) }}</v-card-title>
+        <v-card v-if="dataMartFeatureInfo">
+          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(dataMartFeatureInfo.id) }}</v-card-title>
 
           <v-divider></v-divider>
 
           <v-list dense>
-            <template v-for="(value, name, index) in featureInfo.properties">
+            <template v-for="(value, name, index) in dataMartFeatureInfo.properties">
               <v-list-tile :key="`tile-{$value}${index}`">
                 <v-list-tile-content><b>{{ humanReadable(name) }}:</b></v-list-tile-content>
                 <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>

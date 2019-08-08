@@ -25,7 +25,7 @@ export default {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: dataUtils.DATA_LAYERS
+          choices: dataUtils.DATAMARTS
         }
       ],
       mini: true,
@@ -36,8 +36,9 @@ export default {
     ...mapGetters([
       'isMapLayerActive',
       'isDataMartActive',
-      'featureInfo',
-      'featureLayers'
+      'dataMartInfo',
+      'dataMartFeatureInfo',
+      'dataMartLayers'
     ])
   },
   methods: {
@@ -67,10 +68,10 @@ export default {
     },
     createReportFromSelection () {
       if (this.active_tab === 1) {
-        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+        this.$store.dispatch('downloadLayersReport', this.dataMartLayers)
       } else if (this.active_tab === 2) {
         this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
+          { featureName: this.mapSubheading(this.dataMartInfo.id), ...this.dataMartInfo })
       }
     },
     handleSelectListItem (item) {
@@ -80,7 +81,7 @@ export default {
       } else {
         item.coordinates = null
       }
-      this.$store.commit('setFeatureInfo', item)
+      this.$store.commit('setDataMartInfo', item)
     },
     humanReadable: val => humanReadable(val),
     mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
@@ -89,12 +90,12 @@ export default {
     mapSubheading: val => utils.mapSubheading(val)
   },
   watch: {
-    featureInfo (value) {
+    dataMartInfo (value) {
       if (value && value.properties) {
         this.setTabById(2)
       }
     },
-    featureLayers (value) {
+    dataMartLayers (value) {
       if (value.length > 0) {
         this.setTabById(1)
       }

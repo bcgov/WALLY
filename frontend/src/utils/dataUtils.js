@@ -4,7 +4,7 @@ export const API_DATAMART = 'API_DATAMART'
 
 export const API_URL = process.env.VUE_APP_AXIOS_BASE_URL
 
-export const DATA_LAYERS = [
+export const DATAMARTS = [
   {
     id: HYDROMETRIC_STREAM_FLOW,
     name: 'Hydrometric Stream Flow',
