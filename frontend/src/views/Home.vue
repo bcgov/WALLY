@@ -1,19 +1,22 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <p>{{msg}}</p>
+    <ContextBar/>
+    <Sidebar/>
+    <Map/>
   </div>
 </template>
 
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
+<script>
+import Map from '../components/map/Map'
+import Sidebar from '../components/sidebar/Sidebar.vue'
+import ContextBar from '../components/contextbar/ContextBar.vue'
 
-@Component({
+export default {
+  name: 'Home',
   components: {
-  },
-})
-export default class Home extends Vue {
-  // initial data
-  private msg = 'Welcome to your Vue app!';
+    Map,
+    Sidebar,
+    ContextBar
+  }
 }
 </script>

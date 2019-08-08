@@ -1,0 +1,62 @@
+environment:
+  vars:
+    host: http://localhost:8000
+    auth_token: test
+  headers:
+    Authorization: Bearer {{auth_token}}
+requests:
+  - name: Log in
+    url: "{{auth_url}}"
+    method: post
+    contentType: application/x-www-form-urlencoded
+    body:
+      client_id: "{{auth_id}}"
+      client_secret: "{{auth_secret}}"
+      grant_type: password
+      username: "{{auth_user}}"
+      password: "{{auth_pass}}"
+    expect:
+      status: 200
+    set:
+      - var: auth_token # set the {{auth_token}} here
+        from: access_token
+  - name: Get stations
+    url: "{{host}}/api/v1/hydat"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+    set:
+      - var: station_id
+        from: "features.[0].id" # get first value in list of features
+  - name: Get the first station in list
+    url: "{{host}}/api/v1/hydat/{{station_id}}"
+    method: get
+    expect:
+      status: 200
+      values:
+        prov_terr_state_loc: BC
+    set:
+      - var: first_available_flow_year
+        from: "flow_years.[0]"
+  - name: Check for 404 when requesting invalid station
+    url: "{{host}}/api/v1/hydat/invalid_station"
+    method: get
+    expect:
+      status: 404
+  - name: Check for 405 when using wrong method
+    url: "{{host}}/api/v1/hydat/invalid_station"
+    method: post
+    expect:
+      status: 405
+  - name: Get the flow values from station
+    url: "{{host}}/api/v1/hydat/{{station_id}}/flows?year={{first_available_flow_year}}"
+    method: get
+    expect:
+      status: 200
+  - name: Check for 404 when requesting data from an invalid station
+    url: "{{host}}/api/v1/hydat/invalid_station/flows?year={{first_available_flow_year}}"
+    method: get
+    expect:
+      status: 404

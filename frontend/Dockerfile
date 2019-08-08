@@ -1,28 +1,23 @@
-# Stage 0, "build-stage", based on Node.js, to build and compile the frontend
-FROM tiangolo/node-frontend:10 as build-stage
+FROM node:10 as build
 
 WORKDIR /app
 
 COPY package*.json /app/
 
-RUN npm install
+RUN npm ci
 
-COPY ./ /app/
+COPY . .
 
-ARG FRONTEND_ENV=production
+# run unit tests and build
+RUN npm run test:unit && npm run build
 
-ENV VUE_APP_ENV=${FRONTEND_ENV}
+FROM nginx:1.12
 
-# Comment out the next line to disable tests
-RUN npm run test:unit
+COPY --from=build /app/dist/ /tmp/src
+COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
+COPY --from=build /app/nginx.conf.tmpl /opt/app-root/etc/nginx.conf.tmpl
 
-RUN npm run build
+RUN /usr/libexec/s2i/assemble
 
-
-# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
-FROM nginx:1.15
-
-COPY --from=build-stage /app/dist/ /usr/share/nginx/html
-
-COPY --from=build-stage /nginx.conf /etc/nginx/conf.d/default.conf
-COPY ./nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf
+EXPOSE 8080
+CMD /usr/libexec/s2i/run

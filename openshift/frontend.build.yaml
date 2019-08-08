@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: Template
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all of the resources defined in this template.
+  required: true
+  value: test
+- name: GIT_REPO
+  displayName: Git Repo URL
+  description: The URL to your Git repo.
+  required: true
+  value: https://github.com/bcgov-c/wally.git
+- name: GIT_REF
+  displayName: Git Reference
+  description: The git reference or branch.
+  required: true
+  value: master
+metadata:
+  name: wally-frontend-build-template
+objects:
+  - apiVersion: build.openshift.io/v1
+    kind: BuildConfig
+    spec:
+      failedBuildsHistoryLimit: 5
+      output:
+        to:
+          kind: ImageStreamTag
+          name: wally-web:${NAME}
+      postCommit: {}
+      resources:
+        limits:
+          cpu: '2'
+          memory: 2Gi
+        requests:
+          cpu: 500m
+          memory: 1Gi
+      runPolicy: Serial
+      source:
+        contextDir: frontend
+        git:
+          ref: "${GIT_REF}"
+          uri: "${GIT_REPO}"
+        sourceSecret:
+          name: wally-github-token
+        type: Git
+      strategy:
+        dockerStrategy:
+          from:
+            kind: ImageStreamTag
+            name: 'nginx:1.12'
+            namespace: openshift
+        type: Docker
+      successfulBuildsHistoryLimit: 5
+      triggers:
+        - type: ConfigChange
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewBuild
+      labels:
+        component: frontend
+        name: wally-${NAME}-web
+        app: wally-${NAME}
+        env: "${NAME}"
+      name: wally-${NAME}-web
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    spec:
+      lookupPolicy:
+        local: false
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewBuild
+      generation: 3
+      labels:
+        component: frontend
+        name: wally-web
+        env: tools
+      name: wally-web
