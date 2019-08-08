@@ -17,10 +17,10 @@ void notifyStageStatus (String name, String status) {
 // createDeployment gets a new deployment ID from GitHub.
 // this lets us display notifications on GitHub when new environments
 // are deployed (e.g. on a pull request page)
-Long createDeployment (String suffix) {
+Long createDeployment (String suffix, String gitRef) {
     def ghDeploymentId = new GitHubHelper().createDeployment(
         this,
-        "pull/${CHANGE_ID}/head",
+        gitRef,
         [
             'environment':"${suffix}",
             'task':"deploy:pull:${CHANGE_ID}"
@@ -86,6 +86,7 @@ private static String stackTraceAsString(Throwable t) {
     return sw.toString()
 }
 
+
 pipeline {
   agent any
   environment {
@@ -107,6 +108,14 @@ pipeline {
               abortAllPreviousBuildInProgress(currentBuild)
           }
           echo "Previous builds cancelled"
+
+          // ref defaults to the master branch, but if this is a pull
+          // request, set the git ref to the pull request ref.
+          def ref = "master"
+          if env.JOB_BASE_NAME != 'master' {
+            ref = "pull/${CHANGE_ID}/head"
+          }
+
           openshift.withCluster() {
             openshift.withProject() {
               withStatus(env.STAGE_NAME) {
@@ -115,21 +124,21 @@ pipeline {
                   'openshift/frontend.build.yaml',
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
-                  "GIT_REF=pull/${CHANGE_ID}/head"
+                  "GIT_REF=${ref}"
                 )
 
                 def bcApiTemplate = openshift.process('-f',
                   'openshift/backend.build.yaml',
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
-                  "GIT_REF=pull/${CHANGE_ID}/head"
+                  "GIT_REF=${ref}"
                 )
 
                 def bcPdfTemplate = openshift.process('-f',
                   'openshift/reporting.build.yaml',
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
-                  "GIT_REF=pull/${CHANGE_ID}/head"
+                  "GIT_REF=${ref}"
                 )
 
                 timeout(15) {
@@ -193,6 +202,7 @@ pipeline {
         script {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
+          def ref = "pull/${CHANGE_ID}/head"
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -200,7 +210,7 @@ pipeline {
                 // create deployment object at GitHub and give it a pending status.
                 // this creates a notice on the pull request page indicating that a deployment
                 // is pending.
-                def deployment = createDeployment('dev')
+                def deployment = createDeployment('dev', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
 
                 // apply frontend application template
@@ -368,6 +378,7 @@ pipeline {
           def project = TEST_PROJECT
           def env_name = "staging"
           def host = "wally-staging.pathfinder.gov.bc.ca"
+          def ref = "refs/heads/master"
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -375,7 +386,7 @@ pipeline {
                 // create deployment object at GitHub and give it a pending status.
                 // this creates a notice on the pull request page indicating that a deployment
                 // is pending.
-                def deployment = createDeployment('staging')
+                def deployment = createDeployment('staging', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
 
                 // apply frontend application template
@@ -452,10 +463,13 @@ pipeline {
       }
       steps {
         script {
+
+          input "Deploy to production?"
+
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
-          input "Deploy to production?"
+          def ref = "refs/heads/master"
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -463,7 +477,7 @@ pipeline {
                 // create deployment object at GitHub and give it a pending status.
                 // this creates a notice on the pull request page indicating that a deployment
                 // is pending.
-                def deployment = createDeployment('production')
+                def deployment = createDeployment('production', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
 
                 // apply frontend application template
