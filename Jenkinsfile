@@ -6,7 +6,7 @@ import bcgov.GitHubHelper
 void notifyStageStatus (String name, String status) {
     GitHubHelper.createCommitStatus(
         this,
-        GitHubHelper.getPullRequestLastCommitId(this),
+        sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
         status,
         "${BUILD_URL}",
         "Stage: ${name}",
@@ -23,7 +23,7 @@ Long createDeployment (String suffix, String gitRef) {
         gitRef,
         [
             'environment':"${suffix}",
-            'task':"deploy:pull:${CHANGE_ID}"
+            'task':"deploy:${gitRef}"
         ]
     )
     echo "deployment ID: ${ghDeploymentId}"
