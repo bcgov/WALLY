@@ -186,6 +186,9 @@ pipeline {
       }
     }
     stage('Deploy') {
+      when {
+          expression { env.JOB_BASE_NAME != 'master' }
+      }
       steps {
         script {
           def project = DEV_PROJECT
@@ -268,6 +271,9 @@ pipeline {
       }
     }
     stage('API tests') {
+      when {
+          expression { env.JOB_BASE_NAME != 'master' }
+      }
       steps {
         script {
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
@@ -354,6 +360,9 @@ pipeline {
       }
     }
     stage('Deploy to staging') {
+      when {
+          expression { env.JOB_BASE_NAME == 'master' }
+      }
       steps {
         script {
           def project = TEST_PROJECT
@@ -438,11 +447,15 @@ pipeline {
       }
     }
     stage('Deploy to production') {
+      when {
+          expression { env.JOB_BASE_NAME == 'master' }
+      }
       steps {
         script {
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
+          input "Deploy to production?"
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
