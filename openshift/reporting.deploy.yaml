@@ -45,7 +45,7 @@ objects:
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     spec:
-      replicas: ${REPLICAS}
+      replicas: ${{REPLICAS}}
       revisionHistoryLimit: 10
       selector:
         app: wally-${NAME}
