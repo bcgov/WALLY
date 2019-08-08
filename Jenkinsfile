@@ -112,7 +112,7 @@ pipeline {
           // ref defaults to the master branch, but if this is a pull
           // request, set the git ref to the pull request ref.
           def ref = "master"
-          if env.JOB_BASE_NAME != 'master' {
+          if (env.JOB_BASE_NAME != 'master') {
             ref = "pull/${CHANGE_ID}/head"
           }
 
