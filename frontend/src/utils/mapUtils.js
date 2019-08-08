@@ -10,7 +10,7 @@ export const WMS_GWLIC = 'GWLIC'
 export const WMS_WILD_FIRE_WEATHER_STATIONS = 'WMS_WILD_FIRE_WEATHER_STATIONS'
 export const WMS_OBS_ACTIVE = 'OBS_ACTIVE'
 export const WMS_OBS_INACTIVE = 'OBS_INACTIVE'
-export const WMS_WELLS = 'WELLS'
+export const WMS_GROUND_WATER_WELLS = 'GROUND_WATER_WELLS'
 export const WMS_GROUND_WATER_AQUIFERS = 'WMS_GROUND_WATER_AQUIFERS'
 export const WMS_STREAM_RESTRICTIONS = 'WMS_STREAM_RESTRICTIONS'
 export const WMS_ALLOC_RESTRICTIONS_VIEW = 'WMS_ALLOC_RESTRICTIONS_VIEW'
@@ -23,6 +23,12 @@ export const MAP_LAYERS = [
     id: WMS_WATER_RIGHTS_LICENSES,
     name: 'Water Rights Licenses',
     wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
+    wmsStyle: ''
+  },
+  {
+    id: WMS_GROUND_WATER_WELLS,
+    name: 'Ground Water Wells',
+    wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
     wmsStyle: ''
   },
   {

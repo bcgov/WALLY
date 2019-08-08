@@ -1,6 +1,7 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
+import * as dataUtils from '../../utils/dataUtils'
 
 export default {
   name: 'Sidebar',
@@ -24,12 +25,7 @@ export default {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: [{ // TODO update to use DATA_SOURCE from dataUtils
-            id: 'Climate Normals 1980-2010',
-            name: 'Canadian Climate Normals 1980-2010',
-            uri: '',
-            geojson: ''
-          }]
+          choices: dataUtils.DATA_LAYERS
         }
       ],
       mini: true,
@@ -39,6 +35,7 @@ export default {
   computed: {
     ...mapGetters([
       'isMapLayerActive',
+      'isDataSourceActive',
       'featureInfo',
       'featureLayers'
     ])
@@ -47,11 +44,33 @@ export default {
     setTabById (id) {
       this.active_tab = id
     },
-    handleSelectLayer (id) {
+    handleSelectLayer (id, type, resource) {
+      if (type === dataUtils.API_DATASOURCE) {
+        this.updateDataLayer(id, resource)
+      } else {
+        this.updateMapLayer(id)
+      }
+    },
+    updateMapLayer (id) {
       if (this.isMapLayerActive(id)) {
         this.$store.commit('removeMapLayer', id)
       } else {
         this.$store.commit('addMapLayer', id)
+      }
+    },
+    updateDataLayer (id, url) {
+      if (this.isDataSourceActive(id)) {
+        this.$store.commit('removeDataSource', id)
+      } else {
+        this.$store.dispatch('getDataSource', { id: id, url: url })
+      }
+    },
+    createReportFromSelection () {
+      if (this.active_tab === 1) {
+        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+      } else if (this.active_tab === 2) {
+        this.$store.dispatch('downloadFeatureReport',
+          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
       }
     },
     handleSelectListItem (item) {

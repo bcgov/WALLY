@@ -89,7 +89,7 @@ private static String stackTraceAsString(Throwable t) {
 pipeline {
   agent any
   environment {
-    GIT_REPO = "git@github.com:bcgov-c/wally.git"
+    GIT_REPO = "https://github.com/bcgov-c/wally.git"
     NAME = JOB_BASE_NAME.toLowerCase()
 
     // project names
@@ -125,20 +125,58 @@ pipeline {
                   "GIT_REF=pull/${CHANGE_ID}/head"
                 )
 
-                timeout(10) {
+                def bcPdfTemplate = openshift.process('-f',
+                  'openshift/reporting.build.yaml',
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=pull/${CHANGE_ID}/head"
+                )
+
+                timeout(15) {
                   echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
+                  def bcPdf = openshift.apply(bcPdfTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
                   def apiBuilds = bcApi.narrow('builds')
+                  def pdfBuilds = bcPdf.narrow('builds')
 
                   sleep(5)
-                  webBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
+
+                  // wait for builds to run.
+                  webBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
                   }
-                  apiBuilds.untilEach(1) { // We want a minimum of 1 build
-                      return it.object().status.phase == "Complete"
-                  } 
+                  apiBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
+                  }
+                  pdfBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
+                   }
+
+                  // the previous step waited for builds to finish (whether successful or not),
+                  // so here we check for errors.
+                  webBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcWeb.logs()
+                      error('Frontend build failed')
+                    }
+                  }
+
+                  apiBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcApi.logs()
+                      error('Backend build failed')
+                    }
+                  }
+
+                  pdfBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcPdf.logs()
+                      error('Reporting build failed')
+                    }
+                  }
+
                 }
                 echo "Success! Builds completed."
               }
@@ -187,16 +225,34 @@ pipeline {
                   "ENVIRONMENT=DEV"
                 ))
 
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "openshift/gatekeeper.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=DEV"
+                ))
+                
+                def reporting = openshift.apply(openshift.process("-f",
+                  "openshift/reporting.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}"
+                ))
+
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
                 openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${DEV_PROJECT}/wally-api:${NAME}")
+                openshift.tag("${TOOLS_PROJECT}/wally-reporting:${NAME}", "${DEV_PROJECT}/wally-reporting:${NAME}")
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
+                reporting.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
@@ -238,7 +294,32 @@ pipeline {
                                 envVar(
                                     key:'BASE_URL',
                                     value: "https://${host}"
-                                )
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_HOST',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_HOST'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_PASS',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_PASS'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_USER',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_USER'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_ID',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_ID'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_SECRET',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_SECRET'
+                                ),
                             ]
                         )
                     ]
@@ -248,7 +329,13 @@ pipeline {
                         dir('backend/api-tests') {
                             try {
                                 sh """
-                                  apitest -f hydat.apitest.yaml -e host=$BASE_URL
+                                  apitest -f hydat.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET
                                   """
                                 }
                             finally {

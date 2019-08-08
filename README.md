@@ -27,6 +27,22 @@ Load fixture data:
 make loaddata
 ```
 
+## Application
+
+Wally is deployed to OpenShift as a group of services. Except for the PostgreSQL database, each service is represented by a folder in this repo:
+
+* `gatekeeper/` (Keycloak Gatekeeper) - gatekeeper is the OIDC proxy that directs users to the SSO service to login, and verifies that users have
+the right permission to view resources. Gatekeeper is the only Wally service exposed to the internet, and proxies requests to the `frontend` service if authorized.
+
+* `frontend/` (Vue app served by nginx) - The frontend folder contains Wally's web app and a Dockerfile for an nginx service that serves the built assets in the `dist` folder.
+nginx also proxies requests to other services based on the `nginx.conf.templ` file in this folder.
+
+* `backend/` (FastAPI Python backend) - the backend folder contains the REST API backend that serves data at the `/api/v1/` path.
+
+* `reporting/` (ReactPDF report generator) - reporting contains the code and templates for generating PDF reports.  This is an independent service that produces a PDF file on demand.
+
+* PostGIS - Data used by Wally is stored in a PostGIS-enabled PostgreSQL database, which uses Patroni for managing multiple replicas.  The Dockerfile and other build resources are in `openshift/patroni-postgis`.
+
 ### Use a terminal inside a container
 
 To get inside the container with a `bash` session you can start the stack with:

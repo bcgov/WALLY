@@ -16,5 +16,10 @@ export GUNICORN_CONF=${GUNICORN_CONF:-$DEFAULT_GUNICORN_CONF}
 # Let the DB start
 python /app/app/db/wait_for_db.py
 
+# Load fixture data for dev environments
+if [ "$WALLY_ENV" = "DEV" ]; then
+    python /app/app/initial_data.py
+fi
+
 # Start Gunicorn
 exec gunicorn -k uvicorn.workers.UvicornWorker -c "$GUNICORN_CONF" "$APP_MODULE"

@@ -1,0 +1,6 @@
+enable-default-deny: true
+listen: :3000
+resources:
+- uri: /*
+  roles:
+  - wally-view
