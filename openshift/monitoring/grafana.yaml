@@ -1,0 +1,368 @@
+apiVersion: template.openshift.io/v1
+objects:
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}
+    namespace: ${NAMESPACE}
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: ${SERVICE_NAME}
+      deploymentconfig: ${SERVICE_NAME}
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: ${SERVICE_NAME}
+          deploymentconfig: ${SERVICE_NAME}
+      spec:
+        containers:
+        - image: grafana/grafana@sha256:ced97851c89ca7d1e67a43aabbe05452e144a9bc9ffc63d2220dc2f37fdc1a71
+          imagePullPolicy: IfNotPresent
+          name: ${SERVICE_NAME}
+          ports:
+          - containerPort: 3000
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /etc/grafana/provisioning/datasources/
+            name: volume-gocfh
+          - mountPath: /etc/grafana/provisioning/dashboards/
+            name: volume-4nkne
+          - mountPath: /var/lib/grafana/dashboards/
+            name: volume-q18fv
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - configMap:
+            defaultMode: 420
+            name: ${SERVICE_NAME}-datasources
+          name: volume-gocfh
+        - configMap:
+            defaultMode: 420
+            name: ${SERVICE_NAME}
+          name: volume-4nkne
+        - configMap:
+            defaultMode: 420
+            name: ${SERVICE_NAME}-dashboards
+          name: volume-q18fv
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - ${SERVICE_NAME}
+        from:
+          kind: ImageStreamTag
+          name: ${SERVICE_NAME}:6.3.2
+          namespace: ${NAMESPACE}
+        lastTriggeredImage: grafana/grafana@sha256:ced97851c89ca7d1e67a43aabbe05452e144a9bc9ffc63d2220dc2f37fdc1a71
+      type: ImageChange
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    generation: 2
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}
+    namespace: ${NAMESPACE}
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: grafana/grafana:6.3.2
+      from:
+        kind: DockerImage
+        name: grafana/grafana:6.3.2
+      generation: 2
+      importPolicy: {}
+      name: 6.3.2
+      referencePolicy:
+        type: Source
+- apiVersion: route.openshift.io/v1
+  kind: Route
+  metadata:
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}
+    namespace: ${NAMESPACE}
+  spec:
+    tls:
+      termination: edge
+    host: ${SERVICE_NAME}.pathfinder.gov.bc.ca
+    port:
+      targetPort: 3000
+    to:
+      kind: Service
+      name: ${SERVICE_NAME}
+      weight: 100
+    wildcardPolicy: None
+- apiVersion: v1
+  data:
+    simple_dashboard.json: |-
+      {
+          "annotations": {
+            "list": [
+              {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "type": "dashboard"
+              }
+            ]
+          },
+          "editable": true,
+          "gnetId": null,
+          "graphTooltip": 0,
+          "id": 1,
+          "links": [],
+          "panels": [
+            {
+              "aliasColors": {},
+              "bars": false,
+              "dashLength": 10,
+              "dashes": false,
+              "datasource": "-- Grafana --",
+              "fill": 1,
+              "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 0
+              },
+              "id": 2,
+              "legend": {
+                "avg": false,
+                "current": false,
+                "max": false,
+                "min": false,
+                "show": true,
+                "total": false,
+                "values": false
+              },
+              "lines": true,
+              "linewidth": 1,
+              "nullPointMode": "null",
+              "options": {},
+              "percentage": false,
+              "pointradius": 2,
+              "points": false,
+              "renderer": "flot",
+              "seriesOverrides": [],
+              "spaceLength": 10,
+              "stack": false,
+              "steppedLine": false,
+              "thresholds": [],
+              "timeFrom": null,
+              "timeRegions": [],
+              "timeShift": null,
+              "title": "Panel Title",
+              "tooltip": {
+                "shared": true,
+                "sort": 0,
+                "value_type": "individual"
+              },
+              "type": "graph",
+              "xaxis": {
+                "buckets": null,
+                "mode": "time",
+                "name": null,
+                "show": true,
+                "values": []
+              },
+              "yaxes": [
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                },
+                {
+                  "format": "short",
+                  "label": null,
+                  "logBase": 1,
+                  "max": null,
+                  "min": null,
+                  "show": true
+                }
+              ],
+              "yaxis": {
+                "align": false,
+                "alignLevel": null
+              }
+            }
+          ],
+          "schemaVersion": 18,
+          "style": "dark",
+          "tags": [],
+          "templating": {
+            "list": []
+          },
+          "time": {
+            "from": "now-6h",
+            "to": "now"
+          },
+          "timepicker": {
+            "refresh_intervals": [
+              "5s",
+              "10s",
+              "30s",
+              "1m",
+              "5m",
+              "15m",
+              "30m",
+              "1h",
+              "2h",
+              "1d"
+            ],
+            "time_options": [
+              "5m",
+              "15m",
+              "1h",
+              "6h",
+              "12h",
+              "24h",
+              "2d",
+              "7d",
+              "30d"
+            ]
+          },
+          "timezone": "",
+          "title": "New dashboard Copy",
+          "uid": "raCEvRGWk",
+          "version": 1
+        }
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}-dashboards
+    namespace: ${NAMESPACE}
+- apiVersion: v1
+  data:
+    dashboards.yml: "apiVersion: 1\n\nproviders:\n  # <string> provider name\n- name:
+      'default'\n  # <int> org id. will default to orgId 1 if not specified\n  orgId:
+      1\n  # <string, required> name of the dashboard folder. Required\n  folder:
+      ''\n  # <string> folder UID. will be automatically generated if not specified\n
+      \ folderUid: ''\n  # <string, required> provider type. Required\n  type: file\n
+      \ # <bool> disable dashboard deletion\n  disableDeletion: false\n  # <bool>
+      enable dashboard editing\n  editable: true\n  # <int> how often Grafana will
+      scan for changed dashboards\n  updateIntervalSeconds: 10  \n  options:\n    #
+      <string, required> path to dashboard files on disk. Required\n    path: /var/lib/grafana/dashboards"
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}
+    namespace: ${NAMESPACE}
+- apiVersion: v1
+  data:
+    datasources.yml: |-
+      # config file version
+        apiVersion: 1
+        datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          orgId: 1
+          url: http://${PROMETHEUS_SVC}:80
+          isDefault: true
+          version: 1
+          editable: true
+        - name: Loki
+          type: loki
+          orgId: 1
+          access: proxy
+          url: http://${LOKI_SVC}:3100
+          jsonData:
+            maxLines: 1000
+  kind: ConfigMap
+  metadata:
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}-datasources
+    namespace: ${NAMESPACE}
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${SERVICE_NAME}
+    name: ${SERVICE_NAME}
+    namespace: ${NAMESPACE}
+  spec:
+    ports:
+    - port: 3000
+      protocol: TCP
+      targetPort: 3000
+    selector:
+      app: ${SERVICE_NAME}
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: Template
+metadata:
+  name: Grafana template
+parameters:
+- description: Prometheus service name.
+  displayName: Prometheus service name
+  name: PROMETHEUS_SVC
+  required: false
+  value: wally-staging-prometheus
+- description: Prometheus port
+  displayName: Prometheus port
+  name: PROMETHEUS_PORT
+  required: false
+  value: "80"
+- description: Loki service name.
+  displayName: Loki service name
+  name: LOKI_SVC
+  required: false
+  value: wally-staging-loki
+- description: Loki port.
+  displayName: Loki port
+  name: LOKI_PORT
+  required: false
+  value: "3100"
+- description: Grafana service name.
+  displayName: Grafana service name
+  name: SERVICE_NAME
+  required: false
+  value: wally-staging-grafana
+- description: Namespace.
+  displayName: Namespace
+  name: NAMESPACE
+  required: false
+  value: bfpeyx-test
