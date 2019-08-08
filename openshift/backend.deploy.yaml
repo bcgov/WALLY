@@ -21,7 +21,7 @@ parameters:
   value: TEST
   required: true
 - name: REPLICAS
-  value: 1
+  value: "1"
 objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
