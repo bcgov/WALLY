@@ -116,6 +116,7 @@
       "targets": [
         {
           "expr": "increase(proxy_request_status_total[10m])",
+          "legendFormat": "{{kubernetes_pod_name}} [code={{code}}]",
           "refId": "A"
         }
       ],
@@ -201,6 +202,7 @@
       "targets": [
         {
           "expr": "proxy_request_duration_sec",
+          "legendFormat": "{{kubernetes_pod_name}} [quantile={{quantile}}]",
           "refId": "A"
         }
       ],
@@ -337,7 +339,8 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "http_requests_total",
+          "expr": "increase(http_requests_total[10m])",
+          "legendFormat": "{{kubernetes_pod_name}} [code={{code}}]",
           "refId": "A"
         }
       ],
@@ -422,6 +425,7 @@
       "targets": [
         {
           "expr": "http_request_duration_microseconds*1000",
+          "legendFormat": "{{kubernetes_pod_name}} quantile={{quantile}}",
           "refId": "A"
         }
       ],
@@ -557,8 +561,15 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "pg_stat_activity_count",
+          "expr": "sum(pg_stat_activity_count) by(statefulset_kubernetes_io_pod_name)",
+          "legendFormat": "{{statefulset_kubernetes_io_pod_name}}",
           "refId": "A"
+        },
+        {
+          "expr": "min(pg_settings_max_connections)",
+          "instant": false,
+          "legendFormat": "Max connections",
+          "refId": "B"
         }
       ],
       "thresholds": [],
@@ -631,5 +642,5 @@
   "timezone": "",
   "title": "Wally Staging",
   "uid": "R1Uoy9vWz",
-  "version": 15
+  "version": 22
 }
