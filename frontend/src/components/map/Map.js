@@ -245,7 +245,6 @@ export default {
     // },
     listenForAreaSelect () {
       this.map.on('lasso.finished', (event) => {
-
         // data source or leaflet markers
         console.log('event layers', event.layers)
         // TODO: Dispatch getLayerFeatures on this data source layer
