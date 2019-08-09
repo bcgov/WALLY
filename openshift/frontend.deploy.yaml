@@ -116,11 +116,11 @@ objects:
               volumeMounts:
               - name: shared-data
                 mountPath: /var/opt/rh/rh-nginx112/log/nginx/
-              command:
-              - '-format="$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" rt=$request_time uct=\"$upstream_connect_time\" uht=\"$upstream_header_time\" urt=\"$upstream_response_time\""'
-              - '-listen-port=4040'
-              - '-namespace=nginx'
-              - '/var/opt/rh/rh-nginx112/log/nginx/access.log'
+              # args:
+              # - '-format="$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" rt=$request_time uct=\"$upstream_connect_time\" uht=\"$upstream_header_time\" urt=\"$upstream_response_time\""'
+              # - '-listen-port=4040'
+              # - '-namespace=nginx'
+              # - '/var/opt/rh/rh-nginx112/log/nginx/access.log'
             - image: >-
                 docker-registry.default.svc:5000/${NAMESPACE}/wally-web:${NAME}
               imagePullPolicy: Always
