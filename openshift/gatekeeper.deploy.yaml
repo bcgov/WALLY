@@ -67,7 +67,7 @@ objects:
             openshift.io/generated-by: OpenShiftNewApp
             prometheus.io/path: /oauth/metrics
             prometheus.io/scrape: 'true'
-            prometheus.io/port: 3000
+            prometheus.io/port: '3000'
           creationTimestamp: null
           labels:
             app: wally-${NAME}

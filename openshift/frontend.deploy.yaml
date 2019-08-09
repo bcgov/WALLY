@@ -66,6 +66,8 @@ objects:
         metadata:
           annotations:
             openshift.io/generated-by: OpenShiftNewApp
+            prometheus.io/scrape: 'true'
+            prometheus.io/port: '4040'
           creationTimestamp: null
           labels:
             app: wally-${NAME}
