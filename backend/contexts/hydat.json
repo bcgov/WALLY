@@ -3,6 +3,7 @@
   "schema": {
     "text": "",
     "image": "",
+    "table": "",
     "chart": {
       "type": "bar",
         "data": {

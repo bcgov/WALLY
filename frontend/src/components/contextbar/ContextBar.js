@@ -1,6 +1,7 @@
 import RandomChart from '../charts/RandomChart'
 import CircleChart from '../charts/CircleChart'
 import BarChart from '../charts/BarChart.js'
+import {mapGetters} from "vuex";
 
 export default {
   name: 'ContextBar',
@@ -37,9 +38,27 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters([
+      'featureInfo',
+      'featureLayers'
+    ])
+  },
   methods: {
     toggleContextBar () {
       this.drawer.mini = !this.drawer.mini
+    }
+  },
+  watch: {
+    featureInfo (value) {
+      if (value && value.properties) {
+        console.log(value)
+      }
+    },
+    featureLayers (value) {
+      if (value.length > 0) {
+        console.log(value)
+      }
     }
   }
 }
