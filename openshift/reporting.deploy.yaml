@@ -41,7 +41,7 @@ objects:
         env: ${NAME}
         component: reporting
         name: wally-${NAME}-reporting
-      name: wally-reporting-${NAME}
+      name: wally-${NAME}-reporting
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     spec:
@@ -147,7 +147,7 @@ objects:
         termination: edge
       to:
         kind: Service
-        name: wally-reporting-${NAME}
+        name: wally-${NAME}-reporting
         weight: 100
       wildcardPolicy: None
     metadata:
