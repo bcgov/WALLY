@@ -4,6 +4,20 @@ from app.aggregator.aggregate import form_wms_query
 from app.aggregator.models import WMSGetMapQuery, WMSRequest
 
 
+ONE_LAYER = {
+    "api_url": "https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW/ows?",
+    "request": "GetMap",
+    "service": "WMS",
+    "srs": "EPSG%3A4326",
+    "version": "1.1.1",
+    "format": "application/json%3Btype%3Dtopojson",
+    "bbox": "-125.99807739257814,53.86062638824399,-125.46661376953126,54.10893027534094",
+    "height": "1243",
+    "width": "1445",
+    "layers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
+}
+
+
 def test_wms_url():
     """ test that the WMS URL is formed properly """
 
