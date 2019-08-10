@@ -60,11 +60,17 @@ def aggregate_sources(
     inside the map bounds defined by `bbox`.
     """
 
-    valid_layers = get_wms_layers(layers)
+    # format the bounding box (which arrives in the querystring as a comma separated list)
     bbox_string = ','.join(str(v) for v in bbox)
+
+    # compare requested layers against layers we keep track of.  The valid WMS layers and their
+    # respective WMS endpoints will come from our metadata.
+    valid_layers = get_wms_layers(layers)
 
     wms_requests = []
 
+    # create a WMSRequest object with all the values we need to make WMS requests for each of the
+    # layers that we have metadata for.
     for layer in valid_layers:
         query = WMSGetMapQuery(
             layers=layer["id"],
@@ -78,12 +84,10 @@ def aggregate_sources(
         )
         wms_requests.append(req)
 
-    logger.info("prepared requests")
-
+    # go and fetch features for each of the WMS endpoints we need to hit, and make a FeatureCollection
+    # out of all the aggregated features.
     wms_features = fetch_wms_features(wms_requests)
 
     fc = FeatureCollection(wms_features)
-
-    logger.info("fetched features")
 
     return fc
