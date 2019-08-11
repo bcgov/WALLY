@@ -1,0 +1,78 @@
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  creationTimestamp: '2019-08-11T18:49:55Z'
+  generation: 8
+  labels:
+    run: wally-staging-apitest
+  name: wally-staging-apitest
+  namespace: bfpeyx-test
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    run: wally-staging-apitest
+  strategy:
+    activeDeadlineSeconds: 21600
+    resources: {}
+    rollingParams:
+      intervalSeconds: 1
+      maxSurge: 25%
+      maxUnavailable: 25%
+      timeoutSeconds: 600
+      updatePeriodSeconds: 1
+    type: Rolling
+  template:
+    metadata:
+      annotations:
+        prometheus.io/port: '2112'
+        prometheus.io/scrape: 'true'
+      creationTimestamp: null
+      labels:
+        run: wally-staging-apitest
+    spec:
+      containers:
+        - args:
+            - '-m'
+            - '-e'
+            - auth_user=$(AUTH_USER)
+            - '-e'
+            - auth_pass=$(AUTH_PASS)
+            - '-e'
+            - auth_url=$(AUTH_HOST)
+            - '-e'
+            - auth_id=$(CLIENT_ID)
+            - '-e'
+            - auth_secret=$(CLIENT_SECRET)
+            - /monitors/monitors.yaml
+          envFrom:
+            - secretRef:
+                name: apitest-test-creds
+          image: 'docker.io/stephenhillier/apitest:v0.2.0'
+          imagePullPolicy: IfNotPresent
+          name: wally-staging-apitest
+          resources:
+            limits:
+              cpu: 50m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - mountPath: /monitors
+              name: volume-oofdg
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: apitest-monitors
+          name: volume-oofdg
+  test: false
+  triggers:
+    - type: ConfigChange
