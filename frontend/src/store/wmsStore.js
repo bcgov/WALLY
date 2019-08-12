@@ -1,6 +1,6 @@
 import ApiService from '../services/ApiService'
 import EventBus from '../services/EventBus.js'
-import { wmsBaseURl, wmsParamString } from '../utils/wmsUtils'
+import { wmsBaseURL, wmsParamString } from '../utils/wmsUtils'
 
 export default {
   state: {
@@ -21,7 +21,7 @@ export default {
       })
     },
     getLayerFeatures ({ commit }, payload) {
-      ApiService.getRaw(wmsBaseURl + payload.layer + '/ows' + wmsParamString(payload))
+      ApiService.getRaw(wmsBaseURL + payload.layer + '/ows' + wmsParamString(payload))
         .then((response) => {
           let points = response.data.objects[payload.layer].geometries // TODO Test functional
           commit('setLayerFeatures', { [payload.layer]: points })
