@@ -1,6 +1,6 @@
 import EventBus from './EventBus.js'
 import router from '../router.js'
-import Axios from 'axios'
+import axios from 'axios'
 
 export class AuthService {
   accessToken
@@ -19,7 +19,7 @@ export class AuthService {
         resolve()
         return
       }
-      Axios.get('/oauth/token').then((r) => {
+      axios.get('/oauth/token').then((r) => {
         this.accessToken = r.data
         this.authenticated = true
         this.login()
