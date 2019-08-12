@@ -24,7 +24,8 @@ export class AuthService {
         this.authenticated = true
         this.login()
         resolve()
-      }).error((e) => {
+      }).catch((e) => {
+        console.error(e)
         reject(new Error('unable to initialize Keycloak'))
       })
     })
