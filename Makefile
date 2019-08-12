@@ -6,3 +6,6 @@ loaddata:
 
 pytest:
 	docker-compose exec -T backend /bin/bash -c "pytest ./tests/ -W ignore::DeprecationWarning"
+
+makemigrations:
+	docker-compose exec -T backend /bin/bash -c "alembic -c alembic/alembic.ini revision --autogenerate -m '$(name)'"
