@@ -35,6 +35,7 @@ def test_wms_url():
 
     layer = WMSRequest(
         url="https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW/ows?",
+        layer="WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
         q=layer_q
     )
 
