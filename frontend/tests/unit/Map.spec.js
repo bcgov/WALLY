@@ -1,6 +1,6 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
 import Map from '../../src/components/map/Map.vue'
-import { MAP_LAYERS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/mapUtils'
+import { DATA_MARTS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/mapUtils'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
@@ -27,7 +27,7 @@ describe('Map Layer Tests', () => {
 
   beforeEach(() => {
     getters = {
-      allMapLayers: () => MAP_LAYERS
+      allMapLayers: () => DATA_MARTS
     }
     store = new Vuex.Store({ getters })
     wrapper = shallowMount(Map, {

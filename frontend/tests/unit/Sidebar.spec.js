@@ -19,7 +19,7 @@ describe('Sidebar', () => {
         isMapLayerActive: state => layerId => false,
         dataMartFeatureInfo: () => {
         },
-        dataMartLayers: () => []
+        dataMartFeatures: () => []
       }
       store = new Vuex.Store({ getters })
       wrapper = mount(Sidebar, {
@@ -51,7 +51,7 @@ describe('Sidebar', () => {
         isMapLayerActive: state => layerId => false,
         dataMartFeatureInfo: () => {
         },
-        dataMartLayers: () => []
+        dataMartFeatures: () => []
       }
       store = new Vuex.Store({
         mutations, getters

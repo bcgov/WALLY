@@ -30,7 +30,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'dataMartLayers'
+      'dataMartFeatures'
     ])
   },
   mounted () {
@@ -81,7 +81,8 @@ export default {
     }
   },
   watch: {
-    dataMartLayers (value) {
+    // TODO: Rename this to something like features/pointsSelected
+    dataMartFeatures (value) {
       // console.log('selected some features')
       if (value.length > 0) {
         this.populateChartData(value)

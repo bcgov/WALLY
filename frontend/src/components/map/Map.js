@@ -247,7 +247,6 @@ export default {
       this.map.on('lasso.finished', (event) => {
         // data source or leaflet markers
         console.log('event layers', event.layers)
-        // TODO: Dispatch getLayerFeatures on this data source layer
 
         event.layers.forEach(layer => {
           this.$store.dispatch('getDataMartFeatures', { type: 'api', feature: layer.feature })
