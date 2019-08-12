@@ -4,7 +4,7 @@ National Water Data Archive Hydrometic Data
 """
 from typing import List
 from geojson import FeatureCollection, Feature, Point
-from sqlalchemy import Column, Integer, ForeignKey, String, MetaData
+from sqlalchemy import Column, Integer, ForeignKey, String, MetaData, func
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
@@ -13,10 +13,18 @@ import app.hydat.models as streams_v1
 from app.hydat.db_models import DlyFlow, Station, DlyLevel
 
 
-def get_stations(db: Session):
+def get_stations(db: Session, bbox: List[float] = []):
     """ list all stream monitoring stations in BC as a FeatureCollection """
-    return db.query(Station).filter(
-        Station.prov_terr_state_loc == 'BC').all()
+
+    q = db.query(Station).filter(
+        Station.prov_terr_state_loc == 'BC')
+
+    if len(bbox) == 4:
+        q = q.filter(
+            Station.geom.intersects(func.ST_MakeEnvelope(*bbox))
+        )
+
+    return q.all()
 
 
 def get_monthly_levels_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:

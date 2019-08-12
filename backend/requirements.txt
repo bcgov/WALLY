@@ -21,6 +21,7 @@ dnspython==1.16.0
 email-validator==1.0.4
 emails==0.5.15
 fastapi==0.31.0
+GeoAlchemy2==0.6.3
 geojson==2.4.1
 gunicorn==19.9.0
 h11==0.8.1

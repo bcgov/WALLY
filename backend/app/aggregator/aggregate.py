@@ -32,12 +32,14 @@ async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
     # set above.
     try:
         fc = json.loads(body)
-    except TypeError:
-        pass
+    except TypeError as e:
+        logger.error(e)
+    except json.JSONDecodeError as e:
+        logger.error(e)
 
     # check if fc looks like a geojson FeatureCollection, and if so,
     # make proper Features out of all the objects
-    if res.status == 200 and fc["type"] and fc["type"] == "FeatureCollection" and fc["features"]:
+    if res.status == 200 and fc.get("type") and fc.get("type") == "FeatureCollection" and fc.get("features"):
         for feat in fc["features"]:
             features.append(Feature(**feat))
 

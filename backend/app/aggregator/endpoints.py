@@ -36,10 +36,8 @@ def aggregate_sources(
             ..., title="Bounding box",
             description="Bounding box to constrain search, in format x1,y1,x2,y2.",
             min_length=4, max_length=4),
-        x: float = Query(None, title="Longitude", description="Longitude at point of interest"),
-        y: float = Query(None, title="Latitude", description="Latitude at point of interest"),
-        width: float = Query(..., title="Width", description="Width of area of interest"),
-        height: float = Query(..., title="Height",
+        width: float = Query(500, title="Width", description="Width of area of interest"),
+        height: float = Query(500, title="Height",
                               description="Height of area of interest")
 ):
     """
