@@ -21,8 +21,8 @@
     </v-toolbar>
     <div v-if="!drawer.mini">
       <v-container>
-        <RandomChart />
-        <BarChart :chart-data="bar_data"></BarChart>
+<!--        <RandomChart />-->
+        <BarChart chart-id="test1" :chart-data="bar_data" v-if="bar_key" :key="bar_key"></BarChart>
         <v-divider></v-divider>
         <v-card style="margin-top: 25px">
           <v-img
@@ -44,7 +44,7 @@
           </v-card-actions>
         </v-card>
         <v-divider style="margin-top: 25px"></v-divider>
-        <CircleChart/>
+<!--        <CircleChart/>-->
       </v-container>
     </div>
   </v-navigation-drawer>
