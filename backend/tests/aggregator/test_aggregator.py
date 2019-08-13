@@ -17,6 +17,18 @@ ONE_LAYER = {
     "layers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
 }
 
+OVERLAP_AQUIFERS_HYDAT_LAYER = {
+    "request": "GetMap"
+    "service": "WMS"
+    "srs": "EPSG%3A4326"
+    "version": "1.1.1"
+    "format": "application%2Fjson%3Btype%3Dtopojson"
+    "bbox": "-123.0681610107422%2C49.27430088974207%2C-122.98387527465822%2C49.333176910734124"
+    "height": 889
+    "width": 1044
+    "layers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW"
+}
+
 
 def test_wms_url():
     """ test that the WMS URL is formed properly """

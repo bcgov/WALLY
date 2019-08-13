@@ -11,7 +11,7 @@ import app.hydat.db as streams_repo
 import app.hydat.models as streams_v1
 from app.aggregator.db import get_wms_layers
 from app.aggregator.aggregate import fetch_wms_features
-from app.aggregator.models import WMSGetMapQuery, WMSRequest
+from app.aggregator.models import WMSGetMapQuery, WMSRequest, WMSResponse
 
 logger = getLogger("aggregator")
 
@@ -72,4 +72,31 @@ def aggregate_sources(
 
     # go and fetch features for each of the WMS endpoints we need to hit, and make a FeatureCollection
     # out of all the aggregated features.
-    return fetch_wms_features(wms_requests)
+    feature_list = fetch_wms_features(wms_requests)
+
+    # fetch stations from database
+    stations = streams_repo.get_stations(db, bbox)
+
+    # add properties to geojson Feature objects
+    points = [
+        Feature(
+            geometry=Point((stn.longitude, stn.latitude)),
+            id=stn.station_number,
+            properties={
+                "name": stn.station_name,
+                "type": "hydat",
+                "url": f"/api/v1/hydat/{stn.station_number}",
+                "description": "Stream discharge and water level data",
+            }
+        ) for stn in stations
+    ]
+
+    fc = FeatureCollection(points)
+
+    feat_layer = WMSResponse(
+        layer="hydat",
+        status=200,
+        geojson=fc
+    )
+
+    return feature_list + feat_layer
