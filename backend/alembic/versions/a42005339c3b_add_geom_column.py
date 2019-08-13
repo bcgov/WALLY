@@ -22,6 +22,9 @@ def upgrade():
     alter table hydat.stations add column
         geom geometry('POINT', 4326);
     """)
+    op.execute("""
+        CREATE INDEX stations_geom_idx ON hydat.stations USING GIST (geom);
+    """)
     # ### end Alembic commands ###
 
 

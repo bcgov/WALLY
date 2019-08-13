@@ -9,24 +9,28 @@ from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.hydat.db as streams_repo
 import app.hydat.models as streams_v1
-from app.aggregator.db import get_wms_layers
+from app.aggregator.db import get_layers
 from app.aggregator.aggregate import fetch_wms_features
-from app.aggregator.models import WMSGetMapQuery, WMSRequest, WMSResponse
+from app.aggregator.models import WMSGetMapQuery, WMSRequest, LayerResponse
 
 logger = getLogger("aggregator")
 
 router = APIRouter()
 
-# data access functions are available for certain layers.
+# Data access functions are available for certain layers.
 # if a function is not available here, default to using
 # the web API listed with the layer metadata.
+# These functions must accept a db session and a bbox as a list of coords
+# (defined by 2 corners, e.g. x1, y1, x2, y2) and return a FeatureCollection.
+# For example:  get_stations_as_geojson(db: Session, bbox: List[float])
 API_DATASOURCES = {
-    "HYDAT": streams_repo.get_stations
+    "HYDAT": streams_repo.get_stations_as_geojson
 }
 
 
 @router.get("/aggregate")
 def aggregate_sources(
+        db: Session = Depends(get_db),
         layers: List[str] = Query(
             ..., title="Layers to search",
             description="Search for features in a given area for each of the specified layers.",
@@ -45,18 +49,21 @@ def aggregate_sources(
     inside the map bounds defined by `bbox`.
     """
 
-    # format the bounding box (which arrives in the querystring as a comma separated list)
+    # Format the bounding box (which arrives in the querystring as a comma separated list)
     bbox_string = ','.join(str(v) for v in bbox)
 
-    # compare requested layers against layers we keep track of.  The valid WMS layers and their
+    # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
-    valid_layers = get_wms_layers(layers)
+    valid_layers = get_layers(layers)
 
     wms_requests = []
 
-    # create a WMSRequest object with all the values we need to make WMS requests for each of the
-    # layers that we have metadata for.
+    # Create a WMSRequest object with all the values we need to make WMS requests for each of the
+    # WMS layers that we have metadata for.
     for layer in valid_layers:
+        if layer.get("type") != "wms":
+            continue
+    
         query = WMSGetMapQuery(
             layers=layer["id"],
             bbox=bbox_string,
@@ -70,33 +77,34 @@ def aggregate_sources(
         )
         wms_requests.append(req)
 
-    # go and fetch features for each of the WMS endpoints we need to hit, and make a FeatureCollection
+    # Go and fetch features for each of the WMS endpoints we need, and make a FeatureCollection
     # out of all the aggregated features.
     feature_list = fetch_wms_features(wms_requests)
 
-    # fetch stations from database
-    stations = streams_repo.get_stations(db, bbox)
+    # Internal datasets:
+    # Gather valid internal sources that were included in the request's `layers` param
+    internal_data = []
+    for layer in valid_layers:
+        if layer.get("type") != "api" or layer.get("id") not in API_DATASOURCES:
+            continue
+        internal_data.append(layer)
 
-    # add properties to geojson Feature objects
-    points = [
-        Feature(
-            geometry=Point((stn.longitude, stn.latitude)),
-            id=stn.station_number,
-            properties={
-                "name": stn.station_name,
-                "type": "hydat",
-                "url": f"/api/v1/hydat/{stn.station_number}",
-                "description": "Stream discharge and water level data",
-            }
-        ) for stn in stations
-    ]
+    # Loop through all datasets that are available internally.
+    # We will make use of the data access function registered in API_DATASOURCES
+    # to avoid making api calls to our own web server.
+    for dataset in internal_data:
+        id = dataset.get("id")
 
-    fc = FeatureCollection(points)
+        # use function registered for this source
+        objects = API_DATASOURCES[id](db, bbox)
 
-    feat_layer = WMSResponse(
-        layer="hydat",
-        status=200,
-        geojson=fc
-    )
+        feat_layer = LayerResponse(
+            layer=id,
+            status=200,
+            geojson=objects
+        )
 
-    return feature_list + feat_layer
+        feature_list.append(feat_layer)
+
+    # return the aggregated features
+    return feature_list

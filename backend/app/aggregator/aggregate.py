@@ -8,7 +8,7 @@ from typing import List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from aiohttp import ClientSession, ClientResponse
-from app.aggregator.models import WMSRequest, WMSResponse
+from app.aggregator.models import WMSRequest, LayerResponse
 
 
 logger = logging.getLogger("aggregator")
@@ -20,7 +20,7 @@ def form_wms_query(req: WMSRequest) -> str:
 
 
 async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
-    """ parse_result takes a response and puts it in a WMSResponse, which
+    """ parse_result takes a response and puts it in a LayerResponse, which
     provides a summary and a collection of features """
     body = await res.read()
     features = []
@@ -43,7 +43,7 @@ async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
         for feat in fc["features"]:
             features.append(Feature(**feat))
 
-    return WMSResponse(
+    return LayerResponse(
         status=res.status,
         layer=layer,
         geojson=FeatureCollection(features)
@@ -94,7 +94,7 @@ async def fetch_all(requests: List[WMSRequest]) -> asyncio.Future:
         return await asyncio.gather(*tasks)
 
 
-def fetch_wms_features(requests: List[WMSRequest]) -> List[WMSResponse]:
+def fetch_wms_features(requests: List[WMSRequest]) -> List[LayerResponse]:
     """ fetch_geojson_features collects features from one or more sources and aggregates
     them into a list of WMSResults, each containing the geojson response body and a status code """
     return asyncio.run(fetch_all(requests))

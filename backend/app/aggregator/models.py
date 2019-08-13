@@ -42,7 +42,7 @@ class WMSRequest(BaseModel):
     q: WMSGetMapQuery
 
 
-class WMSResponse(BaseModel):
+class LayerResponse(BaseModel):
     """ contains info about and data from a response from a WMS GetMap or GetFeatureInfo request """
     layer: str
 
