@@ -2,6 +2,7 @@ import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
 import { wmsBaseURl, wmsParamString } from '../utils/wmsUtils'
 import * as utils from '../utils/mapUtils'
+import * as metaDataUtils from '../utils/metadataUtils'
 
 export default {
   state: {
@@ -24,7 +25,7 @@ export default {
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
-      // WMS info
+      // WMS request
       // TODO: Complete this request
       ApiService.getRaw(payload.url).then((res) => {
         // TODO validate properties
@@ -39,26 +40,25 @@ export default {
     },
     getDataMartFeatures ({ commit }, payload) {
       // Get the datamart features (points, lines etc)
-      payload.type === 'wms' &&
+      payload.type === metaDataUtils.WMS_DATAMART &&
       ApiService.getRaw(wmsBaseURl + payload.layer + '/ows' + wmsParamString(payload))
         .then((response) => {
           console.log('wms response for geometries', response)
-          let points = response.data.objects[payload.layer].geometries // TODO Test functional
-          commit('setDataMartFeatures', { [payload.layer]: points })
+          let geometries = response.data.objects[payload.layer].geometries // TODO Test functional
+          commit('setDataMartFeatures', { [payload.layer]: geometries })
         }).catch((error) => {
           console.log(error)
         })
 
-      payload.type === 'api' &&
-      ApiService.getRaw(utils.API_URL + payload.feature.properties.url).then((response) => {
-        console.log('response', response)
-        // TODO: get coordinates
-        let points = [response.data.longitude, response.data.latitude]
-        // TODO: setLayerFeatures
-        commit('setDataMartFeatures', { [payload.layer]: points })
-      }).catch(error => {
-        console.log(error)
-      })
+      console.log('payload', payload)
+      if (payload.type === metaDataUtils.API_DATAMART) {
+        ApiService.getRaw(utils.API_URL + payload.feature.properties.url).then((response) => {
+          console.log('response', response)
+          commit('setDataMartFeatures', { [payload.layer]: response} )
+        }).catch(error => {
+          console.log(error)
+        })
+      }
     }
   },
   mutations: {

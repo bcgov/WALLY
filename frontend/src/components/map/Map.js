@@ -7,6 +7,7 @@ import { mapGetters } from 'vuex'
 import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
 import { wmsBaseURl } from '../../utils/wmsUtils'
+import * as utils from '../../utils/metadataUtils'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -268,10 +269,17 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       console.log('active map layers', this.activeMapLayers, this.activeDataMarts)
 
+      this.activeDataMarts.forEach((layer)=>{
+        console.log('datamart layer?', layer, layer.id)
+        layer.data.features.forEach(feature => {
+          this.$store.dispatch('getDataMartFeatures', { type: utils.API_DATAMART, layer: layer.id, feature: feature })
+        })
+
+
+      })
       this.activeMapLayers.forEach((layer) => {
         console.log('what layer?', layer)
-        this.$store.dispatch('getDataMartFeatures', { type: 'wms', bounds: bounds, size: size, layer: layer.wmsLayer })
-        // this.$store.dispatch('getLayerFeatures', { bounds: bounds, size: size, layer: layer.wmsLayer })
+        this.$store.dispatch('getDataMartFeatures', { type: utils.WMS_DATAMART, bounds: bounds, size: size, layer: layer.wmsLayer })
       })
     }
     // listenForReset () {

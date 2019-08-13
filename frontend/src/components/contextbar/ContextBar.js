@@ -86,7 +86,7 @@ export default {
       // console.log('selected some features')
       if (value.length > 0) {
         this.populateChartData(value)
-        this.bar_key++
+        this.bar_key++ // ugly hack to refresh vue component
       }
     }
   }
