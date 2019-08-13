@@ -3,7 +3,7 @@ import os
 import json
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.metadata.db_models import DataMart, MapLayer, MapLayerType
+from app.metadata.db_models import DataMart, DataFormatType, MapLayer, MapLayerType
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -25,70 +25,34 @@ def create_hydat_data():
 def load_fixtures():
     # User file array to ensure loading order
     # File names must match class names for globals() to work
-    files = ['DataMart.json', 'MapLayerType.json', 'MapLayer.json']
-    directory = '/app/fixtures/'  # os.path.dirname(__file__)
+    files = ['DataMart.json', "DataFormatType.json", 'MapLayerType.json', 'MapLayer.json']
+    directory = '/app/fixtures/'
 
     logger = logging.getLogger("metadata")
-    logger.info("Loading fixtures")
+    logger.info("Loading Fixtures")
 
     for filename in files:
         with open(os.path.join(directory, filename)) as json_file:
             data = json.load(json_file)
 
-        logger.info(f"Fixture: {filename}")
-
         # Get class name from file name
         file = os.path.splitext(filename)[0]
-        cls = globals()[file]
-        logger.info(f"Class: {cls}")
+        cls = globals()[file]  # Need imports at top even though linter says they are unused
 
-        # Create class instances
-        instances = []
-        for obj in data:
-            logger.info(f"Object: {obj}")
-            instances.append(cls(**obj))
+        # Only add fixtures is no data exists in table
+        if db_session.query(cls).first() is None:
+            logger.info(f"Adding fixture: {filename}")
+            # Create class instances
+            instances = []
+            for obj in data:
+                logger.info(f"Object: {obj}")
+                instances.append(cls(**obj))
 
-        db_session.add_all(instances)
+            db_session.add_all(instances)
 
-        logger.info(f"*** Finished Loading Fixtures ***")
+        logger.info(f"Skipping {filename} already imported")
 
     db_session.commit()
-
-    # for filename in os.listdir(directory):
-    #     if filename.endswith(".json"):
-    #         with open(os.path.join(directory, filename)) as json_file:
-    #             data = json.load(json_file)
-    #
-    #         # Get class name from file name
-    #         file_name = os.path.splitext(filename)[0]
-    #         cls = globals()[file_name]
-    #
-    #         # Create class instances
-    #         instances = []
-    #         for obj in data:
-    #             instances.append(cls(**obj))
-    #
-    #         db_session.add_all(instances)
-    # # Map Layer Types
-    # with open('../fixtures/MapLayerTypes.json') as json_file:
-    #     types = json.load(json_file)
-    #
-    # layer_types = []
-    # for t in types:
-    #     layer_types.append(MapLayerType(**t))
-    #
-    # db_session.add_all(layer_types)
-    #
-    # # Map Layers
-    # with open('../fixtures/MapLayers.json') as json_file:
-    #     layers = json.load(json_file)
-    #
-    # map_layers = []
-    # for l in layers:
-    #     map_layers.append(MapLayer(**l))
-    #
-    # db_session.add_all(map_layers)
-
 
 
 def main():

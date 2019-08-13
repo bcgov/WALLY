@@ -2,7 +2,7 @@
 Database tables and data access functions for Wally Data Layer Meta Information
 """
 from sqlalchemy.orm import Session
-from app.data.db_models import ContextData, DataSource, MapLayer, DataMart
+from app.metadata.db_models import ContextData, DataSource, MapLayer, DataMart
 import itertools
 
 

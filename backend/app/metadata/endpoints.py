@@ -8,14 +8,15 @@ from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
-import app.data.db as meta_repo
+import app.metadata.db as meta_repo
+import app.metadata.models as view_model
 
 logger = getLogger("api")
 
 router = APIRouter()
 
 
-@router.get("/maplayers")
+@router.get("/maplayers", response_model=List[view_model.MapLayer])
 def list_map_layers(db: Session = Depends(get_db)):
     """
     List all supported map layers
@@ -24,7 +25,7 @@ def list_map_layers(db: Session = Depends(get_db)):
 
 
 class LayerNames(BaseModel):
-    layer_names: []
+    layer_names: List[str] = []
 
 
 @router.post("/contextdata")

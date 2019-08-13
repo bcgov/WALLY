@@ -1,10 +1,8 @@
 [
   {
-    "id": 1,
-    "name": "api"
+    "type": "api"
   },
   {
-    "id": 2,
-    "name": "wms"
+    "type": "wms"
   }
 ]

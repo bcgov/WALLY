@@ -4,95 +4,95 @@
     "wms_name": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 1
+    "map_layer_type_id": "wms",
+    "data_mart_id": 1
   },
   {
     "layer_name": "Ground Water Wells",
     "wms_name": "WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 2
+    "map_layer_type_id": "wms",
+    "data_mart_id": 2
   },
   {
     "layer_name": "Freshwater Atlas Watersheds",
     "wms_name": "WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 3
+    "map_layer_type_id": "wms",
+    "data_mart_id": 3
   },
   {
     "layer_name": "BC Major Watersheds",
     "wms_name": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 4
+    "map_layer_type_id": "wms",
+    "data_mart_id": 4
   },
   {
     "layer_name": "Artesian Wells",
     "wms_name": "WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW",
     "wms_style": "Water_Wells_Artesian",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 5
+    "map_layer_type_id": "wms",
+    "data_mart_id": 5
   },
   {
     "layer_name": "Cadastral",
     "wms_name": "WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 6
+    "map_layer_type_id": "wms",
+    "data_mart_id": 6
   },
   {
     "layer_name": "Automated Snow Weather Station Locations",
     "wms_name": "WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 7
+    "map_layer_type_id": "wms",
+    "data_mart_id": 7
   },
   {
     "layer_name": "Freshwater Atlas Stream Directions",
     "wms_name": "WHSE_BASEMAPPING.FWA_STREAM_DIRECTIONS_SP",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 8
+    "map_layer_type_id": "wms",
+    "data_mart_id": 8
   },
   {
     "layer_name": "BC Wildfire Active Weather Stations",
     "wms_name": "WHSE_LAND_AND_NATURAL_RESOURCE.PROT_WEATHER_STATIONS_SP",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 9
+    "map_layer_type_id": "wms",
+    "data_mart_id": 9
   },
   {
     "layer_name": "Ecocat - Water related reports",
     "wms_name": "WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 10
+    "map_layer_type_id": "wms",
+    "data_mart_id": 10
   },
   {
     "layer_name": "Ground Water Licenses",
     "wms_name": "WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 11
+    "map_layer_type_id": "wms",
+    "data_mart_id": 11
   },
   {
     "layer_name": "Ground Water Aquifers",
     "wms_name": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
     "wms_style": "",
     "api_url": "",
-    "map_layer_type_id": 2,
-    "metadata.data_mart_id": 12
+    "map_layer_type_id": "wms",
+    "data_mart_id": 12
   }
 ]

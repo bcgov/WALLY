@@ -1,0 +1,20 @@
+[
+  {
+    "type": "wms"
+  },
+  {
+    "type": "csv"
+  },
+  {
+    "type": "excel"
+  },
+  {
+    "type": "sqlite"
+  },
+  {
+    "type": "text"
+  },
+  {
+    "type": "json"
+  }
+]

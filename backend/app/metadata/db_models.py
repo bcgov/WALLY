@@ -7,7 +7,6 @@ from sqlalchemy.ext.declarative import declarative_base
 # Custom Base Class
 class Base(object):
     __table_args__ = {'schema': 'metadata'}
-    id = Column(Integer, primary_key=True)
 
 
 Base = declarative_base(cls=Base)
@@ -15,6 +14,8 @@ Base = declarative_base(cls=Base)
 
 class DataMart(Base):
     __tablename__ = 'data_mart'
+
+    id = Column(Integer, primary_key=True)
 
     map_layers = relationship("MapLayer")
     data_stores = relationship("DataStore")
@@ -24,6 +25,8 @@ class DataMart(Base):
 
 class DataStore(Base):
     __tablename__ = 'data_store'
+
+    id = Column(Integer, primary_key=True)
 
     name = Column(Text, comment='data store detail name')
     description = Column(Text, comment='explanation behind data store and use case')
@@ -35,21 +38,22 @@ class DataStore(Base):
     data_sources = relationship("DataSource")
 
 
-class DataFormat(Base):
-    __tablename__ = 'data_format'
-
-    name = Column(String, comment='source data format - options: wms, csv, excel, sqlite, text, json')
+class DataFormatType(Base):
+    __tablename__ = 'data_format_type'
+    type = Column(String, primary_key=True, comment='source data format - options: wms, csv, excel, sqlite, text, json')
 
 
 class DataSource(Base):
     __tablename__ = 'data_source'
 
+    id = Column(Integer, primary_key=True)
+
     name = Column(Text, comment='data source detail name')
     description = Column(Text, comment='explanation behind data source and use case')
     source_url = Column(Text, comment='root source url of data')
 
-    data_format_id = Column(Integer, ForeignKey('metadata.data_format.id'), comment='data format type')
-    data_format = relationship("DataFormat")
+    data_format_type_id = Column(String, ForeignKey('metadata.data_format_type.type'), comment='data format type')
+    data_format_type = relationship("DataFormatType")
 
     data_store_id = Column(Integer, ForeignKey('metadata.data_store.id'), comment='related data store')
     data_store = relationship("DataStore")
@@ -61,13 +65,13 @@ class DataSource(Base):
 class MapLayer(Base):
     __tablename__ = 'map_layer'
 
-    layer_name = Column(String, comment='wms layer id used in all async requests', unique=True)
+    layer_name = Column(String, primary_key=True, comment='wms layer id used in all async requests')
 
     wms_name = Column(String, comment='wms layer name(text id) used in all async requests')
     wms_style = Column(String, comment='wms style identifier to view layer info with different visualizations')
     api_url = Column(String, comment='api endpoint to get base geojson information')
 
-    map_layer_type_id = Column(Integer, ForeignKey('metadata.map_layer_type.id'), comment='this layers source type')
+    map_layer_type_id = Column(String, ForeignKey('metadata.map_layer_type.type'), comment='this layers source type')
     map_layer_type = relationship("MapLayerType")
 
     data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
@@ -76,16 +80,17 @@ class MapLayer(Base):
 
 class MapLayerType(Base):
     __tablename__ = 'map_layer_type'
-    name = Column(String, comment='type that defines where map layer data comes from - options: api, wms')
+    type = Column(String, primary_key=True, comment='type that defines where map layer data comes from '
+                                                    '- options: api, wms')
 
 
 class ContextData(Base):
     __tablename__ = 'context_data'
 
-    context_name = Column(String, comment='identifies which MapLayer(s) this fixtures belongs to by layer_name, '
-                                          'a ContextData can be the visualization of two merged MapLayers. '
-                                          'ex: MapLayer(layer_name=gwells) MapLayer(layer_name=hydat) '
-                                          'context_name = gwellshydat')
+    context_name = Column(String, primary_key=True, comment='identifies which MapLayer(s) this fixtures belongs to by '
+                                                            'layer_name, a ContextData can be the visualization of two '
+                                                            'merged MapLayers. ex: MapLayer(layer_name=gwells) '
+                                                            'MapLayer(layer_name=hydat) context_name = gwellshydat')
 
     context = Column(JSON, comment='holds the fixtures schema for this singular or combination of layer(s)')
 
