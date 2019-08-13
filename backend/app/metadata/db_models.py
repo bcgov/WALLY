@@ -6,7 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 # Custom Base Class
 class Base(object):
-    __table_args__ = {'schema': 'data'}
+    __table_args__ = {'schema': 'metadata'}
     id = Column(Integer, primary_key=True)
 
 
@@ -18,6 +18,7 @@ class DataMart(Base):
 
     map_layers = relationship("MapLayer")
     data_stores = relationship("DataStore")
+    data_sources = relationship("DataSource")
     context_data = relationship("ContextData")
 
 
@@ -28,6 +29,8 @@ class DataStore(Base):
     description = Column(Text, comment='explanation behind data store and use case')
     time_relevance = Column(Integer, comment='how long before this data store becomes stale, measured in DAYS')
     last_updated = Column(DateTime, comment='last time data store was updated from sources')
+    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart = relationship("DataMart")
 
     data_sources = relationship("DataSource")
 
@@ -48,8 +51,11 @@ class DataSource(Base):
     data_format_id = Column(Integer, ForeignKey('data_format.id'), comment='data format type')
     data_format = relationship("DataFormat")
 
-    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
     data_store_id = Column(Integer, ForeignKey('data_store.id'), comment='related data store')
+    data_store = relationship("DataStore")
+
+    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart = relationship("DataMart")
 
 
 class MapLayer(Base):
@@ -57,7 +63,7 @@ class MapLayer(Base):
 
     layer_name = Column(String, comment='wms layer id used in all async requests', unique=True)
 
-    wms_id = Column(String, comment='wms layer id used in all async requests')
+    wms_name = Column(String, comment='wms layer id used in all async requests')
     wms_style = Column(String, comment='wms style identifier to view layer info with different visualizations')
     api_url = Column(String, comment='api endpoint to get base geojson information')
 
@@ -65,6 +71,7 @@ class MapLayer(Base):
     map_layer_type = relationship("MapLayerType")
 
     data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart = relationship("DataMart")
 
 
 class MapLayerType(Base):
@@ -85,16 +92,17 @@ class ContextData(Base):
     title_column = Column(String, comment='we use this column value as a title in the client')
     title_label = Column(String, comment='label for title_column value')
 
-    chart_labels = Column(JSON)
-    chart_data = Column(JSON)
+    chart_labels = Column(JSON, comment='array(s) of chart axis labels')
+    chart_data = Column(JSON, comment='columns and format of data to use for chart(s)')
 
-    link = Column(String)
-    link_column = Column(String)
+    link = Column(String, comment='link pattern to source data')
+    link_column = Column(String, comment='id value(s) to use with link column to reach source data')
 
-    image_url = Column(String)
+    image_url = Column(String, comment='image representing this context')
 
     highlight_columns = Column(JSON, comment='columns to use from the data source, ignore other columns')
     highlight_descriptions = Column(JSON, comment='explanations of each highlight column and their value')
 
     data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart = relationship("DataMart")
 

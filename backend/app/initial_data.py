@@ -3,7 +3,7 @@ import os
 import json
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.data.db_models import MapLayer, MapLayerType
+from app.metadata.db_models import MapLayer, MapLayerType
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
