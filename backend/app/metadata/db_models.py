@@ -29,7 +29,7 @@ class DataStore(Base):
     description = Column(Text, comment='explanation behind data store and use case')
     time_relevance = Column(Integer, comment='how long before this data store becomes stale, measured in DAYS')
     last_updated = Column(DateTime, comment='last time data store was updated from sources')
-    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
     data_mart = relationship("DataMart")
 
     data_sources = relationship("DataSource")
@@ -48,13 +48,13 @@ class DataSource(Base):
     description = Column(Text, comment='explanation behind data source and use case')
     source_url = Column(Text, comment='root source url of data')
 
-    data_format_id = Column(Integer, ForeignKey('data_format.id'), comment='data format type')
+    data_format_id = Column(Integer, ForeignKey('metadata.data_format.id'), comment='data format type')
     data_format = relationship("DataFormat")
 
-    data_store_id = Column(Integer, ForeignKey('data_store.id'), comment='related data store')
+    data_store_id = Column(Integer, ForeignKey('metadata.data_store.id'), comment='related data store')
     data_store = relationship("DataStore")
 
-    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
     data_mart = relationship("DataMart")
 
 
@@ -63,14 +63,14 @@ class MapLayer(Base):
 
     layer_name = Column(String, comment='wms layer id used in all async requests', unique=True)
 
-    wms_name = Column(String, comment='wms layer id used in all async requests')
+    wms_name = Column(String, comment='wms layer name(text id) used in all async requests')
     wms_style = Column(String, comment='wms style identifier to view layer info with different visualizations')
     api_url = Column(String, comment='api endpoint to get base geojson information')
 
-    map_layer_type_id = Column(Integer, ForeignKey('map_layer_type.id'), comment='this layers source type')
+    map_layer_type_id = Column(Integer, ForeignKey('metadata.map_layer_type.id'), comment='this layers source type')
     map_layer_type = relationship("MapLayerType")
 
-    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
     data_mart = relationship("DataMart")
 
 
@@ -103,6 +103,6 @@ class ContextData(Base):
     highlight_columns = Column(JSON, comment='columns to use from the data source, ignore other columns')
     highlight_descriptions = Column(JSON, comment='explanations of each highlight column and their value')
 
-    data_mart_id = Column(Integer, ForeignKey('data_mart.id'), comment='parent data mart')
+    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
     data_mart = relationship("DataMart")
 

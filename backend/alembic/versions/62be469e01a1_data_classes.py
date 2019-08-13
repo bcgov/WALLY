@@ -8,7 +8,7 @@ Create Date: 2019-08-12 15:30:53.291713
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import ForeignKey
-
+import logging
 
 # revision identifiers, used by Alembic.
 revision = '62be469e01a1'
@@ -16,14 +16,17 @@ down_revision = '88f4ca055ae7'
 branch_labels = None
 depends_on = None
 
+logger = logging.getLogger("alembic")
+
 
 def upgrade():
-    op.execute("create schema metadata")
+    op.execute("create schema if not exists metadata")
+    op.execute('SET search_path TO metadata')
+    logger.info("creating metadata tables")
 
     op.create_table(
         'data_mart',
         sa.Column('id', sa.Integer, primary_key=True),
-        schema='metadata'
     )
 
     op.create_table(
@@ -34,8 +37,7 @@ def upgrade():
         sa.Column('time_relevance', sa.Integer,
                   comment='how long before this data store becomes stale, measured in DAYS'),
         sa.Column('last_updated', sa.DateTime, comment='last time data store was updated from sources'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('data_mart.id'), comment='parent data mart'),
-        schema='metadata'
+        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.create_table(
@@ -43,7 +45,6 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(50), nullable=False,
                   comment='source data format - options: wms, csv, excel, sqlite, text, json'),
-        schema='metadata'
     )
 
     op.create_table(
@@ -52,10 +53,9 @@ def upgrade():
         sa.Column('name', sa.String(50), nullable=False, comment='data source detail name'),
         sa.Column('description', sa.String, comment='explanation behind data source and use case'),
         sa.Column('source_url', sa.String, comment='root source url of data'),
-        sa.Column('data_format_id', sa.Integer, ForeignKey('data_format.id'), comment='data format type'),
-        sa.Column('data_store_id', sa.Integer, ForeignKey('data_store.id'), comment='related data store'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('data_mart.id'), comment='parent data mart'),
-        schema='metadata'
+        sa.Column('data_format_id', sa.Integer, ForeignKey('metadata.data_format.id'), comment='data format type'),
+        sa.Column('data_store_id', sa.Integer, ForeignKey('metadata.data_store.id'), comment='related data store'),
+        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.create_table(
@@ -63,7 +63,6 @@ def upgrade():
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(50), nullable=False,
                   comment='type that defines where map layer data comes from - options: api, wms'),
-        schema='metadata'
     )
 
     op.create_table(
@@ -75,10 +74,9 @@ def upgrade():
         sa.Column('wms_style', sa.String,
                   comment='wms style identifier to view layer info with different visualizations'),
         sa.Column('api_url', sa.String, comment='api endpoint to get base geojson information'),
-        sa.Column('map_layer_type_id', sa.Integer, ForeignKey('map_layer_type.id'),
+        sa.Column('map_layer_type_id', sa.Integer, ForeignKey('metadata.map_layer_type.id'),
                   comment='this layers source type'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('data_mart.id'), comment='parent data mart'),
-        schema='metadata'
+        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.create_table(
@@ -102,9 +100,10 @@ def upgrade():
                   comment='columns to use from the data source, ignore other columns'),
         sa.Column('highlight_descriptions', sa.JSON,
                   comment='explanations of each highlight column and their value'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('data_mart.id'), comment='parent data mart'),
-        schema='metadata'
+        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
+
+    op.execute('SET search_path TO public')
 
 
 def downgrade():

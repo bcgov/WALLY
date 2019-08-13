@@ -3,7 +3,7 @@ import os
 import json
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.metadata.db_models import MapLayer, MapLayerType
+from app.metadata.db_models import DataMart, MapLayer, MapLayerType
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -14,6 +14,7 @@ def create_hydat_data():
 
     # logger
     logger = logging.getLogger("hydat")
+    logger.info("Stream Stations")
     stations = StationFactory.create_batch(3)
     for stn in stations:
         logger.info(f"Adding stream station {stn.station_number} - {stn.station_name}")
@@ -24,23 +25,32 @@ def create_hydat_data():
 def load_fixtures():
     # User file array to ensure loading order
     # File names must match class names for globals() to work
-    files = ['MapLayerTypes.json', 'MapLayers.json']
-    directory = os.path.dirname(__file__)
+    files = ['DataMart.json', 'MapLayerType.json', 'MapLayer.json']
+    directory = '/app/fixtures/'  # os.path.dirname(__file__)
+
+    logger = logging.getLogger("metadata")
+    logger.info("Loading fixtures")
 
     for filename in files:
         with open(os.path.join(directory, filename)) as json_file:
             data = json.load(json_file)
 
+        logger.info(f"Fixture: {filename}")
+
         # Get class name from file name
         file = os.path.splitext(filename)[0]
         cls = globals()[file]
+        logger.info(f"Class: {cls}")
 
         # Create class instances
         instances = []
         for obj in data:
+            logger.info(f"Object: {obj}")
             instances.append(cls(**obj))
 
         db_session.add_all(instances)
+
+        logger.info(f"*** Finished Loading Fixtures ***")
 
     db_session.commit()
 
@@ -89,8 +99,8 @@ def main():
         return
 
     logger.info("Creating initial fixture data")
-    create_hydat_data()
     load_fixtures()
+    create_hydat_data()
     logger.info("Initial data created")
 
 

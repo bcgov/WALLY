@@ -1,13 +1,13 @@
 version: '3.3'
 services:
-  backend: 
-    build: 
+  backend:
+    build:
       context: ./backend
-      args: 
+      args:
         env: dev
-    networks: 
-      default: 
-        aliases: 
+    networks:
+      default:
+        aliases:
           - ${DOMAIN}
     command: /app/start-reload.sh
     volumes:
@@ -21,7 +21,7 @@ services:
       - PORT=8000
     ports:
       - '8000:8000'
-    depends_on: 
+    depends_on:
       - db
   # backend-tests:
   #   build:
@@ -39,7 +39,7 @@ services:
     image: mdillon/postgis:11
     env_file:
       - env-postgres.env
-    environment:
-      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./.tmp/postgis-dev:/var/lib/postgresql/dat
     ports:
-      - '5433:5432'
+      - '5432:5432'
