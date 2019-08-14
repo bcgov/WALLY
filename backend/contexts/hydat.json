@@ -1,36 +1,54 @@
 {
-  "context_id": "_hydat_",
-  "schema": {
+  "context_id": "hydrometric_stream_flow",
+  "title_column": "station_number",
+  "title_label": "Station Number",
+  "chart_labels": {
+    "levels": [
+      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      ["Water Levels"]
+    ],
+    "flow": [
+      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      ["Flow Rate"]
+    ]
+  },
+  "chart_data": [],
+  "link": "",
+  "link_column": "",
+  "image_url": "",
+  "highlight_columns": [],
+  "highlight_descriptions": [],
+  "context": {
     "text": "",
     "image": "",
     "table": "",
-    "chart": {
-      "type": "bar",
+    "charts": {
+      "levels": {
+        "type": "bar",
         "data": {
-            "labels": [],
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
             "datasets": [{
-                "label": "",
+                "label": "Water Levels",
                 "data": [],
-                "backgroundColor": "",
-                "borderColor": "",
-                "borderWidth": ""
+                "backgroundColor": "#086CA2",
+                "borderColor": "#076191",
+                "borderWidth": 1
             }]
-        },
-        "options": {
-            "title": {
-                "display": "",
-                "text": ""
-            },
-            "scales": {
-                "yAxes": [{
-                    "ticks": {
-                        "beginAtZero": true,
-                        "callback": ""
-                    }
-                }]
-            }
         }
-
+      },
+      "flow": {
+        "type": "bar",
+        "data": {
+            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+            "datasets": [{
+                "label": "Flow Rate",
+                "data": [],
+                "backgroundColor": "#086CA2",
+                "borderColor": "#076191",
+                "borderWidth": 1
+            }]
+        }
+      }
     }
   }
 }

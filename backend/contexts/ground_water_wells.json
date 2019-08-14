@@ -1,0 +1,49 @@
+{
+  "context_id": "ground_water_wells",
+  "title_column": "WELL_TAG_NUMBER",
+  "title_label": "Well Tag Number",
+  "chart_labels": [
+
+  ],
+  "chart_data": [],
+  "link": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
+  "link_column": "WELL_TAG_NUMBER",
+  "image_url": "",
+  "highlight_columns": [
+    "WELL_TAG_NUMBER",
+    "WELL_IDENTIFICATION_PLATE_NO",
+    "WELL_LICENCE_GENERAL_STATUS",
+    "WELL_LOCATION",
+    "SITE_AREA",
+    "SITE_STREET",
+    "WELL_USE_NAME",
+    "YIELD_VALUE",
+    "YIELD_UNIT_DESCRIPTION",
+    "DEPTH_WELL_DRILLED",
+    "WELL_DETAIL_URL"
+  ],
+  "highlight_descriptions": [
+    ""
+  ],
+  "context": {
+    "chart": {
+      "type": "pie",
+        "data": {
+            "labels": [],
+            "datasets": [{
+                "label": "",
+                "data": [],
+                "backgroundColor": "",
+                "borderColor": "",
+                "borderWidth": ""
+            }]
+        },
+        "options": {
+            "title": {
+                "display": true,
+                "text": "Water Availability"
+            }
+        }
+    }
+  }
+}
