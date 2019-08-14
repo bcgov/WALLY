@@ -15,6 +15,7 @@ from app.hydat.db_models import DlyFlow, Station, DlyLevel
 
 logger = logging.getLogger("api")
 
+
 def get_stations(db: Session, bbox: List[float] = []):
     """ List all stream monitoring stations in BC as a FeatureCollection.
 
@@ -28,8 +29,6 @@ def get_stations(db: Session, bbox: List[float] = []):
         q = q.filter(
             Station.geom.intersects(func.ST_MakeEnvelope(*bbox))
         )
-
-    logger.info(q)
 
     return q.all()
 
@@ -69,6 +68,7 @@ def get_available_level_years(db: Session, station: str):
     """ fetch a list of years for which stream level data is available """
     return db.query(DlyLevel).filter(
         DlyLevel.station_number == station).distinct("year")
+
 
 def get_stations_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
     """ calls get_stations and formats the result in geojson """
