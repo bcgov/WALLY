@@ -8,10 +8,11 @@ import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2} from "../charts";
 import locationToMapImage from "../transformers/locationToMapImage";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
+import sampleData from './sampleData'
 
 const generateFeatureReport = async (data) => {
     let props = {}
-    props['data'] = Object.assign({}, data)
+    props['data'] = sampleData
 
     // Transformers
     props['map'] = await locationToMapImage(props.data.coordinates)
@@ -76,7 +77,7 @@ class FeatureReport extends React.Component {
     }
 
     render() {
-        const items = Object.entries(this.props.data.properties)
+        const sections = this.props.data
         const createDate = Date()
 
         return (
@@ -84,27 +85,25 @@ class FeatureReport extends React.Component {
                 <Text style={styles.date}>
                 Report Created: {createDate}
                 </Text>
-                <Text style={styles.Title}>
-                    {this.props.data.featureName}
-                </Text>
-                <View style={styles.section}>
-                    <Text style={styles.header}>Id</Text>
-                    <Text style={styles.text}>{this.props.data.id}</Text>
+                {sections.map((s, i) => {
+                    <View style={styles.section}>
+                        <Text style={styles.title}>{s.layer_id}</Text>
+    
+                        {s.geojson.filter(x => x.features && x.features.length).features.map((f, j) => {
+                            <List style={styles.section}>
+                                <Text style={styles.header}>{s.layer_id} {j}</Text>
+                                {Object.keys(f.properties).map((k, m) => {
+                                    <Text style={styles.text}>{k}: {f.properties[k]}</Text>
+                                    
+                                })}
+                            </List>
+                        })}
+                        
+                        <Image src={this.props.chart1} style={styles.chart}/>
+                        <Image src={this.props.chart2} style={styles.chart}/>
+                    </View>
+                })}
 
-                    <Text style={styles.header}>Location</Text>
-                    <Text style={styles.text}>Latitude: {this.props.data.coordinates[0]}</Text>
-                    <Text style={styles.text}>Longitude: {this.props.data.coordinates[1]}</Text>
-                    <Image src={this.props.map} style={styles.chart} />
-
-                    <Text style={styles.header} break>Properties</Text>
-                    <List style={styles.section}>
-                        {items.map((item, i) => (
-                            <Item key={i}>{item[0]}: {item[1]}</Item>
-                        ))}
-                    </List>
-                    <Image src={this.props.chart1} style={styles.chart}/>
-                    <Image src={this.props.chart2} style={styles.chart}/>
-                </View>
             </View>
         );
     }
