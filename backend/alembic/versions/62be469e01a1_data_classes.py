@@ -66,8 +66,9 @@ def upgrade():
 
     op.create_table(
         'map_layer',
-        sa.Column('layer_name', sa.String, primary_key=True,
-                  comment='wms layer id used in all async requests'),
+        sa.Column('layer_id', sa.String, primary_key=True,
+                  comment='id used internally map context objects'),
+        sa.Column('layer_name', sa.String, comment='name used to represent layer to users'),
         sa.Column('wms_name', sa.String, comment='wms layer id used in all async requests'),
         sa.Column('wms_style', sa.String,
                   comment='wms style identifier to view layer info with different visualizations'),
@@ -79,7 +80,7 @@ def upgrade():
 
     op.create_table(
         'context_data',
-        sa.Column('context_name', sa.String, primary_key=True,
+        sa.Column('context_id', sa.String, primary_key=True,
                   comment='identifies which MapLayer(s) this fixtures belongs to by layer_name, '
                           'a ContextData can be the visualization of two merged MapLayers. '
                           'ex: MapLayer(layer_name=gwells) MapLayer(layer_name=hydat) context_name = gwellshydat'),

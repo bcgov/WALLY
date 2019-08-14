@@ -65,9 +65,10 @@ class DataSource(Base):
 class MapLayer(Base):
     __tablename__ = 'map_layer'
 
-    layer_name = Column(String, primary_key=True, comment='wms layer id used in all async requests')
+    id = Column(String, primary_key=True, comment='id used internally to map contexts')
+    name = Column(String, comment='name used to represent layer to users')
 
-    wms_name = Column(String, comment='wms layer name(text id) used in all async requests')
+    wms_name = Column(String, comment='wms layer id used in all async requests')
     wms_style = Column(String, comment='wms style identifier to view layer info with different visualizations')
     api_url = Column(String, comment='api endpoint to get base geojson information')
 
@@ -87,10 +88,10 @@ class MapLayerType(Base):
 class ContextData(Base):
     __tablename__ = 'context_data'
 
-    context_name = Column(String, primary_key=True, comment='identifies which MapLayer(s) this fixtures belongs to by '
-                                                            'layer_name, a ContextData can be the visualization of two '
-                                                            'merged MapLayers. ex: MapLayer(layer_name=gwells) '
-                                                            'MapLayer(layer_name=hydat) context_name = gwellshydat')
+    context_id = Column(String, primary_key=True, comment='identifies which MapLayer(s) this fixtures belongs to by '
+                                                          'layer_name, a ContextData can be the visualization of two '
+                                                          'merged MapLayers. ex: MapLayer(layer_id=GWELLS_) '
+                                                          'MapLayer(layer_id=HYDAT_) context_name = GWELLS_HYDAT_')
 
     context = Column(JSON, comment='holds the fixtures schema for this singular or combination of layer(s)')
 
