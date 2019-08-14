@@ -1,5 +1,5 @@
-import {createLocalVue} from "@vue/test-utils";
-import {MAP_LAYERS} from "../../src/utils/mapUtils";
+import { createLocalVue } from '@vue/test-utils'
+import { MAP_LAYERS } from '../../src/utils/mapUtils'
 import Vuex from 'vuex'
 import * as map from '../../src/store/mapStore'
 

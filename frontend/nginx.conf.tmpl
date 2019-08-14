@@ -90,6 +90,24 @@ http {
         # Load configuration files for the default server block.
         include      /opt/app-root/etc/nginx.default.d/*.conf;
 
+        location /api {
+            proxy_pass http://${WALLY_BACKEND_SERVICE}:8000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /docs {
+            proxy_pass http://${WALLY_BACKEND_SERVICE}:8000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        # location /reporting {
+        #     proxy_pass http://${WALLY_REPORTING_SERVICE}:3000;
+        #     proxy_set_header Host $host;
+        #     proxy_set_header X-Real-IP $remote_addr;
+        # }
+
         location / {
             # First attempt to serve request as file, then
             # as directory, then fall back to redirecting to index.html
@@ -110,11 +128,6 @@ http {
             expires 1y;
             access_log off;
             add_header Cache-Control "public";
-        }
-
-        # Any route containing a file extension (e.g. /devicesfile.js)
-        location ~ ^.+\..+$ {
-            try_files $uri =404;
         }
     }
 }

@@ -8,12 +8,10 @@
 
 <script>
 import LineChart from './LineChart.js'
-import DoughnutChart from './DoughnutChart.js'
 
 export default {
   components: {
-    LineChart,
-    DoughnutChart
+    LineChart
   },
   data () {
     return {

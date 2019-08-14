@@ -1,9 +1,8 @@
-import { mount, shallowMount, createLocalVue } from '@vue/test-utils';
+import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
 import Sidebar from '../../src/components/sidebar/Sidebar.vue'
-import { MAP_LAYERS } from '../../src/utils/mapUtils';
 import Vuex from 'vuex'
-import Vuetify from 'vuetify';
-import Vue from 'vue';
+import Vuetify from 'vuetify'
+import Vue from 'vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
