@@ -41,7 +41,7 @@ def load_fixtures():
 
         # Only add fixtures is no data exists in table
         if db_session.query(cls).first() is None:
-            logger.info(f"Adding fixture: {filename}")
+            logger.info(f"Loading Fixture: {filename}")
             # Create class instances
             instances = []
             for obj in data:
@@ -49,8 +49,8 @@ def load_fixtures():
                 instances.append(cls(**obj))
 
             db_session.add_all(instances)
-
-        logger.info(f"Skipping {filename} already imported")
+        else:
+            logger.info(f"Skipping: {filename} already imported")
 
     db_session.commit()
 

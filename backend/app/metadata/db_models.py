@@ -65,8 +65,8 @@ class DataSource(Base):
 class MapLayer(Base):
     __tablename__ = 'map_layer'
 
-    id = Column(String, primary_key=True, comment='id used internally to map contexts')
-    name = Column(String, comment='name used to represent layer to users')
+    layer_id = Column(String, primary_key=True, comment='id used internally to map contexts')
+    layer_name = Column(String, comment='name used to represent layer to users')
 
     wms_name = Column(String, comment='wms layer id used in all async requests')
     wms_style = Column(String, comment='wms style identifier to view layer info with different visualizations')
