@@ -24,4 +24,22 @@ spec:
           limits:
             cpu: '1'
             memory: 4Gi
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: app-db-username
+              name: wally-psql
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: app-db-password
+              name: wally-psql
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              key: app-db-name
+              name: wally-psql
+        - name: POSTGRES_SERVER
+          value: wally-psql-master-staging
       restartPolicy: Never
