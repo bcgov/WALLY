@@ -1,6 +1,6 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
 import Map from '../../src/components/map/Map.vue'
-import { DATA_MARTS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/mapUtils'
+import { DATA_MARTS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/metadataUtils'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
