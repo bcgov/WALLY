@@ -13,10 +13,10 @@ export default {
   actions: {
     getDataMart ({ commit }, payload) {
       // Get the datamart either via API or wms layer
-      const { id, url } = payload
+      const { layer_id, url } = payload
       ApiService.getRaw(url).then((response) => {
         commit('addDataMart', {
-          id: id,
+          layer_id: layer_id,
           data: response.data
         })
         EventBus.$emit(`dataMart:updated`, payload)
@@ -30,7 +30,7 @@ export default {
       ApiService.getRaw(payload.url).then((res) => {
         // TODO validate properties
         commit('setDataMartFeatureInfo', {
-          id: res.data.features[0].id,
+          layer_id: res.data.features[0].id,
           coordinates: [payload.lat, payload.lng],
           properties: res.data.features[0].properties })
         EventBus.$emit(`feature:added`, payload)

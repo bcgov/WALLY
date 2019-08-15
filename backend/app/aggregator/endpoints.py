@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.hydat.db as streams_repo
 import app.hydat.models as streams_v1
-from app.aggregator.db import get_layers
+import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
 from app.aggregator.models import WMSGetMapQuery, WMSRequest, LayerResponse
 
@@ -54,25 +54,25 @@ def aggregate_sources(
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
-    valid_layers = get_layers(layers)
+    valid_layers = agr_repo.get_layers(db, layers)
 
     wms_requests = []
 
     # Create a WMSRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
     for layer in valid_layers:
-        if layer.get("type") != "wms":
+        if layer.map_layer_type_id != "wms":
             continue
     
         query = WMSGetMapQuery(
-            layers=layer["id"],
+            layers=layer.wms_name,
             bbox=bbox_string,
             width=width,
             height=height,
         )
         req = WMSRequest(
-            url=layer["api_url"],
-            layer=layer["id"],
+            url=wms_url(layer.wms_name),
+            layer=layer.layer_id,
             q=query
         )
         wms_requests.append(req)
@@ -85,7 +85,7 @@ def aggregate_sources(
     # Gather valid internal sources that were included in the request's `layers` param
     internal_data = []
     for layer in valid_layers:
-        if layer.get("type") != "api" or layer.get("id") not in API_DATASOURCES:
+        if layer.map_layer_type_id != "api" or layer.layer_id not in API_DATASOURCES:
             continue
         internal_data.append(layer)
 
@@ -93,13 +93,13 @@ def aggregate_sources(
     # We will make use of the data access function registered in API_DATASOURCES
     # to avoid making api calls to our own web server.
     for dataset in internal_data:
-        id = dataset.get("id")
+        layer_id = dataset.layer_id
 
         # use function registered for this source
-        objects = API_DATASOURCES[id](db, bbox)
+        objects = API_DATASOURCES[layer_id](db, bbox)
 
         feat_layer = LayerResponse(
-            layer=id,
+            layer=layer_id,
             status=200,
             geojson=objects
         )
@@ -108,3 +108,7 @@ def aggregate_sources(
 
     # return the aggregated features
     return feature_list
+
+
+def wms_url(wms_id):
+    return "https://openmaps.gov.bc.ca/geo/pub/" + wms_id + "/ows?"

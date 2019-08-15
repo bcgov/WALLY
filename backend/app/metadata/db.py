@@ -4,7 +4,9 @@ Database tables and data access functions for Wally Data Layer Meta Information
 from sqlalchemy.orm import Session, load_only
 from app.metadata.db_models import ContextData, DataSource, MapLayer, DataMart
 import itertools
+from logging import getLogger
 
+logger = getLogger("api")
 
 def get_map_layers(db: Session):
     """ Get all supported map layers"""
@@ -29,6 +31,7 @@ def get_context_data(layer_names, db: Session):
     permutations = list(itertools.permutations(layer_names))
     results = []
     for perm in permutations:
-        results += db.query(ContextData).filter(ContextData.context_name == perm)
+        logger.info(perm)
+        results += db.query(ContextData).filter(ContextData.context_id == perm)
 
     return results

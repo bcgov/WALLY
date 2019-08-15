@@ -82,6 +82,7 @@ async def fetch_all(requests: List[WMSRequest]) -> asyncio.Future:
     tasks = []
     semaphore = asyncio.Semaphore(10)
     headers = {'accept': 'application/json'}
+    logger.info(requests)
     async with ClientSession(headers=headers) as session:
         for req in requests:
             # use the list of WMSRequests to form URLs and start adding the requests to the

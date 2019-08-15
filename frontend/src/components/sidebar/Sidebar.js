@@ -14,22 +14,22 @@ export default {
         { id: 3, name: 'Info' }
       ],
       drawer: true,
-      items: [
-        {
-          title: 'Layers',
-          icon: 'layers',
-          action: 'layers',
-          // TODO: Replace with api call
-          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.WMS_DATAMART)
-        },
-        {
-          title: 'Data Sources',
-          icon: 'library_books',
-          action: 'library_books',
-          // TODO: Replace with api call
-          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
-        }
-      ],
+      // items: [
+      //   {
+      //     title: 'Layers',
+      //     icon: 'layers',
+      //     action: 'layers',
+      //     // TODO: Replace with api call
+      //     choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.map_layer_type_id === metadataUtils.WMS_DATAMART) : []
+      //   },
+      //   {
+      //     title: 'Data Sources',
+      //     icon: 'library_books',
+      //     action: 'library_books',
+      //     // TODO: Replace with api call
+      //     choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
+      //   }
+      // ],
       mini: true,
       subHeading: ''
     }
@@ -39,8 +39,26 @@ export default {
       'isMapLayerActive',
       'isDataMartActive',
       'dataMartFeatures',
-      'dataMartFeatureInfo'
-    ])
+      'dataMartFeatureInfo',
+      'allMapLayers'
+    ]),
+    items() {
+      return [
+        {
+          title: 'Layers',
+          icon: 'layers',
+          action: 'layers',
+          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.map_layer_type_id === metadataUtils.WMS_DATAMART) : []
+        },
+        {
+          title: 'Data Sources',
+          icon: 'library_books',
+          action: 'library_books',
+          // TODO: Replace with api call
+          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
+        }
+      ]
+    }
   },
   methods: {
     setTabById (id) {
