@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: wally-importer-hydat
+  labels:
+    component: importer
+    job: import-hydat
+    name: wally-importer-hydat
+spec:
+  parallelism: 1    
+  completions: 1    
+  template:         
+    metadata:
+      name: wally-importer-hydat
+    spec:
+      containers:
+      - name: importer
+        image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
+        command: ['/dataload/load_hydat.sh']
+        resources:
+          requests:
+            cpu: 200m
+            memory: 4Gi
+          limits:
+            cpu: '1'
+            memory: 4Gi
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              key: app-db-username
+              name: wally-psql
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: app-db-password
+              name: wally-psql
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              key: app-db-name
+              name: wally-psql
+        - name: POSTGRES_SERVER
+          value: wally-psql-master-staging
+      restartPolicy: Never

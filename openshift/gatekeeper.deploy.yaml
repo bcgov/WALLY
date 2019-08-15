@@ -20,6 +20,8 @@ parameters:
   description: The environment that these template objects will run in (e.g. dev, test, prod)
   value: TEST
   required: true
+- name: REPLICAS
+  value: "1"
 objects:
   - apiVersion: v1
     kind: Service
@@ -43,7 +45,7 @@ objects:
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     spec:
-      replicas: 1
+      replicas: ${{REPLICAS}}
       revisionHistoryLimit: 10
       selector:
         app: wally-${NAME}
@@ -83,6 +85,7 @@ objects:
                 - 'http://wally-${NAME}:8080'
                 - '--discovery-url'
                 - '$(DISCOVERY_URL)'
+                - '--enable-metrics'
               envFrom:
                 - secretRef:
                     name: gatekeeper-credentials

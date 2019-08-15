@@ -20,6 +20,8 @@ parameters:
   description: The environment that these template objects will run in (e.g. dev, test, prod)
   value: TEST
   required: true
+- name: REPLICAS
+  value: "1"
 objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
@@ -33,7 +35,7 @@ objects:
       name: wally-${NAME}-api
     name: wally-${NAME}-api
   spec:
-    replicas: 1
+    replicas: ${{REPLICAS}}
     revisionHistoryLimit: 10
     selector:
       app: wally-${NAME}
