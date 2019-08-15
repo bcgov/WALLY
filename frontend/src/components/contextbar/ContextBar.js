@@ -1,31 +1,17 @@
 import { mapGetters } from 'vuex'
-import RandomChart from '../charts/RandomChart'
-import CircleChart from '../charts/CircleChart'
-import BarChart from '../charts/BarChart.js'
-import { chartColors } from '../../constants/colors'
-import { dataMarts } from '../../utils/dataMartMetadata'
+import {dataMarts} from '../../utils/dataMartMetadata'
+import ContextImage from './ContextImage'
 
 export default {
-  name: 'ContextBar',
-  components: { CircleChart, RandomChart, BarChart },
+  name: 'ContextBarContainer',
+  components: { ContextImage },
   data () {
     return {
       drawer: {
         open: true,
         mini: true
       },
-      bar_key: 0,
-      bar_data: {
-        labels: [],
-        datasets: [{
-          label: 'Bar chart',
-          data: [],
-          backgroundColor: [],
-          borderColor: [],
-          borderWidth: 1
-        }],
-        visible: true
-      }
+      contextComponents: []
     }
   },
   computed: {
@@ -34,60 +20,52 @@ export default {
     ])
   },
   mounted () {
-    this.bar_data = {
-      labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-      datasets: [{
-        label: 'Water Quantity',
-        data: [],
-        backgroundColor: chartColors.background,
-        borderColor: chartColors.border,
-        borderWidth: 1
-      }]
-    }
   },
   methods: {
     toggleContextBar () {
       this.drawer.mini = !this.drawer.mini
     },
-    populateChartData (items) {
-      // Clear data
-      this.bar_data.labels = []
-      this.bar_data.datasets = []
-      this.bar_data.visible = true
-
+    openContextBar () {
+      this.drawer.mini = false
+    },
+    build (items) {
       items.length > 0 && items.forEach(layers => {
         // Go through each layer
         Object.keys(layers).map(layer => {
-          const tempDataset = {
-            label: '',
-            data: [],
-            backgroundColor: chartColors.background,
-            borderColor: chartColors.border,
-            borderWidth: 1
-          }
-          tempDataset.label = dataMarts[layer].highlight_fields.label
-          layers[layer].forEach(item => {
-            // Depends on the type of data
-            dataMarts[layer].highlight_fields.data_labels.forEach(label => {
-              this.bar_data.labels.push(item.properties[label])
-            })
-            dataMarts[layer].highlight_fields.datasets.forEach((dataset, i) => {
-              tempDataset.data.push(item.properties[dataset])
-            })
+          dataMarts[layer].context.forEach(contextData => {
+            switch (contextData.type) {
+              case 'chart':
+                console.log('building chart')
+                break
+              case 'link':
+                console.log('building link')
+                break
+              case 'title':
+                console.log('building title')
+                break
+              case 'image':
+                console.log('building image')
+                this.contextComponents.push({ component: ContextImage, data: contextData })
+                break
+            }
           })
-          this.bar_data.datasets.push(tempDataset)
         })
       })
+      console.log('context components', this.contextComponents)
+      this.openContextBar()
     }
   },
   watch: {
-    // TODO: Rename this to something like features/pointsSelected
     dataMartFeatures (value) {
-      // console.log('selected some features')
       if (value.length > 0) {
-        this.populateChartData(value)
-        this.bar_key++ // ugly hack to refresh vue component
+        this.build(value)
       }
+    //   console.log('selected some features for container')
+    //   if (value.length > 0) {
+    //     this.build(value)
+    //     this.populateChartData(value)
+    //     this.bar_key++ // ugly hack to refresh vue component
+    //   }
     }
   }
 }

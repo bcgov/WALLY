@@ -246,12 +246,6 @@ export default {
     // },
     listenForAreaSelect () {
       this.map.on('lasso.finished', (event) => {
-        // data source or leaflet markers
-        console.log('event layers', event.layers)
-
-        event.layers.forEach(layer => {
-          this.$store.dispatch('getDataMartFeatures', { type: 'api', feature: layer.feature })
-        })
 
         let lats = event.latLngs.map(l => l.lat)
         let lngs = event.latLngs.map(l => l.lng)
