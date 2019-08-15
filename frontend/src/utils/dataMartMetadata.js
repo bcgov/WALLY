@@ -2,6 +2,7 @@ export const dataMarts = {
   'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV': {
     id: 1,
     name: 'Water Rights',
+    type: 'wms',
     description: '',
     source_url: '',
     data_format: '',
@@ -22,8 +23,9 @@ export const dataMarts = {
         data: {
           type: 'bar', // combo, line, pie, etc
           label: 'Water Quantity',
-          data_labels: ['LICENSE_NUMBER'],
-          datasets: ['QUANTITY']
+          datasets_labels: ['Water Quantity'],
+          label_key: 'LICENCE_NUMBER',
+          datasets_key: ['QUANTITY']
         }
       },
       {
@@ -43,6 +45,7 @@ export const dataMarts = {
   'HYDROMETRIC_STREAM_FLOW': {
     id: 2,
     name: 'Hydrometric Stream Flow',
+    type: 'api',
     description: '',
     source_url: '',
     data_format: '',
@@ -94,6 +97,7 @@ export const dataMarts = {
         }
       },
       {
+        id: 4,
         type: 'chart',
         data: {
           type: 'bar',
@@ -117,6 +121,7 @@ export const dataMarts = {
         }
       },
       {
+        id: 5,
         type: 'chart',
         data: {
           type: 'area_dataset',

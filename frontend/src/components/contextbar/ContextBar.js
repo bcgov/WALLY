@@ -1,17 +1,20 @@
 import { mapGetters } from 'vuex'
-import {dataMarts} from '../../utils/dataMartMetadata'
+import { dataMarts } from '../../utils/dataMartMetadata'
 import ContextImage from './ContextImage'
+import ChartWMS from './ChartWMS'
+import ChartAPI from './ChartAPI'
 
 export default {
-  name: 'ContextBarContainer',
-  components: { ContextImage },
+  name: 'ContextBar',
+  components: { ContextImage, ChartWMS, ChartAPI },
   data () {
     return {
       drawer: {
         open: true,
         mini: true
       },
-      contextComponents: []
+      contextComponents: [],
+      chartKey: 0
     }
   },
   computed: {
@@ -30,12 +33,19 @@ export default {
     },
     build (items) {
       items.length > 0 && items.forEach(layers => {
+        this.contextComponents = []
         // Go through each layer
         Object.keys(layers).map(layer => {
           dataMarts[layer].context.forEach(contextData => {
             switch (contextData.type) {
               case 'chart':
                 console.log('building chart')
+                if (dataMarts[layer].type === 'wms') {
+                  contextData.features = layers[layer]
+                  this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
+                } else if (dataMarts[layer].type === 'api') {
+                  this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
+                }
                 break
               case 'link':
                 console.log('building link')
@@ -59,13 +69,8 @@ export default {
     dataMartFeatures (value) {
       if (value.length > 0) {
         this.build(value)
+        this.chartKey++ // hack to refresh vue component; doesn't work
       }
-    //   console.log('selected some features for container')
-    //   if (value.length > 0) {
-    //     this.build(value)
-    //     this.populateChartData(value)
-    //     this.bar_key++ // ugly hack to refresh vue component
-    //   }
     }
   }
 }

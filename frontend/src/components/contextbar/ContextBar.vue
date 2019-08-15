@@ -21,7 +21,7 @@
     </v-toolbar>
     <div v-if="!drawer.mini">
       <v-container>
-        <component v-for="item in contextComponents" :is="item.component" v-bind="item.data" v-bind:key="item.id"></component>
+        <component v-for="item in contextComponents" :is="item.component" v-bind="item.data" v-bind:key="item.key"></component>
       </v-container>
     </div>
   </v-navigation-drawer>
