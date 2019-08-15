@@ -6,6 +6,7 @@ Create Date: 2019-07-15 16:27:54.990523
 
 """
 from alembic import op
+import geoalchemy2
 from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Table, Text, PrimaryKeyConstraint, ForeignKey
 
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
