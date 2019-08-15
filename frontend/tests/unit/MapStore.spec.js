@@ -1,5 +1,5 @@
 import { createLocalVue } from '@vue/test-utils'
-import { DATA_MARTS } from '../../src/utils/mapUtils'
+import { DATA_MARTS } from '../../src/utils/metadataUtils'
 import Vuex from 'vuex'
 import * as map from '../../src/store/mapStore'
 
