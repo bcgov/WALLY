@@ -37,12 +37,6 @@
                 "borderColor": "",
                 "borderWidth": ""
             }]
-        },
-        "options": {
-            "title": {
-                "display": true,
-                "text": "Water Availability"
-            }
         }
     }
   }

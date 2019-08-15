@@ -6,7 +6,7 @@ class MapLayer(BaseModel):
     """
     Map layer information
     """
-
+    layer_id: str
     layer_name: str
     map_layer_type_id: str
     wms_name: str
