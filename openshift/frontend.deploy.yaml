@@ -15,6 +15,8 @@ parameters:
   description: The namespace to apply this template to.
   required: true
   value: bfpeyx-test
+- name: REPLICAS
+  value: '1'
 objects:
   - apiVersion: v1
     kind: Service
@@ -43,7 +45,7 @@ objects:
   - apiVersion: apps.openshift.io/v1
     kind: DeploymentConfig
     spec:
-      replicas: 1
+      replicas: ${{REPLICAS}}
       revisionHistoryLimit: 10
       selector:
         app: wally-${NAME}
@@ -72,23 +74,27 @@ objects:
             name: wally-${NAME}-frontend
         spec:
           containers:
-          - env:
-            image: >-
-              docker-registry.default.svc:5000/${NAMESPACE}/wally-web:${NAME}
-            imagePullPolicy: Always
-            name: wally
-            ports:
-            - containerPort: 8080
-              protocol: TCP
-            resources:
-              requests:
-                cpu: 50m
-                memory: 128Mi
-              limits:
-                cpu: 50m
-                memory: 128Mi
-            terminationMessagePath: /dev/termination-log
-            terminationMessagePolicy: File
+            - image: >-
+                docker-registry.default.svc:5000/${NAMESPACE}/wally-web:${NAME}
+              imagePullPolicy: Always
+              name: wally
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 100m
+                  memory: 128Mi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              env:
+              - name: WALLY_BACKEND_SERVICE
+                value: wally-${NAME}-api
+              - name: WALLY_REPORTING_SERVICE
+                value: wally-${NAME}-reporting
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
@@ -112,26 +118,6 @@ objects:
       generation: 18
       labels:
         app: wally-${NAME}
-        component: frontend
-        name: wally-${NAME}-frontend
-      name: wally-${NAME}-frontend
-  - apiVersion: route.openshift.io/v1
-    kind: Route
-    spec:
-      host: ${HOST}
-      port:
-        targetPort: 8080-tcp
-      tls:
-        termination: edge
-      to:
-        kind: Service
-        name: wally-${NAME}
-        weight: 100
-      wildcardPolicy: None
-    metadata:
-      labels:
-        app: wally-${NAME}
-        env: ${NAME}
         component: frontend
         name: wally-${NAME}-frontend
       name: wally-${NAME}-frontend

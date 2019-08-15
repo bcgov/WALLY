@@ -1,0 +1,173 @@
+apiVersion: v1
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all of the resources defined in this template.
+  required: true
+  value: wally-test
+- name: HOST
+  displayName: Host
+  description: The hostname to deploy this template to.
+  required: true
+  value: wally-test.pathfinder.gov.bc.ca
+- name: NAMESPACE
+  displayName: Namespace
+  description: The namespace to apply this template to.
+  required: true
+  value: bfpeyx-test
+- name: ENVIRONMENT
+  displayName: Environment
+  description: The environment that these template objects will run in (e.g. dev, test, prod)
+  value: TEST
+  required: true
+- name: REPLICAS
+  value: "1"
+objects:
+  - apiVersion: v1
+    kind: Service
+    spec:
+      ports:
+        - port: 3000
+          protocol: TCP
+          targetPort: 3000
+      selector:
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
+      sessionAffinity: None
+      type: ClusterIP
+    metadata:
+      labels:
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
+      name: wally-${NAME}-gatekeeper
+  - apiVersion: apps.openshift.io/v1
+    kind: DeploymentConfig
+    spec:
+      replicas: ${{REPLICAS}}
+      revisionHistoryLimit: 10
+      selector:
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
+      strategy:
+        activeDeadlineSeconds: 21600
+        resources: {}
+        rollingParams:
+          intervalSeconds: 1
+          maxSurge: 25%
+          maxUnavailable: 25%
+          timeoutSeconds: 600
+          updatePeriodSeconds: 1
+        type: Rolling
+      template:
+        metadata:
+          annotations:
+            openshift.io/generated-by: OpenShiftNewApp
+          creationTimestamp: null
+          labels:
+            app: wally-${NAME}
+            name: wally-${NAME}-gatekeeper
+            component: authentication
+        spec:
+          containers:
+            - args:
+                - '--config'
+                - /app/config.yaml
+                - '--client-id'
+                - '$(CLIENT_ID)'
+                - '--client-secret'
+                - '$(CLIENT_SECRET)'
+                - '--redirection-url'
+                - 'https://${HOST}'
+                - '--upstream-url'
+                - 'http://wally-${NAME}:8080'
+                - '--discovery-url'
+                - '$(DISCOVERY_URL)'
+                - '--enable-metrics'
+              envFrom:
+                - secretRef:
+                    name: gatekeeper-credentials
+              env:
+              - name: WALLY_ENV
+                value: "${ENVIRONMENT}"
+              image: >-
+                quay.io/keycloak/keycloak-gatekeeper:6.0.1
+              imagePullPolicy: Always
+              name: wally-${NAME}-gatekeeper
+              resources: {}
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              volumeMounts:
+                - mountPath: /app
+                  name: volume-ggczf
+                  readOnly: true
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          schedulerName: default-scheduler
+          securityContext: {}
+          terminationGracePeriodSeconds: 30
+          volumes:
+          - configMap:
+              defaultMode: 420
+              name: gatekeeper-config
+            name: volume-ggczf
+      test: false
+      triggers:
+        - type: ConfigChange
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+      labels:
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
+      name: wally-${NAME}-gatekeeper
+  - apiVersion: image.openshift.io/v1
+    kind: ImageStream
+    spec:
+      lookupPolicy:
+        local: false
+      tags:
+        - annotations:
+            openshift.io/imported-from: quay.io/keycloak/keycloak-gatekeeper
+          from:
+            kind: DockerImage
+            name: quay.io/keycloak/keycloak-gatekeeper
+          importPolicy: {}
+          name: latest
+          referencePolicy:
+            type: Source
+    metadata:
+      annotations:
+        openshift.io/generated-by: OpenShiftNewApp
+        openshift.io/image.dockerRepositoryCheck: 2019-07-26T18:00:38.000Z
+      labels:
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
+      name: wally-${NAME}-gatekeeper
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: "${HOST}"
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: wally-${NAME}-gatekeeper
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-${NAME}
+        name: wally-${NAME}-gatekeeper
+        component: authentication
+      name: wally-${NAME}-gatekeeper
+kind: Template
+metadata:
+  labels:
+    app: wally-${NAME}
+    name: wally-${NAME}-gatekeeper
+    component: authentication
