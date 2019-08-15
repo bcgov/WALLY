@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 import {Page, Text, View, Image, Document, Font, StyleSheet} from '../app'
 import Header from './common/Header'
 import Footer from './common/Footer'
@@ -9,10 +10,29 @@ import createChart, {exampleData, exampleData2} from "../charts";
 import locationToMapImage from "../transformers/locationToMapImage";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
 import { sampleData } from './sampleData'
+import querystring from 'querystring'
 
 const generateFeatureReport = async (data) => {
     let props = {}
-    props['data'] = sampleData
+
+    const bbox = data.bbox
+    const layers = data.layers
+
+    if (!bbox || !bbox.length || bbox.length !== 4) {
+        throw "bbox must be a list of 4 numbers representing corners of a bounding box, e.g. x1,y1,x2,y2"
+    }
+
+    if (!layers) {
+        throw "layers must be supplied"
+    }
+
+    const layerData = await axios.get("http://backend:8000/api/v1/aggregate?" +
+        querystring.stringify({
+            bbox: bbox,
+            layers: layers
+        })
+    )
+    props['data'] = layerData.data
 
     // Transformers
     // props['map'] = await locationToMapImage(props.data.coordinates)
