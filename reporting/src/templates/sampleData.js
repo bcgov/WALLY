@@ -1,4 +1,4 @@
-export default sampleData = JSON.parse([
+export const sampleData = JSON.parse(JSON.stringify([
   {
     "layer": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
     "geojson": {
@@ -1826,4 +1826,4 @@ export default sampleData = JSON.parse([
     },
     "status": 200
   }
-])
+]))

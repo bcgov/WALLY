@@ -8,14 +8,14 @@ import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2} from "../charts";
 import locationToMapImage from "../transformers/locationToMapImage";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
-import sampleData from './sampleData'
+import { sampleData } from './sampleData'
 
 const generateFeatureReport = async (data) => {
     let props = {}
     props['data'] = sampleData
 
     // Transformers
-    props['map'] = await locationToMapImage(props.data.coordinates)
+    // props['map'] = await locationToMapImage(props.data.coordinates)
     props['chart1'] = await createChart('line', exampleData, {
         xLabels: shortMonthNames,
         ylabel: 'Precipitation Levels 2017 (mm)',
@@ -85,24 +85,23 @@ class FeatureReport extends React.Component {
                 <Text style={styles.date}>
                 Report Created: {createDate}
                 </Text>
-                {sections.map((s, i) => {
+                {sections.map((s, i) => (
                     <View style={styles.section}>
-                        <Text style={styles.title}>{s.layer_id}</Text>
-    
-                        {s.geojson.filter(x => x.features && x.features.length).features.map((f, j) => {
+                        <Text style={styles.title}>{s.layer}</Text>
+                        {s.geojson.features.map((f, j) => (
                             <List style={styles.section}>
-                                <Text style={styles.header}>{s.layer_id} {j}</Text>
-                                {Object.keys(f.properties).map((k, m) => {
+                                <Text style={styles.header}>{s.layer} {j}</Text>
+                                {Object.keys(f.properties).map((k, m) => (
                                     <Text style={styles.text}>{k}: {f.properties[k]}</Text>
                                     
-                                })}
+                                ))}
                             </List>
-                        })}
+                        ))}
                         
                         <Image src={this.props.chart1} style={styles.chart}/>
                         <Image src={this.props.chart2} style={styles.chart}/>
                     </View>
-                })}
+                ))}
 
             </View>
         );
