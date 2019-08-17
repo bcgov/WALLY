@@ -8,6 +8,7 @@ from logging import getLogger
 
 logger = getLogger("api")
 
+
 def get_map_layers(db: Session):
     """ Get all supported map layers"""
     return db.query(MapLayer).all()
@@ -26,12 +27,17 @@ def get_data_sources(db: Session):
     return db.query(DataSource).all()
 
 
-def get_context_data(layer_names, db: Session):
-    """ Get data fixtures by concatenated layer names """
-    permutations = list(itertools.permutations(layer_names))
-    results = []
-    for perm in permutations:
-        logger.info(perm)
-        results += db.query(ContextData).filter(ContextData.context_id == perm)
+def get_context_data(db: Session, layer_id):
+    """ Get context data by layer_name """
+    return db.query(ContextData).filter(ContextData.context_id == layer_id)
 
-    return results
+
+# def get_context_data(layer_names, db: Session):
+#     """ Get data fixtures by concatenated layer names """
+#     permutations = list(itertools.permutations(layer_names))
+#     results = []
+#     for perm in permutations:
+#         logger.info(perm)
+#         results += db.query(ContextData).filter(ContextData.context_id == perm)
+#
+#     return results

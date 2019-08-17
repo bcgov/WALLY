@@ -13,6 +13,7 @@ logger = logging.getLogger("api")
 def get_layers(db: Session, layers: List[str]):
     return db.query(MapLayer).filter(MapLayer.layer_id.in_(layers)).all()
 
+
     # """ placeholder for testing.  to be replaced with context metadata """
     # valid_layers = []
     # if "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW" in layers:

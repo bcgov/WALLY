@@ -1,0 +1,33 @@
+{
+  "context_id": "automated_snow_weather_station_locations",
+  "title_column": "LOCATION_NAME",
+  "title_label": "Location",
+  "link": "http://aqrt.nrs.gov.bc.ca/Report/Show/{OBJECT_ID}/Snow.{LOCATION_ID}.SnowStatGraph.pdf",
+  "link_columns": ["OBJECT_ID", "LOCATION_ID"],
+  "image_url": "",
+  "highlight_columns": [
+    "ELEVATION",
+    "LATITUDE",
+    "LONGITUDE",
+    "LOCATION_NAME",
+    "STATUS"
+  ],
+  "highlight_descriptions": [
+    ""
+  ],
+  "context": {
+    "chart": {
+      "type": "bar",
+      "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+      }
+    }
+  }
+}

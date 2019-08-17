@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey
+from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -65,7 +65,7 @@ class DataSource(Base):
 class MapLayer(Base):
     __tablename__ = 'map_layer'
 
-    maplayer_id = Column(String, primary_key=True, comment='id used internally to map contexts')
+    layer_id = Column(String, primary_key=True, comment='id used internally to map contexts')
     layer_name = Column(String, comment='name used to represent layer to users')
 
     wms_name = Column(String, comment='wms layer id used in all async requests')
@@ -102,7 +102,7 @@ class ContextData(Base):
     chart_data = Column(JSON, comment='columns and format of data to use for chart(s)')
 
     link = Column(String, comment='link pattern to source data')
-    link_column = Column(String, comment='id value(s) to use with link column to reach source data')
+    link_columns = Column(ARRAY(String), comment='id value(s) to use with link column to reach source data')
 
     image_url = Column(String, comment='image representing this context')
 

@@ -92,7 +92,7 @@ def upgrade():
         sa.Column('chart_labels', sa.JSON, comment='array(s) of chart axis labels'),
         sa.Column('chart_data', sa.JSON, comment='columns and format of data to use for chart(s)'),
         sa.Column('link', sa.String, comment='link pattern to source data'),
-        sa.Column('link_column', sa.String, comment='id value(s) to use with link column to reach source data'),
+        sa.Column('link_columns', sa.ARRAY(str), comment='id value(s) to use with link column to reach source data'),
         sa.Column('image_url', sa.String, comment='image representing this context'),
         sa.Column('highlight_columns', sa.JSON,
                   comment='columns to use from the data source, ignore other columns'),
