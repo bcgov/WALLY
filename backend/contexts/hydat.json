@@ -1,20 +1,11 @@
 {
   "context_id": "hydrometric_stream_flow",
-  "title_column": "station_number",
+  "title_column": "STATION_NUMBER",
   "title_label": "Station Number",
-  "chart_labels": {
-    "levels": [
-      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-      ["Water Levels"]
-    ],
-    "flow": [
-      ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-      ["Flow Rate"]
-    ]
-  },
-  "chart_data": [],
-  "link": "",
-  "link_column": "",
+  "chart_label_columns": ["STATION_NUMBER"],
+  "chart_data_columns": [""],
+  "link_pattern": "",
+  "link_columns": "",
   "image_url": "",
   "highlight_columns": [],
   "highlight_descriptions": [],

@@ -1,7 +1,7 @@
 from typing import List
 import app.context.transformers as t
 import app.context.db as db
-
+from sqlalchemy.orm import Session
 import logging
 
 
@@ -13,14 +13,15 @@ logger = logging.getLogger("context")
 #     "bc_wildfire_active_weather_stations":
 # }
 
-
-def build_context(features: List):
-    contexts = []
-    for feature in features:
-        context = db.get_context(feature.layer)
-        contexts.append(getattr(t, feature.layer)(context, feature.geojson.features))
+# This method builds a context object for each layer using default template data
+# but also allows overwriting of the defaults by implementing a layer method in
+# the app.context.transformers file
+def build_context(session: Session, layers: List):
+    contexts = {}
+    for layer in layers:
+        # Get cached context template from database
+        context = db.get_context(session, layer.layer)
+        # Create hydrated context object using the layer transformer method
+        contexts[layer.layer] = getattr(t, layer.layer)(context, layer.geojson.features)
 
     return contexts
-
-
-

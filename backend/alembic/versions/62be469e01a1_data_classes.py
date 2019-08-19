@@ -89,10 +89,16 @@ def upgrade():
 
         sa.Column('title_column', sa.String, comment='we use this column value as a title in the client'),
         sa.Column('title_label', sa.String, comment='label for title_column value'),
-        sa.Column('chart_labels', sa.JSON, comment='array(s) of chart axis labels'),
-        sa.Column('chart_data', sa.JSON, comment='columns and format of data to use for chart(s)'),
-        sa.Column('link', sa.String, comment='link pattern to source data'),
-        sa.Column('link_columns', sa.ARRAY(str), comment='id value(s) to use with link column to reach source data'),
+
+        sa.Column('chart_label_columns', sa.ARRAY(sa.String),
+                  comment='column value that represents chart x axis labels'),
+        sa.Column('chart_data_columns', sa.ARRAY(sa.String),
+                  comment='column value that represents chart x axis values'),
+
+        sa.Column('link_pattern', sa.String, comment='link pattern to source data'),
+        sa.Column('link_columns', sa.ARRAY(sa.String),
+                  comment='id value(s) to use with link column to reach source data'),
+
         sa.Column('image_url', sa.String, comment='image representing this context'),
         sa.Column('highlight_columns', sa.JSON,
                   comment='columns to use from the data source, ignore other columns'),

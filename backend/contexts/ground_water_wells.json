@@ -2,7 +2,9 @@
   "context_id": "ground_water_wells",
   "title_column": "WELL_TAG_NUMBER",
   "title_label": "Well Tag Number",
-  "link": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
+  "chart_label_columns": ["WELL_TAG_NUMBER"],
+  "chart_data_columns": ["ELEVATION"],
+  "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
   "link_columns": ["WELL_TAG_NUMBER"],
   "image_url": "",
   "highlight_columns": [

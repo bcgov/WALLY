@@ -98,10 +98,10 @@ class ContextData(Base):
     title_column = Column(String, comment='we use this column value as a title in the client')
     title_label = Column(String, comment='label for title_column value')
 
-    chart_labels = Column(JSON, comment='array(s) of chart axis labels')
-    chart_data = Column(JSON, comment='columns and format of data to use for chart(s)')
+    chart_label_columns = Column(ARRAY(String), comment='column value that represents chart(s) x axis labels')
+    chart_data_columns = Column(ARRAY(String), comment='column value that represents chart(s) x axis values')
 
-    link = Column(String, comment='link pattern to source data')
+    link_pattern = Column(String, comment='link pattern to source data')
     link_columns = Column(ARRAY(String), comment='id value(s) to use with link column to reach source data')
 
     image_url = Column(String, comment='image representing this context')

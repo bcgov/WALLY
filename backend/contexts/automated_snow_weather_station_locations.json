@@ -2,8 +2,10 @@
   "context_id": "automated_snow_weather_station_locations",
   "title_column": "LOCATION_NAME",
   "title_label": "Location",
-  "link": "http://aqrt.nrs.gov.bc.ca/Report/Show/{OBJECT_ID}/Snow.{LOCATION_ID}.SnowStatGraph.pdf",
-  "link_columns": ["OBJECT_ID", "LOCATION_ID"],
+  "chart_label_columns": ["LOCATION_NAME"],
+  "chart_data_columns": ["ELEVATION"],
+  "link_pattern": "http://aqrt.nrs.gov.bc.ca/Report/Show/{0}/Snow.{1}.SnowStatGraph.pdf",
+  "link_columns": ["OBJECTID", "LOCATION_ID"],
   "image_url": "",
   "highlight_columns": [
     "ELEVATION",
