@@ -6,12 +6,27 @@ logger = logging.getLogger("context")
 
 def ground_water_wells(context, features):
     links = []
-    labels = []
-    data = []
-    for f in features:
-        links.append(context.link_pattern.format(*link_data(context.link_columns, f)))
-        labels.append(f.properties["LOCATION_NAME"])
-        data.append(f.properties["ELEVATION"])
+    yield_chart_labels = []
+    yield_chart_data = []
+    depth_chart_labels = []
+    depth_chart_data = []
+    for feature in features:
+        links.append(context.link_pattern.format(*link_data(context.link_columns, feature)))
+        labels.append(feature.properties["WELL_TAG_NUMBER"])
+        data.append(feature.properties["YIELD_VALUE"])
+
+    # load layer specific context
+    context_data = json.loads(context.context)
+
+    # update context values with column values
+    context.links = links
+    context_data["chart"]["data"]["labels"] = labels
+    context_data["chart"]["data"]["datasets"][0]["data"] = data
+
+    # hydrate the db context with the hydrated values
+    context.context = context_data
+
+    return context
 
 
 def automated_snow_weather_station_locations(context, features):
@@ -37,9 +52,6 @@ def automated_snow_weather_station_locations(context, features):
     context.context = context_data
 
     return context
-
-
-# def format_links(context, features):
 
 
 def link_data(link_columns, props):
