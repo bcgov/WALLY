@@ -58,7 +58,7 @@
           <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${dataMartFeature}${index}`">
             <div v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
-                <v-subheader><b>{{getMapLayerName(name)}}</b></v-subheader>
+                <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
                 <v-divider :key="`subheader-${value}${name}`"></v-divider>
                 <template v-for="(prop, propIndex) in value">
                   <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleFeatureItemClick(prop)">
@@ -77,7 +77,7 @@
 
       <v-tab-item>
         <v-card v-if="dataMartFeatureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.id) }}</v-card-title>
+          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.layer_id) }}</v-card-title>
 
           <v-divider></v-divider>
 

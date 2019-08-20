@@ -40,7 +40,8 @@ export default {
       'isDataMartActive',
       'dataMartFeatures',
       'dataMartFeatureInfo',
-      'allMapLayers'
+      'allMapLayers',
+      'mapLayerName'
     ]),
     items() {
       return [
@@ -90,7 +91,7 @@ export default {
         this.$store.dispatch('downloadLayersReport', this.dataMartFeatures)
       } else if (this.active_tab === 2) {
         this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.id), ...this.dataMartFeatureInfo })
+          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.layer_id), ...this.dataMartFeatureInfo })
       }
     },
     handleFeatureItemClick (item) {
@@ -100,13 +101,22 @@ export default {
       } else {
         item.coordinates = null
       }
-      this.$store.commit('setDataMartFeatureInfo', item)
+      this.$store.commit('setDataMartFeatureInfo', 
+      {
+        layer_id: item.id,
+        coordinates: item.coordinates,
+        properties: item.properties 
+      })
     },
     humanReadable: val => humanReadable(val),
     getMapLayerItemTitle: val => utils.getMapLayerItemTitle(val),
     getMapLayerItemValue: val => utils.getMapLayerItemValue(val),
-    getMapLayerName: val => utils.getMapLayerName(val),
-    getMapSubheading: val => utils.getMapSubheading(val)
+    getMapSubheading (val) {
+      if (!val) { return '' }
+      let trim = val.substr(0, val.lastIndexOf('.'))
+      let name = this.mapLayerName(trim ? trim : '')
+      if (name) { return name.slice(0, -1) }
+    }
   },
   watch: {
     dataMartFeatureInfo (value) {

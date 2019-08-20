@@ -26,15 +26,11 @@
           "title": "Eco cat reports"
         },
         {
-          "id": 4,
+          "id": 2,
           "type": "links",
           "link_pattern": "",
           "link_columns": [],
           "links": []
-        },
-        {
-          "id": 5,
-          "type": "table"
         }
       ]
   }

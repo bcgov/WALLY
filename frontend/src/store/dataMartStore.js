@@ -62,7 +62,9 @@ export default {
     }
   },
   mutations: {
-    setDataMartFeatureInfo: (state, payload) => { state.dataMartFeatureInfo = payload },
+    setDataMartFeatureInfo: (state, payload) => { 
+      state.dataMartFeatureInfo = payload 
+    },
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     addDataMart (state, payload) {

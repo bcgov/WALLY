@@ -47,6 +47,10 @@ export default {
   getters: {
     activeMapLayers: state => state.activeMapLayers,
     isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x && x.layer_id === layerId),
+    mapLayerName: (state) => (wmsName) => { 
+      var layer = state.mapLayers.find(e => e.wms_name === wmsName)
+      return layer ? layer.layer_name : ''
+    },
     allMapLayers: state => state.mapLayers
   }
 }
