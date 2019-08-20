@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'dataMartFeatures'
+      'contexts'
     ])
   },
   mounted () {
@@ -31,24 +31,26 @@ export default {
     openContextBar () {
       this.drawer.mini = false
     },
-    build (items) {
-      items.length > 0 && items.forEach(layers => {
+    build (contexts) {
+      // contexts.length > 0 && items.forEach(layers => {
         this.contextComponents = []
         // Go through each layer
-        Object.keys(layers).map(layer => {
-          dataMarts[layer].context.forEach(contextData => {
+        Object.values(contexts.contexts).forEach( (layer) => {
+          layer.context.forEach(contextData => {
             switch (contextData.type) {
               case 'chart':
                 console.log('building chart')
-                if (dataMarts[layer].type === 'wms') {
-                  contextData.features = layers[layer]
-                  this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
-                } else if (dataMarts[layer].type === 'api') {
-                  this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
-                }
+                this.contextComponents.push({ component: ChartWMS, data: contextData.chart, key: this.chartKey })
+
+                // if (dataMarts[layer].type === 'wms') {
+                //   contextData.features = layers[layer]
+                //   this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
+                // } else if (dataMarts[layer].type === 'api') {
+                //   this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
+                // }
                 break
-              case 'link':
-                console.log('building link')
+              case 'links':
+                console.log('building links')
                 break
               case 'title':
                 console.log('building title')
@@ -60,17 +62,17 @@ export default {
             }
           })
         })
-      })
+      // })
       console.log('context components', this.contextComponents)
       this.openContextBar()
     }
   },
   watch: {
-    dataMartFeatures (value) {
-      if (value.length > 0) {
+    contexts (value) {
+      // if (value.length > 0) {
         this.build(value)
         this.chartKey++ // hack to refresh vue component; doesn't work
-      }
+      // }
     }
   }
 }

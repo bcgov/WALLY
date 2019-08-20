@@ -7,6 +7,7 @@ import * as metaDataUtils from '../utils/metadataUtils'
 export default {
   state: {
     activeDataMarts: [],
+    contexts: {},
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [] // selected points
   },
@@ -39,26 +40,57 @@ export default {
       })
     },
     getDataMartFeatures ({ commit }, payload) {
-      // Get the datamart features (points, lines etc)
-      payload.type === metaDataUtils.WMS_DATAMART &&
-      ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/" + payload.layer + '/ows' + wmsParamString(payload))
+      var layers = payload.layers.map((x) => {
+        return "layers=" + x.layer_id + "&"
+      })
+
+      var bbox = payload.bounds.split(',')
+      bbox = bbox.map((x) => {
+        return "bbox=" + x + "&"
+      })
+
+      var width = "width=" + payload.size.x + "&"
+      var height = "height=" + payload.size.y
+
+      var params = layers.join('') + bbox.join('') + width + height
+
+      // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
+      ApiService.getApi("/aggregate?" + params)
         .then((response) => {
-          console.log('wms response for geometries', response)
-          let geometries = response.data.objects[payload.layer].geometries // TODO Test functional
-          commit('setDataMartFeatures', { [payload.layer]: geometries })
+          console.log('response for aggregate', response)
+          let layers = response.data.layers
+          let contexts = response.data.contexts
+
+          layers.forEach(layer => {
+            commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
+          });
+
+          commit('setDataMartContexts', { contexts })
+
         }).catch((error) => {
           console.log(error)
         })
 
-      console.log('payload', payload)
-      if (payload.type === metaDataUtils.API_DATAMART) {
-        ApiService.getRaw(utils.API_URL + payload.feature.properties.url).then((response) => {
-          console.log('response', response)
-          commit('setDataMartFeatures', { [payload.layer]: response} )
-        }).catch(error => {
-          console.log(error)
-        })
-      }
+      // Get the datamart features (points, lines etc)
+      // payload.type === metaDataUtils.WMS_DATAMART &&
+      // ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/" + payload.layer + '/ows' + wmsParamString(payload))
+      //   .then((response) => {
+      //     console.log('wms response for geometries', response)
+      //     let geometries = response.data.objects[payload.layer].geometries // TODO Test functional
+      //     commit('setDataMartFeatures', { [payload.layer]: geometries })
+      //   }).catch((error) => {
+      //     console.log(error)
+      //   })
+
+      // console.log('payload', payload)
+      // if (payload.type === metaDataUtils.API_DATAMART) {
+      //   ApiService.getRaw(utils.API_URL + payload.feature.properties.url).then((response) => {
+      //     console.log('response', response)
+      //     commit('setDataMartFeatures', { [payload.layer]: response} )
+      //   }).catch(error => {
+      //     console.log(error)
+      //   })
+      // }
     }
   },
   mutations: {
@@ -66,6 +98,7 @@ export default {
       state.dataMartFeatureInfo = payload 
     },
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
+    setDataMartContexts: (state, payload) => { state.contexts = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     addDataMart (state, payload) {
       state.activeDataMarts.push(payload)
@@ -79,6 +112,7 @@ export default {
     }
   },
   getters: {
+    contexts: state => state.contexts,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     activeDataMarts: state => state.activeDataMarts,

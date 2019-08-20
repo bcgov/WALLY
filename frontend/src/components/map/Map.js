@@ -264,18 +264,18 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       console.log('active map layers', this.activeMapLayers, this.activeDataMarts)
 
-      this.activeDataMarts.forEach((layer)=>{
-        console.log('datamart layer?', layer, layer.id)
-        layer.data.features.forEach(feature => {
-          this.$store.dispatch('getDataMartFeatures', { type: utils.API_DATAMART, layer: layer.id, feature: feature })
-        })
+      // this.activeDataMarts.forEach((layer)=>{
+      //   console.log('datamart layer?', layer, layer.id)
+      //   layer.data.features.forEach(feature => {
+      //     this.$store.dispatch('getDataMartFeatures', { type: utils.API_DATAMART, layer: layer.id, feature: feature })
+      //   })
+      // })
+      this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
 
-
-      })
-      this.activeMapLayers.forEach((layer) => {
-        console.log('what layer?', layer)
-        this.$store.dispatch('getDataMartFeatures', { type: utils.WMS_DATAMART, bounds: bounds, size: size, layer: layer.wms_name })
-      })
+      // this.activeMapLayers.forEach((layer) => {
+      //   console.log('what layer?', layer)
+      //   this.$store.dispatch('getDataMartFeatures', { type: utils.WMS_DATAMART, bounds: bounds, size: size, layer: layer.wms_name })
+      // })
     }
     // listenForReset () {
     //     this.$parent.$on('resetLayers', (data) => {
