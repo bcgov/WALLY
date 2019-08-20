@@ -17,23 +17,41 @@
   "highlight_descriptions": [
     ""
   ],
-  "context": {
-    "charts": [
-      {
-        "chart": {
-          "type": "bar",
-          "data": {
-            "labels": [],
-            "datasets": [{
-                "label": "",
-                "data": [],
-                "backgroundColor": "",
-                "borderColor": "",
-                "borderWidth": ""
-            }]
-          }
+  "context": [
+    {
+      "id": 1,
+      "type": "title",
+      "title": "BC Snow Stations"
+    },
+    {
+      "id": 2,
+      "type": "chart",
+      "label_column": "LOCATION_NAME",
+      "data_columns": ["ELEVATION"],
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
         }
       }
-    ]
-  }
+    },
+    {
+      "id": 4,
+      "type": "links",
+      "link_pattern": "http://aqrt.nrs.gov.bc.ca/Report/Show/{0}/Snow.{1}.SnowStatGraph.pdf",
+      "link_columns": ["OBJECTID", "LOCATION_ID"],
+      "links": []
+    },
+    {
+      "id": 5,
+      "type": "table"
+    }
+  ]
 }

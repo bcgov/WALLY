@@ -11,6 +11,7 @@ export function getMapLayerItemValue (property) {
 }
 
 export function getMapLayerName (layerId) {
+  console.log(layerId)
   let layer = metadata.DATA_MARTS.find(e => e.wmsLayer === layerId)
   if (layer) { return layer.name }
 }

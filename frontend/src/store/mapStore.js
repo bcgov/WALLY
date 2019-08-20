@@ -28,15 +28,15 @@ export default {
   mutations: {
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
-        metadataUtils.DATA_MARTS.find((layer) => {
-          return layer.id === payload
+        this.getters.allMapLayers.find((layer) => {
+          return layer.layer_id === payload
         })
       )
       EventBus.$emit(`layer:added`, payload)
     },
     removeMapLayer (state, payload) {
       state.activeMapLayers = state.activeMapLayers.filter((layer) => {
-        return layer.id !== payload
+        return layer.layer_id !== payload
       })
       EventBus.$emit(`layer:removed`, payload)
     },
@@ -46,7 +46,7 @@ export default {
   },
   getters: {
     activeMapLayers: state => state.activeMapLayers,
-    isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x && x.id === layerId),
+    isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x && x.layer_id === layerId),
     allMapLayers: state => state.mapLayers
   }
 }

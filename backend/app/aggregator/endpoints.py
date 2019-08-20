@@ -64,14 +64,16 @@ def aggregate_sources(
     for layer in valid_layers:
         if layer.map_layer_type_id != "wms":
             continue
-    
-        # query = WMSGetMapQuery(
+
+        # query = WMSGetFeatureInfoQuery(
+        #     x=1000,
+        #     y=1000,
         #     layers=layer.wms_name,
         #     bbox=bbox_string,
         #     width=width,
         #     height=height,
         # )
-        query = WMSGetFeatureInfoQuery(
+        query = WMSGetMapQuery(
             layers=layer.wms_name,
             bbox=bbox_string,
             width=width,

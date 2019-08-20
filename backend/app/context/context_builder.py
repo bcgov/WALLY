@@ -21,16 +21,58 @@ def build_context(session: Session, layers: List):
         # check for existing override transformer by matching method name to layer name
         if hasattr(transformers, layer.layer):
             # hydrate our context with custom transformer
-            contexts[layer.layer] = getattr(transformers, layer.layer)(context, layer.geojson.features)
+            contexts[layer.layer] = \
+                getattr(transformers, layer.layer)(context, layer.geojson.features)
         else:
             # hydrate our context using the default builder
             contexts[layer.layer] = default_builder(context, layer.geojson.features)
 
     return contexts
 
+def default_builder(context, features):
+    # load layer specific context
+    context_data = json.loads(context.context)
+    logger.info(context_data)
+    for i in range(len(context_data)):
+
+        if context_data[i]["type"] == "title":
+            continue
+
+        if context_data[i]["type"] == "chart":
+            labels = []
+            data_sets = [[]] * len(context_data[i]["data_columns"])
+            for feature in features:
+                labels.append(feature.properties[context_data[i]["label_column"]])
+
+                for d in range(len(context_data[i]["data_columns"])):
+                    data_sets[d].append(feature.properties[context_data[i]["data_columns"][d]])
+
+                context_data[i]["chart"]["data"]["labels"] = labels
+
+                for c in range(len(context_data[i]["chart"]["data"]["datasets"])):
+                    context_data[i]["chart"]["data"]["datasets"][c]["data"] = data_sets[c]
+
+        if context_data[i]["type"] == "links":
+            links = []
+            for feature in features:
+                links.append(context_data[i]["link_pattern"].\
+                    format(*link_data(context_data[i]["link_columns"], feature.properties)))
+            context_data[i]["links"] = links
+
+        if context_data[i]["type"] == "card":
+            continue
+
+        if context_data[i]["type"] == "table":
+            continue
+
+    # hydrate the layer context
+    context.context = context_data
+
+    return context
+
 
 # Default builder currently supports links and multiple charts with single datasets
-def default_builder(context, features):
+def default_builder2(context, features):
     links = []
     labels = [[]] * len(context.chart_label_columns)
     data = [[]] * len(context.chart_data_columns)

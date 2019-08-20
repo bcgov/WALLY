@@ -19,8 +19,23 @@
     "highlight_descriptions": [
       ""
     ],
-    "context": {
-      "charts": []
-    }
+    "context": [
+        {
+          "id": 1,
+          "type": "title",
+          "title": "Eco cat reports"
+        },
+        {
+          "id": 4,
+          "type": "links",
+          "link_pattern": "",
+          "link_columns": [],
+          "links": []
+        },
+        {
+          "id": 5,
+          "type": "table"
+        }
+      ]
   }
   

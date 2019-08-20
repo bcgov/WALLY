@@ -41,7 +41,7 @@ export default {
     getDataMartFeatures ({ commit }, payload) {
       // Get the datamart features (points, lines etc)
       payload.type === metaDataUtils.WMS_DATAMART &&
-      ApiService.getRaw(wmsBaseURl + payload.layer + '/ows' + wmsParamString(payload))
+      ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/" + payload.layer + '/ows' + wmsParamString(payload))
         .then((response) => {
           console.log('wms response for geometries', response)
           let geometries = response.data.objects[payload.layer].geometries // TODO Test functional
@@ -71,7 +71,7 @@ export default {
     },
     removeDataMart (state, payload) {
       state.activeDataMarts = state.activeDataMarts.filter(function (source) {
-        return source.id !== payload
+        return source.layer_id !== payload
       })
       EventBus.$emit(`dataMart:removed`, payload)
     }
@@ -80,7 +80,7 @@ export default {
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     activeDataMarts: state => state.activeDataMarts,
-    isDataMartActive: state => id => !!state.activeDataMarts.find((x) => x && x.id === id),
+    isDataMartActive: state => layer_id => !!state.activeDataMarts.find((x) => x && x.layer_id === layer_id),
     allDataMarts: () => [], // ideally grab these from the meta data api
   }
 }

@@ -9,41 +9,57 @@
   "image_url": "",
   "highlight_columns": ["name", "type", "url", "description"],
   "highlight_descriptions": [],
-  "context": {
-    "text": "",
-    "image": "",
-    "table": "",
-    "charts": [
-      {
-        "chart": {
-          "type": "bar",
-          "data": {
-            "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-            "datasets": [{
-                "label": "Water Levels",
-                "data": [],
-                "backgroundColor": "#086CA2",
-                "borderColor": "#076191",
-                "borderWidth": 1
-            }]
-          }
-        }
-      },
-      {
-        "chart": {
-          "type": "bar",
-          "data": {
-              "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-              "datasets": [{
-                  "label": "Flow Rate",
-                  "data": [],
-                  "backgroundColor": "#086CA2",
-                  "borderColor": "#076191",
-                  "borderWidth": 1
-              }]
-          }
+  "context": [
+    {
+      "id": 1,
+      "type": "title",
+      "title": "Hydrometric Stream Flow"
+    },
+    {
+      "id": 2,
+      "type": "chart",
+      "label_column": null,
+      "data_columns": ["FLOW_RATE"],
+      "chart": {
+        "type": "pie",
+        "data": {
+          "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          "datasets": [{
+              "label": "Flow Rate",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
         }
       }
-    ]
-  }
+    },
+    {
+      "id": 3,
+      "type": "chart",
+      "label_column": null,
+      "data_columns": ["WATER_LEVEL"],
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+          "datasets": [{
+              "label": "Water Levels",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "links",
+      "link_pattern": "/api/v1/hydat/{0}",
+      "link_columns": ["STATION_NUMBER"],
+      "links": []
+    }
+  ]
 }
+

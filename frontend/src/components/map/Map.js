@@ -148,14 +148,14 @@ export default {
     },
     handleAddWMSLayer (layerId) {
       const layer = this.allMapLayers.find((x) => { // TODO Handle Data Sources (Data Marts) here as well
-        return x.id === layerId
+        return x.layer_id === layerId
       })
       // stop if layer wasn't found in the array we searched
       if (!layer) {
         return
       }
       // inspect the layer to determine how to load it
-      if (layer['wmsLayer']) {
+      if (layer['wms_name']) {
         this.addWMSLayer(layer)
       } else if (layer['geojson']) {
         this.addGeoJSONLayer(layer)
@@ -163,18 +163,18 @@ export default {
     },
     handleRemoveWMSLayer (layerId) {
       const layer = this.allMapLayers.find((x) => {
-        return x.id === layerId
+        return x.layer_id === layerId
       })
       this.removeLayer(layer)
     },
     handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
-        return x.id === datamart.id
+        return x.layer_id === datamart.layer_id
       })
       this.addGeoJSONLayer(layer)
     },
-    handleRemoveApiLayer (id) {
-      this.removeLayer(id)
+    handleRemoveApiLayer (layer_id) {
+      this.removeLayer(layer_id)
     },
     addGeoJSONLayer (layer) {
       if (!layer || !layer.data) {
@@ -197,36 +197,37 @@ export default {
         return
       }
 
-      this.activeLayers[layer.id] = L.geoJSON(features, {
+      this.activeLayers[layer.layer_id] = L.geoJSON(features, {
         onEachFeature: function (feature, layer) {
           layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
         }
       })
-      this.activeLayers[layer.id].addTo(this.map)
+      this.activeLayers[layer.layer_id].addTo(this.map)
     },
     addWMSLayer (layer) {
-      if (!layer.id || !layer.wmsLayer || !layer.name) {
+      if (!layer.layer_id || !layer.wms_name || !layer.layer_name) {
         return
       }
-      this.activeLayers[layer.id] = betterWms(wmsBaseURl + layer.wmsLayer + '/ows?',
+      
+      this.activeLayers[layer.layer_id] = betterWms('https://openmaps.gov.bc.ca/geo/pub/' + layer.wms_name + '/ows?',
         {
           format: 'image/png',
-          layers: 'pub:' + layer.wmsLayer,
-          styles: layer.wmsStyle,
+          layers: 'pub:' + layer.wms_name,
+          styles: layer.wms_style,
           transparent: true,
-          name: layer.name,
+          name: layer.layer_name,
           overlay: true
         })
 
-      this.activeLayers[layer.id].addTo(this.map)
+      this.activeLayers[layer.layer_id].addTo(this.map)
     },
     removeLayer (layer) {
-      const id = layer.id || layer
-      if (!id || !this.activeLayers[id]) {
+      const layer_id = layer.layer_id || layer
+      if (!layer_id || !this.activeLayers[layer_id]) {
         return
       }
-      this.map.removeLayer(this.activeLayers[id])
-      delete this.activeLayers[id]
+      this.map.removeLayer(this.activeLayers[layer_id])
+      delete this.activeLayers[layer_id]
     },
     // getLegendControl () {
     //   const self = this
@@ -273,7 +274,7 @@ export default {
       })
       this.activeMapLayers.forEach((layer) => {
         console.log('what layer?', layer)
-        this.$store.dispatch('getDataMartFeatures', { type: utils.WMS_DATAMART, bounds: bounds, size: size, layer: layer.wmsLayer })
+        this.$store.dispatch('getDataMartFeatures', { type: utils.WMS_DATAMART, bounds: bounds, size: size, layer: layer.wms_name })
       })
     }
     // listenForReset () {

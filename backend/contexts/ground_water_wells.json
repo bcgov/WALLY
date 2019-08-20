@@ -23,38 +23,56 @@
   "highlight_descriptions": [
     ""
   ],
-  "context": {
-    "charts": [
-      {
-        "chart": {
-          "type": "pie",
-          "data": {
-            "labels": [],
-            "datasets": [{
-                "label": "",
-                "data": [],
-                "backgroundColor": "",
-                "borderColor": "",
-                "borderWidth": ""
-            }]
-          }
-        }
-      },
-      {
-        "chart": {
-          "type": "bar",
-          "data": {
-            "labels": [],
-            "datasets": [{
-                "label": "",
-                "data": [],
-                "backgroundColor": "",
-                "borderColor": "",
-                "borderWidth": ""
-            }]
-          }
+  "context": [
+    {
+      "id": 1,
+      "type": "title",
+      "title": "Ground Water Wells"
+    },
+    {
+      "id": 2,
+      "type": "chart",
+      "label_column": "WELL_TAG_NUMBER",
+      "data_columns": ["YIELD_VALUE"],
+      "chart": {
+        "type": "pie",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
         }
       }
-    ]
-  }
+    },
+    {
+      "id": 3,
+      "type": "chart",
+      "label_column": "WELL_USE_NAME",
+      "data_columns": ["DEPTH_WELL_DRILLED"],
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    },
+    {
+      "id": 4,
+      "type": "links",
+      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{0}",
+      "link_columns": ["WELL_TAG_NUMBER"],
+      "links": []
+    }
+  ]
 }
