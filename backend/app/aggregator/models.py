@@ -39,7 +39,7 @@ class WMSRequest(BaseModel):
     """ a WMS feature request """
     url: str
     layer: str
-    q: WMSGetMapQuery
+    q: WMSGetFeatureInfoQuery
 
 
 class LayerResponse(BaseModel):

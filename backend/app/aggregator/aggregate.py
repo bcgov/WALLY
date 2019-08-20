@@ -53,6 +53,7 @@ async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
 async def fetch(req: WMSRequest, session: ClientSession) -> asyncio.Future:
     """ asyncronously fetch one URL, expecting a geojson response """
     url = form_wms_query(req)
+    logger.info(url)
     async with session.get(url) as response:
         return await asyncio.ensure_future(parse_result(response, req.layer))
 
@@ -82,7 +83,7 @@ async def fetch_all(requests: List[WMSRequest]) -> asyncio.Future:
     tasks = []
     semaphore = asyncio.Semaphore(10)
     headers = {'accept': 'application/json'}
-    logger.info(requests)
+    
     async with ClientSession(headers=headers) as session:
         for req in requests:
             # use the list of WMSRequests to form URLs and start adding the requests to the

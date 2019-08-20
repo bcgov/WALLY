@@ -11,7 +11,7 @@ import app.hydat.db as streams_repo
 import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
-from app.aggregator.models import WMSGetMapQuery, WMSRequest, LayerResponse
+from app.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
 from app.context.context_builder import build_context
 
 logger = getLogger("aggregator")
@@ -65,7 +65,13 @@ def aggregate_sources(
         if layer.map_layer_type_id != "wms":
             continue
     
-        query = WMSGetMapQuery(
+        # query = WMSGetMapQuery(
+        #     layers=layer.wms_name,
+        #     bbox=bbox_string,
+        #     width=width,
+        #     height=height,
+        # )
+        query = WMSGetFeatureInfoQuery(
             layers=layer.wms_name,
             bbox=bbox_string,
             width=width,
