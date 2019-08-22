@@ -60,11 +60,14 @@ objects:
             - 'https://wally-grafana-${WALLY_ENV}.pathfinder.gov.bc.ca'
             - '--upstream-url'
             - 'http://localhost:3000'
+            - '--skip-upstream-tls-verify'
+            - '--verbose'
             - '--discovery-url'
             - '$(DISCOVERY_URL)'
             - '--enable-metrics'
-            - '--listen=127.0.0.1:4000'
-            - '--resources="uri=/*|roles=wally-admin"'
+            - '--listen=:4000'
+            - '--resources'
+            - 'uri=/*|roles=wally-metrics'
           envFrom:
             - secretRef:
                 name: gatekeeper-credentials
@@ -82,6 +85,9 @@ objects:
             limits:
               cpu: 50m
               memory: 100Mi
+          ports:
+          - containerPort: 4000
+            protocol: TCP
           livenessProbe:
             failureThreshold: 3
             httpGet:
