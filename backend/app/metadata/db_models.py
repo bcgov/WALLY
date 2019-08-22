@@ -89,8 +89,10 @@ class WmsCatalogue(Base):
 
 # Display Template Tables
 class DisplayTemplate(Base):
-    __tablename__ = 'display_template'
+    __tablename__ = 'display_catalogue_display_template_xref'
     display_template_id = Column(Integer, primary_key=True)
+
+    display_template_order = Column(Integer, comment='')
 
     display_data_id = Column(Integer)
 
@@ -99,20 +101,21 @@ class DisplayComponent(Base):
     __tablename__ = 'display_component'
     display_catalogue_id = Column(Integer, primary_key=True)
 
+    component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'))
+    component_title = Column(String, comment='')
+    display_order = Column(Integer, comment='')
 
-class ChartProperty(Base):
-    __tablename__ = 'chart_property'
-    chart_property_id = Column(Integer, primary_key=True)
+    link_property_id = Column(String, ForeignKey('metadata.link_property.id'), comment='')
+    link_property = relationship("LinkProperty")
 
+    chart_property_id = Column(String, ForeignKey('metadata.chart_property.id'), comment='')
+    chart_property = relationship("ChartProperty")
 
-class UrlProperty(Base):
-    __tablename__ = 'url_property'
-    url_property_id = Column(Integer, primary_key=True)
+    image_property_id = Column(String, ForeignKey('metadata.image_property.id'), comment='')
+    image_property = relationship("ImageProperty")
 
-
-class FormulaProperty(Base):
-    __tablename__ = 'formula_property'
-    formula_property_id = Column(Integer, primary_key=True)
+    formula_property_id = Column(String, ForeignKey('metadata.formula_property.id'), comment='')
+    formula_property = relationship("FormulaProperty")
 
 
 class ComponentTypeCode(Base):
@@ -121,6 +124,41 @@ class ComponentTypeCode(Base):
                                                                    'determines what business logic to use when '
                                                                    'constructing the component.')
     description = Column(String)
+
+
+class ChartProperty(Base):
+    __tablename__ = 'chart_property'
+    chart_property_id = Column(Integer, primary_key=True)
+
+    chart_property = Column(JSON, comment='')
+
+    labels_key = Column(String, comment='')
+    data_keys = Column(ARRAY, comment='')
+
+
+class LinkProperty(Base):
+    __tablename__ = 'link_property'
+    link_property_id = Column(Integer, primary_key=True)
+
+    link_pattern = Column(String, comment='')
+    link_pattern_keys = Column(ARRAY, comment='')
+
+
+class ImageProperty(Base):
+    __tablename__ = 'image_property'
+    image_property_id = Column(Integer, primary_key=True)
+
+    width = Column(Integer, comment='')
+    height = Column(Integer, comment='')
+
+    url = Column(String, comment='')
+
+
+class FormulaProperty(Base):
+    __tablename__ = 'formula_property'
+    formula_property_id = Column(Integer, primary_key=True)
+
+    formula_property = Column(JSON, comment='')
 
 
 

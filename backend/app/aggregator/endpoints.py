@@ -118,8 +118,8 @@ def aggregate_sources(
     context_result = build_context(db, feature_list)
 
     response = {}
-    response["layers"] = feature_list
-    response["contexts"] = context_result
+    response["display_data"] = feature_list
+    response["display_templates"] = context_result
 
     return response
     # return the aggregated features

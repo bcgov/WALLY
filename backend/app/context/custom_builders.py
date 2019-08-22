@@ -16,18 +16,18 @@ logger = logging.getLogger("context")
 #         yield_chart_data.append(feature.properties["YIELD_VALUE"])
 #         depth_chart_labels.append(feature.properties["WELL_TAG_NUMBER"])
 #         depth_chart_data.append(feature.properties["DEPTH_WELL_DRILLED"])
-
+#
 #     # load layer specific context
 #     context_data = json.loads(context.context)
-
+#
 #     # update context values with column values
 #     context.links = links
 #     context_data["chart"]["data"]["labels"] = labels
 #     context_data["chart"]["data"]["datasets"][0]["data"] = data
-
+#
 #     # hydrate the db context with the hydrated values
 #     context.context = context_data
-
+#
 #     return context
 
 

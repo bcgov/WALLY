@@ -1,6 +1,6 @@
 from typing import List
 import json
-import app.context.transformers as transformers
+import app.context.custom_builders as custom_builders
 import app.context.db as db
 from sqlalchemy.orm import Session
 import logging
@@ -19,10 +19,10 @@ def build_context(session: Session, layers: List):
         context = db.get_context(session, layer.layer)
 
         # check for existing override transformer by matching method name to layer name
-        if hasattr(transformers, layer.layer):
+        if hasattr(custom_builders, layer.layer):
             # hydrate our context with custom transformer
             contexts[layer.layer] = \
-                getattr(transformers, layer.layer)(context, layer.geojson.features)
+                getattr(custom_builders, layer.layer)(context, layer.geojson.features)
         else:
             # hydrate our context using the default builder
             contexts[layer.layer] = default_builder(context, layer.geojson.features)
