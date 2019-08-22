@@ -6,7 +6,7 @@ import EventBus from '../../services/EventBus.js'
 import { mapGetters } from 'vuex'
 import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
-import { wmsBaseURl } from '../../utils/wmsUtils'
+import { wmsBaseURL } from '../../utils/wmsUtils'
 import * as utils from '../../utils/metadataUtils'
 
 // Extend control, making a locate
@@ -208,7 +208,7 @@ export default {
       if (!layer.id || !layer.wmsLayer || !layer.name) {
         return
       }
-      this.activeLayers[layer.id] = betterWms(wmsBaseURl + layer.wmsLayer + '/ows?',
+      this.activeLayers[layer.id] = betterWms(wmsBaseURL + layer.wmsLayer + '/ows?',
         {
           format: 'image/png',
           layers: 'pub:' + layer.wmsLayer,
