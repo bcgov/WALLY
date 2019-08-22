@@ -25,11 +25,6 @@ def upgrade():
     logger.info("creating metadata tables")
 
     op.create_table(
-        'data_mart',
-        sa.Column('id', sa.Integer, primary_key=True),
-    )
-
-    op.create_table(
         'data_store',
         sa.Column('id', sa.Integer, primary_key=True),
         sa.Column('name', sa.String(50), nullable=False, comment='data store detail name'),
@@ -37,7 +32,6 @@ def upgrade():
         sa.Column('time_relevance', sa.Integer,
                   comment='how long before this data store becomes stale, measured in DAYS'),
         sa.Column('last_updated', sa.DateTime, comment='last time data store was updated from sources'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.create_table(
@@ -55,7 +49,6 @@ def upgrade():
         sa.Column('data_format_type_id', sa.String, ForeignKey('metadata.data_format_type.type'),
                   comment='data format type'),
         sa.Column('data_store_id', sa.Integer, ForeignKey('metadata.data_store.id'), comment='related data store'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.create_table(
@@ -75,7 +68,6 @@ def upgrade():
         sa.Column('api_url', sa.String, comment='api endpoint to get base geojson information'),
         sa.Column('map_layer_type_id', sa.String, ForeignKey('metadata.map_layer_type.type'),
                   comment='this layers source type'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.create_table(
@@ -104,7 +96,6 @@ def upgrade():
                   comment='columns to use from the data source, ignore other columns'),
         sa.Column('highlight_descriptions', sa.JSON,
                   comment='explanations of each highlight column and their value'),
-        sa.Column('data_mart_id', sa.Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart'),
     )
 
     op.execute('SET search_path TO public')

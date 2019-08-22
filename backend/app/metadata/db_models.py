@@ -8,21 +8,21 @@ from sqlalchemy.ext.declarative import declarative_base
 class Base(object):
     __table_args__ = {'schema': 'metadata'}
 
+    create_user = Column(Text, comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(Text, comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
+
 
 Base = declarative_base(cls=Base)
 
 
-class DataMart(Base):
-    __tablename__ = 'data_mart'
-
-    id = Column(Integer, primary_key=True)
-
-    map_layers = relationship("MapLayer")
-    data_stores = relationship("DataStore")
-    data_sources = relationship("DataSource")
-    context_data = relationship("ContextData")
-
-
+# Data Storage Tables
 class DataStore(Base):
     __tablename__ = 'data_store'
 
@@ -32,15 +32,8 @@ class DataStore(Base):
     description = Column(Text, comment='explanation behind data store and use case')
     time_relevance = Column(Integer, comment='how long before this data store becomes stale, measured in DAYS')
     last_updated = Column(DateTime, comment='last time data store was updated from sources')
-    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
-    data_mart = relationship("DataMart")
 
     data_sources = relationship("DataSource")
-
-
-class DataFormatType(Base):
-    __tablename__ = 'data_format_type'
-    type = Column(String, primary_key=True, comment='source data format - options: wms, csv, excel, sqlite, text, json')
 
 
 class DataSource(Base):
@@ -52,14 +45,85 @@ class DataSource(Base):
     description = Column(Text, comment='explanation behind data source and use case')
     source_url = Column(Text, comment='root source url of data')
 
-    data_format_type_id = Column(String, ForeignKey('metadata.data_format_type.type'), comment='data format type')
-    data_format_type = relationship("DataFormatType")
+    data_source_code = Column(String, ForeignKey('metadata.data_source_format_code.data_source_format_code'))
+    # data_source_code = relationship("DataSourceCode")
 
-    data_store_id = Column(Integer, ForeignKey('metadata.data_store.id'), comment='related data store')
+    data_store_id = Column(Integer, ForeignKey('metadata.data_store.id'), comment='related data store where this '
+                                                                                  'sources data is held after ETL')
     data_store = relationship("DataStore")
 
-    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
-    data_mart = relationship("DataMart")
+
+class DataSourceFormatCode(Base):
+    __tablename__ = 'data_source_format_code'
+    data_source_format_code = Column(String, primary_key=True, comment='source data format, '
+                                                                'options: wms, csv, excel, sqlite, text, json')
+    description = Column(String)
+
+
+# Display Catalogue Tables
+class DisplayCatalogue(Base):
+    __tablename__ = 'data_catalogue'
+    display_catalogue_id = Column(Integer, primary_key=True)
+
+    display_data_name = Column(String, unique=True)
+
+    api_catalogue_id = Column(String, ForeignKey('metadata.api_catalogue.id'), comment='')
+    api_catalogue = relationship("ApiCatalogue")
+
+    wms_catalogue_id = Column(String, ForeignKey('metadata.wms_catalogue.id'), comment='')
+    wms_catalogue = relationship("WmsCatalogue")
+
+
+class ApiCatalogue(Base):
+    __tablename__ = 'api_catalogue'
+    api_catalogue_id = Column(Integer, primary_key=True)
+    url = Column(String, comment='')
+
+
+class WmsCatalogue(Base):
+    __tablename__ = 'wms_catalogue'
+    wms_catalogue_id = Column(Integer, primary_key=True)
+    wms_name = Column(String, comment='')
+    wms_style = Column(String, comment='')
+
+
+# Display Template Tables
+class DisplayTemplate(Base):
+    __tablename__ = 'display_template'
+    display_template_id = Column(Integer, primary_key=True)
+
+    display_data_id = Column(Integer)
+
+
+class DisplayComponent(Base):
+    __tablename__ = 'display_component'
+    display_catalogue_id = Column(Integer, primary_key=True)
+
+
+class ChartProperty(Base):
+    __tablename__ = 'chart_property'
+    chart_property_id = Column(Integer, primary_key=True)
+
+
+class UrlProperty(Base):
+    __tablename__ = 'url_property'
+    url_property_id = Column(Integer, primary_key=True)
+
+
+class FormulaProperty(Base):
+    __tablename__ = 'formula_property'
+    formula_property_id = Column(Integer, primary_key=True)
+
+
+class ComponentTypeCode(Base):
+    __tablename__ = 'component_type_code'
+    component_type_code = Column(String, primary_key=True, comment='components have many different types, which '
+                                                                   'determines what business logic to use when '
+                                                                   'constructing the component.')
+    description = Column(String)
+
+
+
 
 
 class MapLayer(Base):

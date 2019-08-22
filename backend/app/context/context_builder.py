@@ -29,6 +29,7 @@ def build_context(session: Session, layers: List):
 
     return contexts
 
+
 def default_builder(context, features):
     # load layer specific context
     context_data = json.loads(context.context)
