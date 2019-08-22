@@ -1,6 +1,6 @@
 import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
-import { wmsBaseURl, wmsParamString } from '../utils/wmsUtils'
+import { wmsBaseURL, wmsParamString } from '../utils/wmsUtils'
 import * as utils from '../utils/mapUtils'
 import * as metaDataUtils from '../utils/metadataUtils'
 
@@ -41,7 +41,7 @@ export default {
     getDataMartFeatures ({ commit }, payload) {
       // Get the datamart features (points, lines etc)
       payload.type === metaDataUtils.WMS_DATAMART &&
-      ApiService.getRaw(wmsBaseURl + payload.layer + '/ows' + wmsParamString(payload))
+      ApiService.getRaw(wmsBaseURL + payload.layer + '/ows' + wmsParamString(payload))
         .then((response) => {
           console.log('wms response for geometries', response)
           let geometries = response.data.objects[payload.layer].geometries // TODO Test functional
