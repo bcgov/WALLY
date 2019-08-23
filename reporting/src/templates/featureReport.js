@@ -12,6 +12,8 @@ import {fullMonthNames, shortMonthNames} from "../styles/labels";
 import { sampleData } from './sampleData'
 import querystring from 'querystring'
 
+import Aquifer from './components/Aquifer'
+
 const generateFeatureReport = async (data) => {
     let props = {}
 
@@ -99,20 +101,23 @@ class FeatureReport extends React.Component {
     render() {
         const sections = this.props.data
         const createDate = Date()
+        const aquifers = sections.find(s => s.layer === 'WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW')
+        console.log(aquifers)
 
         return (
             <View style={styles.container}>
                 <Text style={styles.date}>
                 Report Created: {createDate}
                 </Text>
-                {sections.map((s, i) => (
-                    <View style={styles.section}>
+                <Aquifer aquifers={aquifers}></Aquifer>
+                {/* {sections.map((s, i) => (
+                    <View style={styles.section} key={i}>
                         <Text style={styles.title}>{s.layer}</Text>
                         {s.geojson.features.map((f, j) => (
-                            <List style={styles.section}>
+                            <List style={styles.section} key={j}>
                                 <Text style={styles.header}>{s.layer} {j}</Text>
                                 {Object.keys(f.properties).map((k, m) => (
-                                    <Text style={styles.text}>{k}: {f.properties[k]}</Text>
+                                    <Text style={styles.text} key={m}>{k}: {f.properties[k]}</Text>
                                     
                                 ))}
                             </List>
@@ -121,7 +126,7 @@ class FeatureReport extends React.Component {
                         <Image src={this.props.chart1} style={styles.chart}/>
                         <Image src={this.props.chart2} style={styles.chart}/>
                     </View>
-                ))}
+                ))} */}
 
             </View>
         );
