@@ -1,6 +1,6 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -62,20 +62,24 @@ class DataFormatCode(Base):
 
 # Display Catalogue Tables
 class DisplayCatalogue(Base):
-    __tablename__ = 'data_catalogue'
+    __tablename__ = 'display_catalogue'
     display_catalogue_id = Column(Integer, primary_key=True)
 
     display_data_name = Column(String(200), unique=True,
                                comment='this is the main business key used throughout the application to '
                                        'identify data layers and connect data to templates.')
+    title_column = Column(String, comment='we use this column value as a list item title in the client')
+    title_label = Column(String, comment='label for title_column value')
+    highlight_columns = Column(ARRAY, comment='the key columns that have business value to the end user. '
+                                              'We primarily will only show these columns in the client and report')
 
-    api_catalogue_id = Column(String, ForeignKey('metadata.api_catalogue.id'),
-                              comment='reference to api catalogue item')
+    api_catalogue_id = Column(String, ForeignKey('metadata.api_catalogue.id'), comment='references api catalogue item')
     api_catalogue = relationship("ApiCatalogue")
 
-    wms_catalogue_id = Column(String, ForeignKey('metadata.wms_catalogue.id'),
-                              comment='reference to wms catalogue item')
+    wms_catalogue_id = Column(String, ForeignKey('metadata.wms_catalogue.id'), comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
+
+    display_components = relationship("DisplayComponent", secondary="display_templates")
 
 
 class ApiCatalogue(Base):
@@ -97,10 +101,13 @@ class WmsCatalogue(Base):
 class DisplayTemplate(Base):
     __tablename__ = 'display_template'
     display_template_id = Column(Integer, primary_key=True)
+    display_template_order = Column(Integer, comment='determines which templates are shown first to last in 100s')
 
-    display_template_order = Column(Integer, comment='')
+    display_component_id = Column(Integer, ForeignKey('metadata.display_component.id'))
+    display_catalogue_id = Column(Integer, ForeignKey('metadata.display_catalogue.id'))
 
-    display_data_id = Column(Integer)
+    display_component = relationship("DisplayComponent", backref=backref("display_templates"))
+    display_catalogue = relationship("DisplayCatalogue", backref=backref("display_templates"))
 
 
 class DisplayComponent(Base):
@@ -108,19 +115,22 @@ class DisplayComponent(Base):
     display_catalogue_id = Column(Integer, primary_key=True)
 
     component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'))
-    component_title = Column(String, comment='')
-    display_order = Column(Integer, comment='')
+    component_title = Column(String, comment='title to be used for headers and labels for components')
+    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
 
-    link_property_id = Column(String, ForeignKey('metadata.link_property.id'), comment='')
+    display_catalogues = relationship("DisplayCatalogue", secondary="display_templates")
+
+    link_property_id = Column(String, ForeignKey('metadata.link_property.id'), comment='reference to link component')
     link_property = relationship("LinkProperty")
 
-    chart_property_id = Column(String, ForeignKey('metadata.chart_property.id'), comment='')
+    chart_property_id = Column(String, ForeignKey('metadata.chart_property.id'), comment='reference to chart component')
     chart_property = relationship("ChartProperty")
 
-    image_property_id = Column(String, ForeignKey('metadata.image_property.id'), comment='')
+    image_property_id = Column(String, ForeignKey('metadata.image_property.id'), comment='reference to image component')
     image_property = relationship("ImageProperty")
 
-    formula_property_id = Column(String, ForeignKey('metadata.formula_property.id'), comment='')
+    formula_property_id = Column(String, ForeignKey('metadata.formula_property.id'),
+                                 comment='reference to formula component')
     formula_property = relationship("FormulaProperty")
 
 
@@ -129,94 +139,38 @@ class ComponentTypeCode(Base):
     component_type_code = Column(String, primary_key=True, comment='components have many different types, which '
                                                                    'determines what business logic to use when '
                                                                    'constructing the component.')
-    description = Column(String)
+    description = Column(String, comment='explanation of component type and use case')
 
 
 class ChartProperty(Base):
     __tablename__ = 'chart_property'
     chart_property_id = Column(Integer, primary_key=True)
 
-    chart_property = Column(JSON, comment='')
-
-    labels_key = Column(String, comment='')
-    data_keys = Column(ARRAY, comment='')
+    chart_property = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
+    labels_key = Column(String, comment='the key used to generate the labels array')
+    data_keys = Column(ARRAY, comment='the keys used to generate the raw data for chart datasets')
 
 
 class LinkProperty(Base):
     __tablename__ = 'link_property'
     link_property_id = Column(Integer, primary_key=True)
 
-    link_pattern = Column(String, comment='')
-    link_pattern_keys = Column(ARRAY, comment='')
+    link_pattern = Column(String, comment='url pattern to source document or webpage')
+    link_pattern_keys = Column(ARRAY, comment='keys to plug into link pattern')
 
 
 class ImageProperty(Base):
     __tablename__ = 'image_property'
     image_property_id = Column(Integer, primary_key=True)
 
-    width = Column(Integer, comment='')
-    height = Column(Integer, comment='')
+    width = Column(Integer, comment='x size of image')
+    height = Column(Integer, comment='y size of image')
 
-    url = Column(String, comment='')
+    url = Column(String, comment='source url to image source')
 
 
 class FormulaProperty(Base):
     __tablename__ = 'formula_property'
     formula_property_id = Column(Integer, primary_key=True)
 
-    formula_property = Column(JSON, comment='')
-
-
-
-
-
-class MapLayer(Base):
-    __tablename__ = 'map_layer'
-
-    layer_id = Column(String, primary_key=True, comment='id used internally to map contexts')
-    layer_name = Column(String, comment='name used to represent layer to users')
-
-    wms_name = Column(String, comment='wms layer id used in all async requests')
-    wms_style = Column(String, comment='wms style identifier to view layer info with different visualizations')
-    api_url = Column(String, comment='api endpoint to get base geojson information')
-
-    map_layer_type_id = Column(String, ForeignKey('metadata.map_layer_type.type'), comment='this layers source type')
-    map_layer_type = relationship("MapLayerType")
-
-    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
-    data_mart = relationship("DataMart")
-
-
-class MapLayerType(Base):
-    __tablename__ = 'map_layer_type'
-    type = Column(String, primary_key=True, comment='type that defines where map layer data comes from '
-                                                    '- options: api, wms')
-
-
-class ContextData(Base):
-    __tablename__ = 'context_data'
-
-    context_id = Column(String, primary_key=True, comment='identifies which MapLayer(s) this fixtures belongs to by '
-                                                          'layer_name, a ContextData can be the visualization of two '
-                                                          'merged MapLayers. ex: MapLayer(layer_id=GWELLS_) '
-                                                          'MapLayer(layer_id=HYDAT_) context_name = GWELLS_HYDAT_')
-
-    context = Column(JSON, comment='holds the fixtures schema for this singular or combination of layer(s)')
-
-    title_column = Column(String, comment='we use this column value as a title in the client')
-    title_label = Column(String, comment='label for title_column value')
-
-    chart_label_columns = Column(ARRAY(String), comment='column value that represents chart(s) x axis labels')
-    chart_data_columns = Column(ARRAY(String), comment='column value that represents chart(s) x axis values')
-
-    link_pattern = Column(String, comment='link pattern to source data')
-    link_columns = Column(ARRAY(String), comment='id value(s) to use with link column to reach source data')
-
-    image_url = Column(String, comment='image representing this context')
-
-    highlight_columns = Column(JSON, comment='columns to use from the data source, ignore other columns')
-    highlight_descriptions = Column(JSON, comment='explanations of each highlight column and their value')
-
-    data_mart_id = Column(Integer, ForeignKey('metadata.data_mart.id'), comment='parent data mart')
-    data_mart = relationship("DataMart")
-
+    formula_property = Column(JSON, comment='formula layout for calculation')
