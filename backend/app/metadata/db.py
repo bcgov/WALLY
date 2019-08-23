@@ -2,34 +2,42 @@
 Database tables and data access functions for Wally Data Layer Meta Information
 """
 from sqlalchemy.orm import Session, load_only
-from app.metadata.db_models import ContextData, DataSource, MapLayer, DataMart
+from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource
 import itertools
 from logging import getLogger
 
 logger = getLogger("api")
 
 
-def get_map_layers(db: Session):
-    """ Get all supported map layers"""
-    return db.query(MapLayer).all()
+def get_display_catalogue(db: Session):
+    """ Get all supported catalogue layers"""
+    return db.query(DisplayCatalogue).all()
 
 
-def get_highlight_columns(db: Session, context_id: str):
-    """ Get highlight columns for a map layer"""
-    return db.query(ContextData).\
-        filter(context_id=context_id).\
+def get_highlight_columns(db: Session, display_data_name: str):
+    """ Get highlight columns for a catalogue layer"""
+    return db.query(DisplayCatalogue).\
+        filter(display_data_name=display_data_name).\
         options(load_only("highlight_fields")).\
         one_or_none()
 
 
 def get_data_sources(db: Session):
-    """ Get all data marts"""
+    """ Get all data sources"""
     return db.query(DataSource).all()
 
 
-def get_context_data(db: Session, layer_id):
-    """ Get context data by layer_name """
-    return db.query(ContextData).filter(ContextData.context_id == layer_id)
+def get_display_components(db: Session, display_data_name):
+    """ Get display template data by display_data_name """
+
+    catalogue = db.query(DisplayCatalogue)\
+        .filter(display_data_name=display_data_name)\
+        .one_or_none()
+
+    if catalogue is not None:
+        catalogue.display_components
+
+
 
 
 # def get_context_data(layer_names, db: Session):

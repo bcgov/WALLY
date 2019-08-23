@@ -3,7 +3,7 @@ import os
 import json
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.metadata.db_models import DataMart, DataFormatType, MapLayer, MapLayerType, ContextData
+# from app.metadata.db_models import DataMart, DataFormatType, MapLayer, MapLayerType, ContextData
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -67,8 +67,8 @@ def load_contexts():
                 logger.info(f"Merging Context: {filename}")
                 data = json.load(json_file)
                 logger.info(data)
-                context_obj = ContextData(**data)
-                db_session.merge(context_obj)
+                # context_obj = ContextData(**data)
+                # db_session.merge(context_obj)
 
     logger.info("Merging Contexts Complete")
     db_session.commit()
@@ -82,9 +82,9 @@ def main():
         return
 
     logger.info("Creating initial fixture data")
-    load_fixtures()
-    create_hydat_data()
-    load_contexts()
+    # load_fixtures()
+    # create_hydat_data()
+    # load_contexts()
     logger.info("Initial data created")
 
 
