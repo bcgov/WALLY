@@ -1,95 +1,75 @@
 import { mapGetters } from 'vuex'
-import RandomChart from '../charts/RandomChart'
-import CircleChart from '../charts/CircleChart'
-import BarChart from '../charts/BarChart.js'
+import { dataMarts } from '../../utils/dataMartMetadata'
+import ContextImage from './ContextImage'
+import ChartWMS from './ChartWMS'
+import ChartAPI from './ChartAPI'
 
 export default {
   name: 'ContextBar',
-  components: { CircleChart, RandomChart, BarChart },
+  components: { ContextImage, ChartWMS, ChartAPI },
   data () {
     return {
       drawer: {
         open: true,
         mini: true
       },
-      bar_key: 0,
-      bar_data: {
-        labels: [],
-        datasets: [{
-          label: 'Bar chart',
-          data: [],
-          backgroundColor: [],
-          borderColor: [],
-          borderWidth: 1
-        }],
-        visible: true
-      }
+      contextComponents: [],
+      chartKey: 0
     }
   },
   computed: {
     ...mapGetters([
-      'featureLayers'
+      'dataMartFeatures'
     ])
   },
   mounted () {
-    this.bar_data = {
-      labels: [],
-      datasets: [{
-        label: 'Quantity',
-        data: [],
-        backgroundColor: [
-          // 'rgba(255, 99, 132, 0.2)',
-          // 'rgba(54, 162, 235, 0.2)',
-          // 'rgba(255, 206, 86, 0.2)',
-          // 'rgba(75, 192, 192, 0.2)',
-          // 'rgba(153, 102, 255, 0.2)',
-          // 'rgba(255, 159, 64, 0.2)'
-        ],
-        borderColor: [
-          // 'rgba(255, 99, 132, 1)',
-          // 'rgba(54, 162, 235, 1)',
-          // 'rgba(255, 206, 86, 1)',
-          // 'rgba(75, 192, 192, 1)',
-          // 'rgba(153, 102, 255, 1)',
-          // 'rgba(255, 159, 64, 1)'
-        ],
-        borderWidth: 1
-      }]
-    }
   },
   methods: {
     toggleContextBar () {
       this.drawer.mini = !this.drawer.mini
     },
-    populateChartData (items) {
-      // console.log('populating data.....')
-      if (items.length > 0) {
-        this.bar_data.labels = []
-        this.bar_data.datasets[0].data = []
-        this.bar_data.visible = true
-
-        items.forEach((layerGroup, groupIndex) => {
-          Object.keys(layerGroup).map(key => {
-            layerGroup[key].forEach(item => {
-              // Depends on the type of data
-              console.log(item.properties.LICENCE_NUMBER, item.properties.QUANTITY, item.properties)
-              this.bar_data.labels.push(item.properties.LICENCE_NUMBER)
-              this.bar_data.datasets[0].data.push(item.properties.QUANTITY)
-              this.bar_data.datasets[0].borderColor.push('rgba(54, 162, 235, 1)')
-              this.bar_data.datasets[0].backgroundColor.push('rgba(54, 162, 235, 0.2)')
-              console.log(this.bar_data)
-            })
+    openContextBar () {
+      this.drawer.mini = false
+    },
+    build (items) {
+      items.length > 0 && items.forEach(layers => {
+        this.contextComponents = []
+        // Go through each layer
+        Object.keys(layers).map(layer => {
+          dataMarts[layer].context.forEach(contextData => {
+            switch (contextData.type) {
+              case 'chart':
+                console.log('building chart')
+                if (dataMarts[layer].type === 'wms') {
+                  contextData.features = layers[layer]
+                  this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
+                } else if (dataMarts[layer].type === 'api') {
+                  this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
+                }
+                break
+              case 'link':
+                console.log('building link')
+                break
+              case 'title':
+                console.log('building title')
+                break
+              case 'image':
+                console.log('building image')
+                this.contextComponents.push({ component: ContextImage, data: contextData })
+                break
+            }
           })
         })
-      }
+      })
+      console.log('context components', this.contextComponents)
+      this.openContextBar()
     }
   },
   watch: {
-    featureLayers (value) {
-      // console.log('selected some features')
+    dataMartFeatures (value) {
       if (value.length > 0) {
-        this.populateChartData(value)
-        this.bar_key++
+        this.build(value)
+        this.chartKey++ // hack to refresh vue component; doesn't work
       }
     }
   }
