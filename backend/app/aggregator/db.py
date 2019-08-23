@@ -4,14 +4,15 @@ Database queries for aggregating data from WMS layers and APIs
 from sqlalchemy.orm import Session
 from typing import List
 import logging
-from app.metadata.db_models import MapLayer
+from app.metadata.db_models import DisplayCatalogue, ApiCatalogue, WmsCatalogue
 
 
 logger = logging.getLogger("api")
 
 
-def get_layers(db: Session, layers: List[str]):
-    return db.query(MapLayer).filter(MapLayer.layer_id.in_(layers)).all()
+def get_display_catalogue(db: Session, display_data_names: List[str]):
+    return db.query(DisplayCatalogue).join(ApiCatalogue).join(WmsCatalogue)\
+        .filter(DisplayCatalogue.display_data_name.in_(display_data_names)).all()
 
 
     # """ placeholder for testing.  to be replaced with context metadata """

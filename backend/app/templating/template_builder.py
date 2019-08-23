@@ -1,33 +1,34 @@
 from typing import List
 import json
-import app.context.custom_builders as custom_builders
-import app.context.db as db
+import app.templating.custom_builders as custom_builders
+import app.templating.db as db
 from sqlalchemy.orm import Session
 import logging
 
 
-logger = logging.getLogger("context")
+logger = logging.getLogger("template_builder")
 
 
-# This method builds a context object for each layer using default template data
+# This method builds a template object for each layer using default template data
 # but also allows overwriting of the defaults by implementing a layer method in
-# the app.context.transformers file
-def build_context(session: Session, layers: List):
-    contexts = {}
-    for layer in layers:
-        # Get cached context template from database
-        context = db.get_context(session, layer.layer)
+# the app.template_builder.custom_builders file
+def build_template(session: Session, geojson_layers: List):
+    display_templates = {}
+    for layer in geojson_layers:
+        # Get display templates from database for this layer
+        templates = db.get_display_templates(session, layer.layer)
 
-        # check for existing override transformer by matching method name to layer name
-        if hasattr(custom_builders, layer.layer):
-            # hydrate our context with custom transformer
-            contexts[layer.layer] = \
-                getattr(custom_builders, layer.layer)(context, layer.geojson.features)
-        else:
-            # hydrate our context using the default builder
-            contexts[layer.layer] = default_builder(context, layer.geojson.features)
+        for template in templates:
+            # check for custom_builder matching method name to layer name
+            if hasattr(custom_builders, layer.layer):
+                # hydrate our template with custom transformer
+                display_templates[layer.layer] = \
+                    getattr(custom_builders, layer.layer)(template, layer.geojson.features)
+            else:
+                # hydrate our template using the default builder
+                display_templates[layer.layer] = default_builder(template, layer.geojson.features)
 
-    return contexts
+    return display_templates
 
 
 def default_builder(context, features):

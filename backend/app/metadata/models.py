@@ -2,16 +2,14 @@ from typing import Optional, List
 from pydantic import BaseModel, Schema
 
 
-class MapLayer(BaseModel):
+class Catalogue(BaseModel):
     """
     Map layer information
     """
-    layer_id: str
-    layer_name: str
-    map_layer_type_id: str
+    display_data_name: str
     wms_name: str
     wms_style: str
-    api_url: str
+    url: str
 
     class Config:
         orm_mode = True

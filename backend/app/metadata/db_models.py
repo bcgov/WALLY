@@ -76,48 +76,6 @@ class WmsCatalogue(Base):
     wms_style = Column(String, comment='style key to display data in different visualizations for wms layer')
 
 
-class ComponentTypeCode(Base):
-    __tablename__ = 'component_type_code'
-    component_type_code = Column(String, primary_key=True, comment='components have many different types, which '
-                                                                   'determines what business logic to use when '
-                                                                   'constructing the component.')
-    description = Column(String, comment='explanation of component type and use case')
-
-
-class ChartProperty(Base):
-    __tablename__ = 'chart_property'
-    chart_property_id = Column(Integer, primary_key=True)
-
-    chart_property = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
-    labels_key = Column(String, comment='the key used to generate the labels array')
-    data_keys = Column(ARRAY(String), comment='the keys used to generate the raw data for chart datasets')
-
-
-class LinkProperty(Base):
-    __tablename__ = 'link_property'
-    link_property_id = Column(Integer, primary_key=True)
-
-    link_pattern = Column(String, comment='url pattern to source document or webpage')
-    link_pattern_keys = Column(ARRAY(String), comment='keys to plug into link pattern')
-
-
-class ImageProperty(Base):
-    __tablename__ = 'image_property'
-    image_property_id = Column(Integer, primary_key=True)
-
-    width = Column(Integer, comment='x size of image')
-    height = Column(Integer, comment='y size of image')
-
-    url = Column(String, comment='source url to image source')
-
-
-class FormulaProperty(Base):
-    __tablename__ = 'formula_property'
-    formula_property_id = Column(Integer, primary_key=True)
-
-    formula_property = Column(JSON, comment='formula layout for calculation')
-
-
 class DisplayCatalogue(Base):
     __tablename__ = 'display_catalogue'
     display_catalogue_id = Column(Integer, primary_key=True)
@@ -128,7 +86,8 @@ class DisplayCatalogue(Base):
     title_column = Column(String, comment='we use this column value as a list item title in the client')
     title_label = Column(String, comment='label for title_column value')
     highlight_columns = Column(ARRAY(String), comment='the key columns that have business value to the end user. '
-                                              'We primarily will only show these columns in the client and report')
+                                                      'We primarily will only show these columns in the '
+                                                      'client and report')
 
     api_catalogue_id = Column(String, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
                               comment='references api catalogue item')
@@ -138,48 +97,73 @@ class DisplayCatalogue(Base):
                               comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
 
-    display_components = relationship("DisplayComponent", secondary="display_templates")
-
-
-class DisplayComponent(Base):
-    __tablename__ = 'display_component'
-    display_component_id = Column(Integer, primary_key=True)
-
-    component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'))
-    component_type_code_rel = relationship('ComponentTypeCode')
-    component_title = Column(String, comment='title to be used for headers and labels for components')
-    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
-
-    display_catalogues = relationship("DisplayCatalogue", secondary="display_templates")
-
-    link_property_id = Column(Integer, ForeignKey('metadata.link_property.link_property_id'),
-                              comment='reference to link component')
-    link_property = relationship("LinkProperty")
-
-    chart_property_id = Column(Integer, ForeignKey('metadata.chart_property.chart_property_id'),
-                               comment='reference to chart component')
-    chart_property = relationship("ChartProperty")
-
-    image_property_id = Column(Integer, ForeignKey('metadata.image_property.image_property_id'),
-                               comment='reference to image component')
-    image_property = relationship("ImageProperty")
-
-    formula_property_id = Column(Integer, ForeignKey('metadata.formula_property.formula_property_id'),
-                                 comment='reference to formula component')
-    formula_property = relationship("FormulaProperty")
+    display_templates = relationship("DisplayCatalogue", secondary="display_template_display_catalogue_xref",
+                                     back_populates="display_catalogues")
 
 
 class DisplayTemplate(Base):
     __tablename__ = 'display_template'
     display_template_id = Column(Integer, primary_key=True)
-    display_template_order = Column(Integer, comment='determines which templates are shown first to last in 100s')
 
-    display_component_id = Column(Integer, ForeignKey('metadata.display_component.display_component_id'))
+    title = Column(String, comment='title to be used for headers and labels for template')
+    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
+
+    display_catalogues = relationship("DisplayCatalogue", secondary="display_template_display_catalogue_xref",
+                                      back_populates="display_templates")
+
+    link_components = relationship("LinkComponent")
+    chart_components = relationship("ChartComponent")
+    image_components = relationship("ImageComponent")
+    formula_components = relationship("FormulaComponent")
+
+
+class DisplayTemplateDisplayCatalogueXref(Base):
+    __tablename__ = 'display_template_display_catalogue_xref'
+    display_template_display_catalogue_xref_id = Column(Integer, primary_key=True)
+
+    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'))
     display_catalogue_id = Column(Integer, ForeignKey('metadata.display_catalogue.display_catalogue_id'))
 
-    display_component = relationship("DisplayComponent", backref=backref("display_templates"))
-    display_catalogue = relationship("DisplayCatalogue", backref=backref("display_templates"))
+
+class ChartComponent(Base):
+    __tablename__ = 'chart_component'
+    chart_component_id = Column(Integer, primary_key=True)
+    title = Column(String, comment='title to be used for headers and labels for components')
+    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
+    chart_component = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
+    labels_key = Column(String, comment='the key used to generate the labels array')
+    data_keys = Column(ARRAY(String), comment='the keys used to generate the raw data for chart datasets')
+    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
+                                 comment='reference to parent display template')
 
 
+class LinkComponent(Base):
+    __tablename__ = 'link_component'
+    link_component_id = Column(Integer, primary_key=True)
+    title = Column(String, comment='title to be used for headers and labels for components')
+    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
+    link_pattern = Column(String, comment='url pattern to source document or webpage')
+    link_pattern_keys = Column(ARRAY(String), comment='keys to plug into link pattern')
+    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
+                                 comment='reference to parent display template')
 
 
+class ImageComponent(Base):
+    __tablename__ = 'image_component'
+    image_component_id = Column(Integer, primary_key=True)
+    title = Column(String, comment='title to be used for headers and labels for components')
+    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
+    width = Column(Integer, comment='x size of image')
+    height = Column(Integer, comment='y size of image')
+    url = Column(String, comment='source url to image source')
+    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
+                                 comment='reference to parent display template')
+
+
+class FormulaComponent(Base):
+    __tablename__ = 'formula_component'
+    formula_component_id = Column(Integer, primary_key=True)
+
+    formula_component = Column(JSON, comment='formula layout for calculation')
+    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
+                                 comment='reference to parent display template')

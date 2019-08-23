@@ -12,7 +12,7 @@ import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
 from app.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
-from app.context.context_builder import build_context
+from app.context.template_builder import build_context
 
 logger = getLogger("aggregator")
 
@@ -55,14 +55,14 @@ def aggregate_sources(
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
-    valid_layers = agr_repo.get_layers(db, layers)
+    catalogue = agr_repo.get_display_catalogue(db, layers)
 
     wms_requests = []
 
     # Create a WMSRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
-    for layer in valid_layers:
-        if layer.map_layer_type_id != "wms":
+    for item in catalogue:
+        if item.wms_catalogue_id is None:
             continue
 
         # query = WMSGetFeatureInfoQuery(
@@ -74,14 +74,14 @@ def aggregate_sources(
         #     height=height,
         # )
         query = WMSGetMapQuery(
-            layers=layer.wms_name,
+            layers=item.wms_name,
             bbox=bbox_string,
             width=width,
             height=height,
         )
         req = WMSRequest(
-            url=wms_url(layer.wms_name),
-            layer=layer.layer_id,
+            url=wms_url(item.wms_name),
+            layer=item.layer_id,
             q=query
         )
         wms_requests.append(req)
@@ -93,22 +93,22 @@ def aggregate_sources(
     # Internal datasets:
     # Gather valid internal sources that were included in the request's `layers` param
     internal_data = []
-    for layer in valid_layers:
-        if layer.map_layer_type_id != "api" or layer.layer_id not in API_DATASOURCES:
+    for item in catalogue:
+        if item.api_catalogue_id is None or item.display_data_name not in API_DATASOURCES:
             continue
-        internal_data.append(layer)
+        internal_data.append(item)
 
     # Loop through all datasets that are available internally.
     # We will make use of the data access function registered in API_DATASOURCES
     # to avoid making api calls to our own web server.
     for dataset in internal_data:
-        layer_id = dataset.layer_id
+        display_data_name = dataset.display_data_name
 
         # use function registered for this source
-        objects = API_DATASOURCES[layer_id](db, bbox)
+        objects = API_DATASOURCES[display_data_name](db, bbox)
 
         feat_layer = LayerResponse(
-            layer=layer_id,
+            layer=display_data_name,
             status=200,
             geojson=objects
         )
@@ -117,13 +117,12 @@ def aggregate_sources(
 
     context_result = build_context(db, feature_list)
 
-    response = {}
-    response["display_data"] = feature_list
-    response["display_templates"] = context_result
+    response = {
+        'display_data': feature_list,
+        'display_templates': context_result
+    }
 
     return response
-    # return the aggregated features
-    # return feature_list
 
 
 def wms_url(wms_id):

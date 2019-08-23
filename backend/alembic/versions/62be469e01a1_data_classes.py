@@ -129,102 +129,25 @@ def upgrade():
                                                       'should not be used.')
     )
 
-    op.create_table(
-        'component_type_code',
-        sa.Column('component_type_code', sa.String, primary_key=True,
-                  comment='components have many different types, which determines what business logic to use when '
-                          'constructing the component.'),
-        sa.Column('description', sa.String, comment='explanation of component type and use case'),
-
-        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
-        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
-                                                      'created in the database.'),
-        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
-        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
-                                                      'in the database. It will be the same as the create_date until '
-                                                      'the record is first updated after creation.'),
-        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
-                                                         'and could be used.'),
-        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
-                                                      'should not be used.')
-    )
-
-    op.create_table(
-        'chart_property',
-        sa.Column('chart_property_id', sa.Integer, primary_key=True),
-        sa.Column('chart_property', sa.JSON, comment='this holds the chart js json schema to use '),
-        sa.Column('labels_key', sa.String, comment='the key used to generate the labels array'),
-        sa.Column('data_keys', sa.ARRAY(sa.String), comment='the keys used to generate the raw data for chart datasets'),
-
-        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
-        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
-                                                      'created in the database.'),
-        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
-        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
-                                                      'in the database. It will be the same as the create_date until '
-                                                      'the record is first updated after creation.'),
-        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
-                                                         'and could be used.'),
-        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
-                                                      'should not be used.')
-    )
-
-    op.create_table(
-        'link_property',
-        sa.Column('link_property_id', sa.Integer, primary_key=True),
-        sa.Column('link_pattern', sa.String, comment='url pattern to source document or webpage'),
-        sa.Column('link_pattern_keys', sa.ARRAY(sa.String), comment='keys to plug into link pattern'),
-
-        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
-        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
-                                                      'created in the database.'),
-        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
-        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
-                                                      'in the database. It will be the same as the create_date until '
-                                                      'the record is first updated after creation.'),
-        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
-                                                         'and could be used.'),
-        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
-                                                      'should not be used.')
-    )
-
-    op.create_table(
-        'image_property',
-        sa.Column('image_property_id', sa.Integer, primary_key=True),
-        sa.Column('width', sa.Integer, comment='x size of image'),
-        sa.Column('height', sa.Integer, comment='y size of image'),
-        sa.Column('url', sa.String, comment='source url to image source'),
-
-        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
-        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
-                                                      'created in the database.'),
-        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
-        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
-                                                      'in the database. It will be the same as the create_date until '
-                                                      'the record is first updated after creation.'),
-        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
-                                                         'and could be used.'),
-        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
-                                                      'should not be used.')
-    )
-
-    op.create_table(
-        'formula_property',
-        sa.Column('formula_property_id', sa.Integer, primary_key=True),
-        sa.Column('formula_property', sa.JSON, comment='formula layout for calculation'),
-
-        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
-        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
-                                                      'created in the database.'),
-        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
-        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
-                                                      'in the database. It will be the same as the create_date until '
-                                                      'the record is first updated after creation.'),
-        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
-                                                         'and could be used.'),
-        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
-                                                      'should not be used.')
-    )
+    # op.create_table(
+    #     'component_type_code',
+    #     sa.Column('component_type_code', sa.String, primary_key=True,
+    #               comment='components have many different types, which determines what business logic to use when '
+    #                       'constructing the component.'),
+    #     sa.Column('description', sa.String, comment='explanation of component type and use case'),
+    #
+    #     sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+    #     sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+    #                                                   'created in the database.'),
+    #     sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+    #     sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+    #                                                   'in the database. It will be the same as the create_date until '
+    #                                                   'the record is first updated after creation.'),
+    #     sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+    #                                                      'and could be used.'),
+    #     sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+    #                                                   'should not be used.')
+    # )
 
     op.create_table(
         'display_catalogue',
@@ -256,21 +179,11 @@ def upgrade():
     )
 
     op.create_table(
-        'display_component',
-        sa.Column('display_component_id', sa.Integer, primary_key=True),
+        'display_template',
+        sa.Column('display_template_id', sa.Integer, primary_key=True),
 
-        sa.Column('component_type_code', sa.String, ForeignKey('metadata.component_type_code.component_type_code')),
-        sa.Column('component_title', sa.String, comment='title to be used for headers and labels for components'),
-        sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
-
-        sa.Column('link_property_id', sa.Integer, ForeignKey('metadata.link_property.link_property_id'),
-                  comment='reference to link component'),
-        sa.Column('chart_property_id', sa.Integer, ForeignKey('metadata.chart_property.chart_property_id'),
-                  comment='reference to chart component'),
-        sa.Column('image_property_id', sa.Integer, ForeignKey('metadata.image_property.image_property_id'),
-                  comment='reference to image component'),
-        sa.Column('formula_property_id', sa.Integer, ForeignKey('metadata.formula_property.formula_property_id'),
-                  comment='reference to formula component'),
+        sa.Column('title', sa.String, comment='title to be used for headers and labels for template'),
+        sa.Column('display_order', sa.Integer, comment='determines which templates are shown first to last in 100s'),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
@@ -286,12 +199,96 @@ def upgrade():
     )
 
     op.create_table(
-        'display_template',
-        sa.Column('display_template_id', sa.Integer, primary_key=True),
-        sa.Column('display_template_order', sa.Integer,
-                  comment='determines which templates are shown first to last in 100s'),
-        sa.Column('display_component_id', sa.Integer, ForeignKey('metadata.display_component.display_component_id')),
+        'display_template_display_catalogue_xref',
+        sa.Column('display_template_display_catalogue_xref_id', sa.Integer, primary_key=True),
+        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
         sa.Column('display_catalogue_id', sa.Integer, ForeignKey('metadata.display_catalogue.display_catalogue_id')),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+    )
+
+    op.create_table(
+        'chart_component',
+        sa.Column('chart_component_id', sa.Integer, primary_key=True),
+        sa.Column('chart_component', sa.JSON, comment='this holds the chart js json schema to use '),
+        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
+        sa.Column('labels_key', sa.String, comment='the key used to generate the labels array'),
+        sa.Column('data_keys', sa.ARRAY(sa.String),
+                  comment='the keys used to generate the raw data for chart datasets'),
+        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'link_component',
+        sa.Column('link_component_id', sa.Integer, primary_key=True),
+        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
+        sa.Column('link_pattern', sa.String, comment='url pattern to source document or webpage'),
+        sa.Column('link_pattern_keys', sa.ARRAY(sa.String), comment='keys to plug into link pattern'),
+        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'image_component',
+        sa.Column('image_component_id', sa.Integer, primary_key=True),
+        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
+        sa.Column('width', sa.Integer, comment='x size of image'),
+        sa.Column('height', sa.Integer, comment='y size of image'),
+        sa.Column('url', sa.String, comment='source url to image source'),
+        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'formula_component',
+        sa.Column('formula_component_id', sa.Integer, primary_key=True),
+        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
+        sa.Column('formula_component', sa.JSON, comment='formula layout for calculation'),
+        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '

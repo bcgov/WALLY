@@ -16,20 +16,10 @@ logger = getLogger("api")
 router = APIRouter()
 
 
-@router.get("/maplayers", response_model=List[view_model.MapLayer])
-def list_map_layers(db: Session = Depends(get_db)):
+@router.get("/catalogue", response_model=List[view_model.Catalogue])
+def list_catalogue(db: Session = Depends(get_db)):
     """
-    List all supported map layers
+    List all supported catalogue entries
     """
-    return meta_repo.get_map_layers(db)
-
-
-class LayerNames(BaseModel):
-    layer_names: List[str] = []
-
-
-@router.post("/contextdata")
-def get_context_data(layer_names: LayerNames, db: Session = Depends(get_db)):
-    return meta_repo.get_context_data(layer_names, db)
-
+    return meta_repo.get_display_catalogue(db)
 

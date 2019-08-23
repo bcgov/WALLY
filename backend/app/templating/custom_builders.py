@@ -1,7 +1,7 @@
 import logging
 import json
 
-logger = logging.getLogger("context")
+logger = logging.getLogger("template_builder")
 
 
 # def ground_water_wells(context, features):
