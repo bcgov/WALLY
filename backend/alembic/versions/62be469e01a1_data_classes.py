@@ -26,30 +26,157 @@ def upgrade():
 
     op.create_table(
         'data_store',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('name', sa.String(50), nullable=False, comment='data store detail name'),
+        sa.Column('data_store_id', sa.Integer, primary_key=True),
+        sa.Column('name', sa.String(50), nullable=False, comment='data store detail name', index=True),
         sa.Column('description', sa.String, comment='explanation behind data store and use case'),
         sa.Column('time_relevance', sa.Integer,
                   comment='how long before this data store becomes stale, measured in DAYS'),
         sa.Column('last_updated', sa.DateTime, comment='last time data store was updated from sources'),
-    )
 
-    op.create_table(
-        'data_format_type',
-        sa.Column('type', sa.String(50), primary_key=True,
-                  comment='source data format - options: wms, csv, excel, sqlite, text, json'),
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
     )
 
     op.create_table(
         'data_source',
-        sa.Column('id', sa.Integer, primary_key=True),
-        sa.Column('name', sa.String(50), nullable=False, comment='data source detail name'),
+        sa.Column('data_source_id', sa.Integer, primary_key=True),
+        sa.Column('name', sa.String(50), nullable=False, comment='data source detail name', index=True),
         sa.Column('description', sa.String, comment='explanation behind data source and use case'),
         sa.Column('source_url', sa.String, comment='root source url of data'),
-        sa.Column('data_format_type_id', sa.String, ForeignKey('metadata.data_format_type.type'),
-                  comment='data format type'),
-        sa.Column('data_store_id', sa.Integer, ForeignKey('metadata.data_store.id'), comment='related data store'),
+        sa.Column('data_format_code', sa.String, ForeignKey('metadata.data_format_code.data_format_code'),
+                  comment='format type of the source information'),
+        sa.Column('data_store_id', sa.Integer, ForeignKey('metadata.data_store.id'),
+                  comment='related data store where this sources data is held after ETL'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
     )
+
+    op.create_table(
+        'data_format_code',
+        sa.Column('data_format_code', sa.String(50), primary_key=True,
+                  comment='source data format - options: wms, csv, excel, sqlite, text, json'),
+        sa.Column('description', sa.String, comment='code type description'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'data_catalogue',
+        sa.Column('data_catalogue_id', sa.Integer, primary_key=True),
+        sa.Column('display_data_name', sa.String(200), unique=True, index=True,
+                  comment='this is the main business key used throughout the application to identify data '
+                          'layers and connect data to templates.'),
+        sa.Column('api_catalogue_id', sa.Integer, ForeignKey('metadata.api_catalogue.id'),
+                  comment='reference to api catalogue item'),
+        sa.Column('wms_catalogue_id', sa.Integer, ForeignKey('metadata.wms_catalogue.id'),
+                  comment='reference to wms catalogue item'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'api_catalogue',
+        sa.Column('api_catalogue_id', sa.Integer, primary_key=True),
+        sa.Column('description', sa.String, comment='api endpoint description'),
+        sa.Column('url', sa.String, comment='an internal api endpoint that serves all data points for a display layer'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'wms_catalogue',
+        sa.Column('wms_catalogue_id', sa.Integer, primary_key=True),
+        sa.Column('description', sa.String, comment='wms layer description'),
+        sa.Column('wms_name', sa.String, comment='identifying layer name with the data bc wms server'),
+        sa.Column('wms_style', sa.String, comment='style key to display data in different '
+                                                  'visualizations for wms layer'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+    op.create_table(
+        'wms_catalogue',
+        sa.Column('wms_catalogue_id', sa.Integer, primary_key=True),
+        sa.Column('description', sa.String, comment='wms layer description'),
+        sa.Column('wms_name', sa.String, comment='identifying layer name with the data bc wms server'),
+        sa.Column('wms_style', sa.String, comment='style key to display data in different '
+                                                  'visualizations for wms layer'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
+
+
+
+
 
     op.create_table(
         'map_layer_type',
