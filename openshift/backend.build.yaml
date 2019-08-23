@@ -30,6 +30,7 @@ objects:
     name: wally-${NAME}-api
   spec:
     failedBuildsHistoryLimit: 5
+    completionDeadlineSeconds: 900
     nodeSelector: null
     output:
       to:
@@ -41,7 +42,7 @@ objects:
         cpu: 500m
       limits:
         cpu: '1'
-    runPolicy: Serial
+    runPolicy: SerialLatestOnly
     source:
       contextDir: backend
       git:

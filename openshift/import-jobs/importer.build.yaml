@@ -1,33 +1,26 @@
 apiVersion: v1
 kind: Template
 parameters:
-  - name: NAME
-    displayName: Name
-    description: The name assigned to all of the resources defined in this template.
-    required: true
-    value: test
-  - name: GIT_REPO
-    displayName: Git Repo URL
-    description: The URL to your Git repo.
-    required: true
-    value: https://github.com/bcgov-c/wally.git
-  - name: GIT_REF
-    displayName: Git Reference
-    description: The git reference or branch.
-    required: true
-    value: master
+- name: GIT_REPO
+  displayName: Git Repo URL
+  description: The URL to your Git repo.
+  value: https://github.com/bcgov-c/wally.git
+- name: GIT_REF
+  displayName: Git Reference
+  description: The git reference or branch.
+  value: master
 metadata:
-  name: wally-reporting-build-template
+  name: wally-importer-build-template
 objects:
   - apiVersion: build.openshift.io/v1
     kind: BuildConfig
     spec:
       failedBuildsHistoryLimit: 5
-      completionDeadlineSeconds: 1800
+      completionDeadlineSeconds: 900
       output:
         to:
           kind: ImageStreamTag
-          name: wally-reporting:${NAME}
+          name: wally-importer:latest
       postCommit: {}
       resources:
         limits:
@@ -38,7 +31,7 @@ objects:
           memory: 1Gi
       runPolicy: SerialLatestOnly
       source:
-        contextDir: reporting
+        contextDir: openshift/import-jobs
         git:
           ref: "${GIT_REF}"
           uri: "${GIT_REPO}"
@@ -48,9 +41,8 @@ objects:
       strategy:
         dockerStrategy:
           from:
-            kind: ImageStreamTag
-            name: 'nodejs:10'
-            namespace: openshift
+            kind: "DockerImage"
+            name: "debian:latest"
         type: Docker
       successfulBuildsHistoryLimit: 5
       triggers:
@@ -59,11 +51,10 @@ objects:
       annotations:
         openshift.io/generated-by: OpenShiftNewBuild
       labels:
-        component: reporting
-        name: wally-${NAME}-reporting
-        app: wally-${NAME}
-        env: "${NAME}"
-      name: wally-${NAME}-reporting
+        component: importer
+        name: wally-importer
+        app: wally
+      name: wally-importer
   - apiVersion: image.openshift.io/v1
     kind: ImageStream
     spec:
@@ -72,9 +63,8 @@ objects:
     metadata:
       annotations:
         openshift.io/generated-by: OpenShiftNewBuild
-      generation: 3
       labels:
-        component: reporting
-        name: wally-reporting
+        component: importer
+        name: wally-importer
         env: tools
-      name: wally-reporting
+      name: wally-importer

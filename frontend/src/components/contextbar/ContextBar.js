@@ -1,45 +1,76 @@
-import RandomChart from '../charts/RandomChart'
-import CircleChart from '../charts/CircleChart'
-import BarChart from '../charts/BarChart.js'
+import { mapGetters } from 'vuex'
+import { dataMarts } from '../../utils/dataMartMetadata'
+import ContextImage from './ContextImage'
+import ChartWMS from './ChartWMS'
+import ChartAPI from './ChartAPI'
 
 export default {
   name: 'ContextBar',
-  components: { CircleChart, RandomChart, BarChart },
+  components: { ContextImage, ChartWMS, ChartAPI },
   data () {
     return {
       drawer: {
         open: true,
         mini: true
       },
-      bar_data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-        datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
-          borderWidth: 1
-        }]
-      }
+      contextComponents: [],
+      chartKey: 0
     }
+  },
+  computed: {
+    ...mapGetters([
+      'dataMartFeatures'
+    ])
+  },
+  mounted () {
   },
   methods: {
     toggleContextBar () {
       this.drawer.mini = !this.drawer.mini
+    },
+    openContextBar () {
+      this.drawer.mini = false
+    },
+    build (items) {
+      items.length > 0 && items.forEach(layers => {
+        this.contextComponents = []
+        // Go through each layer
+        Object.keys(layers).map(layer => {
+          dataMarts[layer].context.forEach(contextData => {
+            switch (contextData.type) {
+              case 'chart':
+                console.log('building chart')
+                if (dataMarts[layer].type === 'wms') {
+                  contextData.features = layers[layer]
+                  this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
+                } else if (dataMarts[layer].type === 'api') {
+                  this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
+                }
+                break
+              case 'link':
+                console.log('building link')
+                break
+              case 'title':
+                console.log('building title')
+                break
+              case 'image':
+                console.log('building image')
+                this.contextComponents.push({ component: ContextImage, data: contextData })
+                break
+            }
+          })
+        })
+      })
+      console.log('context components', this.contextComponents)
+      this.openContextBar()
+    }
+  },
+  watch: {
+    dataMartFeatures (value) {
+      if (value.length > 0) {
+        this.build(value)
+        this.chartKey++ // hack to refresh vue component; doesn't work
+      }
     }
   }
 }

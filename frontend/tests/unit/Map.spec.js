@@ -1,6 +1,6 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
 import Map from '../../src/components/map/Map.vue'
-import { MAP_LAYERS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/mapUtils'
+import { DATA_MARTS, WMS_WATER_RIGHTS_LICENSES } from '../../src/utils/metadataUtils'
 import Vuex from 'vuex'
 
 const localVue = createLocalVue()
@@ -27,7 +27,7 @@ describe('Map Layer Tests', () => {
 
   beforeEach(() => {
     getters = {
-      allMapLayers: () => MAP_LAYERS
+      allMapLayers: () => DATA_MARTS
     }
     store = new Vuex.Store({ getters })
     wrapper = shallowMount(Map, {
@@ -37,14 +37,14 @@ describe('Map Layer Tests', () => {
   })
 
   it('adding layer by id adds to activeLayers', () => {
-    wrapper.vm.handleAddLayer(WMS_WATER_RIGHTS_LICENSES)
+    wrapper.vm.handleAddWMSLayer(WMS_WATER_RIGHTS_LICENSES)
     expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(false)
   })
 
   it('remove layer by id decreases activeLayers', () => {
-    wrapper.vm.handleAddLayer(WMS_WATER_RIGHTS_LICENSES)
+    wrapper.vm.handleAddWMSLayer(WMS_WATER_RIGHTS_LICENSES)
     expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(false)
-    wrapper.vm.handleRemoveLayer(WMS_WATER_RIGHTS_LICENSES)
+    wrapper.vm.handleRemoveWMSLayer(WMS_WATER_RIGHTS_LICENSES)
     expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(true)
   })
 })

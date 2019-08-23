@@ -1,78 +1,60 @@
-import Keycloak from 'keycloak-js'
 import EventBus from './EventBus.js'
 import router from '../router.js'
-
-const kcConfig = {
-  realm: 'gwells',
-  url: 'https://sso-test.pathfinder.gov.bc.ca/auth',
-  publicClient: true,
-  confidentialPort: 0,
-  clientId: 'wally-test'
-}
+import axios from 'axios'
 
 export class AuthService {
-  kc
   accessToken
   idToken
-  expiresAt
   name
   authenticated
 
-  constructor () {
-    this.kc = Keycloak(kcConfig)
-  }
-
   init (options) {
     return new Promise((resolve, reject) => {
-      this.kc.init(options).success((r) => {
+      // local environment pseudo-token.  All tokens/sessions are handled by Keycloak gatekeeper, so
+      // the vue app is not responsible for any token handling. We just need some user info.
+      if (process.env.VUE_APP_ENV === 'dev') {
+        this.accessToken = { given_name: 'Wally User', realm_access: { roles: ['wally-view'] } }
+        this.authenticated = true
+        this.login()
         resolve()
-      }).error((e) => {
+        return
+      }
+      axios.get('/oauth/token').then((r) => {
+        this.accessToken = r.data
+        this.authenticated = true
+        this.login()
+        resolve()
+      }).catch((e) => {
+        console.error(e)
         reject(new Error('unable to initialize Keycloak'))
       })
     })
   }
 
-  setSession (next) {
-    this.name = this.kc.idTokenParsed['given_name']
+  login (next) {
+    this.name = this.accessToken['given_name']
 
     // required for allowing header to update the name.
     EventBus.$emit('auth:update', { name: this.name, authenticated: this.isAuthenticated() })
-    router.push(next)
-  }
-
-  login (next) {
-    if (this.kc.authenticated) {
-      this.setSession(next)
-      return
+    if (next) {
+      router.push(next)
     }
-    this.kc.login().success((authenticated) => {
-      this.setSession(next)
-    })
   }
 
   logout () {
     localStorage.removeItem('loggedIn')
     localStorage.removeItem('expiresAt')
-    this.kc.logout()
-  }
-
-  renewSession (ifExpiresIn = 3600) {
-    return new Promise((resolve, reject) => {
-      this.kc.updateToken(ifExpiresIn).success((r) => {
-        if (r) {
-          // successfully refreshed
-        } else {
-          // unsuccessful
-        }
-      })
-    })
+    window.location.href = '/oauth/logout'
   }
 
   isAuthenticated () {
-    return this.kc.authenticated
+    return this.authenticated
   }
 
   hasRole (role) {
-    return this.kc.hasRealmRole(role)
+    return this.accessToken &&
+    this.accessToken.realm_access &&
+    this.accessToken.realm_access.roles &&
+    ~this.accessToken.realm_access.roles.indexOf(role)
   }
 }
