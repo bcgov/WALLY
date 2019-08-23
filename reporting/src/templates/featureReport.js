@@ -4,7 +4,6 @@ import {Page, Text, View, Image, Document, Font, StyleSheet} from '../app'
 import Header from './common/Header'
 import Footer from './common/Footer'
 import List, { Item } from './common/List';
-import font from '../assets/MyriadWebPro.ttf'
 import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2} from "../charts";
 import locationToMapImage from "../transformers/locationToMapImage";
@@ -13,6 +12,15 @@ import { sampleData } from './sampleData'
 import querystring from 'querystring'
 
 import Aquifer from './components/Aquifer'
+import ReportSummary from './components/Summary'
+import font from '../assets/MyriadWebPro.ttf'
+
+Font.register({
+    family: 'MyriadWebPro',
+    src: font,
+    fontStyle: 'normal',
+    fontWeight: 'bold'
+});
 
 const generateFeatureReport = async (data) => {
     let props = {}
@@ -34,10 +42,11 @@ const generateFeatureReport = async (data) => {
             layers: layers
         })
     )
+    props['bbox'] = bbox
     props['data'] = layerData.data
 
     // Transformers
-    // props['map'] = await locationToMapImage(props.data.coordinates)
+    props['map'] = await locationToMapImage(bbox)
     props['chart1'] = await createChart('line', exampleData, {
         xLabels: shortMonthNames,
         ylabel: 'Precipitation Levels 2017 (mm)',
@@ -55,7 +64,7 @@ const generateFeatureReport = async (data) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
     },
     Title: {
         fontFamily: 'MyriadWebPro',
@@ -64,7 +73,7 @@ const styles = StyleSheet.create({
         marginLeft: 10
     },
     section: {
-        marginHorizontal: 20
+        margin: 25
     },
     header: {
         fontFamily: 'MyriadWebPro',
@@ -87,8 +96,9 @@ const styles = StyleSheet.create({
     },
     date: {
         fontFamily: 'MyriadWebPro',
-        fontSize: 10,
-        margin: 10
+        fontSize: 12,
+        marginTop: 10,
+        marginHorizontal: 25,
     }
 })
 
@@ -105,11 +115,19 @@ class FeatureReport extends React.Component {
         console.log(aquifers)
 
         return (
-            <View style={styles.container}>
-                <Text style={styles.date}>
-                Report Created: {createDate}
-                </Text>
-                <Aquifer aquifers={aquifers}></Aquifer>
+            <Document>
+                <Page size="LETTER" style={styles.container}>
+                    <Header/>
+                    <Text style={styles.date}>
+                        Report Created: {createDate}
+                    </Text>
+                    <View style={styles.section}>
+   
+                        <ReportSummary map={this.props.map}></ReportSummary>
+                    </View>
+                </Page>
+                <Page size="LETTER" wrap style={styles.container}>
+                    <Aquifer aquifers={aquifers}></Aquifer>
                 {/* {sections.map((s, i) => (
                     <View style={styles.section} key={i}>
                         <Text style={styles.title}>{s.layer}</Text>
@@ -127,8 +145,8 @@ class FeatureReport extends React.Component {
                         <Image src={this.props.chart2} style={styles.chart}/>
                     </View>
                 ))} */}
-
-            </View>
+                </Page>
+            </Document>
         );
     }
 }

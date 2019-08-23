@@ -1,5 +1,5 @@
 import React from 'react'
-import {Page, Text, View, Image, Document, Font, StyleSheet} from  '@react-pdf/renderer'
+import {Page, Text, View, Image, Document, Font, StyleSheet, Link} from  '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
     container: {
@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
         marginLeft: 10
     },
     section: {
-        marginHorizontal: 20
+        margin: 25
     },
     header: {
         fontFamily: 'MyriadWebPro',
@@ -24,9 +24,8 @@ const styles = StyleSheet.create({
     },
     text: {
         fontFamily: 'MyriadWebPro',
+        marginHorizontal: 12,
         fontSize: 12,
-        paddingTop: 2,
-        paddingLeft: 10
     },
     chart: {
         width: 400,
@@ -51,11 +50,37 @@ class AquiferSummary extends React.Component {
         return (
 
             <View style={styles.section}>
-              <Text>Aquifers</Text>
-              {aquifers.map((a, i) => (
-                <View break key={i}>
-                  <Text>
+                <Text>Aquifers</Text>
+                {aquifers.map((a, i) => (
+                <View key={i}>
+                  <Text style={styles.header}>
                     {a.properties.AQNAME} - {a.properties.DESCRIPTIVE_LOCATION}
+                  </Text>
+                  <Text style={styles.text}>
+                    Type of water use: {a.properties.TYPE_OF_WATER_USE}
+                  </Text>
+                  <Text style={styles.text}>
+                    Material: {a.properties.AQUIFER_MATERIALS}
+                  </Text>
+                  <Text style={styles.text}>
+                      Size (km2): {a.properties.SIZE_KM2}
+                  </Text>
+                  <Text style={styles.text}>
+                      Productivity code: {a.properties.PRODUCTIVITY_CODE}
+                  </Text>
+                  <Text style={styles.text}>
+                      Demand code: {a.properties.DEMAND_CODE}
+                  </Text>
+                  <Text style={styles.text}>
+                      Vulnerability code: {a.properties.VULNERABILITY_CODE}
+                  </Text>
+                  <Text style={styles.text}>
+                      Classification code: {a.properties.CLASSIFICATION_CODE}
+                  </Text>
+                  <Text style={styles.text}>
+                    <Link src={'https://apps.nrs.gov.bc.ca/gwells/aquifers/' + parseInt(a.properties.AQ_TAG)}>
+                      {'https://apps.nrs.gov.bc.ca/gwells/aquifers/' + parseInt(a.properties.AQ_TAG)}
+                    </Link>
                   </Text>
                 </View>
               ))}
