@@ -12,23 +12,31 @@ logger = logging.getLogger("template_builder")
 # This method builds a template object for each layer using default template data
 # but also allows overwriting of the defaults by implementing a layer method in
 # the app.template_builder.custom_builders file
-def build_template(session: Session, geojson_layers: List):
-    display_templates = {}
-    for layer in geojson_layers:
-        # Get display templates from database for this layer
-        templates = db.get_display_templates(session, layer.layer)
+def build_templates(session: Session, geojson_layers: List):
+    layer_names = [l.layer for l in geojson_layers]
+    templates = db.get_display_templates(session, layer_names)
 
-        for template in templates:
-            # check for custom_builder matching method name to layer name
-            if hasattr(custom_builders, layer.layer):
-                # hydrate our template with custom transformer
-                display_templates[layer.layer] = \
-                    getattr(custom_builders, layer.layer)(template, layer.geojson.features)
-            else:
-                # hydrate our template using the default builder
-                display_templates[layer.layer] = default_builder(template, layer.geojson.features)
+    hydrated_templates = []
 
-    return display_templates
+    # for layer in geojson_layers:
+    #     # Get display templates from database for this layer
+    #     templates = db.get_display_templates(session, layer.layer)
+
+    for template in templates:
+        # check for custom_builder matching method name to layer name
+        if hasattr(custom_builders, layer.layer):
+            # hydrate our template with custom transformer
+            hydrated_templates.append(
+                getattr(custom_builders, layer.layer)(template, layer.geojson.features)
+            )
+
+        else:
+            # hydrate our template using the default builder
+            hydrated_templates.append(
+                default_builder(template, layer.geojson.features)
+            )
+
+    return hydrated_templates
 
 
 def default_builder(context, features):
