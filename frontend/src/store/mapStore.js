@@ -1,5 +1,6 @@
 import EventBus from '../services/EventBus.js'
-import * as utils from '../utils/mapUtils'
+// TODO: change to api call, or create new array just for map layers
+import * as metadataUtils from '../utils/metadataUtils'
 
 export default {
   state: {
@@ -11,7 +12,7 @@ export default {
   mutations: {
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
-        utils.MAP_LAYERS.find((layer) => {
+        metadataUtils.DATA_MARTS.find((layer) => {
           return layer.id === payload
         })
       )
@@ -27,6 +28,6 @@ export default {
   getters: {
     activeMapLayers: state => state.activeMapLayers,
     isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x && x.id === layerId),
-    allMapLayers: () => utils.MAP_LAYERS
+    allMapLayers: () => metadataUtils.DATA_MARTS
   }
 }

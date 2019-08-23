@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import Map from '../components/map/Map'
+import Map from '../components/map/Map.vue'
 import Sidebar from '../components/sidebar/Sidebar.vue'
 import ContextBar from '../components/contextbar/ContextBar.vue'
 
