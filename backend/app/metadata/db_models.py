@@ -56,8 +56,8 @@ class DataSource(Base):
                               comment='format type of the source information')
     data_format = relationship('DataFormatCode')
 
-    data_store_id = Column(Integer, ForeignKey('metadata.data_store.data_store_id'), comment='related data store where this '
-                                                                                  'sources data is held after ETL')
+    data_store_id = Column(Integer, ForeignKey('metadata.data_store.data_store_id'),
+                           comment='related data store where this sources data is held after ETL')
     data_store = relationship("DataStore")
 
 
@@ -80,11 +80,12 @@ class DisplayCatalogue(Base):
     __tablename__ = 'display_catalogue'
     display_catalogue_id = Column(Integer, primary_key=True)
 
+    display_name = Column(String, comment='this is the public name of the display layer')
     display_data_name = Column(String(200), unique=True,
                                comment='this is the main business key used throughout the application to '
                                        'identify data layers and connect data to templates.')
-    title_column = Column(String, comment='we use this column value as a list item title in the client')
-    title_label = Column(String, comment='label for title_column value')
+    label = Column(String, comment='label for label_column value')
+    label_column = Column(String, comment='we use this column value as a list item label in the client')
     highlight_columns = Column(ARRAY(String), comment='the key columns that have business value to the end user. '
                                                       'We primarily will only show these columns in the '
                                                       'client and report')
@@ -107,6 +108,9 @@ class DisplayTemplate(Base):
 
     title = Column(String, comment='title to be used for headers and labels for template')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
+
+    display_data_names = Column(ARRAY(String), comment='unique business keys that represent the required layers '
+                                                       'used to hydrate this display template')
 
     display_catalogues = relationship("DisplayCatalogue", secondary="display_template_display_catalogue_xref",
                                       back_populates="display_templates")
@@ -142,7 +146,7 @@ class LinkComponent(Base):
     link_component_id = Column(Integer, primary_key=True)
     title = Column(String, comment='title to be used for headers and labels for components')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
-    link_pattern = Column(String, comment='url pattern to source document or webpage')
+    link_pattern = Column(String, comment='url pattern to source document or web page')
     link_pattern_keys = Column(ARRAY(String), comment='keys to plug into link pattern')
     display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
                                  comment='reference to parent display template')

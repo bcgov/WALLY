@@ -152,11 +152,12 @@ def upgrade():
     op.create_table(
         'display_catalogue',
         sa.Column('display_catalogue_id', sa.Integer, primary_key=True),
+        sa.Column('display_name', sa.String(200), comment='this is the public name of the display layer'),
         sa.Column('display_data_name', sa.String(200), unique=True, index=True,
                   comment='this is the main business key used throughout the application to identify data '
                           'layers and connect data to templates.'),
-        sa.Column('title_column', sa.String, comment='we use this column value as a list item title in the client'),
-        sa.Column('title_label', sa.String, comment='label for title_column value'),
+        sa.Column('label', sa.String, comment='label for label_column value'),
+        sa.Column('label_column', sa.String, comment='we use this column value as a list item title in the client'),
         sa.Column('highlight_columns', sa.ARRAY(sa.String), comment='the key columns that have business value to '
                                                                     'the end user. We primarily will only show these '
                                                                     'columns in the client and report'),
@@ -184,6 +185,9 @@ def upgrade():
 
         sa.Column('title', sa.String, comment='title to be used for headers and labels for template'),
         sa.Column('display_order', sa.Integer, comment='determines which templates are shown first to last in 100s'),
+
+        sa.Column('display_data_names', sa.ARRAY(sa.String), comment='unique business keys that represent the required '
+                                                                     'layers used to hydrate this display template'),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '

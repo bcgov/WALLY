@@ -25,7 +25,7 @@ def create_hydat_data():
 def load_fixtures():
     # User file array to ensure loading order
     # File names must match class names for globals() to work
-    files = ['DataMart.json', "DataFormatType.json", 'MapLayerType.json', 'MapLayer.json']
+    files = ['ApiCatalogue.json', "WmsCatalogue.json", 'DisplayCatalogue.json', "DataFormatCode.json"]
     directory = '/app/fixtures/'
 
     logger = logging.getLogger("metadata")

@@ -12,7 +12,7 @@ import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
 from app.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
-from app.context.template_builder import build_context
+from app.templating.template_builder import build_templates
 
 logger = getLogger("aggregator")
 
@@ -115,11 +115,11 @@ def aggregate_sources(
 
         feature_list.append(feat_layer)
 
-    context_result = build_context(db, feature_list)
+    hydrated_templates = build_templates(db, feature_list)
 
     response = {
         'display_data': feature_list,
-        'display_templates': context_result
+        'display_templates': hydrated_templates
     }
 
     return response

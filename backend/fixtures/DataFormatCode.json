@@ -1,0 +1,62 @@
+[
+  {
+    "data_format_code": "wms",
+    "description": "Web map service, external api that serves layer information on demand",
+    "create_user": "ETL_USER",
+    "create_date": "2019-08-01T08:00:00Z",
+    "update_user": "ETL_USER",
+    "update_date": "2019-08-01T08:00:00Z",
+    "effective_date": "2019-08-01T08:00:00Z",
+    "expiry_date": "9999-12-31T23:59:59Z"
+  },
+  {
+    "type": "csv",
+    "description": "Comma-seperated values",
+    "create_user": "ETL_USER",
+    "create_date": "2019-08-01T08:00:00Z",
+    "update_user": "ETL_USER",
+    "update_date": "2019-08-01T08:00:00Z",
+    "effective_date": "2019-08-01T08:00:00Z",
+    "expiry_date": "9999-12-31T23:59:59Z"
+  },
+  {
+    "type": "excel",
+    "description": "Microsoft excel file",
+    "create_user": "ETL_USER",
+    "create_date": "2019-08-01T08:00:00Z",
+    "update_user": "ETL_USER",
+    "update_date": "2019-08-01T08:00:00Z",
+    "effective_date": "2019-08-01T08:00:00Z",
+    "expiry_date": "9999-12-31T23:59:59Z"
+  },
+  {
+    "type": "sqlite",
+    "description": "SQLite is a relational database management system.",
+    "create_user": "ETL_USER",
+    "create_date": "2019-08-01T08:00:00Z",
+    "update_user": "ETL_USER",
+    "update_date": "2019-08-01T08:00:00Z",
+    "effective_date": "2019-08-01T08:00:00Z",
+    "expiry_date": "9999-12-31T23:59:59Z"
+  },
+  {
+    "type": "text",
+    "description": "Unstructured raw text file",
+    "create_user": "ETL_USER",
+    "create_date": "2019-08-01T08:00:00Z",
+    "update_user": "ETL_USER",
+    "update_date": "2019-08-01T08:00:00Z",
+    "effective_date": "2019-08-01T08:00:00Z",
+    "expiry_date": "9999-12-31T23:59:59Z"
+  },
+  {
+    "type": "json",
+    "description": "JavaScript Object Notation is an open-standard file format.",
+    "create_user": "ETL_USER",
+    "create_date": "2019-08-01T08:00:00Z",
+    "update_user": "ETL_USER",
+    "update_date": "2019-08-01T08:00:00Z",
+    "effective_date": "2019-08-01T08:00:00Z",
+    "expiry_date": "9999-12-31T23:59:59Z"
+  }
+]
