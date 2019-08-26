@@ -1,11 +1,9 @@
 import React from 'react'
 import {Page, Text, View, Image, Document, Font, StyleSheet, Link} from  '@react-pdf/renderer'
-import locationToMapImage from '../../transformers/locationToMapImage'
 
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
-        justifyContent: 'flex-start'
     },
     row: {
       flexDirection: 'row',
@@ -22,6 +20,10 @@ const styles = StyleSheet.create({
     },
     col1: {
       flex: 1
+    },
+    mapImg: {
+      width: 550,
+      height: 300
     }
 })
 
@@ -31,7 +33,12 @@ class ReportSummary extends React.Component {
     }
     render() {
         return (
-
+          <View style={styles.container}>
+            <View style={styles.row}>
+              <View style={styles.co1}>
+                <Image style={styles.mapImg} src={this.props.map}></Image>
+              </View>
+            </View>
             <View style={styles.row}>
               <View style={styles.col1}>
                 <Text style={styles.text}>{`
@@ -46,9 +53,9 @@ class ReportSummary extends React.Component {
                 </Text>
               </View>
               <View style={styles.col1}>
-                <Image src={this.props.map}></Image>
               </View>
             </View>
+          </View>
         );
     }
 }
