@@ -1,5 +1,5 @@
 <template>
-  <BarChart v-if="data.type === 'bar'" :chart-data="chartData" :key="chartKey"></BarChart>
+  <BarChart v-if="data.type === 'bar'" class="chart" :chart-data="chartData" :key="chartKey"></BarChart>
 </template>
 
 <script>

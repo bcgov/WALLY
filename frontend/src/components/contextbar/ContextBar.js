@@ -9,6 +9,7 @@ export default {
   components: { ContextImage, ChartWMS, ChartAPI },
   data () {
     return {
+      showContextBar: false,
       drawer: {
         open: true,
         mini: true
@@ -26,10 +27,10 @@ export default {
   },
   methods: {
     toggleContextBar () {
-      this.drawer.mini = !this.drawer.mini
+      this.showContextBar = !this.showContextBar
     },
     openContextBar () {
-      this.drawer.mini = false
+      this.showContextBar = true
     },
     build (items) {
       items.length > 0 && items.forEach(layers => {

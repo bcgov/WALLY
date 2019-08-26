@@ -9,7 +9,7 @@
 </template>
 <script>
 export default {
-  name: 'Image',
+  name: 'ContextImage',
   props: {
     source: String
   }
