@@ -66,6 +66,8 @@ objects:
         metadata:
           annotations:
             openshift.io/generated-by: OpenShiftNewApp
+            prometheus.io/scrape: 'true'
+            prometheus.io/port: '4040'
           creationTimestamp: null
           labels:
             app: wally-${NAME}
@@ -73,7 +75,52 @@ objects:
             component: frontend
             name: wally-${NAME}-frontend
         spec:
+          volumes:
+          - name: shared-data
+            emptyDir: {}
           containers:
+            - image: quay.io/martinhelmich/prometheus-nginxlog-exporter
+              name: nginx-log-exporter
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /metrics
+                  port: 4040
+                  scheme: HTTP
+                initialDelaySeconds: 3
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              readinessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /metrics
+                  port: 4040
+                  scheme: HTTP
+                initialDelaySeconds: 3
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 1
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
+                limits:
+                  cpu: 50m
+                  memory: 128Mi
+              terminationMessagePath: /dev/termination-log
+              terminationMessagePolicy: File
+              ports:
+                - containerPort: 4040
+                  protocol: TCP
+              volumeMounts:
+              - name: shared-data
+                mountPath: /var/opt/rh/rh-nginx112/log/nginx/
+              # args:
+              # - '-format="$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" rt=$request_time uct=\"$upstream_connect_time\" uht=\"$upstream_header_time\" urt=\"$upstream_response_time\""'
+              # - '-listen-port=4040'
+              # - '-namespace=nginx'
+              # - '/var/opt/rh/rh-nginx112/log/nginx/access.log'
             - image: >-
                 docker-registry.default.svc:5000/${NAMESPACE}/wally-web:${NAME}
               imagePullPolicy: Always
@@ -95,6 +142,9 @@ objects:
                 value: wally-${NAME}-api
               - name: WALLY_REPORTING_SERVICE
                 value: wally-${NAME}-reporting
+              volumeMounts:
+              - name: shared-data
+                mountPath: /var/opt/rh/rh-nginx112/log/nginx/
           dnsPolicy: ClusterFirst
           restartPolicy: Always
           schedulerName: default-scheduler
