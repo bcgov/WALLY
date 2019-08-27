@@ -13,6 +13,7 @@ import querystring from 'querystring'
 
 import Aquifer from './components/Aquifer'
 import ReportSummary from './components/Summary'
+import Hydat from './components/Hydat'
 import font from '../assets/MyriadWebPro.ttf'
 
 Font.register({
@@ -112,22 +113,35 @@ class FeatureReport extends React.Component {
         const sections = this.props.data
         const createDate = Date()
         const aquifers = sections.find(s => s.layer === 'WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW')
+        const hydat = sections.find(s => s.layer === 'HYDAT')
+
         console.log(aquifers)
 
         return (
             <Document>
+                {/* Header and report summary */}
                 <Page size="LETTER" style={styles.container}>
                     <Header/>
                     <Text style={styles.date}>
                         Report Created: {createDate}
                     </Text>
                     <View style={styles.section}>
-   
                         <ReportSummary map={this.props.map}></ReportSummary>
                     </View>
                 </Page>
+
+                {/* Aquifer section */}
                 <Page size="LETTER" wrap style={styles.container}>
                     <Aquifer aquifers={aquifers}></Aquifer>
+                </Page>
+
+                {/* Hydrometric data section */}
+                <Page size="LETTER" wrap style={styles.container}>
+                    <Hydat data={hydat}></Hydat>
+                </Page>
+
+                {/* Additional layers that were selected */}
+
                 {/* {sections.map((s, i) => (
                     <View style={styles.section} key={i}>
                         <Text style={styles.title}>{s.layer}</Text>
@@ -145,7 +159,6 @@ class FeatureReport extends React.Component {
                         <Image src={this.props.chart2} style={styles.chart}/>
                     </View>
                 ))} */}
-                </Page>
             </Document>
         );
     }

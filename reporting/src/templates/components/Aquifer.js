@@ -13,7 +13,7 @@ const styles = StyleSheet.create({
         marginLeft: 10
     },
     section: {
-        margin: 25
+        margin: 35
     },
     header: {
         fontFamily: 'MyriadWebPro',
