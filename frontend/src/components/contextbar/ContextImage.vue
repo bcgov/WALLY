@@ -1,13 +1,12 @@
 
 <template>
 <div>
-  <v-img
-    :src=source
-    aspect-ratio="2.75"
-  ></v-img>
+  <img :src="source" alt="Image" />
 </div>
 </template>
 <script>
+/* WARNING: We use img because the v-img tag uses  */
+/* background-image which isn't good for SEO and accessibility */
 export default {
   name: 'ContextImage',
   props: {
@@ -15,3 +14,8 @@ export default {
   }
 }
 </script>
+<style>
+  div[type=image] {
+  overflow: hidden
+  }
+</style>
