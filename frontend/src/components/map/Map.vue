@@ -7,7 +7,7 @@
     @import "../../../node_modules/leaflet/dist/leaflet.css";
     .map {
         z-index: 2;
-        width: 100%;
+        width: calc(100vw - 335px);
         height: calc(100vh - 64px);
     }
     .leaflet-control-geosearch a.reset {
