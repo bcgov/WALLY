@@ -88,7 +88,7 @@ export default {
         preferCanvas: true,
         minZoom: 4,
         maxZoom: 17
-      }).setView([53.8, -124.5], 9)
+      }).setView([54, -124], 5)
 
       L.control.scale().addTo(this.map)
       this.map.addControl(this.getFullScreenControl())
@@ -191,7 +191,6 @@ export default {
       } else if (layer.data.geojson && layer.data.geojson.length) {
         features = layer.data.geojson
       }
-      console.log('features?', features)
       if (!features) {
         console.error('could not find a features list or object to add to map')
         return
@@ -246,7 +245,6 @@ export default {
     // },
     listenForAreaSelect () {
       this.map.on('lasso.finished', (event) => {
-
         let lats = event.latLngs.map(l => l.lat)
         let lngs = event.latLngs.map(l => l.lng)
 
@@ -263,13 +261,11 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       console.log('active map layers', this.activeMapLayers, this.activeDataMarts)
 
-      this.activeDataMarts.forEach((layer)=>{
+      this.activeDataMarts.forEach((layer) => {
         console.log('datamart layer?', layer, layer.id)
         layer.data.features.forEach(feature => {
           this.$store.dispatch('getDataMartFeatures', { type: utils.API_DATAMART, layer: layer.id, feature: feature })
         })
-
-
       })
       this.activeMapLayers.forEach((layer) => {
         console.log('what layer?', layer)
