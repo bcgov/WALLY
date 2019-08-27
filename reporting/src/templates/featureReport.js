@@ -6,7 +6,7 @@ import Footer from './common/Footer'
 import List, { Item } from './common/List';
 import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2} from "../charts";
-import locationToMapImage from "../transformers/locationToMapImage";
+import Map from "../transformers/locationToMapImage";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
 import { sampleData } from './sampleData'
 import querystring from 'querystring'
@@ -47,7 +47,11 @@ const generateFeatureReport = async (data) => {
     props['data'] = layerData.data
 
     // Transformers
-    props['map'] = await locationToMapImage(bbox)
+    const map = new Map(bbox)
+    const mapImage = await map.png()
+
+    props['map'] =  { data: mapImage, format: 'png' }
+
     props['chart1'] = await createChart('line', exampleData, {
         xLabels: shortMonthNames,
         ylabel: 'Precipitation Levels 2017 (mm)',
