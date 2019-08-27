@@ -204,9 +204,11 @@ def upgrade():
 
     op.create_table(
         'display_template_display_catalogue_xref',
-        sa.Column('display_template_display_catalogue_xref_id', sa.Integer, primary_key=True),
-        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
-        sa.Column('display_catalogue_id', sa.Integer, ForeignKey('metadata.display_catalogue.display_catalogue_id')),
+        # sa.Column('display_template_display_catalogue_xref_id', sa.Integer, primary_key=True),
+        sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id'),
+                  primary_key=True),
+        sa.Column('display_catalogue_id', sa.Integer, ForeignKey('metadata.display_catalogue.display_catalogue_id'),
+                  primary_key=True),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
@@ -220,11 +222,11 @@ def upgrade():
     op.create_table(
         'chart_component',
         sa.Column('chart_component_id', sa.Integer, primary_key=True),
-        sa.Column('chart_component', sa.JSON, comment='this holds the chart js json schema to use '),
+        sa.Column('chart', sa.JSON, comment='this holds the chart js json schema to use '),
         sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('labels_key', sa.String, comment='the key used to generate the labels array'),
-        sa.Column('data_keys', sa.ARRAY(sa.String),
+        sa.Column('dataset_keys', sa.ARRAY(sa.String),
                   comment='the keys used to generate the raw data for chart datasets'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
 

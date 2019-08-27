@@ -98,8 +98,7 @@ class DisplayCatalogue(Base):
                               comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
 
-    display_templates = relationship("DisplayCatalogue", secondary="display_template_display_catalogue_xref",
-                                     back_populates="display_catalogues")
+    display_templates = relationship("DisplayTemplateDisplayCatalogueXref", back_populates="display_catalogue")
 
 
 class DisplayTemplate(Base):
@@ -112,8 +111,7 @@ class DisplayTemplate(Base):
     display_data_names = Column(ARRAY(String), comment='unique business keys that represent the required layers '
                                                        'used to hydrate this display template')
 
-    display_catalogues = relationship("DisplayCatalogue", secondary="display_template_display_catalogue_xref",
-                                      back_populates="display_templates")
+    display_catalogues = relationship("DisplayTemplateDisplayCatalogueXref", back_populates="display_template")
 
     link_components = relationship("LinkComponent")
     chart_components = relationship("ChartComponent")
@@ -123,10 +121,12 @@ class DisplayTemplate(Base):
 
 class DisplayTemplateDisplayCatalogueXref(Base):
     __tablename__ = 'display_template_display_catalogue_xref'
-    display_template_display_catalogue_xref_id = Column(Integer, primary_key=True)
+    # display_template_display_catalogue_xref_id = Column(Integer, primary_key=True)
+    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'), primary_key=True)
+    display_catalogue_id = Column(Integer, ForeignKey('metadata.display_catalogue.display_catalogue_id'), primary_key=True)
 
-    display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'))
-    display_catalogue_id = Column(Integer, ForeignKey('metadata.display_catalogue.display_catalogue_id'))
+    display_catalogue = relationship("DisplayCatalogue", back_populates="display_templates")
+    display_template = relationship("DisplayTemplate", back_populates="display_catalogues")
 
 
 class ChartComponent(Base):
@@ -134,9 +134,9 @@ class ChartComponent(Base):
     chart_component_id = Column(Integer, primary_key=True)
     title = Column(String, comment='title to be used for headers and labels for components')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
-    chart_component = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
+    chart = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
     labels_key = Column(String, comment='the key used to generate the labels array')
-    data_keys = Column(ARRAY(String), comment='the keys used to generate the raw data for chart datasets')
+    dataset_keys = Column(ARRAY(String), comment='the keys used to generate the raw data for chart datasets')
     display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
                                  comment='reference to parent display template')
 

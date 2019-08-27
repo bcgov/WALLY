@@ -1,33 +1,20 @@
 {
-  "context_id": "automated_snow_weather_station_locations",
-  "title_column": "LOCATION_NAME",
-  "title_label": "Location",
-  "chart_label_columns": ["LOCATION_NAME"],
-  "chart_data_columns": ["ELEVATION"],
-  "link_pattern": "http://aqrt.nrs.gov.bc.ca/Report/Show/{0}/Snow.{1}.SnowStatGraph.pdf",
-  "link_columns": ["OBJECTID", "LOCATION_ID"],
-  "image_url": "",
-  "highlight_columns": [
-    "ELEVATION",
-    "LATITUDE",
-    "LONGITUDE",
-    "LOCATION_NAME",
-    "STATUS"
-  ],
-  "highlight_descriptions": [
-    ""
-  ],
-  "context": [
+  "display_template": {
+    "display_template_id": 1,
+    "title": "Automated Snow Weather Stations",
+    "display_order": "100",
+    "display_data_names": [
+      "automated_snow_weather_station_locations"
+    ]
+  },
+  "charts": [
     {
-      "id": 1,
-      "type": "title",
-      "title": "BC Snow Stations"
-    },
-    {
-      "id": 2,
-      "type": "chart",
-      "label_column": "LOCATION_NAME",
-      "data_columns": ["ELEVATION"],
+      "chart_component_id": 1,
+      "title": "Weather Station Elevation",
+      "display_order": 100,
+      "labels_key": "LOCATION_NAME",
+      "dataset_keys": ["ELEVATION"],
+      "display_template_id": 1,
       "chart": {
         "type": "bar",
         "data": {
@@ -41,17 +28,19 @@
           }]
         }
       }
-    },
-    {
-      "id": 4,
-      "type": "links",
-      "link_pattern": "http://aqrt.nrs.gov.bc.ca/Report/Show/{0}/Snow.{1}.SnowStatGraph.pdf",
-      "link_columns": ["OBJECTID", "LOCATION_ID"],
-      "links": []
-    },
-    {
-      "id": 5,
-      "type": "table"
     }
-  ]
+  ],
+  "links": [
+    {
+      "link_component_id": 1,
+      "title": "Snow Reports",
+      "display_order": 200,
+      "link_pattern": "http://aqrt.nrs.gov.bc.ca/Report/Show/{0}/Snow.{1}.SnowStatGraph.pdf",
+      "link_pattern_keys": ["OBJECTID", "LOCATION_ID"],
+      "display_template_id": 1
+    }
+  ],
+  "tables": [],
+  "images": [],
+  "formulas": []
 }

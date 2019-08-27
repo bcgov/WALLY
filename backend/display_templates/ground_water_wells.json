@@ -1,39 +1,20 @@
 {
-  "context_id": "ground_water_wells",
-  "title_column": "WELL_TAG_NUMBER",
-  "title_label": "Well Tag Number",
-  "chart_label_columns": ["WELL_TAG_NUMBER", "WELL_USE_NAME"],
-  "chart_data_columns": ["YIELD_VALUE", "DEPTH_WELL_DRILLED"],
-  "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
-  "link_columns": ["WELL_TAG_NUMBER"],
-  "image_url": "",
-  "highlight_columns": [
-    "WELL_TAG_NUMBER",
-    "WELL_IDENTIFICATION_PLATE_NO",
-    "WELL_LICENCE_GENERAL_STATUS",
-    "WELL_LOCATION",
-    "SITE_AREA",
-    "SITE_STREET",
-    "WELL_USE_NAME",
-    "YIELD_VALUE",
-    "YIELD_UNIT_DESCRIPTION",
-    "DEPTH_WELL_DRILLED",
-    "WELL_DETAIL_URL"
-  ],
-  "highlight_descriptions": [
-    ""
-  ],
-  "context": [
+  "display_template": {
+    "display_template_id": 3,
+    "title": "Ground Water Wells",
+    "display_order": "300",
+    "display_data_names": [
+      "ground_water_wells"
+    ]
+  },
+  "charts": [
     {
-      "id": 1,
-      "type": "title",
-      "title": "Ground Water Wells"
-    },
-    {
-      "id": 2,
-      "type": "chart",
-      "label_column": "WELL_TAG_NUMBER",
-      "data_columns": ["YIELD_VALUE"],
+      "chart_component_id": 2,
+      "title": "Well Yield",
+      "display_order": 200,
+      "labels_key": "WELL_TAG_NUMBER",
+      "dataset_keys": ["YIELD_VALUE"],
+      "display_template_id": 3,
       "chart": {
         "type": "pie",
         "data": {
@@ -49,10 +30,12 @@
       }
     },
     {
-      "id": 3,
-      "type": "chart",
-      "label_column": "WELL_USE_NAME",
-      "data_columns": ["DEPTH_WELL_DRILLED"],
+      "chart_component_id": 3,
+      "title": "Well Depth",
+      "display_order": 300,
+      "labels_key": "WELL_USE_NAME",
+      "dataset_keys": ["DEPTH_WELL_DRILLED"],
+      "display_template_id": 3,
       "chart": {
         "type": "bar",
         "data": {
@@ -66,13 +49,19 @@
           }]
         }
       }
-    },
-    {
-      "id": 4,
-      "type": "links",
-      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{0}",
-      "link_columns": ["WELL_TAG_NUMBER"],
-      "links": []
     }
-  ]
+  ],
+  "links": [
+    {
+      "link_component_id": 2,
+      "title": "Well Information",
+      "display_order": 100,
+      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
+      "link_pattern_keys": ["WELL_TAG_NUMBER"],
+      "display_template_id": 3
+    }
+  ],
+  "tables": [],
+  "images": [],
+  "formulas": []
 }

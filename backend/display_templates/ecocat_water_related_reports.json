@@ -1,37 +1,15 @@
 {
-    "context_id": "ecocat_water_related_reports",
-    "title_column": "TITLE",
-    "title_label": "Title",
-    "chart_label_columns": [],
-    "chart_data_columns": [],
-    "link_pattern": "",
-    "link_columns": [],
-    "image_url": "",
-    "highlight_columns": [
-      "REPORT_ID",
-      "TITLE",
-      "SHORT_DESCRIPTION",
-      "AUTHOR",
-      "DATE_PUBLISHED",
-      "REPORT_AUDIENCE",
-      "LONG_DESCRIPTION"
-    ],
-    "highlight_descriptions": [
-      ""
-    ],
-    "context": [
-        {
-          "id": 1,
-          "type": "title",
-          "title": "Eco cat reports"
-        },
-        {
-          "id": 2,
-          "type": "links",
-          "link_pattern": "",
-          "link_columns": [],
-          "links": []
-        }
-      ]
-  }
-  
+  "display_template": {
+    "display_template_id": 2,
+    "title": "Ecocat Water Related Reports",
+    "display_order": 200,
+    "display_data_names": [
+      "ecocat_water_related_reports"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

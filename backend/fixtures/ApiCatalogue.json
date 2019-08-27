@@ -2,12 +2,6 @@
   {
     "api_catalogue_id": 1,
     "description": "Hydrometric Stream Flow Data",
-    "url": "/hydat",
-    "create_user": "ETL_USER",
-    "create_date": "2019-08-01T08:00:00Z",
-    "update_user": "ETL_USER",
-    "update_date": "2019-08-01T08:00:00Z",
-    "effective_date": "2019-08-01T08:00:00Z",
-    "expiry_date": "9999-12-31T23:59:59Z"
+    "url": "/hydat"
   }
 ]
