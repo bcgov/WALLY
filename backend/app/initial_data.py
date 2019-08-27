@@ -49,7 +49,7 @@ def load_fixtures():
             instances = []
             for obj in data:
                 logger.info(f"Object: {obj}")
-                instance = cls({**obj, **get_audit_fields()})
+                instance = cls(**{**obj, **get_audit_fields()})
                 instances.append(instance)
 
             db_session.add_all(instances)

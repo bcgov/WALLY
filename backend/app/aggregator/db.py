@@ -5,15 +5,18 @@ from sqlalchemy.orm import Session
 from typing import List
 import logging
 from app.metadata.db_models import DisplayCatalogue, ApiCatalogue, WmsCatalogue
-
+from sqlalchemy.orm import joinedload
 
 logger = logging.getLogger("api")
 
 
 def get_display_catalogue(db: Session, display_data_names: List[str]):
-    return db.query(DisplayCatalogue).join(ApiCatalogue).join(WmsCatalogue)\
-        .filter(DisplayCatalogue.display_data_name.in_(display_data_names)).all()
-
+    q = db.query(DisplayCatalogue).options(joinedload(DisplayCatalogue.wms_catalogue),
+                                           joinedload(DisplayCatalogue.api_catalogue))\
+        .filter(DisplayCatalogue.display_data_name.in_(display_data_names))\
+        .all()
+    # [logger.info(vars(x)) for x in q]
+    return q
 
     # """ placeholder for testing.  to be replaced with context metadata """
     # valid_layers = []

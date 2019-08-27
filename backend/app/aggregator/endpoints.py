@@ -74,14 +74,14 @@ def aggregate_sources(
         #     height=height,
         # )
         query = WMSGetMapQuery(
-            layers=item.wms_name,
+            layers=item.wms_catalogue.wms_name,
             bbox=bbox_string,
             width=width,
             height=height,
         )
         req = WMSRequest(
-            url=wms_url(item.wms_name),
-            layer=item.layer_id,
+            url=wms_url(item.wms_catalogue.wms_name),
+            layer=item.display_data_name,
             q=query
         )
         wms_requests.append(req)

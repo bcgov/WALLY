@@ -13,6 +13,8 @@ logger = logging.getLogger("template_builder")
 # but also allows overwriting of the defaults by implementing a layer method in
 # the app.template_builder.custom_builders file
 def build_templates(session: Session, geojson_layers: List):
+    # logger.info(geojson_layers)
+
     layer_names = [l.layer for l in geojson_layers]
     templates = db.get_display_templates(session, layer_names)
 
@@ -23,99 +25,71 @@ def build_templates(session: Session, geojson_layers: List):
     #     templates = db.get_display_templates(session, layer.layer)
 
     for template in templates:
+        logger.info(template)
+        override_key = template["display_template"].override_key
         # check for custom_builder matching method name to layer name
-        if hasattr(custom_builders, layer.layer):
+        if override_key is not None and hasattr(custom_builders, override_key):
             # hydrate our template with custom transformer
             hydrated_templates.append(
-                getattr(custom_builders, layer.layer)(template, layer.geojson.features)
+                getattr(custom_builders, override_key)(template, geojson_layers)
             )
-
         else:
             # hydrate our template using the default builder
+            # TODO ** Add support for multi-layer templates **
+            # use override key in that case and map data from geojson_layers
+            geojson_layer = next((x for x in geojson_layers if x.layer ==
+                                  template["display_template"].display_data_names[0]), None)
+
             hydrated_templates.append(
-                default_builder(template, layer.geojson.features)
+                default_builder(template, geojson_layer.geojson)
             )
 
     return hydrated_templates
 
 
-def default_builder(context, features):
-    # load layer specific context
-    context_data = json.loads(context.context)
-    logger.info(context_data)
-    for i in range(len(context_data)):
+def default_builder(template, features):
+    logger.info("*** DEFAULT_BUILDER ***")
+    # features = json.load(features)
+    logger.info(features)
 
-        if context_data[i]["type"] == "title":
-            continue
+    charts = []
+    for chart in template["charts"]:
+        labels = []
+        data_sets = [[]] * len(chart.dataset_keys)
 
-        if context_data[i]["type"] == "chart":
-            labels = []
-            data_sets = [[]] * len(context_data[i]["data_columns"])
-            for feature in features:
-                labels.append(feature.properties[context_data[i]["label_column"]])
+        for feature in features:
+            logger.info(feature)
+            labels.append(feature.properties[chart.labels_key])
+            for d in range(len(chart.dataset_keys)):
+                data_sets[d].append(feature.properties[chart.dataset_keys[d]])
 
-                for d in range(len(context_data[i]["data_columns"])):
-                    data_sets[d].append(feature.properties[context_data[i]["data_columns"][d]])
+        chart.chart["data"]["labels"] = labels
+        for c in range(len(chart.chart["data"]["datasets"])):
+            chart.chart["data"]["datasets"][c]["data"] = data_sets[c]
 
-                context_data[i]["chart"]["data"]["labels"] = labels
+        charts.append(chart)
 
-                for c in range(len(context_data[i]["chart"]["data"]["datasets"])):
-                    context_data[i]["chart"]["data"]["datasets"][c]["data"] = data_sets[c]
+    template["charts"] = charts
 
-        if context_data[i]["type"] == "links":
-            links = []
-            for feature in features:
-                links.append(context_data[i]["link_pattern"].\
-                    format(*link_data(context_data[i]["link_columns"], feature.properties)))
-            context_data[i]["links"] = links
-
-        if context_data[i]["type"] == "card":
-            continue
-
-        if context_data[i]["type"] == "table":
-            continue
-
-    # hydrate the layer context
-    context.context = context_data
-
-    return context
-
-
-# Default builder currently supports links and multiple charts with single datasets
-def default_builder2(context, features):
     links = []
-    labels = [[]] * len(context.chart_label_columns)
-    data = [[]] * len(context.chart_data_columns)
+    for link_component in template["links"]:
+        link_group = []
+        for feature in features:
+            link_group.append(link_component["link_pattern"]
+                         .format(*link_data(link_component["link_pattern_keys"], feature.properties)))
+        links.append(link_group)
 
-    # load layer specific context
-    context_data = json.loads(context.context)
+    template["links"] = links
 
-    # loop all features in result to build context data
-    for feature in features:
-        # add any external document site links
-        links.append(context.link_pattern.format(*link_data(context.link_columns, feature.properties)))
-        # add labels from label columns
-        for i in range(len(context.chart_label_columns)):
-            labels[i].append(feature.properties[context.chart_label_columns[i]])
-        # add data from data columns
-        for i in range(len(context.chart_data_columns)):
-            data[i].append(feature.properties[context.chart_data_columns[i]])
+    for image in template["images"]:
+        pass
 
-    # update context values with column values
-    context.links = links
+    for formula in template["formulas"]:
+        pass
 
-    # hydrate chart data with created label and data lists
-    # currently only one dataset per chart is supported
-    for i in range(len(context_data["charts"])):
-        if labels[i] is not None:
-            context_data["charts"][i]["chart"]["data"]["labels"] = labels[i]
-        if data[i] is not None:
-            context_data["charts"][i]["chart"]["data"]["datasets"][0]["data"] = data[i]
+    logger.info(template)
 
-    # hydrate the layer context
-    context.context = context_data
-
-    return context
+    return template
 
 
 def link_data(link_columns, props):

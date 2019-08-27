@@ -2,6 +2,7 @@
 from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
 
 # Custom Base Class
@@ -86,15 +87,15 @@ class DisplayCatalogue(Base):
                                        'identify data layers and connect data to templates.')
     label = Column(String, comment='label for label_column value')
     label_column = Column(String, comment='we use this column value as a list item label in the client')
-    highlight_columns = Column(ARRAY(String), comment='the key columns that have business value to the end user. '
+    highlight_columns = Column(ARRAY(TEXT), comment='the key columns that have business value to the end user. '
                                                       'We primarily will only show these columns in the '
                                                       'client and report')
 
-    api_catalogue_id = Column(String, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
+    api_catalogue_id = Column(Integer, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
                               comment='references api catalogue item')
     api_catalogue = relationship("ApiCatalogue")
 
-    wms_catalogue_id = Column(String, ForeignKey('metadata.wms_catalogue.wms_catalogue_id'),
+    wms_catalogue_id = Column(Integer, ForeignKey('metadata.wms_catalogue.wms_catalogue_id'),
                               comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
 
@@ -108,8 +109,12 @@ class DisplayTemplate(Base):
     title = Column(String, comment='title to be used for headers and labels for template')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
 
-    display_data_names = Column(ARRAY(String), comment='unique business keys that represent the required layers '
+    display_data_names = Column(ARRAY(TEXT), comment='unique business keys that represent the required layers '
                                                        'used to hydrate this display template')
+
+    override_key = Column(String, unique=True, comment='unique business key that is used to override '
+                                                       'default builder method during template hydration. '
+                                                       'optional field, if null then use default builder')
 
     display_catalogues = relationship("DisplayTemplateDisplayCatalogueXref", back_populates="display_template")
 
@@ -136,7 +141,7 @@ class ChartComponent(Base):
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
     chart = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
     labels_key = Column(String, comment='the key used to generate the labels array')
-    dataset_keys = Column(ARRAY(String), comment='the keys used to generate the raw data for chart datasets')
+    dataset_keys = Column(ARRAY(TEXT), comment='the keys used to generate the raw data for chart datasets')
     display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
                                  comment='reference to parent display template')
 

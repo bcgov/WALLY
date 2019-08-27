@@ -7,6 +7,7 @@ Create Date: 2019-08-12 15:30:53.291713
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 from sqlalchemy import ForeignKey
 import logging
 
@@ -158,7 +159,7 @@ def upgrade():
                           'layers and connect data to templates.'),
         sa.Column('label', sa.String, comment='label for label_column value'),
         sa.Column('label_column', sa.String, comment='we use this column value as a list item title in the client'),
-        sa.Column('highlight_columns', sa.ARRAY(sa.String), comment='the key columns that have business value to '
+        sa.Column('highlight_columns', ARRAY(TEXT), comment='the key columns that have business value to '
                                                                     'the end user. We primarily will only show these '
                                                                     'columns in the client and report'),
         sa.Column('api_catalogue_id', sa.Integer, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
@@ -186,9 +187,11 @@ def upgrade():
         sa.Column('title', sa.String, comment='title to be used for headers and labels for template'),
         sa.Column('display_order', sa.Integer, comment='determines which templates are shown first to last in 100s'),
 
-        sa.Column('display_data_names', sa.ARRAY(sa.String), comment='unique business keys that represent the required '
+        sa.Column('display_data_names', ARRAY(TEXT), comment='unique business keys that represent the required '
                                                                      'layers used to hydrate this display template'),
-
+        sa.Column('override_key', sa.String, unique=True, comment='unique business key that is used to override '
+                                                                  'default builder method during template hydration.'
+                                                                  'optional field, if null then use default builder'),
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
                                                       'created in the database.'),
@@ -226,7 +229,7 @@ def upgrade():
         sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('labels_key', sa.String, comment='the key used to generate the labels array'),
-        sa.Column('dataset_keys', sa.ARRAY(sa.String),
+        sa.Column('dataset_keys', ARRAY(TEXT),
                   comment='the keys used to generate the raw data for chart datasets'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
 
@@ -249,7 +252,7 @@ def upgrade():
         sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('link_pattern', sa.String, comment='url pattern to source document or webpage'),
-        sa.Column('link_pattern_keys', sa.ARRAY(sa.String), comment='keys to plug into link pattern'),
+        sa.Column('link_pattern_keys', ARRAY(TEXT), comment='keys to plug into link pattern'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
