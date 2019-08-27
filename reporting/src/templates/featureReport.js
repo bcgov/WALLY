@@ -140,10 +140,12 @@ class FeatureReport extends React.Component {
                 </Page>
 
                 {/* Hydrometric data section */}
+                {hydat && hydat.geojson && hydat.geojson.features &&
                 <Page size="LETTER" wrap style={styles.container}>
                     <Hydat data={hydat}></Hydat>
                 </Page>
-
+                }
+                
                 {/* Additional layers that were selected */}
 
                 {/* {sections.map((s, i) => (
