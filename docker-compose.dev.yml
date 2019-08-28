@@ -30,6 +30,7 @@ services:
     #   - ./reporting:/app
     env_file:
       - env-postgres.env
+      - env-backend.env
     depends_on:
       - db
       - backend

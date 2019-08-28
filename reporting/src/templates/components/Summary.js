@@ -1,5 +1,6 @@
 import React from 'react'
 import {Page, Text, View, Image, Document, Font, StyleSheet, Link} from  '@react-pdf/renderer'
+import SummaryMap from "./SummaryMap"
 
 const styles = StyleSheet.create({
     container: {
@@ -44,15 +45,17 @@ class ReportSummary extends React.Component {
                 <Text style={styles.text}>{`
                   Watershed: Still Creek
 
-                  Number of wells: 37
-                  Total well yield: 2100 USGPM
-                  
-                  Number of groundwater licences: 53
-                  Water withdrawal volume (annual): 5455466 cubic metres
+                  Number of water rights licenses: 7
+                  Total licensed quantity: 24 m3/day
                 `}
                 </Text>
               </View>
               <View style={styles.col1}>
+                <Text style={styles.text}>{`
+                  Number of groundwater licences: 3
+                  Water withdrawal volume (annual): 54554 m3
+                `}
+                </Text>
               </View>
             </View>
           </View>

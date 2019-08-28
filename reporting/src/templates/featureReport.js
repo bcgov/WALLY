@@ -6,7 +6,7 @@ import Footer from './common/Footer'
 import List, { Item } from './common/List';
 import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2} from "../charts";
-import Map from "../transformers/locationToMapImage";
+import SummaryMap from "./components/SummaryMap";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
 import { sampleData } from './sampleData'
 import querystring from 'querystring'
@@ -15,6 +15,7 @@ import Aquifer from './components/Aquifer'
 import ReportSummary from './components/Summary'
 import Hydat from './components/Hydat'
 import font from '../assets/MyriadWebPro.ttf'
+import mapData from './mapData'
 
 Font.register({
     family: 'MyriadWebPro',
@@ -27,17 +28,37 @@ const generateFeatureReport = async (data) => {
     let props = {}
 
     const bbox = data.bbox
-    const layers = data.layers
+    const layers = data.layers || []
 
     if (!bbox || !bbox.length || bbox.length !== 4) {
         throw "bbox must be a list of 4 numbers representing corners of a bounding box, e.g. x1,y1,x2,y2"
     }
 
-    if (!layers) {
-        throw "layers must be supplied"
+    // default layers that should always be included.
+    const defaultLayers = [
+        mapData.WMS_WATERSHEDS,
+        mapData.WMS_AQUIFERS,
+        mapData.WMS_WATER_RIGHTS_LICENCES,
+        mapData.WMS_GROUNDWATER_LICENCES
+    ]
+
+    // add in default layers before making request
+    for (let i = 0; i < defaultLayers.length; i++) {
+        if (!layers.includes(defaultLayers[i])) {
+            layers.push(defaultLayers[i])
+        }
     }
 
-    const layerData = await axios.get("http://backend:8000/api/v1/aggregate?" +
+    // Fetch aggregated map data.
+    // The API's service name needs to be known.
+    // For an OpenShift deployment, this should be the OpenShift service name.
+    // For local development, this should correspond to the API's docker-compose
+    // service name.  See env-backend.env in Wally's root folder to fill in
+    // this value for docker-compose.
+    const layerData = await axios.get(
+        "http://" +
+        (process.env.API_SERVICE || "") +
+        "/api/v1/aggregate?" +
         querystring.stringify({
             bbox: bbox,
             layers: layers
@@ -47,7 +68,25 @@ const generateFeatureReport = async (data) => {
     props['data'] = layerData.data
 
     // Transformers
-    const map = new Map(bbox)
+    const map = new SummaryMap()
+    const watersheds = layerData.data.find(s => s.layer === mapData.WMS_WATERSHEDS)
+
+    // iterate through watersheds (checking first that watersheds were included in the map layer data),
+    // adding a polygon for each watershed.
+    watersheds && watersheds.geojson.features && watersheds.geojson.features.forEach((f, i) => {
+        if (i > 15) return; // temporary: limit number of polygons drawn
+        f.geometry.coordinates.forEach((c) => {
+            map.addPolygon({
+                coords: c,
+                color: '#0000FFBB',
+                width: 2
+            })
+        })
+
+    })
+
+    // ReactPDF currently does not support SVG
+    // TODO: update to render svg when svg support arrives
     const mapImage = await map.png()
 
     props['map'] =  { data: mapImage, format: 'png' }
@@ -116,10 +155,8 @@ class FeatureReport extends React.Component {
     render() {
         const sections = this.props.data
         const createDate = Date()
-        const aquifers = sections.find(s => s.layer === 'WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW')
-        const hydat = sections.find(s => s.layer === 'HYDAT')
-
-        console.log(aquifers)
+        const aquifers = sections.find(s => s.layer === mapData.WMS_AQUIFERS)
+        const hydat = sections.find(s => s.layer === mapData.HYDAT)
 
         return (
             <Document>
@@ -130,7 +167,9 @@ class FeatureReport extends React.Component {
                         Report Created: {createDate}
                     </Text>
                     <View style={styles.section}>
-                        <ReportSummary map={this.props.map}></ReportSummary>
+                        <ReportSummary 
+                            map={this.props.map}
+                        ></ReportSummary>
                     </View>
                 </Page>
 

@@ -24,6 +24,13 @@ def get_layers(layers: List[str]):
             "type": "wms"
         })
 
+    if "WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY" in layers:
+        valid_layers.append({
+            "id": "WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY",
+            "api_url": "https://openmaps.gov.bc.ca/geo/pub/WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY/ows?",
+            "type": "wms"
+        })
+
     if "HYDAT" in layers:
         valid_layers.append({
             "id": "HYDAT",

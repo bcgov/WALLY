@@ -1,6 +1,5 @@
 import React from 'react'
 import {Page, Text, View, Image, Document, Font, StyleSheet, Link} from  '@react-pdf/renderer'
-import locationToMapImage from '../../transformers/locationToMapImage'
 
 const styles = StyleSheet.create({
     container: {
@@ -36,7 +35,6 @@ class Hydat extends React.Component {
     }
     render() {
         const hydat = this.props.data.geojson.features
-        console.log(hydat)
         return (
 
             <View style={styles.section}>
