@@ -13,9 +13,9 @@ logger = getLogger("api")
 def get_display_catalogue(db: Session):
     """ Get all supported catalogue layers"""
     q = db.query(DisplayCatalogue).options(joinedload(DisplayCatalogue.wms_catalogue),
-                                           joinedload(DisplayCatalogue.api_catalogue))
+                                           joinedload(DisplayCatalogue.api_catalogue))\
                                            .all()
-    return db.query(DisplayCatalogue).all()
+    return q
 
 
 def get_highlight_columns(db: Session, display_data_name: str):

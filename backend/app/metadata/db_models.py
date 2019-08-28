@@ -88,8 +88,8 @@ class DisplayCatalogue(Base):
     label = Column(String, comment='label for label_column value')
     label_column = Column(String, comment='we use this column value as a list item label in the client')
     highlight_columns = Column(ARRAY(TEXT), comment='the key columns that have business value to the end user. '
-                                                      'We primarily will only show these columns in the '
-                                                      'client and report')
+                                                    'We primarily will only show these columns in the '
+                                                    'client and report')
 
     api_catalogue_id = Column(Integer, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
                               comment='references api catalogue item')
@@ -134,10 +134,21 @@ class DisplayTemplateDisplayCatalogueXref(Base):
     display_template = relationship("DisplayTemplate", back_populates="display_catalogues")
 
 
+class ComponentTypeCode(Base):
+    __tablename__ = 'component_type_code'
+    component_type_code = Column(String, primary_key=True,
+                                 comment='components have many different types, which determines what business '
+                                         'logic to use when constructing the component.')
+    description = Column(String, comment='explanation of component type and use case')
+
+
 class ChartComponent(Base):
     __tablename__ = 'chart_component'
     chart_component_id = Column(Integer, primary_key=True)
     title = Column(String, comment='title to be used for headers and labels for components')
+    component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
+                                 comment='component type used for rendering functionality')
+    component_type = relationship('ComponentTypeCode')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
     chart = Column(JSON, comment='this holds the chart js json schema to use in the client and reporting')
     labels_key = Column(String, comment='the key used to generate the labels array')
@@ -150,6 +161,9 @@ class LinkComponent(Base):
     __tablename__ = 'link_component'
     link_component_id = Column(Integer, primary_key=True)
     title = Column(String, comment='title to be used for headers and labels for components')
+    component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
+                                 comment='component type used for rendering functionality')
+    component_type = relationship('ComponentTypeCode')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
     link_pattern = Column(String, comment='url pattern to source document or web page')
     link_pattern_keys = Column(ARRAY(String), comment='keys to plug into link pattern')
@@ -161,6 +175,9 @@ class ImageComponent(Base):
     __tablename__ = 'image_component'
     image_component_id = Column(Integer, primary_key=True)
     title = Column(String, comment='title to be used for headers and labels for components')
+    component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
+                                 comment='component type used for rendering functionality')
+    component_type = relationship('ComponentTypeCode')
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
     width = Column(Integer, comment='x size of image')
     height = Column(Integer, comment='y size of image')
@@ -172,7 +189,11 @@ class ImageComponent(Base):
 class FormulaComponent(Base):
     __tablename__ = 'formula_component'
     formula_component_id = Column(Integer, primary_key=True)
-
+    title = Column(String, comment='title to be used for headers and labels for components')
+    component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
+                                 comment='component type used for rendering functionality')
+    component_type = relationship('ComponentTypeCode')
+    display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
     formula_component = Column(JSON, comment='formula layout for calculation')
     display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
                                  comment='reference to parent display template')

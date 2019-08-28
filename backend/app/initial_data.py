@@ -4,7 +4,7 @@ import json
 import datetime
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.metadata.db_models import ApiCatalogue, WmsCatalogue, DataFormatCode, \
+from app.metadata.db_models import ApiCatalogue, WmsCatalogue, DataFormatCode, ComponentTypeCode, \
     DisplayCatalogue, DisplayTemplate, ChartComponent, LinkComponent, ImageComponent, FormulaComponent, \
     DisplayTemplateDisplayCatalogueXref
 
@@ -28,7 +28,8 @@ def create_hydat_data():
 def load_fixtures():
     # User file array to ensure loading order
     # File names must match class names for globals() to work
-    files = ['ApiCatalogue.json', "WmsCatalogue.json", 'DisplayCatalogue.json', "DataFormatCode.json"]
+    files = ['ApiCatalogue.json', "WmsCatalogue.json", 'DisplayCatalogue.json',
+             "DataFormatCode.json",  "ComponentTypeCode.json"]
     directory = '/app/fixtures/'
 
     logger = logging.getLogger("metadata")
@@ -78,7 +79,8 @@ def load_display_templates():
                 [db_session.merge(ChartComponent(**{**chart, **get_audit_fields()})) for chart in data["charts"]]
                 [db_session.merge(LinkComponent(**{**link, **get_audit_fields()})) for link in data["links"]]
                 [db_session.merge(ImageComponent(**{**image, **get_audit_fields()})) for image in data["images"]]
-                [db_session.merge(FormulaComponent(**{**formula, **get_audit_fields()})) for formula in data["formulas"]]
+                [db_session.merge(FormulaComponent(**{**formula,
+                                                      **get_audit_fields()})) for formula in data["formulas"]]
 
     logger.info("Merging Display Templates Complete")
     db_session.commit()

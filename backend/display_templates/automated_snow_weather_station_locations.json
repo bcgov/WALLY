@@ -2,7 +2,7 @@
   "display_template": {
     "display_template_id": 2,
     "title": "Automated Snow Weather Stations",
-    "display_order": "100",
+    "display_order": 100,
     "display_data_names": [
       "automated_snow_weather_station_locations"
     ]
@@ -11,10 +11,11 @@
     {
       "chart_component_id": 1,
       "title": "Weather Station Elevation",
-      "display_order": 200,
+      "component_type_code": "chart",
+      "display_order": 100,
       "labels_key": "LOCATION_NAME",
       "dataset_keys": ["ELEVATION"],
-      "display_template_id": 1,
+      "display_template_id": 2,
       "chart": {
         "type": "bar",
         "data": {
@@ -34,10 +35,11 @@
     {
       "link_component_id": 1,
       "title": "Snow Reports",
+      "component_type_code": "link",
       "display_order": 200,
       "link_pattern": "http://aqrt.nrs.gov.bc.ca/Report/Show/{0}/Snow.{1}.SnowStatGraph.pdf",
       "link_pattern_keys": ["OBJECTID", "LOCATION_ID"],
-      "display_template_id": 1
+      "display_template_id": 2
     }
   ],
   "tables": [],

@@ -130,25 +130,25 @@ def upgrade():
                                                       'should not be used.')
     )
 
-    # op.create_table(
-    #     'component_type_code',
-    #     sa.Column('component_type_code', sa.String, primary_key=True,
-    #               comment='components have many different types, which determines what business logic to use when '
-    #                       'constructing the component.'),
-    #     sa.Column('description', sa.String, comment='explanation of component type and use case'),
-    #
-    #     sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
-    #     sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
-    #                                                   'created in the database.'),
-    #     sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
-    #     sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
-    #                                                   'in the database. It will be the same as the create_date until '
-    #                                                   'the record is first updated after creation.'),
-    #     sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
-    #                                                      'and could be used.'),
-    #     sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
-    #                                                   'should not be used.')
-    # )
+    op.create_table(
+        'component_type_code',
+        sa.Column('component_type_code', sa.String, primary_key=True,
+                  comment='components have many different types, which determines what business logic to use when '
+                          'constructing the component.'),
+        sa.Column('description', sa.String, comment='explanation of component type and use case'),
+
+        sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
+        sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
+                                                      'created in the database.'),
+        sa.Column('update_user', sa.String(100), comment='The user who last updated this record in the database.'),
+        sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
+                                                      'in the database. It will be the same as the create_date until '
+                                                      'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
+    )
 
     op.create_table(
         'display_catalogue',
@@ -160,8 +160,8 @@ def upgrade():
         sa.Column('label', sa.String, comment='label for label_column value'),
         sa.Column('label_column', sa.String, comment='we use this column value as a list item title in the client'),
         sa.Column('highlight_columns', ARRAY(TEXT), comment='the key columns that have business value to '
-                                                                    'the end user. We primarily will only show these '
-                                                                    'columns in the client and report'),
+                                                            'the end user. We primarily will only show these '
+                                                            'columns in the client and report'),
         sa.Column('api_catalogue_id', sa.Integer, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
                   comment='reference to api catalogue item'),
         sa.Column('wms_catalogue_id', sa.Integer, ForeignKey('metadata.wms_catalogue.wms_catalogue_id'),
@@ -188,7 +188,7 @@ def upgrade():
         sa.Column('display_order', sa.Integer, comment='determines which templates are shown first to last in 100s'),
 
         sa.Column('display_data_names', ARRAY(TEXT), comment='unique business keys that represent the required '
-                                                                     'layers used to hydrate this display template'),
+                                                             'layers used to hydrate this display template'),
         sa.Column('override_key', sa.String, unique=True, comment='unique business key that is used to override '
                                                                   'default builder method during template hydration.'
                                                                   'optional field, if null then use default builder'),
@@ -232,6 +232,8 @@ def upgrade():
         sa.Column('dataset_keys', ARRAY(TEXT),
                   comment='the keys used to generate the raw data for chart datasets'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
+        sa.Column('component_type_code', sa.String, ForeignKey('metadata.component_type_code.component_type_code'),
+                  comment='component type used for rendering functionality'),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
@@ -254,6 +256,8 @@ def upgrade():
         sa.Column('link_pattern', sa.String, comment='url pattern to source document or webpage'),
         sa.Column('link_pattern_keys', ARRAY(TEXT), comment='keys to plug into link pattern'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
+        sa.Column('component_type_code', sa.String, ForeignKey('metadata.component_type_code.component_type_code'),
+                  comment='component type used for rendering functionality'),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
@@ -277,6 +281,8 @@ def upgrade():
         sa.Column('height', sa.Integer, comment='y size of image'),
         sa.Column('url', sa.String, comment='source url to image source'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
+        sa.Column('component_type_code', sa.String, ForeignKey('metadata.component_type_code.component_type_code'),
+                  comment='component type used for rendering functionality'),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         sa.Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was '
@@ -297,6 +303,8 @@ def upgrade():
         sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('formula_component', sa.JSON, comment='formula layout for calculation'),
+        sa.Column('component_type_code', sa.String, ForeignKey('metadata.component_type_code.component_type_code'),
+                  comment='component type used for rendering functionality'),
         sa.Column('display_template_id', sa.Integer, ForeignKey('metadata.display_template.display_template_id')),
 
         sa.Column('create_user', sa.String(100), comment='The user who created this record in the database.'),

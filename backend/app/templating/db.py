@@ -27,6 +27,8 @@ def get_display_templates(db: Session, display_data_names: List[str]):
     #     templates.append(multi_templates)
     #     logger.info(multi_templates)
 
+    logger.info(templates)
+
     if templates is not None:
         display_templates = []
 

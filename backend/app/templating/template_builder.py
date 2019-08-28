@@ -41,6 +41,7 @@ def build_templates(session: Session, geojson_layers: List):
             hydrated_templates.append(
                 default_builder(template, geojson_layer.geojson.features)
             )
+            hydrated_templates = sorted(hydrated_templates, key=lambda i: i['display_order'])
 
     return hydrated_templates
 
@@ -50,7 +51,8 @@ def default_builder(template, features):
     hydrated_template = {
         "title": template["display_template"].title,
         "display_order": template["display_template"].display_order,
-        "display_data_names": template["display_template"].display_data_names
+        "display_data_names": template["display_template"].display_data_names,
+        "display_components": []
     }
 
     charts = []
@@ -68,17 +70,19 @@ def default_builder(template, features):
 
         result = {
             "title": chart.title,
+            "type": chart.component_type_code,
             "display_order": chart.display_order,
             "chart": chart.chart
         }
         charts.append(result)
 
-    hydrated_template["charts"] = charts
+    [hydrated_template["display_components"].append(c) for c in charts]
 
     links = []
     for link_component in template["links"]:
         link_group = {
             "title": link_component.title,
+            "type": link_component.component_type_code,
             "display_order": link_component.display_order,
             "links": []
         }
@@ -88,13 +92,16 @@ def default_builder(template, features):
 
         links.append(link_group)
 
-    hydrated_template["links"] = links
+    [hydrated_template["display_components"].append(l) for l in links]
 
     for image in template["images"]:
         pass
 
     for formula in template["formulas"]:
         pass
+
+    hydrated_template["display_components"] = \
+        sorted(hydrated_template["display_components"], key=lambda i: i['display_order'])
 
     return hydrated_template
 
