@@ -1,10 +1,10 @@
 {
   "display_template": {
-    "display_template_id": 6,
-    "title": "Ecocat Water Related Reports",
-    "display_order": 600,
+    "display_template_id": 10,
+    "title": "Ground Water Licenses",
+    "display_order": 1000,
     "display_data_names": [
-      "ecocat_water_related_reports"
+      "ground_water_licenses"
     ]
   },
   "charts": [],

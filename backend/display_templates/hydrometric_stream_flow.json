@@ -1,10 +1,10 @@
 {
   "display_template": {
-    "display_template_id": 6,
-    "title": "Ecocat Water Related Reports",
-    "display_order": 600,
+    "display_template_id": 12,
+    "title": "Hydrometric Stream Flow",
+    "display_order": 1200,
     "display_data_names": [
-      "ecocat_water_related_reports"
+      "hydrometric_stream_flow"
     ]
   },
   "charts": [],

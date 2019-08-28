@@ -1,10 +1,10 @@
 {
   "display_template": {
-    "display_template_id": 6,
-    "title": "Ecocat Water Related Reports",
-    "display_order": 600,
+    "display_template_id": 1,
+    "title": "Artesian Wells",
+    "display_order": 100,
     "display_data_names": [
-      "ecocat_water_related_reports"
+      "artesian_wells"
     ]
   },
   "charts": [],

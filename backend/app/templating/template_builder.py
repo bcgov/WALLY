@@ -13,7 +13,6 @@ logger = logging.getLogger("template_builder")
 # but also allows overwriting of the defaults by implementing a layer method in
 # the app.template_builder.custom_builders file
 def build_templates(session: Session, geojson_layers: List):
-    # logger.info(geojson_layers)
 
     layer_names = [l.layer for l in geojson_layers]
     templates = db.get_display_templates(session, layer_names)
@@ -25,7 +24,6 @@ def build_templates(session: Session, geojson_layers: List):
     #     templates = db.get_display_templates(session, layer.layer)
 
     for template in templates:
-        logger.info(template)
         override_key = template["display_template"].override_key
         # check for custom_builder matching method name to layer name
         if override_key is not None and hasattr(custom_builders, override_key):
@@ -48,7 +46,6 @@ def build_templates(session: Session, geojson_layers: List):
 
 
 def default_builder(template, features):
-    logger.info(template)
 
     hydrated_template = {
         "title": template["display_template"].title,
@@ -61,7 +58,6 @@ def default_builder(template, features):
         labels = []
         data_sets = [[]] * len(chart.dataset_keys)
         for feature in features:
-            logger.info(feature)
             labels.append(feature.properties[chart.labels_key])
             for d in range(len(chart.dataset_keys)):
                 data_sets[d].append(feature.properties[chart.dataset_keys[d]])
@@ -99,8 +95,6 @@ def default_builder(template, features):
 
     for formula in template["formulas"]:
         pass
-
-    logger.info(hydrated_template)
 
     return hydrated_template
 

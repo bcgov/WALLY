@@ -1,6 +1,6 @@
 {
   "display_template": {
-    "display_template_id": 1,
+    "display_template_id": 2,
     "title": "Automated Snow Weather Stations",
     "display_order": "100",
     "display_data_names": [
@@ -11,7 +11,7 @@
     {
       "chart_component_id": 1,
       "title": "Weather Station Elevation",
-      "display_order": 100,
+      "display_order": 200,
       "labels_key": "LOCATION_NAME",
       "dataset_keys": ["ELEVATION"],
       "display_template_id": 1,

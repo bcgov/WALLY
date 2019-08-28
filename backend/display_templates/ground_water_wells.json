@@ -1,8 +1,8 @@
 {
   "display_template": {
-    "display_template_id": 3,
+    "display_template_id": 11,
     "title": "Ground Water Wells",
-    "display_order": "300",
+    "display_order": 1100,
     "display_data_names": [
       "ground_water_wells"
     ]
