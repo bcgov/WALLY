@@ -29,14 +29,14 @@ export default {
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
         this.getters.allMapLayers.find((layer) => {
-          return layer.layer_id === payload
+          return layer.display_data_name === payload
         })
       )
       EventBus.$emit(`layer:added`, payload)
     },
     removeMapLayer (state, payload) {
       state.activeMapLayers = state.activeMapLayers.filter((layer) => {
-        return layer.layer_id !== payload
+        return layer.display_data_name !== payload
       })
       EventBus.$emit(`layer:removed`, payload)
     },
@@ -46,10 +46,14 @@ export default {
   },
   getters: {
     activeMapLayers: state => state.activeMapLayers,
-    isMapLayerActive: state => layerId => !!state.activeMapLayers.find((x) => x && x.layer_id === layerId),
+    isMapLayerActive: state => displayDataName => !!state.activeMapLayers.find((x) => x && x.display_data_name === displayDataName),
     mapLayerName: (state) => (wmsName) => {
-      var layer = state.mapLayers.find(e => e.wms_name === wmsName)
-      return layer ? layer.layer_name : ''
+      let layer = state.mapLayers.find(e => e.wms_name === wmsName)
+      return layer ? layer.display_name : ''
+    },
+    getMapLayer: (state) => (display_data_name) => {
+      let layer = state.mapLayers.find(e => e.display_data_name === display_data_name)
+      return layer ? layer : null
     },
     allMapLayers: state => state.mapLayers
   }

@@ -61,7 +61,7 @@
   },
   {
     "wms_catalogue_id": 11,
-    "description": "Ground Water Licenses",
+    "description": "Points of Well Diversion - Licenses",
     "wms_name": "WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW",
     "wms_style": ""
   },

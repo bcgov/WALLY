@@ -42,26 +42,10 @@ export default {
         }],
         visible: true
       }
-    // this.chartData.labels = []
-    // this.chartData.datasets.forEach( (dataset, i) => {
-    //   this.chartData.datasets[i].data = []
-    //   this.chartData.datasets[i].label = ''
-    // })
 
     this.chartData = this.data
     this.chartData.visible = true
 
-    // Build chart data
-    // this.features.forEach(item => {
-    //   this.chartData.labels.push(item.properties[this.data.label_key])
-    //   this.data.datasets_key.forEach((datasetKey, i) => {
-    //     this.chartData.datasets[i].label = this.data.datasets_labels[i]
-    //     this.chartData.datasets[i].data.push(item.properties[datasetKey])
-    //   })
-    //   // this.chartData.datasets[0].borderColor.push('rgba(54, 162, 235, 1)')
-    //   // this.chartData.datasets[0].backgroundColor.push('rgba(54, 162, 235, 0.2)')
-    //   // console.log(this.chartData)
-    // })
   }
 }
 </script>

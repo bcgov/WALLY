@@ -1,21 +1,31 @@
 """
 Database tables and data access functions for Wally Data Layer Meta Information
 """
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, load_only
-from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource
+from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource, WmsCatalogue, ApiCatalogue
 import itertools
 from logging import getLogger
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, subqueryload
 
 logger = getLogger("api")
 
 
 def get_display_catalogue(db: Session):
     """ Get all supported catalogue layers"""
-    q = db.query(DisplayCatalogue).options(joinedload(DisplayCatalogue.wms_catalogue),
-                                           joinedload(DisplayCatalogue.api_catalogue))\
-                                           .all()
-    return q
+    wms_query = db.query(DisplayCatalogue.display_name, DisplayCatalogue.display_data_name,
+                         DisplayCatalogue.highlight_columns, DisplayCatalogue.label, DisplayCatalogue.label_column,
+                         WmsCatalogue.description, WmsCatalogue.wms_name, WmsCatalogue.wms_style,)
+
+    wms_result = wms_query.filter(DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all()
+
+    api_query = db.query(DisplayCatalogue.display_name, DisplayCatalogue.display_data_name,
+                         DisplayCatalogue.highlight_columns, DisplayCatalogue.label, DisplayCatalogue.label_column,
+                         ApiCatalogue.description, ApiCatalogue.url,)
+
+    api_result = api_query.filter(DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id).all()
+
+    return wms_result + api_result
 
 
 def get_highlight_columns(db: Session, display_data_name: str):

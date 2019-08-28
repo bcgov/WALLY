@@ -41,7 +41,8 @@ export default {
       'dataMartFeatures',
       'dataMartFeatureInfo',
       'allMapLayers',
-      'mapLayerName'
+      'mapLayerName',
+      'getMapLayer'
     ]),
     items() {
       return [
@@ -49,14 +50,13 @@ export default {
           title: 'Layers',
           icon: 'layers',
           action: 'layers',
-          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.map_layer_type_id === metadataUtils.WMS_DATAMART) : []
+          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.wms_name !== '') : []
         },
         {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          // TODO: Replace with api call
-          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
+          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.url !== '') : []
         }
       ]
     }
@@ -91,7 +91,7 @@ export default {
         this.$store.dispatch('downloadLayersReport', this.dataMartFeatures)
       } else if (this.active_tab === 2) {
         this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.layer_id), ...this.dataMartFeatureInfo })
+          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.display_data_name), ...this.dataMartFeatureInfo })
       }
     },
     handleFeatureItemClick (item) {
@@ -101,11 +101,11 @@ export default {
       } else {
         item.coordinates = null
       }
-      this.$store.commit('setDataMartFeatureInfo', 
+      this.$store.commit('setDataMartFeatureInfo',
       {
-        layer_id: item.id,
+        display_data_name: item.id,
         coordinates: item.coordinates,
-        properties: item.properties 
+        properties: item.properties
       })
     },
     humanReadable: val => humanReadable(val),

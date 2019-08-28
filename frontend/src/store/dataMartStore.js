@@ -9,15 +9,15 @@ export default {
     activeDataMarts: [],
     displayTemplates: [],
     dataMartFeatureInfo: { content: { properties: {} } },
-    displayDataFeatures: [] // selected points
+    dataMartFeatures: [] // selected points
   },
   actions: {
     getDataMart ({ commit }, payload) {
       // Get the datamart either via API or wms layer
-      const { layer_id, url } = payload
+      const { display_data_name, url } = payload
       ApiService.getRaw(url).then((response) => {
         commit('addDataMart', {
-          layer_id: layer_id,
+          display_data_name: display_data_name,
           data: response.data
         })
         EventBus.$emit(`dataMart:updated`, payload)
@@ -31,7 +31,7 @@ export default {
       ApiService.getRaw(payload.url).then((res) => {
         // TODO validate properties
         commit('setDataMartFeatureInfo', {
-          layer_id: res.data.features[0].id,
+          display_data_name: res.data.features[0].id,
           coordinates: [payload.lat, payload.lng],
           properties: res.data.features[0].properties })
         EventBus.$emit(`feature:added`, payload)
@@ -41,7 +41,7 @@ export default {
     },
     getDataMartFeatures ({ commit }, payload) {
       var layers = payload.layers.map((x) => {
-        return "layers=" + x.layer_id + "&"
+        return "layers=" + x.display_data_name + "&"
       })
 
       var bbox = payload.bounds.split(',')
@@ -57,12 +57,12 @@ export default {
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi("/aggregate?" + params)
         .then((response) => {
-          console.log('response for aggregate', response)
+          // console.log('response for aggregate', response)
           let displayData = response.data.display_data
           let displayTemplates = response.data.display_templates
 
           displayData.forEach(layer => {
-            commit('setDisplayDataFeatures', { [layer.layer]: layer.geojson.features })
+            commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
           });
 
           commit('setDisplayTemplates', { displayTemplates })
@@ -97,7 +97,7 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
     },
-    setDisplayDataFeatures: (state, payload) => { state.displayDataFeatures.push(payload) },
+    setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     addDataMart (state, payload) {
@@ -106,7 +106,7 @@ export default {
     },
     removeDataMart (state, payload) {
       state.activeDataMarts = state.activeDataMarts.filter(function (source) {
-        return source.layer_id !== payload
+        return source.display_data_name !== payload
       })
       EventBus.$emit(`dataMart:removed`, payload)
     }
@@ -116,7 +116,7 @@ export default {
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     activeDataMarts: state => state.activeDataMarts,
-    isDataMartActive: state => layer_id => !!state.activeDataMarts.find((x) => x && x.layer_id === layer_id),
+    isDataMartActive: state => display_data_name => !!state.activeDataMarts.find((x) => x && x.display_data_name === display_data_name),
     allDataMarts: () => [], // ideally grab these from the meta data api
   }
 }
