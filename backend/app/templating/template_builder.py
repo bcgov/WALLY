@@ -41,22 +41,25 @@ def build_templates(session: Session, geojson_layers: List):
                                   template["display_template"].display_data_names[0]), None)
 
             hydrated_templates.append(
-                default_builder(template, geojson_layer.geojson)
+                default_builder(template, geojson_layer.geojson.features)
             )
 
     return hydrated_templates
 
 
 def default_builder(template, features):
-    logger.info("*** DEFAULT_BUILDER ***")
-    # features = json.load(features)
-    logger.info(features)
+    logger.info(template)
+
+    hydrated_template = {
+        "title": template["display_template"].title,
+        "display_order": template["display_template"].display_order,
+        "display_data_names": template["display_template"].display_data_names
+    }
 
     charts = []
     for chart in template["charts"]:
         labels = []
         data_sets = [[]] * len(chart.dataset_keys)
-
         for feature in features:
             logger.info(feature)
             labels.append(feature.properties[chart.labels_key])
@@ -67,19 +70,29 @@ def default_builder(template, features):
         for c in range(len(chart.chart["data"]["datasets"])):
             chart.chart["data"]["datasets"][c]["data"] = data_sets[c]
 
-        charts.append(chart)
+        result = {
+            "title": chart.title,
+            "display_order": chart.display_order,
+            "chart": chart.chart
+        }
+        charts.append(result)
 
-    template["charts"] = charts
+    hydrated_template["charts"] = charts
 
     links = []
     for link_component in template["links"]:
-        link_group = []
+        link_group = {
+            "title": link_component.title,
+            "display_order": link_component.display_order,
+            "links": []
+        }
         for feature in features:
-            link_group.append(link_component["link_pattern"]
-                         .format(*link_data(link_component["link_pattern_keys"], feature.properties)))
+            link_group["links"].append(link_component.link_pattern
+                         .format(*link_data(link_component.link_pattern_keys, feature.properties)))
+
         links.append(link_group)
 
-    template["links"] = links
+    hydrated_template["links"] = links
 
     for image in template["images"]:
         pass
@@ -87,9 +100,9 @@ def default_builder(template, features):
     for formula in template["formulas"]:
         pass
 
-    logger.info(template)
+    logger.info(hydrated_template)
 
-    return template
+    return hydrated_template
 
 
 def link_data(link_columns, props):
