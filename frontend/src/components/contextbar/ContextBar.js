@@ -19,7 +19,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'contexts'
+      'displayTemplates'
     ])
   },
   mounted () {
@@ -31,36 +31,46 @@ export default {
     openContextBar () {
       this.drawer.mini = false
     },
-    build (contexts) {
+    build (displayTemplates) {
       // contexts.length > 0 && items.forEach(layers => {
         this.contextComponents = []
         // Go through each layer
-        Object.values(contexts.contexts).forEach( (layer) => {
-          layer.context.forEach(contextData => {
-            switch (contextData.type) {
-              case 'chart':
-                console.log('building chart')
-                this.contextComponents.push({ component: ChartWMS, data: contextData.chart, key: this.chartKey })
 
-                // if (dataMarts[layer].type === 'wms') {
-                //   contextData.features = layers[layer]
-                //   this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
-                // } else if (dataMarts[layer].type === 'api') {
-                //   this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
-                // }
-                break
-              case 'links':
-                console.log('building links')
-                break
-              case 'title':
-                console.log('building title')
-                break
-              case 'image':
-                console.log('building image')
-                this.contextComponents.push({ component: ContextImage, data: contextData })
-                break
-            }
-          })
+
+        displayTemplates.forEach( (template) => {
+
+          for (let chart in template["charts"]) {
+            this.contextComponents.push({ component: ChartWMS, data: chart, key: this.chartKey })
+          }
+          // for (let link in template["links"]) {
+          //   this.contextComponents.push({ component: ChartWMS, data: chart, key: this.chartKey })
+          // }
+
+          // template.context.forEach(contextData => {
+          //   switch (contextData.type) {
+          //     case 'chart':
+          //       console.log('building chart')
+          //       this.contextComponents.push({ component: ChartWMS, data: contextData.chart, key: this.chartKey })
+          //
+          //       // if (dataMarts[layer].type === 'wms') {
+          //       //   contextData.features = layers[layer]
+          //       //   this.contextComponents.push({ component: ChartWMS, data: contextData, key: this.chartKey })
+          //       // } else if (dataMarts[layer].type === 'api') {
+          //       //   this.contextComponents.push({ component: ChartAPI, data: contextData, key: this.chartKey })
+          //       // }
+          //       break
+          //     case 'links':
+          //       console.log('building links')
+          //       break
+          //     case 'title':
+          //       console.log('building title')
+          //       break
+          //     case 'image':
+          //       console.log('building image')
+          //       this.contextComponents.push({ component: ContextImage, data: contextData })
+          //       break
+          //   }
+          // })
         })
       // })
       console.log('context components', this.contextComponents)
@@ -68,7 +78,7 @@ export default {
     }
   },
   watch: {
-    contexts (value) {
+    displayTemplates (value) {
       // if (value.length > 0) {
         this.build(value)
         this.chartKey++ // hack to refresh vue component; doesn't work

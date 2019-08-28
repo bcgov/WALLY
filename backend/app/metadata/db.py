@@ -5,12 +5,16 @@ from sqlalchemy.orm import Session, load_only
 from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource
 import itertools
 from logging import getLogger
+from sqlalchemy.orm import joinedload
 
 logger = getLogger("api")
 
 
 def get_display_catalogue(db: Session):
     """ Get all supported catalogue layers"""
+    q = db.query(DisplayCatalogue).options(joinedload(DisplayCatalogue.wms_catalogue),
+                                           joinedload(DisplayCatalogue.api_catalogue))
+                                           .all()
     return db.query(DisplayCatalogue).all()
 
 

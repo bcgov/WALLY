@@ -7,9 +7,9 @@ import * as metaDataUtils from '../utils/metadataUtils'
 export default {
   state: {
     activeDataMarts: [],
-    contexts: {},
+    displayTemplates: [],
     dataMartFeatureInfo: { content: { properties: {} } },
-    dataMartFeatures: [] // selected points
+    displayDataFeatures: [] // selected points
   },
   actions: {
     getDataMart ({ commit }, payload) {
@@ -58,14 +58,14 @@ export default {
       ApiService.getApi("/aggregate?" + params)
         .then((response) => {
           console.log('response for aggregate', response)
-          let layers = response.data.layers
-          let contexts = response.data.contexts
+          let displayData = response.data.display_data
+          let displayTemplates = response.data.display_templates
 
-          layers.forEach(layer => {
-            commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
+          displayData.forEach(layer => {
+            commit('setDisplayDataFeatures', { [layer.layer]: layer.geojson.features })
           });
 
-          commit('setDataMartContexts', { contexts })
+          commit('setDisplayTemplates', { displayTemplates })
 
         }).catch((error) => {
           console.log(error)
@@ -94,11 +94,11 @@ export default {
     }
   },
   mutations: {
-    setDataMartFeatureInfo: (state, payload) => { 
-      state.dataMartFeatureInfo = payload 
+    setDataMartFeatureInfo: (state, payload) => {
+      state.dataMartFeatureInfo = payload
     },
-    setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
-    setDataMartContexts: (state, payload) => { state.contexts = payload },
+    setDisplayDataFeatures: (state, payload) => { state.displayDataFeatures.push(payload) },
+    setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     addDataMart (state, payload) {
       state.activeDataMarts.push(payload)
@@ -112,7 +112,7 @@ export default {
     }
   },
   getters: {
-    contexts: state => state.contexts,
+    displayTemplates: state => state.displayTemplates,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     activeDataMarts: state => state.activeDataMarts,
