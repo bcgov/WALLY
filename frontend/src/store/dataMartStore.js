@@ -38,7 +38,7 @@ export default {
     },
     getDataMartFeatures ({ commit }, payload) {
       var layers = payload.layers.map((x) => {
-        return 'layers=' + x.displayDataName + '&'
+        return 'layers=' + x.display_data_name + '&'
       })
 
       var bbox = payload.bounds.split(',')

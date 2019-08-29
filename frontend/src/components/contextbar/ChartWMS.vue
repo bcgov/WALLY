@@ -42,7 +42,7 @@ export default {
       }],
       visible: true
     }
-    this.chartData = this.data
+    this.chartData = this.$attrs.chart.data
     this.chartData.visible = true
   }
 }
