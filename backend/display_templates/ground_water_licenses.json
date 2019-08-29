@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 10,
+    "title": "Ground Water Licenses",
+    "display_order": 1000,
+    "display_data_names": [
+      "ground_water_licenses"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

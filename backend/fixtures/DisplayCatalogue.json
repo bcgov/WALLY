@@ -1,0 +1,139 @@
+[
+  {
+    "display_data_name": "water_rights_licenses",
+    "display_name": "Water Rights Licenses",
+    "label_column": "LICENCE_NUMBER",
+    "label": "License Number",
+    "highlight_columns": ["LICENCE_NUMBER", "LICENCE_STATUS"],
+    "wms_catalogue_id": 1
+  },
+  {
+    "display_data_name": "ground_water_wells",
+    "display_name": "Ground Water Wells",
+    "label_column": "WELL_TAG_NUMBER",
+    "label": "Well Tag Number",
+    "highlight_columns": [
+      "WELL_TAG_NUMBER",
+      "WELL_IDENTIFICATION_PLATE_NO",
+      "WELL_LICENCE_GENERAL_STATUS",
+      "WELL_LOCATION",
+      "SITE_AREA",
+      "SITE_STREET",
+      "WELL_USE_NAME",
+      "YIELD_VALUE",
+      "YIELD_UNIT_DESCRIPTION",
+      "DEPTH_WELL_DRILLED",
+      "WELL_DETAIL_URL"
+    ],
+    "wms_catalogue_id": 2
+  },
+  {
+    "display_data_name": "freshwater_atlas_watersheds",
+    "display_name": "Freshwater Atlas Watersheds",
+    "label_column": "GNIS_NAME_1",
+    "label": "Watershed Name",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 3
+  },
+  {
+    "display_data_name": "bc_major_watersheds",
+    "display_name": "BC Major Watersheds",
+    "label_column": "MAJOR_WATERSHED_SYSTEM",
+    "label": "Watershed",
+    "highlight_columns": [
+      "AREA",
+      "PERIMETER",
+      "MAJOR_WATERSHED_SYSTEM",
+      "GEOMETRY",
+      "FEATURE_AREA_SQM",
+      "FEATURE_LENGTH_M"
+    ],
+    "wms_catalogue_id": 4
+  },
+  {
+    "display_data_name": "artesian_wells",
+    "display_name": "Artesian Wells",
+    "label_column": "WELL_TAG_NO",
+    "label": "Well Tag No.",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 5
+  },
+  {
+    "display_data_name": "cadastral",
+    "display_name": "Cadastral Parcel Information",
+    "label_column": "PID",
+    "label": "Pid",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 6
+  },
+  {
+    "display_data_name": "automated_snow_weather_station_locations",
+    "display_name": "Automated Snow Weather Station Locations",
+    "label_column": "LOCATION_NAME",
+    "label": "Location",
+    "highlight_columns": [
+      "ELEVATION",
+      "LATITUDE",
+      "LONGITUDE",
+      "LOCATION_NAME",
+      "STATUS"
+    ],
+    "wms_catalogue_id": 7
+  },
+  {
+    "display_data_name": "freshwater_atlas_stream_directions",
+    "display_name": "Freshwater Atlas Stream Directions",
+    "label_column": "DOWNSTREAM_DIRECTION",
+    "label": "Downstream Direction",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 8
+  },
+  {
+    "display_data_name": "bc_wildfire_active_weather_stations",
+    "display_name": "BC Wildfire Active Weather Stations",
+    "label_column": "STATION_NAME",
+    "label": "Station Name",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 9
+  },
+  {
+    "display_data_name": "ecocat_water_related_reports",
+    "display_name": "Ecocat - Water related reports",
+    "label_column": "TITLE",
+    "label": "Title",
+    "highlight_columns": [
+      "REPORT_ID",
+      "TITLE",
+      "SHORT_DESCRIPTION",
+      "AUTHOR",
+      "DATE_PUBLISHED",
+      "REPORT_AUDIENCE",
+      "LONG_DESCRIPTION"
+    ],
+    "wms_catalogue_id": 10
+  },
+  {
+    "display_data_name": "ground_water_licenses",
+    "display_name": "Points of Well Diversion - Licenses",
+    "label_column": "LICENCE_NUMBER",
+    "label": "Licence Number",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 11
+  },
+  {
+    "display_data_name": "ground_water_aquifers",
+    "display_name": "Ground Water Aquifers",
+    "label_column": "AQNAME",
+    "label": "Aquifer Name",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 12
+  },
+  {
+    "display_data_name": "hydrometric_stream_flow",
+    "display_name": "Hydrometric Stream Flow",
+    "label_column": "name",
+    "label": "Name",
+    "highlight_columns": ["", ""],
+    "api_catalogue_id": 1
+  }
+]

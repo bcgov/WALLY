@@ -7,7 +7,7 @@ const ApiService = {
 
   init () {
     axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL
-    this.baseURL = axios.defaults.baseURL
+    this.baseURL = axios.defaults.baseURL + '/api/v1'
 
     axios.interceptors.request.use(function (request) {
       // log requests to console while logging is on

@@ -1,0 +1,70 @@
+{
+  "display_template": {
+    "display_template_id": 11,
+    "title": "Ground Water Wells",
+    "display_order": 1100,
+    "display_data_names": [
+      "ground_water_wells"
+    ]
+  },
+  "charts": [
+    {
+      "chart_component_id": 2,
+      "title": "Well Yield",
+      "component_type_code": "chart",
+      "display_order": 200,
+      "labels_key": "WELL_TAG_NUMBER",
+      "dataset_keys": ["YIELD_VALUE"],
+      "display_template_id": 3,
+      "chart": {
+        "type": "pie",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    },
+    {
+      "chart_component_id": 3,
+      "title": "Well Depth",
+      "component_type_code": "chart",
+      "display_order": 300,
+      "labels_key": "WELL_USE_NAME",
+      "dataset_keys": ["DEPTH_WELL_DRILLED"],
+      "display_template_id": 3,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    }
+  ],
+  "links": [
+    {
+      "link_component_id": 2,
+      "title": "Well Information",
+      "component_type_code": "link",
+      "display_order": 100,
+      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
+      "link_pattern_keys": ["WELL_TAG_NUMBER"],
+      "display_template_id": 3
+    }
+  ],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 1,
+    "title": "Artesian Wells",
+    "display_order": 100,
+    "display_data_names": [
+      "artesian_wells"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

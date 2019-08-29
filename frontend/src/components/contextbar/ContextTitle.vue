@@ -5,7 +5,16 @@
 export default {
   name: 'ContextTitle',
   props: {
-    title: String
+    data: Object,
+    chartKey: Number
+  },
+  data () {
+    return {
+      title: ''
+    }
+  },
+  mounted () {
+    this.title = this.data
   }
 }
 </script>

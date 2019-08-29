@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 3,
+    "title": "BC Major Watersheds",
+    "display_order": 300,
+    "display_data_names": [
+      "bc_major_watersheds"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

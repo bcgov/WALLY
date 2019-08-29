@@ -1,0 +1,26 @@
+[
+  {
+    "data_format_code": "wms",
+    "description": "Web map service, external api that serves layer information on demand"
+  },
+  {
+    "data_format_code": "csv",
+    "description": "Comma-seperated values"
+  },
+  {
+    "data_format_code": "excel",
+    "description": "Microsoft excel file"
+  },
+  {
+    "data_format_code": "sqlite",
+    "description": "SQLite is a relational database management system."
+  },
+  {
+    "data_format_code": "text",
+    "description": "Unstructured raw text file"
+  },
+  {
+    "data_format_code": "json",
+    "description": "JavaScript Object Notation is an open-standard file format."
+  }
+]

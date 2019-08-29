@@ -14,22 +14,22 @@ export default {
         { id: 3, name: 'Info' }
       ],
       drawer: true,
-      items: [
-        {
-          title: 'Layers',
-          icon: 'layers',
-          action: 'layers',
-          // TODO: Replace with api call
-          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.WMS_DATAMART)
-        },
-        {
-          title: 'Data Sources',
-          icon: 'library_books',
-          action: 'library_books',
-          // TODO: Replace with api call
-          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
-        }
-      ],
+      // items: [
+      //   {
+      //     title: 'Layers',
+      //     icon: 'layers',
+      //     action: 'layers',
+      //     // TODO: Replace with api call
+      //     choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.map_layer_type_id === metadataUtils.WMS_DATAMART) : []
+      //   },
+      //   {
+      //     title: 'Data Sources',
+      //     icon: 'library_books',
+      //     action: 'library_books',
+      //     // TODO: Replace with api call
+      //     choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
+      //   }
+      // ],
       mini: true,
       subHeading: ''
     }
@@ -39,8 +39,27 @@ export default {
       'isMapLayerActive',
       'isDataMartActive',
       'dataMartFeatures',
-      'dataMartFeatureInfo'
-    ])
+      'dataMartFeatureInfo',
+      'allMapLayers',
+      'mapLayerName',
+      'getMapLayer'
+    ]),
+    items() {
+      return [
+        {
+          title: 'Layers',
+          icon: 'layers',
+          action: 'layers',
+          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.wms_name !== '') : []
+        },
+        {
+          title: 'Data Sources',
+          icon: 'library_books',
+          action: 'library_books',
+          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.url !== '') : []
+        }
+      ]
+    }
   },
   methods: {
     setTabById (id) {
@@ -72,7 +91,7 @@ export default {
         this.$store.dispatch('downloadLayersReport', this.dataMartFeatures)
       } else if (this.active_tab === 2) {
         this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.id), ...this.dataMartFeatureInfo })
+          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.display_data_name), ...this.dataMartFeatureInfo })
       }
     },
     handleFeatureItemClick (item) {
@@ -82,13 +101,25 @@ export default {
       } else {
         item.coordinates = null
       }
-      this.$store.commit('setDataMartFeatureInfo', item)
+      this.$store.commit('setDataMartFeatureInfo',
+      {
+        display_data_name: item.id,
+        coordinates: item.coordinates,
+        properties: item.properties
+      })
     },
     humanReadable: val => humanReadable(val),
-    getMapLayerItemTitle: val => utils.getMapLayerItemTitle(val),
+    getMapLayerItemTitle: val => {
+      console.log(val)
+      return utils.getMapLayerItemTitle(val)
+    },
     getMapLayerItemValue: val => utils.getMapLayerItemValue(val),
-    getMapLayerName: val => utils.getMapLayerName(val),
-    getMapSubheading: val => utils.getMapSubheading(val)
+    getMapSubheading (val) {
+      if (!val) { return '' }
+      let trim = val.substr(0, val.lastIndexOf('.'))
+      let name = this.mapLayerName(trim ? trim : '')
+      if (name) { return name.slice(0, -1) }
+    }
   },
   watch: {
     dataMartFeatureInfo (value) {

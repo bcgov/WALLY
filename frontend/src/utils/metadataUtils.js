@@ -19,8 +19,8 @@ export const WMS_BC_MAJOR_WATERSHEDS = 'WMS_BC_MAJOR_WATERSHEDS'
 
 export const DATA_CAN_CLIMATE_NORMALS_1980_2010 = 'DATA_CAN_CLIMATE_NORMALS_1980_2010'
 export const HYDROMETRIC_STREAM_FLOW = 'HYDROMETRIC_STREAM_FLOW'
-export const API_DATAMART = 'API_DATAMART'
-export const WMS_DATAMART = 'WMS_DATAMART'
+export const API_DATAMART = 'api'
+export const WMS_DATAMART = 'wms'
 
 // Layer Configs
 export const DATA_MARTS = [
