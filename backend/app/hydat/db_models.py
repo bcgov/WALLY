@@ -12,26 +12,26 @@ Warning: the original database schema did not include any foreign key constraint
 # coding: utf-8
 from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Text, text, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
+from geoalchemy2 import Geometry
+from app.db.base_class import BaseTable
 
-Base = declarative_base()
-metadata = Base.metadata
 
-
-class AgencyList(Base):
+class AgencyList(BaseTable):
     __tablename__ = 'agency_list'
     __table_args__ = {'schema': 'hydat'}
 
-    agency_id = Column(BigInteger, primary_key=True, server_default=text("nextval('hydat.agency_list_agency_id_seq'::regclass)"))
+    agency_id = Column(BigInteger, primary_key=True, server_default=text(
+        "nextval('hydat.agency_list_agency_id_seq'::regclass)"))
     agency_en = Column(Text)
     agency_fr = Column(Text)
 
 
-class AnnualInstantPeak(Base):
+class AnnualInstantPeak(BaseTable):
     __tablename__ = 'annual_instant_peaks'
     __table_args__ = (
-        Index('idx_20802_annual_instant_peaks___uniqueindex', 'station_number', 'data_type', 'year', 'peak_code', unique=True),
+        Index('idx_20802_annual_instant_peaks___uniqueindex',
+              'station_number', 'data_type', 'year', 'peak_code', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -49,10 +49,11 @@ class AnnualInstantPeak(Base):
     symbol = Column(Text)
 
 
-class AnnualStatistic(Base):
+class AnnualStatistic(BaseTable):
     __tablename__ = 'annual_statistics'
     __table_args__ = (
-        Index('idx_20940_annual_statistics_primarykey', 'station_number', 'data_type', 'year', unique=True),
+        Index('idx_20940_annual_statistics_primarykey',
+              'station_number', 'data_type', 'year', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -70,7 +71,7 @@ class AnnualStatistic(Base):
     max_symbol = Column(Text)
 
 
-class ConcentrationSymbol(Base):
+class ConcentrationSymbol(BaseTable):
     __tablename__ = 'concentration_symbols'
     __table_args__ = {'schema': 'hydat'}
 
@@ -79,7 +80,7 @@ class ConcentrationSymbol(Base):
     concentration_fr = Column(Text)
 
 
-class DataSymbol(Base):
+class DataSymbol(BaseTable):
     __tablename__ = 'data_symbols'
     __table_args__ = {'schema': 'hydat'}
 
@@ -88,7 +89,7 @@ class DataSymbol(Base):
     symbol_fr = Column(Text)
 
 
-class DataType(Base):
+class DataType(BaseTable):
     __tablename__ = 'data_types'
     __table_args__ = {'schema': 'hydat'}
 
@@ -97,19 +98,21 @@ class DataType(Base):
     data_type_fr = Column(Text)
 
 
-class DatumList(Base):
+class DatumList(BaseTable):
     __tablename__ = 'datum_list'
     __table_args__ = {'schema': 'hydat'}
 
-    datum_id = Column(BigInteger, primary_key=True, server_default=text("nextval('hydat.datum_list_datum_id_seq'::regclass)"))
+    datum_id = Column(BigInteger, primary_key=True, server_default=text(
+        "nextval('hydat.datum_list_datum_id_seq'::regclass)"))
     datum_en = Column(Text)
     datum_fr = Column(Text)
 
 
-class DlyFlow(Base):
+class DlyFlow(BaseTable):
     __tablename__ = 'dly_flows'
     __table_args__ = (
-        Index('idx_20862_dly_flows_primarykey', 'station_number', 'year', 'month', unique=True),
+        Index('idx_20862_dly_flows_primarykey',
+              'station_number', 'year', 'month', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -190,10 +193,11 @@ class DlyFlow(Base):
     station = relationship("Station", back_populates="dly_flows")
 
 
-class DlyLevel(Base):
+class DlyLevel(BaseTable):
     __tablename__ = 'dly_levels'
     __table_args__ = (
-        Index('idx_20916_dly_levels_primarykey', 'station_number', 'year', 'month', unique=True),
+        Index('idx_20916_dly_levels_primarykey',
+              'station_number', 'year', 'month', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -275,7 +279,7 @@ class DlyLevel(Base):
     station = relationship("Station", back_populates="dly_levels")
 
 
-class MeasurementCode(Base):
+class MeasurementCode(BaseTable):
     __tablename__ = 'measurement_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -284,7 +288,7 @@ class MeasurementCode(Base):
     measurement_fr = Column(Text)
 
 
-class OperationCode(Base):
+class OperationCode(BaseTable):
     __tablename__ = 'operation_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -293,7 +297,7 @@ class OperationCode(Base):
     operation_fr = Column(Text)
 
 
-class PeakCode(Base):
+class PeakCode(BaseTable):
     __tablename__ = 'peak_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -302,34 +306,37 @@ class PeakCode(Base):
     peak_fr = Column(Text)
 
 
-class PrecisionCode(Base):
+class PrecisionCode(BaseTable):
     __tablename__ = 'precision_codes'
     __table_args__ = {'schema': 'hydat'}
 
-    precision_code = Column(BigInteger, primary_key=True, server_default=text("nextval('hydat.precision_codes_precision_code_seq'::regclass)"))
+    precision_code = Column(BigInteger, primary_key=True, server_default=text(
+        "nextval('hydat.precision_codes_precision_code_seq'::regclass)"))
     precision_en = Column(Text)
     precision_fr = Column(Text)
 
 
-class RegionalOfficeList(Base):
+class RegionalOfficeList(BaseTable):
     __tablename__ = 'regional_office_list'
     __table_args__ = {'schema': 'hydat'}
 
-    regional_office_id = Column(BigInteger, primary_key=True, server_default=text("nextval('hydat.regional_office_list_regional_office_id_seq'::regclass)"))
+    regional_office_id = Column(BigInteger, primary_key=True, server_default=text(
+        "nextval('hydat.regional_office_list_regional_office_id_seq'::regclass)"))
     regional_office_name_en = Column(Text)
     regional_office_name_fr = Column(Text)
 
 
-class SampleRemarkCode(Base):
+class SampleRemarkCode(BaseTable):
     __tablename__ = 'sample_remark_codes'
     __table_args__ = {'schema': 'hydat'}
 
-    sample_remark_code = Column(BigInteger, primary_key=True, server_default=text("nextval('hydat.sample_remark_codes_sample_remark_code_seq'::regclass)"))
+    sample_remark_code = Column(BigInteger, primary_key=True, server_default=text(
+        "nextval('hydat.sample_remark_codes_sample_remark_code_seq'::regclass)"))
     sample_remark_en = Column(Text)
     sample_remark_fr = Column(Text)
 
 
-class SedDataType(Base):
+class SedDataType(BaseTable):
     __tablename__ = 'sed_data_types'
     __table_args__ = {'schema': 'hydat'}
 
@@ -338,10 +345,11 @@ class SedDataType(Base):
     sed_data_type_fr = Column(Text)
 
 
-class SedDlyLoad(Base):
+class SedDlyLoad(BaseTable):
     __tablename__ = 'sed_dly_loads'
     __table_args__ = (
-        Index('idx_20910_sed_dly_loads_primarykey', 'station_number', 'year', 'month', unique=True),
+        Index('idx_20910_sed_dly_loads_primarykey',
+              'station_number', 'year', 'month', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -389,10 +397,11 @@ class SedDlyLoad(Base):
     load31 = Column(DOUBLE_PRECISION)
 
 
-class SedDlySuscon(Base):
+class SedDlySuscon(BaseTable):
     __tablename__ = 'sed_dly_suscon'
     __table_args__ = (
-        Index('idx_20886_sed_dly_suscon_primarykey', 'station_number', 'year', 'month', unique=True),
+        Index('idx_20886_sed_dly_suscon_primarykey',
+              'station_number', 'year', 'month', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -470,10 +479,11 @@ class SedDlySuscon(Base):
     suscon_symbol31 = Column(Text)
 
 
-class SedSample(Base):
+class SedSample(BaseTable):
     __tablename__ = 'sed_samples'
     __table_args__ = (
-        Index('idx_20970_sed_samples_primarykey', 'station_number', 'sed_data_type', 'date', unique=True),
+        Index('idx_20970_sed_samples_primarykey', 'station_number',
+              'sed_data_type', 'date', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -497,10 +507,11 @@ class SedSample(Base):
     sv_depth2 = Column(DOUBLE_PRECISION)
 
 
-class SedSamplesPsd(Base):
+class SedSamplesPsd(BaseTable):
     __tablename__ = 'sed_samples_psd'
     __table_args__ = (
-        Index('idx_20796_sed_samples_psd_primarykey', 'station_number', 'sed_data_type', 'date', 'particle_size', unique=True),
+        Index('idx_20796_sed_samples_psd_primarykey', 'station_number',
+              'sed_data_type', 'date', 'particle_size', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -511,7 +522,7 @@ class SedSamplesPsd(Base):
     percent = Column(BigInteger)
 
 
-class SedVerticalLocation(Base):
+class SedVerticalLocation(BaseTable):
     __tablename__ = 'sed_vertical_location'
     __table_args__ = {'schema': 'hydat'}
 
@@ -520,7 +531,7 @@ class SedVerticalLocation(Base):
     sampling_vertical_location_fr = Column(Text)
 
 
-class SedVerticalSymbol(Base):
+class SedVerticalSymbol(BaseTable):
     __tablename__ = 'sed_vertical_symbols'
     __table_args__ = {'schema': 'hydat'}
 
@@ -529,7 +540,7 @@ class SedVerticalSymbol(Base):
     sampling_vertical_fr = Column(Text)
 
 
-class Station(Base):
+class Station(BaseTable):
     __tablename__ = 'stations'
     __table_args__ = {'schema': 'hydat'}
 
@@ -541,6 +552,7 @@ class Station(Base):
     sed_status = Column(Text)
     latitude = Column(DOUBLE_PRECISION)
     longitude = Column(DOUBLE_PRECISION)
+    geom = Column(Geometry(geometry_type='POINT', srid=4326))
     drainage_area_gross = Column(DOUBLE_PRECISION)
     drainage_area_effect = Column(DOUBLE_PRECISION)
     rhbn = Column(BigInteger)
@@ -552,10 +564,11 @@ class Station(Base):
     dly_levels = relationship("DlyLevel", back_populates="station")
 
 
-class StnDataCollection(Base):
+class StnDataCollection(BaseTable):
     __tablename__ = 'stn_data_collection'
     __table_args__ = (
-        Index('idx_20826_stn_data_collection___uniqueindex', 'station_number', 'data_type', 'year_from', unique=True),
+        Index('idx_20826_stn_data_collection___uniqueindex',
+              'station_number', 'data_type', 'year_from', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -567,10 +580,11 @@ class StnDataCollection(Base):
     operation_code = Column(Text)
 
 
-class StnDataRange(Base):
+class StnDataRange(BaseTable):
     __tablename__ = 'stn_data_range'
     __table_args__ = (
-        Index('idx_20898_stn_data_range_primarykey', 'station_number', 'data_type', 'sed_data_type', unique=True),
+        Index('idx_20898_stn_data_range_primarykey', 'station_number',
+              'data_type', 'sed_data_type', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -582,10 +596,11 @@ class StnDataRange(Base):
     record_length = Column(BigInteger)
 
 
-class StnDatumConversion(Base):
+class StnDatumConversion(BaseTable):
     __tablename__ = 'stn_datum_conversion'
     __table_args__ = (
-        Index('idx_20874_stn_datum_conversion_primarykey', 'station_number', 'datum_id_from', 'datum_id_to', unique=True),
+        Index('idx_20874_stn_datum_conversion_primarykey',
+              'station_number', 'datum_id_from', 'datum_id_to', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -595,10 +610,11 @@ class StnDatumConversion(Base):
     conversion_factor = Column(DOUBLE_PRECISION)
 
 
-class StnDatumUnrelated(Base):
+class StnDatumUnrelated(BaseTable):
     __tablename__ = 'stn_datum_unrelated'
     __table_args__ = (
-        Index('idx_20808_stn_datum_unrelated_primarykey', 'station_number', 'datum_id', unique=True),
+        Index('idx_20808_stn_datum_unrelated_primarykey',
+              'station_number', 'datum_id', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -608,10 +624,11 @@ class StnDatumUnrelated(Base):
     year_to = Column(DateTime(True))
 
 
-class StnOperationSchedule(Base):
+class StnOperationSchedule(BaseTable):
     __tablename__ = 'stn_operation_schedule'
     __table_args__ = (
-        Index('idx_20892_stn_operation_schedule___uniqueindex', 'station_number', 'data_type', 'year', unique=True),
+        Index('idx_20892_stn_operation_schedule___uniqueindex',
+              'station_number', 'data_type', 'year', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -622,7 +639,7 @@ class StnOperationSchedule(Base):
     month_to = Column(Text)
 
 
-class StnRegulation(Base):
+class StnRegulation(BaseTable):
     __tablename__ = 'stn_regulation'
     __table_args__ = {'schema': 'hydat'}
 
@@ -632,19 +649,21 @@ class StnRegulation(Base):
     regulated = Column(BigInteger)
 
 
-class StnRemarkCode(Base):
+class StnRemarkCode(BaseTable):
     __tablename__ = 'stn_remark_codes'
     __table_args__ = {'schema': 'hydat'}
 
-    remark_type_code = Column(BigInteger, primary_key=True, server_default=text("nextval('hydat.stn_remark_codes_remark_type_code_seq'::regclass)"))
+    remark_type_code = Column(BigInteger, primary_key=True, server_default=text(
+        "nextval('hydat.stn_remark_codes_remark_type_code_seq'::regclass)"))
     remark_type_en = Column(Text)
     remark_type_fr = Column(Text)
 
 
-class StnRemark(Base):
+class StnRemark(BaseTable):
     __tablename__ = 'stn_remarks'
     __table_args__ = (
-        Index('idx_20868_stn_remarks___uniqueindex', 'station_number', 'remark_type_code', 'year', unique=True),
+        Index('idx_20868_stn_remarks___uniqueindex', 'station_number',
+              'remark_type_code', 'year', unique=True),
         {'schema': 'hydat'}
     )
 
@@ -655,7 +674,7 @@ class StnRemark(Base):
     remark_fr = Column(Text)
 
 
-class StnStatusCode(Base):
+class StnStatusCode(BaseTable):
     __tablename__ = 'stn_status_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -664,7 +683,7 @@ class StnStatusCode(Base):
     status_fr = Column(Text)
 
 
-class Version(Base):
+class Version(BaseTable):
     __tablename__ = 'version'
     __table_args__ = {'schema': 'hydat'}
 
