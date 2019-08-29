@@ -253,6 +253,13 @@ export default {
 
         let min = L.latLng(Math.min(...lats), Math.min(...lngs))
         let max = L.latLng(Math.max(...lats), Math.max(...lngs))
+
+        // HACK to make bbox square rather than rectangular
+        // Purpose is that some wms queries only work with square boundary boxes
+        let x = Math.abs(min.lat - max.lat)
+        let y = Math.abs(min.lng - max.lng)
+        let area = Math.max(x,y)
+
         let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
 
         this.getMapObjects(bounds)

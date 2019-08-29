@@ -15,7 +15,7 @@
       "display_order": 200,
       "labels_key": "WELL_TAG_NUMBER",
       "dataset_keys": ["YIELD_VALUE"],
-      "display_template_id": 3,
+      "display_template_id": 11,
       "chart": {
         "type": "pie",
         "data": {
@@ -37,7 +37,7 @@
       "display_order": 300,
       "labels_key": "WELL_USE_NAME",
       "dataset_keys": ["DEPTH_WELL_DRILLED"],
-      "display_template_id": 3,
+      "display_template_id": 11,
       "chart": {
         "type": "bar",
         "data": {
@@ -57,11 +57,11 @@
     {
       "link_component_id": 2,
       "title": "Well Information",
-      "component_type_code": "link",
+      "component_type_code": "links",
       "display_order": 100,
       "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
       "link_pattern_keys": ["WELL_TAG_NUMBER"],
-      "display_template_id": 3
+      "display_template_id": 11
     }
   ],
   "tables": [],

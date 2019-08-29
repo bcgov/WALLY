@@ -47,6 +47,7 @@ def build_templates(session: Session, geojson_layers: List):
 
 
 def default_builder(template, features):
+    # logger.info(template)
 
     hydrated_template = {
         "title": template["display_template"].title,
@@ -60,9 +61,16 @@ def default_builder(template, features):
         labels = []
         data_sets = [[]] * len(chart.dataset_keys)
         for feature in features:
-            labels.append(feature.properties[chart.labels_key])
-            for d in range(len(chart.dataset_keys)):
-                data_sets[d].append(feature.properties[chart.dataset_keys[d]])
+            # logger.info(features)
+            if chart.labels_key in feature.properties:
+                labels.append(feature.properties[chart.labels_key])
+                for d in range(len(chart.dataset_keys)):
+                    if chart.dataset_keys[d] in feature.properties:
+                        data_sets[d].append(feature.properties[chart.dataset_keys[d]])
+                    else:
+                        # if label_key exists but dataset_key does not, we want to add an empty
+                        # data point so the labels don't go out of sync with the data points
+                        data_sets[d].append(0)
 
         chart.chart["data"]["labels"] = labels
         for c in range(len(chart.chart["data"]["datasets"])):
@@ -87,8 +95,9 @@ def default_builder(template, features):
             "links": []
         }
         for feature in features:
-            link_group["links"].append(link_component.link_pattern
-                         .format(*link_data(link_component.link_pattern_keys, feature.properties)))
+            data = link_data(link_component.link_pattern_keys, feature.properties)
+            if data is not None:
+                link_group["links"].append(link_component.link_pattern.format(*data))
 
         links.append(link_group)
 
@@ -106,9 +115,14 @@ def default_builder(template, features):
     return hydrated_template
 
 
-def link_data(link_columns, props):
+def link_data(link_columns, properties):
     data = []
     for column in link_columns:
-        data.append(str(props[column]))
+        # Check that both columns exist in props,
+        # otherwise return None so no link is generated
+        if hasattr(properties, column):
+            data.append(str(properties[column]))
+        else:
+            return None
 
     return data

@@ -110,7 +110,7 @@ class DisplayTemplate(Base):
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
 
     display_data_names = Column(ARRAY(TEXT), comment='unique business keys that represent the required layers '
-                                                       'used to hydrate this display template')
+                                                     'used to hydrate this display template')
 
     override_key = Column(String, unique=True, comment='unique business key that is used to override '
                                                        'default builder method during template hydration. '

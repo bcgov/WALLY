@@ -13,9 +13,15 @@ describe('Map Store', () => {
   })
 
   it('adds a new map layer to active map layers', () => {
-    const payload = DATA_MARTS[0].id
+    const payload = "water_rights_licenses"
+    store.state = {
+      mapLayers: [{
+        display_data_name: "water_rights_licenses"
+      }],
+      activeMapLayers: []
+    }
     store.mutations.addMapLayer(store.state, payload)
-    expect(store.state.activeMapLayers[0]).toBe(DATA_MARTS[0])
+    expect(store.state.activeMapLayers[0]).toEqual({display_data_name: "water_rights_licenses"})
   })
 
   it('removes a map layer from active map layers', () => {
