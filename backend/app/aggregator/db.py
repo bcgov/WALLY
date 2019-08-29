@@ -31,6 +31,13 @@ def get_layers(layers: List[str]):
             "type": "wms"
         })
 
+    if "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV" in layers:
+        valid_layers.append({
+            "id": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
+            "api_url": "https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV/ows?",
+            "type": "wms"
+        })
+
     if "HYDAT" in layers:
         valid_layers.append({
             "id": "HYDAT",

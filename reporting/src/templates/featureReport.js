@@ -70,19 +70,39 @@ const generateFeatureReport = async (data) => {
     // Transformers
     const map = new SummaryMap()
     const watersheds = layerData.data.find(s => s.layer === mapData.WMS_WATERSHEDS)
+    const aquifers = layerData.data.find(s => s.layer === mapData.WMS_AQUIFERS)
+    const licences = layerData.data.find(s => s.layer === mapData.WMS_WATER_RIGHTS_LICENCES)
 
     // iterate through watersheds (checking first that watersheds were included in the map layer data),
     // adding a polygon for each watershed.
     watersheds && watersheds.geojson.features && watersheds.geojson.features.forEach((f, i) => {
-        if (i > 15) return; // temporary: limit number of polygons drawn
+        if (i > 10) return; // temporary: limit number of polygons drawn
+        console.log('watershed', i)
         f.geometry.coordinates.forEach((c) => {
             map.addPolygon({
                 coords: c,
                 color: '#0000FFBB',
+                width: 1
+            })
+        })
+
+    })
+
+    aquifers && aquifers.geojson.features && aquifers.geojson.features.forEach((f, i) => {
+        console.log('aquifer', i)
+        if (i !== 1) return; // temporary: limit number of polygons drawn
+        f.geometry.coordinates.forEach((c) => {
+            map.addPolygon({
+                coords: c,
+                color: '#FF4500BB',
                 width: 2
             })
         })
 
+    })
+
+    licences && licences.geojson.features && licences.geojson.features.forEach((f, i) => {
+        map.addMarker({coords: f.geometry.coordinates})
     })
 
     // ReactPDF currently does not support SVG

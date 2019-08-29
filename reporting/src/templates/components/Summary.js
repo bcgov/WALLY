@@ -43,10 +43,8 @@ class ReportSummary extends React.Component {
             <View style={styles.row}>
               <View style={styles.col1}>
                 <Text style={styles.text}>{`
-                  Watershed: Still Creek
-
-                  Number of water rights licenses: 7
-                  Total licensed quantity: 24 m3/day
+                  Number of water rights licenses: 27
+                  Total licensed quantity: 44 m3/day
                 `}
                 </Text>
               </View>

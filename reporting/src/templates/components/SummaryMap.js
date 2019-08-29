@@ -13,7 +13,19 @@ class SummaryMap {
     }
 
     addPolygon(options = { coords: [[]], color: '#0000FFBB', width: 2}) {
-        this.map.addPolygon(options)
+        console.log(`adding polygon with color ${options.color}`)
+        this.map.addLine(options)
+    }
+
+    addMarker(args = { coords: []}) {
+        const options = {}
+        const img = `https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.5.1/images/marker-icon.png`
+        options.img = img
+        options.width = 25
+        options.height = 41
+        options.coord = args.coords // the underlying library (staticmaps uses singular here)
+                
+        this.map.addMarker(options)
     }
 
     async png() {
