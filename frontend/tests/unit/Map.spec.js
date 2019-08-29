@@ -27,7 +27,12 @@ describe('Map Layer Tests', () => {
 
   beforeEach(() => {
     getters = {
-      allMapLayers: () => DATA_MARTS
+      allMapLayers: () => [{
+        "display_name": "Water Rights Licenses",
+        "display_data_name": "water_rights_licenses",
+        "wms_name": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
+        "wms_style": ""
+      },]
     }
     store = new Vuex.Store({ getters })
     wrapper = shallowMount(Map, {
@@ -37,14 +42,14 @@ describe('Map Layer Tests', () => {
   })
 
   it('adding layer by id adds to activeLayers', () => {
-    wrapper.vm.handleAddWMSLayer(WMS_WATER_RIGHTS_LICENSES)
-    expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(false)
+    wrapper.vm.handleAddWMSLayer("water_rights_licenses")
+    expect(wrapper.vm.activeLayers.water_rights_licenses == null).toBe(false)
   })
 
   it('remove layer by id decreases activeLayers', () => {
-    wrapper.vm.handleAddWMSLayer(WMS_WATER_RIGHTS_LICENSES)
-    expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(false)
-    wrapper.vm.handleRemoveWMSLayer(WMS_WATER_RIGHTS_LICENSES)
-    expect(wrapper.vm.activeLayers.WATER_RIGHTS_LICENSES == null).toBe(true)
+    wrapper.vm.handleAddWMSLayer("water_rights_licenses")
+    expect(wrapper.vm.activeLayers.water_rights_licenses == null).toBe(false)
+    wrapper.vm.handleRemoveWMSLayer("water_rights_licenses")
+    expect(wrapper.vm.activeLayers.water_rights_licenses == null).toBe(true)
   })
 })
