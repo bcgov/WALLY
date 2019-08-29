@@ -16,7 +16,7 @@
             <span id="componentsList">
             <v-card v-for="(item, i) in contextComponents" :key="i" min-width="400" class="component">
               <v-card-title>
-                <span v-if="item && item">{{item.title}}Add/span>
+                <span v-if="item && item">{{item.title}}</span>
               </v-card-title>
               <v-card-text>
                 <component :is="item.component" v-bind="item.data" v-bind:key="item.key"></component>
