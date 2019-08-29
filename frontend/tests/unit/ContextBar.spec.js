@@ -1,18 +1,20 @@
 import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
 import ContextBar from '../../src/components/contextbar/ContextBar.vue'
 import Vuex from 'vuex'
-import Vue from 'vue'
 import Vuetify from 'vuetify'
-
-Vue.use(Vuetify)
+import Vue from 'vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
+// localVue with Vuetify shows console warnings so we'll use Vue instead
+// https://github.com/vuetifyjs/vuetify/issues/4964
+// localVue.use(Vuetify)
+Vue.use(Vuetify)
 
 describe('Context Bar Tests', () => {
+  let wrapper
   let store
   let getters
-  let wrapper
 
   beforeEach(() => {
     getters = {
@@ -25,44 +27,44 @@ describe('Context Bar Tests', () => {
     })
   })
 
-  it('Toggles', () => {
-    let button = wrapper.find('.v-card button.v-btn')
+  it('Button Toggles', () => {
+    expect(wrapper.vm.showContextBar).toBe(false)
+    wrapper.find('#ContextButtonShow').trigger('click')
 
-    button.trigger('click')
-    expect(wrapper.vm.showContextBar).toBeTruthy()
-
-    button = wrapper.find('.v-btn.minimizeContextBar')
-    button.trigger('click')
-    expect(wrapper.vm.showContextBar).toBeFalsy()
+    expect(wrapper.vm.showContextBar).toBe(true)
+    wrapper.find('#ContextButtonHide').trigger('click')
+    expect(wrapper.vm.showContextBar).toBe(false)
   })
 
   it('Opens the context bar', () => {
+    expect(wrapper.find('#ContextButtonHide').isVisible()).toBe(false)
     wrapper.vm.openContextBar()
-    expect(wrapper.vm.showContextBar).toBeTruthy()
+    expect(wrapper.find('#ContextButtonHide').isVisible()).toBe(true)
+    expect(wrapper.vm.showContextBar).toBe(true)
   })
 })
+
 describe('Component builder', () => {
   let componentList = [
     {
       id: 1,
       type: 'link',
       title: 'Gov.bc.ca',
-      url: 'http://www.gov.bc.ca',
+      source: 'http://www.gov.bc.ca',
       description: 'Government of BC'
     },
     {
       id: 2,
       type: 'link',
       title: 'Gov.bc.ca',
-      url: 'http://www.gov.bc.ca',
+      source: 'http://www.gov.bc.ca',
       description: 'Government of BC'
     }
   ]
-
   let store
   let getters
   let wrapper
-  let container
+  let container, components
   beforeEach(() => {
     getters = {
       dataMartFeatures: () => []
@@ -77,67 +79,17 @@ describe('Component builder', () => {
   })
 
   it('Empty if there are no components', () => {
-    expect(container.isEmpty())
+    wrapper.vm.buildComponents([])
+    components = container.findAll('.component')
+
+    expect(components.length).toBe(0)
   })
 
   it('Builds a component', () => {
-    wrapper.setData({ contextComponents: componentList })
-    expect(!container.isEmpty())
-  })
+    wrapper.vm.buildComponents(componentList)
+    components = container.findAll('.component')
 
-  it('Builds components', () => {
-    wrapper.setData({ contextComponents: componentList })
-    let components = wrapper.findAll('#componentsList .component')
-    expect(components.length).toBe(2)
-  })
-
-  it('Creates a link', () => {
-    let componentLink = {
-      id: 1,
-      type: 'link',
-      title: 'Gov.bc.ca',
-      source: 'http://www.gov.bc.ca',
-      description: 'Government of BC'
-    }
-    wrapper.setData({ contextComponents: componentLink })
-
-    let a = wrapper.find('#componentsList a')
-    expect(!a.isEmpty())
-    expect(a.text()).toEqual('Gov.bc.ca')
-    expect(a.attributes('href')).toBe(componentLink.source)
-  })
-
-  it('Creates a chart', () => {
-    let componentChart = {
-      id: 1,
-      type: 'chart',
-      data: {
-        type: 'bar', // combo, line, pie, etc
-        label: 'Water Quantity',
-        datasets_labels: ['Water Quantity'],
-        label_key: 'LICENCE_NUMBER',
-        datasets_key: ['QUANTITY']
-      }
-    }
-
-    wrapper.setData({ contextComponents: componentChart })
-
-    let chart = wrapper.find('#componentsList .chart')
-    expect(chart).toBeDefined()
-  })
-
-  it('Creates a card', () => {
-    let componentCard = {
-      id: 1,
-      type: 'card',
-      title: 'Sample Card',
-      data: 'Card data'
-    }
-
-    wrapper.setData({ contextComponents: componentCard })
-
-    let card = wrapper.find('#componentsList .card')
-    expect(card).toBeDefined()
+    expect(components.length).toBeGreaterThanOrEqual(1)
   })
 
   it('Creates an image', () => {
@@ -147,11 +99,53 @@ describe('Component builder', () => {
       title: 'Sample Image',
       source: 'https://www2.gov.bc.ca/assets/gov/home/gov3_bc_logo.png'
     }
+    wrapper.vm.buildComponents([componentImage])
+    components = container.findAll('.component')
+    let image = container.find('img')
 
-    wrapper.setData({ contextComponents: componentImage })
-
-    let image = wrapper.find('#componentsList img')
-    expect(image).toBeDefined()
+    expect(components.length).toBe(1)
     expect(image.attributes('src')).toBe(componentImage.source)
+  })
+
+  it('Creates a link', () => {
+    let componentLink = componentList[0]
+    wrapper.vm.buildComponents([componentLink])
+    components = container.findAll('.component')
+    let link = container.find('a')
+
+    expect(components.length).toBe(1)
+    expect(link.attributes('href')).toBe(componentLink.source)
+    expect(link.text()).toEqual(componentLink.title)
+  })
+
+  it('Creates a title', () => {
+    let componentTitle = {
+      id: 1,
+      type: 'title',
+      title: 'Sample Title'
+    }
+    wrapper.vm.buildComponents([componentTitle])
+    components = container.findAll('.component')
+    let title = container.find('h1')
+
+    expect(components.length).toBe(1)
+    expect(title.text()).toBe(componentTitle.title)
+  })
+
+  it('Creates a card', () => {
+    let componentCard = {
+      id: 1,
+      type: 'card',
+      title: 'Hatch Creek Ranch',
+      description: 'Maximum licensed demand for purpose, multiple PODs, quantity at each POD unknown'
+    }
+    wrapper.vm.buildComponents([componentCard])
+    components = container.findAll('.component')
+    let title = container.find('.title')
+    let description = container.find('.description')
+
+    expect(components.length).toBe(1)
+    expect(title.text()).toBe(componentCard.title)
+    expect(description.text()).toBe(componentCard.description)
   })
 })

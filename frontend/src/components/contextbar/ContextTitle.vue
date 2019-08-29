@@ -1,11 +1,10 @@
 <template>
-    <a :href="source" :alt="title">{{title}}</a>
+  <h1>{{title}}</h1>
 </template>
 <script>
 export default {
-  name: 'ContextLink',
+  name: 'ContextTitle',
   props: {
-    source: String,
     title: String
   }
 }
