@@ -9,7 +9,7 @@ const chartTemplates = {
 }
 
 const width = 500;
-const height = 400;
+const height = 250;
 
 const chartCallback = (ChartJS) => {
     // Global config example: https://www.chartjs.org/docs/latest/configuration/
@@ -31,9 +31,9 @@ const getChartTemplate = (template) => {
     throw new Error(`No chart template defined with name ${template}`);
 }
 
-export default async (template, data, settings) => {
+export default async (template, data, settings, w = width, h = height) => {
     let chart = getChartTemplate(template)
-    const canvasRenderService = new CanvasRenderService(width, height, chartCallback);
+    const canvasRenderService = new CanvasRenderService(w, h, chartCallback);
     let buffer = await canvasRenderService.renderToBuffer(chart(data, settings));
     return { data: buffer, format: 'png' } // possibly add support to return other image formats?
 
@@ -42,5 +42,6 @@ export default async (template, data, settings) => {
     // const stream = canvasRenderService.renderToStream(configuration);
 }
 
-export const exampleData = [ 26, 2, 5, 16, 111, 200, 254, 140, 75, 31, 20, 30 ]
-export const exampleData2 = [ 1, 2, 5, 5, 4, 9, 15, 12, 3, 22, 1, 3 ]
+export const exampleData = [ 273, 3028, 730 ]
+export const exampleDataLabels = [ "500568", "500361", "500005" ]
+export const exampleData2 = [ 1.4, 1.8, 1.9, 1.9, 1.7, 1.2, 1.0, 1.1, 1.3, 1.3, 1.4, 1.4 ]

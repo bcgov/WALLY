@@ -22,6 +22,7 @@ export default (data, settings) => {
                 {
                     label: yLabel,
                     backgroundColor: color,
+                    fill: false,
                     data: data
                 }
             ]

@@ -6,9 +6,15 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         justifyContent: 'flex-start'
     },
-    title: {
+    sectionTitle: {
       fontFamily: 'MyriadWebPro',
       fontSize: 22,
+      marginTop: 10,
+      marginBottom: 10
+    },
+    title: {
+      fontFamily: 'MyriadWebPro',
+      fontSize: 16,
       marginTop: 10,
       marginBottom: 10
     },
@@ -26,7 +32,13 @@ const styles = StyleSheet.create({
     },
     col1: {
       flex: 1
-    }
+    },
+    chart: {
+      width: 500,
+      height: 250,
+      margin: 30,
+      alignSelf: 'center'
+  },
 })
 
 class Hydat extends React.Component {
@@ -38,9 +50,12 @@ class Hydat extends React.Component {
         return (
 
             <View style={styles.section}>
-              <Text style={styles.title}>Hydrometric Data - Stream Stations</Text>
+              <Text style={styles.sectionTitle}>Hydrometric Data - Stream Stations</Text>
               {hydat.map((h, i) => (
-                <Text style={styles.text} key={i}>{h.properties.name}</Text>
+                <View key={i}>
+                  <Text style={styles.title}>{h.properties.name} ({h.id})</Text>
+                  <Image src={this.props.chart} style={styles.chart}/>
+                </View>
               ))}
             </View>
         );

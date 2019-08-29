@@ -5,7 +5,7 @@ import Header from './common/Header'
 import Footer from './common/Footer'
 import List, { Item } from './common/List';
 import { renderReact } from "../app";
-import createChart, {exampleData, exampleData2} from "../charts";
+import createChart, {exampleData, exampleData2, exampleDataLabels} from "../charts";
 import SummaryMap from "./components/SummaryMap";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
 import { sampleData } from './sampleData'
@@ -73,54 +73,25 @@ const generateFeatureReport = async (data) => {
     const aquifers = layerData.data.find(s => s.layer === mapData.WMS_AQUIFERS)
     const licences = layerData.data.find(s => s.layer === mapData.WMS_WATER_RIGHTS_LICENCES)
 
-    // iterate through watersheds (checking first that watersheds were included in the map layer data),
-    // adding a polygon for each watershed.
-    watersheds && watersheds.geojson.features && watersheds.geojson.features.forEach((f, i) => {
-        if (i > 10) return; // temporary: limit number of polygons drawn
-        console.log('watershed', i)
-        f.geometry.coordinates.forEach((c) => {
-            map.addPolygon({
-                coords: c,
-                color: '#0000FFBB',
-                width: 1
-            })
-        })
+    map.withWatersheds(watersheds)
+    map.withAquifers(aquifers)
+    map.withLicences(licences)
 
-    })
-
-    aquifers && aquifers.geojson.features && aquifers.geojson.features.forEach((f, i) => {
-        console.log('aquifer', i)
-        if (i !== 1) return; // temporary: limit number of polygons drawn
-        f.geometry.coordinates.forEach((c) => {
-            map.addPolygon({
-                coords: c,
-                color: '#FF4500BB',
-                width: 2
-            })
-        })
-
-    })
-
-    licences && licences.geojson.features && licences.geojson.features.forEach((f, i) => {
-        map.addMarker({coords: f.geometry.coordinates})
-    })
-
-    // ReactPDF currently does not support SVG
-    // TODO: update to render svg when svg support arrives
     const mapImage = await map.png()
 
     props['map'] =  { data: mapImage, format: 'png' }
 
-    props['chart1'] = await createChart('line', exampleData, {
+    props['chart1'] = await createChart('bar', exampleData, {
+        xLabels: exampleDataLabels,
+        ylabel: 'Licensed volume by licence (m3/day)',
+        title: 'Annual licensed volume (m3/day)',
+        suffix: 'm3'
+    }, 400, 300)
+    props['chart2'] = await createChart('line', exampleData2, {
         xLabels: shortMonthNames,
-        ylabel: 'Precipitation Levels 2017 (mm)',
-        title: 'Monthly Precipitation Levels 2017 (mm)',
-        suffix: 'mm'
-    })
-    props['chart2'] = await createChart('bar', exampleData2, {
-        xLabels: fullMonthNames,
-        ylabel: '# of Votes',
-        title: 'Number of Votes'
+        ylabel: 'Stream Level (m)',
+        title: 'Stream Levels 2010-2019 (Average) (m)',
+        suffix: 'm'
     })
     return await renderReact(FeatureReport, props)
 }
@@ -179,7 +150,7 @@ class FeatureReport extends React.Component {
         const hydat = sections.find(s => s.layer === mapData.HYDAT)
 
         return (
-            <Document>
+            <Document title="Water Allocation Report">
                 {/* Header and report summary */}
                 <Page size="LETTER" style={styles.container}>
                     <Header/>
@@ -195,34 +166,36 @@ class FeatureReport extends React.Component {
 
                 {/* Aquifer section */}
                 <Page size="LETTER" wrap style={styles.container}>
-                    <Aquifer aquifers={aquifers}></Aquifer>
+                    <Aquifer aquifers={aquifers} chart={this.props.chart1}></Aquifer>
                 </Page>
 
                 {/* Hydrometric data section */}
                 {hydat && hydat.geojson && hydat.geojson.features &&
                 <Page size="LETTER" wrap style={styles.container}>
-                    <Hydat data={hydat}></Hydat>
+                    <Hydat data={hydat} chart={this.props.chart2}></Hydat>
                 </Page>
                 }
                 
                 {/* Additional layers that were selected */}
 
                 {/* {sections.map((s, i) => (
-                    <View style={styles.section} key={i}>
-                        <Text style={styles.title}>{s.layer}</Text>
-                        {s.geojson.features.map((f, j) => (
-                            <List style={styles.section} key={j}>
-                                <Text style={styles.header}>{s.layer} {j}</Text>
-                                {Object.keys(f.properties).map((k, m) => (
-                                    <Text style={styles.text} key={m}>{k}: {f.properties[k]}</Text>
-                                    
-                                ))}
-                            </List>
-                        ))}
-                        
-                        <Image src={this.props.chart1} style={styles.chart}/>
-                        <Image src={this.props.chart2} style={styles.chart}/>
-                    </View>
+                    <Page size="LETTER" wrap style={styles.container} key={i}>
+                        <View style={styles.section} key={i}>
+                            <Text style={styles.title}>{s.layer}</Text>
+                            {s.geojson.features.map((f, j) => (
+                                <List style={styles.section} key={j}>
+                                    <Text style={styles.header}>{s.layer} {j}</Text>
+                                    {Object.keys(f.properties).map((k, m) => (
+                                        <Text style={styles.text} key={m}>{k}: {f.properties[k]}</Text>
+                                        
+                                    ))}
+                                </List>
+                            ))}
+                            
+                            <Image src={this.props.chart1} style={styles.chart}/>
+                            <Image src={this.props.chart2} style={styles.chart}/>
+                        </View>
+                    </Page>
                 ))} */}
             </Document>
         );
