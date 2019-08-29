@@ -53,9 +53,11 @@ def aggregate_sources(
 
     # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
     # and then takes the largest square to use as the bbox. Reason being that the databc
-    # WMS server doesn't handle non square bbox's very well on specific layers. It also
-    # limits the max size to be no larger than 10000 meters because again WMS server has issues
-    # with bbox's over a range of size
+    # WMS server doesn't handle non square bbox's very well on specific layers. This section
+    # also limits the max size to be no larger than 10000 meters because again WMS server has
+    # issues with large bbox's
+    # TODO find the limit of bbox size for layers and implement feature client side
+    #  that displays a square box with max size of limit
     bottom_left = spherical_mercator_project(bbox[1], bbox[0])
     top_right = spherical_mercator_project(bbox[3], bbox[2])
     x_diff = bottom_left[0] - top_right[0]

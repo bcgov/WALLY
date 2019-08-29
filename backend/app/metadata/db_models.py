@@ -145,7 +145,7 @@ class ComponentTypeCode(Base):
 class ChartComponent(Base):
     __tablename__ = 'chart_component'
     chart_component_id = Column(Integer, primary_key=True)
-    title = Column(String, comment='title to be used for headers and labels for components')
+    chart_title = Column(String, comment='title to be used for headers and labels for components')
     component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
                                  comment='component type used for rendering functionality')
     component_type = relationship('ComponentTypeCode')
@@ -160,7 +160,7 @@ class ChartComponent(Base):
 class LinkComponent(Base):
     __tablename__ = 'link_component'
     link_component_id = Column(Integer, primary_key=True)
-    title = Column(String, comment='title to be used for headers and labels for components')
+    link_title = Column(String, comment='title to be used for headers and labels for components')
     component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
                                  comment='component type used for rendering functionality')
     component_type = relationship('ComponentTypeCode')
@@ -174,7 +174,7 @@ class LinkComponent(Base):
 class ImageComponent(Base):
     __tablename__ = 'image_component'
     image_component_id = Column(Integer, primary_key=True)
-    title = Column(String, comment='title to be used for headers and labels for components')
+    image_title = Column(String, comment='title to be used for headers and labels for components')
     component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
                                  comment='component type used for rendering functionality')
     component_type = relationship('ComponentTypeCode')
@@ -189,7 +189,7 @@ class ImageComponent(Base):
 class FormulaComponent(Base):
     __tablename__ = 'formula_component'
     formula_component_id = Column(Integer, primary_key=True)
-    title = Column(String, comment='title to be used for headers and labels for components')
+    formula_title = Column(String, comment='title to be used for headers and labels for components')
     component_type_code = Column(String, ForeignKey('metadata.component_type_code.component_type_code'),
                                  comment='component type used for rendering functionality')
     component_type = relationship('ComponentTypeCode')
