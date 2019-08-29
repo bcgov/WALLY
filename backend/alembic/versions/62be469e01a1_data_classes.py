@@ -229,8 +229,8 @@ def upgrade():
     op.create_table(
         'chart_component',
         sa.Column('chart_component_id', sa.Integer, primary_key=True),
-        sa.Column('chart_title', sa.JSON, comment='this holds the chart js json schema to use '),
-        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('chart', sa.JSON, comment='this holds the chart js json schema to use '),
+        sa.Column('chart_title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('labels_key', sa.String, comment='the key used to generate the labels array'),
         sa.Column('dataset_keys', ARRAY(TEXT),

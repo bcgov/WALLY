@@ -6,7 +6,7 @@ import EventBus from '../../services/EventBus.js'
 import { mapGetters } from 'vuex'
 import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
-import { wmsBaseURl } from '../../utils/wmsUtils'
+import { wmsBaseURL } from '../../utils/wmsUtils'
 import * as utils from '../../utils/metadataUtils'
 
 // Extend control, making a locate
@@ -88,7 +88,7 @@ export default {
         preferCanvas: true,
         minZoom: 4,
         maxZoom: 17
-      }).setView([53.8, -124.5], 9)
+      }).setView([54, -124], 5)
 
       L.control.scale().addTo(this.map)
       this.map.addControl(this.getFullScreenControl())
@@ -191,7 +191,6 @@ export default {
       } else if (layer.data.geojson && layer.data.geojson.length) {
         features = layer.data.geojson
       }
-      console.log('features?', features)
       if (!features) {
         console.error('could not find a features list or object to add to map')
         return
@@ -208,7 +207,6 @@ export default {
       if (!layer.display_data_name || !layer.wms_name || !layer.display_name) {
         return
       }
-
       this.activeLayers[layer.display_data_name] = betterWms('https://openmaps.gov.bc.ca/geo/pub/' + layer.wms_name + '/ows?',
         {
           format: 'image/png',
@@ -247,7 +245,6 @@ export default {
     // },
     listenForAreaSelect () {
       this.map.on('lasso.finished', (event) => {
-
         let lats = event.latLngs.map(l => l.lat)
         let lngs = event.latLngs.map(l => l.lng)
 
@@ -269,20 +266,7 @@ export default {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
       let size = this.map.getSize()
       this.$store.commit('clearDataMartFeatures')
-      // console.log('active map layers', this.activeMapLayers, this.activeDataMarts)
-
-      // this.activeDataMarts.forEach((layer)=>{
-      //   console.log('datamart layer?', layer, layer.id)
-      //   layer.data.features.forEach(feature => {
-      //     this.$store.dispatch('getDataMartFeatures', { type: utils.API_DATAMART, layer: layer.id, feature: feature })
-      //   })
-      // })
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
-
-      // this.activeMapLayers.forEach((layer) => {
-      //   console.log('what layer?', layer)
-      //   this.$store.dispatch('getDataMartFeatures', { type: utils.WMS_DATAMART, bounds: bounds, size: size, layer: layer.wms_name })
-      // })
     }
     // listenForReset () {
     //     this.$parent.$on('resetLayers', (data) => {

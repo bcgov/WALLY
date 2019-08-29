@@ -14,8 +14,8 @@ from app.aggregator.models import WMSRequest, LayerResponse
 logger = logging.getLogger("aggregator")
 
 
-def form_wms_query(req: WMSRequest) -> str:
-    """ form_wms_query takes a WMSRequest object and returns a URL with query params """
+def build_wms_query(req: WMSRequest) -> str:
+    """ build_wms_query takes a WMSRequest object and returns a URL with query params """
     return req.url + urlencode(dict(req.q))
 
 
@@ -52,8 +52,7 @@ async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
 
 async def fetch(req: WMSRequest, session: ClientSession) -> asyncio.Future:
     """ asyncronously fetch one URL, expecting a geojson response """
-    url = form_wms_query(req)
-    logger.info(url)
+    url = build_wms_query(req)
     async with session.get(url) as response:
         return await asyncio.ensure_future(parse_result(response, req.layer))
 

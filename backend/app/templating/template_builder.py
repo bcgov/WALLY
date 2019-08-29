@@ -77,7 +77,7 @@ def default_builder(template, features):
             chart.chart["data"]["datasets"][c]["data"] = data_sets[c]
 
         result = {
-            "title": chart.title,
+            "title": chart.chart_title,
             "type": chart.component_type_code,
             "display_order": chart.display_order,
             "chart": chart.chart
@@ -89,7 +89,7 @@ def default_builder(template, features):
     links = []
     for link_component in template["links"]:
         link_group = {
-            "title": link_component.title,
+            "title": link_component.link_title,
             "type": link_component.component_type_code,
             "display_order": link_component.display_order,
             "links": []

@@ -1,9 +1,10 @@
 from urllib.parse import parse_qs, urlparse
 
-from app.aggregator.aggregate import form_wms_query
+from app.aggregator.aggregate import build_wms_query
 from app.aggregator.models import WMSGetMapQuery, WMSRequest
 
 OVERLAP_AQUIFERS_HYDAT_LAYER = [-123.0681610107422, 49.27430088974207, -122.98387527465822, 49.333176910734124]
+
 
 def test_wms_url():
     """ test that the WMS URL is formed properly """
@@ -31,7 +32,7 @@ def test_wms_url():
     # check that the URL formed by the function is in the correct format (matches the one
     # known to work). Since the query string params might not be in the same order,
     # parse the queries to a dict before comparing.
-    q1 = urlparse(form_wms_query(layer)).query
+    q1 = urlparse(build_wms_query(layer)).query
     q2 = urlparse(expected_url).query
 
     dict1 = parse_qs(q1)

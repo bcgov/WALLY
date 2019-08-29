@@ -1,8 +1,5 @@
 import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
-import { wmsBaseURl, wmsParamString } from '../utils/wmsUtils'
-import * as utils from '../utils/mapUtils'
-import * as metaDataUtils from '../utils/metadataUtils'
 
 export default {
   state: {
@@ -70,27 +67,6 @@ export default {
         }).catch((error) => {
           console.log(error)
         })
-
-      // Get the datamart features (points, lines etc)
-      // payload.type === metaDataUtils.WMS_DATAMART &&
-      // ApiService.getRaw("https://openmaps.gov.bc.ca/geo/pub/" + payload.layer + '/ows' + wmsParamString(payload))
-      //   .then((response) => {
-      //     console.log('wms response for geometries', response)
-      //     let geometries = response.data.objects[payload.layer].geometries // TODO Test functional
-      //     commit('setDataMartFeatures', { [payload.layer]: geometries })
-      //   }).catch((error) => {
-      //     console.log(error)
-      //   })
-
-      // console.log('payload', payload)
-      // if (payload.type === metaDataUtils.API_DATAMART) {
-      //   ApiService.getRaw(utils.API_URL + payload.feature.properties.url).then((response) => {
-      //     console.log('response', response)
-      //     commit('setDataMartFeatures', { [payload.layer]: response} )
-      //   }).catch(error => {
-      //     console.log(error)
-      //   })
-      // }
     }
   },
   mutations: {
