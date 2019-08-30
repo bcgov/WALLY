@@ -5,7 +5,8 @@ Creates stream stations and data for dev fixtures and unit tests
 import factory
 from typing import Optional
 from app.db.session import db_session
-
+from shapely.geometry import Point
+from geoalchemy2.elements import WKTElement
 from . import db_models
 
 # base values to help generate a steady curve
@@ -80,6 +81,8 @@ class StationFactory(factory.alchemy.SQLAlchemyModelFactory):
     drainage_area_effect = 3000
     rhbn = 0
     real_time = 1
+
+    geom = factory.LazyAttribute(lambda p: WKTElement(Point(p.longitude, p.latitude).wkt, srid=4326))
 
     monthly_flows = factory.RelatedFactoryList(MonthlyFlowFactory, 'station', size=24)
     monthly_levels = factory.RelatedFactoryList(MonthlyLevelFactory, 'station', size=24)

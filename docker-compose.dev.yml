@@ -23,18 +23,18 @@ services:
       - '8000:8000'
     depends_on: 
       - db
-  # backend-tests:
-  #   build:
-  #     context: ./backend
-  #     dockerfile: tests.dockerfile
-  #   command: bash -c "while true; do sleep 1; done"
-  #   env_file:
-  #     - env-backend.env
-  #     - env-postgres.env
-  #   environment:
-  #     - SERVER_NAME=backend
-  #   volumes:
-  #     - ./backend/app:/app
+  reporting:
+    build:
+      context: ./reporting
+    # volumes:
+    #   - ./reporting:/app
+    env_file:
+      - env-postgres.env
+    depends_on:
+      - db
+      - backend
+    ports:
+      - '3000:3000'
   db:
     image: mdillon/postgis:11
     env_file:
