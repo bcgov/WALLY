@@ -14,7 +14,7 @@ export default {
     }
   },
   mounted () {
-    this.title = this.data
+    this.title = this.$attrs.title
   }
 }
 </script>

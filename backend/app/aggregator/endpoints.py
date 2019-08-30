@@ -13,6 +13,7 @@ import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
 from app.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
 from app.templating.template_builder import build_templates
+from app.aggregator.helpers import spherical_mercator_project
 
 logger = getLogger("aggregator")
 
@@ -50,8 +51,23 @@ def aggregate_sources(
     inside the map bounds defined by `bbox`.
     """
 
+    # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
+    # and then takes the largest square to use as the bbox. Reason being that the databc
+    # WMS server doesn't handle non square bbox's very well on specific layers. This section
+    # also limits the max size to be no larger than 10000 meters because again WMS server has
+    # issues with large bbox's
+    # TODO find the limit of bbox size for layers and implement feature client side
+    #  that displays a square box with max size of limit
+    bottom_left = spherical_mercator_project(bbox[1], bbox[0])
+    top_right = spherical_mercator_project(bbox[3], bbox[2])
+    x_diff = bottom_left[0] - top_right[0]
+    y_diff = bottom_left[1] - top_right[1]
+    diff = min(round(abs(max(x_diff, y_diff))), 10000)
+    mercator_box = [bottom_left[1], bottom_left[0], bottom_left[1] + diff, bottom_left[0] + diff]
+    # logger.info("diff: " + str(diff) + " bbox: " + str(bbox_string))
+
     # Format the bounding box (which arrives in the querystring as a comma separated list)
-    bbox_string = ','.join(str(v) for v in bbox)
+    bbox_string = ','.join(str(v) for v in mercator_box)
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.

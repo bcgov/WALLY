@@ -8,7 +8,7 @@
     "description": "url links to raw imagery"
   },
   {
-    "component_type_code": "link",
+    "component_type_code": "links",
     "description": "url links to raw documents or web pages"
   },
   {

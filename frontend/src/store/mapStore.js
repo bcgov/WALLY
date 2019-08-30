@@ -28,7 +28,7 @@ export default {
   mutations: {
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
-        this.getters.allMapLayers.find((layer) => {
+        state.mapLayers.find((layer) => {
           return layer.display_data_name === payload
         })
       )
@@ -53,7 +53,7 @@ export default {
     },
     getMapLayer: (state) => (displayDataName) => {
       let layer = state.mapLayers.find(e => e.display_data_name === displayDataName)
-      return layer ? layer : null
+      return layer || null
     },
     allMapLayers: state => state.mapLayers
   }

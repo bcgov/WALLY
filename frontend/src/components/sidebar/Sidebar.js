@@ -14,22 +14,6 @@ export default {
         { id: 3, name: 'Info' }
       ],
       drawer: true,
-      // items: [
-      //   {
-      //     title: 'Layers',
-      //     icon: 'layers',
-      //     action: 'layers',
-      //     // TODO: Replace with api call
-      //     choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.map_layer_type_id === metadataUtils.WMS_DATAMART) : []
-      //   },
-      //   {
-      //     title: 'Data Sources',
-      //     icon: 'library_books',
-      //     action: 'library_books',
-      //     // TODO: Replace with api call
-      //     choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
-      //   }
-      // ],
       mini: true,
       subHeading: ''
     }
@@ -44,7 +28,7 @@ export default {
       'mapLayerName',
       'getMapLayer'
     ]),
-    items() {
+    items () {
       return [
         {
           title: 'Layers',
@@ -102,11 +86,11 @@ export default {
         item.coordinates = null
       }
       this.$store.commit('setDataMartFeatureInfo',
-      {
-        display_data_name: item.id,
-        coordinates: item.coordinates,
-        properties: item.properties
-      })
+        {
+          display_data_name: item.id,
+          coordinates: item.coordinates,
+          properties: item.properties
+        })
     },
     humanReadable: val => humanReadable(val),
     getMapLayerItemTitle: val => {
@@ -117,7 +101,7 @@ export default {
     getMapSubheading (val) {
       if (!val) { return '' }
       let trim = val.substr(0, val.lastIndexOf('.'))
-      let name = this.mapLayerName(trim ? trim : '')
+      let name = this.mapLayerName(trim || '')
       if (name) { return name.slice(0, -1) }
     }
   },

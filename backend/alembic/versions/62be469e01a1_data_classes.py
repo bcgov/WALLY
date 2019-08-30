@@ -220,13 +220,17 @@ def upgrade():
         sa.Column('update_date', sa.DateTime, comment='Date and time (UTC) when the physical record was updated '
                                                       'in the database. It will be the same as the create_date until '
                                                       'the record is first updated after creation.'),
+        sa.Column('effective_date', sa.DateTime, comment='The date and time that the code became valid '
+                                                         'and could be used.'),
+        sa.Column('expiry_date', sa.DateTime, comment='The date and time after which the code is no longer valid and '
+                                                      'should not be used.')
     )
 
     op.create_table(
         'chart_component',
         sa.Column('chart_component_id', sa.Integer, primary_key=True),
         sa.Column('chart', sa.JSON, comment='this holds the chart js json schema to use '),
-        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('chart_title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('labels_key', sa.String, comment='the key used to generate the labels array'),
         sa.Column('dataset_keys', ARRAY(TEXT),
@@ -251,7 +255,7 @@ def upgrade():
     op.create_table(
         'link_component',
         sa.Column('link_component_id', sa.Integer, primary_key=True),
-        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('link_title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('link_pattern', sa.String, comment='url pattern to source document or webpage'),
         sa.Column('link_pattern_keys', ARRAY(TEXT), comment='keys to plug into link pattern'),
@@ -275,7 +279,7 @@ def upgrade():
     op.create_table(
         'image_component',
         sa.Column('image_component_id', sa.Integer, primary_key=True),
-        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('image_title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('width', sa.Integer, comment='x size of image'),
         sa.Column('height', sa.Integer, comment='y size of image'),
@@ -300,7 +304,7 @@ def upgrade():
     op.create_table(
         'formula_component',
         sa.Column('formula_component_id', sa.Integer, primary_key=True),
-        sa.Column('title', sa.String, comment='title to be used for headers and labels for components'),
+        sa.Column('formula_title', sa.String, comment='title to be used for headers and labels for components'),
         sa.Column('display_order', sa.Integer, comment='determines which components are shown first to last in 100s'),
         sa.Column('formula_component', sa.JSON, comment='formula layout for calculation'),
         sa.Column('component_type_code', sa.String, ForeignKey('metadata.component_type_code.component_type_code'),

@@ -11,7 +11,7 @@
   "charts": [
     {
       "chart_component_id": 4,
-      "title": "Water Quantity Demand",
+      "chart_title": "Water Quantity Demand",
       "component_type_code": "chart",
       "display_order": 200,
       "labels_key": "LICENCE_NUMBER",
