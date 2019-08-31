@@ -4,8 +4,8 @@ import StaticMaps from "staticmaps"
 class SummaryMap {
     constructor() {
         this.map = new StaticMaps({
-            width: 550,
-            height: 300,
+            width: 1100,
+            height: 600,
             paddingX: 10,
             paddingY: 10,
             tileUrl: "https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer/tile/{z}/{y}/{x}"

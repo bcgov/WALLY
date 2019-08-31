@@ -33,7 +33,9 @@ const getChartTemplate = (template) => {
 
 export default async (template, data, settings, w = width, h = height) => {
     let chart = getChartTemplate(template)
-    const canvasRenderService = new CanvasRenderService(w, h, chartCallback);
+
+    // create canvas with double height and width to help render the graphs more nicely on the page
+    const canvasRenderService = new CanvasRenderService(w*2, h*2, chartCallback);
     let buffer = await canvasRenderService.renderToBuffer(chart(data, settings));
     return { data: buffer, format: 'png' } // possibly add support to return other image formats?
 
