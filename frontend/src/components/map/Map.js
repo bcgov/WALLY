@@ -9,6 +9,9 @@ import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import * as utils from '../../utils/metadataUtils'
 
+import mapboxgl from 'mapbox-gl'
+import qs from 'querystring'
+
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
   onAdd: function (map) {
@@ -33,13 +36,7 @@ L.control.locate = function (opts) {
 export default {
   name: 'WallyMap',
   mounted () {
-    // There seems to be an issue loading leaflet immediately on mount, we use nextTick to ensure
-    // that the view has been rendered at least once before injecting the map.
-    // this.$nextTick(function () {
-    this.initLeaflet()
     this.initMap()
-    // })
-
     EventBus.$on('layer:added', this.handleAddWMSLayer)
     EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
@@ -73,41 +70,41 @@ export default {
     ])
   },
   methods: {
-    initLeaflet () {
-      // There is a known issue using leaflet with webpack, this is a workaround
-      // Fix courtesy of: https://github.com/PaulLeCam/react-leaflet/issues/255
-      delete L.Icon.Default.prototype._getIconUrl
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: require('../../assets/images/marker-icon-2x.png'),
-        iconUrl: require('../../assets/images/marker-icon.png'),
-        shadowUrl: require('../../assets/images/marker-shadow.png')
-      })
-    },
     initMap () {
-      this.map = L.map(this.$el, {
-        preferCanvas: true,
-        minZoom: 4,
-        maxZoom: 17
-      }).setView([54, -124], 5)
+      // this.map = L.map(this.$el, {
+      //   preferCanvas: true,
+      //   minZoom: 4,
+      //   maxZoom: 17
+      // }).setView([54, -124], 5)
 
-      L.control.scale().addTo(this.map)
-      this.map.addControl(this.getFullScreenControl())
-      this.map.addControl(this.getAreaSelectControl())
-      // this.map.addControl(this.getLegendControl())
-      this.map.addControl(this.getLocateControl())
+      // L.control.scale().addTo(this.map)
+      // this.map.addControl(this.getFullScreenControl())
+      // this.map.addControl(this.getAreaSelectControl())
+      // // this.map.addControl(this.getLegendControl())
+      // this.map.addControl(this.getLocateControl())
 
-      // BCGov map tiles
-      tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
-      // Open Street Map tiles
-      // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      //     maxZoom: 19,
-      //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      // }).addTo(this.map)
+      // // BCGov map tiles
+      // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+      // // Open Street Map tiles
+      // // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // //     maxZoom: 19,
+      // //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      // // }).addTo(this.map)
 
-      this.activeLayerGroup.addTo(this.map)
-      this.markerLayerGroup.addTo(this.map)
+      // this.activeLayerGroup.addTo(this.map)
+      // this.markerLayerGroup.addTo(this.map)
 
-      this.listenForAreaSelect()
+      // this.listenForAreaSelect()
+
+      // temporary public token with limited scope (reading layers) just for testing.
+      mapboxgl.accessToken = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
+
+      this.map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/stephenhillier/cjzydtam02lbd1cld4jbkqlhy', // stylesheet location
+        center: [-123.50, 50], // starting position
+        zoom: 9 // starting zoom
+      })
     },
     getLocateControl () {
       const locateButton = L.control.locate({ position: 'topleft' })
@@ -207,24 +204,48 @@ export default {
       if (!layer.id || !layer.wmsLayer || !layer.name) {
         return
       }
-      this.activeLayers[layer.id] = betterWms(wmsBaseURL + layer.wmsLayer + '/ows?',
-        {
-          format: 'image/png',
-          layers: 'pub:' + layer.wmsLayer,
-          styles: layer.wmsStyle,
-          transparent: true,
-          name: layer.name,
-          overlay: true
-        })
 
-      this.activeLayers[layer.id].addTo(this.map)
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'image/png',
+        layers: 'pub:' + layer.wmsLayer,
+        styles: layer.wmsStyle,
+        transparent: true,
+        name: layer.name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wmsLayer + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      const newLayer = {
+        'id': layer.id,
+        'type': 'raster',
+        'source': {
+          'type': 'raster',
+          'tiles': [
+            url
+          ],
+          'tileSize': 256
+        },
+        'paint': {}
+      }
+      this.activeLayers[layer.id] = newLayer
+
+      // TODO: this should only happen once (on map load?)
+      // layer visibility should be toggled, not adding/removing layers.
+      this.map.addLayer(newLayer, 'aeroway-line')
     },
     removeLayer (layer) {
       const id = layer.id || layer
       if (!id || !this.activeLayers[id]) {
         return
       }
-      this.map.removeLayer(this.activeLayers[id])
+      this.map.removeLayer(id)
       delete this.activeLayers[id]
     },
     // getLegendControl () {

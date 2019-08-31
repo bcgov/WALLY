@@ -2,9 +2,9 @@
     <div id="map" class="map"></div>
 </template>
 <style>
-    @import '../../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
-    @import '../../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css';
-    @import "../../../node_modules/leaflet/dist/leaflet.css";
+    /* @import '../../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
+    @import '../../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css'; */
+    @import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
     .map {
         width: 100%;
         height: calc(100vh - 64px);
