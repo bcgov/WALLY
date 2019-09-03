@@ -40,7 +40,8 @@ export default {
       templates.length > 0 && templates.forEach(template => {
         this.contextComponents.push({
           component: ContextTitle,
-          data: { title: template.title }
+          data: { title: template.title },
+          key: this.chartKey++
         })
         this.buildComponents(template.display_components)
       })
@@ -54,31 +55,36 @@ export default {
             console.log('building chart', component)
             this.contextComponents.push({
               component: ChartWMS,
-              data: component
+              data: component,
+              key: this.chartKey
             })
             break
           case 'link':
             this.contextComponents.push({
               component: ContextLink,
-              data: component
+              data: component,
+              key: this.chartKey
             })
             break
           case 'title':
             this.contextComponents.push({
               component: ContextTitle,
-              data: component
+              data: component,
+              key: this.chartKey
             })
             break
           case 'image':
             this.contextComponents.push({
               component: ContextImage,
-              data: component
+              data: component,
+              key: this.chartKey
             })
             break
           case 'card':
             this.contextComponents.push({
               component: ContextCard,
-              data: component
+              data: component,
+              key: this.chartKey
             })
             break
         }
