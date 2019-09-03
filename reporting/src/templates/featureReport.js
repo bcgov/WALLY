@@ -83,8 +83,8 @@ const generateFeatureReport = async (data) => {
 
     props['chart1'] = await createChart('bar', exampleData, {
         xLabels: exampleDataLabels,
-        ylabel: 'Licensed volume by licence (m3/day)',
-        title: 'Annual licensed volume (m3/day)',
+        ylabel: 'Licensed volume by licence (m3/year)',
+        title: 'Annual licensed volume (m3/year)',
         suffix: 'm3'
     }, 400, 300)
     props['chart2'] = await createChart('line', exampleData2, {
