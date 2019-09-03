@@ -11,7 +11,6 @@
               </v-btn>
             </v-card-actions>
 
-            <v-card-title>Context</v-card-title>
             <span id="componentsList">
             <v-card v-for="(item, i) in contextComponents" :key="i" min-width="400" class="component">
               <v-card-title>
