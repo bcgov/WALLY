@@ -12,7 +12,7 @@
       "chart_component_id": 2,
       "chart_title": "Well Yield",
       "component_type_code": "chart",
-      "display_order": 200,
+      "display_order": 100,
       "labels_key": "WELL_TAG_NUMBER",
       "dataset_keys": ["YIELD_VALUE"],
       "display_template_id": 11,
@@ -34,7 +34,7 @@
       "chart_component_id": 3,
       "chart_title": "Well Depth",
       "component_type_code": "chart",
-      "display_order": 300,
+      "display_order": 200,
       "labels_key": "WELL_USE_NAME",
       "dataset_keys": ["DEPTH_WELL_DRILLED"],
       "display_template_id": 11,
@@ -58,8 +58,8 @@
       "link_component_id": 2,
       "link_title": "Well Information",
       "component_type_code": "links",
-      "display_order": 100,
-      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{WELL_TAG_NUMBER}",
+      "display_order": 300,
+      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{0}",
       "link_pattern_keys": ["WELL_TAG_NUMBER"],
       "display_template_id": 11
     }

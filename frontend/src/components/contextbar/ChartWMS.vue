@@ -1,5 +1,8 @@
 <template>
-  <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+  <div>
+    <h1>{{chartTitle}}</h1>
+    <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+  </div>
 </template>
 
 <script>
@@ -12,7 +15,8 @@ export default {
   props: {
     features: Array,
     data: Object,
-    chartKey: Number
+    chartKey: Number,
+    chartTitle: String
   },
   data () {
     return {
@@ -47,6 +51,7 @@ export default {
       this.chartData.datasets[i].backgroundColor = blueChartColors.background
       this.chartData.datasets[i].borderColor = blueChartColors.borderColor
     })
+    this.chartTitle = this.$attrs.title
     this.chartData.visible = true
   }
 }
