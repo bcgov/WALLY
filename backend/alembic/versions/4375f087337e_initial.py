@@ -18,7 +18,6 @@ depends_on = None
 
 
 def upgrade():
-    op.execute('CREATE EXTENSION IF NOT EXISTS postgis;')
     op.create_table(
         'publisher',
         sa.Column('publisher_guid', UUID(as_uuid=True), primary_key=True,
