@@ -1,5 +1,8 @@
 <template>
-  <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+  <div>
+    <h1>{{chartTitle}}</h1>
+    <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+  </div>
 </template>
 
 <script>
@@ -12,7 +15,8 @@ export default {
   props: {
     features: Array,
     data: Object,
-    chartKey: Number
+    chartKey: Number,
+    chartTitle: String
   },
   data () {
     return {
@@ -43,6 +47,7 @@ export default {
       visible: true
     }
     this.chartData = this.$attrs.chart.data
+    this.chartTitle = this.$attrs.title
     this.chartData.visible = true
   }
 }
