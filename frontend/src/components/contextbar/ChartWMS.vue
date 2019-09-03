@@ -7,7 +7,7 @@
 
 <script>
 import BarChart from '../chart/BarChart'
-import { chartColors } from '../../constants/colors'
+import { blueChartColors } from '../../constants/colors'
 
 export default {
   name: 'ChartWMS',
@@ -25,8 +25,8 @@ export default {
         datasets: [{
           label: 'Bar chart',
           data: [],
-          backgroundColor: chartColors.background,
-          borderColor: chartColors.border,
+          backgroundColor: blueChartColors.background,
+          borderColor: blueChartColors.border,
           borderWidth: 1
         }],
         visible: true
@@ -40,13 +40,17 @@ export default {
       datasets: [{
         label: 'Bar chart',
         data: [],
-        backgroundColor: chartColors.background,
-        borderColor: chartColors.border,
+        backgroundColor: blueChartColors.background,
+        borderColor: blueChartColors.border,
         borderWidth: 1
       }],
       visible: true
     }
     this.chartData = this.$attrs.chart.data
+    this.chartData.datasets.forEach((dataset, i) => {
+      this.chartData.datasets[i].backgroundColor = blueChartColors.background
+      this.chartData.datasets[i].borderColor = blueChartColors.borderColor
+    })
     this.chartTitle = this.$attrs.title
     this.chartData.visible = true
   }
