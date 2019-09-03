@@ -69,17 +69,21 @@ const generateFeatureReport = async (data) => {
 
     // Transformers
     const map = new SummaryMap()
-    const watersheds = layerData.data.find(s => s.layer === mapData.WMS_WATERSHEDS)
-    const aquifers = layerData.data.find(s => s.layer === mapData.WMS_AQUIFERS)
-    const licences = layerData.data.find(s => s.layer === mapData.WMS_WATER_RIGHTS_LICENCES)
+    // const watersheds = layerData.data.find(s => s.layer === mapData.WMS_WATERSHEDS)
+    // const aquifers = layerData.data.find(s => s.layer === mapData.WMS_AQUIFERS)
+    // const licences = layerData.data.find(s => s.layer === mapData.WMS_WATER_RIGHTS_LICENCES)
 
-    map.withWatersheds(watersheds)
-    map.withAquifers(aquifers)
-    map.withLicences(licences)
+    // map.withWatersheds(watersheds)
+    // map.withAquifers(aquifers)
+    // map.withLicences(licences)
 
-    const mapImage = await map.png()
+    const mapImage = await map.mbPng(-122.9042,49.3138,13, 1100, 600)
+    const aqImg = await map.mbPng(-122.9101,49.3165,12, 300, 300)
+    const streamImg = await map.mbPng(-122.8737,49.3035,14, 300, 300)
 
-    props['map'] =  { data: mapImage, format: 'png' }
+    props['map'] =  mapImage
+    props['aqImg'] = aqImg
+    props['streamImg'] = streamImg
 
     props['chart1'] = await createChart('bar', exampleData, {
         xLabels: exampleDataLabels,
@@ -90,7 +94,7 @@ const generateFeatureReport = async (data) => {
     props['chart2'] = await createChart('line', exampleData2, {
         xLabels: shortMonthNames,
         ylabel: 'Stream Level (m)',
-        title: 'Stream Levels 2010-2019 (Average) (m)',
+        title: 'Stream Levels 1997-2018 (Average) (m)',
         suffix: 'm'
     })
     return await renderReact(FeatureReport, props)
@@ -166,13 +170,13 @@ class FeatureReport extends React.Component {
 
                 {/* Aquifer section */}
                 <Page size="LETTER" wrap style={styles.container}>
-                    <Aquifer aquifers={aquifers} chart={this.props.chart1}></Aquifer>
+                    <Aquifer aquifers={aquifers} chart={this.props.chart1} map={this.props.aqImg}></Aquifer>
                 </Page>
 
                 {/* Hydrometric data section */}
                 {hydat && hydat.geojson && hydat.geojson.features &&
                 <Page size="LETTER" wrap style={styles.container}>
-                    <Hydat data={hydat} chart={this.props.chart2}></Hydat>
+                    <Hydat data={hydat} chart={this.props.chart2} map={this.props.streamImg}></Hydat>
                 </Page>
                 }
                 

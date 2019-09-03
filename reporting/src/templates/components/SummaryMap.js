@@ -1,5 +1,6 @@
 import axios from "axios"
 import StaticMaps from "staticmaps"
+import geoViewport from '@mapbox/geo-viewport';
 
 class SummaryMap {
     constructor() {
@@ -73,6 +74,26 @@ class SummaryMap {
         // the calling function can use await map.png() to use the buffer.
         return await this.map.render().then(() => {
             return this.map.image.buffer('image/png')
+        })
+    }
+
+    async mbPng(lng, lat, zoom, w, h) {
+
+        // temporary public token for t esting.
+        const token = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
+        let url = `
+        https://api.mapbox.com/styles/v1/stephenhillier/cjzydtam02lbd1cld4jbkqlhy/static/${lng},${lat},${zoom},0.00,0.00/${w}x${h}@2x?access_token=${token}
+        `
+        console.log(url)
+        return await axios({
+            url: url,
+            method: 'get',
+            responseType: 'arraybuffer'
+        }).then((res) => {
+            return { data: new Buffer.from(res.data), format: 'png' }
+        }).catch((err) => {
+            console.log(err)
+            return Promise.reject(err)
         })
     }
 }
