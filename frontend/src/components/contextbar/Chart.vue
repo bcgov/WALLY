@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import BarChart from '../chart/BarChart'
+import { BarChart } from '../chartjs/Charts'
 import { chartColors } from '../../constants/colors'
 
 export default {

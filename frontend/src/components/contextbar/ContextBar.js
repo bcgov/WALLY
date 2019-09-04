@@ -49,8 +49,6 @@ export default {
       components.forEach(component => {
         switch (component.type) {
           case 'chart':
-            // build chart
-            console.log('building chart', component)
             this.contextComponents.push({
               component: Chart,
               data: component
