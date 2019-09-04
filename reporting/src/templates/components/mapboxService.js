@@ -1,5 +1,4 @@
 import axios from "axios"
-import StaticMaps from "staticmaps"
 import geoViewport from '@mapbox/geo-viewport';
 
 class MapboxAPI {
