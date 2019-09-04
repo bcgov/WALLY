@@ -25,9 +25,6 @@ def upgrade():
         sa.Column('name', sa.String, index=True, nullable=False),
         sa.Column('description', sa.String),
     )
-    op.execute("""
-        CREATE EXTENSION IF NOT EXISTS POSTGIS;
-    """)
 
 
 def downgrade():
