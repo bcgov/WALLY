@@ -6,7 +6,7 @@ import Footer from './common/Footer'
 import List, { Item } from './common/List';
 import { renderReact } from "../app";
 import createChart, {exampleData, exampleData2, exampleDataLabels} from "../charts";
-import SummaryMap from "./components/SummaryMap";
+import MapboxAPI from "./components/mapboxService";
 import {fullMonthNames, shortMonthNames} from "../styles/labels";
 import { sampleData } from './sampleData'
 import querystring from 'querystring'
@@ -68,23 +68,24 @@ const generateFeatureReport = async (data) => {
     props['data'] = layerData.data
 
     // Transformers
-    const map = new SummaryMap()
-    // const watersheds = layerData.data.find(s => s.layer === mapData.WMS_WATERSHEDS)
-    // const aquifers = layerData.data.find(s => s.layer === mapData.WMS_AQUIFERS)
-    // const licences = layerData.data.find(s => s.layer === mapData.WMS_WATER_RIGHTS_LICENCES)
+    const mb = new MapboxAPI()
+    const summaryViewport = mb.bboxToViewport(bbox.map(x => Number(x)), [1100, 600])
 
-    // map.withWatersheds(watersheds)
-    // map.withAquifers(aquifers)
-    // map.withLicences(licences)
+    // overview image
+    const mapImage = await mb.staticPNG(summaryViewport.center,summaryViewport.zoom, 1100, 600)
 
-    const mapImage = await map.mbPng(-122.9042,49.3138,13, 1100, 600)
-    const aqImg = await map.mbPng(-122.9101,49.3165,12, 300, 300)
-    const streamImg = await map.mbPng(-122.8737,49.3035,14, 300, 300)
+    // "sample" images for aquifers and stream stations.
+    // we may not need to generate separate images for every object.
+    const aqImg = await mb.staticPNG([-122.9101,49.3165],12, 300, 300)
+    const streamImg = await mb.staticPNG([-122.8737,49.3035],14, 300, 300)
 
     props['map'] =  mapImage
     props['aqImg'] = aqImg
     props['streamImg'] = streamImg
 
+
+    // dynamic charts are not yet implemented.
+    // these charts render sample data.
     props['chart1'] = await createChart('bar', exampleData, {
         xLabels: exampleDataLabels,
         ylabel: 'Licensed volume by licence (m3/year)',
@@ -152,7 +153,7 @@ class FeatureReport extends React.Component {
         const createDate = Date()
         const aquifers = sections.find(s => s.layer === mapData.WMS_AQUIFERS)
         const hydat = sections.find(s => s.layer === mapData.HYDAT)
-
+        console.log(hydat)
         return (
             <Document title="Water Allocation Report">
                 {/* Header and report summary */}
@@ -179,28 +180,7 @@ class FeatureReport extends React.Component {
                     <Hydat data={hydat} chart={this.props.chart2} map={this.props.streamImg}></Hydat>
                 </Page>
                 }
-                
-                {/* Additional layers that were selected */}
 
-                {/* {sections.map((s, i) => (
-                    <Page size="LETTER" wrap style={styles.container} key={i}>
-                        <View style={styles.section} key={i}>
-                            <Text style={styles.title}>{s.layer}</Text>
-                            {s.geojson.features.map((f, j) => (
-                                <List style={styles.section} key={j}>
-                                    <Text style={styles.header}>{s.layer} {j}</Text>
-                                    {Object.keys(f.properties).map((k, m) => (
-                                        <Text style={styles.text} key={m}>{k}: {f.properties[k]}</Text>
-                                        
-                                    ))}
-                                </List>
-                            ))}
-                            
-                            <Image src={this.props.chart1} style={styles.chart}/>
-                            <Image src={this.props.chart2} style={styles.chart}/>
-                        </View>
-                    </Page>
-                ))} */}
             </Document>
         );
     }

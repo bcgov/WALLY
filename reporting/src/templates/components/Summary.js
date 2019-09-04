@@ -1,6 +1,5 @@
 import React from 'react'
 import {Page, Text, View, Image, Document, Font, StyleSheet, Link} from  '@react-pdf/renderer'
-import SummaryMap from "./SummaryMap"
 
 const styles = StyleSheet.create({
     container: {
