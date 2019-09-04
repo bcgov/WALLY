@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     }
 })
 
-class AquiferSummary extends React.Component {
+class Aquifer extends React.Component {
     constructor(props) {
         super(props)
     }
@@ -127,4 +127,4 @@ class AquiferSummary extends React.Component {
     }
 }
 
-export default AquiferSummary
+export default Aquifer
