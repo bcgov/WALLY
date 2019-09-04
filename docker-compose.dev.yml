@@ -28,6 +28,8 @@ services:
       context: ./reporting
     # volumes:
     #   - ./reporting:/app
+    environment:
+      MAPBOX_ACCESS_KEY: "${MAPBOX_ACCESS_KEY}"
     env_file:
       - env-postgres.env
       - env-backend.env

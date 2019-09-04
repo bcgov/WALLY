@@ -18,8 +18,8 @@ class MapboxAPI {
     }
 
     async staticPNG(lnglat = [], zoom, w, h) {
-        // temporary public token for testing.
-        const token = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
+
+        const token = process.env.MAPBOX_ACCESS_KEY || ''
 
         // the url needs to contain the style identifier (e.g. mapbox/streets-v1 or username/styleID),
         // and the longitude, latitude, zoom level, bearing, pitch, and image size (width and height)
