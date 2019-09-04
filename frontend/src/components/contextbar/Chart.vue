@@ -7,7 +7,7 @@ import BarChart from '../chart/BarChart'
 import { chartColors } from '../../constants/colors'
 
 export default {
-  name: 'ChartWMS',
+  name: 'Chart',
   components: { BarChart },
   props: {
     features: Array,

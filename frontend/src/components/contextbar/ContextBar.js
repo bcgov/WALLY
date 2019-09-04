@@ -1,14 +1,13 @@
 import { mapGetters } from 'vuex'
 import ContextImage from './ContextImage'
-import ChartWMS from './ChartWMS'
-import ChartAPI from './ChartAPI'
+import Chart from './Chart'
 import ContextLink from './ContextLink'
 import ContextTitle from './ContextTitle'
 import ContextCard from './ContextCard'
 
 export default {
   name: 'ContextBar',
-  components: { ContextImage, ChartWMS, ChartAPI, ContextTitle },
+  components: { ContextImage, Chart, ContextTitle },
   data () {
     return {
       showContextBar: false,
@@ -53,7 +52,7 @@ export default {
             // build chart
             console.log('building chart', component)
             this.contextComponents.push({
-              component: ChartWMS,
+              component: Chart,
               data: component
             })
             break
