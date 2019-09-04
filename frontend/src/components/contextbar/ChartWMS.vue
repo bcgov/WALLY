@@ -15,8 +15,7 @@ export default {
   props: {
     features: Array,
     data: Object,
-    chartKey: Number,
-    chartTitle: String
+    chartKey: Number
   },
   data () {
     return {
@@ -30,7 +29,8 @@ export default {
           borderWidth: 1
         }],
         visible: true
-      }
+      },
+      chartTitle: String
     }
   },
   mounted () {

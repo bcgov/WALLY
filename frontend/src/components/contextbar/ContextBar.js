@@ -60,12 +60,10 @@ export default {
             })
             break
           case 'links':
-            component.links.forEach(link => {
-              this.contextComponents.push({
-                component: ContextLink,
-                data: {link: link},
-                key: this.chartKey
-              })
+            this.contextComponents.push({
+              component: ContextLink,
+              data: component,
+              key: this.chartKey
             })
             break
           case 'title':
