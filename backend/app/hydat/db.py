@@ -89,3 +89,7 @@ def get_stations_as_geojson(db: Session, bbox: List[float] = []) -> FeatureColle
     ]
 
     return FeatureCollection(points)
+
+
+# def get_create_context(db: Session, bbox: List[float] = []):
+

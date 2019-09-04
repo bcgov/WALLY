@@ -18,7 +18,7 @@ describe('Context Bar Tests', () => {
 
   beforeEach(() => {
     getters = {
-      dataMartFeatures: () => []
+      displayTemplates: () => []
     }
     store = new Vuex.Store({ getters })
     wrapper = mount(ContextBar, {
@@ -67,7 +67,7 @@ describe('Component builder', () => {
   let container, components
   beforeEach(() => {
     getters = {
-      dataMartFeatures: () => []
+      displayTemplates: () => []
     }
     store = new Vuex.Store({ getters })
     wrapper = mount(ContextBar, {

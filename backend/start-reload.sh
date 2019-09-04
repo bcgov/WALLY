@@ -17,5 +17,10 @@ else
     echo "There is no script $PRE_START_PATH"
 fi
 
+# Load fixture data for dev environments
+if [ "$WALLY_ENV" = "DEV" ]; then
+    python /app/app/initial_data.py
+fi
+
 # Start Uvicorn with live reload
 exec uvicorn --reload --host $HOST --port $PORT --log-level $LOG_LEVEL "$APP_MODULE"

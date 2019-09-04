@@ -1,5 +1,4 @@
 import { mapGetters } from 'vuex'
-import { dataMarts } from '../../utils/dataMartMetadata'
 import ContextImage from './ContextImage'
 import ChartWMS from './ChartWMS'
 import ChartAPI from './ChartAPI'
@@ -9,7 +8,7 @@ import ContextCard from './ContextCard'
 
 export default {
   name: 'ContextBar',
-  components: { ContextImage, ChartWMS, ChartAPI },
+  components: { ContextImage, ChartWMS, ChartAPI, ContextTitle },
   data () {
     return {
       showContextBar: false,
@@ -23,7 +22,7 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'dataMartFeatures'
+      'displayTemplates'
     ])
   },
   mounted () {
@@ -35,62 +34,51 @@ export default {
     openContextBar () {
       this.showContextBar = true
     },
-    processLayers (items) {
-      let contextList, dataType, features
-      items.length > 0 && items.forEach(layers => {
-        this.contextComponents = []
-        // Go through each layer
-        Object.keys(layers).map(layer => {
-          contextList = dataMarts[layer].context
-          dataType = dataMarts[layer].type
-          features = layers[layer]
-          this.buildComponents(contextList, dataType, features)
+    processTemplates (templates) {
+      // console.log(templates)
+      this.contextComponents = []
+      templates.length > 0 && templates.forEach(template => {
+        this.contextComponents.push({
+          component: ContextTitle,
+          data: { title: template.title }
         })
+        this.buildComponents(template.display_components)
       })
       this.openContextBar()
     },
-    buildComponents (contextList, dataType, features) {
-      contextList.forEach(contextData => {
-        switch (contextData.type) {
+    buildComponents (components) {
+      components.forEach(component => {
+        switch (component.type) {
           case 'chart':
-            // api call to aggregator for chart features
-            if (dataType === 'wms') {
-              contextData.features = features
-              this.contextComponents.push({
-                component: ChartWMS,
-                data: contextData,
-                key: this.chartKey
-              })
-            } else if (dataType === 'api') {
-              this.contextComponents.push({
-                component: ChartAPI,
-                data: contextData,
-                key: this.chartKey
-              })
-            }
+            // build chart
+            console.log('building chart', component)
+            this.contextComponents.push({
+              component: ChartWMS,
+              data: component
+            })
             break
           case 'link':
             this.contextComponents.push({
               component: ContextLink,
-              data: contextData
+              data: component
             })
             break
           case 'title':
             this.contextComponents.push({
               component: ContextTitle,
-              data: contextData
+              data: component
             })
             break
           case 'image':
             this.contextComponents.push({
               component: ContextImage,
-              data: contextData
+              data: component
             })
             break
           case 'card':
             this.contextComponents.push({
               component: ContextCard,
-              data: contextData
+              data: component
             })
             break
         }
@@ -98,11 +86,10 @@ export default {
     }
   },
   watch: {
-    dataMartFeatures (value) {
-      if (value.length > 0) {
-        this.processLayers(value)
-        this.chartKey++ // hack to refresh vue component; doesn't work
-      }
+    displayTemplates (value) {
+      this.processTemplates(value.displayTemplates)
+      this.chartKey++ // hack to refresh vue component; doesn't work
+      // }
     }
   }
 }

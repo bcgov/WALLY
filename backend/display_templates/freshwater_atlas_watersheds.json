@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 8,
+    "title": "Freshwater Atlas Watersheds",
+    "display_order": 800,
+    "display_data_names": [
+      "freshwater_atlas_watersheds"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

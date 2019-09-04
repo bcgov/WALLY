@@ -14,7 +14,7 @@ class WMSGetMapQuery(BaseModel):
     height: int
     service: str = "WMS"
     request: str = "GetMap"
-    srs: str = "EPSG:4326"
+    srs: str = "EPSG:3857"
     version: str = "1.1.1"
     format: str = "application/json;type=geojson"
     layers: str
