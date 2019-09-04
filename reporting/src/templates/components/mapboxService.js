@@ -25,7 +25,7 @@ class MapboxAPI {
         // and the longitude, latitude, zoom level, bearing, pitch, and image size (width and height)
         // @2x indicates that the image dimensions should be doubled, which helps with rendering quality.
         // https://docs.mapbox.com/help/glossary/static-images-api/
-        let url = `
+        const url = `
         https://api.mapbox.com/styles/v1/stephenhillier/cjzydtam02lbd1cld4jbkqlhy/static/${lnglat[0]},${lnglat[1]},${zoom},0.00,0.00/${w}x${h}@2x?access_token=${token}
         `
 
