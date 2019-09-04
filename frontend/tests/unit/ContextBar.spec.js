@@ -113,7 +113,7 @@ describe('Component builder', () => {
     components = container.findAll('.component')
     // let links = container.find('.links')
 
-    expect(components.length).toBe(1)
+    expect(components.length).toBe(2)
     // TODO add back in when link component gets title
     // expect(links[0].attributes('href')).toBe(componentLink.links[0])
     // expect(link.text()).toEqual(componentLink.title)
