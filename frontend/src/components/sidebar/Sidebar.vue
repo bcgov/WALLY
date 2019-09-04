@@ -54,17 +54,17 @@
         <v-toolbar>
           <v-toolbar-title>Selected Points</v-toolbar-title>
         </v-toolbar>
-        <div v-if="featureLayers.length > 0">
-          <div v-for="(layerGroup, groupIndex) in featureLayers" :key="`objs-${layerGroup}${groupIndex}`">
-            <div v-for="(value, name) in layerGroup" :key="`layerGroup-${value}${name}`">
+        <div v-if="dataMartFeatures.length > 0">
+          <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${dataMartFeature}${index}`">
+            <div v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
-                <v-subheader><b>{{mapLayerName(name)}}</b></v-subheader>
+                <v-subheader><b>{{getMapLayerName(name)}}</b></v-subheader>
                 <v-divider :key="`subheader-${value}${name}`"></v-divider>
                 <template v-for="(prop, propIndex) in value">
-                  <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleSelectListItem(prop)">
+                  <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleFeatureItemClick(prop)">
                     <v-list-tile-content>
-                      <v-list-tile-title>{{mapLayerItemTitle(name)}}</v-list-tile-title>
-                      <v-list-tile-sub-title class="text--primary">{{prop.properties[mapLayerItemValue(name)]}}</v-list-tile-sub-title>
+                      <v-list-tile-title>{{getMapLayerItemTitle(name)}}</v-list-tile-title>
+                      <v-list-tile-sub-title class="text--primary">{{prop.properties[getMapLayerItemValue(name)]}}</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
                   <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
@@ -76,13 +76,13 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-card v-if="featureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ mapSubheading(featureInfo.id) }}</v-card-title>
+        <v-card v-if="dataMartFeatureInfo">
+          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.id) }}</v-card-title>
 
           <v-divider></v-divider>
 
           <v-list dense>
-            <template v-for="(value, name, index) in featureInfo.properties">
+            <template v-for="(value, name, index) in dataMartFeatureInfo.properties">
               <v-list-tile :key="`tile-{$value}${index}`">
                 <v-list-tile-content><b>{{ humanReadable(name) }}:</b></v-list-tile-content>
                 <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>

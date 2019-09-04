@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit"
+    "test:unit": "vue-cli-service test:unit --no-cache"
   },
   "dependencies": {
     "axios": "^0.19.0",
@@ -19,7 +19,7 @@
     "leaflet-geosearch": "^2.7.0",
     "leaflet-lasso": "^2.0.4",
     "leaflet.locatecontrol": "^0.67.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.15",
     "material-design-icons-iconfont": "^5.0.1",
     "vue": "^2.6.10",
     "vue-chartjs": "^3.4.2",

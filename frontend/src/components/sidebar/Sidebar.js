@@ -1,7 +1,7 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
-import * as dataUtils from '../../utils/dataUtils'
+import * as metadataUtils from '../../utils/metadataUtils'
 
 export default {
   name: 'Sidebar',
@@ -19,13 +19,15 @@ export default {
           title: 'Layers',
           icon: 'layers',
           action: 'layers',
-          choices: utils.MAP_LAYERS
+          // TODO: Replace with api call
+          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.WMS_DATAMART)
         },
         {
           title: 'Data Sources',
           icon: 'library_books',
           action: 'library_books',
-          choices: dataUtils.DATA_LAYERS
+          // TODO: Replace with api call
+          choices: metadataUtils.DATA_MARTS.filter(dm => dm.type === metadataUtils.API_DATAMART)
         }
       ],
       mini: true,
@@ -35,9 +37,9 @@ export default {
   computed: {
     ...mapGetters([
       'isMapLayerActive',
-      'isDataSourceActive',
-      'featureInfo',
-      'featureLayers'
+      'isDataMartActive',
+      'dataMartFeatures',
+      'dataMartFeatureInfo'
     ])
   },
   methods: {
@@ -45,7 +47,7 @@ export default {
       this.active_tab = id
     },
     handleSelectLayer (id, type, resource) {
-      if (type === dataUtils.API_DATASOURCE) {
+      if (type === metadataUtils.API_DATAMART) {
         this.updateDataLayer(id, resource)
       } else {
         this.updateMapLayer(id)
@@ -59,42 +61,42 @@ export default {
       }
     },
     updateDataLayer (id, url) {
-      if (this.isDataSourceActive(id)) {
-        this.$store.commit('removeDataSource', id)
+      if (this.isDataMartActive(id)) {
+        this.$store.commit('removeDataMart', id)
       } else {
-        this.$store.dispatch('getDataSource', { id: id, url: url })
+        this.$store.dispatch('getDataMart', { id: id, url: url })
       }
     },
     createReportFromSelection () {
       if (this.active_tab === 1) {
-        this.$store.dispatch('downloadLayersReport', this.featureLayers)
+        this.$store.dispatch('downloadLayersReport', this.dataMartFeatures)
       } else if (this.active_tab === 2) {
         this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.mapSubheading(this.featureInfo.id), ...this.featureInfo })
+          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.id), ...this.dataMartFeatureInfo })
       }
     },
-    handleSelectListItem (item) {
+    handleFeatureItemClick (item) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
       if ('LATITUDE' in item.properties && 'LONGITUDE' in item.properties) {
         item.coordinates = [item.properties['LATITUDE'], item.properties['LONGITUDE']]
       } else {
         item.coordinates = null
       }
-      this.$store.commit('setFeatureInfo', item)
+      this.$store.commit('setDataMartFeatureInfo', item)
     },
     humanReadable: val => humanReadable(val),
-    mapLayerItemTitle: val => utils.mapLayerItemTitle(val),
-    mapLayerItemValue: val => utils.mapLayerItemValue(val),
-    mapLayerName: val => utils.mapLayerName(val),
-    mapSubheading: val => utils.mapSubheading(val)
+    getMapLayerItemTitle: val => utils.getMapLayerItemTitle(val),
+    getMapLayerItemValue: val => utils.getMapLayerItemValue(val),
+    getMapLayerName: val => utils.getMapLayerName(val),
+    getMapSubheading: val => utils.getMapSubheading(val)
   },
   watch: {
-    featureInfo (value) {
+    dataMartFeatureInfo (value) {
       if (value && value.properties) {
         this.setTabById(2)
       }
     },
-    featureLayers (value) {
+    dataMartFeatures (value) {
       if (value.length > 0) {
         this.setTabById(1)
       }

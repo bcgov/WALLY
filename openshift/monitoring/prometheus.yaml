@@ -1,0 +1,219 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  template: prometheus-template
+metadata:
+  annotations:
+  name: prometheus-template
+parameters:
+  - name: PROMETHEUS_SERVICE_NAME
+    required: false
+    value: wally-staging-prometheus
+  - name: SCRAPE_NAMESPACE
+    required: true
+    value: bfpeyx-test
+objects:
+  - apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      labels:
+        component: ${PROMETHEUS_SERVICE_NAME}
+        app: ${PROMETHEUS_SERVICE_NAME}
+        release: ${PROMETHEUS_SERVICE_NAME}
+        chart: prometheus-8.11.4
+        heritage: Tiller
+      name: ${PROMETHEUS_SERVICE_NAME}
+    data:
+      alerts: |
+        {}
+        
+      prometheus.yml: |
+        global:
+          evaluation_interval: 1m
+          scrape_interval: 1m
+          scrape_timeout: 10s
+        rule_files:
+        - /etc/config/rules
+        - /etc/config/alerts
+        scrape_configs:
+        - job_name: prometheus
+          static_configs:
+          - targets:
+            - localhost:9090
+        - job_name: kubernetes-pods
+          kubernetes_sd_configs:
+          - role: pod
+            namespaces:
+              names:
+                - ${SCRAPE_NAMESPACE}
+          relabel_configs:
+          - action: keep
+            regex: true
+            source_labels:
+            - __meta_kubernetes_pod_annotation_prometheus_io_scrape
+          - action: replace
+            regex: (.+)
+            source_labels:
+            - __meta_kubernetes_pod_annotation_prometheus_io_path
+            target_label: __metrics_path__
+          - action: replace
+            regex: ([^:]+)(?::\d+)?;(\d+)
+            replacement: $1:$2
+            source_labels:
+            - __address__
+            - __meta_kubernetes_pod_annotation_prometheus_io_port
+            target_label: __address__
+          - action: labelmap
+            regex: __meta_kubernetes_pod_label_(.+)
+          - action: replace
+            source_labels:
+            - __meta_kubernetes_namespace
+            target_label: kubernetes_namespace
+          - action: replace
+            source_labels:
+            - __meta_kubernetes_pod_name
+            target_label: kubernetes_pod_name
+        
+      rules: |
+        {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      labels:
+        component: ${PROMETHEUS_SERVICE_NAME}
+        app: ${PROMETHEUS_SERVICE_NAME}
+        release: ${PROMETHEUS_SERVICE_NAME}
+        chart: prometheus-8.11.4
+        heritage: Tiller
+      name: ${PROMETHEUS_SERVICE_NAME}
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: "2Gi"
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      labels:
+        component: ${PROMETHEUS_SERVICE_NAME}
+        app: ${PROMETHEUS_SERVICE_NAME}
+        release: ${PROMETHEUS_SERVICE_NAME}
+        chart: prometheus-8.11.4
+        heritage: Tiller
+      name: ${PROMETHEUS_SERVICE_NAME}
+    spec:
+      ports:
+        - name: http
+          port: 80
+          protocol: TCP
+          targetPort: 9090
+      selector:
+        component: ${PROMETHEUS_SERVICE_NAME}
+        app: ${PROMETHEUS_SERVICE_NAME}
+        release: ${PROMETHEUS_SERVICE_NAME}
+      type: "ClusterIP"
+  - apiVersion: extensions/v1beta1
+    kind: Deployment
+    metadata:
+      labels:
+          component: ${PROMETHEUS_SERVICE_NAME}
+          app: ${PROMETHEUS_SERVICE_NAME}
+          release: ${PROMETHEUS_SERVICE_NAME}
+          chart: prometheus-8.11.4
+          heritage: Tiller
+      name: ${PROMETHEUS_SERVICE_NAME}
+    spec:
+      selector:
+        matchLabels:
+          component: ${PROMETHEUS_SERVICE_NAME}
+          app: ${PROMETHEUS_SERVICE_NAME}
+          release: ${PROMETHEUS_SERVICE_NAME}
+      replicas: 1
+      template:
+        metadata:
+          labels:
+            component: ${PROMETHEUS_SERVICE_NAME}
+            app: ${PROMETHEUS_SERVICE_NAME}
+            release: ${PROMETHEUS_SERVICE_NAME}
+            chart: prometheus-8.11.4
+            heritage: Tiller
+        spec:
+          serviceAccountName: default
+          containers:
+            - name: ${PROMETHEUS_SERVICE_NAME}-configmap-reload
+              image: "jimmidyson/configmap-reload:v0.2.2"
+              imagePullPolicy: "IfNotPresent"
+              args:
+                - --volume-dir=/etc/config
+                - --webhook-url=http://127.0.0.1:9090/-/reload
+              resources:
+                {}
+                
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/config
+                  readOnly: true
+
+            - name: ${PROMETHEUS_SERVICE_NAME}
+              image: "prom/prometheus:v2.11.1"
+              imagePullPolicy: "IfNotPresent"
+              args:
+                - --config.file=/etc/config/prometheus.yml
+                - --storage.tsdb.path=/data
+                - --web.console.libraries=/etc/prometheus/console_libraries
+                - --web.console.templates=/etc/prometheus/consoles
+                - --web.enable-lifecycle
+              ports:
+                - containerPort: 9090
+              readinessProbe:
+                httpGet:
+                  path: /-/ready
+                  port: 9090
+                initialDelaySeconds: 30
+                timeoutSeconds: 30
+              livenessProbe:
+                httpGet:
+                  path: /-/healthy
+                  port: 9090
+                initialDelaySeconds: 30
+                timeoutSeconds: 30
+              resources:
+                {}
+                
+              volumeMounts:
+                - name: config-volume
+                  mountPath: /etc/config
+                - name: storage-volume
+                  mountPath: /data
+                  subPath: ""
+          terminationGracePeriodSeconds: 300
+          volumes:
+            - name: config-volume
+              configMap:
+                name: ${PROMETHEUS_SERVICE_NAME}
+            - name: storage-volume
+              persistentVolumeClaim:
+                claimName: ${PROMETHEUS_SERVICE_NAME}
+  # - apiVersion: route.openshift.io/v1
+  #   kind: Route
+  #   metadata:
+  #     creationTimestamp: null
+  #     labels:
+  #       app: ${PROMETHEUS_SERVICE_NAME}
+  #       chart: prometheus-8.11.4
+  #       component: ${PROMETHEUS_SERVICE_NAME}
+  #       heritage: Tiller
+  #       release: ${PROMETHEUS_SERVICE_NAME}
+  #       template: prometheus-template
+  #     name: ${PROMETHEUS_SERVICE_NAME}
+  #   spec:
+  #     host: ${PROMETHEUS_SERVICE_NAME}.pathfinder.gov.bc.ca
+  #     tls:
+  #       termination: edge
+  #     port:
+  #       targetPort: http
+  #     to:
+  #       kind: Service
+  #       name: ${PROMETHEUS_SERVICE_NAME}
+  #       weight: 100

@@ -61,7 +61,9 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     }
     server.use(cors()) // TODO update cors to only trusted hosts using above options whitelist
 
-    server.get('/favicon.ico', (request, response) => response.status('404').end());
+
+    server.get('/favicon.ico', (req, res) => res.status('404').end());
+    server.get('/health', (req, res) => res.status('200').end());
 
     server.get('/reports/:template', (req, res) => createPdf(req.params.template, req.query, res));
     server.post('/reports/:template', (req, res) => {
