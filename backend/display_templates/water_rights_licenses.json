@@ -1,0 +1,39 @@
+{
+  "display_template": {
+    "display_template_id": 13,
+    "title": "Water Rights Licenses",
+    "display_order": 1300,
+    "override_key": "water_rights_licenses",
+    "display_data_names": [
+      "water_rights_licenses"
+    ]
+  },
+  "charts": [
+    {
+      "chart_component_id": 4,
+      "chart_title": "Water Quantity Demand",
+      "component_type_code": "chart",
+      "display_order": 200,
+      "labels_key": "LICENCE_NUMBER",
+      "dataset_keys": ["QUANTITY", "QUANTITY_UNITS"],
+      "display_template_id": 13,
+      "chart": {
+        "type": "pie",
+        "data": {
+          "labels": [],
+          "datasets": [{
+            "label": "",
+            "data": [],
+            "backgroundColor": "",
+            "borderColor": "",
+            "borderWidth": ""
+          }]
+        }
+      }
+    }
+  ],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}
