@@ -69,9 +69,12 @@ const generateFeatureReport = async (data) => {
 
     // Transformers
     const mb = new MapboxAPI()
+
+    // create a viewport for accessing the Mapbox static images API.
+    // the viewport consists of a center coordinate pair and a zoom level.
     const summaryViewport = mb.bboxToViewport(bbox.map(x => Number(x)), [1100, 600])
 
-    // overview image
+    // generate overview image, returning a png file buffer that we can use in the ReactPDF components.
     const mapImage = await mb.staticPNG(summaryViewport.center,summaryViewport.zoom, 1100, 600)
 
     // "sample" images for aquifers and stream stations.
