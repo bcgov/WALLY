@@ -30,6 +30,10 @@ const generateFeatureReport = async (data) => {
     const bbox = data.bbox
     const layers = data.layers || []
 
+    if (!process.env.API_SERVICE) {
+        throw "the API hostname must be provided in environment variable API_SERVICE"
+    }
+
     if (!bbox || !bbox.length || bbox.length !== 4) {
         throw "bbox must be a list of 4 numbers representing corners of a bounding box, e.g. x1,y1,x2,y2"
     }
@@ -55,15 +59,15 @@ const generateFeatureReport = async (data) => {
     // For local development, this should correspond to the API's docker-compose
     // service name.  See env-backend.env in Wally's root folder to fill in
     // this value for docker-compose.
+    const host = `${process.env.API_SERVICE}`
+    const params = querystring.stringify({
+        bbox: bbox,
+        layers: layers
+    })
     const layerData = await axios.get(
-        "http://" +
-        (process.env.API_SERVICE || "") +
-        "/api/v1/aggregate?" +
-        querystring.stringify({
-            bbox: bbox,
-            layers: layers
-        })
+        `http://${host}/api/v1/aggregate?${params}`
     )
+
     props['bbox'] = bbox
     props['data'] = layerData.data
 

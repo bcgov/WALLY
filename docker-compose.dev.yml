@@ -35,6 +35,8 @@ services:
       - env-backend.env
     depends_on:
       - db
+    ports:
+      - '3000:3000'
   db:
     image: mdillon/postgis:11
     env_file:
