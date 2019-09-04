@@ -2,7 +2,6 @@
   <v-expand-transition>
       <v-card id="contextBar" class="mx-auto" max-width="450">
         <v-btn  absolute right dark icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
-<!--          <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>-->
           <v-icon dark v-if="!showContextBar">keyboard_arrow_left</v-icon>
         </v-btn>
           <div v-show="showContextBar">

@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 5,
+    "title": "Cadastral Parcel Information",
+    "display_order": 500,
+    "display_data_names": [
+      "cadastral"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

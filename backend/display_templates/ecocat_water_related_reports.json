@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 6,
+    "title": "Ecocat Water Related Reports",
+    "display_order": 600,
+    "display_data_names": [
+      "ecocat_water_related_reports"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

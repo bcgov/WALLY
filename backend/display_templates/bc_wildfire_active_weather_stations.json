@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 4,
+    "title": "BC Wildfire Active Weather Stations",
+    "display_order": 400,
+    "display_data_names": [
+      "bc_wildfire_active_weather_stations"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

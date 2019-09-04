@@ -18,6 +18,7 @@ python /app/app/db/wait_for_db.py
 
 # Load fixture data for dev environments
 if [ "$WALLY_ENV" = "DEV" ]; then
+    echo "Loading Fixtures"
     python /app/app/initial_data.py
 fi
 
