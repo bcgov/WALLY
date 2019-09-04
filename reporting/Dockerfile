@@ -9,7 +9,7 @@ COPY package*.json /app/
 RUN chgrp -R 0 /app/ && \
     chmod -R g=u /app/
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
