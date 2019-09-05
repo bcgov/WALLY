@@ -33,14 +33,14 @@
               </v-list-tile>
             </template>
 
-            <div v-if="item.choices && item.choices.length" class="mt-3">
+            <div v-if="item.choices != null && item.choices.length" class="mt-3">
               <div
                 v-for="choice in item.choices"
-                :key="choice.id"
+                :key="choice.display_data_name"
               >
                 <p class="pl-3">
-                  <label class="checkbox">{{choice.name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.id, choice.type, choice.url)" :checked="isMapLayerActive(choice.id)">
+                  <label class="checkbox">{{choice.display_name}}
+                    <input type="checkbox" @input="handleSelectLayer(choice.display_data_name, (choice.url !== '' ? 'api' : 'wms'), choice.url)" :checked="isMapLayerActive(choice.display_data_name)">
                     <span class="checkmark"></span>
                   </label>
                 </p>
@@ -58,13 +58,13 @@
           <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${dataMartFeature}${index}`">
             <div v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`">
               <v-list two-line subheader>
-                <v-subheader><b>{{getMapLayerName(name)}}</b></v-subheader>
+                <v-subheader><b>{{getMapLayer(name).display_name}}</b></v-subheader>
                 <v-divider :key="`subheader-${value}${name}`"></v-divider>
                 <template v-for="(prop, propIndex) in value">
                   <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleFeatureItemClick(prop)">
                     <v-list-tile-content>
-                      <v-list-tile-title>{{getMapLayerItemTitle(name)}}</v-list-tile-title>
-                      <v-list-tile-sub-title class="text--primary">{{prop.properties[getMapLayerItemValue(name)]}}</v-list-tile-sub-title>
+                      <v-list-tile-title>{{getMapLayer(name).label}}</v-list-tile-title>
+                      <v-list-tile-sub-title class="text--primary">{{prop.properties[getMapLayer(name).label_column]}}</v-list-tile-sub-title>
                     </v-list-tile-content>
                   </v-list-tile>
                   <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
@@ -77,7 +77,7 @@
 
       <v-tab-item>
         <v-card v-if="dataMartFeatureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.id) }}</v-card-title>
+          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
           <v-divider></v-divider>
 

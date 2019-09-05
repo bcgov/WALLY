@@ -1,0 +1,22 @@
+[
+  {
+    "component_type_code": "chart",
+    "description": "for visualization of layer data"
+  },
+  {
+    "component_type_code": "image",
+    "description": "url links to raw imagery"
+  },
+  {
+    "component_type_code": "links",
+    "description": "url links to raw documents or web pages"
+  },
+  {
+    "component_type_code": "formula",
+    "description": "formulas to perform on datasets for transformative use cases"
+  },
+  {
+    "component_type_code": "table",
+    "description": "display of tabular data"
+  }
+]
