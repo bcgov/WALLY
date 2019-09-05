@@ -5,6 +5,7 @@
     /* @import '../../../node_modules/leaflet-geosearch/assets/css/leaflet.css';
     @import '../../../node_modules/leaflet-fullscreen/dist/leaflet.fullscreen.css'; */
     @import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
+    @import "../../../node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
     .map {
         width: 100%;
         height: calc(100vh - 64px);

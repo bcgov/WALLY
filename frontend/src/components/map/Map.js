@@ -1,15 +1,18 @@
 import L from 'leaflet'
-import { tiledMapLayer } from 'esri-leaflet'
 import 'leaflet-lasso'
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters } from 'vuex'
-import betterWms from './L.TileLayer.BetterWMS'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import * as utils from '../../utils/metadataUtils'
 
 import mapboxgl from 'mapbox-gl'
+import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
+
+import bbox from '@turf/bbox'
+
 import qs from 'querystring'
 
 // Extend control, making a locate
@@ -94,17 +97,33 @@ export default {
       // this.activeLayerGroup.addTo(this.map)
       // this.markerLayerGroup.addTo(this.map)
 
-      // this.listenForAreaSelect()
-
       // temporary public token with limited scope (reading layers) just for testing.
       mapboxgl.accessToken = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
         style: 'mapbox://styles/stephenhillier/cjzydtam02lbd1cld4jbkqlhy', // stylesheet location
-        center: [-123.50, 50], // starting position
-        zoom: 9 // starting zoom
+        center: [-124, 54.5], // starting position
+        zoom: 4.7 // starting zoom
       })
+
+      const modes = MapboxDraw.modes
+      modes.draw_polygon = DrawRectangle
+
+      var draw = new MapboxDraw({
+        modes: modes,
+        displayControlsDefault: false,
+        controls: {
+          polygon: true,
+          trash: true
+        }
+      })
+
+      // Add zoom and rotation controls to the map.
+      this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
+      this.map.addControl(draw, 'top-left')
+
+      this.listenForAreaSelect()
     },
     getLocateControl () {
       const locateButton = L.control.locate({ position: 'topleft' })
@@ -275,10 +294,19 @@ export default {
 
         this.getMapObjects(bounds)
       })
+
+      this.map.on('draw.create', (feature) => {
+        // for drawn rectangular regions, the polygon describing the rectangle is the first
+        // element in the array of drawn features.
+        const bounds = bbox(feature.features[0])
+        this.getMapObjects(bounds)
+      })
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
-      let size = this.map.getSize()
+      const canvas = this.map.getCanvas()
+      const size = { x: canvas.width, y: canvas.height }
+
       this.$store.commit('clearDataMartFeatures')
       console.log('active map layers', this.activeMapLayers, this.activeDataMarts)
 
