@@ -51,20 +51,12 @@
     "wms_catalogue_id": 4
   },
   {
-    "display_data_name": "artesian_wells",
-    "display_name": "Artesian Wells",
-    "label_column": "WELL_TAG_NO",
-    "label": "Well Tag No.",
-    "highlight_columns": ["", ""],
-    "wms_catalogue_id": 5
-  },
-  {
     "display_data_name": "cadastral",
     "display_name": "Cadastral Parcel Information",
     "label_column": "PID",
     "label": "Pid",
     "highlight_columns": ["", ""],
-    "wms_catalogue_id": 6
+    "wms_catalogue_id": 5
   },
   {
     "display_data_name": "automated_snow_weather_station_locations",
@@ -78,7 +70,7 @@
       "LOCATION_NAME",
       "STATUS"
     ],
-    "wms_catalogue_id": 7
+    "wms_catalogue_id": 6
   },
   {
     "display_data_name": "freshwater_atlas_stream_directions",
@@ -86,7 +78,7 @@
     "label_column": "DOWNSTREAM_DIRECTION",
     "label": "Downstream Direction",
     "highlight_columns": ["", ""],
-    "wms_catalogue_id": 8
+    "wms_catalogue_id": 7
   },
   {
     "display_data_name": "bc_wildfire_active_weather_stations",
@@ -94,7 +86,7 @@
     "label_column": "STATION_NAME",
     "label": "Station Name",
     "highlight_columns": ["", ""],
-    "wms_catalogue_id": 9
+    "wms_catalogue_id": 8
   },
   {
     "display_data_name": "ecocat_water_related_reports",
@@ -110,15 +102,7 @@
       "REPORT_AUDIENCE",
       "LONG_DESCRIPTION"
     ],
-    "wms_catalogue_id": 10
-  },
-  {
-    "display_data_name": "ground_water_licenses",
-    "display_name": "Points of Well Diversion - Licenses",
-    "label_column": "LICENCE_NUMBER",
-    "label": "Licence Number",
-    "highlight_columns": ["", ""],
-    "wms_catalogue_id": 11
+    "wms_catalogue_id": 9
   },
   {
     "display_data_name": "ground_water_aquifers",
@@ -126,7 +110,15 @@
     "label_column": "AQNAME",
     "label": "Aquifer Name",
     "highlight_columns": ["", ""],
-    "wms_catalogue_id": 12
+    "wms_catalogue_id": 10
+  },
+  {
+    "display_data_name": "water_allocation_restrictions",
+    "display_name": "Water Allocation Restrictions",
+    "label_column": "LINEAR_FEATURE_ID",
+    "label": "Feature Id",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 11
   },
   {
     "display_data_name": "hydrometric_stream_flow",
