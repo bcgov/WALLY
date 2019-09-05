@@ -1,7 +1,7 @@
 import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import * as metadataUtils from '../utils/metadataUtils'
-import ApiService from "../services/ApiService";
+import ApiService from '../services/ApiService'
 
 export default {
   state: {

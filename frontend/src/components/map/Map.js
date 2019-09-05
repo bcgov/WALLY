@@ -255,7 +255,7 @@ export default {
         // Purpose is that some wms queries only work with square boundary boxes
         let x = Math.abs(min.lat - max.lat)
         let y = Math.abs(min.lng - max.lng)
-        let area = Math.max(x,y)
+        let area = Math.max(x, y)
 
         let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
 
