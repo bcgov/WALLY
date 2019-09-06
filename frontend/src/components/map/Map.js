@@ -244,6 +244,9 @@ export default {
       const newLayer = {
         'id': layer.id,
         'type': 'raster',
+        'layout': {
+          'visibility': 'none'
+        },
         'source': {
           'type': 'raster',
           'tiles': [
