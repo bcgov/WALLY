@@ -63,7 +63,8 @@ export default {
       // legendControlContent: null,
       activeLayerGroup: L.layerGroup(),
       markerLayerGroup: L.layerGroup(),
-      activeLayers: {}
+      activeLayers: {},
+      draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
     }
   },
   computed: {
@@ -112,7 +113,7 @@ export default {
       const modes = MapboxDraw.modes
       modes.draw_polygon = DrawRectangle
 
-      var draw = new MapboxDraw({
+      this.draw = new MapboxDraw({
         modes: modes,
         displayControlsDefault: false,
         controls: {
@@ -123,7 +124,7 @@ export default {
 
       // Add zoom and rotation controls to the map.
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
-      this.map.addControl(draw, 'top-left')
+      this.map.addControl(this.draw, 'top-left')
 
       this.map.on('style.load', () => {
         this.getMapLayers()
@@ -185,10 +186,10 @@ export default {
     },
     handleAddWMSLayer (displayDataName) {
       console.log(displayDataName)
-      this.map.setLayoutProperty(displayDataName, 'visibility', 'visible');
+      this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
-      this.map.setLayoutProperty(displayDataName, 'visibility', 'none');
+      this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
@@ -291,8 +292,16 @@ export default {
     //     }
     //   }))()
     // },
+    replaceOldFeatures (newFeature) {
+      const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
+      this.draw.delete(old.map((feature) => feature.id))
+    },
     listenForAreaSelect () {
       this.map.on('draw.create', (feature) => {
+        const newFeature = feature.features[0].id
+
+        this.replaceOldFeatures(newFeature)
+
         // for drawn rectangular regions, the polygon describing the rectangle is the first
         // element in the array of drawn features.
         const bounds = bbox(feature.features[0])
