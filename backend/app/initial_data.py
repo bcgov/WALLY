@@ -6,7 +6,7 @@ from app.db.session import db_session
 from app.hydat.factory import StationFactory
 from app.metadata.db_models import ApiCatalogue, WmsCatalogue, DataFormatCode, ComponentTypeCode, \
     DisplayCatalogue, DisplayTemplate, ChartComponent, LinkComponent, ImageComponent, FormulaComponent, \
-    DisplayTemplateDisplayCatalogueXref
+    DisplayTemplateDisplayCatalogueXref, VectorCatalogue
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def load_fixtures():
     # User file array to ensure loading order
     # File names must match class names for globals() to work
     files = ['ApiCatalogue.json', "WmsCatalogue.json", 'DisplayCatalogue.json',
-             "DataFormatCode.json",  "ComponentTypeCode.json"]
+             "DataFormatCode.json",  "ComponentTypeCode.json", "VectorCatalogue.json"]
     directory = '/app/fixtures/'
 
     logger = logging.getLogger("metadata")

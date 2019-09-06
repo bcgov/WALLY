@@ -13,6 +13,7 @@ class Catalogue(BaseModel):
     highlight_columns: List[str]
     wms_name: str = ''
     wms_style: str = ''
+    vector_name: str = ''
     url: str = ''
 
     class Config:
