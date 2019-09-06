@@ -296,17 +296,19 @@ export default {
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
+    handleSelect (feature) {
+      const newFeature = feature.features[0].id
+
+      this.replaceOldFeatures(newFeature)
+
+      // for drawn rectangular regions, the polygon describing the rectangle is the first
+      // element in the array of drawn features.
+      const bounds = bbox(feature.features[0])
+      this.getMapObjects(bounds)
+    },
     listenForAreaSelect () {
-      this.map.on('draw.create', (feature) => {
-        const newFeature = feature.features[0].id
-
-        this.replaceOldFeatures(newFeature)
-
-        // for drawn rectangular regions, the polygon describing the rectangle is the first
-        // element in the array of drawn features.
-        const bounds = bbox(feature.features[0])
-        this.getMapObjects(bounds)
-      })
+      this.map.on('draw.create', this.handleSelect)
+      this.map.on('draw.update', this.handleSelect)
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
