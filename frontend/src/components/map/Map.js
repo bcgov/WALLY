@@ -2,7 +2,7 @@ import L from 'leaflet'
 import 'leaflet-lasso'
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
 import EventBus from '../../services/EventBus.js'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import * as utils from '../../utils/metadataUtils'
@@ -45,6 +45,7 @@ export default {
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
+    EventBus.$on('layers:loaded', this.loadLayers)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -54,6 +55,7 @@ export default {
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
+    EventBus.$off('layers:loaded', this.loadLayers)
   },
   data () {
     return {
@@ -123,7 +125,26 @@ export default {
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
       this.map.addControl(draw, 'top-left')
 
+      this.map.on('style.load', () => {
+        this.getMapLayers()
+      })
+
       this.listenForAreaSelect()
+    },
+    loadLayers () {
+      const layers = this.allMapLayers
+
+      // load each layer, but default to no visibility.
+      // the user can toggle layers on and off with the layer controls.
+      for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+        if (layer['wms_name']) {
+          console.log('adding wms layer ', layers[i].display_data_name)
+          this.addWMSLayer(layer)
+        } else if (layer['geojson']) {
+          this.addGeoJSONLayer(layer)
+        }
+      }
     },
     getLocateControl () {
       const locateButton = L.control.locate({ position: 'topleft' })
@@ -163,25 +184,11 @@ export default {
       }
     },
     handleAddWMSLayer (displayDataName) {
-      const layer = this.allMapLayers.find((x) => { // TODO Handle Data Sources (Data Marts) here as well
-        return x.display_data_name === displayDataName
-      })
-      // stop if layer wasn't found in the array we searched
-      if (!layer) {
-        return
-      }
-      // inspect the layer to determine how to load it
-      if (layer['wms_name']) {
-        this.addWMSLayer(layer)
-      } else if (layer['geojson']) {
-        this.addGeoJSONLayer(layer)
-      }
+      console.log(displayDataName)
+      this.map.setLayoutProperty(displayDataName, 'visibility', 'visible');
     },
     handleRemoveWMSLayer (displayDataName) {
-      const layer = this.allMapLayers.find((x) => {
-        return x.display_data_name === displayDataName
-      })
-      this.removeLayer(layer)
+      this.map.setLayoutProperty(displayDataName, 'visibility', 'none');
     },
     handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
@@ -220,7 +227,8 @@ export default {
       this.activeLayers[layer.display_data_name].addTo(this.map)
     },
     addWMSLayer (layer) {
-      if (!layer.display_data_name || !layer.wms_name || !layer.display_name) {
+      const layerID = layer.display_data_name || layer.wms_name || layer.display_name
+      if (!layerID) {
         return
       }
 
@@ -228,7 +236,7 @@ export default {
         service: 'WMS',
         request: 'GetMap',
         format: 'image/png',
-        layers: 'pub:' + layer.wmsLayer,
+        layers: 'pub:' + layer.wms_name,
         styles: layer.wmsStyle,
         transparent: true,
         name: layer.name,
@@ -239,10 +247,10 @@ export default {
       }
 
       const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wmsLayer + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
 
       const newLayer = {
-        'id': layer.id,
+        'id': layerID,
         'type': 'raster',
         'layout': {
           'visibility': 'none'
@@ -256,11 +264,8 @@ export default {
         },
         'paint': {}
       }
-      this.activeLayers[layer.id] = newLayer
-
-      // TODO: this should only happen once (on map load?)
-      // layer visibility should be toggled, not adding/removing layers.
-      this.map.addLayer(newLayer, 'aeroway-line')
+      this.activeLayers[layerID] = newLayer
+      this.map.addLayer(newLayer, 'wells')
     },
     removeLayer (layer) {
       const displayDataName = layer.display_data_name || layer
@@ -287,24 +292,6 @@ export default {
     //   }))()
     // },
     listenForAreaSelect () {
-      this.map.on('lasso.finished', (event) => {
-        let lats = event.latLngs.map(l => l.lat)
-        let lngs = event.latLngs.map(l => l.lng)
-
-        let min = L.latLng(Math.min(...lats), Math.min(...lngs))
-        let max = L.latLng(Math.max(...lats), Math.max(...lngs))
-
-        // HACK to make bbox square rather than rectangular
-        // Purpose is that some wms queries only work with square boundary boxes
-        let x = Math.abs(min.lat - max.lat)
-        let y = Math.abs(min.lng - max.lng)
-        let area = Math.max(x, y)
-
-        let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
-
-        this.getMapObjects(bounds)
-      })
-
       this.map.on('draw.create', (feature) => {
         // for drawn rectangular regions, the polygon describing the rectangle is the first
         // element in the array of drawn features.
@@ -319,7 +306,8 @@ export default {
 
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
-    }
+    },
+    ...mapActions(['getMapLayers'])
     // listenForReset () {
     //     this.$parent.$on('resetLayers', (data) => {
     //         if (this.map) {
