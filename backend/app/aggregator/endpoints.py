@@ -9,9 +9,11 @@ from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.hydat.db as streams_repo
 import app.hydat.models as streams_v1
-from app.aggregator.db import get_layers
+import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
-from app.aggregator.models import WMSGetMapQuery, WMSRequest, LayerResponse
+from app.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
+from app.templating.template_builder import build_templates
+from app.aggregator.helpers import spherical_mercator_project
 
 logger = getLogger("aggregator")
 
@@ -49,30 +51,53 @@ def aggregate_sources(
     inside the map bounds defined by `bbox`.
     """
 
+    # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
+    # and then takes the largest square to use as the bbox. Reason being that the databc
+    # WMS server doesn't handle non square bbox's very well on specific layers. This section
+    # also limits the max size to be no larger than 10000 meters because again WMS server has
+    # issues with large bbox's
+    # TODO find the limit of bbox size for layers and implement feature client side
+    #  that displays a square box with max size of limit
+    bottom_left = spherical_mercator_project(bbox[1], bbox[0])
+    top_right = spherical_mercator_project(bbox[3], bbox[2])
+    x_diff = bottom_left[0] - top_right[0]
+    y_diff = bottom_left[1] - top_right[1]
+    diff = min(round(abs(max(x_diff, y_diff))), 10000)
+    mercator_box = [bottom_left[1], bottom_left[0], bottom_left[1] + diff, bottom_left[0] + diff]
+    # logger.info("diff: " + str(diff) + " bbox: " + str(bbox_string))
+
     # Format the bounding box (which arrives in the querystring as a comma separated list)
-    bbox_string = ','.join(str(v) for v in bbox)
+    bbox_string = ','.join(str(v) for v in mercator_box)
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
-    valid_layers = get_layers(layers)
+    catalogue = agr_repo.get_display_catalogue(db, layers)
 
     wms_requests = []
 
     # Create a WMSRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
-    for layer in valid_layers:
-        if layer.get("type") != "wms":
+    for item in catalogue:
+        if item.wms_catalogue_id is None:
             continue
-    
+
+        # query = WMSGetFeatureInfoQuery(
+        #     x=1000,
+        #     y=1000,
+        #     layers=layer.wms_name,
+        #     bbox=bbox_string,
+        #     width=width,
+        #     height=height,
+        # )
         query = WMSGetMapQuery(
-            layers=layer["id"],
+            layers=item.wms_catalogue.wms_name,
             bbox=bbox_string,
             width=width,
             height=height,
         )
         req = WMSRequest(
-            url=layer["api_url"],
-            layer=layer["id"],
+            url=wms_url(item.wms_catalogue.wms_name),
+            layer=item.display_data_name,
             q=query
         )
         wms_requests.append(req)
@@ -84,27 +109,37 @@ def aggregate_sources(
     # Internal datasets:
     # Gather valid internal sources that were included in the request's `layers` param
     internal_data = []
-    for layer in valid_layers:
-        if layer.get("type") != "api" or layer.get("id") not in API_DATASOURCES:
+    for item in catalogue:
+        if item.api_catalogue_id is None or item.display_data_name not in API_DATASOURCES:
             continue
-        internal_data.append(layer)
+        internal_data.append(item)
 
     # Loop through all datasets that are available internally.
     # We will make use of the data access function registered in API_DATASOURCES
     # to avoid making api calls to our own web server.
     for dataset in internal_data:
-        id = dataset.get("id")
+        display_data_name = dataset.display_data_name
 
         # use function registered for this source
-        objects = API_DATASOURCES[id](db, bbox)
+        objects = API_DATASOURCES[display_data_name](db, bbox)
 
         feat_layer = LayerResponse(
-            layer=id,
+            layer=display_data_name,
             status=200,
             geojson=objects
         )
 
         feature_list.append(feat_layer)
 
-    # return the aggregated features
-    return feature_list
+    hydrated_templates = build_templates(db, feature_list)
+
+    response = {
+        'display_data': feature_list,
+        'display_templates': hydrated_templates
+    }
+
+    return response
+
+
+def wms_url(wms_id):
+    return "https://openmaps.gov.bc.ca/geo/pub/" + wms_id + "/ows?"

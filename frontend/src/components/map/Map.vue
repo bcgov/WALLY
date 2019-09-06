@@ -7,7 +7,8 @@
     @import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
     @import "../../../node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
     .map {
-        width: 100%;
+        z-index: 2;
+        width: calc(100vw - 335px);
         height: calc(100vh - 64px);
     }
     .leaflet-control-geosearch a.reset {

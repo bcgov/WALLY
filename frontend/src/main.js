@@ -6,6 +6,8 @@ import router from './router'
 import store from './store'
 
 import { AuthService } from './services/AuthService.js'
+import {mapActions} from "vuex";
+import ApiService from "./services/ApiService";
 
 Vue.config.productionTip = false
 Vue.use(Vuetify)
@@ -21,6 +23,15 @@ auth.init({
   new Vue({
     router,
     store,
+    methods: {
+      ...mapActions([
+        'getMapLayers'
+      ])
+    },
+    created () {
+      ApiService.init()
+      this.getMapLayers()
+    },
     render: h => h(App)
   }).$mount('#app')
 })

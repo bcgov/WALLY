@@ -1,0 +1,15 @@
+{
+  "display_template": {
+    "display_template_id": 14,
+    "title": "Water Allocation Restrictions",
+    "display_order": 1000,
+    "display_data_names": [
+      "water_allocation_restrictions"
+    ]
+  },
+  "charts": [],
+  "links": [],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}
