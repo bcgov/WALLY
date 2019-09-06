@@ -293,6 +293,8 @@ export default {
     //   }))()
     // },
     replaceOldFeatures (newFeature) {
+      // replace all previously drawn features with the new one.
+      // this has the effect of only allowing one selection box to be drawn at a time.
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
