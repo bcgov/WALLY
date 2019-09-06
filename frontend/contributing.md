@@ -20,13 +20,14 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 5. Make sure your code lints.
 6. Issue that pull request!
 
-## Separation of Display Components to Business Logic
-All your business logic, data handling and manipulation should be in a file called `<File>Container.js`. JSX Template files should be under a folder called `components` and must not contain any non-ui logic.
+## Code Stability & Consistency
+* For any new feature, make sure to write your unit tests first.
+* Adhere to the [Vue Style Guide](https://vuejs.org/v2/style-guide/) to your best judgement
+* Make sure your tests are passing before pushing
+
 
 ## Use a Consistent Coding Style
 Ideally, we'd like to follow the [JavaScript Standard style guide](https://standardjs.com/rules.html)
 
-<!-- Install [eslint-config-airbnb](https://www.npmjs.com/package/eslint-config-airbnb) from npm
- -->
 
  `$ ./node_modules/.bin/eslint frontend/src/`

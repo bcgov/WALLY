@@ -27,4 +27,6 @@ Pull requests are the best way to propose changes to the codebase (we use [Githu
 
 ## Testing
 # Adding a unit test
-- We use nose for the test runner. If you create a new test file, make sure nose can find it by opening `nose.cfg` and adding the filepath to the second line (`tests=...`)
+- We use pytests for the test runner
+
+    `pytest ./app/tests/`
