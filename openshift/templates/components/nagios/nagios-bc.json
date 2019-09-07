@@ -72,6 +72,17 @@
                         "ref":"daine/nagios",
                         "uri": "https://github.com/bcgov-c/wally.git"
                     },
+                    "secrets": [
+                        {
+                            "destinationDir": ".",
+                            "secret": {
+                                "name": "wally-at-github"
+                            }
+                        }
+                    ],
+                    "sourceSecret": {
+                        "name": "wally-at-github"
+                    },
                     "contextDir": "openshift/nagios"
                 },
                 "strategy": {
