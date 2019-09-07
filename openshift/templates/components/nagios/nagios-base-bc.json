@@ -36,8 +36,8 @@
                 "source": {
                     "type": "Git",
                     "git": {
-                        "ref":"daine/nagios",
-                        "uri": "https://github.com/bcgov-c/wally.git"
+                        "ref": "daine/nagios",
+                        "uri": "git@github.com:bcgov-c/wally.git"
                     },
                     "secrets": [
                         {
