@@ -27,7 +27,7 @@ export default {
   mounted () {
     // Reset
     this.chartData.labels = []
-    this.chartData.datasets.forEach( (dataset, i) => {
+    this.chartData.datasets.forEach((dataset, i) => {
       this.chartData.datasets[i].data = []
       this.chartData.datasets[i].label = ''
     })

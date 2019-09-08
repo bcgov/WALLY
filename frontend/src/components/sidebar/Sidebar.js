@@ -32,6 +32,7 @@ export default {
       return [
         {
           title: 'Layers',
+          active: 'true',
           icon: 'layers',
           action: 'layers',
           choices: this.allMapLayers
