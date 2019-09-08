@@ -51,16 +51,20 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-toolbar>
-          <v-toolbar-title>Selected Points</v-toolbar-title>
-        </v-toolbar>
+        <div>Selected points</div>
         <div v-if="dataMartFeatures.length > 0">
           <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${dataMartFeature}${index}`">
             <div v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`">
-              <v-list two-line subheader>
                 <v-subheader><b>{{getMapLayer(name).display_name}}</b></v-subheader>
                 <v-divider :key="`subheader-${value}${name}`"></v-divider>
-                <template v-for="(prop, propIndex) in value">
+                  <v-data-table
+                    :headers="[{ text: 'Well tag number', value: 'wtn' }, { text: 'id', value: 'id'}]"
+                    :items="value.map((x,i) => ({id: i, wtn: x.properties[getMapLayer(name).label_column]}))"
+                    :items-per-page="10"
+                  ></v-data-table>
+
+                <!-- <template v-for="(prop, propIndex) in value">
+
                   <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleFeatureItemClick(prop)">
                     <v-list-tile-content>
                       <v-list-tile-title>{{getMapLayer(name).label}}</v-list-tile-title>
@@ -68,8 +72,7 @@
                     </v-list-tile-content>
                   </v-list-tile>
                   <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
-                </template>
-              </v-list>
+                </template> -->
             </div>
           </div>
         </div>
