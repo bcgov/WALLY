@@ -1,29 +1,48 @@
 <template>
   <div>
     <v-slide-x-transition>
-      <v-btn  absolute right dark icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
-        <v-icon dark v-if="!showContextBar">keyboard_arrow_left</v-icon>
+      <v-btn  absolute dark icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
+        <v-icon dark v-if="!showContextBar">keyboard_arrow_right</v-icon>
       </v-btn>
     </v-slide-x-transition>
     <v-slide-x-reverse-transition>
       <v-card id="contextBar" class="mx-auto" max-width="450">
-        <div v-show="showContextBar" max-width="450">
-          <v-card-actions>
+        <div fluid v-show="showContextBar" max-width="450">
+          <div v-if="contextComponents.length">
             <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
-              <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>
+              <v-icon dark v-if="showContextBar">keyboard_arrow_left</v-icon>
             </v-btn>
-          </v-card-actions>
-  <!--            <v-card-title>Context</v-card-title>-->
-          <span id="componentsList">
-          <v-card v-for="(item, i) in contextComponents" :key="i" min-width="400" class="component">
-            <v-card-title>
-              <span v-if="item && item">{{item.title}}</span>
-            </v-card-title>
-            <v-card-text>
-              <component :is="item.component" v-bind="item.data" v-bind:key="item.key"></component>
-            </v-card-text>
-          </v-card>
-          </span>
+
+            <v-select
+              :items="contextComponents.map((c, i) => ({text: c.data.title, value: i}))"
+              item-text="text"
+              item-value="value"
+              v-model="selectedContext"
+              label="Show me:"
+              outlined
+            ></v-select>
+            <span id="componentsList">
+              <template v-for="(item, i) in contextComponents">
+                <v-card :key="i" min-width="400" class="component" v-if="selectedContext === i">
+                  <v-card-title>
+                    <span v-if="item && item">{{item.title}}</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <component :is="item.component" v-bind="item.data" v-bind:key="item.key"></component>
+                  </v-card-text>
+                </v-card>
+              </template>
+            </span>
+          </div>
+          <div v-else class="pa-3">
+            <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
+              <v-icon dark v-if="showContextBar">keyboard_arrow_left</v-icon>
+            </v-btn>
+            <div class="mt-3">
+              <p>Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
+            </div>
+          </div>
+
         </div>
       </v-card>
     </v-slide-x-reverse-transition>
@@ -32,7 +51,7 @@
 <style>
 #contextBar{
   position: absolute;
-  right: 0;
+  left: 200;
   z-index: 3;
   height: 100%;
   overflow: scroll;

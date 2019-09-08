@@ -12,6 +12,7 @@ export default {
   data () {
     return {
       showContextBar: false,
+      selectedContext: 0, // the currently selected context/layer that is visible in the panel
       drawer: {
         open: true,
         mini: true

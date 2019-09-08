@@ -122,14 +122,14 @@ export default {
       })
 
       // Add zoom and rotation controls to the map.
-      this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
-      this.map.addControl(this.draw, 'top-left')
+      this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+      this.map.addControl(this.draw, 'top-right')
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
         },
         showUserLocation: false
-      }), 'top-left')
+      }), 'top-right')
       this.map.on('style.load', () => {
         this.getMapLayers()
       })
