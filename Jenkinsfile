@@ -1,4 +1,4 @@
-F#!groovy
+#!groovy
 @Library('bcgov-library') _
 import bcgov.GitHubHelper
 
