@@ -24,3 +24,9 @@ export const chartColors = {
     'rgb(52, 73, 94, 1)'
   ]
 }
+
+export const blueChartColors = {
+  background: 'rgba(54, 162, 235, 0.2)',
+  border: 'rgba(54, 162, 235, 1)'
+
+}

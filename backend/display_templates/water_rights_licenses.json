@@ -24,9 +24,9 @@
           "datasets": [{
             "label": "",
             "data": [],
-            "backgroundColor": "",
-            "borderColor": "",
-            "borderWidth": ""
+            "backgroundColor": "#d2f4d2",
+            "borderColor": "#228b22",
+            "borderWidth": "1"
           }]
         }
       }

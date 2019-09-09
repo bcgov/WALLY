@@ -3,7 +3,7 @@ from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
-
+from app.db.base_class import BaseTable
 
 # Custom Base Class
 class Base(object):
@@ -20,7 +20,7 @@ class Base(object):
                                            'should not be used.')
 
 
-Base = declarative_base(cls=Base)
+Base = declarative_base(cls=Base, metadata=BaseTable.metadata)
 
 
 # Data Storage Tables
@@ -76,6 +76,11 @@ class WmsCatalogue(Base):
     wms_name = Column(String, comment='identifying layer name with the data bc wms server')
     wms_style = Column(String, comment='style key to display data in different visualizations for wms layer')
 
+class VectorCatalogue(Base):
+    __tablename__ = 'vector_catalogue'
+    vector_catalogue_id = Column(Integer, primary_key=True)
+    description = Column(String, comment='vector layer description')
+    vector_name = Column(String, comment='identifying vector layer name')
 
 class DisplayCatalogue(Base):
     __tablename__ = 'display_catalogue'
@@ -98,6 +103,10 @@ class DisplayCatalogue(Base):
     wms_catalogue_id = Column(Integer, ForeignKey('metadata.wms_catalogue.wms_catalogue_id'),
                               comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
+
+    vector_catalogue_id = Column(Integer, ForeignKey('metadata.vector_catalogue.vector_catalogue_id'),
+                              comment='references vector catalogue item')
+    vector_catalogue = relationship("VectorCatalogue")
 
     display_templates = relationship("DisplayTemplateDisplayCatalogueXref", back_populates="display_catalogue")
 
