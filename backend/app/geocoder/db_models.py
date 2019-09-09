@@ -17,7 +17,8 @@ parcel = Table("parcel", BaseTable.metadata,
                Column("geom", Geometry('MULTIPOLYGON', 4326)),
                Column("PARCEL_FABRIC_POLY_ID", BigInteger),
                Column("PIN", BigInteger),
-               Column("PID", BigInteger),
-               Column("PARCEL_NAME", BigInteger),
-               Column("PLAN_NUMBER", BigInteger),
+               Column("PID", Text),
+               Column("PID_NUMBER", BigInteger),
+               Column("PARCEL_NAME", Text),
+               Column("PLAN_NUMBER", BigInteger)
                )
