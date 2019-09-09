@@ -1,7 +1,7 @@
 """add parcel table
 
 Revision ID: 97efdf3c7904
-Revises: 4afd09e628a3
+Revises: 8e74234b8872
 Create Date: 2019-09-09 05:57:24.518281
 
 """
@@ -13,7 +13,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '97efdf3c7904'
-down_revision = '4afd09e628a3'
+down_revision = '8e74234b8872'
 branch_labels = None
 depends_on = None
 
