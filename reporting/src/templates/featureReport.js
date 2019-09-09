@@ -113,7 +113,7 @@ const generateFeatureReport = async (data) => {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
-        justifyContent: 'flex-start',
+        justifyContent: 'flex-start'
     },
     Title: {
         fontFamily: 'MyriadWebPro',
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         fontFamily: 'MyriadWebPro',
         fontSize: 12,
         marginTop: 10,
-        marginHorizontal: 25,
+        marginHorizontal: 25
     }
 })
 
