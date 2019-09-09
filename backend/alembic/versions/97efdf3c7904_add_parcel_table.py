@@ -22,7 +22,8 @@ def upgrade():
     op.create_table(
         "parcel",
         Column("geom", Geometry('MULTIPOLYGON', 4326)),
-        Column("PARCEL_FABRIC_POLY_ID", BigInteger),
+        Column("PARCEL_FABRIC_POLY_ID", BigInteger,
+               unique=True, primary_key=True),
         Column("PIN", BigInteger),
         Column("PID", Text),
         Column("PID_NUMBER", BigInteger),

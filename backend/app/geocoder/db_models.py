@@ -11,14 +11,13 @@ geocode = Table("geocode_lookup", BaseTable.metadata,
                 Column("tsv", Text)
                 )
 
-#
-#
-parcel = Table("parcel", BaseTable.metadata,
-               Column("geom", Geometry('MULTIPOLYGON', 4326)),
-               Column("PARCEL_FABRIC_POLY_ID", BigInteger),
-               Column("PIN", BigInteger),
-               Column("PID", Text),
-               Column("PID_NUMBER", BigInteger),
-               Column("PARCEL_NAME", Text),
-               Column("PLAN_NUMBER", BigInteger)
-               )
+
+class Parcel(BaseTable):
+    __tablename__ = "parcel"
+    PARCEL_FABRIC_POLY_ID = Column(BigInteger, unique=True, primary_key=True)
+    geom = Column(Geometry('MULTIPOLYGON', 4326))
+    PIN = Column(BigInteger)
+    PID = Column(Text)
+    PID_NUMBER = Column(BigInteger)
+    PARCEL_NAME = Column(Text)
+    PLAN_NUMBER = Column(BigInteger)

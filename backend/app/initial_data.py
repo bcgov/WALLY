@@ -4,6 +4,7 @@ import json
 import datetime
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
+from app.geocoder.factory import ParcelFactory
 from app.metadata.db_models import ApiCatalogue, WmsCatalogue, DataFormatCode, ComponentTypeCode, \
     DisplayCatalogue, DisplayTemplate, ChartComponent, LinkComponent, ImageComponent, FormulaComponent, \
     DisplayTemplateDisplayCatalogueXref, VectorCatalogue
@@ -20,8 +21,21 @@ def create_hydat_data():
     logger.info("Stream Stations")
     stations = StationFactory.create_batch(3)
     for stn in stations:
-        logger.info(f"Adding stream station {stn.station_number} - {stn.station_name}")
+        logger.info(
+            f"Adding stream station {stn.station_number} - {stn.station_name}")
         db_session.add(stn)
+    db_session.commit()
+
+
+def create_parcels():
+    # logger
+    logger = logging.getLogger("fixtures")
+    logger.info("Adding parcels")
+    parcels = ParcelFactory.create_batch(5)
+    for par in parcels:
+        logger.info(
+            f"Adding parcel {par.PARCEL_NAME}")
+        db_session.add(par)
     db_session.commit()
 
 
@@ -41,7 +55,8 @@ def load_fixtures():
 
         # Get class name from file name
         file = os.path.splitext(filename)[0]
-        cls = globals()[file]  # Need imports at top even though linter says they are unused
+        # Need imports at top even though linter says they are unused
+        cls = globals()[file]
 
         # Only add fixtures is no data exists in table
         if db_session.query(cls).first() is None:
@@ -75,10 +90,14 @@ def load_display_templates():
 
                 # Merge any changes to display template components into database
                 # Updates the audit logging information with current dates
-                db_session.merge(DisplayTemplate(**{**data["display_template"], **get_audit_fields()}))
-                [db_session.merge(ChartComponent(**{**chart, **get_audit_fields()})) for chart in data["charts"]]
-                [db_session.merge(LinkComponent(**{**link, **get_audit_fields()})) for link in data["links"]]
-                [db_session.merge(ImageComponent(**{**image, **get_audit_fields()})) for image in data["images"]]
+                db_session.merge(DisplayTemplate(
+                    **{**data["display_template"], **get_audit_fields()}))
+                [db_session.merge(ChartComponent(
+                    **{**chart, **get_audit_fields()})) for chart in data["charts"]]
+                [db_session.merge(LinkComponent(
+                    **{**link, **get_audit_fields()})) for link in data["links"]]
+                [db_session.merge(ImageComponent(
+                    **{**image, **get_audit_fields()})) for image in data["images"]]
                 [db_session.merge(FormulaComponent(**{**formula,
                                                       **get_audit_fields()})) for formula in data["formulas"]]
 
@@ -108,6 +127,7 @@ def main():
     logger.info("Creating initial fixture data")
     load_fixtures()
     create_hydat_data()
+    create_parcels()
     load_display_templates()
     logger.info("Initial data created")
 
