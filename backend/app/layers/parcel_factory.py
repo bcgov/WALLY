@@ -7,7 +7,7 @@ import decimal
 from app.db.session import db_session
 from shapely.geometry import MultiPolygon, Polygon
 from geoalchemy2.elements import WKTElement
-from . import db_models
+from app.layers.db_models import Parcel
 
 DEFAULT_COORDS = {"lat": 49.25, "lng": -123}
 
@@ -16,7 +16,7 @@ class ParcelFactory(factory.alchemy.SQLAlchemyModelFactory):
     """ factory to generate water level stations """
 
     class Meta:
-        model = db_models.Parcel
+        model = Parcel
         sqlalchemy_session = db_session
         exclude = ('_latitude', '_longitude', '_num')
 

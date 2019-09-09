@@ -4,7 +4,7 @@ import json
 import datetime
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.geocoder.factory import ParcelFactory
+from app.layers.parcel_factory import ParcelFactory
 from app.metadata.db_models import ApiCatalogue, WmsCatalogue, DataFormatCode, ComponentTypeCode, \
     DisplayCatalogue, DisplayTemplate, ChartComponent, LinkComponent, ImageComponent, FormulaComponent, \
     DisplayTemplateDisplayCatalogueXref, VectorCatalogue
