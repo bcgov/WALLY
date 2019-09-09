@@ -1,0 +1,7 @@
+[
+  {
+    "vector_catalogue_id": 1,
+    "description": "Stream monitoring",
+    "vector_name": "hydrometric_stream_flow"
+  }
+]

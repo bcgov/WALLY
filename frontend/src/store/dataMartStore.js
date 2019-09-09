@@ -41,7 +41,7 @@ export default {
         return 'layers=' + x.display_data_name + '&'
       })
 
-      var bbox = payload.bounds.split(',')
+      var bbox = payload.bounds
       bbox = bbox.map((x) => {
         return 'bbox=' + x + '&'
       })

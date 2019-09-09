@@ -3,7 +3,7 @@ Database tables and data access functions for Wally Data Layer Meta Information
 """
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, load_only
-from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource, WmsCatalogue, ApiCatalogue
+from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource, WmsCatalogue, ApiCatalogue, VectorCatalogue
 import itertools
 from logging import getLogger
 from sqlalchemy.orm import joinedload, subqueryload
@@ -25,7 +25,13 @@ def get_display_catalogue(db: Session):
 
     api_result = api_query.filter(DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id).all()
 
-    return wms_result + api_result
+    vector_query = db.query(DisplayCatalogue.display_name, DisplayCatalogue.display_data_name,
+                         DisplayCatalogue.highlight_columns, DisplayCatalogue.label, DisplayCatalogue.label_column,
+                         VectorCatalogue.description, VectorCatalogue.vector_name,)
+
+    vector_result = vector_query.filter(DisplayCatalogue.vector_catalogue_id == VectorCatalogue.vector_catalogue_id).all()
+
+    return wms_result + api_result + vector_result
 
 
 def get_highlight_columns(db: Session, display_data_name: str):
