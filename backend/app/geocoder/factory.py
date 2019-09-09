@@ -28,6 +28,8 @@ class ParcelFactory(factory.alchemy.SQLAlchemyModelFactory):
         'coordinate', center=DEFAULT_COORDS["lng"], radius=0.1)
     _num = factory.Faker('ean', length=8)
 
+    PARCEL_FABRIC_POLY_ID = factory.LazyAttribute(lambda p: f"0{p._num}")
+
     PARCEL_NAME = factory.LazyAttribute(lambda p: f"0{p._num}")
     PID = factory.LazyAttribute(lambda p: f"0{p._num}")
 
