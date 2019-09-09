@@ -26,7 +26,8 @@ router = APIRouter()
 # (defined by 2 corners, e.g. x1, y1, x2, y2) and return a FeatureCollection.
 # For example:  get_stations_as_geojson(db: Session, bbox: List[float])
 API_DATASOURCES = {
-    "HYDAT": streams_repo.get_stations_as_geojson
+    "HYDAT": streams_repo.get_stations_as_geojson,
+    "hydrometric_stream_data": streams_repo.get_stations_as_geojson
 }
 
 
@@ -131,7 +132,9 @@ def aggregate_sources(
 
         feature_list.append(feat_layer)
 
-    hydrated_templates = build_templates(db, feature_list)
+    hydrated_templates = None
+    if feature_list:
+        hydrated_templates = build_templates(db, feature_list)
 
     response = {
         'display_data': feature_list,

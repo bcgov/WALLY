@@ -1,13 +1,19 @@
 import L from 'leaflet'
-import { tiledMapLayer } from 'esri-leaflet'
 import 'leaflet-lasso'
 import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
 import EventBus from '../../services/EventBus.js'
-import { mapGetters } from 'vuex'
-import betterWms from './L.TileLayer.BetterWMS'
+import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import * as utils from '../../utils/metadataUtils'
+
+import mapboxgl from 'mapbox-gl'
+import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
+
+import bbox from '@turf/bbox'
+
+import qs from 'querystring'
 
 // Extend control, making a locate
 L.Control.Locate = L.Control.extend({
@@ -33,18 +39,13 @@ L.control.locate = function (opts) {
 export default {
   name: 'WallyMap',
   mounted () {
-    // There seems to be an issue loading leaflet immediately on mount, we use nextTick to ensure
-    // that the view has been rendered at least once before injecting the map.
-    // this.$nextTick(function () {
-    this.initLeaflet()
     this.initMap()
-    // })
-
     EventBus.$on('layer:added', this.handleAddWMSLayer)
     EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
+    EventBus.$on('layers:loaded', this.loadLayers)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -54,6 +55,7 @@ export default {
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
+    EventBus.$off('layers:loaded', this.loadLayers)
   },
   data () {
     return {
@@ -61,7 +63,8 @@ export default {
       // legendControlContent: null,
       activeLayerGroup: L.layerGroup(),
       markerLayerGroup: L.layerGroup(),
-      activeLayers: {}
+      activeLayers: {},
+      draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
     }
   },
   computed: {
@@ -73,41 +76,81 @@ export default {
     ])
   },
   methods: {
-    initLeaflet () {
-      // There is a known issue using leaflet with webpack, this is a workaround
-      // Fix courtesy of: https://github.com/PaulLeCam/react-leaflet/issues/255
-      delete L.Icon.Default.prototype._getIconUrl
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: require('../../assets/images/marker-icon-2x.png'),
-        iconUrl: require('../../assets/images/marker-icon.png'),
-        shadowUrl: require('../../assets/images/marker-shadow.png')
-      })
-    },
     initMap () {
-      this.map = L.map(this.$el, {
-        preferCanvas: true,
-        minZoom: 4,
-        maxZoom: 17
-      }).setView([54, -124], 5)
+      // this.map = L.map(this.$el, {
+      //   preferCanvas: true,
+      //   minZoom: 4,
+      //   maxZoom: 17
+      // }).setView([54, -124], 5)
 
-      L.control.scale().addTo(this.map)
-      this.map.addControl(this.getFullScreenControl())
-      this.map.addControl(this.getAreaSelectControl())
-      // this.map.addControl(this.getLegendControl())
-      this.map.addControl(this.getLocateControl())
+      // L.control.scale().addTo(this.map)
+      // this.map.addControl(this.getFullScreenControl())
+      // this.map.addControl(this.getAreaSelectControl())
+      // // this.map.addControl(this.getLegendControl())
+      // this.map.addControl(this.getLocateControl())
 
-      // BCGov map tiles
-      tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
-      // Open Street Map tiles
-      // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      //     maxZoom: 19,
-      //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      // }).addTo(this.map)
+      // // BCGov map tiles
+      // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
+      // // Open Street Map tiles
+      // // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // //     maxZoom: 19,
+      // //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      // // }).addTo(this.map)
 
-      this.activeLayerGroup.addTo(this.map)
-      this.markerLayerGroup.addTo(this.map)
+      // this.activeLayerGroup.addTo(this.map)
+      // this.markerLayerGroup.addTo(this.map)
+
+      // temporary public token with limited scope (reading layers) just for testing.
+      mapboxgl.accessToken = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
+
+      this.map = new mapboxgl.Map({
+        container: 'map', // container id
+        style: 'mapbox://styles/stephenhillier/cjzydtam02lbd1cld4jbkqlhy', // stylesheet location
+        center: [-124, 54.5], // starting position
+        zoom: 4.7 // starting zoom
+      })
+
+      const modes = MapboxDraw.modes
+      modes.draw_polygon = DrawRectangle
+
+      this.draw = new MapboxDraw({
+        modes: modes,
+        displayControlsDefault: false,
+        controls: {
+          polygon: true,
+          trash: true
+        }
+      })
+
+      // Add zoom and rotation controls to the map.
+      this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
+      this.map.addControl(this.draw, 'top-left')
+      this.map.addControl(new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true
+        },
+        showUserLocation: false
+      }), 'top-left')
+      this.map.on('style.load', () => {
+        this.getMapLayers()
+      })
 
       this.listenForAreaSelect()
+    },
+    loadLayers () {
+      const layers = this.allMapLayers
+
+      // load each layer, but default to no visibility.
+      // the user can toggle layers on and off with the layer controls.
+      for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+        if (layer['wms_name']) {
+          console.log('adding wms layer ', layers[i].display_data_name)
+          this.addWMSLayer(layer)
+        } else if (layer['geojson']) {
+          this.addGeoJSONLayer(layer)
+        }
+      }
     },
     getLocateControl () {
       const locateButton = L.control.locate({ position: 'topleft' })
@@ -147,25 +190,11 @@ export default {
       }
     },
     handleAddWMSLayer (displayDataName) {
-      const layer = this.allMapLayers.find((x) => { // TODO Handle Data Sources (Data Marts) here as well
-        return x.display_data_name === displayDataName
-      })
-      // stop if layer wasn't found in the array we searched
-      if (!layer) {
-        return
-      }
-      // inspect the layer to determine how to load it
-      if (layer['wms_name']) {
-        this.addWMSLayer(layer)
-      } else if (layer['geojson']) {
-        this.addGeoJSONLayer(layer)
-      }
+      console.log(displayDataName)
+      this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
-      const layer = this.allMapLayers.find((x) => {
-        return x.display_data_name === displayDataName
-      })
-      this.removeLayer(layer)
+      this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
@@ -204,28 +233,53 @@ export default {
       this.activeLayers[layer.display_data_name].addTo(this.map)
     },
     addWMSLayer (layer) {
-      if (!layer.display_data_name || !layer.wms_name || !layer.display_name) {
+      const layerID = layer.display_data_name || layer.wms_name || layer.display_name
+      if (!layerID) {
         return
       }
-      this.activeLayers[layer.display_data_name] = betterWms('https://openmaps.gov.bc.ca/geo/pub/' + layer.wms_name + '/ows?',
-        {
-          format: 'image/png',
-          layers: 'pub:' + layer.wms_name,
-          styles: layer.wms_style,
-          transparent: true,
-          name: layer.display_name,
-          overlay: true
-        })
 
-      this.activeLayers[layer.display_data_name].addTo(this.map)
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'image/png',
+        layers: 'pub:' + layer.wms_name,
+        styles: layer.wmsStyle,
+        transparent: true,
+        name: layer.name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      const newLayer = {
+        'id': layerID,
+        'type': 'raster',
+        'layout': {
+          'visibility': 'none'
+        },
+        'source': {
+          'type': 'raster',
+          'tiles': [
+            url
+          ],
+          'tileSize': 256
+        },
+        'paint': {}
+      }
+      this.activeLayers[layerID] = newLayer
+      this.map.addLayer(newLayer, 'wells')
     },
     removeLayer (layer) {
       const displayDataName = layer.display_data_name || layer
       if (!displayDataName || !this.activeLayers[displayDataName]) {
         return
       }
-      this.map.removeLayer(this.activeLayers[displayDataName])
-      delete this.activeLayers[displayDataName]
+      this.map.removeLayer(layer.id)
+      delete this.activeLayers[layer.id]
     },
     // getLegendControl () {
     //   const self = this
@@ -243,31 +297,35 @@ export default {
     //     }
     //   }))()
     // },
+    replaceOldFeatures (newFeature) {
+      // replace all previously drawn features with the new one.
+      // this has the effect of only allowing one selection box to be drawn at a time.
+      const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
+      this.draw.delete(old.map((feature) => feature.id))
+    },
+    handleSelect (feature) {
+      const newFeature = feature.features[0].id
+
+      this.replaceOldFeatures(newFeature)
+
+      // for drawn rectangular regions, the polygon describing the rectangle is the first
+      // element in the array of drawn features.
+      const bounds = bbox(feature.features[0])
+      this.getMapObjects(bounds)
+    },
     listenForAreaSelect () {
-      this.map.on('lasso.finished', (event) => {
-        let lats = event.latLngs.map(l => l.lat)
-        let lngs = event.latLngs.map(l => l.lng)
-
-        let min = L.latLng(Math.min(...lats), Math.min(...lngs))
-        let max = L.latLng(Math.max(...lats), Math.max(...lngs))
-
-        // HACK to make bbox square rather than rectangular
-        // Purpose is that some wms queries only work with square boundary boxes
-        let x = Math.abs(min.lat - max.lat)
-        let y = Math.abs(min.lng - max.lng)
-        let area = Math.max(x,y)
-
-        let bounds = [min.lng, min.lat, max.lng, max.lat].join(',')
-
-        this.getMapObjects(bounds)
-      })
+      this.map.on('draw.create', this.handleSelect)
+      this.map.on('draw.update', this.handleSelect)
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
-      let size = this.map.getSize()
+      const canvas = this.map.getCanvas()
+      const size = { x: canvas.width, y: canvas.height }
+
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
-    }
+    },
+    ...mapActions(['getMapLayers'])
     // listenForReset () {
     //     this.$parent.$on('resetLayers', (data) => {
     //         if (this.map) {

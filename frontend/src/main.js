@@ -30,7 +30,6 @@ auth.init({
     },
     created () {
       ApiService.init()
-      this.getMapLayers()
     },
     render: h => h(App)
   }).$mount('#app')

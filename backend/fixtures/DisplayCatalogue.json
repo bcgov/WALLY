@@ -126,6 +126,6 @@
     "label_column": "name",
     "label": "Name",
     "highlight_columns": ["", ""],
-    "api_catalogue_id": 1
+    "vector_catalogue_id": 1
   }
 ]
