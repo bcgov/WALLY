@@ -5,6 +5,8 @@ in the Wally database. These layers generally come from the DataBC Geographic Wa
 
 ## Cadastral/Parcels
 
+https://catalogue.data.gov.bc.ca/dataset/parcelmap-bc-parcel-fabric
+
 To load parcels, use `ogr2ogr`.
 
 ```bash
