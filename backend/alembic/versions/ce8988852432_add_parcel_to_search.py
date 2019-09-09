@@ -32,11 +32,11 @@ def upgrade():
         UNION
         SELECT
         ST_AsText(ST_Centroid(parcel.geom)) AS center,
-        parcel."PID"::text AS primary_id,
+        coalesce(parcel."PID", parcel."PARCEL_NAME"::text) AS primary_id,
         NULL AS name,
         'Parcel' AS kind,
         'parcel_fabric' AS layer,
-        to_tsvector(concat_ws(' ',parcel."PID"::text, parcel."PARCEL_NAME"::text)) AS tsv
+        to_tsvector(coalesce(parcel."PID"::text, parcel."PARCEL_NAME"::text)) AS tsv
         FROM parcel
     """)
     op.execute("""

@@ -25,7 +25,7 @@ def lookup_by_text(db: Session, query: str):
     #   (exact match to at least 1 word only)
     q = select([geocode]) \
         .where(text("tsv @@ plainto_tsquery(:query)")) \
-        .order_by(func.ts_rank('tsv', func.plainto_tsquery(query})))
+        .order_by(func.ts_rank('tsv', func.plainto_tsquery(query))) \
         .limit(5)
 
     features = []
@@ -39,8 +39,10 @@ def lookup_by_text(db: Session, query: str):
         feat = Feature(geometry=point)
         feat['center'] = [point.x, point.y]
 
-        # formatted name for geocoder dropdown options
-        feat['place_name'] = f"{row.kind}: {row.primary_id} - {row.name}"
+        formatted_name = ""
+        if row.name:
+            formatted_name = f" - {row.name}"
+        feat['place_name'] = f"{row.kind}: {row.primary_id}{formatted_name}"
         feat['place_type'] = row.kind
         features.append(feat)
 
