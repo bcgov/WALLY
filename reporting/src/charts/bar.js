@@ -29,6 +29,7 @@ export default (data, settings) => {
             }]
         },
         options: {
+            responsive: false,
             title: {
                 display: title !== '',
                 text: title
