@@ -9,6 +9,8 @@ from shapely.geometry import MultiPolygon, Polygon
 from geoalchemy2.elements import WKTElement
 from . import db_models
 
+DEFAULT_COORDS = {"lat": 49.25, "lng": -123}
+
 
 class ParcelFactory(factory.alchemy.SQLAlchemyModelFactory):
     """ factory to generate water level stations """

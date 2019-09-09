@@ -39,6 +39,10 @@ def create_parcels():
     db_session.commit()
 
 
+def refresh_geocoder_view():
+    db_session.execute("refresh materialized view geocode_lookup")
+
+
 def load_fixtures():
     # User file array to ensure loading order
     # File names must match class names for globals() to work
@@ -130,6 +134,10 @@ def main():
     create_parcels()
     load_display_templates()
     logger.info("Initial data created")
+
+    logger.info(
+        "refreshing materialized views (cached list of features and locations)")
+    refresh_geocoder_view()
 
 
 if __name__ == "__main__":
