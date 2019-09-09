@@ -1,0 +1,29 @@
+environment:
+  vars:
+    host: http://localhost:8000
+    auth_token: test
+  headers:
+    Authorization: Bearer {{auth_token}}
+requests:
+  - name: Log in
+    url: "{{auth_url}}"
+    method: post
+    contentType: application/x-www-form-urlencoded
+    body:
+      client_id: "{{auth_id}}"
+      client_secret: "{{auth_secret}}"
+      grant_type: password
+      username: "{{auth_user}}"
+      password: "{{auth_pass}}"
+    expect:
+      status: 200
+    set:
+      - var: auth_token # set the {{auth_token}} here
+        from: access_token
+  - name: Search (using a hydat station name)
+    url: "{{host}}/api/v1/geocoding/a/a/creek.json"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.

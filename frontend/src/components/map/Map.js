@@ -9,32 +9,13 @@ import * as utils from '../../utils/metadataUtils'
 
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
 
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
-
-// Extend control, making a locate
-L.Control.Locate = L.Control.extend({
-  onAdd: function (map) {
-    let container = L.DomUtil.create('div', 'geolocate')
-    L.DomEvent.addListener(container, 'click', this.click, this)
-    return container
-  },
-  onRemove: function (map) {
-
-  },
-  click: function (ev) {
-    // Use callback to handle clicks
-    if (this.onClick) {
-      this.onClick(ev)
-    }
-  }
-})
-L.control.locate = function (opts) {
-  return new L.Control.Locate(opts)
-}
+import ApiService from '../../services/ApiService'
 
 export default {
   name: 'WallyMap',
@@ -77,29 +58,6 @@ export default {
   },
   methods: {
     initMap () {
-      // this.map = L.map(this.$el, {
-      //   preferCanvas: true,
-      //   minZoom: 4,
-      //   maxZoom: 17
-      // }).setView([54, -124], 5)
-
-      // L.control.scale().addTo(this.map)
-      // this.map.addControl(this.getFullScreenControl())
-      // this.map.addControl(this.getAreaSelectControl())
-      // // this.map.addControl(this.getLegendControl())
-      // this.map.addControl(this.getLocateControl())
-
-      // // BCGov map tiles
-      // tiledMapLayer({ url: 'https://maps.gov.bc.ca/arcserver/rest/services/Province/roads_wm/MapServer' }).addTo(this.map)
-      // // Open Street Map tiles
-      // // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      // //     maxZoom: 19,
-      // //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      // // }).addTo(this.map)
-
-      // this.activeLayerGroup.addTo(this.map)
-      // this.markerLayerGroup.addTo(this.map)
-
       // temporary public token with limited scope (reading layers) just for testing.
       mapboxgl.accessToken = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
 
@@ -122,7 +80,15 @@ export default {
         }
       })
 
+      const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: this.map,
+        origin: ApiService.baseURL,
+        container: 'geocoder-container'
+      })
+
       // Add zoom and rotation controls to the map.
+      this.map.addControl(geocoder, 'top-left')
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
       this.map.addControl(this.draw, 'top-left')
       this.map.addControl(new mapboxgl.GeolocateControl({
@@ -151,6 +117,11 @@ export default {
           this.addGeoJSONLayer(layer)
         }
       }
+    },
+    async searchWallyAPI () {
+      const results = await ApiService.getApi('/geocode?q=a')
+      console.log(results.data)
+      return results.data
     },
     getLocateControl () {
       const locateButton = L.control.locate({ position: 'topleft' })
