@@ -9,10 +9,6 @@ from shapely.geometry import MultiPolygon, Polygon
 from geoalchemy2.elements import WKTElement
 from . import db_models
 
-# base values to help generate a steady curve
-BASE_FLOWS = [1.1, 1.1, 1.2, 1.3, 1.2, 1, .9, .9, 1, 1.1, 1.2, 1.2]
-DEFAULT_COORDS = {"lat": 49.25, "lng": -123}
-
 
 class ParcelFactory(factory.alchemy.SQLAlchemyModelFactory):
     """ factory to generate water level stations """

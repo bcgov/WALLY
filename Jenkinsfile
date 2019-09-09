@@ -1,4 +1,4 @@
-#!groovy
+F#!groovy
 @Library('bcgov-library') _
 import bcgov.GitHubHelper
 
@@ -350,6 +350,13 @@ pipeline {
                             try {
                                 sh """
                                   apitest -f hydat.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET &&
+                                  apitest -f geocoder.apitest.yaml \
                                   -e host=$BASE_URL \
                                   -e auth_user=$AUTH_USER \
                                   -e auth_pass=$AUTH_PASS \
