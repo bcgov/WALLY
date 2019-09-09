@@ -14,6 +14,8 @@
   "license": "ISC",
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
+    "@mapbox/geo-viewport": "^0.4.0",
+    "@mapbox/mapbox-gl-native": "^4.2.0",
     "@react-pdf/renderer": "^1.6.3",
     "axios": "^0.19.0",
     "babel-plugin-file-loader": "^1.1.1",
