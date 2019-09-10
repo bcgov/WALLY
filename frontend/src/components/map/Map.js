@@ -1,11 +1,11 @@
-import L from 'leaflet'
-import 'leaflet-lasso'
-import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
+// import L from 'leaflet'
+// import 'leaflet-lasso'
+// import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
-import * as utils from '../../utils/metadataUtils'
+// import * as utils from '../../utils/metadataUtils'
 
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -18,7 +18,7 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
 export default {
-  name: 'WallyMap',
+  name: 'Map',
   mounted () {
     this.initMap()
     EventBus.$on('layer:added', this.handleAddWMSLayer)
@@ -42,8 +42,8 @@ export default {
     return {
       map: null,
       // legendControlContent: null,
-      activeLayerGroup: L.layerGroup(),
-      markerLayerGroup: L.layerGroup(),
+      // activeLayerGroup: L.layerGroup(),
+      // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
       draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
     }
@@ -123,43 +123,43 @@ export default {
       console.log(results.data)
       return results.data
     },
-    getLocateControl () {
-      const locateButton = L.control.locate({ position: 'topleft' })
-      locateButton.onClick = (ev) => {
-        this.map.locate({ setView: true, maxZoom: 12 })
-      }
-      return locateButton
-    },
-    getFullScreenControl () {
-      return new L.Control.Fullscreen({
-        position: 'topleft'
-      })
-    },
-    getAreaSelectControl () {
-      const lasso = L.lasso(this.map)
-      return new (L.Control.extend({
-        options: {
-          position: 'topleft'
-        },
-        onAdd: function (map) {
-          let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
-          container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
-          container.onclick = function (map) {
-            lasso.enable()
-          }
-          return container
-        }
-      }))()
-    },
-    handleAddFeature (f) {
-      let p = L.latLng(f.lat, f.lng)
-      if (p) {
-        L.popup()
-          .setLatLng(p)
-          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-          .openOn(this.map)
-      }
-    },
+    // getLocateControl () {
+    //   const locateButton = L.control.locate({ position: 'topleft' })
+    //   locateButton.onClick = (ev) => {
+    //     this.map.locate({ setView: true, maxZoom: 12 })
+    //   }
+    //   return locateButton
+    // },
+    // getFullScreenControl () {
+    //   return new L.Control.Fullscreen({
+    //     position: 'topleft'
+    //   })
+    // },
+    // getAreaSelectControl () {
+    //   const lasso = L.lasso(this.map)
+    //   return new (L.Control.extend({
+    //     options: {
+    //       position: 'topleft'
+    //     },
+    //     onAdd: function (map) {
+    //       let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
+    //       container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
+    //       container.onclick = function (map) {
+    //         lasso.enable()
+    //       }
+    //       return container
+    //     }
+    //   }))()
+    // },
+    // handleAddFeature (f) {
+    //   let p = L.latLng(f.lat, f.lng)
+    //   if (p) {
+    //     L.popup()
+    //       .setLatLng(p)
+    //       .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
+    //       .openOn(this.map)
+    //   }
+    // },
     handleAddWMSLayer (displayDataName) {
       console.log(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
@@ -196,11 +196,11 @@ export default {
         return
       }
 
-      this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
-        onEachFeature: function (feature, layer) {
-          layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
-        }
-      })
+      // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
+      //   onEachFeature: function (feature, layer) {
+      //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
+      //   }
+      // })
       this.activeLayers[layer.display_data_name].addTo(this.map)
     },
     addWMSLayer (layer) {

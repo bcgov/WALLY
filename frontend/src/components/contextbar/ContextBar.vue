@@ -33,7 +33,7 @@
 #contextBar{
   position: absolute;
   right: 0;
-  z-index: 3;
+  z-index: 4;
   height: 100%;
   overflow: scroll;
   /*min-width: 450px;*/
