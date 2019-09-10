@@ -7,7 +7,8 @@ from geoalchemy2 import Geometry
 class BcWildfireActiveWeatherStations(BaseTable):
     __tablename__ = 'bc_wildfire_active_weather_stations'
 
-    WEATHER_STATIONS_ID	= Column(Integer, comment='WEATHER STATION ID is a system generated unique identifier number.')
+    WEATHER_STATIONS_ID	= Column(Integer, primary_key=True, comment='WEATHER STATION ID is a system generated '
+                                                                       'unique identifier number.')
     STATION_CODE = Column(Integer, comment='STATION_CODE is the internal unique number assigned to this weather '
                                            'station, e.g., 67 .')
     STATION_NAME = Column(String, comment='STATION_NAME is a derived name of a weather station based on geographic '

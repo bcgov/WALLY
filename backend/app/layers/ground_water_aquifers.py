@@ -7,8 +7,8 @@ from geoalchemy2 import Geometry
 class GroundWaterAquifers(BaseTable):
     __tablename__ = 'ground_water_aquifers'
 
-    AQ_TAG = Column(String, comment='The AQ TAG is an alpha-numeric code assigned to the aquifer to '
-                                    'uniquely identify it.')
+    AQ_TAG = Column(String, primary_key=True, comment='The AQ TAG is an alpha-numeric code assigned to the aquifer to '
+                                                      'uniquely identify it.')
     FCODE = Column(String, comment='10	FCODE is a feature code is most importantly a means of linking a feature to '
                                    'its name and definition. For example, the code GB15300120 on a digital geographic '
                                    'feature links it to the name "Lake - Dry" with the definition '

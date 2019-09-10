@@ -41,8 +41,8 @@ class WaterAllocationRestrictions(BaseTable):
                                           'geographic features.')
     GEOMETRY = Column(Geometry, comment='GEOMETRY is the column used to reference the spatial coordinates '
                                         'defining the feature.')
-    OBJECTID = Column(Integer, comment='OBJECTID is a required attribute of feature classes and object '
-                                       'classes in a geodatabase.')
+    OBJECTID = Column(Integer, primary_key=True, comment='OBJECTID is a required attribute of feature classes and '
+                                                         'object classes in a geodatabase.')
     SE_ANNO_CAD_DATA = Column(BLOB, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to '
                                             'store annotation, curve features and CAD data when using the '
                                             'SDO_GEOMETRY storage data type.')

@@ -7,7 +7,8 @@ from geoalchemy2 import Geometry
 class FreshwaterAtlasWatersheds(BaseTable):
     __tablename__ = 'freshwater_atlas_watersheds'
 
-    WATERSHED_FEATURE_ID = Column(Integer, comment='A unique identifier for each watershed in the layer.')
+    WATERSHED_FEATURE_ID = Column(Integer, primary_key=True, comment='A unique identifier for each watershed '
+                                                                     'in the layer.')
     WATERSHED_GROUP_ID = Column(Integer, comment='An automatically generate id that uniquely identifies '
                                                  'the watershed group feature.')
     WATERSHED_TYPE = Column(String, comment='The type of watershed. This has yet to be determined for FWA '
