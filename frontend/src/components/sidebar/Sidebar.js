@@ -34,13 +34,7 @@ export default {
           title: 'Layers',
           icon: 'layers',
           action: 'layers',
-          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.wms_name !== '') : []
-        },
-        {
-          title: 'Data Sources',
-          icon: 'library_books',
-          action: 'library_books',
-          choices: this.allMapLayers ? this.allMapLayers.filter(ml => ml.url !== '') : []
+          choices: this.allMapLayers
         }
       ]
     }
