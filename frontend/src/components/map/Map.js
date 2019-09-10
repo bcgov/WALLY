@@ -102,16 +102,11 @@ export default {
 
       this.listenForAreaSelect()
 
-      this.map.on('click', 'hydrometric_stream_flow', this.setSingleFeature)
-
-      this.map.on('mouseenter', 'hydrometric_stream_flow', () => {
-        this.map.getCanvas().style.cursor = 'pointer'
-      })
-
-      // Change it back to a pointer when it leaves.
-      this.map.on('mouseleave', 'hydrometric_stream_flow', () => {
-        this.map.getCanvas().style.cursor = ''
-      })
+      // special handling for parcels because we may not want to have
+      // users turn this layer on/off (it should always be on)
+      this.map.on('click', 'parcels', this.setSingleFeature)
+      this.map.on('mouseenter', 'parcels', this.setCursorPointer)
+      this.map.on('mouseleave', 'parcels', this.resetCursor)
     },
     loadLayers () {
       const layers = this.allMapLayers
@@ -120,7 +115,15 @@ export default {
       // the user can toggle layers on and off with the layer controls.
       for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
-        if (layer['wms_name']) {
+
+        // layers are either vector, WMS, or geojson.
+        // they are loading differently depending on the type.
+        if (layer['vector_name']) {
+          const vector = layer['vector_name']
+          this.map.on('click', vector, this.setSingleFeature)
+          this.map.on('mouseenter', vector, this.setCursorPointer)
+          this.map.on('mouseleave', vector, this.resetCursor)
+        } else if (layer['wms_name']) {
           console.log('adding wms layer ', layers[i].display_data_name)
           this.addWMSLayer(layer)
         } else if (layer['geojson']) {
@@ -317,6 +320,12 @@ export default {
           coordinates: coordinates,
           properties: properties
         })
+    },
+    setCursorPointer () {
+      this.map.getCanvas().style.cursor = 'pointer'
+    },
+    resetCursor () {
+      this.map.getCanvas().style.cursor = ''
     },
     ...mapActions(['getMapLayers'])
     // listenForReset () {
