@@ -7,7 +7,28 @@
       "water_allocation_restrictions"
     ]
   },
-  "charts": [],
+  "charts": [{
+      "chart_component_id": 1,
+      "chart_title": "Stream Magnitude",
+      "component_type_code": "chart",
+      "display_order": 100,
+      "labels_key": "GNIS_NAME",
+      "dataset_keys": ["STREAM_MAGNITUDE"],
+      "display_template_id": 14,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    }],
   "links": [],
   "tables": [],
   "images": [],
