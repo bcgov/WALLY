@@ -1,7 +1,8 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, BLOB, Float
+from sqlalchemy import Integer, String, Column, Float
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
+from sqlalchemy.dialects.postgresql import BYTEA
 
 
 class FreshwaterAtlasWatersheds(BaseTable):
@@ -71,7 +72,7 @@ class FreshwaterAtlasWatersheds(BaseTable):
                                           'geographic features.')
     GEOMETRY = Column(Geometry, comment='')
     OBJECTID = Column(Integer, comment='')
-    SE_ANNO_CAD_DATA = Column(BLOB, comment='')
+    SE_ANNO_CAD_DATA = Column(BYTEA, comment='')
     FEATURE_AREA_SQM = Column(Float, comment='FEATURE_AREA_SQM is the system calculated area of a '
                                              'two-dimensional polygon in square meters')
     FEATURE_LENGTH_M = Column(Float, comment='FEATURE_LENGTH_M is the system calculated length or perimeter '

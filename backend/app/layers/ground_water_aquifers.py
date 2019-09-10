@@ -1,7 +1,8 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, BLOB, Float
+from sqlalchemy import Integer, String, Column, Float
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
+from sqlalchemy.dialects.postgresql import BYTEA
 
 
 class GroundWaterAquifers(BaseTable):
@@ -178,4 +179,4 @@ class GroundWaterAquifers(BaseTable):
                                        'GeoDatabase. This attribute is added to a SDE layer that was not previously '
                                        'created as part of a GeoDatabase but is now '
                                        'being registered with a GeoDatabase.')
-    SE_ANNO_CAD_DATA = Column(BLOB, comment='')
+    SE_ANNO_CAD_DATA = Column(BYTEA, comment='')

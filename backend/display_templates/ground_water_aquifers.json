@@ -8,7 +8,7 @@
     ]
   },
   "charts": [{
-      "chart_component_id": 1,
+      "chart_component_id": 900,
       "chart_title": "Aquifer Area",
       "component_type_code": "chart",
       "display_order": 100,
@@ -30,7 +30,7 @@
       }
     },
     {
-      "chart_component_id": 2,
+      "chart_component_id": 901,
       "chart_title": "Aquifer Ranking Value",
       "component_type_code": "chart",
       "display_order": 100,

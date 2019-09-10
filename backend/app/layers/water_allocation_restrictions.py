@@ -1,7 +1,8 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, BLOB, Float
+from sqlalchemy import Integer, String, Column, Float
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
+from sqlalchemy.dialects.postgresql import BYTEA
 
 
 class WaterAllocationRestrictions(BaseTable):
@@ -43,7 +44,7 @@ class WaterAllocationRestrictions(BaseTable):
                                         'defining the feature.')
     OBJECTID = Column(Integer, primary_key=True, comment='OBJECTID is a required attribute of feature classes and '
                                                          'object classes in a geodatabase.')
-    SE_ANNO_CAD_DATA = Column(BLOB, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to '
+    SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to '
                                             'store annotation, curve features and CAD data when using the '
                                             'SDO_GEOMETRY storage data type.')
     FEATURE_LENGTH_M = Column(Float, comment='FEATURE_LENGTH_M is the system calculated length or perimeter '

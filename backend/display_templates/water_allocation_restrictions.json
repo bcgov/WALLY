@@ -8,7 +8,7 @@
     ]
   },
   "charts": [{
-      "chart_component_id": 1,
+      "chart_component_id": 1400,
       "chart_title": "Stream Magnitude",
       "component_type_code": "chart",
       "display_order": 100,

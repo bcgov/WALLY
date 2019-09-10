@@ -8,7 +8,7 @@
     ]
   },
   "charts": [{
-      "chart_component_id": 1,
+      "chart_component_id": 300,
       "chart_title": "Watershed Square Meters",
       "component_type_code": "chart",
       "display_order": 100,

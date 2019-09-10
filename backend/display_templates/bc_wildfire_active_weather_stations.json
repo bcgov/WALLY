@@ -8,7 +8,7 @@
     ]
   },
   "charts": [{
-      "chart_component_id": 1,
+      "chart_component_id": 400,
       "chart_title": "Wildfire Weather Station Elevation",
       "component_type_code": "chart",
       "display_order": 100,

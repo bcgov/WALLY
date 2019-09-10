@@ -1,8 +1,8 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, BLOB, Float
+from sqlalchemy import Integer, String, Column, Float
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
-
+from sqlalchemy.dialects.postgresql import BYTEA
 
 class AutomatedSnowWeatherStationLocations(BaseTable):
     __tablename__ = 'automated_snow_weather_station_locations'
@@ -24,6 +24,6 @@ class AutomatedSnowWeatherStationLocations(BaseTable):
     OBJECTID = Column(Integer, comment='OBJECTID is a column required by spatial layers that '
                                        'interact with ESRI ArcSDE. It is populated with unique '
                                        'values automatically by SDE.')
-    SE_ANNO_CAD_DATA = Column(BLOB, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to store '
+    SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to store '
                                             'annotation, curve features and CAD data when using the SDO_GEOMETRY '
                                             'storage data type.')

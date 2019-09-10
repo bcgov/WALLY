@@ -8,7 +8,7 @@
     ]
   },
   "charts": [{
-      "chart_component_id": 4,
+      "chart_component_id": 800,
       "chart_title": "Water Feature Areas",
       "component_type_code": "chart",
       "display_order": 200,

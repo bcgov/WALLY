@@ -1,7 +1,8 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, BLOB, Float
+from sqlalchemy import Integer, String, Column, DateTime, Float
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
+from sqlalchemy.dialects.postgresql import BYTEA
 
 
 class GroundWaterWells(BaseTable):
@@ -377,6 +378,6 @@ class GroundWaterWells(BaseTable):
                                                          'Values are:a) UNLICENSEDb) LICENSEDc) HISTORICAL.')
     WELL_DETAIL_URL = Column(String, comment='A HTTP URL link value that contains the Well Tag Number, specifying'
                                              ' a direct link to the WELL record in WELLS Public application.')
-    SE_ANNO_CAD_DATA = Column(BLOB, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to '
-                                            'store annotation, curve features and CAD data when using the '
-                                            'SDO_GEOMETRY storage data type.')
+    SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to '
+                                             'store annotation, curve features and CAD data when using the '
+                                             'SDO_GEOMETRY storage data type.')

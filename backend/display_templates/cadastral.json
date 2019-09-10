@@ -8,7 +8,7 @@
     ]
   },
   "charts": [{
-      "chart_component_id": 1,
+      "chart_component_id": 500,
       "chart_title": "Parcel Size",
       "component_type_code": "chart",
       "display_order": 100,
@@ -30,7 +30,7 @@
       }
     },
     {
-      "chart_component_id": 2,
+      "chart_component_id": 501,
       "chart_title": "Parcel Class",
       "component_type_code": "chart",
       "display_order": 200,

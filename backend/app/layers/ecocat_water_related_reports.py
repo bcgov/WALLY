@@ -2,6 +2,7 @@
 from sqlalchemy import Integer, String, Column, DateTime, BLOB
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
+from sqlalchemy.dialects.postgresql import BYTEA
 
 
 class EcocatWaterRelatedReports(BaseTable):
@@ -20,4 +21,4 @@ class EcocatWaterRelatedReports(BaseTable):
     REPORT_AUDIENCE = Column(String, comment='')
     GEOMETRY = Column(Geometry, comment='')
     OBJECTID = Column(Integer, comment='')
-    SE_ANNO_CAD_DATA = Column(BLOB, comment='')
+    SE_ANNO_CAD_DATA = Column(BYTEA, comment='')
