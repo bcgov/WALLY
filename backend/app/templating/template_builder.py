@@ -60,6 +60,7 @@ def default_builder(template, features):
     for chart in template["charts"]:
         labels = []
         data_sets = [[]] * len(chart.dataset_keys)
+
         for feature in features:
             # logger.info(features)
             if chart.labels_key in feature.properties:
@@ -120,7 +121,7 @@ def link_data(link_columns, properties):
     for column in link_columns:
         # Check that both columns exist in props,
         # otherwise return None so no link is generated
-        if hasattr(properties, column):
+        if column in properties:
             data.append(str(properties[column]))
         else:
             return None

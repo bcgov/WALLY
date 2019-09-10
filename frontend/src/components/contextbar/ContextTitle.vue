@@ -15,7 +15,6 @@ export default {
   },
   mounted () {
     this.title = this.$attrs.title
-    title: String
   }
 }
 </script>

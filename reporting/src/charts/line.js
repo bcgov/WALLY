@@ -22,11 +22,13 @@ export default (data, settings) => {
                 {
                     label: yLabel,
                     backgroundColor: color,
+                    fill: false,
                     data: data
                 }
             ]
         },
         options: {
+            responsive: false,
             title: {
                 display: title !== '',
                 text: title

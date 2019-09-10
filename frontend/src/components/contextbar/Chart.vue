@@ -1,10 +1,13 @@
 <template>
-  <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+  <div>
+    <h1>{{chartTitle}}</h1>
+    <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+  </div>
 </template>
 
 <script>
 import { BarChart } from '../chartjs/Charts'
-import { chartColors } from '../../constants/colors'
+import { blueChartColors } from '../../constants/colors'
 
 export default {
   name: 'Chart',
@@ -21,12 +24,13 @@ export default {
         datasets: [{
           label: 'Bar chart',
           data: [],
-          backgroundColor: chartColors.background,
-          borderColor: chartColors.border,
+          backgroundColor: blueChartColors.background,
+          borderColor: blueChartColors.border,
           borderWidth: 1
         }],
         visible: true
-      }
+      },
+      chartTitle: String
     }
   },
   mounted () {
@@ -36,13 +40,18 @@ export default {
       datasets: [{
         label: 'Bar chart',
         data: [],
-        backgroundColor: chartColors.background,
-        borderColor: chartColors.border,
+        backgroundColor: blueChartColors.background,
+        borderColor: blueChartColors.border,
         borderWidth: 1
       }],
       visible: true
     }
     this.chartData = this.$attrs.chart.data
+    this.chartData.datasets.forEach((dataset, i) => {
+      this.chartData.datasets[i].backgroundColor = blueChartColors.background
+      this.chartData.datasets[i].borderColor = blueChartColors.borderColor
+    })
+    this.chartTitle = this.$attrs.title
     this.chartData.visible = true
   }
 }

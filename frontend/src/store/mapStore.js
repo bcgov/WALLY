@@ -17,6 +17,7 @@ export default {
           ApiService.getApi('/catalogue')
             .then((response) => {
               commit('setMapLayers', response.data)
+              EventBus.$emit(`layers:loaded`)
             })
             .catch((error) => {
               reject(error)

@@ -3,7 +3,13 @@ Database tables and data access functions for Wally Data Layer Meta Information
 """
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, load_only
-from app.metadata.db_models import DisplayCatalogue, DisplayTemplate, DataSource, WmsCatalogue, ApiCatalogue
+from app.metadata.db_models import (
+    DisplayCatalogue,
+    DisplayTemplate,
+    DataSource,
+    WmsCatalogue,
+    ApiCatalogue,
+    VectorCatalogue)
 import itertools
 from logging import getLogger
 from sqlalchemy.orm import joinedload, subqueryload
@@ -13,19 +19,45 @@ logger = getLogger("api")
 
 def get_display_catalogue(db: Session):
     """ Get all supported catalogue layers"""
-    wms_query = db.query(DisplayCatalogue.display_name, DisplayCatalogue.display_data_name,
-                         DisplayCatalogue.highlight_columns, DisplayCatalogue.label, DisplayCatalogue.label_column,
-                         WmsCatalogue.description, WmsCatalogue.wms_name, WmsCatalogue.wms_style,)
+    wms_query = db.query(
+        DisplayCatalogue.display_name,
+        DisplayCatalogue.display_data_name,
+        DisplayCatalogue.highlight_columns,
+        DisplayCatalogue.label,
+        DisplayCatalogue.label_column,
+        WmsCatalogue.description,
+        WmsCatalogue.wms_name,
+        WmsCatalogue.wms_style,)
 
-    wms_result = wms_query.filter(DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all()
+    wms_result = wms_query.filter(
+        DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all()
 
-    api_query = db.query(DisplayCatalogue.display_name, DisplayCatalogue.display_data_name,
-                         DisplayCatalogue.highlight_columns, DisplayCatalogue.label, DisplayCatalogue.label_column,
-                         ApiCatalogue.description, ApiCatalogue.url,)
+    api_query = db.query(
+        DisplayCatalogue.display_name,
+        DisplayCatalogue.display_data_name,
+        DisplayCatalogue.highlight_columns,
+        DisplayCatalogue.label,
+        DisplayCatalogue.label_column,
+        ApiCatalogue.description,
+        ApiCatalogue.url,)
 
-    api_result = api_query.filter(DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id).all()
+    api_result = api_query.filter(
+        DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id).all()
 
-    return wms_result + api_result
+    vector_query = db.query(
+        DisplayCatalogue.display_name,
+        DisplayCatalogue.display_data_name,
+        DisplayCatalogue.highlight_columns,
+        DisplayCatalogue.label,
+        DisplayCatalogue.label_column,
+        VectorCatalogue.description,
+        VectorCatalogue.vector_name,)
+
+    vector_result = vector_query \
+        .filter(DisplayCatalogue.vector_catalogue_id == VectorCatalogue.vector_catalogue_id) \
+        .all()
+
+    return wms_result + api_result + vector_result
 
 
 def get_highlight_columns(db: Session, display_data_name: str):
@@ -50,8 +82,6 @@ def get_display_components(db: Session, display_data_name):
 
     if catalogue is not None:
         catalogue.display_components
-
-
 
 
 # def get_context_data(layer_names, db: Session):
