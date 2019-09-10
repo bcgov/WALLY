@@ -99,7 +99,13 @@ objects:
                 quay.io/keycloak/keycloak-gatekeeper:6.0.1
               imagePullPolicy: Always
               name: wally-${NAME}-gatekeeper
-              resources: {}
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 128Mi
+                limits:
+                  cpu: 50m
+                  memory: 128Mi
               livenessProbe:
                 failureThreshold: 3
                 httpGet:
