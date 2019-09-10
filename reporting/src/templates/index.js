@@ -15,6 +15,12 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
         justifyContent: 'flex-start'
+    },
+    footer: {
+        alignSelf: 'flex-end'
+    },
+    flexGrow: {
+        flexGrow: 1
     }
 })
 
@@ -26,14 +32,9 @@ class Layout extends React.Component {
         const { childTemplate } = this.props
         return (
             <Document>
-                <Page size="A4">
-                    <View style={styles.container}>
-                        <Header/>
-                        {childTemplate}
-                        <Footer style={{alignSelf: 'flex-end'}}/>
-                    </View>
-                </Page>
+                    {childTemplate}
             </Document>
+
         );
     }
 }
