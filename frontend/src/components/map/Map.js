@@ -5,7 +5,6 @@ import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
-import * as utils from '../../utils/metadataUtils'
 
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
