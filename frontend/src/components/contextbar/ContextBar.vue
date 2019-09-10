@@ -1,8 +1,8 @@
 <template>
   <div>
     <v-slide-x-transition>
-      <v-btn  absolute dark icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
-        <v-icon dark v-if="!showContextBar">keyboard_arrow_right</v-icon>
+      <v-btn  absolute dark right icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
+        <v-icon dark v-if="!showContextBar">keyboard_arrow_left</v-icon>
       </v-btn>
     </v-slide-x-transition>
     <v-slide-x-reverse-transition>
@@ -10,20 +10,11 @@
         <div fluid v-show="showContextBar" max-width="450">
           <div v-if="contextComponents.length">
             <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
-              <v-icon dark v-if="showContextBar">keyboard_arrow_left</v-icon>
+              <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>
             </v-btn>
-
-            <v-select
-              :items="contextComponents.map((c, i) => ({text: c.data.title, value: i}))"
-              item-text="text"
-              item-value="value"
-              v-model="selectedContext"
-              label="Show me:"
-              outlined
-            ></v-select>
             <span id="componentsList">
               <template v-for="(item, i) in contextComponents">
-                <v-card :key="i" min-width="400" class="component" v-if="selectedContext === i">
+                <v-card :key="i" min-width="400" class="component">
                   <v-card-title>
                     <span v-if="item && item">{{item.title}}</span>
                   </v-card-title>
@@ -36,7 +27,7 @@
           </div>
           <div v-else class="pa-3">
             <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
-              <v-icon dark v-if="showContextBar">keyboard_arrow_left</v-icon>
+              <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>
             </v-btn>
             <div class="mt-3">
               <p>Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
@@ -51,7 +42,7 @@
 <style>
 #contextBar{
   position: absolute;
-  left: 200;
+  right: 0;
   z-index: 3;
   height: 100%;
   overflow: scroll;
