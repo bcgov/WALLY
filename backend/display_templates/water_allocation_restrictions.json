@@ -1,10 +1,10 @@
 {
   "display_template": {
-    "display_template_id": 10,
-    "title": "Ground Water Licenses",
+    "display_template_id": 14,
+    "title": "Water Allocation Restrictions",
     "display_order": 1000,
     "display_data_names": [
-      "ground_water_licenses"
+      "water_allocation_restrictions"
     ]
   },
   "charts": [],
