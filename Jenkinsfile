@@ -227,6 +227,8 @@ pipeline {
                   "openshift/database.deploy.yaml",
                   "NAME=wally-psql",
                   "REPLICAS=1",
+                  "CPU_REQUEST=100m",
+                  "CPU_LIMIT=200m",
                   "SUFFIX=-${NAME}",
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
