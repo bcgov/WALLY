@@ -21,20 +21,22 @@ services:
       - PORT=8000
     ports:
       - '8000:8000'
+    depends_on: 
+      - db
+  reporting:
+    build:
+      context: ./reporting
+    # volumes:
+    #   - ./reporting:/app
+    environment:
+      MAPBOX_ACCESS_KEY: "${MAPBOX_ACCESS_KEY}"
+    env_file:
+      - env-postgres.env
+      - env-backend.env
     depends_on:
       - db
-#  reporting:
-#    build:
-#      context: ./reporting
-#    # volumes:
-#    #   - ./reporting:/app
-#    env_file:
-#      - env-postgres.env
-#    depends_on:
-#      - db
-#      - backend
-#    ports:
-#      - '3000:3000'
+    ports:
+      - '3000:3000'
   db:
     image: mdillon/postgis:11
     env_file:

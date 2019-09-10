@@ -7,7 +7,6 @@ import ReactPDF, {
 export {
     ReactPDF, Document, Page, View, Image, Text, Canvas, Link, Note, Font, StyleSheet
 }
-import layout from './templates'
 import featureReport from './templates/featureReport';
 
 const templates = {
@@ -16,9 +15,8 @@ const templates = {
 
 export const renderReact = async (template, props) => {
     // Create report template
-    const templateElemComponent = React.createElement(template, props);
     // Add generated report template as a child to our template layout
-    let rootLayoutComponent = React.createElement(layout, { childTemplate: templateElemComponent });
+    let rootLayoutComponent = React.createElement(template, props);
     return ReactPDF.renderToStream(rootLayoutComponent);
 };
 
