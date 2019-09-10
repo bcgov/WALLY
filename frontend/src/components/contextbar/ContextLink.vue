@@ -5,7 +5,7 @@
     </h1>
     <v-card v-for="(item, i) in links" :key="i" min-width="400" class="component">
       <v-card-title>
-        <span v-if="item && item">Link to Source: <a :href="item" :alt="item.split('/').pop()">{{item.split('/').pop()}}</a></span>
+        <span v-if="item && item">Link to Source: <a :href="item.link" :alt="item.label">{{item.label}}</a></span>
       </v-card-title>
     </v-card>
   </div>
