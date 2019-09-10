@@ -119,10 +119,10 @@ objects:
             protocol: TCP
           resources:
             requests:
-              cpu: 200m
+              cpu: 100m
               memory: 512Mi
             limits:
-              cpu: '1'
+              cpu: 500m
               memory: 1Gi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
