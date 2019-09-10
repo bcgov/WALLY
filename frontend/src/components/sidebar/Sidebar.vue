@@ -76,7 +76,12 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-card v-if="dataMartFeatureInfo">
+        <StreamStation
+          v-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.properties.type === 'hydat'"
+          :record="dataMartFeatureInfo"
+          :key="dataMartFeatureInfo.record"
+          ></StreamStation>
+        <v-card v-else-if="dataMartFeatureInfo">
           <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
           <v-divider></v-divider>

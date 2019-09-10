@@ -2,9 +2,13 @@ import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
 import * as metadataUtils from '../../utils/metadataUtils'
+import StreamStation from '../features/StreamStation'
 
 export default {
   name: 'Sidebar',
+  components: {
+    StreamStation
+  },
   data () {
     return {
       active_tab: 0,
@@ -95,6 +99,10 @@ export default {
     getMapLayerItemValue: val => utils.getMapLayerItemValue(val),
     getMapSubheading (val) {
       if (!val) { return '' }
+
+      const valStr = val + ''
+      if (!~valStr.indexOf('.')) { return valStr }
+
       let trim = val.substr(0, val.lastIndexOf('.'))
       let name = this.mapLayerName(trim || '')
       if (name) { return name.slice(0, -1) }

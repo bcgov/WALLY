@@ -101,6 +101,17 @@ export default {
       })
 
       this.listenForAreaSelect()
+
+      this.map.on('click', 'hydrometric_stream_flow', this.setSingleFeature)
+
+      this.map.on('mouseenter', 'hydrometric_stream_flow', () => {
+        this.map.getCanvas().style.cursor = 'pointer'
+      })
+
+      // Change it back to a pointer when it leaves.
+      this.map.on('mouseleave', 'hydrometric_stream_flow', () => {
+        this.map.getCanvas().style.cursor = ''
+      })
     },
     loadLayers () {
       const layers = this.allMapLayers
@@ -294,6 +305,18 @@ export default {
 
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
+    },
+    setSingleFeature (e) {
+      const id = e.features[0].id
+      const coordinates = e.features[0].geometry.coordinates.slice()
+      const properties = e.features[0].properties
+
+      this.$store.commit('setDataMartFeatureInfo',
+        {
+          display_data_name: id,
+          coordinates: coordinates,
+          properties: properties
+        })
     },
     ...mapActions(['getMapLayers'])
     // listenForReset () {

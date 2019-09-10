@@ -9,7 +9,7 @@
     @import "../../../node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
     .map {
         z-index: 2;
-        width: calc(100vw - 335px);
+        width: calc(100vw - 345px);
         height: calc(100vh - 64px);
     }
 
