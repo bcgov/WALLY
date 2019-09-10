@@ -154,11 +154,11 @@
                                 "image": "",
                                 "env": [
                                     {
-                                        "name": "KEYCLOAK_SA_CLIENT_SECRET",
+                                        "name": "CLIENT_SECRET",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "keycloak-sa-client-secret",
-                                                "key": "KEYCLOAK_SA_CLIENT_SECRET"
+                                                "name": "gatekeeper-credentials",
+                                                "key": "CLIENT_SECRET"
                                             }
                                         }
                                     },
