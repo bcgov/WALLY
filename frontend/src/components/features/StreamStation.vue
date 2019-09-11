@@ -93,7 +93,7 @@ export default {
             label: 'Daily flow (max recorded)',
             lineTension: 0,
             fill: false,
-            borderColor: '#494949',
+            borderColor: '#26A69A',
             data: this.flowData.map((o) => ({
               x: o.month,
               y: o.max
@@ -132,7 +132,7 @@ export default {
             label: 'Water level (max recorded)',
             lineTension: 0,
             fill: false,
-            borderColor: '#494949',
+            borderColor: '#26A69A',
             data: this.levelData.map((o) => ({
               x: o.month,
               y: o.max
