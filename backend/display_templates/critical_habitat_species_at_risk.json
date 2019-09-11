@@ -1,7 +1,7 @@
 {
   "display_template": {
     "display_template_id": 15,
-    "title": "Critical Habitat for Federally-Listed Species at Risk",
+    "title": "Critical Habitat for federally-listed species at risk (posted)",
     "display_order": 1500,
     "display_data_names": [
       "critical_habitat_species_at_risk"

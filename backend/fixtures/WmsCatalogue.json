@@ -67,7 +67,7 @@
   },
   {
     "wms_catalogue_id": 12,
-    "description": "Critical Habitat for Federally-Listed Species at Risk",
+    "description": "Critical Habitat for federally-listed species at risk (posted)",
     "wms_name": "WHSE_WILDLIFE_MANAGEMENT.WCP_CRITICAL_HABITAT_SP",
     "wms_style": ""
   }
