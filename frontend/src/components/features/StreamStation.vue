@@ -179,7 +179,7 @@ export default {
     fetchMonthlyData (flowURL, levelURL) {
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
-        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm3/s', this.flowData.map((x) => [x.monthly_mean]))
+        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm3/s', this.flowData.map((x) => [x.max]))
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
         console.error(e)
@@ -187,7 +187,7 @@ export default {
 
       ApiService.getRaw(levelURL).then((r) => {
         this.levelData = r.data
-        this.levelChartOptions = this.newChartOptions('Water level (average by month)', 'm', this.levelData.map((x) => [x.monthly_mean]))
+        this.levelChartOptions = this.newChartOptions('Water level (average by month)', 'm', this.levelData.map((x) => [x.max]))
         setTimeout(() => { this.levelChartReady = true }, 0)
       }).catch((e) => {
         console.error(e)
