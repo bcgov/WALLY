@@ -77,10 +77,18 @@
 
       <v-tab-item>
         <StreamStation
-          v-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.properties.type === 'hydat'"
+          v-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.layer_name === 'hydrometric_stream_flow'"
           :record="dataMartFeatureInfo"
           :key="dataMartFeatureInfo.record"
           ></StreamStation>
+        <Aquifer
+          v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.layer_name === 'aquifers'"
+          :record="dataMartFeatureInfo"
+        ></Aquifer>
+        <Well
+          v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.layer_name === 'groundwater_wells'"
+          :record="dataMartFeatureInfo"
+        ></Well>
         <v-card v-else-if="dataMartFeatureInfo">
           <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 

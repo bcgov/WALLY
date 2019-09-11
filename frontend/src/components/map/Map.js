@@ -119,10 +119,10 @@ export default {
         // layers are either vector, WMS, or geojson.
         // they are loading differently depending on the type.
         if (layer['vector_name']) {
-          const vector = layer['vector_name']
-          this.map.on('click', vector, this.setSingleFeature)
-          this.map.on('mouseenter', vector, this.setCursorPointer)
-          this.map.on('mouseleave', vector, this.resetCursor)
+          const vectorLayerName = layer['vector_name']
+          this.map.on('click', vectorLayerName, this.setSingleFeature(vectorLayerName))
+          this.map.on('mouseenter', vectorLayerName, this.setCursorPointer)
+          this.map.on('mouseleave', vectorLayerName, this.resetCursor)
         } else if (layer['wms_name']) {
           console.log('adding wms layer ', layers[i].display_data_name)
           this.addWMSLayer(layer)
@@ -281,17 +281,21 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
-    setSingleFeature (e) {
-      const id = e.features[0].id
-      const coordinates = e.features[0].geometry.coordinates.slice()
-      const properties = e.features[0].properties
+    setSingleFeature (layerName) {
+      // returns a function that handles a click event
+      return (e) => {
+        const id = e.features[0].id
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const properties = e.features[0].properties
 
-      this.$store.commit('setDataMartFeatureInfo',
-        {
-          display_data_name: id,
-          coordinates: coordinates,
-          properties: properties
-        })
+        this.$store.commit('setDataMartFeatureInfo',
+          {
+            layer_name: layerName,
+            display_data_name: id,
+            coordinates: coordinates,
+            properties: properties
+          })
+      }
     },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'

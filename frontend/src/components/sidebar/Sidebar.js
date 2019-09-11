@@ -3,11 +3,15 @@ import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
 import * as metadataUtils from '../../utils/metadataUtils'
 import StreamStation from '../features/StreamStation'
+import Well from '../features/Well'
+import Aquifer from '../features/Aquifer'
 
 export default {
   name: 'Sidebar',
   components: {
-    StreamStation
+    StreamStation,
+    Well,
+    Aquifer
   },
   data () {
     return {

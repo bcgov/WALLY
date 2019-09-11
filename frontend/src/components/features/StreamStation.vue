@@ -1,12 +1,10 @@
 <template>
-  <v-card>
-    <v-card-title class="subheading font-weight-bold">
-      <span id="stationTitle">{{ record.properties.name }}</span>
-      <span class="grey--text text--darken-2 subtitle-1">Stream monitoring station</span>
-      </v-card-title>
-
-    <v-divider></v-divider>
+  <v-card nobody>
     <v-card-text v-if="station">
+      <div class="grey--text text--darken-4 title" id="stationTitle">{{ record.properties.name }}</div>
+      <div class="grey--text text--darken-2 subtitle-1">Stream monitoring station</div>
+      <v-divider></v-divider>
+
       <v-list dense class="mx-0 px-0">
         <v-list-item>
           <v-list-item-content>Flow data:</v-list-item-content>
