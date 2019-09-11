@@ -91,6 +91,6 @@ export default {
     dataMartFeatures: state => state.dataMartFeatures,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
-    allDataMarts: () => [], // ideally grab these from the meta data api
+    allDataMarts: () => [] // ideally grab these from the meta data api
   }
 }
