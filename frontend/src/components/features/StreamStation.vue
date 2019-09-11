@@ -31,7 +31,7 @@
             Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item class="mt-3">
+        <!-- <v-list-item class="mt-3">
           <v-list-item-content>
             <a href="#">How is this information calculated?</a>
           </v-list-item-content>
@@ -40,7 +40,7 @@
           <v-list-item-content>
             <a href="#">Improve this feature</a>
           </v-list-item-content>
-        </v-list-item>
+        </v-list-item> -->
       </v-list>
     </v-card-text>
   </v-card>
