@@ -46,4 +46,5 @@ RUN chown -R nagios.nagios /var/lib/nagios/.kube \
     && mkdir /.kube \
     && chgrp -R root /.kube \
     && chmod -R g+w /.kube
+RUN a2enmod rewrite
 CMD supervisord
