@@ -136,34 +136,7 @@ export default {
       console.log(results.data)
       return results.data
     },
-    getLocateControl () {
-      const locateButton = L.control.locate({ position: 'topleft' })
-      locateButton.onClick = (ev) => {
-        this.map.locate({ setView: true, maxZoom: 12 })
-      }
-      return locateButton
-    },
-    getFullScreenControl () {
-      return new L.Control.Fullscreen({
-        position: 'topleft'
-      })
-    },
-    getAreaSelectControl () {
-      const lasso = L.lasso(this.map)
-      return new (L.Control.extend({
-        options: {
-          position: 'topleft'
-        },
-        onAdd: function (map) {
-          let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
-          container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
-          container.onclick = function (map) {
-            lasso.enable()
-          }
-          return container
-        }
-      }))()
-    },
+
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
       if (p) {
