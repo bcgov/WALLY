@@ -6,11 +6,11 @@
 </template>
 
 <script>
-import BarChart from '../chart/BarChart'
+import { BarChart } from '../chartjs/Charts'
 import { blueChartColors } from '../../constants/colors'
 
 export default {
-  name: 'ChartWMS',
+  name: 'Chart',
   components: { BarChart },
   props: {
     features: Array,
