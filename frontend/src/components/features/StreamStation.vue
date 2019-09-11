@@ -77,7 +77,7 @@ export default {
           xAxes: [{
             type: 'linear',
             ticks: {
-              min: 0,
+              min: 1,
               max: 12,
               callback: (value, index, values) => {
                 return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'][value - 1]
