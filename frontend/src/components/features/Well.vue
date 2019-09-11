@@ -40,13 +40,14 @@
           <v-list-item-content>Artesian pressure</v-list-item-content>
           <v-list-item-content>{{record.properties.artesian_pressure}}</v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <!-- TODO: GWELLS CORS settings only allow api requests from *.gov.bc.ca addresses. -->
+        <!-- <v-list-item>
           <v-list-item-content>Licence status</v-list-item-content>
           <v-list-item-content v-if="well_licence">
             {{well_licence.status}} <span v-if="well_licence.number">({{well_licence.number}})</span>
           </v-list-item-content>
           <v-list-item-content v-else-if="licence_error">Licence status unavailable</v-list-item-content>
-        </v-list-item>
+        </v-list-item> -->
       </v-list>
     </v-card-text>
   </v-card>
