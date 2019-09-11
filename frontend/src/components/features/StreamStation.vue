@@ -1,7 +1,7 @@
 <template>
   <v-card>
     <v-card-title class="subheading font-weight-bold">
-      {{ record.properties.name }}
+      <span id="stationTitle">{{ record.properties.name }}</span>
       <span class="grey--text text--darken-2 subtitle-1">Stream monitoring station</span>
       </v-card-title>
 
@@ -49,6 +49,7 @@
 <script>
 import ApiService from '../../services/ApiService'
 import LineChart from '../chart/LineChart'
+import { SHORT_MONTHS } from '../../constants/dates'
 
 export default {
   name: 'StreamStationCard',
@@ -62,30 +63,7 @@ export default {
     return {
       loading: false,
       station: {},
-      flowChartOptions: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          yAxes: [{
-            type: 'linear',
-            ticks: {
-              callback: function (value, index, values) {
-                return value + ' m3/s'
-              }
-            }
-          }],
-          xAxes: [{
-            type: 'linear',
-            ticks: {
-              min: 1,
-              max: 12,
-              callback: (value, index, values) => {
-                return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'][value - 1]
-              }
-            }
-          }]
-        }
-      },
+      flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
       levelChartReady: false
@@ -110,6 +88,26 @@ export default {
               x: o.month,
               y: o.monthly_mean
             }))
+          },
+          {
+            label: 'Daily flow (max recorded)',
+            lineTension: 0,
+            fill: false,
+            borderColor: '#494949',
+            data: this.flowData.map((o) => ({
+              x: o.month,
+              y: o.max
+            }))
+          },
+          {
+            label: 'Daily flow (min recorded)',
+            lineTension: 0,
+            fill: false,
+            borderColor: '#494949',
+            data: this.flowData.map((o) => ({
+              x: o.month,
+              y: o.min
+            }))
           }
         ]
       }
@@ -128,6 +126,26 @@ export default {
             data: this.levelData.map((o) => ({
               x: o.month,
               y: o.monthly_mean
+            }))
+          },
+          {
+            label: 'Water level (max recorded)',
+            lineTension: 0,
+            fill: false,
+            borderColor: '#494949',
+            data: this.levelData.map((o) => ({
+              x: o.month,
+              y: o.max
+            }))
+          },
+          {
+            label: 'Water level (min recorded)',
+            lineTension: 0,
+            fill: false,
+            borderColor: '#494949',
+            data: this.levelData.map((o) => ({
+              x: o.month,
+              y: o.min
             }))
           }
         ]
@@ -161,7 +179,7 @@ export default {
     fetchMonthlyData (flowURL, levelURL) {
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
-        this.flowChartOptions = this.setChartOptions('Discharge (average by month)', 'm3/s', this.flowData.map((x) => [x.monthly_mean]))
+        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm3/s', this.flowData.map((x) => [x.monthly_mean]))
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
         console.error(e)
@@ -169,7 +187,7 @@ export default {
 
       ApiService.getRaw(levelURL).then((r) => {
         this.levelData = r.data
-        this.levelChartOptions = this.setChartOptions('Water level (average by month)', 'm', this.levelData.map((x) => [x.monthly_mean]))
+        this.levelChartOptions = this.newChartOptions('Water level (average by month)', 'm', this.levelData.map((x) => [x.monthly_mean]))
         setTimeout(() => { this.levelChartReady = true }, 0)
       }).catch((e) => {
         console.error(e)
@@ -184,7 +202,7 @@ export default {
       const max = Math.max.apply(Math, years)
       return `${years.length} year${years.length === 1 ? '' : 's'} between ${min} and ${max}`
     },
-    setChartOptions (title, units, yValues) {
+    newChartOptions (title, units, yValues) {
       return {
         responsive: true,
         maintainAspectRatio: false,
@@ -205,7 +223,7 @@ export default {
               min: 0,
               max: 12,
               callback: (value, index, values) => {
-                return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'][value - 1]
+                return SHORT_MONTHS[value - 1]
               }
             }
           }]
