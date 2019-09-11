@@ -276,7 +276,6 @@ export default {
     },
     handleSelect (feature) {
       const newFeature = feature.features[0].id
-
       this.replaceOldFeatures(newFeature)
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
