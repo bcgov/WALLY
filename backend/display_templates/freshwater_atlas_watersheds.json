@@ -7,7 +7,28 @@
       "freshwater_atlas_watersheds"
     ]
   },
-  "charts": [],
+  "charts": [{
+      "chart_component_id": 800,
+      "chart_title": "Water Feature Areas",
+      "component_type_code": "chart",
+      "display_order": 200,
+      "labels_key": "WATERSHED_FEATURE_ID",
+      "dataset_keys": ["RIVER_AREA","LAKE_AREA","WETLAND_AREA","GLACIER_AREA"],
+      "display_template_id": 8,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+            "label": "",
+            "data": [],
+            "backgroundColor": "#d2f4d2",
+            "borderColor": "#228b22",
+            "borderWidth": "1"
+          }]
+        }
+      }
+    }],
   "links": [],
   "tables": [],
   "images": [],

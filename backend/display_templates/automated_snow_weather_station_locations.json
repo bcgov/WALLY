@@ -9,7 +9,7 @@
   },
   "charts": [
     {
-      "chart_component_id": 1,
+      "chart_component_id": 200,
       "chart_title": "Weather Station Elevation",
       "component_type_code": "chart",
       "display_order": 100,
@@ -33,7 +33,7 @@
   ],
   "links": [
     {
-      "link_component_id": 1,
+      "link_component_id": 200,
       "link_title": "Snow Reports",
       "component_type_code": "links",
       "display_order": 200,
