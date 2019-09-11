@@ -64,5 +64,11 @@
     "description": "Streams with Water Allocation Restrictions",
     "wms_name": "WHSE_WATER_MANAGEMENT.WLS_STREAM_RESTRICTIONS_SP",
     "wms_style": "1851"
+  },
+  {
+    "wms_catalogue_id": 12,
+    "description": "Critical Habitat for Federally-Listed Species at Risk",
+    "wms_name": "WHSE_WILDLIFE_MANAGEMENT.WCP_CRITICAL_HABITAT_SP",
+    "wms_style": ""
   }
 ]
