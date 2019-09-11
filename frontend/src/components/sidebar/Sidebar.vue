@@ -96,7 +96,7 @@
             </template>
           </v-list>
         </v-card>
-        <v-btn
+        <!-- <v-btn
           absolute
           dark
           fab
@@ -108,7 +108,7 @@
           style="margin-top: 28px"
         >
           <v-icon>cloud_download</v-icon>
-        </v-btn>
+        </v-btn> -->
       </v-tab-item>
     </v-tabs>
 
