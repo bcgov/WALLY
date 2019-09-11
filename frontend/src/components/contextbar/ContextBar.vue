@@ -23,13 +23,10 @@
               </v-card-text>
             </v-card>
           </span>
-        </div>
-        <div v-if="!contextComponents.length" class="pa-3">
-          <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
-            <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>
-          </v-btn>
-          <div class="mt-3">
-            <p>Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
+          <div v-if="!contextComponents.length" class="pa-3">
+            <div class="mt-3">
+              <p>Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
+            </div>
           </div>
         </div>
       </v-card>
