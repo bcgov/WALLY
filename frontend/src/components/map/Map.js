@@ -255,7 +255,7 @@ export default {
         'paint': {}
       }
       this.activeLayers[layerID] = newLayer
-      this.map.addLayer(newLayer, 'wells')
+      this.map.addLayer(newLayer, 'groundwater_wells')
     },
     removeLayer (layer) {
       const displayDataName = layer.display_data_name || layer

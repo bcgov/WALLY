@@ -4,7 +4,7 @@
     "title": "Ground Water Wells",
     "display_order": 1100,
     "display_data_names": [
-      "ground_water_wells"
+      "groundwater_wells"
     ]
   },
   "charts": [

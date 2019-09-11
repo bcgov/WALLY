@@ -1,7 +1,7 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    v-bind:width="335"
+    v-bind:width="435"
     app
     class="wally-sidenav"
   >
