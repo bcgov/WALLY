@@ -8,3 +8,5 @@ pgloader \
     --set "search_path='hydat'" \
     /tmp/Hydat.sqlite3 \
     postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB
+
+psql "$POSTGRES_DB" -w -c "update hydat.stations set geom=ST_SetSrid(ST_MakePoint(longitude, latitude), 4326);"
