@@ -8,7 +8,7 @@
     <v-slide-x-reverse-transition>
       <v-card id="contextBar" class="mx-auto" max-width="450">
         <div fluid v-show="showContextBar" max-width="450">
-          <div v-if="contextComponents.length">
+          <div>
             <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
               <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>
             </v-btn>
@@ -25,7 +25,7 @@
               </template>
             </span>
           </div>
-          <div v-else class="pa-3">
+          <div v-if="!contextComponents.length" class="pa-3">
             <v-btn small icon @click="toggleContextBar" class="minimizeContextBar" id="ContextButtonHide">
               <v-icon dark v-if="showContextBar">keyboard_arrow_right</v-icon>
             </v-btn>
