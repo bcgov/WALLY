@@ -48,7 +48,7 @@
 
 <script>
 import ApiService from '../../services/ApiService'
-import LineChart from '../chart/LineChart'
+import { LineChart } from '../chartjs/Charts'
 import { SHORT_MONTHS } from '../../constants/dates'
 
 export default {
