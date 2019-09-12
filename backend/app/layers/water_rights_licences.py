@@ -1,7 +1,7 @@
 # coding: utf-8
 from pydantic import BaseModel, Schema
 from typing import Optional, List
-from sqlalchemy import Integer, String, Column, DateTime, Float
+from sqlalchemy import Integer, String, Column, DateTime, Float, func
 from sqlalchemy.orm import Session
 from geojson import Point, Feature, FeatureCollection
 from app.db.base_class import BaseTable
@@ -40,10 +40,12 @@ class WaterRightsLicenses(BaseTable):
     PRIORITY_DATE = Column(DateTime, comment='PRIORITY DATE is the date from which the precedence of the '
                                              'licence is established within the first in time first '
                                              'in right framework.')
-    EXPIRY_DATE = Column(DateTime, comment='EXPIRY DATE is the date the licence expires.')
+    EXPIRY_DATE = Column(
+        DateTime, comment='EXPIRY DATE is the date the licence expires.')
     PURPOSE_USE_CODE = Column(String, comment='PURPOSE USE CODE is the use of water authorized by the licence, '
                                               'identified as a code, e.g., 02I.')
-    PURPOSE_USE = Column(String, comment='PURPOSE USE is the use of water authorized by the licence, e.g. Industrial.')
+    PURPOSE_USE = Column(
+        String, comment='PURPOSE USE is the use of water authorized by the licence, e.g. Industrial.')
     SOURCE_NAME = Column(String, comment='SOURCE NAME is the aquifer or body of surface water from which '
                                          'the licence is authorized to extract water. A surface water body '
                                          'can be a lake, river, creek or any other surface water source e.g., '
@@ -87,12 +89,17 @@ class WaterRightsLicenses(BaseTable):
                                                            '(PCL), e.g., 12345.')
     PRIMARY_LICENSEE_NAME = Column(String, comment='PRIMARY LICENSEE NAME is the primary contact for the licence, '
                                                    'co-licensees will be displayed as et al.')
-    ADDRESS_LINE_1 = Column(String, comment='ADDRESS LINE 1 is the first line of the licensees mailing address.')
-    ADDRESS_LINE_2 = Column(String, comment='ADDRESS LINE 2 is the second line of the licensees mailing address.')
-    ADDRESS_LINE_3 = Column(String, comment='ADDRESS LINE 3 is the third line of the licensees mailing address.')
-    ADDRESS_LINE_4 = Column(String, comment='ADDRESS LINE 4 is the fourth line of the licensees mailing address.')
+    ADDRESS_LINE_1 = Column(
+        String, comment='ADDRESS LINE 1 is the first line of the licensees mailing address.')
+    ADDRESS_LINE_2 = Column(
+        String, comment='ADDRESS LINE 2 is the second line of the licensees mailing address.')
+    ADDRESS_LINE_3 = Column(
+        String, comment='ADDRESS LINE 3 is the third line of the licensees mailing address.')
+    ADDRESS_LINE_4 = Column(
+        String, comment='ADDRESS LINE 4 is the fourth line of the licensees mailing address.')
     COUNTRY = Column(String, comment='COUNTRY is the licensees country.')
-    POSTAL_CODE = Column(String, comment='POSTAL CODE is the licensees postal code.')
+    POSTAL_CODE = Column(
+        String, comment='POSTAL CODE is the licensees postal code.')
     LATITUDE = Column(Float, comment='LATITUDE is the geographic coordinate, in decimal degrees (dd.dddddd), '
                                      'of the location of the feature as measured from the equator, e.g., 55.323653.')
     LONGITUDE = Column(Float, comment='LONGITUDE is the geographic coordinate, in decimal degrees (-ddd.dddddd), '
