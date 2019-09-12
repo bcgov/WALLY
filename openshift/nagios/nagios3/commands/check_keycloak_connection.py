@@ -7,7 +7,7 @@ KEYCLOAK = {
         'SERVICE_ACCOUNT_REALM': os.getenv('KEYCLOAK_SA_REALM', 'gwells'),
         'SERVICE_ACCOUNT_CLIENT_ID': os.getenv('KEYCLOAK_SA_CLIENT_ID', 'wally-service'),
         'SERVICE_ACCOUNT_KEYCLOAK_API_BASE': os.getenv('KEYCLOAK_SA_BASEURL', 'http://localhost:8888'),
-        'SERVICE_ACCOUNT_CLIENT_SECRET': os.getenv('KEYCLOAK_SA_CLIENT_SECRET', '')
+        'SERVICE_ACCOUNT_CLIENT_SECRET': os.getenv('KEYCLOAK_CLIENT_SECRET', '')
     }
 
 """
@@ -27,34 +27,34 @@ response = requests.post(token_url,
 
 token = response.json()['access_token']
 
-"""
-Retrieves the list of users found in Keycloak.
-Not to be confused with the list of users found in the actual
-database.
-"""
-users_url = '{keycloak}/auth/admin/realms/{realm}/users'.format(
-    keycloak=KEYCLOAK['SERVICE_ACCOUNT_KEYCLOAK_API_BASE'],
-    realm=KEYCLOAK['SERVICE_ACCOUNT_REALM'])
-
-headers = {'Authorization': 'Bearer {}'.format(token)}
-
-response = requests.get(users_url,
-                        headers=headers)
-
-i=0
-all_users = response.json()
-for user in all_users:
-    i=i+1
-    users_detail_url = '{keycloak}/auth/admin/realms/{realm}/users/{user_id}/federated-identity'.format(
-        keycloak=KEYCLOAK['SERVICE_ACCOUNT_KEYCLOAK_API_BASE'],
-        realm=KEYCLOAK['SERVICE_ACCOUNT_REALM'],
-        user_id=user['id'])
-
-    response = requests.get(users_detail_url,
-                            headers=headers)
-    if i>=1:
-        break
-
+# """
+# Retrieves the list of users found in Keycloak.
+# Not to be confused with the list of users found in the actual
+# database.
+# """
+# users_url = '{keycloak}/auth/admin/realms/{realm}/users'.format(
+#     keycloak=KEYCLOAK['SERVICE_ACCOUNT_KEYCLOAK_API_BASE'],
+#     realm=KEYCLOAK['SERVICE_ACCOUNT_REALM'])
+#
+# headers = {'Authorization': 'Bearer {}'.format(token)}
+#
+# response = requests.get(users_url,
+#                         headers=headers)
+#
+# i=0
+# all_users = response.json()
+# for user in all_users:
+#     i=i+1
+#     users_detail_url = '{keycloak}/auth/admin/realms/{realm}/users/{user_id}/federated-identity'.format(
+#         keycloak=KEYCLOAK['SERVICE_ACCOUNT_KEYCLOAK_API_BASE'],
+#         realm=KEYCLOAK['SERVICE_ACCOUNT_REALM'],
+#         user_id=user['id'])
+#
+#     response = requests.get(users_detail_url,
+#                             headers=headers)
+#     if i>=1:
+#         break
+#
 
 if response.status_code == 200:
     print('OK - Keycloak connection checking passed')

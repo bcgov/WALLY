@@ -146,6 +146,30 @@
                                 "persistentVolumeClaim": {
                                     "claimName": "nagios"
                                 }
+                            },{
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "nagios-config"
+                                },
+                                "name": "nagios-config-directory"
+                            },{
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "nagios-config-commands"
+                                },
+                                "name": "nagios-config-commands-directory"
+                            },{
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "nagios-config-confd"
+                                },
+                                "name": "nagios-config-confd-directory"
+                            },{
+                                "configMap": {
+                                    "defaultMode": 420,
+                                    "name": "nagios-config-stylesheets"
+                                },
+                                "name": "nagios-config-stylesheets-directory"
                             }
                         ],
                         "containers": [
@@ -154,17 +178,22 @@
                                 "image": "",
                                 "env": [
                                     {
-                                        "name": "CLIENT_SECRET",
+                                        "name": "KEYCLOAK_CLIENT_SECRET",
                                         "valueFrom": {
                                             "secretKeyRef": {
-                                                "name": "gatekeeper-credentials",
+                                                "name": "wally-service-gatekeeper",
                                                 "key": "CLIENT_SECRET"
                                             }
                                         }
                                     },
                                     {
                                         "name": "KEYCLOAK_CLIENT_ID",
-                                        "value": "${KEYCLOAK_CLIENT_ID}"
+                                        "valueFrom": {
+                                            "secretKeyRef": {
+                                                "name": "wally-service-gatekeeper",
+                                                "key": "CLIENT_ID"
+                                            }
+                                        }
                                     },
                                     {
                                         "name": "KEYCLOAK_SA_REALM",
@@ -197,6 +226,26 @@
                                     {
                                         "name": "nagios-data",
                                         "mountPath": "/var/log/nagios3"
+                                    },
+                                    {
+                                        "mountPath": "/etc/nagios3/",
+                                        "name": "nagios-config-directory",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/etc/nagios3/commands/",
+                                        "name": "nagios-config-commands-directory",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/etc/nagios3/conf.d/",
+                                        "name": "nagios-config-confd-directory",
+                                        "readOnly": true
+                                    },
+                                    {
+                                        "mountPath": "/etc/nagios3/stylesheets/",
+                                        "name": "nagios-config-stylesheets-directory",
+                                        "readOnly": true
                                     }
                                 ],
                                 "terminationMessagePath": "/dev/termination-log",

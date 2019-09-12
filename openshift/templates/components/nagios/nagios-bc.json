@@ -21,6 +21,11 @@
             "name": "NAGIOS_USER",
             "value": "nagiosadmin",
             "required": true
+        },
+        {
+            "name": "WALLY_SA_GATEKEEPER_CLIENT",
+            "value": "wally-service-test",
+            "required": true
         }
     ],
     "objects": [
@@ -37,6 +42,21 @@
             "stringData": {
                 "NAGIOS_USER": "${NAGIOS_USER}",
                 "NAGIOS_PASSWORD": "${NAGIOS_PASSWORD}"
+            }
+        },
+        {
+            "apiVersion": "v1",
+            "kind": "Secret",
+            "metadata": {
+                "annotations": {
+                },
+                "name": "wally-service-gatekeeper",
+                "labels":{
+                }
+            },
+            "stringData": {
+                "CLIENT": "${WALLY_SA_GATEKEEPER_CLIENT}",
+                "CLIENT_SECRET": ""
             }
         },
         {
