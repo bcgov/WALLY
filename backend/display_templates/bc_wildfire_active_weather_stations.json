@@ -7,7 +7,28 @@
       "bc_wildfire_active_weather_stations"
     ]
   },
-  "charts": [],
+  "charts": [{
+      "chart_component_id": 400,
+      "chart_title": "Wildfire Weather Station Elevation",
+      "component_type_code": "chart",
+      "display_order": 100,
+      "labels_key": "STATION_NAME",
+      "dataset_keys": ["ELEVATION"],
+      "display_template_id": 2,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    }],
   "links": [],
   "tables": [],
   "images": [],

@@ -1,8 +1,13 @@
 <template>
   <div class="links">
-    <div v-for="(item, i) in links" :key="i" min-width="400" class="component">
-      <a :href="item" :alt="item.split('/').pop()">{{item.split('/').pop()}}</a>
-    </div>
+    <h1 style="margin-bottom: 5px">
+      {{this.title}}
+    </h1>
+    <v-card v-for="(item, i) in links" :key="i" min-width="400" class="component">
+      <v-card-title>
+        <span v-if="item && item">Link to Source: <a :href="item.link" :alt="item.label">{{item.label}}</a></span>
+      </v-card-title>
+    </v-card>
   </div>
 </template>
 <script>
@@ -18,7 +23,7 @@ export default {
   },
   mounted () {
     this.links = this.$attrs.links
-    // TODO Hack fix on title, add title to link object
+    this.title = this.$attrs.title
   }
 }
 </script>

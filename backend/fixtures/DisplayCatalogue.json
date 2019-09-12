@@ -121,6 +121,14 @@
     "wms_catalogue_id": 11
   },
   {
+    "display_data_name": "critical_habitat_species_at_risk",
+    "display_name": "Critical Habitat for federally-listed species at risk (posted)",
+    "label_column": "CRITICAL_HABITAT_SITE_NAME",
+    "label": "Habitat",
+    "highlight_columns": ["", ""],
+    "wms_catalogue_id": 12
+  },
+  {
     "display_data_name": "hydrometric_stream_flow",
     "display_name": "Hydrometric Stream Flow",
     "label_column": "name",
