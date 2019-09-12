@@ -7,7 +7,28 @@
       "bc_major_watersheds"
     ]
   },
-  "charts": [],
+  "charts": [{
+      "chart_component_id": 300,
+      "chart_title": "Watershed Square Meters",
+      "component_type_code": "chart",
+      "display_order": 100,
+      "labels_key": "MAJOR_WATERSHED_CODE",
+      "dataset_keys": ["FEATURE_AREA_SQM"],
+      "display_template_id": 2,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    }],
   "links": [],
   "tables": [],
   "images": [],

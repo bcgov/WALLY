@@ -10,7 +10,7 @@
   },
   "charts": [
     {
-      "chart_component_id": 4,
+      "chart_component_id": 1300,
       "chart_title": "Water Quantity Demand",
       "component_type_code": "chart",
       "display_order": 200,

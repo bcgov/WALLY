@@ -9,7 +9,7 @@
   },
   "charts": [
     {
-      "chart_component_id": 2,
+      "chart_component_id": 1100,
       "chart_title": "Well Yield",
       "component_type_code": "chart",
       "display_order": 100,
@@ -31,7 +31,7 @@
       }
     },
     {
-      "chart_component_id": 3,
+      "chart_component_id": 1101,
       "chart_title": "Well Depth",
       "component_type_code": "chart",
       "display_order": 200,
@@ -55,7 +55,7 @@
   ],
   "links": [
     {
-      "link_component_id": 2,
+      "link_component_id": 1100,
       "link_title": "Well Information",
       "component_type_code": "links",
       "display_order": 300,
