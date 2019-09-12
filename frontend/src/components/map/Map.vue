@@ -1,18 +1,7 @@
 <template>
   <div>
     <div id="map" class="map"></div>
-    <div id="legend" class="legend">
-      <h4>Population</h4>
-      <div><span style='background-color: #723122'></span>1,000,000</div>
-      <div><span style='background-color: #8B4225'></span>500,000</div>
-      <div><span style='background-color: #A25626'></span>100,000</div>
-      <div><span style='background-color: #B86B25'></span>50,000</div>
-      <div><span style='background-color: #CA8323'></span>10,000</div>
-      <div><span style='background-color: #DA9C20'></span>5,000</div>
-      <div><span style='background-color: #E6B71E'></span>1,000</div>
-      <div><span style='background-color: #EED322'></span>100</div>
-      <div><span style='background-color: #F2F12D'></span>0</div>
-    </div>
+    <MapLegend></MapLegend>
   </div>
 </template>
 <style>

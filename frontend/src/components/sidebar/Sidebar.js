@@ -1,7 +1,6 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
-import * as metadataUtils from '../../utils/metadataUtils'
 
 export default {
   name: 'Sidebar',
@@ -28,7 +27,7 @@ export default {
       'mapLayerName',
       'getMapLayer'
     ]),
-    items () {
+    layers () {
       return [
         {
           title: 'Layers',
@@ -43,12 +42,8 @@ export default {
     setTabById (id) {
       this.active_tab = id
     },
-    handleSelectLayer (id, type, resource) {
-      if (type === metadataUtils.API_DATAMART) {
-        this.updateDataLayer(id, resource)
-      } else {
-        this.updateMapLayer(id)
-      }
+    handleSelectLayer (id) {
+      this.updateMapLayer(id)
     },
     updateMapLayer (id) {
       if (this.isMapLayerActive(id)) {

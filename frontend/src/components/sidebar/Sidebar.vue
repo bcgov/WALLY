@@ -19,7 +19,7 @@
       <v-tab-item>
         <v-list dense>
           <v-list-group
-            v-for="item in items"
+            v-for="item in layers"
             :key="item.title"
             v-model="item.active"
             :prepend-icon="item.action"
@@ -40,7 +40,7 @@
               >
                 <p class="pl-3">
                   <label class="checkbox">{{choice.display_name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.display_data_name, (choice.url !== '' ? 'api' : 'wms'), choice.url)" :checked="isMapLayerActive(choice.display_data_name)">
+                    <input type="checkbox" @input="handleSelectLayer(choice.display_data_name)" :checked="isMapLayerActive(choice.display_data_name)">
                     <span class="checkmark"></span>
                   </label>
                 </p>

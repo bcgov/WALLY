@@ -1,3 +1,4 @@
+import MapLegend from './MapLegend'
 // import L from 'leaflet'
 // import 'leaflet-lasso'
 // import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
@@ -214,7 +215,7 @@ export default {
         request: 'GetMap',
         format: 'image/png',
         layers: 'pub:' + layer.wms_name,
-        styles: layer.wmsStyle,
+        styles: layer.wms_style,
         transparent: true,
         name: layer.name,
         height: 256,
@@ -241,6 +242,7 @@ export default {
         },
         'paint': {}
       }
+      this.addWMSLegendGraphic(layer)
       this.activeLayers[layerID] = newLayer
       this.map.addLayer(newLayer, 'wells')
     },
@@ -251,6 +253,25 @@ export default {
       }
       this.map.removeLayer(layer.id)
       delete this.activeLayers[layer.id]
+    },
+    addWMSLegendGraphic (layer) {
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetLegendGraphic',
+        format: 'image/png',
+        layer: 'pub:' + layer.wms_name,
+        style: layer.wms_style,
+        transparent: true,
+        name: layer.name,
+        height: 20,
+        width: 20,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
     },
     // getLegendControl () {
     //   const self = this
