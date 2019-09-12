@@ -80,7 +80,7 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
 
 
 @router.get("/hydat/{station_number}/levels", response_model=List[streams_v1.MonthlyLevel])
-def list_monthly_levels_by_year(station_number: str, year: int = 2018, db: Session = Depends(get_db)):
+def list_monthly_levels_by_year(station_number: str, year: int = None, db: Session = Depends(get_db)):
     """ Monthly average levels for a given station and year. Data sourced from the National Water Data Archive.
 
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html
@@ -94,7 +94,7 @@ def list_monthly_levels_by_year(station_number: str, year: int = 2018, db: Sessi
 
 
 @router.get("/hydat/{station_number}/flows", response_model=List[streams_v1.MonthlyFlow])
-def list_monthly_flows_by_year(station_number: str, year: int = 2018, db: Session = Depends(get_db)):
+def list_monthly_flows_by_year(station_number: str, year: int = None, db: Session = Depends(get_db)):
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html """
