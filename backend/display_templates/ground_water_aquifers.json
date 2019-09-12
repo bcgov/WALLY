@@ -4,7 +4,7 @@
     "title": "Ground Water Aquifers",
     "display_order": 900,
     "display_data_names": [
-      "ground_water_aquifers"
+      "aquifers"
     ]
   },
   "charts": [{

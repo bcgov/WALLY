@@ -1,17 +1,17 @@
 [
   {
-    "display_data_name": "water_rights_licenses",
+    "display_data_name": "water_rights_licences",
     "display_name": "Water Rights Licenses",
     "label_column": "LICENCE_NUMBER",
     "label": "License Number",
     "highlight_columns": ["LICENCE_NUMBER", "LICENCE_STATUS"],
-    "wms_catalogue_id": 1
+    "vector_catalogue_id": 5
   },
   {
-    "display_data_name": "ground_water_wells",
-    "display_name": "Ground Water Wells",
+    "display_data_name": "groundwater_wells",
+    "display_name": "Groundwater Wells",
     "label_column": "WELL_TAG_NUMBER",
-    "label": "Well Tag Number",
+    "label": "Well tag number",
     "highlight_columns": [
       "WELL_TAG_NUMBER",
       "WELL_IDENTIFICATION_PLATE_NO",
@@ -25,7 +25,7 @@
       "DEPTH_WELL_DRILLED",
       "WELL_DETAIL_URL"
     ],
-    "wms_catalogue_id": 2
+    "vector_catalogue_id": 2
   },
   {
     "display_data_name": "freshwater_atlas_watersheds",
@@ -56,7 +56,7 @@
     "label_column": "PID",
     "label": "Pid",
     "highlight_columns": ["", ""],
-    "wms_catalogue_id": 5
+    "vector_catalogue_id": 4
   },
   {
     "display_data_name": "automated_snow_weather_station_locations",
@@ -105,12 +105,12 @@
     "wms_catalogue_id": 9
   },
   {
-    "display_data_name": "ground_water_aquifers",
-    "display_name": "Ground Water Aquifers",
+    "display_data_name": "aquifers",
+    "display_name": "Aquifers",
     "label_column": "AQNAME",
-    "label": "Aquifer Name",
+    "label": "Aquifer name",
     "highlight_columns": ["", ""],
-    "wms_catalogue_id": 10
+    "vector_catalogue_id": 3
   },
   {
     "display_data_name": "water_allocation_restrictions",
