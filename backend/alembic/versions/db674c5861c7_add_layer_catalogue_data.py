@@ -10,14 +10,9 @@ import os
 import json
 import datetime
 from alembic import op
-import sqlalchemy as sa
 from sqlalchemy import orm
-from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY
-from sqlalchemy.orm import relationship
-from app.db.session import db_session
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, ARRAY, TEXT
 from sqlalchemy.ext.declarative import declarative_base
-# from app.metadata.db_models import ApiCatalogue, WmsCatalogue, DataFormatCode, ComponentTypeCode, \
-#     DisplayCatalogue, VectorCatalogue
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,6 +31,15 @@ class DataFormatCode(Base):
     data_format_code = Column(String, primary_key=True, comment='source data format, options: '
                                                                 'wms, csv, excel, sqlite, text, json')
     description = Column(String, comment='code type description')
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
 
 
 class ComponentTypeCode(Base):
@@ -44,6 +48,15 @@ class ComponentTypeCode(Base):
                                  comment='components have many different types, which determines what business '
                                          'logic to use when constructing the component.')
     description = Column(String, comment='explanation of component type and use case')
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
 
 
 class ApiCatalogue(Base):
@@ -51,6 +64,15 @@ class ApiCatalogue(Base):
     api_catalogue_id = Column(Integer, primary_key=True)
     description = Column(String, comment='api endpoint description')
     url = Column(String, comment='an internal api endpoint that serves all data points for a display layer')
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
 
 
 class WmsCatalogue(Base):
@@ -59,6 +81,15 @@ class WmsCatalogue(Base):
     description = Column(String, comment='wms layer description')
     wms_name = Column(String, comment='identifying layer name with the data bc wms server')
     wms_style = Column(String, comment='style key to display data in different visualizations for wms layer')
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
 
 
 class VectorCatalogue(Base):
@@ -66,6 +97,15 @@ class VectorCatalogue(Base):
     vector_catalogue_id = Column(Integer, primary_key=True)
     description = Column(String, comment='vector layer description')
     vector_name = Column(String, comment='identifying vector layer name')
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
 
 
 class DisplayCatalogue(Base):
@@ -82,22 +122,32 @@ class DisplayCatalogue(Base):
                                                     'We primarily will only show these columns in the '
                                                     'client and report')
 
-    api_catalogue_id = Column(Integer, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
+    api_catalogue_id = Column(Integer, ForeignKey('api_catalogue.api_catalogue_id'),
                               comment='references api catalogue item')
-    api_catalogue = relationship("ApiCatalogue")
+    api_catalogue = orm.relationship("ApiCatalogue")
 
-    wms_catalogue_id = Column(Integer, ForeignKey('metadata.wms_catalogue.wms_catalogue_id'),
+    wms_catalogue_id = Column(Integer, ForeignKey('wms_catalogue.wms_catalogue_id'),
                               comment='references wms catalogue item')
-    wms_catalogue = relationship("WmsCatalogue")
+    wms_catalogue = orm.relationship("WmsCatalogue")
 
-    vector_catalogue_id = Column(Integer, ForeignKey('metadata.vector_catalogue.vector_catalogue_id'),
+    vector_catalogue_id = Column(Integer, ForeignKey('vector_catalogue.vector_catalogue_id'),
                               comment='references vector catalogue item')
-    vector_catalogue = relationship("VectorCatalogue")
-
-    display_templates = relationship("DisplayTemplateDisplayCatalogueXref", back_populates="display_catalogue")
+    vector_catalogue = orm.relationship("VectorCatalogue")
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
 
 
 def upgrade():
+    op.execute('SET search_path TO metadata')
+    logger.info("Loading Initial Catalogue Information")
+
     bind = op.get_bind()
     session = orm.Session(bind=bind)
 
@@ -106,8 +156,6 @@ def upgrade():
     files = ['ApiCatalogue.json', "WmsCatalogue.json", 'DisplayCatalogue.json',
              "DataFormatCode.json", "ComponentTypeCode.json", "VectorCatalogue.json"]
     directory = '/app/fixtures/'
-
-    logger.info("Loading Initial Catalogue Information")
 
     for filename in files:
         with open(os.path.join(directory, filename)) as json_file:
@@ -126,10 +174,11 @@ def upgrade():
             instance = cls(**{**obj, **get_audit_fields()})
             instances.append(instance)
 
-        db_session.add_all(instances)
+        session.add_all(instances)
 
     logger.info("Loading Fixtures Complete")
-    db_session.commit()
+    session.commit()
+    op.execute('SET search_path TO public')
 
 
 def get_audit_fields():
