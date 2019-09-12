@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def load_display_templates():
+def merge_display_templates():
     directory = '/app/display_templates/'
 
     for filename in os.listdir(directory):
@@ -17,7 +17,6 @@ def load_display_templates():
             with open(os.path.join(directory, filename)) as json_file:
                 logger.info(f"Merging Template: {filename}")
                 data = json.load(json_file)
-                logger.info(data)
 
                 # Merge any changes to display template components into database
                 # Updates the audit loggi ng information with current dates
@@ -50,7 +49,7 @@ def get_audit_fields():
 
 def main():
     logger.info("Merging display templates")
-    load_display_templates()
+    merge_display_templates()
     logger.info("Display templates merging complete")
 
 
