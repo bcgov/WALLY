@@ -149,9 +149,9 @@
                             },{
                                 "configMap": {
                                     "defaultMode": 420,
-                                    "name": "nagios-config"
+                                    "name": "nagios-extra-config"
                                 },
-                                "name": "nagios-config-directory"
+                                "name": "nagios-extra-config-dir"
                             },{
                                 "configMap": {
                                     "defaultMode": 420,
@@ -228,8 +228,8 @@
                                         "mountPath": "/var/log/nagios3"
                                     },
                                     {
-                                        "mountPath": "/etc/nagios3/",
-                                        "name": "nagios-config-directory",
+                                        "mountPath": "/etc/nagios3/conf/",
+                                        "name": "nagios-extra-config",
                                         "readOnly": true
                                     },
                                     {
