@@ -6,8 +6,8 @@ import router from './router'
 import store from './store'
 
 import { AuthService } from './services/AuthService.js'
-import {mapActions} from "vuex";
-import ApiService from "./services/ApiService";
+import { mapActions } from 'vuex'
+import ApiService from './services/ApiService'
 
 Vue.config.productionTip = false
 Vue.use(Vuetify)
