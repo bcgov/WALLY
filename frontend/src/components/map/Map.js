@@ -5,7 +5,6 @@ import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
-import * as utils from '../../utils/metadataUtils'
 
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -276,7 +275,6 @@ export default {
     },
     handleSelect (feature) {
       const newFeature = feature.features[0].id
-
       this.replaceOldFeatures(newFeature)
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
