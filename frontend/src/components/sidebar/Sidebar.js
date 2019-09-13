@@ -23,7 +23,12 @@ export default {
       ],
       drawer: true,
       mini: true,
-      subHeading: ''
+      subHeading: '',
+      featureComponents: {
+        hydrometric_stream_flow: StreamStation,
+        aquifers: Aquifer,
+        groundwater_wells: Well
+      }
     }
   },
   computed: {
@@ -46,6 +51,27 @@ export default {
           choices: this.allMapLayers
         }
       ]
+    },
+    currentLayerHighlightColumns () {
+      /**
+       * returns an object with only the layer's highlight column names and
+       * their values from the feature info.
+       */
+
+      const layerName = this.dataMartFeatureInfo.layer_name
+      const layerFromCatalogue = this.allMapLayers.find(x => x.display_data_name === layerName)
+
+      // return empty array if there's no match between the current layer and the layer catalogue.
+      if (!layerFromCatalogue) {
+        return {}
+      }
+
+      const cols = layerFromCatalogue.highlight_columns.reduce((obj, cur) => {
+        obj[cur] = this.dataMartFeatureInfo.properties[cur] || ''
+        return obj
+      }, {})
+
+      return cols
     }
   },
   methods: {

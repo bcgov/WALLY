@@ -13,6 +13,10 @@
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
+          <v-list-item-content>Identification plate number</v-list-item-content>
+          <v-list-item-content>{{record.properties.identification_plate_number}}</v-list-item-content>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-content>Address</v-list-item-content>
           <v-list-item-content>{{record.properties.street_address}} <span v-if="record.properties.city">, {{record.properties.city}}</span></v-list-item-content>
         </v-list-item>
@@ -30,7 +34,7 @@
         </v-list-item>
         <v-list-item>
           <v-list-item-content>Well yield</v-list-item-content>
-          <v-list-item-content>{{record.properties.well_yield}} <span v-if="record.properties.well_yield">{{record.properties.yield_unit}}</span></v-list-item-content>
+          <v-list-item-content>{{record.properties.yield}} <span v-if="record.properties.yield">{{record.properties.yield_unit}}</span></v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>Artesian flow</v-list-item-content>
@@ -40,14 +44,16 @@
           <v-list-item-content>Artesian pressure</v-list-item-content>
           <v-list-item-content>{{record.properties.artesian_pressure}}</v-list-item-content>
         </v-list-item>
-        <!-- TODO: GWELLS CORS settings only allow api requests from *.gov.bc.ca addresses. -->
-        <!-- <v-list-item>
+        <!-- NOTE: GWELLS CORS settings only allow api requests from *.gov.bc.ca addresses. This will work on staging/prod,
+              needs to be addressed in GWELLS to work locally.
+        -->
+        <v-list-item>
           <v-list-item-content>Licence status</v-list-item-content>
           <v-list-item-content v-if="well_licence">
             {{well_licence.status}} <span v-if="well_licence.number">({{well_licence.number}})</span>
           </v-list-item-content>
           <v-list-item-content v-else-if="licence_error">Licence status unavailable</v-list-item-content>
-        </v-list-item> -->
+        </v-list-item>
       </v-list>
     </v-card-text>
   </v-card>

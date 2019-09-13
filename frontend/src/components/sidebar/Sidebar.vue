@@ -76,19 +76,17 @@
       </v-tab-item>
 
       <v-tab-item>
-        <StreamStation
-          v-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.layer_name === 'hydrometric_stream_flow'"
+
+        <!-- custom components for features with visualizations etc. -->
+        <component
+          v-if="dataMartFeatureInfo && Object.keys(featureComponents).includes(dataMartFeatureInfo.layer_name)"
+          :is="featureComponents[dataMartFeatureInfo.layer_name]"
           :record="dataMartFeatureInfo"
-          :key="dataMartFeatureInfo.record"
-          ></StreamStation>
-        <Aquifer
-          v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.layer_name === 'aquifers'"
-          :record="dataMartFeatureInfo"
-        ></Aquifer>
-        <Well
-          v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.layer_name === 'groundwater_wells'"
-          :record="dataMartFeatureInfo"
-        ></Well>
+        />
+
+        <!-- fallback generic feature panel for layers that do not have a custom component. Data displayed will be from
+            the "highlight_columns" field of the layer catalogue.
+         -->
         <v-card v-else-if="dataMartFeatureInfo">
           <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
