@@ -32,26 +32,16 @@ class CustomLayerBase(object):
     def get_as_geojson(cls, db: Session, bbox: List[float] = []) -> FeatureCollection:
         """ calls get_all and formats the result as geojson """
         rows = cls.get_all(db, bbox)
-        logger.info(rows)
-        # add properties to geojson Feature objects
-        points = []
-        for row in rows:
-            id = cls.primary_key()
-            properties = row.row2dict()
-            geometry = Point((row.LONGITUDE, row.LATITUDE)) if cls.lat_lon_exists() \
-                else to_shape(row.SHAPE if cls.shape_column_exists() else row.GEOMETRY)
-            logger.info(geometry)
-            feature = Feature(geometry=geometry, id=id, properties=properties)
-            points.append(feature)
 
-        # points = [
-        #     Feature(
-        #         geometry=Point((row.LONGITUDE, row.LATITUDE)) if cls.lat_lon_exists()
-        #         else to_shape(row.SHAPE if cls.shape_column_exists() else row.GEOMETRY),
-        #         id=cls.primary_key(),
-        #         properties=row.row2dict()
-        #     ) for row in rows
-        # ]
+        # add properties to geojson Feature objects
+        points = [
+            Feature(
+                geometry=Point((row.LONGITUDE, row.LATITUDE)) if cls.lat_lon_exists()
+                else to_shape(row.SHAPE if cls.shape_column_exists() else row.GEOMETRY),
+                id=cls.primary_key(),
+                properties=row.row2dict()
+            ) for row in rows
+        ]
 
         return FeatureCollection(points)
 
