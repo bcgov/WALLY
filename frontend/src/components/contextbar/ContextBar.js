@@ -52,6 +52,7 @@ export default {
           case 'chart':
             this.contextComponents.push({
               component: Chart,
+              data: component,
               key: this.chartKey
             })
             break

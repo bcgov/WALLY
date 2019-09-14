@@ -1,10 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
-class BcMajorWatersheds(BaseTable):
+
+class BcMajorWatersheds(BaseLayerTable):
     __tablename__ = 'bc_major_watersheds'
 
     AREA = Column(Float, comment='')
