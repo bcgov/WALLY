@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, DateTime, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class Cadastral(BaseTable):
+class Cadastral(BaseLayerTable):
     __tablename__ = 'cadastral'
 
     PARCEL_FABRIC_POLY_ID = Column(Integer, primary_key=True, comment='PARCEL_FABRIC_POLY_ID is a system generated '

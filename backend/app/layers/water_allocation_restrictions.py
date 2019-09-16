@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class WaterAllocationRestrictions(BaseTable):
+class WaterAllocationRestrictions(BaseLayerTable):
     __tablename__ = 'water_allocation_restrictions'
 
     LINEAR_FEATURE_ID = Column(Integer, comment='LINEAR FEATURE ID is a primary Key to link to stream segments in '

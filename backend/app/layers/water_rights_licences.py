@@ -4,12 +4,12 @@ from typing import Optional, List
 from sqlalchemy import Integer, String, Column, DateTime, Float, func
 from sqlalchemy.orm import Session
 from geojson import Point, Feature, FeatureCollection
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class WaterRightsLicenses(BaseTable):
+class WaterRightsLicenses(BaseLayerTable):
     __tablename__ = 'water_rights_licenses'
 
     WLS_WRL_SYSID = Column(Integer, primary_key=True, comment='WLS WRL SYSID is a system generated unique '
@@ -116,31 +116,3 @@ class WaterRightsLicenses(BaseTable):
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE ANNO CAD DATA is a binary column used by spatial tools to '
                               'store annotation, curve features and CAD data when using '
                               'the SDO GEOMETRY storage data type.')
-
-
-def get_licences(db: Session, bbox: List[float] = []):
-    """ gets licences, with an optional bounding box """
-    q = db.query(WaterRightsLicenses)
-
-    if len(bbox) == 4:
-        q = q.filter(
-            WaterRightsLicenses.SHAPE.intersects(func.ST_MakeEnvelope(*bbox))
-        )
-
-    return q.all()
-
-
-def get_licences_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
-    """ calls get_licences and formats the result as geojson """
-    licences = get_licences(db, bbox)
-
-    # add properties to geojson Feature objects
-    points = [
-        Feature(
-            geometry=Point((lic.longitude, lic.latitude)),
-            id=lic.WLS_WRL_SYSID,
-            properties=dict(**lic)
-        ) for lic in licences
-    ]
-
-    return FeatureCollection(points)

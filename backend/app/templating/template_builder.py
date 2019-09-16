@@ -84,6 +84,7 @@ def default_builder(template, features):
                 "display_order": chart.display_order,
                 "chart": chart.chart
             }
+            # logger.info(result)
             charts.append(result)
 
     [hydrated_template["display_components"].append(c) for c in charts]

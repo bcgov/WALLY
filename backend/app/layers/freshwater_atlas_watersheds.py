@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class FreshwaterAtlasWatersheds(BaseTable):
+class FreshwaterAtlasWatersheds(BaseLayerTable):
     __tablename__ = 'freshwater_atlas_watersheds'
 
     WATERSHED_FEATURE_ID = Column(Integer, primary_key=True, comment='A unique identifier for each watershed '

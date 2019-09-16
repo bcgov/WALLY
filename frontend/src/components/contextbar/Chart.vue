@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>{{chartTitle}}</h1>
+    <h2>{{chartTitle}}</h2>
     <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
   </div>
 </template>
