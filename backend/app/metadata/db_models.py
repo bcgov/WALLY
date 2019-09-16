@@ -76,11 +76,13 @@ class WmsCatalogue(Base):
     wms_name = Column(String, comment='identifying layer name with the data bc wms server')
     wms_style = Column(String, comment='style key to display data in different visualizations for wms layer')
 
+
 class VectorCatalogue(Base):
     __tablename__ = 'vector_catalogue'
     vector_catalogue_id = Column(Integer, primary_key=True)
     description = Column(String, comment='vector layer description')
     vector_name = Column(String, comment='identifying vector layer name')
+
 
 class DisplayCatalogue(Base):
     __tablename__ = 'display_catalogue'
