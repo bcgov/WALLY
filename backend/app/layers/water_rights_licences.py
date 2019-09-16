@@ -1,5 +1,9 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, Float
+from pydantic import BaseModel, Schema
+from typing import Optional, List
+from sqlalchemy import Integer, String, Column, DateTime, Float, func
+from sqlalchemy.orm import Session
+from geojson import Point, Feature, FeatureCollection
 from app.db.base_class import BaseTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
@@ -36,10 +40,12 @@ class WaterRightsLicenses(BaseTable):
     PRIORITY_DATE = Column(DateTime, comment='PRIORITY DATE is the date from which the precedence of the '
                                              'licence is established within the first in time first '
                                              'in right framework.')
-    EXPIRY_DATE = Column(DateTime, comment='EXPIRY DATE is the date the licence expires.')
+    EXPIRY_DATE = Column(
+        DateTime, comment='EXPIRY DATE is the date the licence expires.')
     PURPOSE_USE_CODE = Column(String, comment='PURPOSE USE CODE is the use of water authorized by the licence, '
                                               'identified as a code, e.g., 02I.')
-    PURPOSE_USE = Column(String, comment='PURPOSE USE is the use of water authorized by the licence, e.g. Industrial.')
+    PURPOSE_USE = Column(
+        String, comment='PURPOSE USE is the use of water authorized by the licence, e.g. Industrial.')
     SOURCE_NAME = Column(String, comment='SOURCE NAME is the aquifer or body of surface water from which '
                                          'the licence is authorized to extract water. A surface water body '
                                          'can be a lake, river, creek or any other surface water source e.g., '
@@ -83,12 +89,17 @@ class WaterRightsLicenses(BaseTable):
                                                            '(PCL), e.g., 12345.')
     PRIMARY_LICENSEE_NAME = Column(String, comment='PRIMARY LICENSEE NAME is the primary contact for the licence, '
                                                    'co-licensees will be displayed as et al.')
-    ADDRESS_LINE_1 = Column(String, comment='ADDRESS LINE 1 is the first line of the licensees mailing address.')
-    ADDRESS_LINE_2 = Column(String, comment='ADDRESS LINE 2 is the second line of the licensees mailing address.')
-    ADDRESS_LINE_3 = Column(String, comment='ADDRESS LINE 3 is the third line of the licensees mailing address.')
-    ADDRESS_LINE_4 = Column(String, comment='ADDRESS LINE 4 is the fourth line of the licensees mailing address.')
+    ADDRESS_LINE_1 = Column(
+        String, comment='ADDRESS LINE 1 is the first line of the licensees mailing address.')
+    ADDRESS_LINE_2 = Column(
+        String, comment='ADDRESS LINE 2 is the second line of the licensees mailing address.')
+    ADDRESS_LINE_3 = Column(
+        String, comment='ADDRESS LINE 3 is the third line of the licensees mailing address.')
+    ADDRESS_LINE_4 = Column(
+        String, comment='ADDRESS LINE 4 is the fourth line of the licensees mailing address.')
     COUNTRY = Column(String, comment='COUNTRY is the licensees country.')
-    POSTAL_CODE = Column(String, comment='POSTAL CODE is the licensees postal code.')
+    POSTAL_CODE = Column(
+        String, comment='POSTAL CODE is the licensees postal code.')
     LATITUDE = Column(Float, comment='LATITUDE is the geographic coordinate, in decimal degrees (dd.dddddd), '
                                      'of the location of the feature as measured from the equator, e.g., 55.323653.')
     LONGITUDE = Column(Float, comment='LONGITUDE is the geographic coordinate, in decimal degrees (-ddd.dddddd), '
@@ -103,5 +114,33 @@ class WaterRightsLicenses(BaseTable):
     OBJECTID = Column(Integer, comment='OBJECTID is a column required by spatial layers that interact with '
                                        'ESRI ArcSDE. It is populated with unique values automatically by SDE.')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE ANNO CAD DATA is a binary column used by spatial tools to '
-                                            'store annotation, curve features and CAD data when using '
-                                            'the SDO GEOMETRY storage data type.')
+                              'store annotation, curve features and CAD data when using '
+                              'the SDO GEOMETRY storage data type.')
+
+
+def get_licences(db: Session, bbox: List[float] = []):
+    """ gets licences, with an optional bounding box """
+    q = db.query(WaterRightsLicenses)
+
+    if len(bbox) == 4:
+        q = q.filter(
+            WaterRightsLicenses.SHAPE.intersects(func.ST_MakeEnvelope(*bbox))
+        )
+
+    return q.all()
+
+
+def get_licences_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
+    """ calls get_licences and formats the result as geojson """
+    licences = get_licences(db, bbox)
+
+    # add properties to geojson Feature objects
+    points = [
+        Feature(
+            geometry=Point((lic.longitude, lic.latitude)),
+            id=lic.WLS_WRL_SYSID,
+            properties=dict(**lic)
+        ) for lic in licences
+    ]
+
+    return FeatureCollection(points)

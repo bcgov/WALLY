@@ -36,6 +36,7 @@ def create_parcels():
 
 def refresh_geocoder_view():
     db_session.execute("refresh materialized view geocode_lookup")
+    db_session.commit()
 
 
 def main():
