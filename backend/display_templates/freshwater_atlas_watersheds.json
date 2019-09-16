@@ -26,6 +26,16 @@
             "borderColor": "#228b22",
             "borderWidth": "1"
           }]
+        },
+        "options": {
+          "scales": {
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "labelString": "(m2)"
+              }
+            }]
+          }
         }
       }
     }],
