@@ -229,23 +229,19 @@
                                     },
                                     {
                                         "mountPath": "/etc/nagios3/conf/",
-                                        "name": "nagios-extra-config",
-                                        "readOnly": true
+                                        "name": "nagios-extra-config-dir",
                                     },
                                     {
                                         "mountPath": "/etc/nagios3/commands/",
                                         "name": "nagios-config-commands-directory",
-                                        "readOnly": true
                                     },
                                     {
                                         "mountPath": "/etc/nagios3/conf.d/",
                                         "name": "nagios-config-confd-directory",
-                                        "readOnly": true
                                     },
                                     {
                                         "mountPath": "/etc/nagios3/stylesheets/",
                                         "name": "nagios-config-stylesheets-directory",
-                                        "readOnly": true
                                     }
                                 ],
                                 "terminationMessagePath": "/dev/termination-log",
