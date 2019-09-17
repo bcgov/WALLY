@@ -200,7 +200,7 @@ export default {
         request: 'GetMap',
         format: 'image/png',
         layers: 'pub:' + layer.wms_name,
-        styles: layer.wmsStyle,
+        styles: layer.wms_style,
         transparent: true,
         name: layer.name,
         height: 256,
