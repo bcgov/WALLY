@@ -17,3 +17,21 @@ ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 pas
 ```
 
 Since the parcels dataset is 2 GB, there is also a FactoryBoy class (ParcelFactory) in parcel_factory.py for generating dev fixtures.
+
+## Aquifers
+
+```bash
+ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 password=test_pw" \
+"/path/to/aquifers.geojson" \
+--config PG_USE_COPY YES \
+-nlt PROMOTE_TO_MULTI -nln ground_water_aquifers
+```
+
+## Water Rights Licences
+
+```bash
+ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 password=test_pw" \
+"/path/to/water_rights.geojson" \
+--config PG_USE_COPY YES \
+-nln water_rights_licenses
+```
