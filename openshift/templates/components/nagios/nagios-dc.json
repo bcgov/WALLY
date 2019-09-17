@@ -146,30 +146,6 @@
                                 "persistentVolumeClaim": {
                                     "claimName": "nagios"
                                 }
-                            },{
-                                "configMap": {
-                                    "defaultMode": 420,
-                                    "name": "nagios-extra-config"
-                                },
-                                "name": "nagios-extra-config-dir"
-                            },{
-                                "configMap": {
-                                    "defaultMode": 420,
-                                    "name": "nagios-config-commands"
-                                },
-                                "name": "nagios-config-commands-directory"
-                            },{
-                                "configMap": {
-                                    "defaultMode": 420,
-                                    "name": "nagios-config-confd"
-                                },
-                                "name": "nagios-config-confd-directory"
-                            },{
-                                "configMap": {
-                                    "defaultMode": 420,
-                                    "name": "nagios-config-stylesheets"
-                                },
-                                "name": "nagios-config-stylesheets-directory"
                             }
                         ],
                         "containers": [
@@ -226,22 +202,6 @@
                                     {
                                         "name": "nagios-data",
                                         "mountPath": "/var/log/nagios3"
-                                    },
-                                    {
-                                        "mountPath": "/etc/nagios3/conf/",
-                                        "name": "nagios-extra-config-dir",
-                                    },
-                                    {
-                                        "mountPath": "/etc/nagios3/commands/",
-                                        "name": "nagios-config-commands-directory",
-                                    },
-                                    {
-                                        "mountPath": "/etc/nagios3/conf.d/",
-                                        "name": "nagios-config-confd-directory",
-                                    },
-                                    {
-                                        "mountPath": "/etc/nagios3/stylesheets/",
-                                        "name": "nagios-config-stylesheets-directory",
                                     }
                                 ],
                                 "terminationMessagePath": "/dev/termination-log",
