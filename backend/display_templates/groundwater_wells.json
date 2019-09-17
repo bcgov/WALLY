@@ -17,7 +17,7 @@
       "dataset_keys": ["YIELD_VALUE"],
       "display_template_id": 11,
       "chart": {
-        "type": "pie",
+        "type": "bar",
         "data": {
           "labels": [],
           "datasets": [{
@@ -27,6 +27,16 @@
               "borderColor": "#0067a5",
               "borderWidth": "1"
           }]
+        },
+        "options": {
+          "scales": {
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "labelString": "US gpm"
+              }
+            }]
+          }
         }
       }
     },
@@ -49,6 +59,16 @@
               "borderColor": "#0067a5",
               "borderWidth": "1"
           }]
+        },
+        "options": {
+          "scales": {
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "labelString": "feet(ft)"
+              }
+            }]
+          }
         }
       }
     }

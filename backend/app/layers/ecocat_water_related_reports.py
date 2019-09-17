@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, DateTime, BLOB
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class EcocatWaterRelatedReports(BaseTable):
+class EcocatWaterRelatedReports(BaseLayerTable):
     __tablename__ = 'ecocat_water_related_reports'
 
     REPORT_POINT_ID = Column(Integer, primary_key=True, comment='')

@@ -107,7 +107,7 @@ export default {
           { featureName: this.getMapSubheading(this.dataMartFeatureInfo.display_data_name), ...this.dataMartFeatureInfo })
       }
     },
-    handleFeatureItemClick (item) {
+    handleFeatureItemClick (item, displayName) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
       if ('LATITUDE' in item.properties && 'LONGITUDE' in item.properties) {
         item.coordinates = [item.properties['LATITUDE'], item.properties['LONGITUDE']]
@@ -116,7 +116,7 @@ export default {
       }
       this.$store.commit('setDataMartFeatureInfo',
         {
-          display_data_name: item.id,
+          display_data_name: displayName,
           coordinates: item.coordinates,
           properties: item.properties
         })
@@ -136,6 +136,18 @@ export default {
       let trim = val.substr(0, val.lastIndexOf('.'))
       let name = this.mapLayerName(trim || '')
       if (name) { return name.slice(0, -1) }
+    },
+    getHighlightProperties (info) {
+      let layer = this.getMapLayer(info.display_data_name)
+      if (layer != null) {
+        let highlightFields = layer.highlight_columns
+        let obj = {}
+        highlightFields.forEach((field) => {
+          obj[field] = info.properties[field]
+        })
+        return obj
+      }
+      return {}
     }
   },
   watch: {

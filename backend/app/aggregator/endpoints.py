@@ -9,6 +9,13 @@ from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.hydat.db as streams_repo
 import app.layers.water_rights_licences as water_rights_licences_repo
+import app.layers.ground_water_wells as ground_water_wells_repo
+from app.layers.water_rights_licences import WaterRightsLicenses
+from app.layers.ground_water_wells import GroundWaterWells
+from app.layers.bc_major_watersheds import BcMajorWatersheds
+from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
+
+
 import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
@@ -29,7 +36,10 @@ router = APIRouter()
 API_DATASOURCES = {
     "HYDAT": streams_repo.get_stations_as_geojson,
     "hydrometric_stream_flow": streams_repo.get_stations_as_geojson,
-    "water_rights_licences": water_rights_licences_repo.get_licences_as_geojson
+    "water_rights_licences": WaterRightsLicenses.get_as_geojson,
+    "groundwater_wells": GroundWaterWells.get_as_geojson,
+    # "bc_major_watersheds": BcMajorWatersheds.get_as_geojson,
+    "ecocat_water_related_reports": EcocatWaterRelatedReports.get_as_geojson,
 }
 
 
@@ -68,7 +78,7 @@ def aggregate_sources(
     diff = min(round(abs(max(x_diff, y_diff))), 10000)
     mercator_box = [bottom_left[1], bottom_left[0],
                     bottom_left[1] + diff, bottom_left[0] + diff]
-    # logger.info("diff: " + str(diff) + " bbox: " + str(bbox_string))
+    # logger.info("diff: " + str(diff) + " bbox: " + str(mercator_box))
 
     # Format the bounding box (which arrives in the querystring as a comma separated list)
     bbox_string = ','.join(str(v) for v in mercator_box)
@@ -87,7 +97,7 @@ def aggregate_sources(
     # Internal datasets:
     # Gather valid internal sources that were included in the request's `layers` param
     internal_data = []
-    logger.info([c.display_data_name for c in catalogue])
+    # logger.info([c.display_data_name for c in catalogue])
     for item in catalogue:
         if item.display_data_name in API_DATASOURCES:
             internal_data.append(item)
@@ -96,7 +106,7 @@ def aggregate_sources(
     # Create a WMSRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
     for item in catalogue:
-        if item.wms_catalogue_id is None or processed_layers[item.display_data_name]:
+        if item.wms_catalogue_id is None or item.display_data_name in processed_layers:
             continue
 
         # query = WMSGetFeatureInfoQuery(

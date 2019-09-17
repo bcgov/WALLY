@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class FreshwaterAtlasStreamDirections(BaseTable):
+class FreshwaterAtlasStreamDirections(BaseLayerTable):
     __tablename__ = 'freshwater_atlas_stream_directions'
 
     STREAM_DIRECTION_ID = Column(Integer, comment='STREAM DIRECTION ID is a surrogate key for the'

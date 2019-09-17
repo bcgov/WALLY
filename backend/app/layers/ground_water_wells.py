@@ -1,11 +1,17 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, Float
-from app.db.base_class import BaseTable
+from sqlalchemy import Integer, String, Column, DateTime, Float, func
+from app.db.base_class import BaseLayerTable
+from typing import Optional, List
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy.orm import Session
+from geojson import Point, Feature, FeatureCollection
+
+from logging import getLogger
+logger = getLogger("groundwater_wells")
 
 
-class GroundWaterWells(BaseTable):
+class GroundWaterWells(BaseLayerTable):
     __tablename__ = 'ground_water_wells'
 
     WELL_TAG_NO = Column(String, primary_key=True, comment='WELL TAG NO is the unique number of the '

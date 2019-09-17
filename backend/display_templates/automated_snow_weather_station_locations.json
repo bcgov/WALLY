@@ -27,6 +27,16 @@
               "borderColor": "",
               "borderWidth": ""
           }]
+        },
+        "options": {
+          "scales": {
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "labelString": "Meters(m)"
+              }
+            }]
+          }
         }
       }
     }

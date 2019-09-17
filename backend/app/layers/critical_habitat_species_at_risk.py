@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, DateTime, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class CriticalHabitatSpeciesAtRisk(BaseTable):
+class CriticalHabitatSpeciesAtRisk(BaseLayerTable):
     __tablename__ = 'critical_habitat_species_at_risk'
 
     CRITICAL_HABITAT_ID = Column(Integer, primary_key=True, comment='CRITICAL_HABITAT_ID: is a system generated '

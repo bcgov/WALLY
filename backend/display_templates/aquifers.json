@@ -51,7 +51,17 @@
         }
       }
     }],
-  "links": [],
+  "links": [
+    {
+      "link_component_id": 900,
+      "link_title": "Aquifer Information",
+      "component_type_code": "links",
+      "display_order": 300,
+      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/aquifers/{0}",
+      "link_pattern_keys": ["AQ_TAG"],
+      "display_template_id": 9
+    }
+  ],
   "tables": [],
   "images": [],
   "formulas": []

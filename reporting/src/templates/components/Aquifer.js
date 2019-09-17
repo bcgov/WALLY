@@ -82,6 +82,12 @@ class Aquifer extends React.Component {
                                 {a.properties.AQNAME} - {a.properties.DESCRIPTIVE_LOCATION}
                             </Text>
                             <Text style={styles.text}>
+                                Aquifer Information:
+                                <Link src={'https://apps.nrs.gov.bc.ca/gwells/aquifers/' + parseInt(a.properties.AQ_TAG)}>
+                                    (View)
+                                </Link>
+                            </Text>
+                            <Text style={styles.text}>
                                 Type of water use: {a.properties.TYPE_OF_WATER_USE}
                             </Text>
                             <Text style={styles.text}>
@@ -95,6 +101,9 @@ class Aquifer extends React.Component {
                             </Text>
                             <Text style={styles.text}>
                                 Demand code: {a.properties.DEMAND_CODE}
+                            </Text>
+                            <Text style={styles.text}>
+                                Subtype code: {a.properties.AQUIFER_SUBTYPE_CODE}
                             </Text>
                             <Text style={styles.text}>
                                 Vulnerability code: {a.properties.VULNERABILITY_CODE}

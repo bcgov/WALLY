@@ -22,5 +22,8 @@ if [ "$WALLY_ENV" = "DEV" ]; then
     python /app/app/initial_data.py
 fi
 
+# Merge Display Templates with existing templates
+python /app/app/merge_display_templates.py
+
 # Start Gunicorn
 exec gunicorn -k uvicorn.workers.UvicornWorker -c "$GUNICORN_CONF" "$APP_MODULE"
