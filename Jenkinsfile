@@ -413,7 +413,11 @@ pipeline {
                   "NAME=wally-psql",
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
-                  "PVC_SIZE=10Gi",
+                  "PVC_SIZE=30Gi",
+                  "CPU_REQUEST=500m",
+                  "CPU_LIMIT='1'",
+                  "MEMORY_REQUEST=1Gi",
+                  "MEMORY_LIMIT=2Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 
@@ -504,7 +508,11 @@ pipeline {
                   "NAME=wally-psql",
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
-                  "PVC_SIZE=20Gi",
+                  "PVC_SIZE=40Gi",
+                  "CPU_REQUEST='1'",
+                  "CPU_LIMIT='1'",
+                  "MEMORY_REQUEST=4Gi",
+                  "MEMORY_LIMIT=4Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 
