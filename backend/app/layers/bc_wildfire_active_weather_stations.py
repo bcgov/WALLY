@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, DateTime, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class BcWildfireActiveWeatherStations(BaseTable):
+class BcWildfireActiveWeatherStations(BaseLayerTable):
     __tablename__ = 'bc_wildfire_active_weather_stations'
 
     WEATHER_STATIONS_ID	= Column(Integer, primary_key=True, comment='WEATHER STATION ID is a system generated '

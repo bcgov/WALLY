@@ -1,10 +1,10 @@
 {
   "display_template": {
     "display_template_id": 9,
-    "title": "Ground Water Aquifers",
+    "title": "Aquifers",
     "display_order": 900,
     "display_data_names": [
-      "ground_water_aquifers"
+      "aquifers"
     ]
   },
   "charts": [{
