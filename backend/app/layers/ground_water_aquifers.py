@@ -1,11 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
 
-class GroundWaterAquifers(BaseTable):
+class GroundWaterAquifers(BaseLayerTable):
     __tablename__ = 'ground_water_aquifers'
 
     AQ_TAG = Column(String, primary_key=True, comment='The AQ TAG is an alpha-numeric code assigned to the aquifer to '

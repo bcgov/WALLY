@@ -1,4 +1,4 @@
-import {Bar, Doughnut, Line, mixins, Pie} from 'vue-chartjs'
+import { Bar, Doughnut, Line, mixins, Pie } from 'vue-chartjs'
 const { reactiveProp } = mixins
 
 export const BarChart = {

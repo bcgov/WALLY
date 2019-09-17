@@ -1,6 +1,5 @@
 import Vue from 'vue'
-import Vuetify from 'vuetify'
-import './plugins/vuetify'
+import vuetify from './plugins/vuetify'
 import App from './App'
 import router from './router'
 import store from './store'
@@ -10,7 +9,6 @@ import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
 
 Vue.config.productionTip = false
-Vue.use(Vuetify)
 
 const auth = new AuthService()
 Vue.prototype.$auth = auth
@@ -21,6 +19,7 @@ auth.init({
   timeSkew: 10
 }).then(() => {
   new Vue({
+    vuetify,
     router,
     store,
     methods: {

@@ -7,6 +7,7 @@ import Vue from 'vue'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 Vue.use(Vuetify)
+const vuetify = new Vuetify()
 
 describe('Sidebar', () => {
   describe('Tabs', () => {
@@ -24,6 +25,7 @@ describe('Sidebar', () => {
       }
       store = new Vuex.Store({ getters })
       wrapper = mount(Sidebar, {
+        vuetify,
         store,
         localVue
       })
@@ -62,6 +64,7 @@ describe('Sidebar', () => {
 
     it('calls handleSelectLayer and commits correct mutation', () => {
       const wrapper = shallowMount(Sidebar, {
+        vuetify,
         store,
         localVue
       })

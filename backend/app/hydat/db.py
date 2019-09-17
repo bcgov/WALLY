@@ -35,18 +35,41 @@ def get_stations(db: Session, bbox: List[float] = []):
 
 def get_monthly_levels_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
     """ fetch monthly stream levels for a specified station_number and year """
-    return db.query(DlyLevel).filter(
-        DlyLevel.station_number == station,
-        DlyLevel.year == year
-    ).all()
+    if year:
+        return db.query(DlyLevel).filter(
+            DlyLevel.station_number == station,
+            DlyLevel.year == year
+        ).all()
+
+    # year not specified, return an average by month for all years.
+    return db.query(
+        func.avg(DlyLevel.monthly_mean).label('monthly_mean'),
+        func.min(DlyLevel.min).label('min'),
+        func.max(DlyLevel.max).label('max'),
+        DlyLevel.month
+    ) \
+        .filter(DlyLevel.station_number == station, DlyLevel.full_month == 1) \
+        .group_by(DlyLevel.month) \
+        .order_by(DlyLevel.month).all()
 
 
 def get_monthly_flows_by_station(db: Session, station: str, year: int) -> List[streams_v1.MonthlyFlow]:
     """ fetch monthly stream levels for a specified station_number and year """
-    return db.query(DlyFlow).filter(
-        DlyFlow.station_number == station,
-        DlyFlow.year == year
-    ).all()
+    if year:
+        return db.query(DlyFlow).filter(
+            DlyFlow.station_number == station,
+            DlyFlow.year == year
+        ).all()
+
+    # year not specified, return average by month for all available years.
+    return db.query(
+        func.avg(DlyFlow.monthly_mean).label('monthly_mean'),
+        func.min(DlyFlow.min).label('min'),
+        func.max(DlyFlow.max).label('max'),
+        DlyFlow.month) \
+        .filter(DlyFlow.station_number == station, DlyFlow.full_month == 1) \
+        .group_by(DlyFlow.month) \
+        .order_by(DlyFlow.month).all()
 
 
 def get_station_details(db: Session, station: str) -> streams_v1.StreamStation:
@@ -92,4 +115,3 @@ def get_stations_as_geojson(db: Session, bbox: List[float] = []) -> FeatureColle
 
 
 # def get_create_context(db: Session, bbox: List[float] = []):
-

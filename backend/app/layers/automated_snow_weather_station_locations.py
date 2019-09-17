@@ -1,10 +1,11 @@
 # coding: utf-8
 from sqlalchemy import Integer, String, Column, Float
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
-class AutomatedSnowWeatherStationLocations(BaseTable):
+
+class AutomatedSnowWeatherStationLocations(BaseLayerTable):
     __tablename__ = 'automated_snow_weather_station_locations'
 
     SNOW_ASWS_STN_ID = Column(Integer, primary_key=True, comment='SNOW_ASWS_STN_ID is a system generated unique '
