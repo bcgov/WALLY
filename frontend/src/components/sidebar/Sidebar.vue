@@ -65,7 +65,7 @@
                         :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
                         :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
                         :items-per-page="10"
-                        @click:row="(r) => handleFeatureItemClick(value[r.id])"
+                        @click:row="(r) => handleFeatureItemClick(value[r.id], name)"
                       ></v-data-table>
                   </v-list-item-content>
                 </v-list-item>
@@ -82,12 +82,12 @@
           :key="dataMartFeatureInfo.record"
           ></StreamStation>
         <v-card v-else-if="dataMartFeatureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.display_data_name) }}</v-card-title>
+          <v-card-title class="subheading font-weight-bold">{{ humanReadable(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
           <v-divider></v-divider>
 
           <v-list dense>
-            <template v-for="(value, name, index) in dataMartFeatureInfo.properties">
+            <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
               <v-list-item :key="`item-{$value}${index}`">
                 <v-list-item-content><b>{{ humanReadable(name) }}:</b></v-list-item-content>
                 <v-list-item-content class="align-end">{{ value }}</v-list-item-content>
