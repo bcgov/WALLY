@@ -47,7 +47,7 @@ def upgrade():
         UNION
         SELECT
         ST_AsText(ST_Centroid(wrl."SHAPE")) AS center,
-        concat_ws(wrl."POD_NUMBER"::text, ' (', wrl."LICENCE_NUMBER"::text, ')') AS primary_id,
+        concat(wrl."POD_NUMBER"::text, ' (', wrl."LICENCE_NUMBER"::text, ')') AS primary_id,
         wrl."SOURCE_NAME" AS name,
         'Water rights licence' AS kind,
         'water_rights_licences' AS layer,
