@@ -56,8 +56,9 @@ def upgrade():
     """)
 
     op.execute("""
-    create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
+        create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
     """)
+    op.execute("drop table parcel")
 
 
 def downgrade():
