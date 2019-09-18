@@ -1,16 +1,16 @@
 <template>
   <div>
-    <h1>{{chartTitle}}</h1>
+    <h2>{{chartTitle}}</h2>
     <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
   </div>
 </template>
 
 <script>
-import BarChart from '../chart/BarChart'
+import { BarChart } from '../chartjs/Charts'
 import { blueChartColors } from '../../constants/colors'
 
 export default {
-  name: 'ChartWMS',
+  name: 'Chart',
   components: { BarChart },
   props: {
     features: Array,

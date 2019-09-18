@@ -1,17 +1,32 @@
 [
   {
-    "display_data_name": "water_rights_licenses",
+    "display_data_name": "water_rights_licences",
     "display_name": "Water Rights Licenses",
     "label_column": "LICENCE_NUMBER",
     "label": "License Number",
-    "highlight_columns": ["LICENCE_NUMBER", "LICENCE_STATUS"],
-    "wms_catalogue_id": 1
+    "highlight_columns": [
+      "POD_STATUS",
+      "LICENCE_NUMBER",
+      "LICENCE_STATUS",
+      "LICENCE_STATUS_DATE",
+      "WELL_TAG_NUMBER",
+      "FILE_NUMBER",
+      "PURPOSE_USE",
+      "REDIVERSION_IND",
+      "QUANTITY",
+      "QUANTITY_UNITS",
+      "QTY_DIVERSION_MAX_RATE",
+      "HYDRAULIC_CONNECTIVITY",
+      "PRIMARY_LICENSEE_NAME",
+      "SOURCE_NAME"
+    ],
+    "vector_catalogue_id": 5
   },
   {
-    "display_data_name": "ground_water_wells",
-    "display_name": "Ground Water Wells",
+    "display_data_name": "groundwater_wells",
+    "display_name": "Groundwater Wells",
     "label_column": "WELL_TAG_NUMBER",
-    "label": "Well Tag Number",
+    "label": "Well tag number",
     "highlight_columns": [
       "WELL_TAG_NUMBER",
       "WELL_IDENTIFICATION_PLATE_NO",
@@ -25,14 +40,26 @@
       "DEPTH_WELL_DRILLED",
       "WELL_DETAIL_URL"
     ],
-    "wms_catalogue_id": 2
+    "vector_catalogue_id": 2
   },
   {
     "display_data_name": "freshwater_atlas_watersheds",
     "display_name": "Freshwater Atlas Watersheds",
     "label_column": "GNIS_NAME_1",
     "label": "Watershed Name",
-    "highlight_columns": ["", ""],
+    "highlight_columns": [
+      "GNIS_NAME_1",
+      "GNIS_NAME_2",
+      "WATERSHED_TYPE",
+      "AREA_HA",
+      "RIVER_AREA",
+      "LAKE_AREA",
+      "WETLAND_AREA",
+      "MANMADE_AREA",
+      "GLACIER_AREA",
+      "AVERAGE_ELEVATION",
+      "AVERAGE_SLOPE"
+    ],
     "wms_catalogue_id": 3
   },
   {
@@ -55,8 +82,21 @@
     "display_name": "Cadastral Parcel Information",
     "label_column": "PID",
     "label": "Pid",
-    "highlight_columns": ["", ""],
-    "wms_catalogue_id": 5
+    "highlight_columns": [
+      "PARCEL_NAME",
+      "PLAN_NUMBER",
+      "PIN",
+      "PID",
+      "PARCEL_STATUS",
+      "PARCEL_CLASS",
+      "OWNER_TYPE",
+      "PARCEL_START_DATE",
+      "REGIONAL_DISTRICT",
+      "FEATURE_AREA_SQM",
+      "FEATURE_LENGTH_M",
+      "WHEN_UPDATED"
+    ],
+    "vector_catalogue_id": 4
   },
   {
     "display_data_name": "automated_snow_weather_station_locations",
@@ -77,7 +117,11 @@
     "display_name": "Freshwater Atlas Stream Directions",
     "label_column": "DOWNSTREAM_DIRECTION",
     "label": "Downstream Direction",
-    "highlight_columns": ["", ""],
+    "highlight_columns": [
+      "LINEAR_FEATURE_ID",
+      "DOWNSTREAM_DIRECTION",
+      "FEATURE_CODE"
+    ],
     "wms_catalogue_id": 7
   },
   {
@@ -85,7 +129,14 @@
     "display_name": "BC Wildfire Active Weather Stations",
     "label_column": "STATION_NAME",
     "label": "Station Name",
-    "highlight_columns": ["", ""],
+    "highlight_columns": [
+      "STATION_NAME",
+      "STATION_ACRONYM",
+      "LATITUDE",
+      "LONGITUDE",
+      "ELEVATION",
+      "INSTALL_DATE"
+    ],
     "wms_catalogue_id": 8
   },
   {
@@ -105,20 +156,66 @@
     "wms_catalogue_id": 9
   },
   {
-    "display_data_name": "ground_water_aquifers",
-    "display_name": "Ground Water Aquifers",
+    "display_data_name": "aquifers",
+    "display_name": "Aquifers",
     "label_column": "AQNAME",
-    "label": "Aquifer Name",
-    "highlight_columns": ["", ""],
-    "wms_catalogue_id": 10
+    "label": "Aquifer name",
+    "highlight_columns": [
+      "AQUIFER_NUMBER",
+      "AQNAME",
+      "PERIMETER",
+      "AREA",
+      "SIZE_KM2",
+      "AQUIFER_MATERIALS",
+      "PRODUCTIVITY",
+      "VULNERABILITY",
+      "DEMAND",
+      "AQUIFER_CLASSIFICATION",
+      "AQUIFER_NAME",
+      "AQUIFER_RANKING_VALUE",
+      "DESCRIPTIVE_LOCATION",
+      "AQUIFER_DESCRIPTION_RPT_URL",
+      "AQUIFER_STATISTICS_RPT_URL",
+      "TYPE_OF_WATER_USE"
+    ],
+    "vector_catalogue_id": 3
   },
   {
     "display_data_name": "water_allocation_restrictions",
     "display_name": "Water Allocation Restrictions",
     "label_column": "LINEAR_FEATURE_ID",
     "label": "Feature Id",
-    "highlight_columns": ["", ""],
+    "highlight_columns": [
+      "PRIMARY_RESTRICTION_CODE",
+      "SECONDARY_RESTRICTION_CODES",
+      "GNIS_NAME",
+      "RESTRICTION_ID_LIST"
+    ],
     "wms_catalogue_id": 11
+  },
+  {
+    "display_data_name": "critical_habitat_species_at_risk",
+    "display_name": "Critical Habitat for federally-listed species at risk (posted)",
+    "label_column": "CRITICAL_HABITAT_SITE_NAME",
+    "label": "Habitat",
+    "highlight_columns": [
+      "SCIENTIFIC_NAME",
+      "COMMON_NAME_ENGLISH",
+      "COMMON_NAME_FRENCH",
+      "COSEWIC_POPULATION",
+      "CRITICAL_HABITAT_STATUS",
+      "CRITICAL_HABITAT_REGION",
+      "CRITICAL_HABITAT_SITE_NAME",
+      "CRITICAL_HABITAT_DETAIL",
+      "CRITICAL_HABITAT_VARIANT",
+      "CRITICAL_HABITAT_APPROACH",
+      "CRITICAL_HABITAT_METHOD",
+      "AREA_HECTARES",
+      "CRITICAL_HABITAT_COMMENTS",
+      "CRITICAL_HABITAT_DATE_EDITED",
+      "FEDERAL_DEPARTMENT_NAME"
+    ],
+    "wms_catalogue_id": 12
   },
   {
     "display_data_name": "hydrometric_stream_flow",

@@ -3,5 +3,25 @@
     "vector_catalogue_id": 1,
     "description": "Stream monitoring",
     "vector_name": "hydrometric_stream_flow"
+  },
+  {
+    "vector_catalogue_id": 2,
+    "description": "Groundwater Wells",
+    "vector_name": "groundwater_wells"
+  },
+  {
+    "vector_catalogue_id": 3,
+    "description": "Aquifers",
+    "vector_name": "aquifers"
+  },
+  {
+    "vector_catalogue_id": 4,
+    "description": "BC Parcel Fabric",
+    "vector_name": "cadastral"
+  },
+  {
+    "vector_catalogue_id": 5,
+    "description": "Water Rights Licences",
+    "vector_name": "water_rights_licences"
   }
 ]

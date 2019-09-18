@@ -1,0 +1,68 @@
+{
+  "display_template": {
+    "display_template_id": 9,
+    "title": "Aquifers",
+    "display_order": 900,
+    "display_data_names": [
+      "aquifers"
+    ]
+  },
+  "charts": [{
+      "chart_component_id": 900,
+      "chart_title": "Aquifer Area",
+      "component_type_code": "chart",
+      "display_order": 100,
+      "labels_key": "AQUIFER_NAME",
+      "dataset_keys": ["AREA"],
+      "display_template_id": 9,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    },
+    {
+      "chart_component_id": 901,
+      "chart_title": "Aquifer Ranking Value",
+      "component_type_code": "chart",
+      "display_order": 100,
+      "labels_key": "AQUIFER_NAME",
+      "dataset_keys": ["AQUIFER_RANKING_VALUE"],
+      "display_template_id": 9,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    }],
+  "links": [
+    {
+      "link_component_id": 900,
+      "link_title": "Aquifer Information",
+      "component_type_code": "links",
+      "display_order": 300,
+      "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/aquifers/{0}",
+      "link_pattern_keys": ["AQ_TAG"],
+      "display_template_id": 9
+    }
+  ],
+  "tables": [],
+  "images": [],
+  "formulas": []
+}

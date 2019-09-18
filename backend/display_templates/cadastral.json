@@ -7,7 +7,61 @@
       "cadastral"
     ]
   },
-  "charts": [],
+  "charts": [{
+      "chart_component_id": 500,
+      "chart_title": "Parcel Size",
+      "component_type_code": "chart",
+      "display_order": 100,
+      "labels_key": "PARCEL_NAME",
+      "dataset_keys": ["FEATURE_AREA_SQM"],
+      "display_template_id": 5,
+      "chart": {
+        "type": "bar",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        },
+        "options": {
+          "scales": {
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "labelString": "(m2)"
+              }
+            }]
+          }
+        }
+      }
+    },
+    {
+      "chart_component_id": 501,
+      "chart_title": "Parcel Class",
+      "component_type_code": "chart",
+      "display_order": 200,
+      "labels_key": "PARCEL_NAME",
+      "dataset_keys": ["PARCEL_CLASS"],
+      "display_template_id": 2,
+      "chart": {
+        "type": "pie",
+        "data": {
+          "labels": [],
+          "datasets": [{
+              "label": "",
+              "data": [],
+              "backgroundColor": "",
+              "borderColor": "",
+              "borderWidth": ""
+          }]
+        }
+      }
+    }
+  ],
   "links": [],
   "tables": [],
   "images": [],

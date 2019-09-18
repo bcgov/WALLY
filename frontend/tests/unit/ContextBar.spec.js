@@ -11,6 +11,8 @@ localVue.use(Vuex)
 // localVue.use(Vuetify)
 Vue.use(Vuetify)
 
+const vuetify = new Vuetify()
+
 describe('Context Bar Tests', () => {
   let wrapper
   let store
@@ -22,6 +24,7 @@ describe('Context Bar Tests', () => {
     }
     store = new Vuex.Store({ getters })
     wrapper = mount(ContextBar, {
+      vuetify,
       store,
       localVue
     })
@@ -71,6 +74,7 @@ describe('Component builder', () => {
     }
     store = new Vuex.Store({ getters })
     wrapper = mount(ContextBar, {
+      vuetify,
       store,
       localVue
     })

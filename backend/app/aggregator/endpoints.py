@@ -8,6 +8,14 @@ from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
 import app.hydat.db as streams_repo
+import app.layers.water_rights_licences as water_rights_licences_repo
+import app.layers.ground_water_wells as ground_water_wells_repo
+from app.layers.water_rights_licences import WaterRightsLicenses
+from app.layers.ground_water_wells import GroundWaterWells
+from app.layers.bc_major_watersheds import BcMajorWatersheds
+from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
+
+
 import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
@@ -27,7 +35,11 @@ router = APIRouter()
 # For example:  get_stations_as_geojson(db: Session, bbox: List[float])
 API_DATASOURCES = {
     "HYDAT": streams_repo.get_stations_as_geojson,
-    "hydrometric_stream_data": streams_repo.get_stations_as_geojson
+    "hydrometric_stream_flow": streams_repo.get_stations_as_geojson,
+    "water_rights_licences": WaterRightsLicenses.get_as_geojson,
+    "groundwater_wells": GroundWaterWells.get_as_geojson,
+    # "bc_major_watersheds": BcMajorWatersheds.get_as_geojson,
+    "ecocat_water_related_reports": EcocatWaterRelatedReports.get_as_geojson,
 }
 
 
@@ -64,8 +76,9 @@ def aggregate_sources(
     x_diff = bottom_left[0] - top_right[0]
     y_diff = bottom_left[1] - top_right[1]
     diff = min(round(abs(max(x_diff, y_diff))), 10000)
-    mercator_box = [bottom_left[1], bottom_left[0], bottom_left[1] + diff, bottom_left[0] + diff]
-    # logger.info("diff: " + str(diff) + " bbox: " + str(bbox_string))
+    mercator_box = [bottom_left[1], bottom_left[0],
+                    bottom_left[1] + diff, bottom_left[0] + diff]
+    # logger.info("diff: " + str(diff) + " bbox: " + str(mercator_box))
 
     # Format the bounding box (which arrives in the querystring as a comma separated list)
     bbox_string = ','.join(str(v) for v in mercator_box)
@@ -76,10 +89,24 @@ def aggregate_sources(
 
     wms_requests = []
 
+    # keep track of layers that are processed.
+    # this enables us to use internal data, marking it as done, but fall
+    # back on making a WMS request if needed.
+    processed_layers = {}
+
+    # Internal datasets:
+    # Gather valid internal sources that were included in the request's `layers` param
+    internal_data = []
+    # logger.info([c.display_data_name for c in catalogue])
+    for item in catalogue:
+        if item.display_data_name in API_DATASOURCES:
+            internal_data.append(item)
+            processed_layers[item.display_data_name] = True
+
     # Create a WMSRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
     for item in catalogue:
-        if item.wms_catalogue_id is None:
+        if item.wms_catalogue_id is None or item.display_data_name in processed_layers:
             continue
 
         # query = WMSGetFeatureInfoQuery(
@@ -106,14 +133,6 @@ def aggregate_sources(
     # Go and fetch features for each of the WMS endpoints we need, and make a FeatureCollection
     # out of all the aggregated features.
     feature_list = fetch_wms_features(wms_requests)
-
-    # Internal datasets:
-    # Gather valid internal sources that were included in the request's `layers` param
-    internal_data = []
-    for item in catalogue:
-        if item.api_catalogue_id is None or item.display_data_name not in API_DATASOURCES:
-            continue
-        internal_data.append(item)
 
     # Loop through all datasets that are available internally.
     # We will make use of the data access function registered in API_DATASOURCES

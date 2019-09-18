@@ -6,8 +6,6 @@ import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
-// import * as utils from '../../utils/metadataUtils'
-
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
@@ -103,6 +101,12 @@ export default {
       })
 
       this.listenForAreaSelect()
+
+      // special handling for parcels because we may not want to have
+      // users turn this layer on/off (it should always be on)
+      this.map.on('click', 'parcels', this.setSingleFeature)
+      this.map.on('mouseenter', 'parcels', this.setCursorPointer)
+      this.map.on('mouseleave', 'parcels', this.resetCursor)
     },
     loadLayers () {
       const layers = this.allMapLayers
@@ -111,7 +115,15 @@ export default {
       // the user can toggle layers on and off with the layer controls.
       for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
-        if (layer['wms_name']) {
+
+        // layers are either vector, WMS, or geojson.
+        // they are loading differently depending on the type.
+        if (layer['vector_name']) {
+          const vector = layer['vector_name']
+          this.map.on('click', vector, this.setSingleFeature)
+          this.map.on('mouseenter', vector, this.setCursorPointer)
+          this.map.on('mouseleave', vector, this.resetCursor)
+        } else if (layer['wms_name']) {
           console.log('adding wms layer ', layers[i].display_data_name)
           this.addWMSLayer(layer)
         } else if (layer['geojson']) {
@@ -124,43 +136,15 @@ export default {
       console.log(results.data)
       return results.data
     },
-    // getLocateControl () {
-    //   const locateButton = L.control.locate({ position: 'topleft' })
-    //   locateButton.onClick = (ev) => {
-    //     this.map.locate({ setView: true, maxZoom: 12 })
-    //   }
-    //   return locateButton
-    // },
-    // getFullScreenControl () {
-    //   return new L.Control.Fullscreen({
-    //     position: 'topleft'
-    //   })
-    // },
-    // getAreaSelectControl () {
-    //   const lasso = L.lasso(this.map)
-    //   return new (L.Control.extend({
-    //     options: {
-    //       position: 'topleft'
-    //     },
-    //     onAdd: function (map) {
-    //       let container = L.DomUtil.create('div', 'leaflet-bar leaflet-control')
-    //       container.innerHTML = '<a class="leaflet-bar-part leaflet-bar-part-single select-box-icon"></a>'
-    //       container.onclick = function (map) {
-    //         lasso.enable()
-    //       }
-    //       return container
-    //     }
-    //   }))()
-    // },
-    // handleAddFeature (f) {
-    //   let p = L.latLng(f.lat, f.lng)
-    //   if (p) {
-    //     L.popup()
-    //       .setLatLng(p)
-    //       .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-    //       .openOn(this.map)
-    //   }
-    // },
+    handleAddFeature (f) {
+      let p = L.latLng(f.lat, f.lng)
+      if (p) {
+        L.popup()
+          .setLatLng(p)
+          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
+          .openOn(this.map)
+      }
+    },
     handleAddWMSLayer (displayDataName) {
       console.log(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
@@ -244,7 +228,7 @@ export default {
       }
       this.addWMSLegendGraphic(layer)
       this.activeLayers[layerID] = newLayer
-      this.map.addLayer(newLayer, 'wells')
+      this.map.addLayer(newLayer, 'groundwater_wells')
     },
     removeLayer (layer) {
       const displayDataName = layer.display_data_name || layer
@@ -297,7 +281,6 @@ export default {
     },
     handleSelect (feature) {
       const newFeature = feature.features[0].id
-
       this.replaceOldFeatures(newFeature)
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
@@ -316,6 +299,24 @@ export default {
 
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
+    },
+    setSingleFeature (e) {
+      const id = e.features[0].id
+      const coordinates = e.features[0].geometry.coordinates.slice()
+      const properties = e.features[0].properties
+
+      this.$store.commit('setDataMartFeatureInfo',
+        {
+          display_data_name: id,
+          coordinates: coordinates,
+          properties: properties
+        })
+    },
+    setCursorPointer () {
+      this.map.getCanvas().style.cursor = 'pointer'
+    },
+    resetCursor () {
+      this.map.getCanvas().style.cursor = ''
     },
     ...mapActions(['getMapLayers'])
     // listenForReset () {

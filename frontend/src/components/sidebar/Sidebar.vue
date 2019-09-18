@@ -1,14 +1,13 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
-    v-bind:width="335"
+    v-bind:width="435"
     app
     class="wally-sidenav"
   >
     <v-tabs
       v-model="active_tab"
       centered
-      dark
       color="#38598A"
       slider-color="primary"
     >
@@ -23,14 +22,13 @@
             :key="item.title"
             v-model="item.active"
             :prepend-icon="item.action"
-            value="true"
           >
             <template v-slot:activator>
-              <v-list-tile>
-                <v-list-tile-content>
-                  <v-list-tile-title class="wally-sidebar-category">{{ item.title }}</v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
+              <v-list-item>
+                <v-list-item-content>
+                  <v-list-item-title class="wally-sidebar-category">{{ item.title }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
             </template>
 
             <div v-if="item.choices != null && item.choices.length" class="mt-3">
@@ -39,8 +37,8 @@
                 :key="choice.display_data_name"
               >
                 <p class="pl-3">
-                  <label class="checkbox">{{choice.display_name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.display_data_name)" :checked="isMapLayerActive(choice.display_data_name)">
+                  <label class="checkbox grey--text text--darken-4">{{choice.display_name}}
+                    <input type="checkbox" @input="handleSelectLayer(choice.display_data_name, (choice.url !== '' ? 'api' : 'wms'), choice.url)" :checked="isMapLayerActive(choice.display_data_name)">
                     <span class="checkmark"></span>
                   </label>
                 </p>
@@ -51,47 +49,54 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-toolbar>
-          <v-toolbar-title>Selected Points</v-toolbar-title>
-        </v-toolbar>
-        <div v-if="dataMartFeatures.length > 0">
-          <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${dataMartFeature}${index}`">
-            <div v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`">
-              <v-list two-line subheader>
-                <v-subheader><b>{{getMapLayer(name).display_name}}</b></v-subheader>
-                <v-divider :key="`subheader-${value}${name}`"></v-divider>
-                <template v-for="(prop, propIndex) in value">
-                  <v-list-tile :key="`tile-${prop}${propIndex}`" avatar ripple @click="handleFeatureItemClick(prop)">
-                    <v-list-tile-content>
-                      <v-list-tile-title>{{getMapLayer(name).label}}</v-list-tile-title>
-                      <v-list-tile-sub-title class="text--primary">{{prop.properties[getMapLayer(name).label_column]}}</v-list-tile-sub-title>
-                    </v-list-tile-content>
-                  </v-list-tile>
-                  <v-divider :key="`divider-${prop}${propIndex}`"></v-divider>
+        <v-card class="mx-auto elevation-0">
+          <v-list>
+            <v-subheader>Selected points</v-subheader>
+            <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${index}`">
+              <v-list-group v-for="(value, name, j) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="~j">
+                <template v-slot:activator>
+                  <v-list-item-content>
+                    <v-list-item-title>{{getMapLayer(name).display_name}}</v-list-item-title>
+                  </v-list-item-content>
                 </template>
-              </v-list>
+                <v-list-item>
+                  <v-list-item-content>
+                      <v-data-table
+                        :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
+                        :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
+                        :items-per-page="10"
+                        @click:row="(r) => handleFeatureItemClick(value[r.id], name)"
+                      ></v-data-table>
+                  </v-list-item-content>
+                </v-list-item>
+              </v-list-group>
             </div>
-          </div>
-        </div>
+          </v-list>
+        </v-card>
       </v-tab-item>
 
       <v-tab-item>
-        <v-card v-if="dataMartFeatureInfo">
-          <v-card-title class="subheading font-weight-bold">{{ getMapSubheading(dataMartFeatureInfo.display_data_name) }}</v-card-title>
+        <StreamStation
+          v-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.properties.type === 'hydat'"
+          :record="dataMartFeatureInfo"
+          :key="dataMartFeatureInfo.record"
+          ></StreamStation>
+        <v-card v-else-if="dataMartFeatureInfo">
+          <v-card-title class="subheading font-weight-bold">{{ humanReadable(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
           <v-divider></v-divider>
 
           <v-list dense>
-            <template v-for="(value, name, index) in dataMartFeatureInfo.properties">
-              <v-list-tile :key="`tile-{$value}${index}`">
-                <v-list-tile-content><b>{{ humanReadable(name) }}:</b></v-list-tile-content>
-                <v-list-tile-content class="align-end">{{ value }}</v-list-tile-content>
-              </v-list-tile>
+            <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
+              <v-list-item :key="`item-{$value}${index}`">
+                <v-list-item-content><b>{{ humanReadable(name) }}:</b></v-list-item-content>
+                <v-list-item-content class="align-end">{{ value }}</v-list-item-content>
+              </v-list-item>
               <v-divider :key="`divider-${index}`"></v-divider>
             </template>
           </v-list>
         </v-card>
-        <v-btn
+        <!-- <v-btn
           absolute
           dark
           fab
@@ -103,7 +108,7 @@
           style="margin-top: 28px"
         >
           <v-icon>cloud_download</v-icon>
-        </v-btn>
+        </v-btn> -->
       </v-tab-item>
     </v-tabs>
 
@@ -119,9 +124,9 @@
   }
 
   .wally-sidebar-category {
-    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
-    font-weight: bold;
-    font-size: 16px;
+    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
+    font-weight: bold!important;
+    font-size: 16px!important;
   }
 
   /* Customize the label (the container) */

@@ -77,13 +77,15 @@ def default_builder(template, features):
         for c in range(len(chart.chart["data"]["datasets"])):
             chart.chart["data"]["datasets"][c]["data"] = data_sets[c]
 
-        result = {
-            "title": chart.chart_title,
-            "type": chart.component_type_code,
-            "display_order": chart.display_order,
-            "chart": chart.chart
-        }
-        charts.append(result)
+        if len(chart.chart["data"]["labels"]) > 0:
+            result = {
+                "title": chart.chart_title,
+                "type": chart.component_type_code,
+                "display_order": chart.display_order,
+                "chart": chart.chart
+            }
+            # logger.info(result)
+            charts.append(result)
 
     [hydrated_template["display_components"].append(c) for c in charts]
 
@@ -98,7 +100,10 @@ def default_builder(template, features):
         for feature in features:
             data = link_data(link_component.link_pattern_keys, feature.properties)
             if data is not None:
-                link_group["links"].append(link_component.link_pattern.format(*data))
+                link_group["links"].append({
+                    "label": feature.properties[link_component.link_pattern_keys[0]],
+                    "link": link_component.link_pattern.format(*data)
+                })
 
         links.append(link_group)
 

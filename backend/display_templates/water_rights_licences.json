@@ -3,14 +3,14 @@
     "display_template_id": 13,
     "title": "Water Rights Licenses",
     "display_order": 1300,
-    "override_key": "water_rights_licenses",
+    "override_key": "water_rights_licences",
     "display_data_names": [
-      "water_rights_licenses"
+      "water_rights_licences"
     ]
   },
   "charts": [
     {
-      "chart_component_id": 4,
+      "chart_component_id": 1300,
       "chart_title": "Water Quantity Demand",
       "component_type_code": "chart",
       "display_order": 200,

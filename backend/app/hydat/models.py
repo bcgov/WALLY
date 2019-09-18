@@ -42,12 +42,12 @@ class MonthlyLevel(BaseModel):
     Water level at a stream flow monitoring station, grouped by month
     """
 
-    station_number: str
-    year: int
+    station_number: Optional[str]
+    year: Optional[int]
     month: int
-    full_month: int
-    no_days: int
-    precision_code: int
+    full_month: Optional[int]
+    no_days: Optional[int]
+    precision_code: Optional[int]
     monthly_mean: Optional[float]
     monthly_total: Optional[float]
     min: Optional[float]
@@ -62,11 +62,11 @@ class MonthlyFlow(BaseModel):
     Flow at a stream flow monitoring station, grouped by month
     """
 
-    station_number: str
-    year: int
+    station_number: Optional[str]
+    year: Optional[int]
     month: int
-    full_month: int
-    no_days: int
+    full_month: Optional[int]
+    no_days: Optional[int]
     monthly_mean: Optional[float]
     monthly_total: Optional[float]
     min: Optional[float]
