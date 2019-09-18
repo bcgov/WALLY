@@ -193,6 +193,10 @@
                                     }
                                 ],
                                 "resources": {
+                                    "requests": {
+                                        "cpu": "100m",
+                                        "memory": "1Gi"
+                                    },
                                     "limits": {
                                         "cpu": "125m",
                                         "memory": "3Gi"
@@ -216,14 +220,6 @@
                         "securityContext": {}
                     }
                 }
-            },
-            "status": {
-                "latestVersion": 0,
-                "observedGeneration": 0,
-                "replicas": 0,
-                "updatedReplicas": 0,
-                "availableReplicas": 0,
-                "unavailableReplicas": 0
             }
         },
         {
