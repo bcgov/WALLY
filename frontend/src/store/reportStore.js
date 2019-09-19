@@ -1,4 +1,5 @@
 import ApiService, { reportingServiceURL } from '../services/ApiService'
+import qs from 'querystring'
 
 export default {
   state: {
@@ -6,7 +7,7 @@ export default {
   },
   actions: {
     downloadFeatureReport ({ commit }, payload) {
-      ApiService.post(reportingServiceURL + '/featureReport', payload, { responseType: 'arraybuffer' })
+      ApiService.get(reportingServiceURL + '/featureReport?' + qs.stringify(payload), null, { responseType: 'arraybuffer' })
         .then((res) => {
           console.log(res)
           let blob = new Blob([res.data], { type: 'application/pdf' })

@@ -70,12 +70,12 @@ export default {
       }
     },
     createReportFromSelection () {
-      if (this.active_tab === 1) {
-        this.$store.dispatch('downloadLayersReport', this.dataMartFeatures)
-      } else if (this.active_tab === 2) {
-        this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.display_data_name), ...this.dataMartFeatureInfo })
-      }
+      this.$store.dispatch('downloadFeatureReport',
+        {
+          bbox: [],
+          layers: ['asdf', 'asdf']
+        }
+      )
     },
     handleFeatureItemClick (item) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
