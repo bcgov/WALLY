@@ -1,17 +1,23 @@
 <template>
   <div>
-    <h2>{{chartTitle}}</h2>
-    <BarChart :chart-data="chartData" :key="chartKey" class="chart"></BarChart>
+    <h2 class="mb-3 text-center">{{chartTitle}}</h2>
+    <bar-chart v-if="chartType==='bar'" :chart-data="chartData" :options="chartOptions" :key="chartKey" class="chart" />
+    <line-chart v-if="chartType==='line'" :chart-data="chartData" :options="chartOptions" :key="chartKey" class="chart" />
+    <doughnut-chart v-if="chartType==='doughnut'" :chart-data="chartData" :options="chartOptions" :key="chartKey" class="chart" />
+    <pie-chart v-if="chartType==='pie'" :chart-data="chartData" :options="chartOptions" :key="chartKey" class="chart" />
   </div>
 </template>
 
 <script>
 import { BarChart } from '../chartjs/Charts'
+import { LineChart } from '../chartjs/Charts'
+import { DoughnutChart } from '../chartjs/Charts'
+import { PieChart } from '../chartjs/Charts'
 import { blueChartColors } from '../../constants/colors'
 
 export default {
   name: 'Chart',
-  components: { BarChart },
+  components: { BarChart, LineChart, DoughnutChart, PieChart },
   props: {
     features: Array,
     data: Object,
@@ -30,7 +36,9 @@ export default {
         }],
         visible: true
       },
-      chartTitle: String
+      chartTitle: String,
+      chartType: String,
+      chartOptions: []
     }
   },
   mounted () {
@@ -47,6 +55,9 @@ export default {
       visible: true
     }
     this.chartData = this.$attrs.chart.data
+    this.chartType = this.$attrs.chart.type
+    console.log(this.chartType)
+    this.chartOptions = this.$attrs.chart.options
     this.chartData.datasets.forEach((dataset, i) => {
       this.chartData.datasets[i].backgroundColor = blueChartColors.background
       this.chartData.datasets[i].borderColor = blueChartColors.borderColor
