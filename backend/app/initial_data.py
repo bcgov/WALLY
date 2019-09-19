@@ -2,7 +2,6 @@ import logging
 import os
 from app.db.session import db_session
 from app.hydat.factory import StationFactory
-from app.layers.parcel_factory import ParcelFactory
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,18 +21,6 @@ def create_hydat_data():
     db_session.commit()
 
 
-def create_parcels():
-    # logger
-    logger = logging.getLogger("fixtures")
-    logger.info("Adding parcels")
-    parcels = ParcelFactory.create_batch(5)
-    for par in parcels:
-        logger.info(
-            f"Adding parcel {par.PARCEL_NAME}")
-        db_session.add(par)
-    db_session.commit()
-
-
 def refresh_geocoder_view():
     db_session.execute("refresh materialized view geocode_lookup")
     db_session.commit()
@@ -48,7 +35,6 @@ def main():
 
     logger.info("Creating initial fixture data")
     create_hydat_data()
-    create_parcels()
     logger.info("Initial data created")
 
     logger.info(
