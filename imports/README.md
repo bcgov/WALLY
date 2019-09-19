@@ -1,7 +1,7 @@
 # Import Scripts
 
-Downloading geojson files
--------
+## Downloading geojson files
+
 Shell script to download geojson files from the Data Catalogue
 
 ```bash
@@ -13,7 +13,7 @@ Update the `geojson_request.json` for less, or more layers. With the current set
 
 
 ----
-Use tippecanoe to generate the tiles for a specific layer 
+## Use tippecanoe to generate the tiles for a specific layer 
 
 `$  brew install tippecanoe`
 
@@ -24,6 +24,7 @@ tippecanoe -o stream_restrictions.mbtiles -zg --drop-densest-as-needed  WLS_STRE
 Then upload the .mbtiles file onto mapbox studio
 
 ---
+## Load geojson into the database
 To load data into the database, use `ogr2ogr` which is part of the GDAL (Geospatial Data Abstraction Library)
 
 `$ brew install gdal`
