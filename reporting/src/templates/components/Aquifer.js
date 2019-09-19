@@ -68,13 +68,13 @@ class Aquifer extends React.Component {
     }
 
     render() {
-        const aquifers = this.props.aquifers.geojson.features
+        const aquifers = this.props.aquifers.geojson.features || []
         return (
 
             <View style={styles.section}>
                 <Text>Aquifers</Text>
                 {/* temporary filter for demo purposes. */}
-                {aquifers.filter((a) => a.properties.AQNAME !== '49 IIIB (9)').map((a, i) => (
+                {aquifers.map((a, i) => (
                 <View key={i} style={styles.container}>
                     <View style={styles.row}>
                         <View style={styles.col}>
@@ -110,10 +110,10 @@ class Aquifer extends React.Component {
                             </Text>
                         </View>
                         <View style={styles.col}>
-                            <Image style={styles.aqImg} src={this.props.map}></Image>
+                            {/* <Image style={styles.aqImg} src={this.props.map}></Image> */}
                         </View>
                     </View>                    
-                    <Image src={this.props.chart} style={styles.chart}/>
+                    {/* <Image src={this.props.chart} style={styles.chart}/> */}
                     <Text style={styles.text}>
                         Source:
                         <Link style={styles.link} src={'https://apps.nrs.gov.bc.ca/gwells/aquifers/' + parseInt(a.properties.AQ_TAG)}>
