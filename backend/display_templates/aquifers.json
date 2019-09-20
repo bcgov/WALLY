@@ -86,7 +86,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Rank Value"
+                "labelString": "Rank value"
               }
             }]
           }
