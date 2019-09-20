@@ -36,7 +36,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Station Name"
+                "labelString": "Station name"
               }
             }],
             "yAxes": [{
