@@ -1,7 +1,7 @@
 """add vector support to catalogue
 
 Revision ID: 8e74234b8872
-Revises: 27df43577da2
+Revises: a42005339c3b
 Create Date: 2019-09-06 21:21:40.608660
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '8e74234b8872'
-down_revision = '27df43577da2'
+down_revision = 'a42005339c3b'
 branch_labels = None
 depends_on = None
 
