@@ -1,4 +1,5 @@
-"""empty message
+"""
+This is a merge revision
 
 Revision ID: 73ffeef2cc38
 Revises: 516ece576828, db674c5861c7

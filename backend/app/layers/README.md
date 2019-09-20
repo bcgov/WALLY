@@ -13,10 +13,8 @@ To load parcels, use `ogr2ogr`.
 ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 password=test_pw" \
 "/full/path/to/parcels.geojson" \
 --config PG_USE_COPY YES \
--nlt PROMOTE_TO_MULTI -nln parcel -append
+-nlt PROMOTE_TO_MULTI -nln cadastral -append
 ```
-
-Since the parcels dataset is 2 GB, there is also a FactoryBoy class (ParcelFactory) in parcel_factory.py for generating dev fixtures.
 
 ## Aquifers
 
