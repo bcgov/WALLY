@@ -45,7 +45,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Water Volume m3"
+                "labelString": "Water volume (m3)"
               }
             }]
           }
