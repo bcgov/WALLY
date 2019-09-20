@@ -50,7 +50,7 @@ import { LineChart } from '../chartjs/Charts'
 import { SHORT_MONTHS } from '../../constants/dates'
 
 export default {
-  name: 'StreamStationCard',
+  name: 'FeatureStreamStation',
   components: {
     LineChart
   },

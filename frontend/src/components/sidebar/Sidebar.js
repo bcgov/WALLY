@@ -2,9 +2,9 @@ import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
 import * as metadataUtils from '../../utils/metadataUtils'
-import StreamStation from '../features/StreamStation'
-import Well from '../features/Well'
-import Aquifer from '../features/Aquifer'
+import StreamStation from '../features/FeatureStreamStation'
+import Well from '../features/FeatureWell'
+import Aquifer from '../features/FeatureAquifer'
 
 export default {
   name: 'Sidebar',
@@ -51,27 +51,6 @@ export default {
           choices: this.allMapLayers
         }
       ]
-    },
-    currentLayerHighlightColumns () {
-      /**
-       * returns an object with only the layer's highlight column names and
-       * their values from the feature info.
-       */
-
-      const layerName = this.dataMartFeatureInfo.layer_name
-      const layerFromCatalogue = this.allMapLayers.find(x => x.display_data_name === layerName)
-
-      // return empty array if there's no match between the current layer and the layer catalogue.
-      if (!layerFromCatalogue) {
-        return {}
-      }
-
-      const cols = layerFromCatalogue.highlight_columns.reduce((obj, cur) => {
-        obj[cur] = this.dataMartFeatureInfo.properties[cur] || ''
-        return obj
-      }, {})
-
-      return cols
     }
   },
   methods: {

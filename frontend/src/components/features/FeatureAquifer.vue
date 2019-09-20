@@ -55,7 +55,7 @@
 import ApiService from '../../services/ApiService'
 
 export default {
-  name: 'AquiferFeatureCard',
+  name: 'FeatureAquifer',
   props: {
     record: Object
   },

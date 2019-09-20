@@ -63,7 +63,7 @@
 import ApiService from '../../services/ApiService'
 
 export default {
-  name: 'WellFeatureCard',
+  name: 'FeatureWell',
   props: {
     record: Object
   },
