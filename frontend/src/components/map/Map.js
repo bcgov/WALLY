@@ -1,7 +1,4 @@
-import MapLegend from './MapLegend'
-// import L from 'leaflet'
-// import 'leaflet-lasso'
-// import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
+import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
@@ -18,6 +15,7 @@ import ApiService from '../../services/ApiService'
 
 export default {
   name: 'Map',
+  components: { MapLegend },
   mounted () {
     this.initMap()
     EventBus.$on('layer:added', this.handleAddWMSLayer)
@@ -57,12 +55,13 @@ export default {
   },
   methods: {
     initMap () {
-      // temporary public token with limited scope (reading layers) just for testing.
-      mapboxgl.accessToken = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
+      // temporary read token with limited scope (reading layers) just for
+      // testing.
+      mapboxgl.accessToken = `pk.eyJ1IjoiaWl0LXdhdGVyIiwiYSI6ImNrMHI2NjlibTAyODkzbW93Y3R3amd4bTkifQ.rve1IbrClbRJotzQ5-m_8Q`
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/stephenhillier/cjzydtam02lbd1cld4jbkqlhy', // stylesheet location
+        style: 'mapbox://styles/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2', // stylesheet location
         center: [-124, 54.5], // starting position
         zoom: 4.7 // starting zoom
       })
@@ -146,10 +145,11 @@ export default {
       }
     },
     handleAddWMSLayer (displayDataName) {
-      console.log(displayDataName)
+      this.addLayerLegend(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
+      this.removeLayerLegend(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
@@ -223,11 +223,9 @@ export default {
             url
           ],
           'tileSize': 256
-        },
-        'paint': {}
+        }
       }
-      this.addWMSLegendGraphic(layer)
-      this.activeLayers[layerID] = newLayer
+
       this.map.addLayer(newLayer, 'groundwater_wells')
     },
     removeLayer (layer) {
@@ -236,17 +234,18 @@ export default {
         return
       }
       this.map.removeLayer(layer.id)
+      // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    addWMSLegendGraphic (layer) {
+    addWMSLegendGraphic (layername, style) {
       const wmsOpts = {
         service: 'WMS',
         request: 'GetLegendGraphic',
         format: 'image/png',
-        layer: 'pub:' + layer.wms_name,
-        style: layer.wms_style,
+        layer: 'pub:' + layername,
+        style: style,
         transparent: true,
-        name: layer.name,
+        name: layername,
         height: 20,
         width: 20,
         overlay: true,
@@ -254,7 +253,8 @@ export default {
       }
 
       const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query
+      this.legendGraphics[layerID] = url
 
     },
     // getLegendControl () {

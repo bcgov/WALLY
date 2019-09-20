@@ -1,7 +1,7 @@
 <template>
   <div>
     <div id="map" class="map"></div>
-    <MapLegend></MapLegend>
+    <MapLegend :map="map"></MapLegend>
   </div>
 </template>
 <style>
