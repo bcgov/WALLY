@@ -44,7 +44,7 @@ npm run start
 
 ## Layers
 
-Layers and API data can be added to the report by adding `&layers=LAYER_ID` to the url query params, where `LAYER_ID` is an ID that the Wally API recognizes (e.g. HYDAT). Each layer should have its own `&layers=` param, e.g. `&layers=HYDAT&layers=WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW` (in other words, comma separated lists are not supported). The frameworks that Wally uses accept this format out of the box.
+Layers and API data can be added to the report by adding `&layers=LAYER_ID` to the url query params, where `LAYER_ID` is an ID that the Wally API recognizes (e.g. HYDAT). Each layer should have its own `&layers=` param, e.g. `&layers=hydrometric_stream_flow&layers=aquifers` (in other words, comma separated lists are not supported). The frameworks that Wally uses accept this format out of the box.
 
 Some layers are required for the standard report and are always fetched, even if not included in the url params: Hydrometric data, Aquifers, Watersheds and Water Rights Licences.
 

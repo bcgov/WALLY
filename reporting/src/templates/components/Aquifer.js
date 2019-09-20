@@ -71,11 +71,11 @@ class Aquifer extends React.Component {
         const aquifers = this.props.aquifers.geojson.features || []
         return (
 
-            <View style={styles.section}>
+            <View wrap style={styles.section}>
                 <Text>Aquifers</Text>
                 {/* temporary filter for demo purposes. */}
                 {aquifers.map((a, i) => (
-                <View key={i} style={styles.container}>
+                <View key={i} wrap={false} style={styles.container}>
                     <View style={styles.row}>
                         <View style={styles.col}>
                             <Text style={styles.header}>
@@ -103,7 +103,7 @@ class Aquifer extends React.Component {
                                 Classification code: {a.properties.CLASSIFICATION_CODE}
                             </Text>
                             <Text style={styles.text}>
-                            Groundwater wells in this aquifer: 91
+                            Groundwater wells in this aquifer:
                             <Link src={'https://apps.nrs.gov.bc.ca/gwells/?match_any=false&search=&well=&aquifer=' + + parseInt(a.properties.AQ_TAG)}>
                                 (View)
                             </Link>
