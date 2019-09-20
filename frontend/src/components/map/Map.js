@@ -123,7 +123,7 @@ export default {
           this.map.on('mouseenter', vector, this.setCursorPointer)
           this.map.on('mouseleave', vector, this.resetCursor)
         } else if (layer['wms_name']) {
-          console.log('adding wms layer ', layers[i].display_data_name)
+          // console.log('adding wms layer ', layers[i].display_data_name)
           this.addWMSLayer(layer)
         } else if (layer['geojson']) {
           this.addGeoJSONLayer(layer)
@@ -145,11 +145,9 @@ export default {
       }
     },
     handleAddWMSLayer (displayDataName) {
-      this.addLayerLegend(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
-      this.removeLayerLegend(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
@@ -257,22 +255,6 @@ export default {
       this.legendGraphics[layerID] = url
 
     },
-    // getLegendControl () {
-    //   const self = this
-    //   return new (L.Control.extend({
-    //     options: {
-    //       position: 'bottomright'
-    //     },
-    //     onAdd (map) {
-    //       const container = L.DomUtil.create('div', 'leaflet-control-legend')
-    //       const content = L.DomUtil.create('div', 'leaflet-control-legend-content')
-    //       self.legendControlContent = content
-    //       content.innerHTML = `<div class="m-1">Legend</div>`
-    //       container.appendChild(content)
-    //       return container
-    //     }
-    //   }))()
-    // },
     replaceOldFeatures (newFeature) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
