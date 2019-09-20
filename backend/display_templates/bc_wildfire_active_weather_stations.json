@@ -43,7 +43,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Meters (m)"
+                "labelString": "Metres (m)"
               }
             }]
           }
