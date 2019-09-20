@@ -11,7 +11,7 @@
   "links": [
     {
       "link_component_id": 600,
-      "link_title": "Source Links",
+      "link_title": "Source links",
       "component_type_code": "links",
       "display_order": 200,
       "link_pattern": "http://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId={0}",
