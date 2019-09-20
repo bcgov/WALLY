@@ -37,7 +37,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Location Name"
+                "labelString": "Location name"
               }
             }],
             "yAxes": [{
