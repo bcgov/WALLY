@@ -7,6 +7,7 @@ export default {
   },
   actions: {
     downloadFeatureReport ({ commit }, payload) {
+      // note: the null here is for the "record" option of the ApiService.get method.
       ApiService.get(reportingServiceURL + '/featureReport?' + qs.stringify(payload), null, { responseType: 'arraybuffer' })
         .then((res) => {
           console.log(res)
@@ -14,7 +15,12 @@ export default {
           let link = document.createElement('a')
           link.href = window.URL.createObjectURL(blob)
           link.download = 'WaterReport.pdf'
+          document.body.appendChild(link)
           link.click()
+          setTimeout(() => {
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(link.href)
+          }, 0)
         }).catch((error) => {
           console.log(error)
         })

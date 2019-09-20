@@ -30,7 +30,8 @@ export default {
       'dataMartFeatureInfo',
       'allMapLayers',
       'mapLayerName',
-      'getMapLayer'
+      'getMapLayer',
+      'selectionBoundingBox'
     ]),
     items () {
       return [
@@ -72,8 +73,13 @@ export default {
     createReportFromSelection () {
       this.$store.dispatch('downloadFeatureReport',
         {
-          bbox: [],
-          layers: ['asdf', 'asdf']
+          bbox: this.selectionBoundingBox,
+          layers: this.dataMartFeatures.map((feature) => {
+            // return the layer names from the active data mart features as a list.
+            // there is only expected to be one key, so we could use either
+            // Object.keys(feature)[0] or call flat() on the resulting nested array.
+            return Object.keys(feature)
+          }).flat()
         }
       )
     },
