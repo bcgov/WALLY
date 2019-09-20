@@ -43,7 +43,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Meters Squared (m2)"
+                "labelString": "Square metres (m2)"
               }
             }]
           }
