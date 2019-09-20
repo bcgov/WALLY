@@ -58,7 +58,15 @@
               color="blue"
               class="float-right mt-3"
             >
-              Download PDF <v-icon>cloud_download</v-icon>
+              Download PDF
+              <v-icon class="ml-1" v-if="!reportLoading">cloud_download</v-icon>
+              <v-progress-circular
+                v-if="reportLoading"
+                indeterminate
+                size=24
+                class="ml-1"
+                color="primary"
+              ></v-progress-circular>
             </v-btn>
           <v-list>
             <v-subheader>Selected points

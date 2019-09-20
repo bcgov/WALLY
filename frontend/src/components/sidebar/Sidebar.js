@@ -19,7 +19,8 @@ export default {
       ],
       drawer: true,
       mini: true,
-      subHeading: ''
+      subHeading: '',
+      reportLoading: false
     }
   },
   computed: {
@@ -71,6 +72,7 @@ export default {
       }
     },
     createReportFromSelection () {
+      this.reportLoading = true
       this.$store.dispatch('downloadFeatureReport',
         {
           bbox: this.selectionBoundingBox,
@@ -81,7 +83,11 @@ export default {
             return Object.keys(feature)
           }).flat()
         }
-      )
+      ).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.reportLoading = false
+      })
     },
     handleFeatureItemClick (item) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
