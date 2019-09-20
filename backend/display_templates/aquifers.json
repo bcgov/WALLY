@@ -79,7 +79,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Aquifer Name"
+                "labelString": "Aquifer name"
               }
             }],
             "yAxes": [{
