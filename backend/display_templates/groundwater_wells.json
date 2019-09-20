@@ -37,7 +37,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Well Tag No."
+                "labelString": "Well tag number"
               }
             }],
             "yAxes": [{
