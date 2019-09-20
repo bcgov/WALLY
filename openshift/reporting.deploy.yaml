@@ -78,6 +78,9 @@ objects:
                 docker-registry.default.svc:5000/${NAMESPACE}/wally-reporting:${NAME}
               imagePullPolicy: Always
               name: wally-reporting
+              envFrom:
+                - secretRef:
+                    name: mapbox-access-token
               ports:
                 - containerPort: 3000
                   protocol: TCP
