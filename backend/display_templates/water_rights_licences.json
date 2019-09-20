@@ -38,7 +38,7 @@
               "scaleLabel": {
                 "display": true,
                 "fontStyle": "bold",
-                "labelString": "Licence Number"
+                "labelString": "Licence number"
               }
             }],
             "yAxes": [{
