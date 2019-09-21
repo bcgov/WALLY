@@ -32,30 +32,5 @@
     .mapboxgl-ctrl-geocoder {
         width: 48rem!important;
     }
-
-    .legend {
-      background-color: #fff;
-      border-radius: 3px;
-      bottom: 30px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
-      padding: 10px;
-      position: absolute;
-      right: 10px;
-      z-index: 3;
-    }
-
-    .legend h4 {
-      margin: 0 0 10px;
-    }
-
-    .legend div span {
-      border-radius: 50%;
-      display: inline-block;
-      height: 10px;
-      margin-right: 5px;
-      width: 10px;
-    }
-
 </style>
 <script src="./Map.js"></script>
