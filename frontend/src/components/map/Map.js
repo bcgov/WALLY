@@ -54,10 +54,11 @@ export default {
     ])
   },
   methods: {
-    initMap () {
-      // temporary read token with limited scope (reading layers) just for
-      // testing.
-      mapboxgl.accessToken = `pk.eyJ1IjoiaWl0LXdhdGVyIiwiYSI6ImNrMHI2NjlibTAyODkzbW93Y3R3amd4bTkifQ.rve1IbrClbRJotzQ5-m_8Q`
+    async initMap () {
+      // temporary public token with limited scope (reading layers) just for testing.
+
+      const mapConfig = await ApiService.get('api/v1/map-config')
+      mapboxgl.accessToken = mapConfig.data.mapbox_token
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
