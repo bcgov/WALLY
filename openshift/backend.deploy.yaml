@@ -92,6 +92,11 @@ objects:
       spec:
         containers:
         - env:
+          - name: MAPBOX_ACCESS_TOKEN
+            valueFrom:
+              secretKeyRef:
+                key: MAPBOX_ACCESS_TOKEN
+                name: mapbox-access-token
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
