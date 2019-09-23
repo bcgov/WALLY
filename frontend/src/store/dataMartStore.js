@@ -5,6 +5,7 @@ export default {
   state: {
     activeDataMarts: [],
     displayTemplates: [],
+    selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [] // selected points
   },
@@ -74,6 +75,7 @@ export default {
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
+    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
     addDataMart (state, payload) {
       state.activeDataMarts.push(payload)
       EventBus.$emit(`dataMart:added`, payload)
@@ -89,6 +91,7 @@ export default {
     displayTemplates: state => state.displayTemplates,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
+    selectionBoundingBox: state => state.selectionBoundingBox,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
     allDataMarts: () => [] // ideally grab these from the meta data api
