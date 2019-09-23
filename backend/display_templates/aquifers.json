@@ -26,6 +26,27 @@
               "borderColor": "",
               "borderWidth": ""
           }]
+        },
+        "options": {
+          "legend": {
+            "display": false
+          },
+          "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Aquifer name"
+              }
+            }],
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Square metres (m2)"
+              }
+            }]
+          }
         }
       }
     },
@@ -48,6 +69,27 @@
               "borderColor": "",
               "borderWidth": ""
           }]
+        },
+        "options": {
+          "legend": {
+            "display": false
+          },
+          "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Aquifer name"
+              }
+            }],
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Rank value"
+              }
+            }]
+          }
         }
       }
     }],
@@ -59,6 +101,7 @@
       "display_order": 300,
       "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/aquifers/{0}",
       "link_pattern_keys": ["AQ_TAG"],
+      "link_label_key": "AQUIFER_NAME",
       "display_template_id": 9
     }
   ],

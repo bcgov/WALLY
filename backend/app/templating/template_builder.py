@@ -101,7 +101,7 @@ def default_builder(template, features):
             data = link_data(link_component.link_pattern_keys, feature.properties)
             if data is not None:
                 link_group["links"].append({
-                    "label": feature.properties[link_component.link_pattern_keys[0]],
+                    "label": feature.properties[link_component.link_label_key],
                     "link": link_component.link_pattern.format(*data)
                 })
 

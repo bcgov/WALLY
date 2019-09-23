@@ -1,12 +1,13 @@
 <template>
   <div class="links">
-    <h1 style="margin-bottom: 5px">
+    <h1 class="mb-4">
       {{this.title}}
     </h1>
     <v-card v-for="(item, i) in links" :key="i" min-width="400" class="component">
-      <v-card-title>
-        <span v-if="item && item">Link to Source: <a :href="item.link" :alt="item.label">{{item.label}}</a></span>
-      </v-card-title>
+      <v-card-text>
+        <span v-if="item && item.link && item.label"><a :href="item.link" :alt="item.label">{{item.label}}</a></span>
+        <span v-else-if="!item.label || item.label==''"><a :href="item.link" :alt="item.link">{{item.link}}</a></span>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -18,7 +19,8 @@ export default {
   },
   data () {
     return {
-      links: Array
+      links: Array,
+      title: String
     }
   },
   mounted () {
