@@ -1,17 +1,12 @@
 <template>
     <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
-      <div v-for="(legendItems, layer) in legend" v-bind:key="layer">
-<!--        <div v-if="legendItems.length > 1">-->
-          <h2 v-if="legendItems.length > 1">{{layer}}</h2>
-          <div v-for="item in legendItems" v-bind:key="item.text">
+      <div v-for="layer in legend" v-bind:key="layer">
+          <h4 v-if="layer.plenty">{{layer.name}}</h4>
+          <div v-for="item in layer.legendItems" v-bind:key="item.text" v-bind:class="layer.className">
             <v-icon :color="item.color" :size="item.iconSize">{{item.icon}}</v-icon>
-            <span v-if="legendItems.length > 1">{{item.text}}</span>
-            <span v-else>{{layer}}</span>
+            <span v-if="layer.plenty">{{item.text}}</span>
+            <span v-else>{{layer.name}}</span>
           </div>
-<!--        <div v-else>-->
-<!--          <v-icon :color="legendItems[0].color" :size="legendItems[0].iconSize">{{legendItems[0].icon}}</v-icon>-->
-<!--          {{layer}}-->
-<!--        </div>-->
       </div>
     </div>
 </template>
@@ -29,7 +24,9 @@
   }
 
   .legend h4 {
-    margin: 0 0 10px;
+    margin: 10px 0 0 0;
+    font-weight: normal;
+    font-style: italic;
   }
 
   .legend div span {
@@ -42,6 +39,10 @@
 
   .legend .v-icon {
     width: 20px;
+  }
+
+  .legend .grouped {
+    margin-left: 20px;
   }
 </style>
 <script src="./MapLegend.js"></script>

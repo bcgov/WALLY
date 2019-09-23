@@ -4,13 +4,13 @@ export default {
   name: 'MapLegend',
   data () {
     return {
-      legend: {}
+      legend: []
     }
   },
   props: ['map'],
   methods: {
     processLayers (layers) {
-      this.legend = {}
+      this.legend = []
       layers.forEach(layer => {
         const layerID = layer.display_data_name
         let mapLayerType, mapLayerPaint, legendItems
@@ -22,9 +22,16 @@ export default {
           } else {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
             legendItems = this.getLegendItems(mapLayerPaint, mapLayerType)
-            this.$set(this.legend, layer.display_name, legendItems)
+            const layerLegend = {
+              name: layer.display_name,
+              legendItems,
+              'plenty': (legendItems.length > 1),
+              'className': (legendItems.length > 1) && 'grouped'
+            }
+            this.legend.push(layerLegend)
           }
         } catch (err) {
+          // TODO: Log error
           console.log('Something happened', err)
         }
       })
