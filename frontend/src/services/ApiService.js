@@ -41,8 +41,8 @@ const ApiService = {
   query (resource, params, options) {
     return axios.get(resource, { ...options, params: params })
   },
-  get (resource, record) {
-    return axios.get(`${resource}/${record}`)
+  get (resource, record, config) {
+    return axios.get(`${resource}${record ? '/' + record : ''}`, config)
   },
   getApi (resource) {
     return axios.get(this.baseURL + resource)
