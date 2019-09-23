@@ -68,14 +68,14 @@ class Aquifer extends React.Component {
     }
 
     render() {
-        const aquifers = this.props.aquifers.geojson.features
+        const aquifers = this.props.aquifers.geojson.features || []
         return (
 
-            <View style={styles.section}>
+            <View wrap style={styles.section}>
                 <Text>Aquifers</Text>
                 {/* temporary filter for demo purposes. */}
-                {aquifers.filter((a) => a.properties.AQNAME !== '49 IIIB (9)').map((a, i) => (
-                <View key={i} style={styles.container}>
+                {aquifers.map((a, i) => (
+                <View key={i} wrap={false} style={styles.container}>
                     <View style={styles.row}>
                         <View style={styles.col}>
                             <Text style={styles.header}>
@@ -112,17 +112,17 @@ class Aquifer extends React.Component {
                                 Classification code: {a.properties.CLASSIFICATION_CODE}
                             </Text>
                             <Text style={styles.text}>
-                            Groundwater wells in this aquifer: 91
+                            Groundwater wells in this aquifer:
                             <Link src={'https://apps.nrs.gov.bc.ca/gwells/?match_any=false&search=&well=&aquifer=' + + parseInt(a.properties.AQ_TAG)}>
                                 (View)
                             </Link>
                             </Text>
                         </View>
                         <View style={styles.col}>
-                            <Image style={styles.aqImg} src={this.props.map}></Image>
+                            {/* <Image style={styles.aqImg} src={this.props.map}></Image> */}
                         </View>
                     </View>                    
-                    <Image src={this.props.chart} style={styles.chart}/>
+                    {/* <Image src={this.props.chart} style={styles.chart}/> */}
                     <Text style={styles.text}>
                         Source:
                         <Link style={styles.link} src={'https://apps.nrs.gov.bc.ca/gwells/aquifers/' + parseInt(a.properties.AQ_TAG)}>
