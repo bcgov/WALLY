@@ -268,8 +268,10 @@ export default {
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
+      // note: this is what might break if extending the selection tools to draw more objects.
       const bounds = bbox(feature.features[0])
       this.getMapObjects(bounds)
+      this.$store.commit('setSelectionBoundingBox', bounds)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)

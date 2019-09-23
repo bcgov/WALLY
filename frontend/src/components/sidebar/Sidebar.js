@@ -19,7 +19,8 @@ export default {
       ],
       drawer: true,
       mini: true,
-      subHeading: ''
+      subHeading: '',
+      reportLoading: false
     }
   },
   computed: {
@@ -30,7 +31,8 @@ export default {
       'dataMartFeatureInfo',
       'allMapLayers',
       'mapLayerName',
-      'getMapLayer'
+      'getMapLayer',
+      'selectionBoundingBox'
     ]),
     layers () {
       return [
@@ -66,12 +68,22 @@ export default {
       }
     },
     createReportFromSelection () {
-      if (this.active_tab === 1) {
-        this.$store.dispatch('downloadLayersReport', this.dataMartFeatures)
-      } else if (this.active_tab === 2) {
-        this.$store.dispatch('downloadFeatureReport',
-          { featureName: this.getMapSubheading(this.dataMartFeatureInfo.display_data_name), ...this.dataMartFeatureInfo })
-      }
+      this.reportLoading = true
+      this.$store.dispatch('downloadFeatureReport',
+        {
+          bbox: this.selectionBoundingBox,
+          layers: this.dataMartFeatures.map((feature) => {
+            // return the layer names from the active data mart features as a list.
+            // there is only expected to be one key, so we could use either
+            // Object.keys(feature)[0] or call flat() on the resulting nested array.
+            return Object.keys(feature)
+          }).flat()
+        }
+      ).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.reportLoading = false
+      })
     },
     handleFeatureItemClick (item, displayName) {
       // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
