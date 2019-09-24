@@ -50,8 +50,27 @@
 
       <v-tab-item>
         <v-card class="mx-auto elevation-0">
+          <v-card-text>
+            <v-btn
+              v-if="dataMartFeatures && dataMartFeatures.length"
+              dark
+              @click="createReportFromSelection"
+              color="blue"
+              class="float-right mt-3"
+            >
+              Download PDF
+              <v-icon class="ml-1" v-if="!reportLoading">cloud_download</v-icon>
+              <v-progress-circular
+                v-if="reportLoading"
+                indeterminate
+                size=24
+                class="ml-1"
+                color="primary"
+              ></v-progress-circular>
+            </v-btn>
           <v-list>
-            <v-subheader>Selected points</v-subheader>
+            <v-subheader>Selected points
+            </v-subheader>
             <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${index}`">
               <v-list-group v-for="(value, name, j) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="~j">
                 <template v-slot:activator>
@@ -72,6 +91,8 @@
               </v-list-group>
             </div>
           </v-list>
+          </v-card-text>
+
         </v-card>
       </v-tab-item>
 
@@ -96,19 +117,6 @@
             </template>
           </v-list>
         </v-card>
-        <!-- <v-btn
-          absolute
-          dark
-          fab
-          top
-          right
-          small
-          @click="createReportFromSelection"
-          color="blue"
-          style="margin-top: 28px"
-        >
-          <v-icon>cloud_download</v-icon>
-        </v-btn> -->
       </v-tab-item>
     </v-tabs>
 

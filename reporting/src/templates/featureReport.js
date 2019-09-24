@@ -13,9 +13,10 @@ import querystring from 'querystring'
 
 import Aquifer from './components/Aquifer'
 import ReportSummary from './components/Summary'
+import GenericDatasheet from './components/GenericDatasheet'
 import Hydat from './components/Hydat'
 import font from '../assets/MyriadWebPro.ttf'
-import mapData from './mapData'
+import strings from './mapData'
 
 Font.register({
     family: 'MyriadWebPro',
@@ -38,10 +39,8 @@ const generateFeatureReport = async (data) => {
 
     // default layers that should always be included.
     const defaultLayers = [
-        mapData.WMS_WATERSHEDS,
-        mapData.WMS_AQUIFERS,
-        mapData.WMS_WATER_RIGHTS_LICENCES,
-        mapData.WMS_GROUNDWATER_LICENCES
+        strings.aquifers,
+        strings.water_rights_licences
     ]
 
     // add in default layers before making request
@@ -85,35 +84,42 @@ const generateFeatureReport = async (data) => {
 
     // "sample" images for aquifers and stream stations.
     // we may not need to generate separate images for every object.
-    const aqImg = await mb.staticPNG([-122.9101,49.3165],12, 300, 300)
-    const streamImg = await mb.staticPNG([-122.8737,49.3035],14, 300, 300)
-
+    // const aqImg = await mb.staticPNG([-122.9101,49.3165],12, 300, 300)
+    // const streamImg = await mb.staticPNG([-122.8737,49.3035],14, 300, 300)
+    // props['aqImg'] = aqImg
+    // props['streamImg'] = streamImg
+    
     props['map'] =  mapImage
-    props['aqImg'] = aqImg
-    props['streamImg'] = streamImg
+
 
 
     // dynamic charts are not yet implemented.
     // these charts render sample data.
-    props['chart1'] = await createChart('bar', exampleData, {
-        xLabels: exampleDataLabels,
-        ylabel: 'Licensed volume by licence (m3/year)',
-        title: 'Annual licensed volume (m3/year)',
-        suffix: 'm3'
-    }, 400, 300)
-    props['chart2'] = await createChart('line', exampleData2, {
-        xLabels: shortMonthNames,
-        ylabel: 'Stream Level (m)',
-        title: 'Stream Levels 1997-2018 (Average) (m)',
-        suffix: 'm'
-    })
+    // props['chart1'] = await createChart('bar', exampleData, {
+    //     xLabels: exampleDataLabels,
+    //     ylabel: 'Licensed volume by licence (m3/year)',
+    //     title: 'Annual licensed volume (m3/year)',
+    //     suffix: 'm3'
+    // }, 400, 300)
+    // props['chart2'] = await createChart('line', exampleData2, {
+    //     xLabels: shortMonthNames,
+    //     ylabel: 'Stream Level (m)',
+    //     title: 'Stream Levels 1997-2018 (Average) (m)',
+    //     suffix: 'm'
+    // })
+
+    const catalogue = await axios.get(
+        `http://${host}/api/v1/catalogue`
+    )
+    props['catalogue'] = catalogue.data
+
     return await renderReact(FeatureReport, props)
 }
 
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'column',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
     },
     Title: {
         fontFamily: 'MyriadWebPro',
@@ -158,11 +164,21 @@ class FeatureReport extends React.Component {
     }
 
     render() {
-        const sections = this.props.data
+        const sections = this.props.data.display_data
         const createDate = Date()
-        const aquifers = sections.find(s => s.layer === mapData.WMS_AQUIFERS)
-        const hydat = sections.find(s => s.layer === mapData.HYDAT)
-        console.log(hydat)
+
+        // as we develop custom feature components, break the feature data out to process separately.
+        let featureData = {}
+        featureData[strings.aquifers] = sections.find(s => s.layer === strings.aquifers)
+        featureData[strings.HYDAT] = sections.find(s => s.layer === strings.HYDAT)
+
+        // make a list of any additional layers that we haven't pulled out.
+        const extraSections = sections.filter(s => {
+            return !featureData[s.layer]
+        })
+
+
+
         return (
             <Document title="Water Allocation Report">
                 {/* Header and report summary */}
@@ -179,16 +195,38 @@ class FeatureReport extends React.Component {
                 </Page>
 
                 {/* Aquifer section */}
-                <Page size="LETTER" wrap style={styles.container}>
-                    <Aquifer aquifers={aquifers} chart={this.props.chart1} map={this.props.aqImg}></Aquifer>
-                </Page>
+                {featureData[strings.aquifers].geojson &&
+                    featureData[strings.aquifers].geojson.features &&
+                    <Page size="LETTER" wrap style={styles.container}>
+                        <Aquifer
+                            aquifers={featureData[strings.aquifers]}
+                        ></Aquifer>
+                    </Page>
+                }
 
                 {/* Hydrometric data section */}
-                {hydat && hydat.geojson && hydat.geojson.features &&
-                <Page size="LETTER" wrap style={styles.container}>
-                    <Hydat data={hydat} chart={this.props.chart2} map={this.props.streamImg}></Hydat>
-                </Page>
+                {featureData[strings.HYDAT] &&
+                    featureData[strings.HYDAT].geojson &&
+                    featureData[strings.HYDAT].geojson.features &&
+                    <Page size="LETTER" wrap style={styles.container}>
+                        <Hydat
+                            data={featureData[strings.HYDAT]}
+                        ></Hydat>
+                    </Page>
                 }
+                
+                {/* All other data that doesn't have custom components will be displayed in list format. */}
+                {extraSections.map((s, i) => (
+                <Page size="LETTER" wrap style={styles.container} key={i}>
+                    <GenericDatasheet
+                        wrap
+                        data={s}
+                        highlightFields={this.props.catalogue.find(l => l.display_data_name === s.layer)
+                            .highlight_columns}
+                    ></GenericDatasheet>
+                </Page>
+                ))}
+
 
             </Document>
         );

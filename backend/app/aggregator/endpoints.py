@@ -14,6 +14,7 @@ from app.layers.water_rights_licences import WaterRightsLicenses
 from app.layers.ground_water_wells import GroundWaterWells
 from app.layers.bc_major_watersheds import BcMajorWatersheds
 from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
+from app.layers.ground_water_aquifers import GroundWaterAquifers
 
 
 import app.hydat.models as streams_v1
@@ -40,6 +41,7 @@ API_DATASOURCES = {
     "groundwater_wells": GroundWaterWells.get_as_geojson,
     # "bc_major_watersheds": BcMajorWatersheds.get_as_geojson,
     "ecocat_water_related_reports": EcocatWaterRelatedReports.get_as_geojson,
+    "aquifers": GroundWaterAquifers.get_as_geojson
 }
 
 

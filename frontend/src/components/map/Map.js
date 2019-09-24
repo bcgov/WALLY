@@ -56,13 +56,15 @@ export default {
     ])
   },
   methods: {
-    initMap () {
+    async initMap () {
       // temporary public token with limited scope (reading layers) just for testing.
-      mapboxgl.accessToken = `pk.eyJ1Ijoic3RlcGhlbmhpbGxpZXIiLCJhIjoiY2p6encxamxnMjJldjNjbWxweGthcHFneCJ9.y5h99E-kHzFQ7hywIavY-w`
+
+      const mapConfig = await ApiService.get('api/v1/map-config')
+      mapboxgl.accessToken = mapConfig.data.mapbox_token
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/stephenhillier/cjzydtam02lbd1cld4jbkqlhy', // stylesheet location
+        style: 'mapbox://styles/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2', // stylesheet location
         center: [-124, 54.5], // starting position
         zoom: 4.7 // starting zoom
       })
@@ -266,8 +268,10 @@ export default {
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
+      // note: this is what might break if extending the selection tools to draw more objects.
       const bounds = bbox(feature.features[0])
       this.getMapObjects(bounds)
+      this.$store.commit('setSelectionBoundingBox', bounds)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)

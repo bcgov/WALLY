@@ -26,6 +26,27 @@
               "borderColor": "",
               "borderWidth": ""
           }]
+        },
+        "options": {
+          "legend": {
+            "display": false
+          },
+          "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Name"
+              }
+            }],
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Magnitude"
+              }
+            }]
+          }
         }
       }
     }],

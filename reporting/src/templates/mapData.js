@@ -3,7 +3,10 @@ const mapData = {
   WMS_WATER_RIGHTS_LICENCES: 'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV',
   WMS_GROUNDWATER_LICENCES: 'WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
   WMS_WATERSHEDS: 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY',
-  HYDAT: 'HYDAT'
+  HYDAT: 'hydrometric_stream_flow',
+  aquifers: 'aquifers',
+  water_rights_licences: 'water_rights_licences'
+
 };
 
 export default mapData;
