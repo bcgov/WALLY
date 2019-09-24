@@ -29,9 +29,14 @@ const generateFeatureReport = async (data) => {
     let props = {}
 
     const bbox = data.bbox
-    const layers = data.layers || []
+    const layers = []
 
-
+    // get request with only one layer comes in as string, not array, so we check here
+    if(typeof(data.layers) === 'string') {
+        layers.push(data.layers)
+    } else {
+        layers = data.layers
+    }
 
     if (!bbox || !bbox.length || bbox.length !== 4) {
         throw "bbox must be a list of 4 numbers representing corners of a bounding box, e.g. x1,y1,x2,y2"
