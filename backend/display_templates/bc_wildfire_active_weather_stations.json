@@ -28,11 +28,22 @@
           }]
         },
         "options": {
+          "legend": {
+            "display": false
+          },
           "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Station name"
+              }
+            }],
             "yAxes": [{
               "scaleLabel": {
                 "display": true,
-                "labelString": "Meters(m)"
+                "fontStyle": "bold",
+                "labelString": "Metres (m)"
               }
             }]
           }
