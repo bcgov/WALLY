@@ -18,7 +18,7 @@
       <v-tab-item>
         <v-list dense>
           <v-list-group
-            v-for="item in items"
+            v-for="item in layers"
             :key="item.title"
             v-model="item.active"
             :prepend-icon="item.action"

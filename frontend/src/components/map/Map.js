@@ -1,11 +1,8 @@
-import L from 'leaflet'
-import 'leaflet-lasso'
-import 'leaflet-fullscreen/dist/Leaflet.fullscreen.min.js'
+import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
 import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
-
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
@@ -17,7 +14,8 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
 export default {
-  name: 'WallyMap',
+  name: 'Map',
+  components: { MapLegend },
   mounted () {
     this.initMap()
     EventBus.$on('layer:added', this.handleAddWMSLayer)
@@ -41,8 +39,8 @@ export default {
     return {
       map: null,
       // legendControlContent: null,
-      activeLayerGroup: L.layerGroup(),
-      markerLayerGroup: L.layerGroup(),
+      // activeLayerGroup: L.layerGroup(),
+      // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
       draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
     }
@@ -126,7 +124,7 @@ export default {
           this.map.on('mouseenter', vector, this.setCursorPointer)
           this.map.on('mouseleave', vector, this.resetCursor)
         } else if (layer['wms_name']) {
-          console.log('adding wms layer ', layers[i].display_data_name)
+          // console.log('adding wms layer ', layers[i].display_data_name)
           this.addWMSLayer(layer)
         } else if (layer['geojson']) {
           this.addGeoJSONLayer(layer)
@@ -138,7 +136,6 @@ export default {
       console.log(results.data)
       return results.data
     },
-
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
       if (p) {
@@ -149,7 +146,6 @@ export default {
       }
     },
     handleAddWMSLayer (displayDataName) {
-      console.log(displayDataName)
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
@@ -184,11 +180,11 @@ export default {
         return
       }
 
-      this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
-        onEachFeature: function (feature, layer) {
-          layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
-        }
-      })
+      // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
+      //   onEachFeature: function (feature, layer) {
+      //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
+      //   }
+      // })
       this.activeLayers[layer.display_data_name].addTo(this.map)
     },
     addWMSLayer (layer) {
@@ -226,10 +222,9 @@ export default {
             url
           ],
           'tileSize': 256
-        },
-        'paint': {}
+        }
       }
-      this.activeLayers[layerID] = newLayer
+
       this.map.addLayer(newLayer, 'groundwater_wells')
     },
     removeLayer (layer) {
@@ -238,24 +233,29 @@ export default {
         return
       }
       this.map.removeLayer(layer.id)
+      // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    // getLegendControl () {
-    //   const self = this
-    //   return new (L.Control.extend({
-    //     options: {
-    //       position: 'bottomright'
-    //     },
-    //     onAdd (map) {
-    //       const container = L.DomUtil.create('div', 'leaflet-control-legend')
-    //       const content = L.DomUtil.create('div', 'leaflet-control-legend-content')
-    //       self.legendControlContent = content
-    //       content.innerHTML = `<div class="m-1">Legend</div>`
-    //       container.appendChild(content)
-    //       return container
-    //     }
-    //   }))()
-    // },
+    addWMSLegendGraphic (layername, style) {
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetLegendGraphic',
+        format: 'image/png',
+        layer: 'pub:' + layername,
+        style: style,
+        transparent: true,
+        name: layername,
+        height: 20,
+        width: 20,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query
+      this.legendGraphics[layerID] = url
+
+    },
     replaceOldFeatures (newFeature) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.

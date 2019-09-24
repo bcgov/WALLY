@@ -34,7 +34,7 @@ export default {
       'getMapLayer',
       'selectionBoundingBox'
     ]),
-    items () {
+    layers () {
       return [
         {
           title: 'Layers',
@@ -50,12 +50,8 @@ export default {
     setTabById (id) {
       this.active_tab = id
     },
-    handleSelectLayer (id, type, resource) {
-      if (type === metadataUtils.API_DATAMART) {
-        this.updateDataLayer(id, resource)
-      } else {
-        this.updateMapLayer(id)
-      }
+    handleSelectLayer (id) {
+      this.updateMapLayer(id)
     },
     updateMapLayer (id) {
       if (this.isMapLayerActive(id)) {
