@@ -28,6 +28,27 @@
             "borderColor": "#228b22",
             "borderWidth": "1"
           }]
+        },
+        "options": {
+          "legend": {
+            "display": false
+          },
+          "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Licence number"
+              }
+            }],
+            "yAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Water volume (m3)"
+              }
+            }]
+          }
         }
       }
     }

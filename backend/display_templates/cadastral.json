@@ -28,11 +28,22 @@
           }]
         },
         "options": {
+          "legend": {
+            "display": false
+          },
           "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Parcel name"
+              }
+            }],
             "yAxes": [{
               "scaleLabel": {
                 "display": true,
-                "labelString": "(m2)"
+                "fontStyle": "bold",
+                "labelString": "Square metres (m2)"
               }
             }]
           }
