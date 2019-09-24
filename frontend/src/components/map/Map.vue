@@ -1,7 +1,8 @@
 <template>
-    <div>
-        <div id="map" class="map"></div>
-    </div>
+  <div>
+    <div id="map" class="map"></div>
+    <MapLegend :map="map"></MapLegend>
+  </div>
 </template>
 <style>
     @import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
@@ -31,6 +32,5 @@
     .mapboxgl-ctrl-geocoder {
         width: 48rem!important;
     }
-
 </style>
 <script src="./Map.js"></script>
