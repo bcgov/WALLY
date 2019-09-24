@@ -120,19 +120,12 @@ export default {
       for (let i = 0; i < layers.length; i++) {
         const layer = layers[i]
 
-        // layers are either vector, WMS, or geojson.
-        // they are loading differently depending on the type.
-        if (layer['vector_name']) {
-          const vector = layer['vector_name']
+        // All layers are now vector based sourced from mapbox
+        // so we don't need to check for layer type anymore
+          const vector = layer['display_data_name']
           this.map.on('click', vector, this.setSingleFeature)
           this.map.on('mouseenter', vector, this.setCursorPointer)
           this.map.on('mouseleave', vector, this.resetCursor)
-        } else if (layer['wms_name']) {
-          console.log('adding wms layer ', layers[i].display_data_name)
-          this.addWMSLayer(layer)
-        } else if (layer['geojson']) {
-          this.addGeoJSONLayer(layer)
-        }
       }
     },
     async searchWallyAPI () {
@@ -288,13 +281,13 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      const id = e.features[0].layer.id
+      const layerId = e.features[0].layer.id
       const coordinates = e.features[0].geometry.coordinates.slice()
       const properties = e.features[0].properties
 
       this.$store.commit('setDataMartFeatureInfo',
         {
-          display_data_name: id,
+          display_data_name: layerId,
           coordinates: coordinates,
           properties: properties
         })

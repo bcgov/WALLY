@@ -11,6 +11,9 @@ import app.hydat.db as streams_repo
 import app.layers.water_rights_licences as water_rights_licences_repo
 import app.layers.ground_water_wells as ground_water_wells_repo
 from app.layers.water_rights_licences import WaterRightsLicenses
+from app.layers.automated_snow_weather_station_locations import AutomatedSnowWeatherStationLocations
+from app.layers.bc_wildfire_active_weather_stations import BcWildfireActiveWeatherStations
+from app.layers.critical_habitat_species_at_risk import CriticalHabitatSpeciesAtRisk
 from app.layers.ground_water_wells import GroundWaterWells
 from app.layers.bc_major_watersheds import BcMajorWatersheds
 from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
@@ -36,12 +39,15 @@ router = APIRouter()
 # For example:  get_stations_as_geojson(db: Session, bbox: List[float])
 API_DATASOURCES = {
     "HYDAT": streams_repo.get_stations_as_geojson,
-    "hydrometric_stream_flow": streams_repo.get_stations_as_geojson,
-    "water_rights_licences": WaterRightsLicenses.get_as_geojson,
-    "groundwater_wells": GroundWaterWells.get_as_geojson,
-    # "bc_major_watersheds": BcMajorWatersheds.get_as_geojson,
+    "aquifers": GroundWaterAquifers.get_as_geojson,
+    "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations.get_as_geojson,
+    # "bc_major_watersheds": BcMajorWatersheds.get_as_geojson, # Too big to query, let wms server query it
+    "bc_wildfire_active_weather_stations": BcWildfireActiveWeatherStations.get_as_geojson,
+    "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk.get_as_geojson,
     "ecocat_water_related_reports": EcocatWaterRelatedReports.get_as_geojson,
-    "aquifers": GroundWaterAquifers.get_as_geojson
+    "groundwater_wells": GroundWaterWells.get_as_geojson,
+    "hydrometric_stream_flow": streams_repo.get_stations_as_geojson,
+    "water_rights_licences": WaterRightsLicenses.get_as_geojson
 }
 
 
