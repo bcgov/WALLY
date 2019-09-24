@@ -59,6 +59,8 @@ export default {
     async initMap () {
       // temporary public token with limited scope (reading layers) just for testing.
 
+      // const mapConfig = "pk.eyJ1IjoiaWl0LXdhdGVyIiwiYSI6ImNrMHBrZzczZjBlZ2UzZG54NTZldTRtdmUifQ.70prUCk1zBMUFnqfDSywYg"
+      // mapboxgl.accessToken = mapConfig
       const mapConfig = await ApiService.get('api/v1/map-config')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
@@ -286,7 +288,7 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      const id = e.features[0].id
+      const id = e.features[0].layer.id
       const coordinates = e.features[0].geometry.coordinates.slice()
       const properties = e.features[0].properties
 
