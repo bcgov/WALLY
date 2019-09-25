@@ -103,7 +103,7 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
         }
 
-        location /reporting {
+        location /reports {
             proxy_pass http://${WALLY_REPORTING_SERVICE}:3000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
