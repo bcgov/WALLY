@@ -1,7 +1,7 @@
 import React from 'react'
 import fs from 'fs';
 import colors from '../../styles/colors'
-import logo from '../../assets/BCID_H_rgb_rev.png'
+import logo from '../../assets/BCID_H_rgb_pos.jpg'
 import {
     Image, StyleSheet, Text, View,
 } from '../../app'
@@ -9,10 +9,10 @@ import {
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
-        borderBottomWidth: 2,
-        borderBottomColor: colors.yellow,
+        borderBottomWidth: 0,
+        borderBottomColor: colors.darkGrey,
         borderBottomStyle: 'solid',
-        backgroundColor: colors.blue,
+        backgroundColor: colors.white,
         justifyContent: 'space-between',
         alignItems: 'center'
     },
@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
         fontSize: 24,
         fontFamily: 'MyriadWebPro',
         fontWeight: 'bold',
-        color: colors.white
+        color: colors.blue
     }
 });
 

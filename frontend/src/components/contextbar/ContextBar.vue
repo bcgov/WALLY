@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-slide-x-transition>
-      <v-btn  absolute dark right icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
+      <v-btn absolute dark right icon fab small color="primary" @click="toggleContextBar" v-if="!showContextBar" id="ContextButtonShow">
         <v-icon dark v-if="!showContextBar">keyboard_arrow_left</v-icon>
       </v-btn>
     </v-slide-x-transition>
@@ -37,7 +37,7 @@
 #contextBar{
   position: absolute;
   right: 0;
-  z-index: 3;
+  z-index: 4;
   height: 100%;
   overflow: scroll;
   /*min-width: 450px;*/

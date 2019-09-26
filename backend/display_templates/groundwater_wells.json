@@ -29,11 +29,22 @@
           }]
         },
         "options": {
+          "legend": {
+            "display": false
+          },
           "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Well tag number"
+              }
+            }],
             "yAxes": [{
               "scaleLabel": {
                 "display": true,
-                "labelString": "US gpm"
+                "fontStyle": "bold",
+                "labelString": "US-GPM"
               }
             }]
           }
@@ -61,11 +72,22 @@
           }]
         },
         "options": {
+          "legend": {
+            "display": false
+          },
           "scales": {
+            "xAxes": [{
+              "scaleLabel": {
+                "display": true,
+                "fontStyle": "bold",
+                "labelString": "Well use"
+              }
+            }],
             "yAxes": [{
               "scaleLabel": {
                 "display": true,
-                "labelString": "feet(ft)"
+                "fontStyle": "bold",
+                "labelString": "Feet (ft)"
               }
             }]
           }
@@ -78,9 +100,10 @@
       "link_component_id": 1100,
       "link_title": "Well Information",
       "component_type_code": "links",
-      "display_order": 300,
+      "display_order": 400,
       "link_pattern": "https://apps.nrs.gov.bc.ca/gwells/well/{0}",
       "link_pattern_keys": ["WELL_TAG_NUMBER"],
+      "link_label_key": "WELL_TAG_NUMBER",
       "display_template_id": 11
     }
   ],

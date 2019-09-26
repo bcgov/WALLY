@@ -51,11 +51,9 @@ const styles = StyleSheet.create({
 })
 
 class Hydat extends React.Component {
-    constructor(props) {
-        super(props)
-    }
     render() {
-        const hydat = this.props.data.geojson.features
+        const hydat = this.props.data.geojson.features || []
+
         return (
 
             <View style={styles.section}>
@@ -65,7 +63,7 @@ class Hydat extends React.Component {
                   <View style={styles.row}>
                     <View style={styles.col}>
                       <Text style={styles.title}>{h.properties.name} ({h.id})</Text>
-                      <Text style={styles.text}>Years available: 1997 - 2018</Text>
+                      {/* <Text style={styles.text}>Years available: 1997 - 2018</Text> */}
                       <Text style={styles.text}>
                         <Link style={styles.text} src="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html">
                         Source: National Water Data Archive
@@ -73,13 +71,13 @@ class Hydat extends React.Component {
                       </Text>
                     </View>
                     <View style={styles.col}>
-                      <Image src={this.props.map} style={styles.streamMap}/>
+                      {/* <Image src={this.props.map} style={styles.streamMap}/> */}
 
                     </View>
 
                   </View>
 
-                  <Image src={this.props.chart} style={styles.chart}/>
+                  {/* <Image src={this.props.chart} style={styles.chart}/> */}
                 </View>
               ))}
             </View>

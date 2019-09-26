@@ -39,7 +39,7 @@ class ReportSummary extends React.Component {
                 <Image style={styles.mapImg} src={this.props.map}></Image>
               </View>
             </View>
-            <View style={styles.row}>
+            {/* <View style={styles.row}>
               <View style={styles.col1}>
                 <Text style={styles.text}>{`
                   Number of water rights licenses: 27
@@ -54,7 +54,7 @@ class ReportSummary extends React.Component {
                 `}
                 </Text>
               </View>
-            </View>
+            </View> */}
           </View>
         );
     }

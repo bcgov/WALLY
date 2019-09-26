@@ -18,14 +18,14 @@ class MapboxAPI {
 
     async staticPNG(lnglat = [], zoom, w, h) {
 
-        const token = process.env.MAPBOX_ACCESS_KEY || ''
+        const token = process.env.MAPBOX_ACCESS_TOKEN || ''
 
         // the url needs to contain the style identifier (e.g. mapbox/streets-v1 or username/styleID),
         // and the longitude, latitude, zoom level, bearing, pitch, and image size (width and height)
         // @2x indicates that the image dimensions should be doubled, which helps with rendering quality.
         // https://docs.mapbox.com/help/glossary/static-images-api/
         const url = `
-        https://api.mapbox.com/styles/v1/stephenhillier/cjzydtam02lbd1cld4jbkqlhy/static/${lnglat[0]},${lnglat[1]},${zoom},0.00,0.00/${w}x${h}@2x?access_token=${token}
+        https://api.mapbox.com/styles/v1/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2/static/${lnglat[0]},${lnglat[1]},${zoom},0.00,0.00/${w}x${h}@2x?access_token=${token}
         `
 
         // return a promise for a PNG image buffer. This can be used with the React-PDF Image component: <Image src={buffer}></Image>
