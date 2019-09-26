@@ -99,6 +99,9 @@ export default {
           properties: item.properties
         })
     },
+    onMouseEnterListItem (feature, layerName) {
+      this.$store.commit('updateHighlightFeatureData', feature)
+    },
     humanReadable: val => humanReadable(val),
     getMapLayerItemTitle: val => {
       console.log(val)

@@ -50,7 +50,8 @@ export default {
       'allMapLayers',
       'activeMapLayers',
       'allDataMarts',
-      'activeDataMarts'
+      'activeDataMarts',
+      'highlightFeatureData'
     ])
   },
   methods: {
@@ -123,11 +124,50 @@ export default {
           this.map.on('mouseenter', vector, this.setCursorPointer)
           this.map.on('mouseleave', vector, this.resetCursor)
       }
+
+      // initialize highlight layer
+      this.map.addSource('highlightSourceData', { type: 'geojson', data: {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[-123.1323, 49.8131],[-123.2323, 49.7131],[-123.3323, 49.6131],[-123.4323, 49.5131]]
+        },
+        "properties": {
+            "title": "Mapbox DC",
+            "marker-symbol": "monument"
+        }} 
+      });
+      this.map.addLayer({
+          "id": "highlightLayer",
+          "type": "fill",
+          "source": "highlightSourceData",
+          "layout": {},
+          "paint": {
+            "fill-color": "#627BC1"
+          }
+      });
     },
     async searchWallyAPI () {
       const results = await ApiService.getApi('/geocode?q=a')
       console.log(results.data)
       return results.data
+    },
+    updateHighlightLayerData(data) {
+      if(data.geometry.type === "Point") {
+        var p = data.geometry.coordinates
+        var polygon = Array.from(
+          [[(p[0]-0.1),(p[1]-0.1)],
+          [(p[0]-0.1),(p[1]+0.1)],
+          [(p[0]+0.1),(p[1]-0.1)],
+          [(p[0]+0.1),(p[1]+0.1)]]
+        )
+        data.geometry.type = "Polygon"
+        data.geometry.coordinates = polygon
+      }
+      console.log(data)
+      var source = this.map.getSource('highlightSourceData')
+      console.log(source)
+      source.setData(data)
     },
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
@@ -297,17 +337,12 @@ export default {
       this.map.getCanvas().style.cursor = ''
     },
     ...mapActions(['getMapLayers'])
-    // listenForReset () {
-    //     this.$parent.$on('resetLayers', (data) => {
-    //         if (this.map) {
-    //             this.map.eachLayer((layer) => {
-    //                 if (layer.wmsParams && layer.wmsParams.overlay) {
-    //                     this.map.removeLayer(layer)
-    //                 }
-    //             })
-    //             this.map.setView([54.5, -126.5], 5)
-    //         }
-    //     })
-    // },
+  },
+  watch: {
+    highlightFeatureData (value) {
+      if (value && value.geometry) {
+        this.updateHighlightLayerData(value)
+      }
+    }
   }
 }

@@ -78,16 +78,30 @@
                     <v-list-item-title>{{getMapLayer(name).display_name}}</v-list-item-title>
                   </v-list-item-content>
                 </template>
-                <v-list-item>
-                  <v-list-item-content>
-                      <v-data-table
-                        :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
-                        :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
-                        :items-per-page="10"
-                        @click:row="(r) => handleFeatureItemClick(value[r.id], name)"
-                      ></v-data-table>
-                  </v-list-item-content>
-                </v-list-item>
+                  <v-list-item>
+                    <v-list-item-content>
+                        <v-data-table
+                          :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
+                          :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
+                          :items-per-page="10"
+                          @click:row="(r) => handleFeatureItemClick(value[r.id], name)"
+                        >
+                          <template v-slot:item="{ item }">
+                            <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
+                              <v-card
+                                class="px-2 py-3 mx-1 my-2"
+                                :elevation="hover ? 8 : 2"
+                                @mousedown="handleFeatureItemClick(value[item.id], name)"
+                                @mouseenter="onMouseEnterListItem(value[item.id], name)"
+                              >
+                                <span>{{ item.col1 }}</span>
+                              </v-card>
+                            </v-hover>
+                            <v-divider :key="`divider-${item.id}`"></v-divider>
+                          </template>
+                        </v-data-table>
+                    </v-list-item-content>
+                  </v-list-item>
               </v-list-group>
             </div>
           </v-list>
@@ -109,10 +123,15 @@
 
           <v-list>
             <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
-              <v-card class="pl-3 mb-2 pt-2 pb-2" :key="`item-{$value}${index}`">
-                <span><b>{{ humanReadable(name) }}: </b></span>
-                <span>{{ value }}</span>
-              </v-card>
+              <v-hover v-slot:default="{ hover }" v-bind:key="`item-{$value}${index}`">
+                <v-card
+                  class="pl-3 mb-2 pt-2 pb-2"
+                  :elevation="hover ? 12 : 2"
+                >
+                  <span><b>{{ humanReadable(name) }}: </b></span>
+                  <span>{{ value }}</span>
+                </v-card>
+              </v-hover>
               <v-divider :key="`divider-${index}`"></v-divider>
             </template>
           </v-list>
