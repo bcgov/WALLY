@@ -84,14 +84,13 @@
                           :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
                           :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
                           :items-per-page="10"
-                          @click:row="(r) => handleFeatureItemClick(value[r.id], name)"
                         >
                           <template v-slot:item="{ item }">
                             <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
                               <v-card
                                 class="px-2 py-3 mx-1 my-2"
                                 :elevation="hover ? 8 : 2"
-                                @mousedown="handleFeatureItemClick(value[item.id], name)"
+                                @mousedown="setSingleListFeature(value[item.id], name)"
                                 @mouseenter="onMouseEnterListItem(value[item.id], name)"
                               >
                                 <span>{{ item.col1 }}</span>

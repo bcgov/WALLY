@@ -7,7 +7,7 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
-import HighlightPoint from './highlightPoint'
+import HighlightPoint from './HighlightPoint'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
@@ -66,7 +66,8 @@ export default {
       'activeMapLayers',
       'allDataMarts',
       'activeDataMarts',
-      'highlightFeatureData'
+      'highlightFeatureData',
+      'dataMartFeatureInfo'
     ])
   },
   methods: {
@@ -328,16 +329,25 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      const layerId = e.features[0].layer.id
-      const coordinates = e.features[0].geometry.coordinates.slice()
-      const properties = e.features[0].properties
-
+      const feature = e.features[0]
       this.$store.commit('setDataMartFeatureInfo',
         {
-          display_data_name: layerId,
-          coordinates: coordinates,
-          properties: properties
+          type: feature.type,
+          display_data_name: feature.layer.id,
+          geometry: feature.geometry,
+          properties: feature.properties
         })
+    },
+    getPolygonCenter (arr) {
+      if(arr.length == 1) { return arr }
+      var x = arr.map (x => x[0]);
+      var y = arr.map (x => x[1]);
+      var cx = (Math.min (...x) + Math.max (...x)) / 2;
+      var cy = (Math.min (...y) + Math.max (...y)) / 2;
+      return [cx, cy];
+    },
+    getArrayDepth(value) {
+      return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0;
     },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'
@@ -350,6 +360,20 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
+        this.updateHighlightLayerData(value)
+      }
+    },
+    dataMartFeatureInfo (value) {
+      if (value && value.geometry) {
+        let coordinates = value.geometry.coordinates
+        if (value.geometry.type != "Point") {
+          let depth = this.getArrayDepth(coordinates)
+          let flattened = coordinates.flat(depth - 2)
+          coordinates = this.getPolygonCenter(flattened)
+        }
+        this.map.flyTo({
+          center: [coordinates[0], coordinates[1]]
+        })
         this.updateHighlightLayerData(value)
       }
     }
