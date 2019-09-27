@@ -3,7 +3,7 @@
       <div v-for="layer in legend" v-bind:key="layer">
           <h4 v-if="layer.plenty">{{layer.name}}</h4>
           <div v-for="item in layer.legendItems" v-bind:key="item.text" v-bind:class="layer.className">
-            <v-icon :color="item.color" :size="item.iconSize">{{item.icon}}</v-icon>
+            <v-icon :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
             <span v-if="layer.plenty">{{item.text}}</span>
             <span v-else>{{layer.name}}</span>
           </div>
