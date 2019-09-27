@@ -73,6 +73,14 @@
          "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/critical-habitat-for-federally-listed-species-at-risk-posted-",
          "filterType":"No Filter",
          "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
+         "filterValue":"",
+         "layerName":"ParcelMap BC Parcel Fabric",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/parcelmap-bc-parcel-fabric",
+         "filterType":"No Filter",
+         "pctOfMax":5
       }
    ]
 }
