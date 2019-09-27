@@ -7,11 +7,26 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
-
+import HighlightPoint from './highlightPoint'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
+
+const point = {
+  "type": "Feature",
+  "geometry": {
+      "type": "Point",
+      "coordinates": [[]]
+  }
+}
+const polygon = {
+  "type": "Feature",
+  "geometry": {
+      "type": "Polygon",
+      "coordinates": [[]]
+  }
+}
 
 export default {
   name: 'Map',
@@ -101,6 +116,30 @@ export default {
         this.getMapLayers()
       })
 
+      this.map.on('load', () => {
+        // initialize highlight layer
+        this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
+        this.map.addLayer({
+            "id": "highlightLayer",
+            "type": "fill",
+            "source": "highlightLayerData",
+            "layout": {},
+            "paint": {
+              "fill-color": "#9A3FCA"
+            }
+        })
+        this.map.addImage('highlight-point', HighlightPoint(this.map, 90), {pixelRatio: 2})
+        this.map.addSource('highlightPointData', { type: 'geojson', data: point })
+        this.map.addLayer({
+          "id": "highlightPoint",
+          "type": "symbol",
+          "source": "highlightPointData",
+          "layout": {
+            "icon-image": "highlight-point"
+          }
+        });
+      })
+
       this.listenForAreaSelect()
 
       // special handling for parcels because we may not want to have
@@ -124,28 +163,6 @@ export default {
           this.map.on('mouseenter', vector, this.setCursorPointer)
           this.map.on('mouseleave', vector, this.resetCursor)
       }
-
-      // initialize highlight layer
-      this.map.addSource('highlightSourceData', { type: 'geojson', data: {
-        "type": "Feature",
-        "geometry": {
-            "type": "Polygon",
-            "coordinates": [[-123.1323, 49.8131],[-123.2323, 49.7131],[-123.3323, 49.6131],[-123.4323, 49.5131]]
-        },
-        "properties": {
-            "title": "Mapbox DC",
-            "marker-symbol": "monument"
-        }} 
-      });
-      this.map.addLayer({
-          "id": "highlightLayer",
-          "type": "fill",
-          "source": "highlightSourceData",
-          "layout": {},
-          "paint": {
-            "fill-color": "#627BC1"
-          }
-      });
     },
     async searchWallyAPI () {
       const results = await ApiService.getApi('/geocode?q=a')
@@ -154,20 +171,12 @@ export default {
     },
     updateHighlightLayerData(data) {
       if(data.geometry.type === "Point") {
-        var p = data.geometry.coordinates
-        var polygon = Array.from(
-          [[(p[0]-0.1),(p[1]-0.1)],
-          [(p[0]-0.1),(p[1]+0.1)],
-          [(p[0]+0.1),(p[1]-0.1)],
-          [(p[0]+0.1),(p[1]+0.1)]]
-        )
-        data.geometry.type = "Polygon"
-        data.geometry.coordinates = polygon
+        this.map.getSource('highlightPointData').setData(data)
+        this.map.getSource('highlightLayerData').setData(polygon)
+      } else {
+        this.map.getSource('highlightPointData').setData(point)
+        this.map.getSource('highlightLayerData').setData(data)
       }
-      console.log(data)
-      var source = this.map.getSource('highlightSourceData')
-      console.log(source)
-      source.setData(data)
     },
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
