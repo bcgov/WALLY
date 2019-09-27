@@ -3,30 +3,31 @@ import qs from 'querystring'
 
 export default {
   state: {
-
+    loading: false
   },
   actions: {
     downloadFeatureReport ({ commit }, payload) {
       // note: the null here is for the "record" option of the ApiService.get method.
-      return new Promise((resolve, reject) => {
-        ApiService.get(reportingServiceURL + '/featureReport?' + qs.stringify(payload), null, { responseType: 'arraybuffer' })
-          .then((res) => {
-            console.log(res)
-            let blob = new Blob([res.data], { type: 'application/pdf' })
-            let link = document.createElement('a')
-            link.href = window.URL.createObjectURL(blob)
-            link.download = 'WaterReport.pdf'
-            document.body.appendChild(link)
-            link.click()
-            setTimeout(() => {
-              document.body.removeChild(link)
-              window.URL.revokeObjectURL(link.href)
-            }, 0)
-            resolve(true)
-          }).catch((error) => {
-            reject(error)
-          })
-      })
+      // return new Promise((resolve, reject) => {
+      commit('setLoading', true)
+      ApiService.get(reportingServiceURL + '/featureReport?' + qs.stringify(payload), null, { responseType: 'arraybuffer' })
+        .then((res) => {
+          console.log(res)
+          let blob = new Blob([res.data], { type: 'application/pdf' })
+          let link = document.createElement('a')
+          link.href = window.URL.createObjectURL(blob)
+          link.download = 'WaterReport.pdf'
+          document.body.appendChild(link)
+          link.click()
+          setTimeout(() => {
+            document.body.removeChild(link)
+            window.URL.revokeObjectURL(link.href)
+          }, 0)
+          commit('setLoading', false)
+        }).catch((error) => {
+          commit('setLoading', false)
+          console.log(error)
+        })
     },
     downloadLayersReport ({ commit }, payload) {
       // TODO Implement in reporting service
@@ -44,9 +45,11 @@ export default {
     }
   },
   mutations: {
-
+    setLoading (state, payload) {
+      state.loading = payload
+    }
   },
   getters: {
-
+    isReportLoading: state => state.loading
   }
 }

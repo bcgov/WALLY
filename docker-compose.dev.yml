@@ -44,3 +44,13 @@ services:
       - ./.tmp/postgis-dev:/var/lib/postgresql/dat
     ports:
       - '5432:5432'
+  frontend:
+    build:
+      context: ./frontend
+    env_file:
+      - ./frontend/.env.development
+    depends_on:
+      - backend
+    ports:
+      - '8080:8080'
+    
