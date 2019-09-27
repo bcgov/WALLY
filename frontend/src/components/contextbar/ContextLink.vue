@@ -5,8 +5,8 @@
     </h1>
     <v-card v-for="(item, i) in links" :key="i" min-width="400" class="component">
       <v-card-text>
-        <span v-if="item && item.link && item.label"><a :href="item.link" :alt="item.label">{{item.label}}</a></span>
-        <span v-else-if="!item.label || item.label==''"><a :href="item.link" :alt="item.link">{{item.link}}</a></span>
+        <span v-if="item && item.link && item.label"><a :href="item.link" :alt="item.label" target="_blank">{{item.label}}</a></span>
+        <span v-else-if="!item.label || item.label==''"><a :href="item.link" :alt="item.link" target="_blank">{{item.link}}</a></span>
       </v-card-text>
     </v-card>
   </div>
