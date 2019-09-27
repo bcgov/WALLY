@@ -7,7 +7,7 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
-import HighlightPoint from './HighlightPoint'
+import HighlightPoint from './highlightPoint'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
