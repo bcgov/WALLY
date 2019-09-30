@@ -178,6 +178,7 @@ class LinkComponent(Base):
     display_order = Column(Integer, comment='determines which components are shown first to last in 100s')
     link_pattern = Column(String, comment='url pattern to source document or web page')
     link_pattern_keys = Column(ARRAY(String), comment='keys to plug into link pattern')
+    link_label_key = Column(String, comment='key which creates the clickable text for the link')
     display_template_id = Column(Integer, ForeignKey('metadata.display_template.display_template_id'),
                                  comment='reference to parent display template')
 

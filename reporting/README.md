@@ -44,7 +44,7 @@ npm run start
 
 ## Layers
 
-Layers and API data can be added to the report by adding `&layers=LAYER_ID` to the url query params, where `LAYER_ID` is an ID that the Wally API recognizes (e.g. HYDAT). Each layer should have its own `&layers=` param, e.g. `&layers=HYDAT&layers=WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW` (in other words, comma separated lists are not supported). The frameworks that Wally uses accept this format out of the box.
+Layers and API data can be added to the report by adding `&layers=LAYER_ID` to the url query params, where `LAYER_ID` is an ID that the Wally API recognizes (e.g. HYDAT). Each layer should have its own `&layers=` param, e.g. `&layers=hydrometric_stream_flow&layers=aquifers` (in other words, comma separated lists are not supported). The frameworks that Wally uses accept this format out of the box.
 
 Some layers are required for the standard report and are always fetched, even if not included in the url params: Hydrometric data, Aquifers, Watersheds and Water Rights Licences.
 
@@ -54,4 +54,6 @@ The `bbox` param is mandatory.  There should be 4 `bbox=...` params that togethe
 
 ## Generating a sample report
 
-http://localhost:3000/reports/featureReport?bbox=-122.93512344360353&bbox=49.294008682393994&bbox=-122.88173675537111&bbox=49.3310514349268&layers=WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW&layers=HYDAT
+http://localhost:3000/reports/featureReport?bbox=-122.93512344360353&bbox=49.294008682393994&bbox=-122.88173675537111&bbox=49.3310514349268&layers=aquifers&layers=hydrometric_stream_flow&layers=water_rights_licences
+
+http://localhost:8000/api/v1/aggregate?bbox=-122.93512344360353&bbox=49.294008682393994&bbox=-122.88173675537111&bbox=49.3310514349268&layers=aquifers&layers=hydrometric_stream_flow&layers=water_rights_licences

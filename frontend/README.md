@@ -37,3 +37,7 @@ npm run test:unit
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+
+
+### Material Design Icons
+Vuetify uses the base set from here: https://material.io/resources/icons/?style=baseline

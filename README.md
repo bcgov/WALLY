@@ -4,6 +4,11 @@
 
 ## Local development
 
+### Prerequisites
+
+Environment variables:
+`MAPBOX_ACCESS_TOKEN` (required): a token from mapbox.com for making Mapbox API requests (e.g. requesting tiles and map images).
+
 Start the backend API and database stack with Docker Compose:
 
 ```bash
