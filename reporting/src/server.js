@@ -21,17 +21,17 @@ const getBaseTemplate = (templates, template) => {
 const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     const createPdf = async (template, data, response) => {
         const started = new Date();
+        let reactTemplate;
         try {
-            let reactTemplate;
-            try {
-                reactTemplate = getBaseTemplate(appTemplates, template);
-            } catch (e) {
-                logger(WARN, `Template ${template} does not exist`);
-                response.status(404).end();
-                return;
-            }
+            reactTemplate = getBaseTemplate(appTemplates, template);
+        } catch (e) {
+            logger(WARN, `Template ${template} does not exist`);
+            response.status(404).end();
+            return;
+        }
 
-            // Render React Template
+        // Render React Template
+        try {
             const readStream = await reactTemplate(data)
             response.set(CONTENT_TYPE, 'application/pdf');
             readStream.pipe(response);
@@ -65,16 +65,14 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     server.get('/favicon.ico', (req, res) => res.status('404').end());
     server.get('/health', (req, res) => res.status('200').end());
 
-    server.get('/reports/:template', (req, res) => createPdf(req.params.template, req.query, res));
-    server.post('/reports/:template', (req, res) => {
-        const data = req.body;
-        Object.keys(req.query).forEach((value) => {
-            if (data[value]) {
-                logger(WARN, `Body property '${value}' was overwritten by query param.`);
-            }
-            data[value] = req.query[value];
-        });
-        createPdf(req.params.template, data, res);
+    server.get('/reports/:template', async(req, res, next) => { 
+        try {
+            logger(INFO, "starting pdf render")
+            await createPdf(req.params.template, req.query, res); 
+        } catch (e) {
+            logger(ERROR, "pdf render failed")
+            next(e)
+        }
     });
 
     return server;
