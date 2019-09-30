@@ -79,7 +79,7 @@ objects:
               imagePullPolicy: Always
               name: wally-reporting
               env:
-                - API_SERVICE: wally-${NAME}-api
+                API_SERVICE: wally-${NAME}-api
               envFrom:
                 - secretRef:
                     name: mapbox-access-token
