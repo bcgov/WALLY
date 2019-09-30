@@ -78,6 +78,8 @@ objects:
                 docker-registry.default.svc:5000/${NAMESPACE}/wally-reporting:${NAME}
               imagePullPolicy: Always
               name: wally-reporting
+              env:
+                - API_SERVICE: wally-${NAME}-api
               envFrom:
                 - secretRef:
                     name: mapbox-access-token
