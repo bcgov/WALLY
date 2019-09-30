@@ -29,7 +29,7 @@ const generateFeatureReport = async (data) => {
     let props = {}
 
     const bbox = data.bbox
-    const layers = []
+    let layers = []
 
     // get request with only one layer comes in as string, not array, so we check here
     if(typeof(data.layers) === 'string') {
