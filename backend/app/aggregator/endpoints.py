@@ -221,7 +221,9 @@ def xlsxExport(features):
             props = f['properties']
             ws.append([props.get(x) for x in fields])
 
-    response = Response(content=save_virtual_workbook(
-        wb), media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
+    response = Response(
+        content=save_virtual_workbook(wb),
+        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
 
     return response
