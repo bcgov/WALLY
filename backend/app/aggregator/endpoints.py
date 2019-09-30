@@ -172,8 +172,9 @@ def aggregate_sources(
 
         feature_list.append(feat_layer)
 
+    # if xlsx format was requested, package the response as xlsx and return the xlsx notebook.
     if format == 'xlsx':
-        return xlsxExport(feature_list[0])
+        return xlsxExport(feature_list)
 
     hydrated_templates = None
     if feature_list:
@@ -192,15 +193,33 @@ def wms_url(wms_id):
 
 
 def xlsxExport(features):
-    """ packages features into an excel workbook """
+    """
+    packages features into an excel workbook.  Returns an HTTP response object that has the saved workbook
+    ready to be returned to the client (e.g. the calling http handler can return this object directly)
+    """
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    ws.append([*features.geojson[0].properties])
+    first_sheet = True
 
-    for f in features:
-        ws.append([str(getattr(f, x))
-                   for x in [*features.geojson[0].properties]])
+    for dataset in features:
+        if not first_sheet:
+            ws = wb.create_sheet(dataset.layer)
+        else:
+            ws.title = dataset.layer
+            first_sheet = False
+
+        # take the first object's properties as the headings for the excel sheet.
+        # in the future, this could be the highlight columns list.
+        fields = [*dataset.geojson[0].properties]
+        ws.append(fields)
+
+        features = dataset.geojson.features
+
+        # add rows for every object in the collection, using the fields defined above.
+        for f in features:
+            props = f['properties']
+            ws.append([props.get(x) for x in fields])
 
     response = Response(content=save_virtual_workbook(
         wb), media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
