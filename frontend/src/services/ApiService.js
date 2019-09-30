@@ -44,8 +44,8 @@ const ApiService = {
   get (resource, record, config) {
     return axios.get(`${resource}${record ? '/' + record : ''}`, config)
   },
-  getApi (resource) {
-    return axios.get(this.baseURL + resource)
+  getApi (resource, options) {
+    return axios.get(this.baseURL + resource, options)
   },
   getRaw (url) {
     return axios.get(url)
