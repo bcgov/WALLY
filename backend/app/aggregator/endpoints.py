@@ -3,7 +3,10 @@ Aggregate data from different WMS and/or API sources.
 """
 from logging import getLogger
 from typing import List
+import openpyxl
+from openpyxl.writer.excel import save_virtual_workbook
 from fastapi import APIRouter, Depends, HTTPException, Query
+from starlette.responses import Response
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
@@ -73,7 +76,9 @@ def aggregate_sources(
             min_length=4, max_length=4),
         width: float = Query(500, title="Width", description="Width of area of interest"),
         height: float = Query(500, title="Height",
-                              description="Height of area of interest")
+                              description="Height of area of interest"),
+        format: str = Query('geojson', title="Format",
+                            description="Format that results will be returned in (e.g. geojson, xlsx)")
 ):
     """
     Generate a list of features from a variety of sources and map layers (specified by `layers`)
@@ -167,6 +172,9 @@ def aggregate_sources(
 
         feature_list.append(feat_layer)
 
+    if format == 'xlsx':
+        return xlsxExport(feature_list[0])
+
     hydrated_templates = None
     if feature_list:
         hydrated_templates = build_templates(db, feature_list)
@@ -181,3 +189,20 @@ def aggregate_sources(
 
 def wms_url(wms_id):
     return "https://openmaps.gov.bc.ca/geo/pub/" + wms_id + "/ows?"
+
+
+def xlsxExport(features):
+    """ packages features into an excel workbook """
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append([*features.geojson[0].properties])
+
+    for f in features:
+        ws.append([str(getattr(f, x))
+                   for x in [*features.geojson[0].properties]])
+
+    response = Response(content=save_virtual_workbook(
+        wb), media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
+
+    return response
