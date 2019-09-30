@@ -9,10 +9,8 @@
 </template>
 
 <script>
-import { BarChart } from '../chartjs/Charts'
-import { LineChart } from '../chartjs/Charts'
-import { DoughnutChart } from '../chartjs/Charts'
-import { PieChart } from '../chartjs/Charts'
+import { BarChart, LineChart, DoughnutChart, PieChart } from '../chartjs/Charts'
+
 import { blueChartColors } from '../../constants/colors'
 export default {
   name: 'Chart',

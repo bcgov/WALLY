@@ -7,24 +7,24 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
-import HighlightPoint from './highlightPoint'
+import HighlightPoint from './MapHighlightPoint'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
 const point = {
-  "type": "Feature",
-  "geometry": {
-      "type": "Point",
-      "coordinates": [[]]
+  'type': 'Feature',
+  'geometry': {
+    'type': 'Point',
+    'coordinates': [[]]
   }
 }
 const polygon = {
-  "type": "Feature",
-  "geometry": {
-      "type": "Polygon",
-      "coordinates": [[]]
+  'type': 'Feature',
+  'geometry': {
+    'type': 'Polygon',
+    'coordinates': [[]]
   }
 }
 
@@ -117,30 +117,7 @@ export default {
         this.getMapLayers()
       })
 
-      this.map.on('load', () => {
-        // initialize highlight layer
-        this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
-        this.map.addLayer({
-            "id": "highlightLayer",
-            "type": "fill",
-            "source": "highlightLayerData",
-            "layout": {},
-            "paint": {
-              "fill-color": "#9A3FCA"
-            }
-        })
-        this.map.addImage('highlight-point', HighlightPoint(this.map, 90), {pixelRatio: 2})
-        this.map.addSource('highlightPointData', { type: 'geojson', data: point })
-        this.map.addLayer({
-          "id": "highlightPoint",
-          "type": "symbol",
-          "source": "highlightPointData",
-          "layout": {
-            "icon-image": "highlight-point"
-          }
-        });
-      })
-
+      this.initHighlightLayers()
       this.listenForAreaSelect()
 
       // special handling for parcels because we may not want to have
@@ -148,6 +125,31 @@ export default {
       this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
+    },
+    initHighlightLayers () {
+      this.map.on('load', () => {
+        // initialize highlight layer
+        this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
+        this.map.addLayer({
+          'id': 'highlightLayer',
+          'type': 'fill',
+          'source': 'highlightLayerData',
+          'layout': {},
+          'paint': {
+            'fill-color': '#9A3FCA'
+          }
+        })
+        this.map.addImage('highlight-point', HighlightPoint(this.map, 90), { pixelRatio: 2 })
+        this.map.addSource('highlightPointData', { type: 'geojson', data: point })
+        this.map.addLayer({
+          'id': 'highlightPoint',
+          'type': 'symbol',
+          'source': 'highlightPointData',
+          'layout': {
+            'icon-image': 'highlight-point'
+          }
+        })
+      })
     },
     loadLayers () {
       const layers = this.allMapLayers
@@ -159,10 +161,10 @@ export default {
 
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
-          const vector = layer['display_data_name']
-          this.map.on('click', vector, this.setSingleFeature)
-          this.map.on('mouseenter', vector, this.setCursorPointer)
-          this.map.on('mouseleave', vector, this.resetCursor)
+        const vector = layer['display_data_name']
+        this.map.on('click', vector, this.setSingleFeature)
+        this.map.on('mouseenter', vector, this.setCursorPointer)
+        this.map.on('mouseleave', vector, this.resetCursor)
       }
     },
     async searchWallyAPI () {
@@ -170,8 +172,8 @@ export default {
       console.log(results.data)
       return results.data
     },
-    updateHighlightLayerData(data) {
-      if(data.geometry.type === "Point") {
+    updateHighlightLayerData (data) {
+      if (data.geometry.type === 'Point') {
         this.map.getSource('highlightPointData').setData(data)
         this.map.getSource('highlightLayerData').setData(polygon)
       } else {
@@ -297,7 +299,6 @@ export default {
       const query = qs.stringify(wmsOpts)
       const url = wmsBaseURL + layer.wms_name + '/ows?' + query
       this.legendGraphics[layerID] = url
-
     },
     replaceOldFeatures (newFeature) {
       // replace all previously drawn features with the new one.
@@ -339,15 +340,15 @@ export default {
         })
     },
     getPolygonCenter (arr) {
-      if(arr.length == 1) { return arr }
-      var x = arr.map (x => x[0]);
-      var y = arr.map (x => x[1]);
-      var cx = (Math.min (...x) + Math.max (...x)) / 2;
-      var cy = (Math.min (...y) + Math.max (...y)) / 2;
-      return [cx, cy];
+      if (arr.length === 1) { return arr }
+      var x = arr.map(x => x[0])
+      var y = arr.map(x => x[1])
+      var cx = (Math.min(...x) + Math.max(...x)) / 2
+      var cy = (Math.min(...y) + Math.max(...y)) / 2
+      return [cx, cy]
     },
-    getArrayDepth(value) {
-      return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0;
+    getArrayDepth (value) {
+      return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
     },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'
@@ -366,7 +367,7 @@ export default {
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
-        if (value.geometry.type != "Point") {
+        if (value.geometry.type !== 'Point') {
           let depth = this.getArrayDepth(coordinates)
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
