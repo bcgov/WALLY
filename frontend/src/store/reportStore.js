@@ -10,7 +10,7 @@ export default {
       // note: the null here is for the "record" option of the ApiService.get method.
       // return new Promise((resolve, reject) => {
       commit('setLoading', true)
-      ApiService.get(reportingServiceURL + '/featureReport?' + qs.stringify(payload), null, { responseType: 'arraybuffer' })
+      ApiService.post(reportingServiceURL + '/featureReport', payload, { responseType: 'arraybuffer' })
         .then((res) => {
           console.log(res)
           let blob = new Blob([res.data], { type: 'application/pdf' })
