@@ -7,11 +7,26 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
-
+import HighlightPoint from './MapHighlightPoint'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
+
+const point = {
+  'type': 'Feature',
+  'geometry': {
+    'type': 'Point',
+    'coordinates': [[]]
+  }
+}
+const polygon = {
+  'type': 'Feature',
+  'geometry': {
+    'type': 'Polygon',
+    'coordinates': [[]]
+  }
+}
 
 export default {
   name: 'Map',
@@ -50,7 +65,9 @@ export default {
       'allMapLayers',
       'activeMapLayers',
       'allDataMarts',
-      'activeDataMarts'
+      'activeDataMarts',
+      'highlightFeatureData',
+      'dataMartFeatureInfo'
     ])
   },
   methods: {
@@ -100,6 +117,7 @@ export default {
         this.getMapLayers()
       })
 
+      this.initHighlightLayers()
       this.listenForAreaSelect()
 
       // special handling for parcels because we may not want to have
@@ -107,6 +125,31 @@ export default {
       this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
+    },
+    initHighlightLayers () {
+      this.map.on('load', () => {
+        // initialize highlight layer
+        this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
+        this.map.addLayer({
+          'id': 'highlightLayer',
+          'type': 'fill',
+          'source': 'highlightLayerData',
+          'layout': {},
+          'paint': {
+            'fill-color': '#9A3FCA'
+          }
+        })
+        this.map.addImage('highlight-point', HighlightPoint(this.map, 90), { pixelRatio: 2 })
+        this.map.addSource('highlightPointData', { type: 'geojson', data: point })
+        this.map.addLayer({
+          'id': 'highlightPoint',
+          'type': 'symbol',
+          'source': 'highlightPointData',
+          'layout': {
+            'icon-image': 'highlight-point'
+          }
+        })
+      })
     },
     loadLayers () {
       const layers = this.allMapLayers
@@ -118,16 +161,25 @@ export default {
 
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
-          const vector = layer['display_data_name']
-          this.map.on('click', vector, this.setSingleFeature)
-          this.map.on('mouseenter', vector, this.setCursorPointer)
-          this.map.on('mouseleave', vector, this.resetCursor)
+        const vector = layer['display_data_name']
+        this.map.on('click', vector, this.setSingleFeature)
+        this.map.on('mouseenter', vector, this.setCursorPointer)
+        this.map.on('mouseleave', vector, this.resetCursor)
       }
     },
     async searchWallyAPI () {
       const results = await ApiService.getApi('/geocode?q=a')
       console.log(results.data)
       return results.data
+    },
+    updateHighlightLayerData (data) {
+      if (data.geometry.type === 'Point') {
+        this.map.getSource('highlightPointData').setData(data)
+        this.map.getSource('highlightLayerData').setData(polygon)
+      } else {
+        this.map.getSource('highlightPointData').setData(point)
+        this.map.getSource('highlightLayerData').setData(data)
+      }
     },
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
@@ -247,7 +299,6 @@ export default {
       const query = qs.stringify(wmsOpts)
       const url = wmsBaseURL + layer.wms_name + '/ows?' + query
       this.legendGraphics[layerID] = url
-
     },
     replaceOldFeatures (newFeature) {
       // replace all previously drawn features with the new one.
@@ -279,16 +330,25 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      const layerId = e.features[0].layer.id
-      const coordinates = e.features[0].geometry.coordinates.slice()
-      const properties = e.features[0].properties
-
+      const feature = e.features[0]
       this.$store.commit('setDataMartFeatureInfo',
         {
-          display_data_name: layerId,
-          coordinates: coordinates,
-          properties: properties
+          type: feature.type,
+          display_data_name: feature.layer.id,
+          geometry: feature.geometry,
+          properties: feature.properties
         })
+    },
+    getPolygonCenter (arr) {
+      if (arr.length === 1) { return arr }
+      var x = arr.map(x => x[0])
+      var y = arr.map(x => x[1])
+      var cx = (Math.min(...x) + Math.max(...x)) / 2
+      var cy = (Math.min(...y) + Math.max(...y)) / 2
+      return [cx, cy]
+    },
+    getArrayDepth (value) {
+      return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
     },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'
@@ -297,17 +357,26 @@ export default {
       this.map.getCanvas().style.cursor = ''
     },
     ...mapActions(['getMapLayers'])
-    // listenForReset () {
-    //     this.$parent.$on('resetLayers', (data) => {
-    //         if (this.map) {
-    //             this.map.eachLayer((layer) => {
-    //                 if (layer.wmsParams && layer.wmsParams.overlay) {
-    //                     this.map.removeLayer(layer)
-    //                 }
-    //             })
-    //             this.map.setView([54.5, -126.5], 5)
-    //         }
-    //     })
-    // },
+  },
+  watch: {
+    highlightFeatureData (value) {
+      if (value && value.geometry) {
+        this.updateHighlightLayerData(value)
+      }
+    },
+    dataMartFeatureInfo (value) {
+      if (value && value.geometry) {
+        let coordinates = value.geometry.coordinates
+        if (value.geometry.type !== 'Point') {
+          let depth = this.getArrayDepth(coordinates)
+          let flattened = coordinates.flat(depth - 2)
+          coordinates = this.getPolygonCenter(flattened)
+        }
+        this.map.flyTo({
+          center: [coordinates[0], coordinates[1]]
+        })
+        this.updateHighlightLayerData(value)
+      }
+    }
   }
 }

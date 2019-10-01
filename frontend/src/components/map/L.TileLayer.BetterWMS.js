@@ -2,6 +2,7 @@ import * as L from 'leaflet'
 import { round } from 'lodash'
 import store from '../../store'
 
+// TODO May need to delete this and all associated store calls because WMS clicks are not longer used
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
   onAdd: function (map) {
