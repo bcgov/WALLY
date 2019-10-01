@@ -2,19 +2,19 @@
   <v-card>
 
     <v-card-text>
-      <div class="grey--text text--darken-4 title" id="aquiferTitle">Well {{ record.properties.well_tag_number }}</div>
+      <div class="grey--text text--darken-4 title" id="aquiferTitle">Well {{ record.properties.WELL_ID }}</div>
       <div class="grey--text text--darken-2 subtitle-1 mt-0 mb-2">Groundwater well</div>
     <v-divider></v-divider>
 
       <v-list dense class="mx-0 px-0">
         <v-list-item>
           <v-list-item-content>
-            <a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(record.properties.well_tag_number)}`" target="_blank">View this well on Groundwater Wells and Aquifers</a>
+            <a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(record.properties.WELL_ID)}`" target="_blank">View this well on Groundwater Wells and Aquifers</a>
           </v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>Identification plate number</v-list-item-content>
-          <v-list-item-content>{{record.properties.identification_plate_number}}</v-list-item-content>
+          <v-list-item-content>{{record.properties.WELL_IDENTIFICATION_PLATE_NO}}</v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>Address</v-list-item-content>
@@ -77,7 +77,7 @@ export default {
   },
   computed: {
     id () {
-      return this.record.properties.well_tag_number
+      return this.record.properties.WELL_ID
     }
   },
   methods: {
@@ -89,7 +89,7 @@ export default {
       this.loading = true
       this.resetWell()
 
-      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/licensing?well_tag_number=${this.record.properties.well_tag_number}`).then((r) => {
+      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/licensing?well_tag_number=${this.id}`).then((r) => {
         this.well_licence = r.data
       }).catch((e) => {
         this.licence_error = e
