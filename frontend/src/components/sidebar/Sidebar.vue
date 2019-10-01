@@ -58,7 +58,7 @@
               color="blue"
               class="float-right mt-3"
             >
-              Download PDF
+              Download XLSX
               <v-icon class="ml-1" v-if="!reportLoading">cloud_download</v-icon>
               <v-progress-circular
                 v-if="reportLoading"

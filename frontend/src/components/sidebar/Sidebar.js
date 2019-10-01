@@ -69,8 +69,9 @@ export default {
     },
     createReportFromSelection () {
       this.reportLoading = true
-      this.$store.dispatch('downloadFeatureReport',
+      this.$store.dispatch('downloadExcelReport',
         {
+          format: 'xlsx',
           bbox: this.selectionBoundingBox,
           layers: this.dataMartFeatures.map((feature) => {
             // return the layer names from the active data mart features as a list.
