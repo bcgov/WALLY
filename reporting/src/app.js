@@ -26,6 +26,6 @@ const log = (level, message) => {
     console.log(JSON.stringify({ level, message, datetime: (new Date()).toISOString() }));
 };
 
-const onReady = () => log('info', 'Server is ready', 'on port: ', port);
+const onReady = () => log('info', ('Server is ready on port: ' + port));
 
 createRenderServer(templates, log).listen(port, onReady);
