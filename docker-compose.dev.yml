@@ -35,7 +35,7 @@ services:
     depends_on:
       - db
     ports:
-      - '3000:3000'
+      - '3001:3001'
   db:
     image: mdillon/postgis:11
     env_file:
@@ -44,13 +44,13 @@ services:
       - ./.tmp/postgis-dev:/var/lib/postgresql/dat
     ports:
       - '5432:5432'
-  frontend:
-    build:
-      context: ./frontend
-    env_file:
-      - ./frontend/.env.development
-    depends_on:
-      - backend
-    ports:
-      - '8080:8080'
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #   env_file:
+  #     - ./frontend/.env.development
+  #   depends_on:
+  #     - backend
+  #   ports:
+  #     - '8080:8080'
     

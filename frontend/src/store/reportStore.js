@@ -31,7 +31,7 @@ export default {
     },
     downloadLayersReport ({ commit }, payload) {
       // TODO Implement in reporting service
-      // ApiService.post('http://localhost:3000' + '/layersreport', payload, {responseType: 'arraybuffer'})
+      // ApiService.post('http://localhost:3001' + '/layersreport', payload, {responseType: 'arraybuffer'})
       //   .then((res) => {
       //     console.log(res)
       //     let blob = new Blob([res.data], { type: 'application/pdf' })
