@@ -38,12 +38,17 @@ export default {
     },
     getPaint (lType, id) {
       console.log(lType)
-      let color = this.map.getPaintProperty(id, lType + '-color')
+      let color = lType !== 'symbol' && this.map.getPaintProperty(id, lType + '-color')
       let strokeWidth = lType === 'circle' && this.map.getPaintProperty(id, lType + '-stroke-width')
+      // let strokeColor = lType === 'circle' && this.map.getPaintProperty(id, lType + '-stroke-color')
       let radius = lType === 'circle' && this.map.getPaintProperty(id, lType + '-radius')
       let opacity = lType === 'fill' && this.map.getPaintProperty(id, lType + '-opacity')
-      let outlineColor = lType === 'fill' && this.map.getPaintProperty(id, lType + '-outline-color')
+      let outlineColor = lType === 'fill' ? this.map.getPaintProperty(id, lType + '-outline-color')
+        : lType === 'circle' && this.map.getPaintProperty(id, lType + '-stroke-color')
       let width = lType === 'line' && this.map.getPaintProperty(id, lType + '-width')
+      let iconImage = lType === 'symbol' && this.map.getLayoutProperty(id, 'icon-image')
+      let iconRotate = lType === 'symbol' && this.map.getLayoutProperty(id, 'icon-rotate')
+      let iconSize = lType === 'symbol' && this.map.getLayoutProperty(id, 'icon-size')
 
       return {
         color,
@@ -51,7 +56,10 @@ export default {
         radius,
         opacity,
         outlineColor,
-        width
+        width,
+        iconImage,
+        iconRotate,
+        iconSize
       }
     },
     getLegendItems (paint, lType) {
@@ -63,6 +71,12 @@ export default {
         icon = 'remove'
       } else if (lType === 'fill') {
         icon = 'signal_cellular_4_bar'
+      } else if (lType === 'symbol') {
+        // icon = require('../../assets/mapbox-maki-icons/' + paint.iconImage + '.svg')
+        // TODO: Change this to grab SVG & color from mapbox
+        // Right now it's hard to do, so this is a quicker way to implement
+        paint.color = 'green'
+        icon = 'change_history'
       } else {
         icon = 'lens'
       }
@@ -77,6 +91,8 @@ export default {
           'text': '',
           'color': paint.color,
           'outlineColor': paint.outlineColor,
+          'lineWidth': paint.width,
+          'strokeWidth': paint.strokeWidth ? paint.strokeWidth + 'px' : '1px',
           icon,
           iconSize
         })
