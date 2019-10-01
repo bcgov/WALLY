@@ -207,16 +207,19 @@ def xlsxExport(features):
         if not dataset.geojson:
             continue
 
+        # create a list of fields for this dataset
+        fields = []
+        try:
+            fields = [*dataset.geojson[0].properties]
+        except:
+            continue
+
         if not first_sheet:
             ws = wb.create_sheet(dataset.layer)
         else:
             ws.title = dataset.layer
             first_sheet = False
 
-        # take the first object's properties as the headings for the excel sheet.
-        # in the future, this could be the highlight columns list.
-
-        fields = [*dataset.geojson[0].properties]
         ws.append(fields)
 
         features = dataset.geojson.features
