@@ -6,7 +6,7 @@
       </v-card-title>
 
     <v-divider></v-divider>
-    <v-card-text v-if="station">
+    <v-card-text v-if="station && !loading">
       <v-list dense class="mx-0 px-0">
         <v-list-item>
           <v-list-item-content>Flow data:</v-list-item-content>
@@ -70,8 +70,8 @@ export default {
     }
   },
   computed: {
-    id () {
-      return this.record.display_data_name
+    recordEndpoint () {
+      return this.record.properties.url
     },
     flowChartData () {
       if (!this.flowData || !this.flowChartReady) {
@@ -232,7 +232,7 @@ export default {
     }
   },
   watch: {
-    id () {
+    recordEndpoint () {
       this.fetchRecord()
     }
   },

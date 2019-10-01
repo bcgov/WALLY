@@ -1,0 +1,50 @@
+version: '3.3'
+services:
+  backend:
+    build:
+      context: ./backend
+      args:
+        env: dev
+    networks:
+      default:
+        aliases:
+          - ${DOMAIN}
+    command: /app/start-reload.sh
+    volumes:
+      - b-data:/app
+    env_file:
+      - env-postgres.env
+      - env-backend.env
+    environment:
+      PORT: 8000
+      MAPBOX_ACCESS_TOKEN: "${MAPBOX_ACCESS_TOKEN}"
+    ports:
+      - '8000:8000'
+    depends_on: 
+      - db
+  # reporting:
+  #   build:
+  #     context: ./reporting
+  #   # volumes:
+  #   #   - ./reporting:/app
+  #   environment:
+  #     MAPBOX_ACCESS_TOKEN: "${MAPBOX_ACCESS_TOKEN}"
+  #   env_file:
+  #     - env-postgres.env
+  #     - env-backend.env
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - '3000:3000'
+  db:
+    image: mdillon/postgis:11
+    env_file:
+      - env-postgres.env
+    volumes:
+      - db-data:/var/lib/postgresql/dat
+    ports:
+      - '5432:5432'
+
+volumes:
+  b-data:
+  db-data:
