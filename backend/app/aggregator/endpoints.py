@@ -26,7 +26,6 @@ from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
 from app.layers.ground_water_aquifers import GroundWaterAquifers
 from app.layers.water_allocation_restrictions import WaterAllocationRestrictions
 
-
 import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
 from app.aggregator.aggregate import fetch_wms_features
@@ -45,21 +44,33 @@ router = APIRouter()
 # (defined by 2 corners, e.g. x1, y1, x2, y2) and return a FeatureCollection.
 # For example:  get_stations_as_geojson(db: Session, bbox: List[float])
 API_DATASOURCES = {
-    "HYDAT": streams_repo.get_stations_as_geojson,
-    "aquifers": GroundWaterAquifers.get_as_geojson,
-    "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations.get_as_geojson,
-    # "bc_major_watersheds": BcMajorWatersheds.get_as_geojson, # Too big to query, let wms server query it
-    "bc_wildfire_active_weather_stations": BcWildfireActiveWeatherStations.get_as_geojson,
-    # "cadastral": Cadastral.get_as_geojson, # Not imported yet
-    "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk.get_as_geojson,
-    "ecocat_water_related_reports": EcocatWaterRelatedReports.get_as_geojson,
-    # "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections.get_as_geojson, # Not imported yet
-    # "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds.get_as_geojson, # Too big to query, let wms server query it
-    "groundwater_wells": GroundWaterWells.get_as_geojson,
-    "hydrometric_stream_flow": streams_repo.get_stations_as_geojson,
-    # "water_allocation_restrictions": WaterAllocationRestrictions.get_as_geojson, # Not imported yet
-    "water_rights_licences": WaterRightsLicenses.get_as_geojson
+    "HYDAT": streams_repo,
+    "aquifers": GroundWaterAquifers,
+    "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations,
+    "bc_major_watersheds": BcMajorWatersheds,
+    "bc_wildfire_active_weather_stations": BcWildfireActiveWeatherStations,
+    "cadastral": Cadastral,
+    "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
+    "ecocat_water_related_reports": EcocatWaterRelatedReports,
+    "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections,
+    "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
+    "groundwater_wells": GroundWaterWells,
+    "hydrometric_stream_flow": streams_repo,
+    "water_allocation_restrictions": WaterAllocationRestrictions,
+    "water_rights_licences": WaterRightsLicenses
 }
+
+@router.get("/feature")
+def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
+    """
+    Returns a geojson Feature object by primary key using display_data_name as the generic map.
+    relies heavily on CustomLayerBase in app.db.base_class.py
+    """
+    try:
+        layer_class = API_DATASOURCES[layer]
+    except:
+        raise HTTPException(status_code=404, detail="Layer not found")
+    return agr_repo.get_layer_feature(db, layer_class, pk)
 
 
 @router.get("/aggregate")
@@ -162,7 +173,7 @@ def aggregate_sources(
         display_data_name = dataset.display_data_name
 
         # use function registered for this source
-        objects = API_DATASOURCES[display_data_name](db, bbox)
+        objects = API_DATASOURCES[display_data_name].get_as_geojson(db, bbox)
 
         feat_layer = LayerResponse(
             layer=display_data_name,

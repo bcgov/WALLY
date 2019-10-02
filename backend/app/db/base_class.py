@@ -26,7 +26,7 @@ class CustomLayerBase(object):
                 column.intersects(func.ST_MakeEnvelope(*bbox))
             )
 
-        return q.all()
+        return q.all() 
 
     @classmethod
     def get_as_geojson(cls, db: Session, bbox: List[float] = []) -> FeatureCollection:
@@ -35,18 +35,17 @@ class CustomLayerBase(object):
 
         # add properties to geojson Feature objects
         points = [
-            Feature(
-                geometry=Point((row.LONGITUDE, row.LATITUDE)) if cls.lat_lon_exists()
-                else to_shape(row.SHAPE if cls.shape_column_exists() else row.GEOMETRY),
-                id=cls.primary_key(),
-                properties=row.row2dict()
-            ) for row in rows
+            cls.get_as_feature(row) for row in rows
         ]
 
         return FeatureCollection(points)
 
     @classmethod
     def primary_key(cls):
+        return inspect(cls).primary_key[0]
+
+    @classmethod
+    def primary_key_name(cls):
         return inspect(cls).primary_key[0].name
 
     @classmethod
@@ -58,16 +57,25 @@ class CustomLayerBase(object):
         columns = cls.__table__.columns
         return "LATITUDE" in columns and \
                "LONGITUDE" in columns
+    
+    @classmethod
+    def get_as_feature(cls, row):
+        return Feature(
+            geometry=Point((row.LONGITUDE, row.LATITUDE)) if cls.lat_lon_exists()
+            else to_shape(row.SHAPE if cls.shape_column_exists() else row.GEOMETRY),
+            id=getattr(row, cls.primary_key_name()),
+            properties=row.row2dict()
+        )
 
     def row2dict(self):
         d = {}
         for column in self.__table__.columns:
-            if column.name == "GEOMETRY":
+            if column.name == "GEOMETRY" or column.name == "SHAPE":
                 continue
             d[column.name] = str(getattr(self, column.name))
         return d
 
-    pass
+    
 
 
 BaseTable = declarative_base(cls=CustomBase)

@@ -93,7 +93,7 @@ def get_available_level_years(db: Session, station: str):
         DlyLevel.station_number == station).distinct("year")
 
 
-def get_stations_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
+def get_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
     """ calls get_stations and formats the result in geojson """
     stations = get_stations(db, bbox)
 

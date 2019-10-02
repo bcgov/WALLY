@@ -6,6 +6,7 @@ from typing import List
 import logging
 from app.metadata.db_models import DisplayCatalogue, ApiCatalogue, WmsCatalogue
 from sqlalchemy.orm import joinedload
+from fastapi import HTTPException
 
 logger = logging.getLogger("api")
 
@@ -19,3 +20,10 @@ def get_display_catalogue(db: Session, display_data_names: List[str]):
         .all()
     # [logger.info(vars(x)) for x in q]
     return q
+
+
+def get_layer_feature(db: Session, layer_class, feature_id):
+    q = db.query(layer_class).filter(layer_class.primary_key() == feature_id).one_or_none()
+    if q is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return layer_class.get_as_feature(q)
