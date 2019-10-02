@@ -24,7 +24,6 @@ const getBaseTemplate = (templates, template) => {
 };
 
 const getTokenFromRequest = (req) => {
-    console.log(req.cookies)
     if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
         return req.headers.authorization.split(' ')[1];
     } else if (req.query && req.query.token) {
