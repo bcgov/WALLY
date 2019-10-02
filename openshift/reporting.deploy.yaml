@@ -82,7 +82,7 @@ objects:
               name: wally-reporting
               env:
                 - name: API_SERVICE
-                  value: wally-${NAME}-api
+                  value: wally-${NAME}-api:8000
               envFrom:
                 - secretRef:
                     name: mapbox-access-token
