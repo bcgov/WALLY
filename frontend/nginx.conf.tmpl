@@ -4,7 +4,7 @@
 
 
 worker_processes auto;
-error_log /var/opt/rh/rh-nginx112/log/nginx/error.log;
+error_log /var/opt/rh/rh-nginx112/log/nginx/error.log debug;
 pid /var/opt/rh/rh-nginx112/run/nginx/nginx.pid;
 
 # Load dynamic modules. See /opt/rh/rh-nginx112/root/usr/share/doc/README.dynamic.
@@ -103,8 +103,8 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
         }
 
-        location /reports/ {
-            proxy_pass http://${WALLY_REPORTING_SERVICE}:3000/;
+        location /reports {
+            proxy_pass http://${WALLY_REPORTING_SERVICE}:3000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
         }
