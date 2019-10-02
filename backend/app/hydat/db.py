@@ -93,6 +93,9 @@ def get_available_level_years(db: Session, station: str):
         DlyLevel.station_number == station).distinct("year")
 
 
+# Function name needs to match get_as_geojson name in app.db.base_class.py
+# this is so the generic aggregate function can call the same function name
+# between baselayerclass objects and custom data objects such as Hydat
 def get_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
     """ calls get_stations and formats the result in geojson """
     stations = get_stations(db, bbox)

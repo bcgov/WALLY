@@ -63,8 +63,8 @@ API_DATASOURCES = {
 @router.get("/feature")
 def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     """
-    Returns a geojson Feature object by primary key using display_data_name as the generic map.
-    relies heavily on CustomLayerBase in app.db.base_class.py
+    Returns a geojson Feature object by primary key using display_data_name as the generic lookup field. 
+    relies heavily on CustomLayerBase in app.db.base_class.py but can be overridden in any custom data layer class
     """
     try:
         layer_class = API_DATASOURCES[layer]
