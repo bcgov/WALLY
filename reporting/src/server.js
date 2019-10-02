@@ -43,7 +43,7 @@ const checkJwt = jwt({
       cache: true,
       rateLimit: true,
       jwksRequestsPerMinute: 1,
-      jwksUri: `${process.env.DISCOVERY_URL}/.well-known/jwks.json`
+      jwksUri: `${process.env.DISCOVERY_URL}/protocol/openid-connect/certs`
     }),
   
     getToken: getTokenFromRequest,
