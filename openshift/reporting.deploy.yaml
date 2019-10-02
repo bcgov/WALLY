@@ -17,6 +17,8 @@ parameters:
     value: bfpeyx-test
   - name: REPLICAS
     value: "1"
+  - name: CPU_LIMIT
+    value: "2"
 objects:
   - apiVersion: v1
     kind: Service
@@ -94,8 +96,8 @@ objects:
                   cpu: 200m
                   memory: 256Mi
                 limits:
-                  cpu: 200m
-                  memory: 256Mi
+                  cpu: ${CPU_LIMIT}
+                  memory: 1Gi
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
               livenessProbe:
