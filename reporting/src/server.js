@@ -103,7 +103,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     server.get('/favicon.ico', (req, res) => res.status('404').end());
     server.get('/health', (req, res) => res.status('200').end());
 
-    server.get('/reports/:template', async(req, res, next) => { 
+    server.get('/reports/:template', checkJwt, async(req, res, next) => { 
         try {
             if (!req.user.realm_access || !req.user.realm_access.roles.includes('wally-view')) return res.sendStatus(401)
             logger(INFO, "starting pdf render")
