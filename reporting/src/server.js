@@ -2,6 +2,9 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors'
 import morgan from 'morgan'
+import jwt from 'express-jwt'
+import jwtAuthz from 'express-jwt-authz'
+import jwksRsa from 'jwks-rsa'
 
 const CONTENT_TYPE = 'Content-Type';
 const INFO = 'info';
@@ -18,6 +21,23 @@ const getBaseTemplate = (templates, template) => {
     }
     throw new Error(`No template defined with name ${template}`);
 };
+
+const checkJwt = jwt({
+    // Dynamically provide a signing key
+    // based on the kid in the header and 
+    // the signing keys provided by the JWKS endpoint.
+    secret: jwksRsa.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 1,
+      jwksUri: `${process.env.DISCOVERY_URL}/.well-known/jwks.json`
+    }),
+  
+    // Validate the audience and the issuer.
+    audience: process.env.CLIENT_ID,
+    issuer: process.env.DISCOVERY_URL,
+    algorithms: ['RS256']
+  });
 
 const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     const createPdf = async (template, data, response) => {
@@ -46,7 +66,6 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     };
 
     const server = express();
-    server.set('trust proxy', true)
     server.use(morgan('combined'))
     server.use(bodyParser.json({ limit: '1mb' }));
     server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
@@ -67,7 +86,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     server.get('/favicon.ico', (req, res) => res.status('404').end());
     server.get('/health', (req, res) => res.status('200').end());
 
-    server.get('/reports/:template', async(req, res, next) => { 
+    server.get('/reports/:template', checkJwt, async(req, res, next) => { 
         try {
             logger(INFO, "starting pdf render")
             await createPdf(req.params.template, req.query, res); 

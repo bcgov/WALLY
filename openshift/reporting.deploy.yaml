@@ -84,6 +84,8 @@ objects:
               envFrom:
                 - secretRef:
                     name: mapbox-access-token
+                - secretRef:
+                    name: gatekeeper-credentials
               ports:
                 - containerPort: 3000
                   protocol: TCP
@@ -139,6 +141,27 @@ objects:
       generation: 18
       labels:
         app: wally-${NAME}
+        component: reporting
+        name: wally-${NAME}-reporting
+      name: wally-${NAME}-reporting
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: ${HOST}
+      path: /reports
+      port:
+        targetPort: 3000-tcp
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: wally-${NAME}-reporting
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-${NAME}
+        env: ${NAME}
         component: reporting
         name: wally-${NAME}-reporting
       name: wally-${NAME}-reporting
