@@ -22,6 +22,7 @@
     "body-parser": "^1.19.0",
     "chart.js": "^2.8.0",
     "chartjs-node-canvas": "^2.4.0",
+    "cookie-parser": "^1.4.4",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-jwt": "^5.3.1",

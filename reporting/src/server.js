@@ -5,6 +5,7 @@ import morgan from 'morgan'
 import jwt from 'express-jwt'
 import jwtAuthz from 'express-jwt-authz'
 import jwksRsa from 'jwks-rsa'
+import cookieParser from 'cookie-parser'
 
 const CONTENT_TYPE = 'Content-Type';
 const INFO = 'info';
@@ -22,6 +23,19 @@ const getBaseTemplate = (templates, template) => {
     throw new Error(`No template defined with name ${template}`);
 };
 
+const getTokenFromRequest = (req) => {
+    if (req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Bearer') {
+        return req.headers.authorization.split(' ')[1];
+    } else if (req.query && req.query.token) {
+      return req.query.token;
+    } else if (req.cookies && req.cookies.access_token) {
+      return req.cookies.access_token
+    } else if (req.cookies && req.cookies['kc-access']) {
+    return req.cookies['kc-access']
+  }
+    return null;
+  }
+
 const checkJwt = jwt({
     // credit to auth0.com for detailed instructions for using node JWT libraries
     secret: jwksRsa.expressJwtSecret({
@@ -31,11 +45,14 @@ const checkJwt = jwt({
       jwksUri: `${process.env.DISCOVERY_URL}/.well-known/jwks.json`
     }),
   
+    getToken = getTokenFromRequest,
+
     // Validate the audience and the issuer.
     audience: process.env.CLIENT_ID,
     issuer: process.env.DISCOVERY_URL,
     algorithms: ['RS256']
   });
+
 
 const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     const createPdf = async (template, data, response) => {
@@ -65,6 +82,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
 
     const server = express();
     server.use(morgan('combined'))
+    server.use(cookieParser)
     server.use(bodyParser.json({ limit: '1mb' }));
     server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
