@@ -83,7 +83,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
 
     const server = express();
     server.use(morgan('combined'))
-    server.use(cookieParser)
+    // server.use(cookieParser)
     server.use(bodyParser.json({ limit: '1mb' }));
     server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
