@@ -1,6 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors'
+import morgan from 'morgan'
 
 const CONTENT_TYPE = 'Content-Type';
 const INFO = 'info';
@@ -46,6 +47,7 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
 
     const server = express();
 
+    server.use(morgan('combined'))
     server.use(bodyParser.json({ limit: '1mb' }));
     server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
