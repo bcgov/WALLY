@@ -23,9 +23,7 @@ const getBaseTemplate = (templates, template) => {
 };
 
 const checkJwt = jwt({
-    // Dynamically provide a signing key
-    // based on the kid in the header and 
-    // the signing keys provided by the JWKS endpoint.
+    // credit to auth0.com for detailed instructions for using node JWT libraries
     secret: jwksRsa.expressJwtSecret({
       cache: true,
       rateLimit: true,
