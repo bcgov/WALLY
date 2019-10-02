@@ -105,7 +105,12 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
 
     server.get('/reports/:template', checkJwt, async(req, res, next) => { 
         try {
-            if (!req.user.realm_access || !req.user.realm_access.roles.includes('wally-view')) return res.sendStatus(401)
+            if (!req.user ||
+                !req.user.realm_access ||
+                !req.user.realm_access.roles.includes('wally-view')) {
+                    return res.sendStatus(401)
+                }
+
             logger(INFO, "starting pdf render")
             await createPdf(req.params.template, req.query, res); 
         } catch (e) {
