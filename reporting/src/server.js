@@ -45,7 +45,7 @@ const checkJwt = jwt({
       jwksUri: `${process.env.DISCOVERY_URL}/.well-known/jwks.json`
     }),
   
-    getToken = getTokenFromRequest,
+    getToken: getTokenFromRequest,
 
     // Validate the audience and the issuer.
     audience: process.env.CLIENT_ID,
