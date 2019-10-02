@@ -48,8 +48,8 @@ const createRenderServer = (appTemplates, { logger = defaultLogger }) => {
     const server = express();
     server.set('trust proxy', true)
     server.use(morgan('combined'))
-    server.use(bodyParser.json({ limit: '1mb' }));
-    server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
+    // server.use(bodyParser.json({ limit: '1mb' }));
+    // server.use(bodyParser.urlencoded({ limit: '1mb', extended: true }));
 
     const whitelist = ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://maps.gov.bc.ca']
     const corsOptions = {
