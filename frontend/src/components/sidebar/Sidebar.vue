@@ -108,7 +108,7 @@
                             <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
                               <v-card
                                 class="px-2 py-3 mx-1 my-2"
-                                :elevation="hover ? 8 : 2"
+                                :elevation="hover ? 2 : 0"
                                 @mousedown="setSingleListFeature(value[item.id], name)"
                                 @mouseenter="onMouseEnterListItem(value[item.id], name)"
                               >
