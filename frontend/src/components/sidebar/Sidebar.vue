@@ -22,6 +22,7 @@
             :key="item.title"
             v-model="item.active"
             :prepend-icon="item.action"
+            class="pb-5"
           >
             <template v-slot:activator>
               <v-list-item>
@@ -31,7 +32,7 @@
               </v-list-item>
             </template>
 
-            <div v-if="item.choices != null && item.choices.length" class="mt-3">
+            <div v-if="item.choices != null && item.choices.length" class="mt-3 pb-12">
               <div
                 v-for="choice in item.choices"
                 :key="choice.display_data_name"
