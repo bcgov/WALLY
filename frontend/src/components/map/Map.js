@@ -292,6 +292,8 @@ export default {
       this.draw.delete(old.map((feature) => feature.id))
     },
     handleSelect (feature) {
+      if (!feature || !feature.features || !feature.features.length) return
+
       const newFeature = feature.features[0].id
       this.replaceOldFeatures(newFeature)
 

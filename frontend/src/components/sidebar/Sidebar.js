@@ -137,7 +137,9 @@ export default {
     handleResetLayers () {
       this.selectedLayers = []
       EventBus.$emit('draw:reset', null)
-      this.$store.dispatch('setActiveMapLayers', [])
+      this.$store.commit('setActiveMapLayers', [])
+      this.$store.commit('clearDataMartFeatures')
+      this.$store.commit('clearDisplayTemplates')
     }
   },
   watch: {
