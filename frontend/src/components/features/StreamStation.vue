@@ -1,6 +1,6 @@
 <template>
   <v-card>
-    <v-card-title class="subheading font-weight-bold">
+    <v-card-title class="title font-weight-bold">
       <span id="stationTitle">{{ record.properties.name }}</span>
       <span class="grey--text text--darken-2 subtitle-1">Stream monitoring station</span>
       </v-card-title>

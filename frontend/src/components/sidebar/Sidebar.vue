@@ -15,10 +15,14 @@
         {{tab.name}}
       </v-tab>
 
-      <v-tab-item>
+      <v-tab-item class="pa-5">
+        <v-row>
+          <v-col class="title">Select layers</v-col>
+          <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+        </v-row>
         <v-treeview
-          class="mx-3"
           selectable
+          v-model="selectedLayers"
           @input="handleSelectLayer"
           v-if="layers"
           :items="layers"
@@ -46,8 +50,8 @@
               ></v-progress-circular>
             </v-btn>
           <v-list>
-            <v-subheader>Selected points
-            </v-subheader>
+            <div class="title">Selected points
+            </div>
             <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${index}`">
               <v-list-group v-for="(value, name, j) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="~j">
                 <template v-slot:activator>

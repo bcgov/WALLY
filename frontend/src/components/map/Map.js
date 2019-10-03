@@ -39,6 +39,7 @@ export default {
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
+    EventBus.$on('draw:reset', this.replaceOldFeatures)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -49,6 +50,7 @@ export default {
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
+    EventBus.$off('draw:reset', this.replaceOldFeatures)
   },
   data () {
     return {
@@ -281,26 +283,7 @@ export default {
       // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    addWMSLegendGraphic (layername, style) {
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetLegendGraphic',
-        format: 'image/png',
-        layer: 'pub:' + layername,
-        style: style,
-        transparent: true,
-        name: layername,
-        height: 20,
-        width: 20,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query
-      this.legendGraphics[layerID] = url
-    },
-    replaceOldFeatures (newFeature) {
+    replaceOldFeatures (newFeature = null) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)

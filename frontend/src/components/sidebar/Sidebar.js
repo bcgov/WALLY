@@ -2,6 +2,7 @@ import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
 import StreamStation from '../features/StreamStation'
+import EventBus from '../../services/EventBus'
 
 export default {
   name: 'Sidebar',
@@ -19,7 +20,8 @@ export default {
       drawer: true,
       mini: true,
       subHeading: '',
-      reportLoading: false
+      reportLoading: false,
+      selectedLayers: []
     }
   },
   computed: {
@@ -131,6 +133,11 @@ export default {
         return obj
       }
       return {}
+    },
+    handleResetLayers () {
+      this.selectedLayers = []
+      EventBus.$emit('draw:reset', null)
+      this.$store.dispatch('setActiveMapLayers', [])
     }
   },
   watch: {
