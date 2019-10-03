@@ -25,6 +25,10 @@ Font.register({
     fontWeight: 'bold'
 });
 
+const log = (level, message) => {
+    console.log(JSON.stringify({ level, message, datetime: (new Date()).toISOString() }));
+};
+
 const generateFeatureReport = async (data) => {
     let props = {}
 
@@ -65,7 +69,7 @@ const generateFeatureReport = async (data) => {
     if (!host) {
         throw "the API hostname must be provided in environment variable API_SERVICE"
     }
-    console.log(`retrieving data from ${host}...`)    
+    log('info', `retrieving data from ${host}...`)    
     const params = querystring.stringify({
         bbox: bbox,
         layers: layers
@@ -73,7 +77,7 @@ const generateFeatureReport = async (data) => {
     const layerData = await axios.get(
         `http://${host}/api/v1/aggregate?${params}`
     )
-    console.log('data retrieved, generating map image...')
+    log('info', 'data retrieved, generating map image...')
     props['bbox'] = bbox
     props['data'] = layerData.data
 
@@ -112,12 +116,12 @@ const generateFeatureReport = async (data) => {
     //     title: 'Stream Levels 1997-2018 (Average) (m)',
     //     suffix: 'm'
     // })
-    console.log('map generated, retrieving layer catalogue info...')
+    log('info', 'map generated, retrieving layer catalogue info...')
     const catalogue = await axios.get(
         `http://${host}/api/v1/catalogue`
     )
     props['catalogue'] = catalogue.data
-    console.log('layer catalogue retrieved, starting render...')
+    log('info', 'layer catalogue retrieved, starting render...')
     return await renderReact(FeatureReport, props)
 }
 
