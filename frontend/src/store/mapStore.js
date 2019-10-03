@@ -58,6 +58,9 @@ export default {
       state.activeMapLayers = state.mapLayers.filter((l) => {
         return payload.includes(l.display_data_name)
       })
+
+      // send an event to redraw any current features and update selection.
+      EventBus.$emit('draw:redraw')
     },
     setMapLayers (state, payload) {
       state.mapLayers = payload

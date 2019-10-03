@@ -40,6 +40,7 @@ export default {
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
+    EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -51,6 +52,7 @@ export default {
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
+    EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
   },
   data () {
     return {
