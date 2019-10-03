@@ -1,7 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
-import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -179,15 +178,6 @@ export default {
       } else {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(data)
-      }
-    },
-    handleAddFeature (f) {
-      let p = L.latLng(f.lat, f.lng)
-      if (p) {
-        L.popup()
-          .setLatLng(p)
-          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-          .openOn(this.map)
       }
     },
     handleAddWMSLayer (displayDataName) {
