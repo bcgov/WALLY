@@ -53,5 +53,6 @@ export default {
     url('./assets/fonts/NotoSans-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
     url('./assets/fonts/NotoSans-Bold.svg') format('svg'); /* Legacy iOS */
   }
-
+  $mdi-font-path: "~@mdi/font/fonts" !default;
+  @import '~@mdi/font/scss/materialdesignicons';
 </style>

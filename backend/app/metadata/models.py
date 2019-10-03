@@ -14,6 +14,7 @@ class Catalogue(BaseModel):
     wms_name: str = ''
     wms_style: str = ''
     vector_name: str = ''
+    layer_category_code: str = ''
     url: str = ''
 
     class Config:
@@ -25,3 +26,9 @@ class MapConfig(BaseModel):
     Client map config e.g. access tokens
     """
     mapbox_token: str
+
+
+class LayerCategory(BaseModel):
+    """ Layer categories """
+    layer_category_code: str
+    description: str

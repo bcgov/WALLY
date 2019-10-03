@@ -16,7 +16,7 @@
       </v-tab>
 
       <v-tab-item>
-        <v-list dense>
+        <!-- <v-list dense>
           <v-list-group
             v-for="item in layers"
             :key="item.title"
@@ -46,7 +46,14 @@
               </div>
             </div>
           </v-list-group>
-        </v-list>
+        </v-list> -->
+
+        <v-treeview
+          selectable
+          @input="handleSelectLayer"
+          v-if="layers"
+          :items="layers"
+        ></v-treeview>
       </v-tab-item>
 
       <v-tab-item>

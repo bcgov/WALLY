@@ -1,7 +1,6 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
-import * as metadataUtils from '../../utils/metadataUtils'
 import StreamStation from '../features/StreamStation'
 
 export default {
@@ -35,30 +34,37 @@ export default {
       'selectionBoundingBox'
     ]),
     layers () {
-      return [
-        {
-          title: 'Layers',
-          active: 'true',
-          icon: 'layers',
-          action: 'layers',
-          choices: this.allMapLayers
-        }
-      ]
+      return this.filterLayersByCategory(this.allMapLayers)
     }
   },
   methods: {
+    filterLayersByCategory (layers) {
+      let catMap = {}
+
+      layers.forEach((layer) => {
+        const layerNode = {
+          id: layer.display_data_name,
+          name: layer.display_name
+        }
+        if (!catMap[layer.layer_category_code]) {
+          // this category hasn't been seen yet, start it with this layer in it
+          catMap[layer.layer_category_code] = {
+            id: layer.layer_category_code,
+            name: layer.layer_category_code,
+            children: [layerNode]
+          }
+        } else {
+          // category exists: add this layer to it
+          catMap[layer.layer_category_code].children.push(layerNode)
+        }
+      })
+      return Object.values(catMap)
+    },
     setTabById (id) {
       this.active_tab = id
     },
-    handleSelectLayer (id) {
-      this.updateMapLayer(id)
-    },
-    updateMapLayer (id) {
-      if (this.isMapLayerActive(id)) {
-        this.$store.commit('removeMapLayer', id)
-      } else {
-        this.$store.commit('addMapLayer', id)
-      }
+    handleSelectLayer (selectedLayers) {
+      this.$store.commit('setActiveMapLayers', selectedLayers)
     },
     updateDataLayer (id, url) {
       if (this.isDataMartActive(id)) {

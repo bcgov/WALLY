@@ -8,6 +8,7 @@ from app.metadata.db_models import (
     DisplayTemplate,
     DataSource,
     WmsCatalogue,
+    LayerCategory,
     ApiCatalogue,
     VectorCatalogue)
 import itertools
@@ -25,6 +26,8 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.highlight_columns,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
+        # LayerCategory.description,
+        DisplayCatalogue.layer_category_code,
         WmsCatalogue.description,
         WmsCatalogue.wms_name,
         WmsCatalogue.wms_style,)
@@ -36,8 +39,10 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.display_name,
         DisplayCatalogue.display_data_name,
         DisplayCatalogue.highlight_columns,
+        DisplayCatalogue.layer_category_code,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
+        # LayerCategory.description,
         ApiCatalogue.description,
         ApiCatalogue.url,)
 
@@ -48,8 +53,10 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.display_name,
         DisplayCatalogue.display_data_name,
         DisplayCatalogue.highlight_columns,
+        DisplayCatalogue.layer_category_code,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
+        # LayerCategory.description,
         VectorCatalogue.description,
         VectorCatalogue.vector_name,)
 
