@@ -3,6 +3,7 @@ import Sidebar from '../../src/components/sidebar/Sidebar.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
+import testLayers from '../testLayers'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -21,10 +22,11 @@ describe('Sidebar', () => {
         dataMartFeatureInfo: () => {
         },
         dataMartFeatures: () => [],
-        allMapLayers: () => []
+        allMapLayers: () => testLayers.layers,
+        getCategories: () => testLayers.categories
       }
       store = new Vuex.Store({ getters })
-      wrapper = mount(Sidebar, {
+      wrapper = shallowMount(Sidebar, {
         vuetify,
         store,
         localVue
@@ -38,6 +40,15 @@ describe('Sidebar', () => {
 
     it('sidebar tabs exist', () => {
       expect(wrapper.vm.tabs.length).toBe(3)
+    })
+
+    it('created layer categories and children (layers) to be rendered by v-treeview', () => {
+      // see test data in ../testLayers.js
+      // Test data is loaded into the mocked store getters above. This test is for the computed
+      // data that v-treenode uses to render the grouped layers.
+      // The first category has one child node.
+      expect(wrapper.vm.categories.length).toBe(6)
+      expect(wrapper.vm.categories[0].children.length).toBe(1)
     })
   })
 
@@ -55,7 +66,8 @@ describe('Sidebar', () => {
         dataMartFeatureInfo: () => {
         },
         dataMartFeatures: () => [],
-        allMapLayers: () => []
+        allMapLayers: () => testLayers.layers,
+        getCategories: () => testLayers.categories
       }
       store = new Vuex.Store({
         mutations, getters
