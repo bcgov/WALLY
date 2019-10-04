@@ -267,25 +267,6 @@ export default {
       // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    addWMSLegendGraphic (layername, style) {
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetLegendGraphic',
-        format: 'image/png',
-        layer: 'pub:' + layername,
-        style: style,
-        transparent: true,
-        name: layername,
-        height: 20,
-        width: 20,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query
-      this.legendGraphics[layerID] = url
-    },
     replaceOldFeatures (newFeature) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
