@@ -78,8 +78,9 @@ export default {
     },
     createReportFromSelection () {
       this.reportLoading = true
-      this.$store.dispatch('downloadFeatureReport',
+      this.$store.dispatch('downloadExcelReport',
         {
+          format: 'xlsx',
           bbox: this.selectionBoundingBox,
           layers: this.dataMartFeatures.map((feature) => {
             // return the layer names from the active data mart features as a list.
@@ -94,19 +95,17 @@ export default {
         this.reportLoading = false
       })
     },
-    handleFeatureItemClick (item, displayName) {
-      // this.$store.dispatch(FETCH_MAP_OBJECT, item.id)
-      if ('LATITUDE' in item.properties && 'LONGITUDE' in item.properties) {
-        item.coordinates = [item.properties['LATITUDE'], item.properties['LONGITUDE']]
-      } else {
-        item.coordinates = null
-      }
+    setSingleListFeature (item, displayName) {
       this.$store.commit('setDataMartFeatureInfo',
         {
+          type: item.type,
           display_data_name: displayName,
-          coordinates: item.coordinates,
+          geometry: item.geometry,
           properties: item.properties
         })
+    },
+    onMouseEnterListItem (feature, layerName) {
+      this.$store.commit('updateHighlightFeatureData', feature)
     },
     humanReadable: val => humanReadable(val),
     getMapLayerItemTitle: val => {

@@ -5,7 +5,8 @@ import ApiService from '../services/ApiService'
 export default {
   state: {
     activeMapLayers: [],
-    mapLayers: []
+    mapLayers: [],
+    highlightFeatureData: {}
   },
   actions: {
     getMapLayers ({ commit }) {
@@ -42,6 +43,9 @@ export default {
     },
     setMapLayers (state, payload) {
       state.mapLayers = payload
+    },
+    updateHighlightFeatureData (state, payload) {
+      state.highlightFeatureData = payload
     }
   },
   getters: {
@@ -55,6 +59,7 @@ export default {
       let layer = state.mapLayers.find(e => e.display_data_name === displayDataName)
       return layer || null
     },
-    allMapLayers: state => state.mapLayers
+    allMapLayers: state => state.mapLayers,
+    highlightFeatureData: state => state.highlightFeatureData
   }
 }

@@ -5,8 +5,8 @@
           <img :src="require('../assets/bcgov_logo.svg')" height="40" max-width="150" alt="Go to the Government of British Columbia website" />
         </a>
         <h1>Water Allocation</h1>
-        <div aria-label="This application is currently in Beta phase" class=Beta-PhaseBanner>
-          Beta
+        <div aria-label="This application is currently in Alpha phase" class=Beta-PhaseBanner>
+          Alpha
         </div>
     </div>
     <div class="other">
