@@ -1,10 +1,10 @@
 <template>
-  <v-card nobody>
-    <v-card-text v-if="station">
+  <v-card elevation=0>
+    <v-card-text>
       <div class="grey--text text--darken-4 title" id="stationTitle">{{ record.properties.name }}</div>
       <div class="grey--text text--darken-2 subtitle-1">Stream monitoring station</div>
       <v-divider></v-divider>
-      <v-list dense class="mx-0 px-0">
+      <v-list dense class="mx-0 px-0" v-if="station">
         <v-list-item>
           <v-list-item-content>Flow data:</v-list-item-content>
           <v-list-item-content class="align-end">{{ formatYears(station.flow_years) }}</v-list-item-content>
