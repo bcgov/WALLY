@@ -53,5 +53,7 @@ export default {
     url('./assets/fonts/NotoSans-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
     url('./assets/fonts/NotoSans-Bold.svg') format('svg'); /* Legacy iOS */
   }
-
+.feature-content {
+  user-select: auto!important;
+}
 </style>

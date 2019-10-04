@@ -7,15 +7,15 @@
     <v-divider></v-divider>
 
       <v-list dense class="mx-0 px-0">
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>Identification plate number</v-list-item-content>
           <v-list-item-content>{{record.properties.WELL_IDENTIFICATION_PLATE_NO}}</v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>Address</v-list-item-content>
           <v-list-item-content>{{`${record.properties.SITE_STREET || ''}${addressAndStreetProvided ? ', ' : ''}${record.properties.SITE_AREA || ''}` }}</v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>Well use</v-list-item-content>
           <v-list-item-content>{{record.properties.WELL_USE_NAME}}</v-list-item-content>
         </v-list-item>
@@ -48,13 +48,13 @@
           <v-list-item-content>{{record.properties.artesian_pressure}}</v-list-item-content>
         </v-list-item> -->
 
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>Licence status</v-list-item-content>
           <v-list-item-content>
             {{record.properties.WELL_LICENCE_GENERAL_STATUS}}
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>Data source:</v-list-item-content>
           <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells">DataBC Groundwater Wells</a></v-list-item-content>
         </v-list-item>
@@ -128,5 +128,4 @@ export default {
 </script>
 
 <style>
-
 </style>
