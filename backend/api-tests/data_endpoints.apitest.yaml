@@ -63,7 +63,12 @@ requests:
   - name: call aggregate endpoint
     url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers"
     method: get
-    export:
+    expect:
       status: 200
       values:
-        type: FeatureCollection
+        display_data.[0].geojson.type: FeatureCollection
+  - name: call excel report endpoint
+    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers&format=xlsx"
+    method: get
+    expect:
+      status: 200 # response is an excel file, so just check status code.
