@@ -12,6 +12,7 @@ import { sampleData } from './sampleData'
 import querystring from 'querystring'
 
 import Aquifer from './components/Aquifer'
+import EcoCat from './components/EcoCat'
 import ReportSummary from './components/Summary'
 import GenericDatasheet from './components/GenericDatasheet'
 import Hydat from './components/Hydat'
@@ -180,13 +181,12 @@ class FeatureReport extends React.Component {
         let featureData = {}
         featureData[strings.aquifers] = sections.find(s => s.layer === strings.aquifers)
         featureData[strings.HYDAT] = sections.find(s => s.layer === strings.HYDAT)
+        featureData[strings.ECOCAT] = sections.find(s => s.layer === strings.ECOCAT)
 
         // make a list of any additional layers that we haven't pulled out.
         const extraSections = sections.filter(s => {
             return !featureData[s.layer]
         })
-
-
 
         return (
             <Document title="Water Allocation Report">
@@ -204,8 +204,8 @@ class FeatureReport extends React.Component {
                 </Page>
 
                 {/* Aquifer section */}
-                {featureData[strings.aquifers].geojson &&
-                    featureData[strings.aquifers].geojson.features &&
+                {featureData[strings.aquifers] && featureData[strings.aquifers].geojson &&
+                    !!featureData[strings.aquifers].geojson.features &&
                     <Page size="LETTER" wrap style={styles.container}>
                         <Aquifer
                             aquifers={featureData[strings.aquifers]}
@@ -216,14 +216,25 @@ class FeatureReport extends React.Component {
                 {/* Hydrometric data section */}
                 {featureData[strings.HYDAT] &&
                     featureData[strings.HYDAT].geojson &&
-                    featureData[strings.HYDAT].geojson.features &&
+                    !!featureData[strings.HYDAT].geojson.features &&
                     <Page size="LETTER" wrap style={styles.container}>
                         <Hydat
                             data={featureData[strings.HYDAT]}
                         ></Hydat>
                     </Page>
                 }
-                
+
+                {/* Hydrometric data section */}
+                {featureData[strings.ECOCAT] &&
+                    featureData[strings.ECOCAT].geojson &&
+                    !!featureData[strings.ECOCAT].geojson.features &&
+                    <Page size="LETTER" wrap style={styles.container}>
+                        <EcoCat
+                            data={featureData[strings.ECOCAT]}
+                        ></EcoCat>
+                    </Page>
+                }
+
                 {/* All other data that doesn't have custom components will be displayed in list format. */}
                 {extraSections.map((s, i) => (
                 <Page size="LETTER" wrap style={styles.container} key={i}>
