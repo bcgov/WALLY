@@ -47,7 +47,7 @@ describe('Sidebar', () => {
     let getters
     beforeEach(() => {
       mutations = {
-        addMapLayer: jest.fn(),
+        setActiveMapLayers: jest.fn(),
         removeMapLayer: jest.fn()
       }
       getters = {
@@ -69,10 +69,10 @@ describe('Sidebar', () => {
         localVue
       })
       let fakeLayerName = 'fake'
-      wrapper.vm.handleSelectLayer(fakeLayerName) // Will fail isMapLayerActive anyway
-      expect(mutations.addMapLayer.mock.calls).toHaveLength(1)
-      expect(mutations.addMapLayer.mock.calls[0][1])
-        .toEqual(fakeLayerName)
+      wrapper.vm.handleSelectLayer([fakeLayerName]) // Will fail isMapLayerActive anyway
+      expect(mutations.setActiveMapLayers.mock.calls).toHaveLength(1)
+      expect(mutations.setActiveMapLayers.mock.calls[0][1])
+        .toEqual([fakeLayerName])
     })
   })
 })

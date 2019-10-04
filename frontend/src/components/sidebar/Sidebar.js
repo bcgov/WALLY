@@ -108,7 +108,6 @@ export default {
     },
     humanReadable: val => humanReadable(val),
     getMapLayerItemTitle: val => {
-      console.log(val)
       return utils.getMapLayerItemTitle(val)
     },
     getMapLayerItemValue: val => utils.getMapLayerItemValue(val),
