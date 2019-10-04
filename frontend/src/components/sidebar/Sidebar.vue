@@ -17,15 +17,15 @@
 
       <v-tab-item class="pa-5">
         <v-row>
-          <v-col class="title">Select layers</v-col>
+          <v-col class="title">Categories</v-col>
           <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
         </v-row>
         <v-treeview
           selectable
           v-model="selectedLayers"
           @input="handleSelectLayer"
-          v-if="layers"
-          :items="layers"
+          v-if="layers && categories"
+          :items="categories"
         ></v-treeview>
       </v-tab-item>
 

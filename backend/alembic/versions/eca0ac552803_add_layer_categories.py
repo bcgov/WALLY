@@ -37,6 +37,8 @@ def upgrade():
                               sa.String(), nullable=False),
                     sa.Column('description',
                               sa.String(length=255), nullable=False),
+                    sa.Column('display_order',
+                              sa.Integer, nullable=False),
                     sa.PrimaryKeyConstraint('layer_category_code'),
                     schema='metadata'
                     )
@@ -46,13 +48,14 @@ def upgrade():
 
     # add starting codes into code table
     op.execute("""
-        INSERT INTO layer_category (layer_category_code, description) VALUES
-        ('LAND_TENURE', 'Land Tenure and Administrative Boundaries'),
-        ('FISH_WILDLIFE_PLANTS', 'Fish, Wildlife, and Plant Species'),
-        ('FRESHWATER_MARINE', 'Freshwater and Marine'),
-        ('WATER_ADMINISTRATION','Water Administration'),
-        ('REPORTS', 'Reports'),
-        ('WEATHER', 'Weather and Precipitation') 
+        INSERT INTO layer_category (layer_category_code, description, display_order) VALUES
+        ('LAND_TENURE', 'Land Tenure and Administrative Boundaries', 10),
+        ('FISH_WILDLIFE_PLANTS', 'Fish, Wildlife, and Plant Species', 20),
+        ('FRESHWATER_MARINE', 'Freshwater and Marine', 30),
+        ('WATER_ADMINISTRATION','Water Administration', 40),
+        ('REPORTS', 'Reports', 50),
+        ('FORESTS', 'Forests, Grasslands and Wetlands', 60),
+        ('AIR_CLIMATE', 'Air and Climate', 70) 
     """)
 
     # one time command to populate the new column.
@@ -67,9 +70,9 @@ def upgrade():
             WHEN dc.display_data_name = 'freshwater_atlas_watersheds' THEN 'FRESHWATER_MARINE'
             WHEN dc.display_data_name = 'bc_major_watersheds' THEN 'FRESHWATER_MARINE'
             WHEN dc.display_data_name = 'cadastral' THEN 'LAND_TENURE'
-            WHEN dc.display_data_name = 'automated_snow_weather_station_locations' THEN 'WEATHER'
+            WHEN dc.display_data_name = 'automated_snow_weather_station_locations' THEN 'FRESHWATER_MARINE'
             WHEN dc.display_data_name = 'freshwater_atlas_stream_directions' THEN 'FRESHWATER_MARINE'
-            WHEN dc.display_data_name = 'bc_wildfire_active_weather_stations' THEN 'WEATHER'
+            WHEN dc.display_data_name = 'bc_wildfire_active_weather_stations' THEN 'FORESTS'
             WHEN dc.display_data_name = 'ecocat_water_related_reports' THEN 'REPORTS'
             WHEN dc.display_data_name = 'aquifers' THEN 'FRESHWATER_MARINE'
             WHEN dc.display_data_name = 'water_allocation_restrictions' THEN 'FRESHWATER_MARINE'

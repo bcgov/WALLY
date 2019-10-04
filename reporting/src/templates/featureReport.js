@@ -116,7 +116,7 @@ const generateFeatureReport = async (data) => {
     const catalogue = await axios.get(
         `http://${host}/api/v1/catalogue`
     )
-    props['catalogue'] = catalogue.data
+    props['catalogue'] = catalogue.data.layers
 
     return await renderReact(FeatureReport, props)
 }

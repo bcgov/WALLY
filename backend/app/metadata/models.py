@@ -2,7 +2,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Schema
 
 
-class Catalogue(BaseModel):
+class Layer(BaseModel):
     """
     Map layer information
     """
@@ -32,3 +32,13 @@ class LayerCategory(BaseModel):
     """ Layer categories """
     layer_category_code: str
     description: str
+    display_order: int
+
+    class Config:
+        orm_mode = True
+
+
+class Catalogue(BaseModel):
+    """ catalogue of layers and other layer metadata """
+    layers: List[Layer]
+    categories: List[LayerCategory]

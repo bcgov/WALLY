@@ -33,10 +33,22 @@ export default {
       'allMapLayers',
       'mapLayerName',
       'getMapLayer',
-      'selectionBoundingBox'
+      'selectionBoundingBox',
+      'getCategories'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
+    },
+    categories () {
+      // Returns categories with child nodes from this.layers.
+      // The v-treeview component expects nodes to have keys id, name, and children.
+      // Finally, filter out empty categories, since this can cause a problem if they get selected
+      // and there is no need to allow selecting empty categories.
+      return this.getCategories.map((c) => ({
+        id: c.layer_category_code,
+        name: c.description,
+        children: this.layers[c.layer_category_code]
+      })).filter((c) => !!c.children)
     }
   },
   methods: {
@@ -50,17 +62,13 @@ export default {
         }
         if (!catMap[layer.layer_category_code]) {
           // this category hasn't been seen yet, start it with this layer in it
-          catMap[layer.layer_category_code] = {
-            id: layer.layer_category_code,
-            name: layer.layer_category_code,
-            children: [layerNode]
-          }
+          catMap[layer.layer_category_code] = [layerNode]
         } else {
           // category exists: add this layer to it
-          catMap[layer.layer_category_code].children.push(layerNode)
+          catMap[layer.layer_category_code].push(layerNode)
         }
       })
-      return Object.values(catMap)
+      return catMap
     },
     setTabById (id) {
       this.active_tab = id

@@ -67,6 +67,11 @@ def get_display_catalogue(db: Session):
     return wms_result + api_result + vector_result
 
 
+def get_layer_categories(db: Session):
+    """ returns layer categories from the database """
+    return db.query(LayerCategory).order_by(LayerCategory.display_order).all()
+
+
 def get_highlight_columns(db: Session, display_data_name: str):
     """ Get highlight columns for a catalogue layer"""
     return db.query(DisplayCatalogue).\

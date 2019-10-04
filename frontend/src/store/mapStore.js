@@ -6,7 +6,8 @@ export default {
   state: {
     activeMapLayers: [],
     mapLayers: [],
-    highlightFeatureData: {}
+    highlightFeatureData: {},
+    layerCategories: []
   },
   actions: {
     getMapLayers ({ commit }) {
@@ -16,7 +17,8 @@ export default {
           console.log('Getting map layers')
           ApiService.getApi('/catalogue')
             .then((response) => {
-              commit('setMapLayers', response.data)
+              commit('setMapLayers', response.data.layers)
+              commit('setLayerCategories', response.data.categories)
               EventBus.$emit(`layers:loaded`)
             })
             .catch((error) => {
@@ -27,6 +29,9 @@ export default {
     }
   },
   mutations: {
+    setLayerCategories (state, payload) {
+      state.layerCategories = payload
+    },
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
         state.mapLayers.find((layer) => {
@@ -81,6 +86,7 @@ export default {
       return layer || null
     },
     allMapLayers: state => state.mapLayers,
-    highlightFeatureData: state => state.highlightFeatureData
+    highlightFeatureData: state => state.highlightFeatureData,
+    getCategories: state => state.layerCategories
   }
 }

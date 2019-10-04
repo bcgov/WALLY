@@ -258,3 +258,4 @@ class LayerCategory(Base):
     layer_category_code = Column(String, primary_key=True)
     description = Column(String(length=255))
     layers = relationship("DisplayCatalogue", back_populates="layer_category")
+    display_order = Column(Integer)
