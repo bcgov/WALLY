@@ -201,7 +201,7 @@ class FeatureReport extends React.Component {
 
                 {/* Aquifer section */}
                 {featureData[strings.aquifers] && featureData[strings.aquifers].geojson &&
-                    !!featureData[strings.aquifers].geojson.features.length &&
+                    !!featureData[strings.aquifers].geojson.features &&
                     <Page size="LETTER" wrap style={styles.container}>
                         <Aquifer
                             aquifers={featureData[strings.aquifers]}
@@ -212,7 +212,7 @@ class FeatureReport extends React.Component {
                 {/* Hydrometric data section */}
                 {featureData[strings.HYDAT] &&
                     featureData[strings.HYDAT].geojson &&
-                    !!featureData[strings.HYDAT].geojson.features.length &&
+                    !!featureData[strings.HYDAT].geojson.features &&
                     <Page size="LETTER" wrap style={styles.container}>
                         <Hydat
                             data={featureData[strings.HYDAT]}
@@ -223,7 +223,7 @@ class FeatureReport extends React.Component {
                 {/* Hydrometric data section */}
                 {featureData[strings.ECOCAT] &&
                     featureData[strings.ECOCAT].geojson &&
-                    !!featureData[strings.ECOCAT].geojson.features.length &&
+                    !!featureData[strings.ECOCAT].geojson.features &&
                     <Page size="LETTER" wrap style={styles.container}>
                         <EcoCat
                             data={featureData[strings.ECOCAT]}
