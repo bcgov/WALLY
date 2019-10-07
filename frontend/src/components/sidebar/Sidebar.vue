@@ -52,23 +52,42 @@
       <v-tab-item>
         <v-card class="mx-auto elevation-0">
           <v-card-text>
-            <v-btn
-              v-if="dataMartFeatures && dataMartFeatures.length"
-              dark
-              @click="createReportFromSelection"
-              color="blue"
-              class="float-right mt-3"
-            >
-              Download XLSX
-              <v-icon class="ml-1" v-if="!reportLoading">cloud_download</v-icon>
-              <v-progress-circular
-                v-if="reportLoading"
-                indeterminate
-                size=24
-                class="ml-1"
-                color="primary"
-              ></v-progress-circular>
-            </v-btn>
+            <span class="float-right mt-3">
+              <v-btn
+                v-if="dataMartFeatures && dataMartFeatures.length"
+                dark
+                @click="createSpreadsheetFromSelection"
+                color="blue"
+              >
+                Excel
+                <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                <v-progress-circular
+                  v-if="spreadsheetLoading"
+                  indeterminate
+                  size=24
+                  class="ml-1"
+                  color="primary"
+                ></v-progress-circular>
+              </v-btn>
+              <v-btn
+                v-if="dataMartFeatures && dataMartFeatures.length"
+                dark
+                @click="createPdfFromSelection"
+                color="blue"
+                class="ml-2"
+              >
+                PDF
+                <v-icon class="ml-1" v-if="!pdfReportLoading">picture_as_pdf</v-icon>
+                <v-progress-circular
+                  v-if="pdfReportLoading"
+                  indeterminate
+                  size=24
+                  class="ml-1"
+                  color="primary"
+                ></v-progress-circular>
+              </v-btn>
+            </span>
+
           <v-list>
             <v-subheader>Selected points
             </v-subheader>
@@ -90,7 +109,7 @@
                             <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
                               <v-card
                                 class="px-2 py-3 mx-1 my-2"
-                                :elevation="hover ? 8 : 2"
+                                :elevation="hover ? 2 : 0"
                                 @mousedown="setSingleListFeature(value[item.id], name)"
                                 @mouseenter="onMouseEnterListItem(value[item.id], name)"
                               >
