@@ -20,7 +20,8 @@ export default {
       drawer: true,
       mini: true,
       subHeading: '',
-      reportLoading: false
+      spreadsheetLoading: false,
+      pdfReportLoading: false
     }
   },
   computed: {
@@ -67,8 +68,8 @@ export default {
         this.$store.dispatch('getDataMart', { id: id, url: url })
       }
     },
-    createReportFromSelection () {
-      this.reportLoading = true
+    createSpreadsheetFromSelection () {
+      this.spreadsheetLoading = true
       this.$store.dispatch('downloadExcelReport',
         {
           format: 'xlsx',
@@ -83,7 +84,25 @@ export default {
       ).catch((e) => {
         console.error(e)
       }).finally(() => {
-        this.reportLoading = false
+        this.spreadsheetLoading = false
+      })
+    },
+    createPdfFromSelection () {
+      this.pdfReportLoading = true
+      this.$store.dispatch('downloadPDFReport',
+        {
+          bbox: this.selectionBoundingBox,
+          layers: this.dataMartFeatures.map((feature) => {
+            // return the layer names from the active data mart features as a list.
+            // there is only expected to be one key, so we could use either
+            // Object.keys(feature)[0] or call flat() on the resulting nested array.
+            return Object.keys(feature)
+          }).flat()
+        }
+      ).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.pdfReportLoading = false
       })
     },
     setSingleListFeature (item, displayName) {
