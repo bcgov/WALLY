@@ -12,6 +12,7 @@ from app.metadata.db_models import (
     ApiCatalogue,
     VectorCatalogue)
 import itertools
+import operator
 from logging import getLogger
 from sqlalchemy.orm import joinedload, subqueryload
 
@@ -26,14 +27,14 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.highlight_columns,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
-        # LayerCategory.description,
+        LayerCategory.display_order,
         DisplayCatalogue.layer_category_code,
         WmsCatalogue.description,
         WmsCatalogue.wms_name,
         WmsCatalogue.wms_style,)
 
-    wms_result = wms_query.filter(
-        DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all()
+    wms_result = wms_query.join(WmsCatalogue).join(LayerCategory).filter(
+        DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all() \
 
     api_query = db.query(
         DisplayCatalogue.display_name,
@@ -42,12 +43,13 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.layer_category_code,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
-        # LayerCategory.description,
+        LayerCategory.display_order,
         ApiCatalogue.description,
         ApiCatalogue.url,)
 
-    api_result = api_query.filter(
-        DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id).all()
+    api_result = api_query.join(ApiCatalogue).join(LayerCategory).filter(
+        DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id) \
+        .all()
 
     vector_query = db.query(
         DisplayCatalogue.display_name,
@@ -56,15 +58,21 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.layer_category_code,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
-        # LayerCategory.description,
+        LayerCategory.display_order,
         VectorCatalogue.description,
         VectorCatalogue.vector_name,)
 
-    vector_result = vector_query \
+    vector_result = vector_query.join(VectorCatalogue).join(LayerCategory) \
         .filter(DisplayCatalogue.vector_catalogue_id == VectorCatalogue.vector_catalogue_id) \
         .all()
 
-    return wms_result + api_result + vector_result
+    all_layers = wms_result + api_result + vector_result
+
+    # Ideally, we would sort in the database, but because our tables have different columns
+    # (for vector info, wms info etc.), we are using 3 queries.  As such, we sort them
+    # after retrieving all 3 sets of layers. We could arguably consolidate the WMS, API and
+    # VectorCatalogue tables and that would allow us to use an ORDER BY clause.
+    return sorted(all_layers, key=operator.attrgetter('display_order', 'display_name'))
 
 
 def get_layer_categories(db: Session):
