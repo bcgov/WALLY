@@ -320,7 +320,6 @@ export default {
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
       this.map.on('draw.update', this.handleSelect)
-      this.map.on('draw.actionable', (e) => console.log(e))
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
