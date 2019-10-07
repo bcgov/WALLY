@@ -320,6 +320,10 @@ export default {
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
       this.map.on('draw.update', this.handleSelect)
+      this.map.on('draw.delete', () => {
+        this.$store.commit('clearDataMartFeatures')
+        this.$store.commit('clearDisplayTemplates')
+      })
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
