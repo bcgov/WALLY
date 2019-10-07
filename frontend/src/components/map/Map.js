@@ -86,6 +86,7 @@ export default {
 
       const modes = MapboxDraw.modes
       modes.draw_polygon = DrawRectangle
+      modes.simple_select.onTrash = this.replaceOldFeatures
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -169,7 +170,6 @@ export default {
     },
     async searchWallyAPI () {
       const results = await ApiService.getApi('/geocode?q=a')
-      console.log(results.data)
       return results.data
     },
     updateHighlightLayerData (data) {
@@ -320,6 +320,7 @@ export default {
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
       this.map.on('draw.update', this.handleSelect)
+      this.map.on('draw.actionable', (e) => console.log(e))
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
