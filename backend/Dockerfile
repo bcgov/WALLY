@@ -4,6 +4,8 @@ WORKDIR /app/
 
 COPY ./requirements.txt /
 
+RUN apt-get install wkhtmltopdf
+
 RUN pip install -r /requirements.txt
 
 COPY . /app
