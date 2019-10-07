@@ -160,3 +160,20 @@ export const LAYER_PROPERTY_NAMES = {
   'WELL_TAG_NUMBER': 'Well Tag No.',
   'AQUIFER_NUMBER': 'Aquifer No.'
 }
+
+// TODO TEMPORARY USE UNTIL VECTOR LAYERS ONLY USE PK PROPERTY OR LOOKUP TABLE CREATED
+export const PRIMARY_KEYS = {
+  'aquifers': 'AQ_TAG',
+  'automated_snow_weather_station_locations': 'SNOW_ASWS_STN_ID',
+  'bc_major_watersheds': 'OBJECTID',
+  'bc_wildfire_active_weather_stations': 'WEATHER_STATIONS_ID',
+  'cadastral': 'PARCEL_FABRIC_POLY_ID',
+  'critical_habitat_species_at_risk': 'CRITICAL_HABITAT_ID',
+  'ecocat_water_related_reports': 'REPORT_POINT_ID',
+  'freshwater_atlas_stream_directions': 'OBJECTID',
+  'freshwater_atlas_watersheds': 'WATERSHED_FEATURE_ID',
+  'groundwater_wells': 'WELL_TAG_NO',
+  'hydrometric_stream_flow': 'station_number',
+  'water_allocation_restrictions': 'OBJECTID',
+  'water_rights_licences': 'WLS_WRL_SYSID'
+}

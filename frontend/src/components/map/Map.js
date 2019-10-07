@@ -8,6 +8,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
 import HighlightPoint from './MapHighlightPoint'
+import * as metadata from '../../utils/metadataUtils'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
@@ -330,14 +331,13 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
+      // Calls API and gets and sets feature data
       const feature = e.features[0]
-      this.$store.commit('setDataMartFeatureInfo',
-        {
-          type: feature.type,
-          display_data_name: feature.layer.id,
-          geometry: feature.geometry,
-          properties: feature.properties
-        })
+      let payload = {
+        display_data_name: feature.layer.id,
+        pk: feature.properties[metadata.PRIMARY_KEYS[feature.layer.id]]
+      }
+      this.$store.dispatch('getDataMartFeatureInfo', payload)
     },
     getPolygonCenter (arr) {
       if (arr.length === 1) { return arr }

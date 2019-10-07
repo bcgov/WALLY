@@ -70,6 +70,7 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
         layer_class = API_DATASOURCES[layer]
     except:
         raise HTTPException(status_code=404, detail="Layer not found")
+    
     return agr_repo.get_layer_feature(db, layer_class, pk)
 
 

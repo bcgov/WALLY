@@ -24,18 +24,22 @@ export default {
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
-      // WMS request
-      // TODO: Complete this request
-      ApiService.getRaw(payload.url).then((res) => {
-        // TODO validate properties
-        commit('setDataMartFeatureInfo', {
-          displayDataName: res.data.features[0].id,
-          coordinates: [payload.lat, payload.lng],
-          properties: res.data.features[0].properties })
-        EventBus.$emit(`feature:added`, payload)
-      }).catch((error) => {
-        console.log(error) // TODO create error state item and mutation
-      })
+      const { display_data_name, pk } = payload
+      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk )
+        .then((response) => {
+          console.log(response)
+          let feature = response.data
+          commit('setDataMartFeatureInfo',
+          {
+            type: feature.type,
+            display_data_name: display_data_name,
+            geometry: feature.geometry,
+            properties: feature.properties
+          })
+        })
+        .catch((error) => {
+          console.log(error) // TODO create error state item and mutation
+        })
     },
     getDataMartFeatures ({ commit }, payload) {
       var layers = payload.layers.map((x) => {
