@@ -548,7 +548,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "REPLICAS=2",
-                  "CPU_LIMIT=4"
+                  "CPU_LIMIT=1"
                 ))
 
                 echo "Deploying to a dev environment"
