@@ -86,7 +86,11 @@ export default {
 
       const modes = MapboxDraw.modes
       modes.draw_polygon = DrawRectangle
-      modes.simple_select.onTrash = this.replaceOldFeatures
+      modes.simple_select.onTrash = () => {
+        this.replaceOldFeatures()
+        this.$store.commit('clearDataMartFeatures')
+        this.$store.commit('clearDisplayTemplates')
+      }
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -320,10 +324,6 @@ export default {
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
       this.map.on('draw.update', this.handleSelect)
-      this.map.on('draw.delete', () => {
-        this.$store.commit('clearDataMartFeatures')
-        this.$store.commit('clearDisplayTemplates')
-      })
     },
     getMapObjects (bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
