@@ -75,7 +75,7 @@ def upgrade():
             WHEN dc.display_data_name = 'bc_wildfire_active_weather_stations' THEN 'FORESTS'
             WHEN dc.display_data_name = 'ecocat_water_related_reports' THEN 'REPORTS'
             WHEN dc.display_data_name = 'aquifers' THEN 'FRESHWATER_MARINE'
-            WHEN dc.display_data_name = 'water_allocation_restrictions' THEN 'FRESHWATER_MARINE'
+            WHEN dc.display_data_name = 'water_allocation_restrictions' THEN 'WATER_ADMINISTRATION'
             WHEN dc.display_data_name = 'critical_habitat_species_at_risk' THEN 'FISH_WILDLIFE_PLANTS'
             WHEN dc.display_data_name = 'hydrometric_stream_flow' THEN 'FRESHWATER_MARINE'
             ELSE NULL
