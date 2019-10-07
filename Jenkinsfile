@@ -451,7 +451,8 @@ pipeline {
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "CPU_LIMIT=4"
                 ))
 
                 echo "Deploying to a dev environment"
@@ -546,7 +547,8 @@ pipeline {
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "CPU_LIMIT=4"
                 ))
 
                 echo "Deploying to a dev environment"
