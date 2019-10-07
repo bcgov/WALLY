@@ -15,38 +15,18 @@
         {{tab.name}}
       </v-tab>
 
-      <v-tab-item>
-        <v-list dense>
-          <v-list-group
-            v-for="item in layers"
-            :key="item.title"
-            v-model="item.active"
-            :prepend-icon="item.action"
-            class="pb-5"
-          >
-            <template v-slot:activator>
-              <v-list-item>
-                <v-list-item-content>
-                  <v-list-item-title class="wally-sidebar-category">{{ item.title }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </template>
-
-            <div v-if="item.choices != null && item.choices.length" class="mt-3 pb-12">
-              <div
-                v-for="choice in item.choices"
-                :key="choice.display_data_name"
-              >
-                <p class="pl-3">
-                  <label class="checkbox grey--text text--darken-4">{{choice.display_name}}
-                    <input type="checkbox" @input="handleSelectLayer(choice.display_data_name, (choice.url !== '' ? 'api' : 'wms'), choice.url)" :checked="isMapLayerActive(choice.display_data_name)">
-                    <span class="checkmark"></span>
-                  </label>
-                </p>
-              </div>
-            </div>
-          </v-list-group>
-        </v-list>
+      <v-tab-item class="pa-5">
+        <v-row>
+          <v-col class="title">Categories</v-col>
+          <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+        </v-row>
+        <v-treeview
+          selectable
+          v-model="selectedLayers"
+          @input="handleSelectLayer"
+          v-if="layers && categories"
+          :items="categories"
+        ></v-treeview>
       </v-tab-item>
 
       <v-tab-item>
@@ -89,8 +69,8 @@
             </span>
 
           <v-list>
-            <v-subheader>Selected points
-            </v-subheader>
+            <div class="title">Selected points
+            </div>
             <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${index}`">
               <v-list-group v-for="(value, name, j) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="~j">
                 <template v-slot:activator>
