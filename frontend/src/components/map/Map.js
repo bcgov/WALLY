@@ -58,7 +58,8 @@ export default {
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
-      draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
+      draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
+      isDrawingToolActive: false
     }
   },
   computed: {
@@ -126,6 +127,18 @@ export default {
       this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
+
+      // Subscribe to mode change event to toggle drawing state
+      this.map.on('draw.modechange', this.handleModeChange)
+    },
+    handleModeChange (e) {
+      if(e.mode == 'draw_polygon') {
+        this.isDrawingToolActive = true
+      } else if (e.mode == 'simple_select') {
+        setTimeout(() => {
+          this.isDrawingToolActive = false
+        }, 500)
+      }
     },
     initHighlightLayers () {
       this.map.on('load', () => {
@@ -336,13 +349,15 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      // Calls API and gets and sets feature data
-      const feature = e.features[0]
-      let payload = {
-        display_data_name: feature.layer.id,
-        pk: feature.properties[metadata.PRIMARY_KEYS[feature.layer.id]]
+      if(!this.isDrawingToolActive) {
+        // Calls API and gets and sets feature data
+        const feature = e.features[0]
+        let payload = {
+          display_data_name: feature.layer.id,
+          pk: feature.properties[metadata.PRIMARY_KEYS[feature.layer.id]]
+        }
+        this.$store.dispatch('getDataMartFeatureInfo', payload)
       }
-      this.$store.dispatch('getDataMartFeatureInfo', payload)
     },
     getPolygonCenter (arr) {
       if (arr.length === 1) { return arr }
