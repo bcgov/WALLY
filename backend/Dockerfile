@@ -7,7 +7,18 @@ RUN apt-get -y install ca-certificates
 COPY ./requirements.txt /
 
 RUN apt-get update
-RUN apt-get install -y wkhtmltopdf xvfb xauth xfonts-base xfonts-75dpi fontconfig vim
+#RUN apt-get install -y wkhtmltopdf xvfb xauth xfonts-base xfonts-75dpi fontconfig vim
+
+
+ENV WKHTML2PDF_VERSION '0.12.5'
+RUN apt-get install -y openssl build-essential xorg xvfb xauth xfonts-base xfonts-75dpi libssl-dev vim
+RUN wget -O wkhtmltox.deb "https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/${WKHTML2PDF_VERSION}/wkhtmltox_${WKHTML2PDF_VERSION}-1.stretch_amd64.deb"
+RUN dpkg -i wkhtmltox.deb
+# RUN tar -xJf "wkhtmltox-${WKHTML2PDF_VERSION}_linux-generic-amd64.tar.xz"
+# RUN mv wkhtmltox/bin/wkhtmltopdf /usr/local/bin/wkhtmltopdf
+#RUN cd wkhtmltox
+#RUN chown root:root bin/wkhtmltopdf
+#RUN cp -r * /usr/
 
 RUN pip install -r /requirements.txt
 
