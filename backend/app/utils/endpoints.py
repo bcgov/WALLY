@@ -1,18 +1,18 @@
-from logging import getLogger
+import logging
 from fastapi import APIRouter, Depends, HTTPException
 import pdfkit
 from app import config
 from starlette.responses import Response
 
-logger = getLogger("utils")
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("utils")
 
-router = APIRouter()d
+router = APIRouter()
 
 
 @router.get("/report")
 def generate_report():
-    logger.info('getting report from')
-    logger.info(config.REPORT_URL)
+    logger.info(f"getting report from {config.REPORT_URL}")
     pdf_report = pdfkit.from_url(config.REPORT_URL, False)
 
     response = Response(
