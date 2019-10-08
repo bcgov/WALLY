@@ -3,6 +3,7 @@ import Router from 'vue-router'
 import Home from './views/Home.vue'
 import Login from './views/Login.vue'
 import Restricted from './views/Restricted.vue'
+import HtmlReport from './components/htmlreport/HtmlReport.vue'
 
 Vue.use(Router)
 
@@ -48,6 +49,11 @@ const router = new Router({
       path: '/request-access',
       component: Restricted,
       name: 'request-access'
+    },
+    {
+      path: '/html-report',
+      component: HtmlReport,
+      name: 'html-report'
     }
   ]
 })

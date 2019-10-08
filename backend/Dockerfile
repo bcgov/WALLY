@@ -4,7 +4,8 @@ WORKDIR /app/
 
 COPY ./requirements.txt /
 
-RUN apt-get install wkhtmltopdf
+RUN apt-get update
+RUN apt-get install -y wkhtmltopdf xvfb xauth xfonts-base xfonts-75dpi fontconfig
 
 RUN pip install -r /requirements.txt
 
