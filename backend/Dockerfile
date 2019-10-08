@@ -7,7 +7,7 @@ RUN apt-get -y install ca-certificates
 COPY ./requirements.txt /
 
 RUN apt-get update
-RUN apt-get install -y wkhtmltopdf xvfb xauth xfonts-base xfonts-75dpi fontconfig
+RUN apt-get install -y wkhtmltopdf xvfb xauth xfonts-base xfonts-75dpi fontconfig vim
 
 RUN pip install -r /requirements.txt
 
