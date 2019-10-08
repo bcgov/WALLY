@@ -1,6 +1,6 @@
 import { createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
-import * as map from '../../src/store/mapStore'
+import * as map from '../../../src/store/mapStore'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)

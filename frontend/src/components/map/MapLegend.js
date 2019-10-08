@@ -18,7 +18,6 @@ export default {
           mapLayerType = this.map.getLayer(layerID).type
 
           if (mapLayerType === 'raster') {
-            console.log('Using a graphic')
           } else {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
             legendItems = this.getLegendItems(mapLayerPaint, mapLayerType)
@@ -31,13 +30,11 @@ export default {
             this.legend.push(layerLegend)
           }
         } catch (err) {
-          // TODO: Log error
-          console.log('Something happened', err)
+          console.error(err)
         }
       })
     },
     getPaint (lType, id) {
-      console.log(lType)
       let color = lType !== 'symbol' && this.map.getPaintProperty(id, lType + '-color')
       let strokeWidth = lType === 'circle' && this.map.getPaintProperty(id, lType + '-stroke-width')
       // let strokeColor = lType === 'circle' && this.map.getPaintProperty(id, lType + '-stroke-color')
@@ -65,7 +62,6 @@ export default {
     getLegendItems (paint, lType) {
       let color, text
       // Skip first element
-      console.log(paint)
       let icon
       if (lType === 'line') {
         icon = 'remove'
@@ -83,10 +79,8 @@ export default {
       let iconSize = icon === 'lens' ? 12 : 20
       let legendItems = []
 
-      console.log(paint.color)
       // There's only one type in this layer
       if (typeof paint.color === 'string') {
-        console.log('blha')
         legendItems.push({
           'text': '',
           'color': paint.color,

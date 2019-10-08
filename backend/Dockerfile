@@ -2,6 +2,8 @@ FROM python:3.7
 
 WORKDIR /app/
 
+RUN apt-get -y install ca-certificates
+
 COPY ./requirements.txt /
 
 RUN apt-get update

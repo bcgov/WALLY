@@ -90,6 +90,14 @@ export default {
   },
   watch: {
     displayTemplates (value) {
+      // if templates were cleared, close the context bar.
+      if (!value.displayTemplates || !value.displayTemplates.length) {
+        this.showContextBar = false
+        return
+      }
+
+      // otherwise, when a new set of templates appears, process them
+      // and display them in the context bar.
       this.processTemplates(value.displayTemplates)
       this.chartKey++ // hack to refresh vue component; doesn't work
       // }
