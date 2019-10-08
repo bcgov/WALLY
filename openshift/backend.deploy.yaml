@@ -79,6 +79,8 @@ objects:
               value: wally-psql-master-${NAME}
             - name: WALLY_ENV
               value: "${ENVIRONMENT}"
+            - name: REPORT_URL
+              value: "${REPORT_URL}"
       type: Rolling
     template:
       metadata:

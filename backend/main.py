@@ -53,7 +53,7 @@ def health_check():
 
 @app.get("/generate_report")
 def generate_report():
-    pdf_report = pdfkit.from_url(config.REPORT_URL + '/html-report', False)
+    pdf_report = pdfkit.from_url(config.REPORT_URL, False)
 
     response = Response(
         content=pdf_report,
