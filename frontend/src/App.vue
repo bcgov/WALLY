@@ -21,13 +21,9 @@ export default {
 </script>
 
 <style lang="scss">
-  body {
-    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
-    color: #494949;
-  }
-  a {
-    color: #1A5A96;
-  }
+  $mdi-font-path: "~@mdi/font/fonts" !default;
+  @import '~@mdi/font/scss/materialdesignicons';
+
   /* noto-sans-regular - latin */
   @font-face {
     font-family: 'Noto Sans';
@@ -53,7 +49,15 @@ export default {
     url('./assets/fonts/NotoSans-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
     url('./assets/fonts/NotoSans-Bold.svg') format('svg'); /* Legacy iOS */
   }
-.feature-content {
-  user-select: auto!important;
-}
+  body {
+    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
+    color: #494949;
+  }
+  a {
+    color: #1A5A96;
+  }
+  .feature-content {
+    user-select: auto!important;
+  }
+
 </style>

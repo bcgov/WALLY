@@ -39,6 +39,8 @@ export default {
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
+    EventBus.$on('draw:reset', this.replaceOldFeatures)
+    EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -49,6 +51,8 @@ export default {
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
+    EventBus.$off('draw:reset', this.replaceOldFeatures)
+    EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
   },
   data () {
     return {
@@ -267,13 +271,15 @@ export default {
       // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    replaceOldFeatures (newFeature) {
+    replaceOldFeatures (newFeature = null) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
     handleSelect (feature) {
+      if (!feature || !feature.features || !feature.features.length) return
+
       const newFeature = feature.features[0].id
       this.replaceOldFeatures(newFeature)
 
