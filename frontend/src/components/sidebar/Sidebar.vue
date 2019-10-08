@@ -110,11 +110,17 @@
       </v-tab-item>
 
       <v-tab-item>
-        <StreamStation
-          v-if="dataMartFeatureInfo && dataMartFeatureInfo.properties && dataMartFeatureInfo.properties.type === 'hydat'"
+
+        <!-- custom components for features with visualizations etc. -->
+        <component
+          v-if="dataMartFeatureInfo && Object.keys(featureComponents).includes(dataMartFeatureInfo.layer_name)"
+          :is="featureComponents[dataMartFeatureInfo.layer_name]"
           :record="dataMartFeatureInfo"
-          :key="dataMartFeatureInfo.record"
-          ></StreamStation>
+        />
+
+        <!-- fallback generic feature panel for layers that do not have a custom component. Data displayed will be from
+            the "highlight_columns" field of the layer catalogue.
+         -->
         <v-card v-else-if="dataMartFeatureInfo">
           <v-card-title class="subheading font-weight-bold">{{ humanReadable(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 

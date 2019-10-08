@@ -1,13 +1,17 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
-import StreamStation from '../features/StreamStation'
+import StreamStation from '../features/FeatureStreamStation'
+import Well from '../features/FeatureWell'
+import Aquifer from '../features/FeatureAquifer'
 import EventBus from '../../services/EventBus'
 
 export default {
   name: 'Sidebar',
   components: {
-    StreamStation
+    StreamStation,
+    Well,
+    Aquifer
   },
   data () {
     return {
@@ -20,6 +24,11 @@ export default {
       drawer: true,
       mini: true,
       subHeading: '',
+      featureComponents: {
+        hydrometric_stream_flow: StreamStation,
+        aquifers: Aquifer,
+        groundwater_wells: Well
+      },
       selectedLayers: [],
       spreadsheetLoading: false,
       pdfReportLoading: false

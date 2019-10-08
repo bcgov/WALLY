@@ -171,14 +171,10 @@ export default {
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
         const vector = layer['display_data_name']
-        this.map.on('click', vector, this.setSingleFeature)
+        this.map.on('click', vector, this.setSingleFeature(vector))
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
-    },
-    async searchWallyAPI () {
-      const results = await ApiService.getApi('/geocode?q=a')
-      return results.data
     },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {
@@ -187,15 +183,6 @@ export default {
       } else {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(data)
-      }
-    },
-    handleAddFeature (f) {
-      let p = L.latLng(f.lat, f.lng)
-      if (p) {
-        L.popup()
-          .setLatLng(p)
-          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-          .openOn(this.map)
       }
     },
     handleAddWMSLayer (displayDataName) {
@@ -320,15 +307,21 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
-    setSingleFeature (e) {
-      const feature = e.features[0]
-      this.$store.commit('setDataMartFeatureInfo',
-        {
-          type: feature.type,
-          display_data_name: feature.layer.id,
-          geometry: feature.geometry,
-          properties: feature.properties
-        })
+    setSingleFeature (layerName) {
+      // returns a function that handles a click event
+      return (e) => {
+        const id = e.features[0].id
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const properties = e.features[0].properties
+
+        this.$store.commit('setDataMartFeatureInfo',
+          {
+            layer_name: layerName,
+            display_data_name: id,
+            coordinates: coordinates,
+            properties: properties
+          })
+      }
     },
     getPolygonCenter (arr) {
       if (arr.length === 1) { return arr }

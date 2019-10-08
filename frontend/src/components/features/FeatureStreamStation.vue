@@ -1,14 +1,11 @@
 <template>
-  <v-card>
-    <v-card-title class="title font-weight-bold">
-      <div id="stationTitle">{{ record.properties.name }}</div>
+  <v-card elevation=0>
+    <v-card-text>
+      <div class="grey--text text--darken-4 title" id="stationTitle">{{ record.properties.name }}</div>
       <div class="grey--text text--darken-2 subtitle-1">Stream monitoring station</div>
-    </v-card-title>
-
-    <v-divider></v-divider>
-    <v-card-text v-if="station && !loading">
-      <v-list dense class="mx-0 px-0">
-        <v-list-item>
+      <v-divider></v-divider>
+      <v-list dense class="mx-0 px-0" v-if="station">
+        <v-list-item class="feature-content">
           <v-list-item-content>Flow data:</v-list-item-content>
           <v-list-item-content class="align-end">{{ formatYears(station.flow_years) }}</v-list-item-content>
         </v-list-item>
@@ -17,7 +14,7 @@
             <line-chart v-if="flowChartReady" :chartData="flowChartData" :options="flowChartOptions"></line-chart>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>Water levels:</v-list-item-content>
           <v-list-item-content class="align-end">{{ formatYears(station.level_years) }}</v-list-item-content>
         </v-list-item>
@@ -26,7 +23,7 @@
             <line-chart v-if="levelChartReady" :chartData="levelChartData" :options="levelChartOptions"></line-chart>
           </v-list-item-content>
         </v-list-item>
-        <v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>
             Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
           </v-list-item-content>
@@ -52,7 +49,7 @@ import { LineChart } from '../chartjs/Charts'
 import { SHORT_MONTHS } from '../../constants/dates'
 
 export default {
-  name: 'StreamStationCard',
+  name: 'FeatureStreamStation',
   components: {
     LineChart
   },
