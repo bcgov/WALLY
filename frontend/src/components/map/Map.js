@@ -90,6 +90,11 @@ export default {
 
       const modes = MapboxDraw.modes
       modes.draw_polygon = DrawRectangle
+      modes.simple_select.onTrash = () => {
+        this.replaceOldFeatures()
+        this.$store.commit('clearDataMartFeatures')
+        this.$store.commit('clearDisplayTemplates')
+      }
 
       this.draw = new MapboxDraw({
         modes: modes,
