@@ -355,6 +355,12 @@ export default {
     getArrayDepth (value) {
       return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
     },
+    formatLatLon(lon, lat) {
+      // Formats lat lon to be within proper ranges
+      lon = lon < 0 ? lon : -lon
+      lat = lat > 0 ? lat : -lat
+      return [lon, lat]
+    },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'
     },
@@ -366,23 +372,26 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
+        if(value.geometry.type == 'Point') {
+          let coordinates = value.geometry.coordinates
+          value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
+        }
         this.updateHighlightLayerData(value)
       }
     },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
-        if (value.geometry.type !== 'Point') {
+        if (value.geometry.type == 'Point') {
+          coordinates = this.formatLatLon(coordinates[0], coordinates[1])
+          value.geometry.coordinates = coordinates
+        } else {
           let depth = this.getArrayDepth(coordinates)
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
         }
-        let lon = coordinates[0]
-        let lat = coordinates[1]
-        lon = lon < 0 ? lon : -lon
-        lat = lat > 0 ? lat : -lat
         this.map.flyTo({
-          center: [lon, lat]
+          center: [coordinates[0], coordinates[1]]
         })
         this.updateHighlightLayerData(value)
       }
