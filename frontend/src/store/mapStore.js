@@ -6,7 +6,8 @@ export default {
   state: {
     activeMapLayers: [],
     mapLayers: [],
-    highlightFeatureData: {}
+    highlightFeatureData: {},
+    layerCategories: []
   },
   actions: {
     getMapLayers ({ commit }) {
@@ -16,7 +17,8 @@ export default {
           console.log('Getting map layers')
           ApiService.getApi('/catalogue')
             .then((response) => {
-              commit('setMapLayers', response.data)
+              commit('setMapLayers', response.data.layers)
+              commit('setLayerCategories', response.data.categories)
               EventBus.$emit(`layers:loaded`)
             })
             .catch((error) => {
@@ -27,6 +29,9 @@ export default {
     }
   },
   mutations: {
+    setLayerCategories (state, payload) {
+      state.layerCategories = payload
+    },
     addMapLayer (state, payload) {
       state.activeMapLayers.push(
         state.mapLayers.find((layer) => {
@@ -40,6 +45,27 @@ export default {
         return layer.display_data_name !== payload
       })
       EventBus.$emit(`layer:removed`, payload)
+    },
+    setActiveMapLayers (state, payload) {
+      // accepts an array of layer names and sets the active map layers accordingly
+
+      // list of prev layers.  the payload is the new list of layers about to be active.
+      const prev = state.activeMapLayers.map(l => l.display_data_name)
+
+      // get list of layers that were deselected (they were in `prev`, but are not in payload),
+      // and sent an event to remove them.
+      prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
+
+      // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
+      payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`layer:added`, l))
+
+      // reset the list of active layers
+      state.activeMapLayers = state.mapLayers.filter((l) => {
+        return payload.includes(l.display_data_name)
+      })
+
+      // send an event to redraw any current features and update selection.
+      EventBus.$emit('draw:redraw')
     },
     setMapLayers (state, payload) {
       state.mapLayers = payload
@@ -60,6 +86,7 @@ export default {
       return layer || null
     },
     allMapLayers: state => state.mapLayers,
-    highlightFeatureData: state => state.highlightFeatureData
+    highlightFeatureData: state => state.highlightFeatureData,
+    getCategories: state => state.layerCategories
   }
 }

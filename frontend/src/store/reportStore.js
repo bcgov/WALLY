@@ -6,7 +6,7 @@ export default {
 
   },
   actions: {
-    downloadFeatureReport ({ commit }, payload) {
+    downloadPDFReport ({ commit }, payload) {
       // note: the null here is for the "record" option of the ApiService.get method.
       return new Promise((resolve, reject) => {
         ApiService.get(reportingServiceURL + '/featureReport?' + qs.stringify(payload), null, { responseType: 'arraybuffer' })

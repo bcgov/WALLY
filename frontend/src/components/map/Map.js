@@ -40,6 +40,8 @@ export default {
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
+    EventBus.$on('draw:reset', this.replaceOldFeatures)
+    EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -50,6 +52,8 @@ export default {
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
+    EventBus.$off('draw:reset', this.replaceOldFeatures)
+    EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
   },
   data () {
     return {
@@ -88,6 +92,11 @@ export default {
 
       const modes = MapboxDraw.modes
       modes.draw_polygon = DrawRectangle
+      modes.simple_select.onTrash = () => {
+        this.replaceOldFeatures()
+        this.$store.commit('clearDataMartFeatures')
+        this.$store.commit('clearDisplayTemplates')
+      }
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -180,11 +189,6 @@ export default {
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
-    },
-    async searchWallyAPI () {
-      const results = await ApiService.getApi('/geocode?q=a')
-      console.log(results.data)
-      return results.data
     },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {
@@ -300,32 +304,15 @@ export default {
       // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    addWMSLegendGraphic (layername, style) {
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetLegendGraphic',
-        format: 'image/png',
-        layer: 'pub:' + layername,
-        style: style,
-        transparent: true,
-        name: layername,
-        height: 20,
-        width: 20,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query
-      this.legendGraphics[layerID] = url
-    },
-    replaceOldFeatures (newFeature) {
+    replaceOldFeatures (newFeature = null) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
     handleSelect (feature) {
+      if (!feature || !feature.features || !feature.features.length) return
+
       const newFeature = feature.features[0].id
       this.replaceOldFeatures(newFeature)
 

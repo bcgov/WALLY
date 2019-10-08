@@ -17,6 +17,8 @@ parameters:
     value: bfpeyx-test
   - name: REPLICAS
     value: "1"
+  - name: CPU_LIMIT
+    value: "2"
 objects:
   - apiVersion: v1
     kind: Service
@@ -78,9 +80,14 @@ objects:
                 docker-registry.default.svc:5000/${NAMESPACE}/wally-reporting:${NAME}
               imagePullPolicy: Always
               name: wally-reporting
+              env:
+                - name: API_SERVICE
+                  value: wally-${NAME}-api:8000
               envFrom:
                 - secretRef:
                     name: mapbox-access-token
+                - secretRef:
+                    name: gatekeeper-credentials
               ports:
                 - containerPort: 3000
                   protocol: TCP
@@ -89,8 +96,8 @@ objects:
                   cpu: 200m
                   memory: 256Mi
                 limits:
-                  cpu: 200m
-                  memory: 256Mi
+                  cpu: ${CPU_LIMIT}
+                  memory: 1Gi
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
               livenessProbe:
@@ -136,6 +143,27 @@ objects:
       generation: 18
       labels:
         app: wally-${NAME}
+        component: reporting
+        name: wally-${NAME}-reporting
+      name: wally-${NAME}-reporting
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: ${HOST}
+      path: /reports
+      port:
+        targetPort: 3000-tcp
+      tls:
+        termination: edge
+      to:
+        kind: Service
+        name: wally-${NAME}-reporting
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-${NAME}
+        env: ${NAME}
         component: reporting
         name: wally-${NAME}-reporting
       name: wally-${NAME}-reporting

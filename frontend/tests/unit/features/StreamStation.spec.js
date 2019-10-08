@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
-import StreamStation from '@/components/features/StreamStation.vue'
+import StreamStation from '@/components/features/FeatureStreamStation.vue'
 
 const localVue = createLocalVue()
 Vue.use(Vuetify)

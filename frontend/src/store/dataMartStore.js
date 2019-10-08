@@ -79,6 +79,7 @@ export default {
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
+    clearDisplayTemplates: (state) => { state.displayTemplates = [] },
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
     addDataMart (state, payload) {
       state.activeDataMarts.push(payload)

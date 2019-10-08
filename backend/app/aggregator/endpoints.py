@@ -3,8 +3,6 @@ Aggregate data from different WMS and/or API sources.
 """
 from logging import getLogger
 from typing import List
-import openpyxl
-from openpyxl.writer.excel import save_virtual_workbook
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette.responses import Response
 from geojson import FeatureCollection, Feature, Point
@@ -32,6 +30,7 @@ from app.aggregator.aggregate import fetch_wms_features
 from app.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
 from app.templating.template_builder import build_templates
 from app.aggregator.helpers import spherical_mercator_project
+from app.aggregator.excel import xlsxExport
 
 logger = getLogger("aggregator")
 
@@ -202,48 +201,3 @@ def aggregate_sources(
 
 def wms_url(wms_id):
     return "https://openmaps.gov.bc.ca/geo/pub/" + wms_id + "/ows?"
-
-
-def xlsxExport(features):
-    """
-    packages features into an excel workbook.  Returns an HTTP response object that has the saved workbook
-    ready to be returned to the client (e.g. the calling http handler can return this object directly)
-    """
-
-    wb = openpyxl.Workbook()
-    ws = wb.active
-    first_sheet = True
-
-    for dataset in features:
-        # avoid trying to process layers if they have no features.
-        if not dataset.geojson:
-            continue
-
-        # create a list of fields for this dataset
-        fields = []
-        try:
-            fields = [*dataset.geojson[0].properties]
-        except:
-            continue
-
-        if not first_sheet:
-            ws = wb.create_sheet(dataset.layer)
-        else:
-            ws.title = dataset.layer
-            first_sheet = False
-
-        ws.append(fields)
-
-        features = dataset.geojson.features
-
-        # add rows for every object in the collection, using the fields defined above.
-        for f in features:
-            props = f['properties']
-            ws.append([props.get(x) for x in fields])
-
-    response = Response(
-        content=save_virtual_workbook(wb),
-        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
-
-    return response
