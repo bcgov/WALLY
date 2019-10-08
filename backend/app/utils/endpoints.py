@@ -1,8 +1,9 @@
 import logging
 from fastapi import APIRouter, Depends, HTTPException
-import pdfkit
+# import pdfkit
 from app import config
 from starlette.responses import FileResponse
+from weasyprint import HTML
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("utils")
@@ -15,7 +16,9 @@ def generate_report():
     logger.info(f"getting report from {config.REPORT_URL}")
 
     temp_file = '/tmp/report.pdf'
-    pdfkit.from_url(config.REPORT_URL, temp_file)
+    # pdfkit.from_url(config.REPORT_URL, temp_file)
+
+    HTML(config.REPORT_URL).write_pdf(temp_file)
 
     logger.info(f"Saved to {temp_file}")
 
