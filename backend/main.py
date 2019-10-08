@@ -12,7 +12,6 @@ from app import config
 from app.router import api_router
 from app.db.session import Session
 
-import pdfkit
 
 app = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
 
@@ -51,12 +50,4 @@ async def db_session_middleware(request: Request, call_next):
 def health_check():
     return Response(status_code=200, content=b"")
 
-@app.get("/generate_report")
-def generate_report():
-    pdf_report = pdfkit.from_url(config.REPORT_URL, False)
 
-    response = Response(
-        content=pdf_report,
-        media_type='application/pdf',
-        headers={'Content-Disposition': 'attachment; filename=report.pdf'})
-    return response
