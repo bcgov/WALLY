@@ -182,6 +182,10 @@ export default {
         this.map.getSource('highlightLayerData').setData(data)
       }
     },
+    clearHighlightLayer () {
+      this.map.getSource('highlightPointData').setData(point)
+      this.map.getSource('highlightLayerData').setData(polygon)
+    },
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
       if (p) {
@@ -195,6 +199,7 @@ export default {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
+      this.clearHighlightLayer()
       this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
@@ -372,8 +377,12 @@ export default {
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
         }
+        let lon = coordinates[0]
+        let lat = coordinates[1]
+        lon = lon < 0 ? lon : -lon
+        lat = lat > 0 ? lat : -lat
         this.map.flyTo({
-          center: [coordinates[0], coordinates[1]]
+          center: [lon, lat]
         })
         this.updateHighlightLayerData(value)
       }
