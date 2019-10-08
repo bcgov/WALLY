@@ -80,7 +80,7 @@ objects:
             - name: WALLY_ENV
               value: "${ENVIRONMENT}"
             - name: REPORT_URL
-              value: "${REPORT_URL}"
+              value: ${NAME}
       type: Rolling
     template:
       metadata:
