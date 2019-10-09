@@ -14,6 +14,14 @@
       This place is for anything that needs to be right aligned
       beside the logo.
     -->
+      <div class="my-2 mr-3">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn small color="primary" v-on="on" @click="openFeedback()">Feedback</v-btn>
+          </template>
+          <span>Please send us any feedback or ideas you may have.</span>
+        </v-tooltip>
+      </div>
       {{ name }}
     </div>
   </header>
@@ -34,6 +42,9 @@ export default {
       if (authenticated) {
         this.name = name
       }
+    },
+    openFeedback () {
+      window.location = 'mailto:kailee.douglas@gov.bc.ca,lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
     }
   },
   created () {
