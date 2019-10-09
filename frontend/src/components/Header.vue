@@ -17,7 +17,7 @@
       <div class="my-2 mr-3">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn small color="primary" v-on="on" @click="openFeedback()">Feedback</v-btn>
+            <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
           </template>
           <span>Please send us any feedback or ideas you may have.</span>
         </v-tooltip>
