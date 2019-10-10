@@ -19,7 +19,7 @@
           <template v-slot:activator="{ on }">
             <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
           </template>
-          <span>Please send us any feedback or ideas you may have.</span>
+          <span>Please send us any feedback or ideas you may have on how we can improve the app.</span>
         </v-tooltip>
       </div>
       {{ name }}
@@ -44,7 +44,7 @@ export default {
       }
     },
     openFeedback () {
-      window.location = 'mailto:kailee.douglas@gov.bc.ca,lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
+      window.location = 'mailto:kailee.douglas@gov.bc.ca lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
     }
   },
   created () {
