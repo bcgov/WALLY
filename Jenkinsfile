@@ -421,8 +421,8 @@ pipeline {
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
                   "PVC_SIZE=30Gi",
-                  "CPU_REQUEST=500m",
-                  "CPU_LIMIT='1'",
+                  "CPU_REQUEST=200m",
+                  "CPU_LIMIT=500m",
                   "MEMORY_REQUEST=1Gi",
                   "MEMORY_LIMIT=2Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"
@@ -452,7 +452,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "REPLICAS=2",
-                  "CPU_LIMIT=4"
+                  "CPU_LIMIT=500m"
                 ))
 
                 echo "Deploying to a dev environment"
