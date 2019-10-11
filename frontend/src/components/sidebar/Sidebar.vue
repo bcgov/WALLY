@@ -126,7 +126,24 @@
 
           <v-divider></v-divider>
 
-          <v-list>
+          <div v-if="featureError != ''" class="mx-3 mt-5">
+            <v-alert
+              border="right"
+              colored-border
+              type="warning"
+              elevation="2"
+            >
+              {{featureError}}
+            </v-alert>
+          </div>
+
+          <div v-if="loadingFeature">
+            <template v-for="n in 10">
+              <v-skeleton-loader type="list-item" v-bind:key="`${n}-item`"/><v-divider v-bind:key="`${n}-divider`"/>
+            </template>
+          </div>
+
+          <v-list v-if="!loadingFeature">
             <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
               <v-hover v-slot:default="{ hover }" v-bind:key="`item-{$value}${index}`">
                 <v-card
