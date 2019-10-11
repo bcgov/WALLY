@@ -27,7 +27,6 @@ export default {
       const { display_data_name, pk } = payload
       ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk )
         .then((response) => {
-          console.log(response)
           let feature = response.data
           commit('setDataMartFeatureInfo',
           {
