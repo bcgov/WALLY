@@ -113,7 +113,7 @@ export default {
       })
 
       // Add zoom and rotation controls to the map.
-      this.map.addControl(geocoder, 'top-left')
+      document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
       this.map.addControl(this.draw, 'top-left')
       this.map.addControl(new mapboxgl.GeolocateControl({

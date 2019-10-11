@@ -7,7 +7,8 @@ export default {
     activeMapLayers: [],
     mapLayers: [],
     highlightFeatureData: {},
-    layerCategories: []
+    layerCategories: [],
+    layerSelectionActive: false
   },
   actions: {
     getMapLayers ({ commit }) {
@@ -29,6 +30,9 @@ export default {
     }
   },
   mutations: {
+    setLayerSelectionActiveState (state, payload) {
+      state.layerSelectionActive = payload
+    },
     setLayerCategories (state, payload) {
       state.layerCategories = payload
     },
@@ -87,6 +91,7 @@ export default {
     },
     allMapLayers: state => state.mapLayers,
     highlightFeatureData: state => state.highlightFeatureData,
-    getCategories: state => state.layerCategories
+    getCategories: state => state.layerCategories,
+    layerSelectionActive: state => state.layerSelectionActive
   }
 }

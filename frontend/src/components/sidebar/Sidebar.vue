@@ -1,11 +1,23 @@
 <template>
-  <v-navigation-drawer
-    v-model="drawer"
-    v-bind:width="435"
-    app
-    class="wally-sidenav"
+  <v-sheet
+    class="mt-0 px-5 fill-height"
   >
+      <template v-if="layerSelectionActive">
+        <v-row>
+          <v-col class="title">Categories</v-col>
+          <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+        </v-row>
+        <v-treeview
+          selectable
+          v-model="selectedLayers"
+          @input="handleSelectLayer"
+          v-if="layers && categories"
+          :items="categories"
+        ></v-treeview>
+      </template>
+
     <v-tabs
+      v-if="false"
       v-model="active_tab"
       centered
       color="#38598A"
@@ -30,7 +42,7 @@
       </v-tab-item>
 
       <v-tab-item>
-        <v-card class="mx-auto elevation-0">
+        <v-card class="elevation-0">
           <v-card-text>
             <span class="float-right mt-3">
               <v-btn
@@ -144,17 +156,12 @@
       </v-tab-item>
     </v-tabs>
 
-  </v-navigation-drawer>
+  </v-sheet>
 </template>
 
 <script src="./Sidebar.js"></script>
 
 <style lang="scss">
-
-  .wally-sidenav {
-    margin-top: 64px!important;
-  }
-
   .wally-sidebar-category {
     font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
     font-weight: bold!important;

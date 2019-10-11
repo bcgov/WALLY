@@ -44,7 +44,8 @@ export default {
       'mapLayerName',
       'getMapLayer',
       'selectionBoundingBox',
-      'getCategories'
+      'getCategories',
+      'layerSelectionActive'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
