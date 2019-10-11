@@ -7,7 +7,9 @@ export default {
     displayTemplates: [],
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
-    dataMartFeatures: [] // selected points
+    dataMartFeatures: [], // selected points
+    loadingFeature: false,
+    featureError: ""
   },
   actions: {
     getDataMart ({ commit }, payload) {
@@ -25,9 +27,12 @@ export default {
     },
     getDataMartFeatureInfo ({ commit }, payload) {
       const { display_data_name, pk } = payload
+      commit('setLoadingFeature', true)
+      commit('setFeatureError', "")
       ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk )
         .then((response) => {
           console.log(response)
+          commit('setLoadingFeature', false)
           let feature = response.data
           commit('setDataMartFeatureInfo',
           {
@@ -38,7 +43,10 @@ export default {
           })
         })
         .catch((error) => {
-          console.log(error) // TODO create error state item and mutation
+          commit('setLoadingFeature', false)
+          commit('setFeatureError', error.response.data.detail)
+          commit('setDataMartFeatureInfo',{})
+          console.log(error.response.data.detail) // TODO create error state item and mutation
         })
     },
     getDataMartFeatures ({ commit }, payload) {
@@ -76,6 +84,8 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
     },
+    setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
+    setFeatureError: (state, payload) => { state.featureError = payload },
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
@@ -96,6 +106,8 @@ export default {
     displayTemplates: state => state.displayTemplates,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
+    loadingFeature: state => state.loadingFeature,
+    featureError: state => state.featureError,
     selectionBoundingBox: state => state.selectionBoundingBox,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),

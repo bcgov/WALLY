@@ -27,6 +27,6 @@ def get_layer_feature(db: Session, layer_class, feature_id):
     q = db.query(layer_class).filter(layer_class.primary_key() == feature_id).one_or_none()
     
     if q is None:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="Feature information not found.")
 
     return layer_class.get_as_feature(q)

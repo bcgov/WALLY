@@ -23,6 +23,7 @@ export default {
       ],
       drawer: true,
       mini: true,
+      loading: false,
       subHeading: '',
       featureComponents: {
         hydrometric_stream_flow: StreamStation,
@@ -38,6 +39,8 @@ export default {
     ...mapGetters([
       'isMapLayerActive',
       'isDataMartActive',
+      'loadingFeature',
+      'featureError',
       'dataMartFeatures',
       'dataMartFeatureInfo',
       'allMapLayers',
@@ -178,6 +181,11 @@ export default {
     }
   },
   watch: {
+    loadingFeature (value) {
+      if (value) {
+        this.setTabById(2)
+      }
+    },
     dataMartFeatureInfo (value) {
       if (value && value.properties) {
         this.setTabById(2)
