@@ -31,7 +31,6 @@ export default {
       commit('setFeatureError', "")
       ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk )
         .then((response) => {
-          console.log(response)
           commit('setLoadingFeature', false)
           let feature = response.data
           commit('setDataMartFeatureInfo',
