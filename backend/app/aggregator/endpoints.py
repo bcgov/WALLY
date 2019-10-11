@@ -42,6 +42,7 @@ router = APIRouter()
 # These functions must accept a db session and a bbox as a list of coords
 # (defined by 2 corners, e.g. x1, y1, x2, y2) and return a FeatureCollection.
 # For example:  get_stations_as_geojson(db: Session, bbox: List[float])
+# returns a module or class that has a `get_as_geojson` function for looking up data from a layer
 API_DATASOURCES = {
     "HYDAT": streams_repo,
     "aquifers": GroundWaterAquifers,
