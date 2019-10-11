@@ -174,6 +174,11 @@ def aggregate_sources(
         display_data_name = dataset.display_data_name
 
         # use function registered for this source
+        # API_DATASOURCES is a map of layer names to a module or class;
+        # Use it here to look up a module/class that has a `get_as_geojson`
+        # function for looking up data in a layer. This function will return geojson
+        # features in the bounding box for each layer, which we will package up
+        # into a response.
         objects = API_DATASOURCES[display_data_name].get_as_geojson(db, bbox)
 
         feat_layer = LayerResponse(
