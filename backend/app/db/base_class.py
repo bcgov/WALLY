@@ -26,7 +26,7 @@ class CustomLayerBase(object):
                 column.intersects(func.ST_MakeEnvelope(*bbox))
             )
 
-        return q.all() 
+        return q.all()
 
     @classmethod
     def get_as_geojson(cls, db: Session, bbox: List[float] = []) -> FeatureCollection:
