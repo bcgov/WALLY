@@ -1,6 +1,6 @@
 <template>
-  <header>
-    <div class="banner">
+  <v-app-bar dark app clipped-left>
+    <div class="banner" dark>
         <a href="https://gov.bc.ca" alt="British Columbia">
           <img :src="require('../assets/bcgov_logo.svg')" height="40" max-width="150" alt="Go to the Government of British Columbia website" />
         </a>
@@ -24,7 +24,7 @@
       </div>
       {{ name }}
     </div>
-  </header>
+  </v-app-bar>
 </template>
 
 <script>
@@ -58,8 +58,8 @@ export default {
 </script>
 <style>
 header {
-  background-color: #036!important;
-  border-bottom: 2px solid #fcba19;
+  background-color: #036 !important;
+  border-bottom: 2px solid #fcba19 !important;
   padding: 0 65px 0 65px;
   color: #fff;
   display: flex;
