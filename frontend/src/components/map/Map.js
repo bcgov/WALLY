@@ -6,7 +6,6 @@ import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
-import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
 import HighlightPoint from './MapHighlightPoint'
 import bbox from '@turf/bbox'
 
@@ -89,7 +88,6 @@ export default {
       })
 
       const modes = MapboxDraw.modes
-      modes.draw_polygon = DrawRectangle
       modes.simple_select.onTrash = () => {
         this.replaceOldFeatures()
         this.$store.commit('clearDataMartFeatures')
@@ -310,6 +308,12 @@ export default {
     setSingleFeature (layerName) {
       // returns a function that handles a click event
       return (e) => {
+        // keep track of all the features adjacent to the click event, so the
+        // user can refine their selection later
+        this.$store.commit('setSingleSelectionFeatures', e.features)
+        this.$store.commit('setLayerSelectionActiveState', false)
+
+        // initially set the "topmost" feature as the current selected feature
         const id = e.features[0].id
         const coordinates = e.features[0].geometry.coordinates.slice()
         const properties = e.features[0].properties

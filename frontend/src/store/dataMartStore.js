@@ -7,7 +7,8 @@ export default {
     displayTemplates: [],
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
-    dataMartFeatures: [] // selected points
+    dataMartFeatures: [], // selected points
+    singleSelectionFeatures: [] // since features may be stacked/adjacent, a single click could return several features
   },
   actions: {
     getDataMart ({ commit }, payload) {
@@ -69,6 +70,11 @@ export default {
     }
   },
   mutations: {
+    setSingleSelectionFeatures (state, payload) {
+      // sets the group of features that were selected by clicking on the map.
+      // since features may be stacked and/or adjacent, one click will often return several results.
+      state.singleSelectionFeatures = payload
+    },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
     },
@@ -95,6 +101,7 @@ export default {
     selectionBoundingBox: state => state.selectionBoundingBox,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
-    allDataMarts: () => [] // ideally grab these from the meta data api
+    allDataMarts: () => [], // ideally grab these from the meta data api
+    singleSelectionFeatures: state => state.singleSelectionFeatures
   }
 }

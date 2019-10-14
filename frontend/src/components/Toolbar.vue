@@ -8,7 +8,7 @@
         width=128
       ><v-icon>layers</v-icon> Layers</v-btn>
     </v-toolbar-items>
-    <div class="ml-5 title">Selection: </div>
+
     <div class="flex-grow-1"></div>
     <v-toolbar-items class="py-2">
       <div id="geocoder" class="mr-5"></div>
@@ -24,7 +24,10 @@ export default {
   data: () => ({
   }),
   computed: {
-    ...mapGetters(['layerSelectionActive'])
+    ...mapGetters([
+      'layerSelectionActive',
+      'singleSelectionFeatures'
+    ])
   },
   methods: {
     handleLayerSelectionState () {
@@ -41,6 +44,7 @@ export default {
   }
   .mapboxgl-ctrl-geocoder {
         width: 164rem!important;
+        border: 1px solid #3B99FC;
     }
   /* #geocoder {
     width: 64rem!important;

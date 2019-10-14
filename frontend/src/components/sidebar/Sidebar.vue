@@ -4,8 +4,18 @@
   >
       <template v-if="layerSelectionActive">
         <v-row>
-          <v-col class="title">Categories</v-col>
-          <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+          <v-col cols=2>
+            <v-btn
+              fab
+              class="elevation-1"
+              small
+              @click.prevent="$store.commit('setLayerSelectionActiveState', false)"
+            ><v-icon>arrow_back</v-icon></v-btn>
+          </v-col>
+          <v-col class="title" cols=6>
+            Categories
+          </v-col>
+          <v-col cols=4 class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
         </v-row>
         <v-treeview
           selectable
@@ -16,32 +26,7 @@
         ></v-treeview>
       </template>
 
-    <v-tabs
-      v-if="false"
-      v-model="active_tab"
-      centered
-      color="#38598A"
-      slider-color="primary"
-    >
-      <v-tab v-for="tab of tabs" :key="tab.id">
-        {{tab.name}}
-      </v-tab>
-
-      <v-tab-item class="pa-5">
-        <v-row>
-          <v-col class="title">Categories</v-col>
-          <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
-        </v-row>
-        <v-treeview
-          selectable
-          v-model="selectedLayers"
-          @input="handleSelectLayer"
-          v-if="layers && categories"
-          :items="categories"
-        ></v-treeview>
-      </v-tab-item>
-
-      <v-tab-item>
+      <template v-else-if="false">
         <v-card class="elevation-0">
           <v-card-text>
             <span class="float-right mt-3">
@@ -119,9 +104,26 @@
           </v-card-text>
 
         </v-card>
-      </v-tab-item>
+      </template>
 
-      <v-tab-item>
+      <template v-else-if="true">
+        <!-- <v-sheet class="mt-3">
+            <v-row align="center">
+              <v-col cols=2 class="fill-height">Viewing:</v-col>
+              <v-col cols=6>
+                <v-select
+                  outlined
+                  style="margin-bottom: -1.5rem;"
+                  :items="singleSelectionFeatures.map((f) => {
+                    return {
+                      value: f.id,
+                      text: `${f.layer.id} ${f.id}`
+                    }
+                  })"
+                ></v-select>
+              </v-col>
+            </v-row>
+        </v-sheet> -->
 
         <!-- custom components for features with visualizations etc. -->
         <component
@@ -153,8 +155,7 @@
             </template>
           </v-list>
         </v-card>
-      </v-tab-item>
-    </v-tabs>
+      </template>
 
   </v-sheet>
 </template>
