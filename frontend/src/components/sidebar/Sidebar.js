@@ -64,6 +64,22 @@ export default {
         name: c.description,
         children: this.layers[c.layer_category_code]
       })).filter((c) => !!c.children)
+    },
+    selectedFeaturesList () {
+      const selection = this.dataMartFeatures
+      const filtered = selection.filter((x) => {
+        // selections come back as an array of objects (one for each layer), and if the layer has features
+        // present in the user selection, the object should have a key (named after the layer)
+        // with an array of features.
+        return !!Object.entries(x).filter((kv) => {
+          // this checks for at least one key/value pair that has a non-empty array.
+          // in other words, we are looking for a key/value pair that has an array of features.
+          return kv[1] && kv[1].length
+        }).length
+      })
+
+      // return an array of only the layers that contain selected features.
+      return filtered
     }
   },
   methods: {
