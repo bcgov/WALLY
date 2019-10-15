@@ -1,7 +1,6 @@
 <template>
   <div class="home">
     <ContextBar/>
-<!--    <Sidebar/>-->
     <Map/>
   </div>
 </template>
