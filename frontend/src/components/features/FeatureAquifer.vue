@@ -52,20 +52,24 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-      <section class="mt-5">
-        <div class="grey--text text--darken-4 title">
-          Water licences associated with this aquifer <a v-if="!isWaterLicencesLayerEnabled" href="#" @click.prevent="enableWaterLicencesLayer" class="caption">(enable Water Rights Licences map layer)</a>
-        </div>
-        <v-divider></v-divider>
-        <v-data-table dense :headers="licenceHeaders" :items="licenceItems" item-key="name" class="mt-3"></v-data-table>
-      </section>
-      <section class="mt-5">
-        <div class="grey--text text--darken-4 title">
-          Groundwater wells associated with this aquifer <a v-if="!isWellsLayerEnabled" href="#" @click.prevent="enableWellsLayer" class="caption">(enable Groundwater Wells map layer)</a>
-        </div>
-        <v-divider></v-divider>
-        <v-data-table dense :headers="wellTableHeaders" :items="wellTableItems" item-key="name" class="mt-3"></v-data-table>
-      </section>
+      <v-card class="mt-5 elevation-1">
+        <v-card-text>
+          <div class="grey--text text--darken-4 title">
+            Water licences associated with this aquifer <a v-if="!isWaterLicencesLayerEnabled" href="#" @click.prevent="enableWaterLicencesLayer" class="caption">(enable Water Rights Licences map layer)</a>
+          </div>
+          <v-divider></v-divider>
+          <v-data-table dense :headers="licenceHeaders" :items="licenceItems" item-key="name" class="mt-3"></v-data-table>
+        </v-card-text>
+      </v-card>
+      <v-card class="mt-5 elevation-1">
+        <v-card-text>
+          <div class="grey--text text--darken-4 title">
+            Groundwater wells associated with this aquifer <a v-if="!isWellsLayerEnabled" href="#" @click.prevent="enableWellsLayer" class="caption">(enable Groundwater Wells map layer)</a>
+          </div>
+          <v-divider></v-divider>
+          <v-data-table dense :headers="wellTableHeaders" :items="wellTableItems" item-key="name" class="mt-3"></v-data-table>
+        </v-card-text>
+      </v-card>
     </v-card-text>
   </v-card>
 </template>
@@ -85,7 +89,7 @@ export default {
       aquifer: null,
       licenceHeaders: [
         {
-          text: 'Well tag number',
+          text: 'Licence number',
           align: 'left',
           sortable: false,
           value: 'name'
@@ -95,7 +99,7 @@ export default {
       ],
       wellTableHeaders: [
         {
-          text: 'Licence number',
+          text: 'Well tag number',
           align: 'left',
           sortable: false,
           value: 'name'
