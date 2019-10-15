@@ -44,7 +44,7 @@ export default {
       }
     },
     openFeedback () {
-      window.location = 'mailto:kailee.douglas@gov.bc.ca lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
+      window.location = 'mailto:kailee.douglas@gov.bc.ca;lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
     }
   },
   created () {
