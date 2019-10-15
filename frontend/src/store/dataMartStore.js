@@ -9,7 +9,7 @@ export default {
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
     loadingFeature: false,
-    featureError: ""
+    featureError: ''
   },
   actions: {
     getDataMart ({ commit }, payload) {
@@ -28,23 +28,23 @@ export default {
     getDataMartFeatureInfo ({ commit }, payload) {
       const { display_data_name, pk } = payload
       commit('setLoadingFeature', true)
-      commit('setFeatureError', "")
-      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk )
+      commit('setFeatureError', '')
+      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
         .then((response) => {
           commit('setLoadingFeature', false)
           let feature = response.data
           commit('setDataMartFeatureInfo',
-          {
-            type: feature.type,
-            display_data_name: display_data_name,
-            geometry: feature.geometry,
-            properties: feature.properties
-          })
+            {
+              type: feature.type,
+              display_data_name: display_data_name,
+              geometry: feature.geometry,
+              properties: feature.properties
+            })
         })
         .catch((error) => {
           commit('setLoadingFeature', false)
           commit('setFeatureError', error.response.data.detail)
-          commit('setDataMartFeatureInfo',{})
+          commit('setDataMartFeatureInfo', {})
           console.log(error.response.data.detail) // TODO create error state item and mutation
         })
     },
@@ -82,6 +82,10 @@ export default {
   mutations: {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
+    },
+    resetDataMartFeatureInfo: (state) => {
+      state.dataMartFeatureInfo = { content: { properties: {} } }
+      state.featureError = ''
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
