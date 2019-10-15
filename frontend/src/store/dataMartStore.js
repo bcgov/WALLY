@@ -90,6 +90,10 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
     },
+    resetDataMartFeatureInfo: (state) => {
+      state.dataMartFeatureInfo = { content: { properties: {} } }
+      state.featureError = ''
+    },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },

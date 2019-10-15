@@ -178,6 +178,7 @@ export default {
       this.selectedLayers = []
       EventBus.$emit('draw:reset', null)
       this.$store.commit('setActiveMapLayers', [])
+      this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
     }
