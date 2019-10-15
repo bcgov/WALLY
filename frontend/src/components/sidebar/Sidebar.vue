@@ -1,9 +1,10 @@
 <template>
   <v-navigation-drawer
+    app
     v-model="drawer"
     v-bind:width="435"
-    app
     class="wally-sidenav"
+    clipped
   >
     <v-tabs
       v-model="active_tab"
@@ -167,10 +168,6 @@
 <script src="./Sidebar.js"></script>
 
 <style lang="scss">
-
-  .wally-sidenav {
-    margin-top: 64px!important;
-  }
 
   .wally-sidebar-category {
     font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
