@@ -135,7 +135,7 @@
         <!-- fallback generic feature panel for layers that do not have a custom component. Data displayed will be from
             the "highlight_columns" field of the layer catalogue.
          -->
-        <v-card v-else-if="dataMartFeatureInfo">
+        <v-card v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name">
           <v-card-title class="subheading font-weight-bold">{{ humanReadable(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
           <v-divider></v-divider>
@@ -171,6 +171,13 @@
               <v-divider :key="`divider-${index}`"></v-divider>
             </template>
           </v-list>
+        </v-card>
+
+        <!-- nothing to display -->
+        <v-card class="mt-5" v-else>
+          <v-card-text>
+            <p class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
+          </v-card-text>
         </v-card>
       </template>
 

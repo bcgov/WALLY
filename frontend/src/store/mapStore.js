@@ -8,7 +8,7 @@ export default {
     mapLayers: [],
     highlightFeatureData: {},
     layerCategories: [],
-    layerSelectionActive: false
+    layerSelectionActive: true
   },
   actions: {
     getMapLayers ({ commit }) {
