@@ -157,7 +157,7 @@ export default {
           'source': 'highlightLayerData',
           'layout': {},
           'paint': {
-            'fill-color': '#9A3FCA'
+            'fill-color': 'rgba(154, 63, 202, 0.25)'
           }
         })
         this.map.addImage('highlight-point', HighlightPoint(this.map, 90), { pixelRatio: 2 })

@@ -1,8 +1,8 @@
 <template>
   <v-card elevation=0>
     <v-card-text>
-      <div class="grey--text text--darken-4 title" id="aquiferTitle">{{ record.properties.AQNAME }}</div>
-      <div class="grey--text text--darken-2 subtitle-1 mt-0 mb-2">Aquifer</div>
+      <div class="grey--text text--darken-4 headline" id="aquiferTitle">{{ record.properties.AQNAME }}</div>
+      <div class="grey--text text--darken-2 title mt-0 mb-2">Aquifer</div>
       <v-divider></v-divider>
       <v-list dense class="mx-0 px-0">
 
@@ -52,11 +52,26 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+      <section class="mt-5">
+        <div class="grey--text text--darken-4 title">
+          Water licences associated with this aquifer <a v-if="!isWaterLicencesLayerEnabled" href="#" @click.prevent="enableWaterLicencesLayer" class="caption">(enable Water Rights Licences map layer)</a>
+        </div>
+        <v-divider></v-divider>
+        <v-data-table dense :headers="licenceHeaders" :items="licenceItems" item-key="name" class="mt-3"></v-data-table>
+      </section>
+      <section class="mt-5">
+        <div class="grey--text text--darken-4 title">
+          Groundwater wells associated with this aquifer <a v-if="!isWellsLayerEnabled" href="#" @click.prevent="enableWellsLayer" class="caption">(enable Groundwater Wells map layer)</a>
+        </div>
+        <v-divider></v-divider>
+        <v-data-table dense :headers="wellTableHeaders" :items="wellTableItems" item-key="name" class="mt-3"></v-data-table>
+      </section>
     </v-card-text>
   </v-card>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 
 export default {
@@ -67,39 +82,86 @@ export default {
   data () {
     return {
       loading: false,
-      well: null
+      aquifer: null,
+      licenceHeaders: [
+        {
+          text: 'Well tag number',
+          align: 'left',
+          sortable: false,
+          value: 'name'
+        },
+        { text: 'Total yield (US Gal / yr)', value: 'protein' },
+        { text: 'Licence date', value: 'carbs' }
+      ],
+      wellTableHeaders: [
+        {
+          text: 'Licence number',
+          align: 'left',
+          sortable: false,
+          value: 'name'
+        },
+        { text: 'Licence (if applicable)', value: 'protein' },
+        { text: 'Depth (ft)', value: 'calories' },
+        { text: 'Well yield (USGPM)', value: 'fat' },
+        { text: 'Last report date', value: 'carbs' }
+      ],
+      wellTableItems: [
+        {
+          name: '4332',
+          calories: 159,
+          fat: 6.0,
+          carbs: 24,
+          protein: 4.0,
+          iron: '1%'
+        },
+        {
+          name: '123',
+          calories: 237,
+          fat: 9.0,
+          carbs: 37,
+          protein: 4.3,
+          iron: '1%'
+        }
+      ],
+      licenceItems: [
+        {
+          name: '4332',
+          calories: 159,
+          fat: 6.0,
+          carbs: 24,
+          protein: 4.0,
+          iron: '1%'
+        },
+        {
+          name: '123',
+          calories: 237,
+          fat: 9.0,
+          carbs: 37,
+          protein: 4.3,
+          iron: '1%'
+        }
+      ]
     }
   },
   computed: {
     id () {
       return this.record.properties.n
-    }
+    },
+    isWellsLayerEnabled () {
+      return this.isMapLayerActive('groundwater_wells')
+    },
+    isWaterLicencesLayerEnabled () {
+      return this.isMapLayerActive('water_rights_licences')
+    },
+    ...mapGetters(['isMapLayerActive'])
   },
   methods: {
-    resetWell () {
-      this.well = null
+    enableWellsLayer () {
+      this.$store.commit('addMapLayer', 'groundwater_wells')
     },
-    fetchRecord () {
-      this.loading = true
-      this.resetWell()
-
-      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/${this.record.properties.n}`).then((r) => {
-        this.well = r.data
-      }).catch((e) => {
-        this.error = e
-        console.error(e)
-      }).finally(() => {
-        this.loading = false
-      })
+    enableWaterLicencesLayer () {
+      this.$store.commit('addMapLayer', 'water_rights_licences')
     }
-  },
-  watch: {
-    id () {
-      // this.fetchRecord()
-    }
-  },
-  mounted () {
-    // this.fetchRecord()
   }
 }
 </script>

@@ -127,8 +127,8 @@
 
         <!-- custom components for features with visualizations etc. -->
         <component
-          v-if="dataMartFeatureInfo && Object.keys(featureComponents).includes(dataMartFeatureInfo.layer_name)"
-          :is="featureComponents[dataMartFeatureInfo.layer_name]"
+          v-if="dataMartFeatureInfo && Object.keys(featureComponents).includes(dataMartFeatureInfo.display_data_name)"
+          :is="featureComponents[dataMartFeatureInfo.display_data_name]"
           :record="dataMartFeatureInfo"
         />
 
