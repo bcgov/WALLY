@@ -8,7 +8,9 @@ export default {
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
-    singleSelectionFeatures: [] // since features may be stacked/adjacent, a single click could return several features
+    singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
+    loadingFeature: false,
+    featureError: ''
   },
   actions: {
     getDataMart ({ commit }, payload) {
@@ -25,18 +27,28 @@ export default {
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
-      // WMS request
-      // TODO: Complete this request
-      ApiService.getRaw(payload.url).then((res) => {
-        // TODO validate properties
-        commit('setDataMartFeatureInfo', {
-          displayDataName: res.data.features[0].id,
-          coordinates: [payload.lat, payload.lng],
-          properties: res.data.features[0].properties })
-        EventBus.$emit(`feature:added`, payload)
-      }).catch((error) => {
-        console.log(error) // TODO create error state item and mutation
-      })
+      const { display_data_name, pk } = payload
+      commit('setLoadingFeature', true)
+      commit('setFeatureError', '')
+      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
+        .then((response) => {
+          commit('setLoadingFeature', false)
+          commit('setLayerSelectionActiveState', false)
+          let feature = response.data
+          commit('setDataMartFeatureInfo',
+            {
+              type: feature.type,
+              display_data_name: display_data_name,
+              geometry: feature.geometry,
+              properties: feature.properties
+            })
+        })
+        .catch((error) => {
+          commit('setLoadingFeature', false)
+          commit('setFeatureError', error.response.data.detail)
+          commit('setDataMartFeatureInfo', {})
+          console.log(error.response.data.detail) // TODO create error state item and mutation
+        })
     },
     getDataMartFeatures ({ commit }, payload) {
       var layers = payload.layers.map((x) => {
@@ -78,6 +90,8 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
     },
+    setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
+    setFeatureError: (state, payload) => { state.featureError = payload },
     setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
@@ -98,6 +112,8 @@ export default {
     displayTemplates: state => state.displayTemplates,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
+    loadingFeature: state => state.loadingFeature,
+    featureError: state => state.featureError,
     selectionBoundingBox: state => state.selectionBoundingBox,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),

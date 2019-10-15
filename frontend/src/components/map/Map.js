@@ -7,6 +7,7 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import HighlightPoint from './MapHighlightPoint'
+import * as metadata from '../../utils/metadataUtils'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
@@ -60,7 +61,8 @@ export default {
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
-      draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
+      draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
+      isDrawingToolActive: false
     }
   },
   computed: {
@@ -132,6 +134,18 @@ export default {
       this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
+
+      // Subscribe to mode change event to toggle drawing state
+      this.map.on('draw.modechange', this.handleModeChange)
+    },
+    handleModeChange (e) {
+      if (e.mode == 'draw_polygon') {
+        this.isDrawingToolActive = true
+      } else if (e.mode == 'simple_select') {
+        setTimeout(() => {
+          this.isDrawingToolActive = false
+        }, 500)
+      }
     },
     initHighlightLayers () {
       this.map.on('load', () => {
@@ -169,7 +183,7 @@ export default {
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
         const vector = layer['display_data_name']
-        this.map.on('click', vector, this.setSingleFeature(vector))
+        this.map.on('click', vector, this.setSingleFeature)
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
@@ -183,10 +197,24 @@ export default {
         this.map.getSource('highlightLayerData').setData(data)
       }
     },
+    clearHighlightLayer () {
+      this.map.getSource('highlightPointData').setData(point)
+      this.map.getSource('highlightLayerData').setData(polygon)
+    },
+    handleAddFeature (f) {
+      let p = L.latLng(f.lat, f.lng)
+      if (p) {
+        L.popup()
+          .setLatLng(p)
+          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
+          .openOn(this.map)
+      }
+    },
     handleAddWMSLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
+      this.clearHighlightLayer()
       this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
@@ -305,26 +333,15 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
-    setSingleFeature (layerName) {
-      // returns a function that handles a click event
-      return (e) => {
-        // keep track of all the features adjacent to the click event, so the
-        // user can refine their selection later
-        this.$store.commit('setSingleSelectionFeatures', e.features)
-        this.$store.commit('setLayerSelectionActiveState', false)
-
-        // initially set the "topmost" feature as the current selected feature
-        const id = e.features[0].id
-        const coordinates = e.features[0].geometry.coordinates.slice()
-        const properties = e.features[0].properties
-
-        this.$store.commit('setDataMartFeatureInfo',
-          {
-            layer_name: layerName,
-            display_data_name: id,
-            coordinates: coordinates,
-            properties: properties
-          })
+    setSingleFeature (e) {
+      if (!this.isDrawingToolActive) {
+        // Calls API and gets and sets feature data
+        const feature = e.features[0]
+        let payload = {
+          display_data_name: feature.layer.id,
+          pk: feature.properties[metadata.PRIMARY_KEYS[feature.layer.id]]
+        }
+        this.$store.dispatch('getDataMartFeatureInfo', payload)
       }
     },
     getPolygonCenter (arr) {
@@ -338,6 +355,12 @@ export default {
     getArrayDepth (value) {
       return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
     },
+    formatLatLon (lon, lat) {
+      // Formats lat lon to be within proper ranges
+      lon = lon < 0 ? lon : -lon
+      lat = lat > 0 ? lat : -lat
+      return [lon, lat]
+    },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'
     },
@@ -349,13 +372,20 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
+        if (value.geometry.type == 'Point') {
+          let coordinates = value.geometry.coordinates
+          value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
+        }
         this.updateHighlightLayerData(value)
       }
     },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
-        if (value.geometry.type !== 'Point') {
+        if (value.geometry.type == 'Point') {
+          coordinates = this.formatLatLon(coordinates[0], coordinates[1])
+          value.geometry.coordinates = coordinates
+        } else {
           let depth = this.getArrayDepth(coordinates)
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
