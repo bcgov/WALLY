@@ -90,6 +90,20 @@ export default {
           icon,
           iconSize
         })
+        return legendItems
+      } 
+
+      if(paint.color[0] == "interpolate") {
+        legendItems.push({
+          'text': '',
+          'color': paint.color[6],
+          'outlineColor': paint.outlineColor,
+          'lineWidth': paint.width,
+          'strokeWidth': '1px',
+          icon,
+          iconSize
+        })
+        return legendItems
       }
 
       for (let i = 1; i < paint.color.length; i += 2) {
