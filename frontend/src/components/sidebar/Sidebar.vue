@@ -148,7 +148,12 @@
             </div>
           <v-list class="mt-5">
             <div v-for="(dataMartFeature, index) in selectedFeaturesList" :key="`objs-${index}`">
-              <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="0">
+
+              <!--
+              Using value=0 in v-list-group defaults the collapsable list item to "closed".
+              In this case, keep the list items collapsed unless there is only one to display.
+               -->
+              <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="dataMartFeature.length > 1 ? 0 : 1">
                 <template v-slot:activator>
                   <v-list-item-content>
                     <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}})</v-list-item-title>
