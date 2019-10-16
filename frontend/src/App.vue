@@ -1,13 +1,12 @@
 <template>
   <v-app>
     <Header></Header>
-    <Sidebar></Sidebar>
     <v-content>
       <v-container
         class="pa-0"
         fluid
       >
-        <WToolbar/>
+        <Toolbar/>
         <router-view/>
       </v-container>
     </v-content>
@@ -16,13 +15,13 @@
 
 <script>
 import Header from './components/Header'
-import Sidebar from './components/sidebar/Sidebar'
+import Toolbar from './components/Toolbar'
 
 export default {
   name: 'app',
   components: {
     Header,
-    Sidebar
+    Toolbar
   }
 }
 </script>

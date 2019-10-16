@@ -12,7 +12,6 @@
     <div class="flex-grow-1"></div>
     <v-toolbar-items class="py-2">
       <div id="geocoder" class="mr-5"></div>
-      <v-btn class="elevation-0" x-small><v-icon>settings</v-icon></v-btn>
     </v-toolbar-items>
   </v-toolbar>
 </template>
