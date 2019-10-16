@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <WHeader/>
+    <Header></Header>
+    <Sidebar></Sidebar>
     <v-content>
       <v-container
         class="pa-0"
@@ -14,13 +15,14 @@
 </template>
 
 <script>
-import WHeader from './components/Header'
-import WToolbar from './components/Toolbar'
+import Header from './components/Header'
+import Sidebar from './components/sidebar/Sidebar'
+
 export default {
   name: 'app',
   components: {
-    WHeader,
-    WToolbar
+    Header,
+    Sidebar
   }
 }
 </script>
