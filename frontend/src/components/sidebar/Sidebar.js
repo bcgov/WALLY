@@ -4,6 +4,7 @@ import * as utils from '../../utils/mapUtils'
 import StreamStation from '../features/FeatureStreamStation'
 import Well from '../features/FeatureWell'
 import Aquifer from '../features/FeatureAquifer'
+import EcoCat from '../features/FeatureEcocat'
 import EventBus from '../../services/EventBus'
 
 export default {
@@ -11,6 +12,7 @@ export default {
   components: {
     StreamStation,
     Well,
+    EcoCat,
     Aquifer
   },
   data () {
@@ -28,7 +30,8 @@ export default {
       featureComponents: {
         hydrometric_stream_flow: StreamStation,
         aquifers: Aquifer,
-        groundwater_wells: Well
+        groundwater_wells: Well,
+        ecocat_water_related_reports: EcoCat
       },
       selectedLayers: [],
       spreadsheetLoading: false,

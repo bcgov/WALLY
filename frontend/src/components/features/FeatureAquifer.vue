@@ -2,7 +2,7 @@
   <v-card elevation=0>
     <v-card-text>
       <div class="grey--text text--darken-4 headline" id="aquiferTitle">{{ record.properties.AQNAME }}</div>
-      <div class="grey--text text--darken-2 title mt-0 mb-2">Aquifer</div>
+      <div class="grey--text text--darken-2 title">Aquifer</div>
       <v-divider></v-divider>
       <v-list dense class="mx-0 px-0">
 

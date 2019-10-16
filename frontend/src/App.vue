@@ -65,5 +65,12 @@ export default {
   .feature-content {
     user-select: auto!important;
   }
-
+  dl > dt {
+    margin-top: 1em;
+    font-weight: bold;
+    font-size: 1em;
+  }
+  dl > dd {
+    font-size: 1em;
+  }
 </style>
