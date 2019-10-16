@@ -105,7 +105,7 @@ export default {
         })
         return legendItems
       }
-
+// Multiple legend items in this layer
       for (let i = 1; i < paint.color.length; i += 2) {
         if (paint.color[i].constructor === Array) {
           text = paint.color[i][2].join(', ')
