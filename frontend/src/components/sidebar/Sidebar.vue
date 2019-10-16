@@ -51,7 +51,7 @@
               fab
               class="elevation-1"
               small
-              @click.prevent="$store.commit('resetDataMartFeatureInfo')"
+              @click.prevent="handleCloseSingleFeature"
             ><v-icon>arrow_back</v-icon></v-btn>
           </v-col>
         </v-row>
@@ -189,7 +189,18 @@
       <!-- nothing to display -->
       <v-card class="mt-5" v-else>
         <v-card-text>
-          <p class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
+          <!-- display a loading message if features are loading. -->
+          <div v-if="loadingFeature || loadingMultipleFeatures">
+            <v-progress-linear
+              indeterminate
+              color="primary"
+              class="mb-5"
+            ></v-progress-linear>
+            <template v-for="n in 10">
+              <v-skeleton-loader type="list-item" v-bind:key="`${n}-item`"/><v-divider v-bind:key="`${n}-divider`"/>
+            </template>
+          </div>
+          <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
         </v-card-text>
       </v-card>
   </v-sheet>

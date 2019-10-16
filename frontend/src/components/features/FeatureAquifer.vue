@@ -52,24 +52,6 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-      <v-card class="mt-5 elevation-1">
-        <v-card-text>
-          <div class="grey--text text--darken-4 title">
-            Water licences associated with this aquifer <a v-if="!isWaterLicencesLayerEnabled" href="#" @click.prevent="enableWaterLicencesLayer" class="caption">(enable Water Rights Licences map layer)</a>
-          </div>
-          <v-divider></v-divider>
-          <v-data-table dense :headers="licenceHeaders" :items="licenceItems" item-key="name" class="mt-3"></v-data-table>
-        </v-card-text>
-      </v-card>
-      <v-card class="mt-5 elevation-1">
-        <v-card-text>
-          <div class="grey--text text--darken-4 title">
-            Groundwater wells associated with this aquifer <a v-if="!isWellsLayerEnabled" href="#" @click.prevent="enableWellsLayer" class="caption">(enable Groundwater Wells map layer)</a>
-          </div>
-          <v-divider></v-divider>
-          <v-data-table dense :headers="wellTableHeaders" :items="wellTableItems" item-key="name" class="mt-3"></v-data-table>
-        </v-card-text>
-      </v-card>
     </v-card-text>
   </v-card>
 </template>
@@ -86,65 +68,7 @@ export default {
   data () {
     return {
       loading: false,
-      aquifer: null,
-      licenceHeaders: [
-        {
-          text: 'Licence number',
-          align: 'left',
-          sortable: false,
-          value: 'name'
-        },
-        { text: 'Total yield (US Gal / yr)', value: 'protein' },
-        { text: 'Licence date', value: 'carbs' }
-      ],
-      wellTableHeaders: [
-        {
-          text: 'Well tag number',
-          align: 'left',
-          sortable: false,
-          value: 'name'
-        },
-        { text: 'Licence (if applicable)', value: 'protein' },
-        { text: 'Depth (ft)', value: 'calories' },
-        { text: 'Well yield (USGPM)', value: 'fat' },
-        { text: 'Last report date', value: 'carbs' }
-      ],
-      wellTableItems: [
-        {
-          name: '4332',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: '1%'
-        },
-        {
-          name: '123',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          iron: '1%'
-        }
-      ],
-      licenceItems: [
-        {
-          name: '4332',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-          iron: '1%'
-        },
-        {
-          name: '123',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-          iron: '1%'
-        }
-      ]
+      aquifer: null
     }
   },
   computed: {

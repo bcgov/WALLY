@@ -89,12 +89,16 @@ export default {
         zoom: 4.7 // starting zoom
       })
 
-      const modes = MapboxDraw.modes
-      modes.simple_select.onTrash = () => {
+      const clearSelections = () => {
         this.replaceOldFeatures()
         this.$store.commit('clearDataMartFeatures')
         this.$store.commit('clearDisplayTemplates')
       }
+
+      const modes = MapboxDraw.modes
+      modes.simple_select.onTrash = clearSelections
+      modes.draw_polygon.onTrash = clearSelections
+      modes.draw_point.onTrash = clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -320,6 +324,7 @@ export default {
       const bounds = bbox(feature.features[0])
       this.getMapObjects(bounds)
       this.$store.commit('setSelectionBoundingBox', bounds)
+      this.$store.commit('setLayerSelectionActiveState', false)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)

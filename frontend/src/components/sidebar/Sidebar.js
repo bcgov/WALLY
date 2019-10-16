@@ -49,7 +49,8 @@ export default {
       'selectionBoundingBox',
       'getCategories',
       'layerSelectionActive',
-      'singleSelectionFeatures'
+      'singleSelectionFeatures',
+      'loadingMultipleFeatures'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
@@ -83,6 +84,10 @@ export default {
     }
   },
   methods: {
+    handleCloseSingleFeature () {
+      this.$store.commit('resetHighlightFeatureData')
+      this.$store.commit('resetDataMartFeatureInfo')
+    },
     filterLayersByCategory (layers) {
       let catMap = {}
 

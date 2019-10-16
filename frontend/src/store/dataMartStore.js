@@ -10,6 +10,7 @@ export default {
     dataMartFeatures: [], // selected points
     singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
     loadingFeature: false,
+    loadingMultipleFeatures: false,
     featureError: ''
   },
   actions: {
@@ -51,6 +52,7 @@ export default {
         })
     },
     getDataMartFeatures ({ commit }, payload) {
+      commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
@@ -78,10 +80,15 @@ export default {
           commit('setDisplayTemplates', { displayTemplates })
         }).catch((error) => {
           console.log(error)
+        }).finally(() => {
+          commit('setLoadingMultipleFeatures', false)
         })
     }
   },
   mutations: {
+    setLoadingMultipleFeatures (state, payload) {
+      state.loadingMultipleFeatures = payload
+    },
     setSingleSelectionFeatures (state, payload) {
       // sets the group of features that were selected by clicking on the map.
       // since features may be stacked and/or adjacent, one click will often return several results.
@@ -122,6 +129,7 @@ export default {
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
     allDataMarts: () => [], // ideally grab these from the meta data api
-    singleSelectionFeatures: state => state.singleSelectionFeatures
+    singleSelectionFeatures: state => state.singleSelectionFeatures,
+    loadingMultipleFeatures: state => state.loadingMultipleFeatures
   }
 }

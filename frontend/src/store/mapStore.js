@@ -76,6 +76,9 @@ export default {
     },
     updateHighlightFeatureData (state, payload) {
       state.highlightFeatureData = payload
+    },
+    resetHighlightFeatureData (state) {
+      state.highlightFeatureData = {}
     }
   },
   getters: {
