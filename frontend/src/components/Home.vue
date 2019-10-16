@@ -22,6 +22,7 @@ export default {
         width: 100%;
         height: calc(100vh - 120px);
     }
+
 .content-panel {
   overflow: auto;
         height: calc(100vh - 120px);
