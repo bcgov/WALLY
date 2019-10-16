@@ -13,7 +13,6 @@ export default {
   name: 'Home',
   components: {
     Map,
-    Sidebar,
     ContextBar
   }
 }
