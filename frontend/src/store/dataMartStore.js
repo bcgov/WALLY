@@ -136,7 +136,7 @@ export default {
       // selected)
       const singleFeatureSelected = state.dataMartFeatureInfo && state.dataMartFeatureInfo.display_data_name
       const multipleFeaturesSelected = state.dataMartFeatures && state.dataMartFeatures.length
-      return singleFeatureSelected || multipleFeaturesSelected
+      return singleFeatureSelected || multipleFeaturesSelected || state.loadingMultipleFeatures
     }
   }
 }
