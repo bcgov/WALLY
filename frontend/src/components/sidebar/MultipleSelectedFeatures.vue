@@ -86,6 +86,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import toBbox from '@turf/bbox'
 
 export default {
   name: 'MultipleSelectedFeatures',
@@ -96,7 +97,8 @@ export default {
   computed: {
     ...mapGetters([
       'getMapLayer',
-      'dataMartFeatures'
+      'dataMartFeatures',
+      'selectionBoundingBox'
     ]),
     selectedFeaturesList () {
       const selection = this.dataMartFeatures
@@ -133,7 +135,7 @@ export default {
       this.$store.dispatch('downloadExcelReport',
         {
           format: 'xlsx',
-          bbox: this.selectionBoundingBox,
+          polygon: JSON.stringify(this.selectionBoundingBox.geometry.coordinates || []),
           layers: this.dataMartFeatures.map((feature) => {
             // return the layer names from the active data mart features as a list.
             // there is only expected to be one key, so we could use either
@@ -151,7 +153,8 @@ export default {
       this.pdfReportLoading = true
       this.$store.dispatch('downloadPDFReport',
         {
-          bbox: this.selectionBoundingBox,
+          bbox: toBbox(this.selectionBoundingBox),
+          polygon: JSON.stringify(this.selectionBoundingBox.geometry.coordinates || []),
           layers: this.dataMartFeatures.map((feature) => {
             // return the layer names from the active data mart features as a list.
             // there is only expected to be one key, so we could use either
