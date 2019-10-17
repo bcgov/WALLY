@@ -87,7 +87,7 @@ def aggregate_sources(
             min_length=1
         ),
         polygon: str = Query(
-            str, title="Search polygon",
+            "", title="Search polygon",
             description="Polygon to search within"
         ),
         bbox: List[float] = Query(
@@ -113,13 +113,13 @@ def aggregate_sources(
     # of all the polygons in the supplied shape.
     if polygon:
         poly_parsed = json.loads(polygon)
-        poly_shape = MultiPolygon([Polygon(x) for x in poly_parsed])
+        polygon = MultiPolygon([Polygon(x) for x in poly_parsed])
 
         # bbox is no longer required, since we want to support polygon selection.
         # in order to maintain compatibility with WMS, if a polygon is provided,
         # create a bbox.  This feature could be removed in the near future if
         # we stop supporting WMS altogether.
-        bbox = shape(poly_shape).bounds
+        bbox = shape(polygon).bounds
 
     # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
     # and then takes the largest square to use as the bbox. Reason being that the databc
@@ -142,7 +142,7 @@ def aggregate_sources(
     # define a search area out of the polygon shape, or, if that wasn't provided,
     # the bounding box.  This request should return an error (earlier in the handler)
     # if neither were supplied.
-    search_area = poly_shape or box(*bbox)
+    search_area = polygon or box(*bbox)
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
