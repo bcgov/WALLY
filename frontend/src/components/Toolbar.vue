@@ -44,6 +44,8 @@ export default {
   .mapboxgl-ctrl-geocoder {
         width: 164rem!important;
         border: 1px solid #3B99FC;
+        position: absolute;
+        z-index: 1;
     }
   /* #geocoder {
     width: 64rem!important;
