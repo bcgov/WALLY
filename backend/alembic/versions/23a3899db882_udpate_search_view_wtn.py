@@ -33,6 +33,7 @@ def upgrade():
         'hydrometric_stream_flow' AS layer,
         to_tsvector(concat_ws(' ',stn.station_number, stn.station_name)) AS tsv
         FROM hydat.stations AS stn
+        WHERE stn.prov_terr_state_loc = 'BC'
 
         UNION
         SELECT
@@ -57,11 +58,11 @@ def upgrade():
         UNION
         SELECT
         ST_AsText(ST_Centroid(gww."GEOMETRY")) AS center,
-        concat(gww."WELL_TAG_NO"::text, ' (', gww."WELL_TAG_NUMBER"::text, ')') AS primary_id,
+        gww."WELL_TAG_NO"::text AS primary_id,
         gww."WELL_LOCATION" AS name,
-        'Ground water wells' AS kind,
+        'Ground water well' AS kind,
         'ground_water_wells' AS layer,
-        to_tsvector(concat_ws(' ', gww."WELL_TAG_NO"::text, gww."WELL_TAG_NUMBER"::text, gww."WELL_LOCATION")) AS tsv
+        to_tsvector(concat_ws(' ', gww."WELL_TAG_NO"::text, gww."WELL_LOCATION")) AS tsv
         FROM ground_water_wells AS gww
     """)
 

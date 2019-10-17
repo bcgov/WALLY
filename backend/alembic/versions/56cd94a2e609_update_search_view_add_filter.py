@@ -51,9 +51,9 @@ def upgrade():
         to_tsvector(concat_ws(' ', wrl."POD_NUMBER"::text, wrl."LICENCE_NUMBER"::text, wrl."SOURCE_NAME")) AS tsv
         FROM water_rights_licenses AS wrl
     """)
-    op.execute("""
-        create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
-    """)
+    # op.execute("""
+    #     create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
+    # """)
 
 
 def downgrade():
