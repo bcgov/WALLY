@@ -1,8 +1,8 @@
 <template>
   <v-card elevation=0>
     <v-card-text>
-      <div class="grey--text text--darken-4 title" id="stationTitle">{{ record.properties.name }}</div>
-      <div class="grey--text text--darken-2 subtitle-1">Stream monitoring station</div>
+      <div class="grey--text text--darken-4 headline" id="stationTitle">{{ record.properties.name }}</div>
+      <div class="grey--text text--darken-2 title">Stream monitoring station</div>
       <v-divider></v-divider>
       <v-list dense class="mx-0 px-0" v-if="station">
         <v-list-item class="feature-content">

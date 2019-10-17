@@ -8,8 +8,10 @@ export default {
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
+    singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
     loadingFeature: false,
-    featureError: ""
+    loadingMultipleFeatures: false,
+    featureError: ''
   },
   actions: {
     getDataMart ({ commit }, payload) {
@@ -28,27 +30,29 @@ export default {
     getDataMartFeatureInfo ({ commit }, payload) {
       const { display_data_name, pk } = payload
       commit('setLoadingFeature', true)
-      commit('setFeatureError', "")
-      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk )
+      commit('setFeatureError', '')
+      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
         .then((response) => {
           commit('setLoadingFeature', false)
+          commit('setLayerSelectionActiveState', false)
           let feature = response.data
           commit('setDataMartFeatureInfo',
-          {
-            type: feature.type,
-            display_data_name: display_data_name,
-            geometry: feature.geometry,
-            properties: feature.properties
-          })
+            {
+              type: feature.type,
+              display_data_name: display_data_name,
+              geometry: feature.geometry,
+              properties: feature.properties
+            })
         })
         .catch((error) => {
           commit('setLoadingFeature', false)
           commit('setFeatureError', error.response.data.detail)
-          commit('setDataMartFeatureInfo',{})
+          commit('setDataMartFeatureInfo', {})
           console.log(error.response.data.detail) // TODO create error state item and mutation
         })
     },
     getDataMartFeatures ({ commit }, payload) {
+      commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
@@ -76,12 +80,26 @@ export default {
           commit('setDisplayTemplates', { displayTemplates })
         }).catch((error) => {
           console.log(error)
+        }).finally(() => {
+          commit('setLoadingMultipleFeatures', false)
         })
     }
   },
   mutations: {
+    setLoadingMultipleFeatures (state, payload) {
+      state.loadingMultipleFeatures = payload
+    },
+    setSingleSelectionFeatures (state, payload) {
+      // sets the group of features that were selected by clicking on the map.
+      // since features may be stacked and/or adjacent, one click will often return several results.
+      state.singleSelectionFeatures = payload
+    },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
+    },
+    resetDataMartFeatureInfo: (state) => {
+      state.dataMartFeatureInfo = { content: { properties: {} } }
+      state.featureError = ''
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
@@ -110,6 +128,8 @@ export default {
     selectionBoundingBox: state => state.selectionBoundingBox,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
-    allDataMarts: () => [] // ideally grab these from the meta data api
+    allDataMarts: () => [], // ideally grab these from the meta data api
+    singleSelectionFeatures: state => state.singleSelectionFeatures,
+    loadingMultipleFeatures: state => state.loadingMultipleFeatures
   }
 }

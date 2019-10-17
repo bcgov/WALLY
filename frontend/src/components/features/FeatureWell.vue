@@ -2,8 +2,8 @@
   <v-card elevation=0>
 
     <v-card-text>
-      <div class="grey--text text--darken-4 title" id="aquiferTitle">Well {{ record.properties.WELL_TAG_NUMBER }}</div>
-      <div class="grey--text text--darken-2 subtitle-1 mt-0 mb-2">Groundwater well</div>
+      <div class="grey--text text--darken-4 headline" id="aquiferTitle">Well {{ record.properties.WELL_TAG_NUMBER }}</div>
+      <div class="grey--text text--darken-2 title">Groundwater well</div>
     <v-divider></v-divider>
 
       <v-list dense class="mx-0 px-0">
@@ -56,7 +56,7 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Data source:</v-list-item-content>
-          <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells">DataBC Groundwater Wells</a></v-list-item-content>
+          <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells" target="_blank">DataBC Groundwater Wells</a></v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>

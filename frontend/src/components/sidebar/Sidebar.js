@@ -4,6 +4,7 @@ import * as utils from '../../utils/mapUtils'
 import StreamStation from '../features/FeatureStreamStation'
 import Well from '../features/FeatureWell'
 import Aquifer from '../features/FeatureAquifer'
+import EcoCat from '../features/FeatureEcocat'
 import EventBus from '../../services/EventBus'
 
 export default {
@@ -11,6 +12,7 @@ export default {
   components: {
     StreamStation,
     Well,
+    EcoCat,
     Aquifer
   },
   data () {
@@ -28,7 +30,8 @@ export default {
       featureComponents: {
         hydrometric_stream_flow: StreamStation,
         aquifers: Aquifer,
-        groundwater_wells: Well
+        groundwater_wells: Well,
+        ecocat_water_related_reports: EcoCat
       },
       selectedLayers: [],
       spreadsheetLoading: false,
@@ -47,7 +50,10 @@ export default {
       'mapLayerName',
       'getMapLayer',
       'selectionBoundingBox',
-      'getCategories'
+      'getCategories',
+      'layerSelectionActive',
+      'singleSelectionFeatures',
+      'loadingMultipleFeatures'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
@@ -62,9 +68,30 @@ export default {
         name: c.description,
         children: this.layers[c.layer_category_code]
       })).filter((c) => !!c.children)
+    },
+    selectedFeaturesList () {
+      const selection = this.dataMartFeatures
+      const filtered = selection.filter((x) => {
+        // selections come back as an array of objects (one for each layer), and if the layer has features
+        // present in the user selection, the object should have a key (named after the layer)
+        // with an array of features.
+        return !!Object.entries(x).filter((kv) => {
+          // this checks for at least one key/value pair that has a non-empty array.
+          // in other words, we are looking for a key/value pair that has an array of features.
+          return kv[1] && kv[1].length
+        }).length
+      })
+
+      // return an array of only the layers that contain selected features.
+      return filtered
     }
   },
   methods: {
+    handleCloseSingleFeature () {
+      this.$store.commit('resetHighlightFeatureData')
+      this.$store.commit('resetDataMartFeatureInfo')
+      EventBus.$emit('highlight:clear')
+    },
     filterLayersByCategory (layers) {
       let catMap = {}
 
@@ -175,7 +202,9 @@ export default {
     handleResetLayers () {
       this.selectedLayers = []
       EventBus.$emit('draw:reset', null)
+      EventBus.$emit('highlight:clear')
       this.$store.commit('setActiveMapLayers', [])
+      this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
     }

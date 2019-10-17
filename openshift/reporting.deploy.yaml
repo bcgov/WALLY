@@ -94,7 +94,7 @@ objects:
               resources:
                 requests:
                   cpu: 200m
-                  memory: 256Mi
+                  memory: 512Mi
                 limits:
                   cpu: ${CPU_LIMIT}
                   memory: 1Gi

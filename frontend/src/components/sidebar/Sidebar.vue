@@ -1,24 +1,21 @@
 <template>
-  <v-navigation-drawer
-    v-model="drawer"
-    v-bind:width="435"
-    app
-    class="wally-sidenav"
+  <v-sheet
+    class="mt-0 px-5 fill-height"
   >
-    <v-tabs
-      v-model="active_tab"
-      centered
-      color="#38598A"
-      slider-color="primary"
-    >
-      <v-tab v-for="tab of tabs" :key="tab.id">
-        {{tab.name}}
-      </v-tab>
-
-      <v-tab-item class="pa-5">
+      <template v-if="layerSelectionActive">
         <v-row>
-          <v-col class="title">Categories</v-col>
-          <v-col class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+          <v-col cols=2>
+            <v-btn
+              fab
+              class="elevation-1"
+              small
+              @click.prevent="$store.commit('setLayerSelectionActiveState', false)"
+            ><v-icon>arrow_back</v-icon></v-btn>
+          </v-col>
+          <v-col class="title" cols=6>
+            Categories
+          </v-col>
+          <v-col cols=4 class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
         </v-row>
         <v-treeview
           selectable
@@ -27,101 +24,49 @@
           v-if="layers && categories"
           :items="categories"
         ></v-treeview>
-      </v-tab-item>
+      </template>
 
-      <v-tab-item>
-        <v-card class="mx-auto elevation-0">
-          <v-card-text>
-            <span class="float-right mt-3">
-              <v-btn
-                v-if="dataMartFeatures && dataMartFeatures.length"
-                dark
-                @click="createSpreadsheetFromSelection"
-                color="blue"
-              >
-                Excel
-                <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
-                <v-progress-circular
-                  v-if="spreadsheetLoading"
-                  indeterminate
-                  size=24
-                  class="ml-1"
-                  color="primary"
-                ></v-progress-circular>
-              </v-btn>
-              <v-btn
-                v-if="dataMartFeatures && dataMartFeatures.length"
-                dark
-                @click="createPdfFromSelection"
-                color="blue"
-                class="ml-2"
-              >
-                PDF
-                <v-icon class="ml-1" v-if="!pdfReportLoading">picture_as_pdf</v-icon>
-                <v-progress-circular
-                  v-if="pdfReportLoading"
-                  indeterminate
-                  size=24
-                  class="ml-1"
-                  color="primary"
-                ></v-progress-circular>
-              </v-btn>
-            </span>
+      <template v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name">
+        <!-- <v-sheet class="mt-3">
+            <v-row align="center">
+              <v-col cols=2 class="fill-height">Viewing:</v-col>
+              <v-col cols=6>
+                <v-select
+                  outlined
+                  style="margin-bottom: -1.5rem;"
+                  :items="singleSelectionFeatures.map((f) => {
+                    return {
+                      value: f.id,
+                      text: `${f.layer.id} ${f.id}`
+                    }
+                  })"
+                ></v-select>
+              </v-col>
+            </v-row>
+        </v-sheet> -->
 
-          <v-list>
-            <div class="title">Selected points
-            </div>
-            <div v-for="(dataMartFeature, index) in dataMartFeatures" :key="`objs-${index}`">
-              <v-list-group v-for="(value, name, j) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="~j">
-                <template v-slot:activator>
-                  <v-list-item-content>
-                    <v-list-item-title>{{getMapLayer(name).display_name}}</v-list-item-title>
-                  </v-list-item-content>
-                </template>
-                  <v-list-item>
-                    <v-list-item-content>
-                        <v-data-table
-                          :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
-                          :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
-                          :items-per-page="10"
-                        >
-                          <template v-slot:item="{ item }">
-                            <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
-                              <v-card
-                                class="px-2 py-3 mx-1 my-2"
-                                :elevation="hover ? 2 : 0"
-                                @mousedown="setSingleListFeature(value[item.id], name)"
-                                @mouseenter="onMouseEnterListItem(value[item.id], name)"
-                              >
-                                <span>{{ item.col1 }}</span>
-                              </v-card>
-                            </v-hover>
-                            <v-divider :key="`divider-${item.id}`"></v-divider>
-                          </template>
-                        </v-data-table>
-                    </v-list-item-content>
-                  </v-list-item>
-              </v-list-group>
-            </div>
-          </v-list>
-          </v-card-text>
-
-        </v-card>
-      </v-tab-item>
-
-      <v-tab-item>
+        <v-row>
+          <v-col cols=2>
+            <v-btn
+              fab
+              class="elevation-1"
+              small
+              @click.prevent="handleCloseSingleFeature"
+            ><v-icon>arrow_back</v-icon></v-btn>
+          </v-col>
+        </v-row>
 
         <!-- custom components for features with visualizations etc. -->
         <component
-          v-if="dataMartFeatureInfo && Object.keys(featureComponents).includes(dataMartFeatureInfo.layer_name)"
-          :is="featureComponents[dataMartFeatureInfo.layer_name]"
+          v-if="dataMartFeatureInfo && Object.keys(featureComponents).includes(dataMartFeatureInfo.display_data_name)"
+          :is="featureComponents[dataMartFeatureInfo.display_data_name]"
           :record="dataMartFeatureInfo"
         />
 
         <!-- fallback generic feature panel for layers that do not have a custom component. Data displayed will be from
             the "highlight_columns" field of the layer catalogue.
          -->
-        <v-card v-else-if="dataMartFeatureInfo">
+        <v-card v-else>
           <v-card-title class="subheading font-weight-bold">{{ humanReadable(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
           <v-divider></v-divider>
@@ -158,20 +103,117 @@
             </template>
           </v-list>
         </v-card>
-      </v-tab-item>
-    </v-tabs>
+      </template>
 
-  </v-navigation-drawer>
+      <template v-else-if="dataMartFeatures && dataMartFeatures.length">
+        <v-card class="elevation-0">
+          <v-card-text>
+
+            <span class="float-right mt-3">
+              <v-btn
+                v-if="dataMartFeatures && dataMartFeatures.length"
+                dark
+                @click="createSpreadsheetFromSelection"
+                color="blue"
+              >
+                Excel
+                <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                <v-progress-circular
+                  v-if="spreadsheetLoading"
+                  indeterminate
+                  size=24
+                  class="ml-1"
+                  color="primary"
+                ></v-progress-circular>
+              </v-btn>
+              <v-btn
+                v-if="dataMartFeatures && dataMartFeatures.length"
+                dark
+                @click="createPdfFromSelection"
+                color="blue"
+                class="ml-2"
+              >
+                PDF
+                <v-icon class="ml-1" v-if="!pdfReportLoading">picture_as_pdf</v-icon>
+                <v-progress-circular
+                  v-if="pdfReportLoading"
+                  indeterminate
+                  size=24
+                  class="ml-1"
+                  color="primary"
+                ></v-progress-circular>
+              </v-btn>
+            </span>
+            <div class="title">Selected points
+            </div>
+          <v-list class="mt-5">
+            <div v-for="(dataMartFeature, index) in selectedFeaturesList" :key="`objs-${index}`">
+
+              <!--
+              Using value=0 in v-list-group defaults the collapsable list item to "closed".
+              In this case, keep the list items collapsed unless there is only one to display.
+               -->
+              <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="dataMartFeature.length > 1 ? 0 : 1">
+                <template v-slot:activator>
+                  <v-list-item-content>
+                    <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}})</v-list-item-title>
+                  </v-list-item-content>
+                </template>
+                  <v-list-item>
+                    <v-list-item-content>
+                        <v-data-table
+                          dense
+                          :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
+                          :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
+                          :items-per-page="10"
+                        >
+                          <template v-slot:item="{ item }">
+                            <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
+                              <v-card
+                                class="px-2 py-3 mx-1 my-2"
+                                :elevation="hover ? 2 : 0"
+                                @mousedown="setSingleListFeature(value[item.id], name)"
+                                @mouseenter="onMouseEnterListItem(value[item.id], name)"
+                              >
+                                <span>{{ item.col1 }}</span>
+                              </v-card>
+                            </v-hover>
+                            <v-divider :key="`divider-${item.id}`"></v-divider>
+                          </template>
+                        </v-data-table>
+                    </v-list-item-content>
+                  </v-list-item>
+              </v-list-group>
+            </div>
+          </v-list>
+          </v-card-text>
+
+        </v-card>
+      </template>
+
+      <!-- nothing to display -->
+      <v-card class="mt-5" v-else>
+        <v-card-text>
+          <!-- display a loading message if features are loading. -->
+          <div v-if="loadingFeature || loadingMultipleFeatures">
+            <v-progress-linear
+              indeterminate
+              color="primary"
+              class="mb-5"
+            ></v-progress-linear>
+            <template v-for="n in 10">
+              <v-skeleton-loader type="list-item" v-bind:key="`${n}-item`"/><v-divider v-bind:key="`${n}-divider`"/>
+            </template>
+          </div>
+          <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
+        </v-card-text>
+      </v-card>
+  </v-sheet>
 </template>
 
 <script src="./Sidebar.js"></script>
 
 <style lang="scss">
-
-  .wally-sidenav {
-    margin-top: 64px!important;
-  }
-
   .wally-sidebar-category {
     font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
     font-weight: bold!important;
