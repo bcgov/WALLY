@@ -51,6 +51,7 @@ def upgrade():
         to_tsvector(concat_ws(' ', wrl."POD_NUMBER"::text, wrl."LICENCE_NUMBER"::text, wrl."SOURCE_NAME")) AS tsv
         FROM water_rights_licenses AS wrl
     """)
+    # A later migration updates this view so we can ignore the execute
     # op.execute("""
     #     create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
     # """)
