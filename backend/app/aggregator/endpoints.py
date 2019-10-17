@@ -104,16 +104,14 @@ def aggregate_sources(
     inside the map bounds defined by `bbox`.
     """
 
-    poly_supplied = polygon and polygon[0]
-
-    if not poly_supplied and not bbox:
+    if not polygon and not bbox:
         raise HTTPException(
             status_code=400, detail="No search bounds. Supply either a `polygon` or set of 4 `bbox` values")
 
     # the polygon search area comes formatted the same way a MultiPolygon would be.
     # (e.g., an array of polygons).  Here we process it by creating a MultiPolygon
     # of all the polygons in the supplied shape.
-    if poly_supplied:
+    if polygon:
         poly_parsed = json.loads(polygon)
         poly_shape = MultiPolygon([Polygon(x) for x in poly_parsed])
 
