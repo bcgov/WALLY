@@ -44,7 +44,7 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Data source:</v-list-item-content>
-          <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-aquifers">DataBC Aquifers</a></v-list-item-content>
+          <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-aquifers" target="_blank">DataBC Aquifers</a></v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>

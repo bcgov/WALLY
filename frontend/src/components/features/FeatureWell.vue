@@ -56,7 +56,7 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Data source:</v-list-item-content>
-          <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells">DataBC Groundwater Wells</a></v-list-item-content>
+          <v-list-item-content><a href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells" target="_blank">DataBC Groundwater Wells</a></v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>
