@@ -8,6 +8,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
 import HighlightPoint from './MapHighlightPoint'
+import * as metadata from '../../utils/metadataUtils'
 import bbox from '@turf/bbox'
 
 import qs from 'querystring'
@@ -39,6 +40,8 @@ export default {
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
+    EventBus.$on('draw:reset', this.replaceOldFeatures)
+    EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -49,6 +52,8 @@ export default {
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
+    EventBus.$off('draw:reset', this.replaceOldFeatures)
+    EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
   },
   data () {
     return {
@@ -57,7 +62,8 @@ export default {
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
-      draw: null // mapbox draw object (controls drawn polygons e.g. for area select)
+      draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
+      isDrawingToolActive: false
     }
   },
   computed: {
@@ -86,6 +92,11 @@ export default {
 
       const modes = MapboxDraw.modes
       modes.draw_polygon = DrawRectangle
+      modes.simple_select.onTrash = () => {
+        this.replaceOldFeatures()
+        this.$store.commit('clearDataMartFeatures')
+        this.$store.commit('clearDisplayTemplates')
+      }
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -125,6 +136,18 @@ export default {
       this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
+
+      // Subscribe to mode change event to toggle drawing state
+      this.map.on('draw.modechange', this.handleModeChange)
+    },
+    handleModeChange (e) {
+      if(e.mode == 'draw_polygon') {
+        this.isDrawingToolActive = true
+      } else if (e.mode == 'simple_select') {
+        setTimeout(() => {
+          this.isDrawingToolActive = false
+        }, 500)
+      }
     },
     initHighlightLayers () {
       this.map.on('load', () => {
@@ -167,11 +190,6 @@ export default {
         this.map.on('mouseleave', vector, this.resetCursor)
       }
     },
-    async searchWallyAPI () {
-      const results = await ApiService.getApi('/geocode?q=a')
-      console.log(results.data)
-      return results.data
-    },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {
         this.map.getSource('highlightPointData').setData(data)
@@ -180,6 +198,10 @@ export default {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(data)
       }
+    },
+    clearHighlightLayer () {
+      this.map.getSource('highlightPointData').setData(point)
+      this.map.getSource('highlightLayerData').setData(polygon)
     },
     handleAddFeature (f) {
       let p = L.latLng(f.lat, f.lng)
@@ -194,6 +216,7 @@ export default {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
     handleRemoveWMSLayer (displayDataName) {
+      this.clearHighlightLayer()
       this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
@@ -281,32 +304,15 @@ export default {
       // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    addWMSLegendGraphic (layername, style) {
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetLegendGraphic',
-        format: 'image/png',
-        layer: 'pub:' + layername,
-        style: style,
-        transparent: true,
-        name: layername,
-        height: 20,
-        width: 20,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query
-      this.legendGraphics[layerID] = url
-    },
-    replaceOldFeatures (newFeature) {
+    replaceOldFeatures (newFeature = null) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
     handleSelect (feature) {
+      if (!feature || !feature.features || !feature.features.length) return
+
       const newFeature = feature.features[0].id
       this.replaceOldFeatures(newFeature)
 
@@ -330,14 +336,15 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      const feature = e.features[0]
-      this.$store.commit('setDataMartFeatureInfo',
-        {
-          type: feature.type,
+      if(!this.isDrawingToolActive) {
+        // Calls API and gets and sets feature data
+        const feature = e.features[0]
+        let payload = {
           display_data_name: feature.layer.id,
-          geometry: feature.geometry,
-          properties: feature.properties
-        })
+          pk: feature.properties[metadata.PRIMARY_KEYS[feature.layer.id]]
+        }
+        this.$store.dispatch('getDataMartFeatureInfo', payload)
+      }
     },
     getPolygonCenter (arr) {
       if (arr.length === 1) { return arr }
@@ -350,6 +357,12 @@ export default {
     getArrayDepth (value) {
       return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
     },
+    formatLatLon(lon, lat) {
+      // Formats lat lon to be within proper ranges
+      lon = lon < 0 ? lon : -lon
+      lat = lat > 0 ? lat : -lat
+      return [lon, lat]
+    },
     setCursorPointer () {
       this.map.getCanvas().style.cursor = 'pointer'
     },
@@ -361,13 +374,20 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
+        if(value.geometry.type == 'Point') {
+          let coordinates = value.geometry.coordinates
+          value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
+        }
         this.updateHighlightLayerData(value)
       }
     },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
-        if (value.geometry.type !== 'Point') {
+        if (value.geometry.type == 'Point') {
+          coordinates = this.formatLatLon(coordinates[0], coordinates[1])
+          value.geometry.coordinates = coordinates
+        } else {
           let depth = this.getArrayDepth(coordinates)
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)

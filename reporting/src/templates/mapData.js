@@ -4,6 +4,7 @@ const mapData = {
   WMS_GROUNDWATER_LICENCES: 'WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
   WMS_WATERSHEDS: 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY',
   HYDAT: 'hydrometric_stream_flow',
+  ECOCAT: 'ecocat_water_related_reports',
   aquifers: 'aquifers',
   water_rights_licences: 'water_rights_licences'
 

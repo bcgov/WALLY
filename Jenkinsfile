@@ -351,7 +351,7 @@ pipeline {
                         dir('backend/api-tests') {
                             try {
                                 sh """
-                                  apitest -f hydat.apitest.yaml \
+                                  apitest -f data_endpoints.apitest.yaml \
                                   -e host=$BASE_URL \
                                   -e auth_user=$AUTH_USER \
                                   -e auth_pass=$AUTH_PASS \
@@ -359,6 +359,13 @@ pipeline {
                                   -e auth_id=$CLIENT_ID \
                                   -e auth_secret=$CLIENT_SECRET &&
                                   apitest -f geocoder.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET &&
+                                  apitest -f catalogue.apitest.yaml \
                                   -e host=$BASE_URL \
                                   -e auth_user=$AUTH_USER \
                                   -e auth_pass=$AUTH_PASS \
@@ -414,8 +421,8 @@ pipeline {
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
                   "PVC_SIZE=30Gi",
-                  "CPU_REQUEST=500m",
-                  "CPU_LIMIT='1'",
+                  "CPU_REQUEST=200m",
+                  "CPU_LIMIT=500m",
                   "MEMORY_REQUEST=1Gi",
                   "MEMORY_LIMIT=2Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"
@@ -444,7 +451,8 @@ pipeline {
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "CPU_LIMIT=500m"
                 ))
 
                 echo "Deploying to a dev environment"
@@ -539,7 +547,8 @@ pipeline {
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "CPU_LIMIT=1"
                 ))
 
                 echo "Deploying to a dev environment"

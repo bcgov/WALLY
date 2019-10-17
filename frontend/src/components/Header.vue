@@ -1,6 +1,6 @@
 <template>
-  <header>
-    <div class="banner">
+  <v-app-bar dark app clipped-left>
+    <div class="banner" dark>
         <a href="https://gov.bc.ca" alt="British Columbia">
           <img :src="require('../assets/bcgov_logo.svg')" height="40" max-width="150" alt="Go to the Government of British Columbia website" />
         </a>
@@ -14,9 +14,17 @@
       This place is for anything that needs to be right aligned
       beside the logo.
     -->
+      <div class="my-2 mr-3">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
+          </template>
+          <span>Please send us any feedback or ideas you may have on how we can improve the app.</span>
+        </v-tooltip>
+      </div>
       {{ name }}
     </div>
-  </header>
+  </v-app-bar>
 </template>
 
 <script>
@@ -34,6 +42,9 @@ export default {
       if (authenticated) {
         this.name = name
       }
+    },
+    openFeedback () {
+      window.location = 'mailto:kailee.douglas@gov.bc.ca;lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
     }
   },
   created () {
@@ -47,8 +58,8 @@ export default {
 </script>
 <style>
 header {
-  background-color: #036!important;
-  border-bottom: 2px solid #fcba19;
+  background-color: #036 !important;
+  border-bottom: 2px solid #fcba19 !important;
   padding: 0 65px 0 65px;
   color: #fff;
   display: flex;

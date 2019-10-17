@@ -1,6 +1,7 @@
 <template>
   <v-app>
-    <WHeader></WHeader>
+    <Header></Header>
+    <Sidebar></Sidebar>
     <v-content>
       <v-container fluid class="pa-0 ma-0">
         <router-view/>
@@ -10,24 +11,22 @@
 </template>
 
 <script>
-import WHeader from './components/Header'
+import Header from './components/Header'
+import Sidebar from './components/sidebar/Sidebar.vue';
 
 export default {
   name: 'app',
   components: {
-    WHeader
+    Header,
+    Sidebar
   }
 }
 </script>
 
 <style lang="scss">
-  body {
-    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
-    color: #494949;
-  }
-  a {
-    color: #1A5A96;
-  }
+  $mdi-font-path: "~@mdi/font/fonts" !default;
+  @import '~@mdi/font/scss/materialdesignicons';
+
   /* noto-sans-regular - latin */
   @font-face {
     font-family: 'Noto Sans';
@@ -52,6 +51,16 @@ export default {
     url('./assets/fonts/NotoSans-Bold.woff') format('woff'), /* Modern Browsers */
     url('./assets/fonts/NotoSans-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
     url('./assets/fonts/NotoSans-Bold.svg') format('svg'); /* Legacy iOS */
+  }
+  body {
+    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
+    color: #494949;
+  }
+  a {
+    color: #1A5A96;
+  }
+  .feature-content {
+    user-select: auto!important;
   }
 
 </style>

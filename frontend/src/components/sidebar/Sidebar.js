@@ -1,13 +1,17 @@
 import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import * as utils from '../../utils/mapUtils'
-import * as metadataUtils from '../../utils/metadataUtils'
-import StreamStation from '../features/StreamStation'
+import StreamStation from '../features/FeatureStreamStation'
+import Well from '../features/FeatureWell'
+import Aquifer from '../features/FeatureAquifer'
+import EventBus from '../../services/EventBus'
 
 export default {
   name: 'Sidebar',
   components: {
-    StreamStation
+    StreamStation,
+    Well,
+    Aquifer
   },
   data () {
     return {
@@ -19,46 +23,71 @@ export default {
       ],
       drawer: true,
       mini: true,
+      loading: false,
       subHeading: '',
-      reportLoading: false
+      featureComponents: {
+        hydrometric_stream_flow: StreamStation,
+        aquifers: Aquifer,
+        groundwater_wells: Well
+      },
+      selectedLayers: [],
+      spreadsheetLoading: false,
+      pdfReportLoading: false
     }
   },
   computed: {
     ...mapGetters([
       'isMapLayerActive',
       'isDataMartActive',
+      'loadingFeature',
+      'featureError',
       'dataMartFeatures',
       'dataMartFeatureInfo',
       'allMapLayers',
       'mapLayerName',
       'getMapLayer',
-      'selectionBoundingBox'
+      'selectionBoundingBox',
+      'getCategories'
     ]),
     layers () {
-      return [
-        {
-          title: 'Layers',
-          active: 'true',
-          icon: 'layers',
-          action: 'layers',
-          choices: this.allMapLayers
-        }
-      ]
+      return this.filterLayersByCategory(this.allMapLayers)
+    },
+    categories () {
+      // Returns categories with child nodes from this.layers.
+      // The v-treeview component expects nodes to have keys id, name, and children.
+      // Finally, filter out empty categories, since this can cause a problem if they get selected
+      // and there is no need to allow selecting empty categories.
+      return this.getCategories.map((c) => ({
+        id: c.layer_category_code,
+        name: c.description,
+        children: this.layers[c.layer_category_code]
+      })).filter((c) => !!c.children)
     }
   },
   methods: {
+    filterLayersByCategory (layers) {
+      let catMap = {}
+
+      layers.forEach((layer) => {
+        const layerNode = {
+          id: layer.display_data_name,
+          name: layer.display_name
+        }
+        if (!catMap[layer.layer_category_code]) {
+          // this category hasn't been seen yet, start it with this layer in it
+          catMap[layer.layer_category_code] = [layerNode]
+        } else {
+          // category exists: add this layer to it
+          catMap[layer.layer_category_code].push(layerNode)
+        }
+      })
+      return catMap
+    },
     setTabById (id) {
       this.active_tab = id
     },
-    handleSelectLayer (id) {
-      this.updateMapLayer(id)
-    },
-    updateMapLayer (id) {
-      if (this.isMapLayerActive(id)) {
-        this.$store.commit('removeMapLayer', id)
-      } else {
-        this.$store.commit('addMapLayer', id)
-      }
+    handleSelectLayer (selectedLayers) {
+      this.$store.commit('setActiveMapLayers', selectedLayers)
     },
     updateDataLayer (id, url) {
       if (this.isDataMartActive(id)) {
@@ -67,8 +96,8 @@ export default {
         this.$store.dispatch('getDataMart', { id: id, url: url })
       }
     },
-    createReportFromSelection () {
-      this.reportLoading = true
+    createSpreadsheetFromSelection () {
+      this.spreadsheetLoading = true
       this.$store.dispatch('downloadExcelReport',
         {
           format: 'xlsx',
@@ -83,7 +112,25 @@ export default {
       ).catch((e) => {
         console.error(e)
       }).finally(() => {
-        this.reportLoading = false
+        this.spreadsheetLoading = false
+      })
+    },
+    createPdfFromSelection () {
+      this.pdfReportLoading = true
+      this.$store.dispatch('downloadPDFReport',
+        {
+          bbox: this.selectionBoundingBox,
+          layers: this.dataMartFeatures.map((feature) => {
+            // return the layer names from the active data mart features as a list.
+            // there is only expected to be one key, so we could use either
+            // Object.keys(feature)[0] or call flat() on the resulting nested array.
+            return Object.keys(feature)
+          }).flat()
+        }
+      ).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.pdfReportLoading = false
       })
     },
     setSingleListFeature (item, displayName) {
@@ -100,7 +147,6 @@ export default {
     },
     humanReadable: val => humanReadable(val),
     getMapLayerItemTitle: val => {
-      console.log(val)
       return utils.getMapLayerItemTitle(val)
     },
     getMapLayerItemValue: val => utils.getMapLayerItemValue(val),
@@ -125,9 +171,22 @@ export default {
         return obj
       }
       return {}
+    },
+    handleResetLayers () {
+      this.selectedLayers = []
+      EventBus.$emit('draw:reset', null)
+      this.$store.commit('setActiveMapLayers', [])
+      this.$store.commit('resetDataMartFeatureInfo')
+      this.$store.commit('clearDataMartFeatures')
+      this.$store.commit('clearDisplayTemplates')
     }
   },
   watch: {
+    loadingFeature (value) {
+      if (value) {
+        this.setTabById(2)
+      }
+    },
     dataMartFeatureInfo (value) {
       if (value && value.properties) {
         this.setTabById(2)
