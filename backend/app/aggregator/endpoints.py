@@ -55,12 +55,15 @@ API_DATASOURCES = {
     "cadastral": Cadastral,
     "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
     "ecocat_water_related_reports": EcocatWaterRelatedReports,
-    "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections,
-    "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
     "groundwater_wells": GroundWaterWells,
     "hydrometric_stream_flow": streams_repo,
     "water_allocation_restrictions": WaterAllocationRestrictions,
     "water_rights_licences": WaterRightsLicenses
+
+    # these layers are causing performance issues.
+    # leaving them commented out allows them to fall back to WMS fetching from DataBC.
+    # "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections,
+    # "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
 }
 
 
