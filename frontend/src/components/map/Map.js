@@ -6,7 +6,6 @@ import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
-import DrawRectangle from 'mapbox-gl-draw-rectangle-mode'
 import HighlightPoint from './MapHighlightPoint'
 import * as metadata from '../../utils/metadataUtils'
 import bbox from '@turf/bbox'
@@ -90,13 +89,16 @@ export default {
         zoom: 4.7 // starting zoom
       })
 
-      const modes = MapboxDraw.modes
-      modes.draw_polygon = DrawRectangle
-      modes.simple_select.onTrash = () => {
+      const clearSelections = () => {
         this.replaceOldFeatures()
         this.$store.commit('clearDataMartFeatures')
         this.$store.commit('clearDisplayTemplates')
       }
+
+      const modes = MapboxDraw.modes
+      modes.simple_select.onTrash = clearSelections
+      modes.draw_polygon.onTrash = clearSelections
+      modes.draw_point.onTrash = clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -115,7 +117,7 @@ export default {
       })
 
       // Add zoom and rotation controls to the map.
-      this.map.addControl(geocoder, 'top-left')
+      document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
       this.map.addControl(this.draw, 'top-left')
       this.map.addControl(new mapboxgl.GeolocateControl({
@@ -141,7 +143,7 @@ export default {
       this.map.on('draw.modechange', this.handleModeChange)
     },
     handleModeChange (e) {
-      if(e.mode == 'draw_polygon') {
+      if (e.mode == 'draw_polygon') {
         this.isDrawingToolActive = true
       } else if (e.mode == 'simple_select') {
         setTimeout(() => {
@@ -159,7 +161,7 @@ export default {
           'source': 'highlightLayerData',
           'layout': {},
           'paint': {
-            'fill-color': '#9A3FCA'
+            'fill-color': 'rgba(154, 63, 202, 0.25)'
           }
         })
         this.map.addImage('highlight-point', HighlightPoint(this.map, 90), { pixelRatio: 2 })
@@ -322,6 +324,7 @@ export default {
       const bounds = bbox(feature.features[0])
       this.getMapObjects(bounds)
       this.$store.commit('setSelectionBoundingBox', bounds)
+      this.$store.commit('setLayerSelectionActiveState', false)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
@@ -336,7 +339,7 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      if(!this.isDrawingToolActive) {
+      if (!this.isDrawingToolActive) {
         // Calls API and gets and sets feature data
         const feature = e.features[0]
         let payload = {
@@ -357,7 +360,7 @@ export default {
     getArrayDepth (value) {
       return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
     },
-    formatLatLon(lon, lat) {
+    formatLatLon (lon, lat) {
       // Formats lat lon to be within proper ranges
       lon = lon < 0 ? lon : -lon
       lat = lat > 0 ? lat : -lat
@@ -374,7 +377,7 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
-        if(value.geometry.type == 'Point') {
+        if (value.geometry.type == 'Point') {
           let coordinates = value.geometry.coordinates
           value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
         }

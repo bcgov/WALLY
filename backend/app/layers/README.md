@@ -33,3 +33,12 @@ ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 pas
 --config PG_USE_COPY YES \
 -nln water_rights_licenses
 ```
+
+## Wells
+
+```bash
+ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 password=test_pw" \
+"/path/to/ground_water_wells.geojson" \
+--config PG_USE_COPY YES \
+-nln ground_water_wells -progress
+```
