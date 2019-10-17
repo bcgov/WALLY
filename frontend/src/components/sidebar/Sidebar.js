@@ -91,6 +91,7 @@ export default {
     handleCloseSingleFeature () {
       this.$store.commit('resetHighlightFeatureData')
       this.$store.commit('resetDataMartFeatureInfo')
+      EventBus.$emit('highlight:clear')
     },
     filterLayersByCategory (layers) {
       let catMap = {}
@@ -203,6 +204,7 @@ export default {
     handleResetLayers () {
       this.selectedLayers = []
       EventBus.$emit('draw:reset', null)
+      EventBus.$emit('highlight:clear')
       this.$store.commit('setActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')

@@ -1,8 +1,8 @@
-"""update_search_view2
+"""udpate_search_view_wtn
 
-Revision ID: 56cd94a2e609
-Revises: 978751d9a7f2
-Create Date: 2019-09-20 19:51:05.531222
+Revision ID: 23a3899db882
+Revises: eca0ac552803
+Create Date: 2019-10-16 16:07:05.530381
 
 """
 from alembic import op
@@ -10,13 +10,17 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '56cd94a2e609'
-down_revision = '978751d9a7f2'
+revision = '23a3899db882'
+down_revision = 'eca0ac552803'
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
+    # replace materialized view with new view with extra records added.
+    # note on table names: some layers like water_rights_licenses do not have
+    # consistent spelling across
+    # the application and in external resources.
     op.execute("DROP MATERIALIZED VIEW IF EXISTS geocode_lookup")
     op.execute("""
         CREATE MATERIALIZED VIEW geocode_lookup AS
@@ -50,11 +54,21 @@ def upgrade():
         'water_rights_licences' AS layer,
         to_tsvector(concat_ws(' ', wrl."POD_NUMBER"::text, wrl."LICENCE_NUMBER"::text, wrl."SOURCE_NAME")) AS tsv
         FROM water_rights_licenses AS wrl
+
+        UNION
+        SELECT
+        ST_AsText(ST_Centroid(gww."GEOMETRY")) AS center,
+        gww."WELL_TAG_NO"::text AS primary_id,
+        gww."WELL_LOCATION" AS name,
+        'Ground water well' AS kind,
+        'ground_water_wells' AS layer,
+        to_tsvector(concat_ws(' ', gww."WELL_TAG_NO"::text, gww."WELL_LOCATION")) AS tsv
+        FROM ground_water_wells AS gww
     """)
-    # A later migration updates this view so we can ignore the execute
-    # op.execute("""
-    #     create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
-    # """)
+
+    op.execute("""
+        create index idx_geocode_tsv ON geocode_lookup USING GIN(tsv)
+    """)
 
 
 def downgrade():
