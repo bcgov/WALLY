@@ -2,11 +2,12 @@
   <v-sheet
     class="mt-0 px-5 fill-height"
   >
-      <template v-if="layerSelectionActive">
+      <template v-if="displayLayerSelection">
         <v-row>
           <v-col cols=2>
             <v-btn
               fab
+              v-if="allowDisableLayerSelection"
               class="elevation-1"
               small
               @click.prevent="$store.commit('setLayerSelectionActiveState', false)"

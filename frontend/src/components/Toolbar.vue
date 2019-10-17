@@ -4,7 +4,7 @@
       <v-btn
         color="primary"
         @click.prevent="handleLayerSelectionState"
-        :outlined="!layerSelectionActive"
+        :outlined="!layerSelectionActive && this.featureSelectionExists"
         width=128
       ><v-icon>layers</v-icon> Layers</v-btn>
     </v-toolbar-items>
@@ -25,11 +25,15 @@ export default {
   computed: {
     ...mapGetters([
       'layerSelectionActive',
-      'singleSelectionFeatures'
+      'singleSelectionFeatures',
+      'featureSelectionExists'
     ])
   },
   methods: {
     handleLayerSelectionState () {
+      if (!this.featureSelectionExists) {
+        return this.$store.commit('setLayerSelectionActiveState', true)
+      }
       this.$store.commit('setLayerSelectionActiveState', !this.layerSelectionActive)
     }
   }

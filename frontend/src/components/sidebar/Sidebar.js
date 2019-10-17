@@ -39,6 +39,19 @@ export default {
     }
   },
   computed: {
+    displayLayerSelection () {
+      // determines whether or not layer selection should be displayed.
+      // this function allows a mix of both user action (clicking on Layers button)
+      // and automatic (there's nothing else to display after clearing selections etc.
+      // so default to layer select)
+
+      // return true if either layer selection has been manually activated, or if there are no
+      // features selected
+      return this.layerSelectionActive || !this.featureSelectionExists
+    },
+    allowDisableLayerSelection () {
+      return this.featureSelectionExists
+    },
     ...mapGetters([
       'isMapLayerActive',
       'isDataMartActive',
@@ -53,7 +66,8 @@ export default {
       'getCategories',
       'layerSelectionActive',
       'singleSelectionFeatures',
-      'loadingMultipleFeatures'
+      'loadingMultipleFeatures',
+      'featureSelectionExists'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
