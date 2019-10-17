@@ -57,15 +57,13 @@ export default {
         return 'layers=' + x.display_data_name + '&'
       })
 
-      var bbox = payload.bounds
-      bbox = bbox.map((x) => {
-        return 'bbox=' + x + '&'
-      })
+      let polygon = payload.bounds
+      let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
 
       var width = 'width=' + payload.size.x + '&'
       var height = 'height=' + payload.size.y
 
-      var params = layers.join('') + bbox.join('') + width + height
+      var params = layers.join('') + polygonQ + width + height
 
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate?' + params)

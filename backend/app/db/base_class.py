@@ -5,6 +5,7 @@ from typing import List
 from sqlalchemy import Integer, String, Column, DateTime, Float, func
 from sqlalchemy.inspection import inspect
 from geoalchemy2.shape import to_shape
+from shapely.geometry import Polygon
 from logging import getLogger
 logger = getLogger("CustomBase")
 
@@ -16,22 +17,22 @@ class CustomBase(object):
 class CustomLayerBase(object):
 
     @classmethod
-    def get_all(cls, db: Session, bbox: List[float] = []):
+    def get_all(cls, db: Session, search_area: Polygon = None):
         """ gets all records, with an optional bounding box """
         q = db.query(cls)
 
-        if len(bbox) == 4:
+        if search_area:
             column = cls.SHAPE if cls.shape_column_exists() else cls.GEOMETRY
             q = q.filter(
-                column.intersects(func.ST_MakeEnvelope(*bbox))
+                func.ST_Intersects(search_area.wkt, column)
             )
 
         return q.all()
 
     @classmethod
-    def get_as_geojson(cls, db: Session, bbox: List[float] = []) -> FeatureCollection:
+    def get_as_geojson(cls, db: Session, search_area: Polygon = None) -> FeatureCollection:
         """ calls get_all and formats the result as geojson """
-        rows = cls.get_all(db, bbox)
+        rows = cls.get_all(db, search_area)
 
         # add properties to geojson Feature objects
         points = [
@@ -57,7 +58,7 @@ class CustomLayerBase(object):
         columns = cls.__table__.columns
         return "LATITUDE" in columns and \
                "LONGITUDE" in columns
-    
+
     @classmethod
     def get_as_feature(cls, row):
         return Feature(
@@ -74,8 +75,6 @@ class CustomLayerBase(object):
                 continue
             d[column.name] = str(getattr(self, column.name))
         return d
-
-    
 
 
 BaseTable = declarative_base(cls=CustomBase)
