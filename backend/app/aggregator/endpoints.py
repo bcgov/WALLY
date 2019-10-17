@@ -3,6 +3,7 @@ Aggregate data from different WMS and/or API sources.
 """
 from logging import getLogger
 from typing import List
+import json
 from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette.responses import Response
 from geojson import FeatureCollection, Feature, Point
@@ -60,6 +61,7 @@ API_DATASOURCES = {
     "water_rights_licences": WaterRightsLicenses
 }
 
+
 @router.get("/feature")
 def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     """
@@ -70,7 +72,7 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
         layer_class = API_DATASOURCES[layer]
     except:
         raise HTTPException(status_code=404, detail="Layer not found")
-    
+
     return agr_repo.get_layer_feature(db, layer_class, pk)
 
 
@@ -82,10 +84,13 @@ def aggregate_sources(
             description="Search for features in a given area for each of the specified layers.",
             min_length=1
         ),
+        polygon: str = Query(
+            str, title="Search polygon",
+            description="Polygon to search within"
+        ),
         bbox: List[float] = Query(
-            ..., title="Bounding box",
-            description="Bounding box to constrain search, in format x1,y1,x2,y2.",
-            min_length=4, max_length=4),
+            [], title="Bounding box",
+            description="Bounding box to constrain search, in format x1,y1,x2,y2.", max_length=4),
         width: float = Query(500, title="Width", description="Width of area of interest"),
         height: float = Query(500, title="Height",
                               description="Height of area of interest"),
@@ -96,6 +101,19 @@ def aggregate_sources(
     Generate a list of features from a variety of sources and map layers (specified by `layers`)
     inside the map bounds defined by `bbox`.
     """
+
+    if polygon and polygon[0]:
+        logger.info(polygon)
+        poly = json.loads(polygon)
+        f = Feature(polygon)
+        logger.info(f)
+
+    if not bbox:
+        # bbox is no longer required, since we want to support polygon selection.
+        # in order to maintain compatibility with WMS, if a polygon is provided,
+        # create a bbox.  This feature could be removed in the near future if
+        # we stop supporting WMS altogether.
+        bbox = [0, 0, 0, 0]
 
     # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
     # and then takes the largest square to use as the bbox. Reason being that the databc
