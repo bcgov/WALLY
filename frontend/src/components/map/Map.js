@@ -41,6 +41,7 @@ export default {
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
     EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
+    EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -53,6 +54,7 @@ export default {
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
     EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
+    EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
   data () {
     return {
