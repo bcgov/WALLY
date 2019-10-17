@@ -6,6 +6,7 @@ import Well from '../features/FeatureWell'
 import Aquifer from '../features/FeatureAquifer'
 import EcoCat from '../features/FeatureEcocat'
 import EventBus from '../../services/EventBus'
+import toBbox from '@turf/bbox'
 
 export default {
   name: 'Sidebar',
@@ -127,7 +128,7 @@ export default {
       this.$store.dispatch('downloadExcelReport',
         {
           format: 'xlsx',
-          bbox: this.selectionBoundingBox,
+          polygon: JSON.stringify(this.selectionBoundingBox.geometry.coordinates || []),
           layers: this.dataMartFeatures.map((feature) => {
             // return the layer names from the active data mart features as a list.
             // there is only expected to be one key, so we could use either
@@ -145,7 +146,8 @@ export default {
       this.pdfReportLoading = true
       this.$store.dispatch('downloadPDFReport',
         {
-          bbox: this.selectionBoundingBox,
+          bbox: toBbox(this.selectionBoundingBox),
+          polygon: JSON.stringify(this.selectionBoundingBox.geometry.coordinates || []),
           layers: this.dataMartFeatures.map((feature) => {
             // return the layer names from the active data mart features as a list.
             // there is only expected to be one key, so we could use either

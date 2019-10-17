@@ -33,7 +33,10 @@ const log = (level, message) => {
 const generateFeatureReport = async (data) => {
     let props = {}
 
+    // bbox is used to display the search area with a Mapbox map image.
+    // the actual search area is defined by the polygon attribute
     const bbox = data.bbox
+    const searchPolygon = data.polygon
     let layers = []
 
     // get request with only one layer comes in as string, not array, so we check here
@@ -73,6 +76,7 @@ const generateFeatureReport = async (data) => {
     log('info', `retrieving data from ${host}...`)    
     const params = querystring.stringify({
         bbox: bbox,
+        polygon: searchPolygon,
         layers: layers
     })
     const layerData = await axios.get(

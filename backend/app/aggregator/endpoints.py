@@ -8,6 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette.responses import Response
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
+from shapely.geometry import shape, box, MultiPolygon, Polygon
+
 from app.db.utils import get_db
 import app.hydat.db as streams_repo
 import app.layers.water_rights_licences as water_rights_licences_repo
@@ -102,18 +104,24 @@ def aggregate_sources(
     inside the map bounds defined by `bbox`.
     """
 
-    if polygon and polygon[0]:
-        logger.info(polygon)
-        poly = json.loads(polygon)
-        f = Feature(polygon)
-        logger.info(f)
+    poly_supplied = polygon and polygon[0]
 
-    if not bbox:
+    if not poly_supplied and not bbox:
+        raise HTTPException(
+            status_code=400, detail="No search bounds. Supply either a `polygon` or set of 4 `bbox` values")
+
+    # the polygon search area comes formatted the same way a MultiPolygon would be.
+    # (e.g., an array of polygons).  Here we process it by creating a MultiPolygon
+    # of all the polygons in the supplied shape.
+    if poly_supplied:
+        poly_parsed = json.loads(polygon)
+        poly_shape = MultiPolygon([Polygon(x) for x in poly_parsed])
+
         # bbox is no longer required, since we want to support polygon selection.
         # in order to maintain compatibility with WMS, if a polygon is provided,
         # create a bbox.  This feature could be removed in the near future if
         # we stop supporting WMS altogether.
-        bbox = [0, 0, 0, 0]
+        bbox = shape(poly_shape).bounds
 
     # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
     # and then takes the largest square to use as the bbox. Reason being that the databc
@@ -129,10 +137,14 @@ def aggregate_sources(
     diff = min(round(abs(max(x_diff, y_diff))), 10000)
     mercator_box = [bottom_left[1], bottom_left[0],
                     bottom_left[1] + diff, bottom_left[0] + diff]
-    # logger.info("diff: " + str(diff) + " bbox: " + str(mercator_box))
 
     # Format the bounding box (which arrives in the querystring as a comma separated list)
     bbox_string = ','.join(str(v) for v in mercator_box)
+
+    # define a search area out of the polygon shape, or, if that wasn't provided,
+    # the bounding box.  This request should return an error (earlier in the handler)
+    # if neither were supplied.
+    search_area = poly_shape or box(*bbox)
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
@@ -160,14 +172,6 @@ def aggregate_sources(
         if item.wms_catalogue_id is None or item.display_data_name in processed_layers:
             continue
 
-        # query = WMSGetFeatureInfoQuery(
-        #     x=1000,
-        #     y=1000,
-        #     layers=layer.wms_name,
-        #     bbox=bbox_string,
-        #     width=width,
-        #     height=height,
-        # )
         query = WMSGetMapQuery(
             layers=item.wms_catalogue.wms_name,
             bbox=bbox_string,
@@ -197,7 +201,8 @@ def aggregate_sources(
         # function for looking up data in a layer. This function will return geojson
         # features in the bounding box for each layer, which we will package up
         # into a response.
-        objects = API_DATASOURCES[display_data_name].get_as_geojson(db, bbox)
+        objects = API_DATASOURCES[display_data_name].get_as_geojson(
+            db, search_area)
 
         feat_layer = LayerResponse(
             layer=display_data_name,
