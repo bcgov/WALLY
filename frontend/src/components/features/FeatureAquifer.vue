@@ -1,8 +1,8 @@
 <template>
   <v-card elevation=0>
     <v-card-text>
-      <div class="grey--text text--darken-4 title" id="aquiferTitle">{{ record.properties.AQNAME }}</div>
-      <div class="grey--text text--darken-2 subtitle-1 mt-0 mb-2">Aquifer</div>
+      <div class="grey--text text--darken-4 headline" id="aquiferTitle">{{ record.properties.AQNAME }}</div>
+      <div class="grey--text text--darken-2 title">Aquifer</div>
       <v-divider></v-divider>
       <v-list dense class="mx-0 px-0">
 
@@ -57,6 +57,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 
 export default {
@@ -67,39 +68,28 @@ export default {
   data () {
     return {
       loading: false,
-      well: null
+      aquifer: null
     }
   },
   computed: {
     id () {
       return this.record.properties.n
-    }
+    },
+    isWellsLayerEnabled () {
+      return this.isMapLayerActive('groundwater_wells')
+    },
+    isWaterLicencesLayerEnabled () {
+      return this.isMapLayerActive('water_rights_licences')
+    },
+    ...mapGetters(['isMapLayerActive'])
   },
   methods: {
-    resetWell () {
-      this.well = null
+    enableWellsLayer () {
+      this.$store.commit('addMapLayer', 'groundwater_wells')
     },
-    fetchRecord () {
-      this.loading = true
-      this.resetWell()
-
-      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/${this.record.properties.n}`).then((r) => {
-        this.well = r.data
-      }).catch((e) => {
-        this.error = e
-        console.error(e)
-      }).finally(() => {
-        this.loading = false
-      })
+    enableWaterLicencesLayer () {
+      this.$store.commit('addMapLayer', 'water_rights_licences')
     }
-  },
-  watch: {
-    id () {
-      // this.fetchRecord()
-    }
-  },
-  mounted () {
-    // this.fetchRecord()
   }
 }
 </script>

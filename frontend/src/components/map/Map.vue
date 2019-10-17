@@ -10,8 +10,8 @@
     @import "../../../node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
     .map {
         z-index: 2;
-        width: calc(100vw - 345px);
-        height: calc(100vh - 64px);
+        width: 100%;
+        height: calc(100vh - 120px);
     }
 
     .geolocate {
@@ -28,9 +28,6 @@
     }
     .select-box-icon {
         background-image: url('../../assets/images/select-zoom.png');
-    }
-    .mapboxgl-ctrl-geocoder {
-        width: 48rem!important;
     }
 </style>
 <script src="./Map.js"></script>

@@ -1,9 +1,12 @@
 <template>
   <v-app>
     <Header></Header>
-    <Sidebar></Sidebar>
     <v-content>
-      <v-container fluid class="pa-0 ma-0">
+      <v-container
+        class="pa-0"
+        fluid
+      >
+        <Toolbar/>
         <router-view/>
       </v-container>
     </v-content>
@@ -12,13 +15,13 @@
 
 <script>
 import Header from './components/Header'
-import Sidebar from './components/sidebar/Sidebar.vue';
+import Toolbar from './components/Toolbar'
 
 export default {
   name: 'app',
   components: {
     Header,
-    Sidebar
+    Toolbar
   }
 }
 </script>
@@ -29,7 +32,7 @@ export default {
 
   /* noto-sans-regular - latin */
   @font-face {
-    font-family: 'Noto Sans';
+    font-family: 'Noto Sans'!important;
     font-style: normal;
     font-weight: 400;
     src: url('./assets/fonts/NotoSans-Regular.eot'); /* IE9 Compat Modes */
@@ -53,7 +56,7 @@ export default {
     url('./assets/fonts/NotoSans-Bold.svg') format('svg'); /* Legacy iOS */
   }
   body {
-    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
+    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
     color: #494949;
   }
   a {
@@ -62,5 +65,12 @@ export default {
   .feature-content {
     user-select: auto!important;
   }
-
+  dl > dt {
+    margin-top: 1em;
+    font-weight: bold;
+    font-size: 1em;
+  }
+  dl > dd {
+    font-size: 1em;
+  }
 </style>
