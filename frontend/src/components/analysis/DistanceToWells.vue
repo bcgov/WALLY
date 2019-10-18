@@ -15,7 +15,11 @@
           :loading="loading"
           :headers="headers"
           :items="results"
-        ></v-data-table>
+        >
+          <template v-slot:item.distance="{ item }">
+            <span>{{item.distance.toFixed(1)}}</span>
+          </template>
+        </v-data-table>
       </v-col>
     </v-row>
   </div>
@@ -32,8 +36,10 @@ export default {
     results: [],
     loading: false,
     headers: [
-      { text: 'Well tag number', value: 'well_tag_number' },
-      { text: 'Distance (m)', value: 'distance' }
+      { text: 'Well tag number', value: 'well_tag_number', align: 'right' },
+      { text: 'Distance (m)', value: 'distance', align: 'right' },
+      { text: 'Static water level', value: 'static_water_level', align: 'right' },
+      { text: 'Well yield', value: 'well_yield', align: 'right' }
     ]
   }),
   methods: {
@@ -44,11 +50,7 @@ export default {
         point: JSON.stringify(this.coordinates)
       }
       ApiService.query(`/api/v1/analysis/wells/nearby?${qs.stringify(params)}`).then((r) => {
-        this.results = r.data.map((x) => ({
-          well_tag_number: Number(x[0]),
-          distance: x[1].toFixed(1)
-        }))
-        console.log(this.results)
+        this.results = r.data
       }).catch((e) => {
         console.error(e)
       }).finally(() => {
