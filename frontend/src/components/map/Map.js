@@ -40,7 +40,7 @@ export default {
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
-    EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
+    EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
@@ -107,6 +107,7 @@ export default {
         displayControlsDefault: false,
         controls: {
           polygon: true,
+          point: true,
           trash: true
         }
       })
@@ -145,9 +146,9 @@ export default {
       this.map.on('draw.modechange', this.handleModeChange)
     },
     handleModeChange (e) {
-      if (e.mode == 'draw_polygon') {
+      if (e.mode === 'draw_polygon') {
         this.isDrawingToolActive = true
-      } else if (e.mode == 'simple_select') {
+      } else if (e.mode === 'simple_select') {
         setTimeout(() => {
           this.isDrawingToolActive = false
         }, 500)
@@ -314,19 +315,43 @@ export default {
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
-    handleSelect (feature) {
+    handleAddPointSelection (feature) {
+      feature.display_data_name = 'user_defined_point'
+      this.$store.commit('setDataMartFeatureInfo', feature)
+    },
+    handleSelect (feature, options) {
+      // default options when calling this handler.
+      //
+      // showFeatureList: whether features selected by the user should be immediately shown in
+      // a panel.  This might be false if the user is selecting layers and may want to select
+      // several before being "bumped" to the selected features list.
+      //
+      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
+      const defaultOptions = {
+        showFeatureList: true
+      }
+
+      options = Object.assign({}, defaultOptions, options)
+
       if (!feature || !feature.features || !feature.features.length) return
 
-      const newFeature = feature.features[0].id
-      this.replaceOldFeatures(newFeature)
+      console.log(options.showFeatureList)
 
+      if (options.showFeatureList) {
+        this.$store.commit('setLayerSelectionActiveState', false)
+      }
+
+      const newFeature = feature.features[0]
+      this.replaceOldFeatures(newFeature.id)
+
+      if (newFeature.geometry.type === 'Point') {
+        return this.handleAddPointSelection(newFeature)
+      }
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
-      const bounds = feature.features[0]
-      this.getMapObjects(bounds)
-      this.$store.commit('setSelectionBoundingBox', bounds)
-      this.$store.commit('setLayerSelectionActiveState', false)
+      this.getMapObjects(newFeature)
+      this.$store.commit('setSelectionBoundingBox', newFeature)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
@@ -379,7 +404,7 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
-        if (value.geometry.type == 'Point') {
+        if (value.geometry.type === 'Point') {
           let coordinates = value.geometry.coordinates
           value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
         }
@@ -389,7 +414,7 @@ export default {
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
-        if (value.geometry.type == 'Point') {
+        if (value.geometry.type === 'Point') {
           coordinates = this.formatLatLon(coordinates[0], coordinates[1])
           value.geometry.coordinates = coordinates
         } else {

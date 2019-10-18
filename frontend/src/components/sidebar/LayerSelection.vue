@@ -18,7 +18,7 @@
     <v-treeview
       selectable
       selected-color="grey darken-2"
-      v-model="selectedLayers"
+      :value="selectedMapLayerNames"
       @input="handleSelectLayer"
       v-if="layers && categories"
       :items="categories"
@@ -44,6 +44,7 @@ export default {
       'dataMartFeatures',
       'dataMartFeatureInfo',
       'allMapLayers',
+      'selectedMapLayerNames',
       'mapLayerName',
       'getMapLayer',
       'getCategories',
