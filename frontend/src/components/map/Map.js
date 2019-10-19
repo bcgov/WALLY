@@ -115,8 +115,10 @@ export default {
         accessToken: mapboxgl.accessToken,
         mapboxgl: this.map,
         origin: ApiService.baseURL,
+        marker: false,
         container: 'geocoder-container'
       })
+      geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
@@ -193,6 +195,15 @@ export default {
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
+    },
+    updateBySearchResult(data) {
+      let payload = {
+        display_data_name: data.result.layer,
+        pk: data.result.primary_id
+      }
+      this.$store.dispatch('getDataMartFeatureInfo', payload)
+      this.clearHighlightLayer()
+      this.updateHighlightLayerData(data.result)
     },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {

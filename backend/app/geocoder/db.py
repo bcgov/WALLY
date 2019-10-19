@@ -44,6 +44,8 @@ def lookup_by_text(db: Session, query: str):
             formatted_name = f" - {row.name}"
         feat['place_name'] = f"{row.kind}: {row.primary_id}{formatted_name}"
         feat['place_type'] = row.kind
+        feat['primary_id'] = row.primary_id
+        feat['layer'] = row.layer
         features.append(feat)
 
     fc = FeatureCollection(features)

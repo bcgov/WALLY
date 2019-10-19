@@ -8,5 +8,6 @@ geocode = Table("geocode_lookup", BaseTable.metadata,
                 Column("primary_id", Text),
                 Column("name", Text),
                 Column("kind", Text),
-                Column("tsv", Text)
+                Column("tsv", Text),
+                Column("layer", Text)
                 )
