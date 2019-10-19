@@ -86,7 +86,8 @@ export default {
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
-        style: 'mapbox://styles/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2', // stylesheet location
+        // style: 'mapbox://styles/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2', // stylesheet location
+        style: 'mapbox://styles/iit-water/ck1s98x7p02q01cmso5jcx4cm', // pk grouped stylesheet
         center: [-124, 54.5], // starting position
         zoom: 4.7 // starting zoom
       })
