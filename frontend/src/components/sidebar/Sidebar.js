@@ -99,9 +99,9 @@ export default {
       layers.forEach((layer) => {
         const layerNode = {
           id: layer.display_data_name,
-          name: layer.display_name,
+          name: layer.name,
           description: layer.description,
-          source_url: "temp",
+          source_url: layer.source_url,
         }
         if (!catMap[layer.layer_category_code]) {
           // this category hasn't been seen yet, start it with this layer in it
