@@ -22,8 +22,19 @@
           v-model="selectedLayers"
           @input="handleSelectLayer"
           v-if="layers && categories"
+          hoverable
+          open-on-click
           :items="categories"
-        ></v-treeview>
+        >
+          <template v-slot:label="{ item }">
+            <v-hover v-slot:default="{ hover }">
+              <div>
+                <span>{{item.name}}</span>
+                <v-icon v-if="hover" class="appendRight">info</v-icon>
+              </div>
+            </v-hover>
+          </template>
+        </v-treeview>
       </template>
 
       <template v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name">
@@ -273,5 +284,9 @@
   /* Show the checkmark when checked */
   .checkbox input:checked ~ .checkmark:after {
     display: block;
+  }
+
+  .appendRight{
+    float:right;
   }
 </style>
