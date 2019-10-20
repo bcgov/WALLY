@@ -7,6 +7,9 @@ Create Date: 2019-10-19 23:59:11.657726
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import orm
+from sqlalchemy import Integer, String, Column, DateTime, ForeignKey, ARRAY, TEXT
+from sqlalchemy.ext.declarative import declarative_base
 import datetime
 
 
@@ -17,6 +20,33 @@ branch_labels = None
 depends_on = None
 
 
+Base = declarative_base()
+
+class DataSource(Base):
+    __tablename__ = 'data_source'
+
+    data_source_id = Column(Integer, primary_key=True)
+    name = Column(String, comment='data source detail name', index=True)
+    description = Column(
+        String, comment='explanation behind data source and use case')
+    source_url = Column(String, comment='root source url of data')
+    data_format_code = Column(String, ForeignKey('metadata.data_format_code.data_format_code'),
+                              comment='format type of the source information')
+    data_format = orm.relationship('DataFormatCode')
+    data_store_id = Column(Integer, ForeignKey('metadata.data_store.data_store_id'),
+                           comment='related data store where this sources data is held after ETL')
+    data_store = orm.relationship("DataStore")
+    create_user = Column(String(100), comment='The user who created this record in the database.')
+    create_date = Column(DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
+                                           'It will be the same as the create_date until the record is first '
+                                           'updated after creation.')
+    effective_date = Column(DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime, comment='The date and time after which the code is no longer valid and '
+                                           'should not be used.')
+
+
 def upgrade():
     op.execute('SET search_path TO metadata')
 
@@ -25,7 +55,7 @@ def upgrade():
                   sa.Column('data_source_id', sa.Integer(), sa.ForeignKey('metadata.data_source.data_source_id'), nullable=True, comment='references a data source'))
 
     # add data source information
-    op.bulk_insert('data_source', [
+    op.bulk_insert(DataSource, [
         {
             'data_source_id': 1,
             'name': 'Automated Snow Weather Station Locations',
