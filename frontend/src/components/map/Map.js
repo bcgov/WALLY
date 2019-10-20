@@ -202,6 +202,7 @@ export default {
         display_data_name: data.result.layer,
         pk: data.result.primary_id
       }
+      this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatureInfo', payload)
       this.clearHighlightLayer()
       this.updateHighlightLayerData(data.result)
