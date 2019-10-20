@@ -25,14 +25,29 @@
           hoverable
           open-on-click
           :items="categories"
-        >
+         >
           <template v-slot:label="{ item }">
-            <v-hover v-slot:default="{ hover }">
               <div>
                 <span>{{item.name}}</span>
-                <v-icon v-if="hover" class="appendRight">info</v-icon>
+                <v-dialog v-model="dialog" width="500" >
+                  <template v-slot:activator="{ on }">
+                    <v-icon 
+                      v-if="item.children.length == 0" 
+                      class="appendRight"
+                      v-on="on" >info</v-icon>
+                  </template> 
+                  <v-card>
+                    <v-card-title class="headline grey lighten-2" primary-title>
+                      {{item.name}}
+                    </v-card-title>
+                    <v-card-text>
+                      {{item.description}}
+                    </v-card-text>
+                    <v-divider></v-divider>
+                    <span><a :href="item.source_url" :alt="item.source_url" target="_blank">{{item.source_url}}</a></span>
+                </v-card>
+                </v-dialog>
               </div>
-            </v-hover>
           </template>
         </v-treeview>
       </template>
