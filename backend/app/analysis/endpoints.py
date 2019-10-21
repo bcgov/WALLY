@@ -35,11 +35,13 @@ def get_nearby_wells(
     wells_with_distances = get_wells_by_distance(db, point_shape, radius)
 
     # convert nearby wells to a list of strings of well tag numbers
-    wells_to_search = map(lambda x: str(int(x[0])).lstrip("0"), wells_with_distances)
+    wells_to_search = map(lambda x: str(
+        int(x[0])).lstrip("0"), wells_with_distances)
 
-    wells_with_screens = get_screens(wells_to_search)
+    wells_with_screens = get_screens(list(wells_to_search))
 
-    wells_drawdown_data = merge_wells_datasources(wells_with_screens, wells_with_distances)
+    wells_drawdown_data = merge_wells_datasources(
+        wells_with_screens, wells_with_distances)
 
     return wells_drawdown_data
 
@@ -48,43 +50,53 @@ def get_screens(wells_to_search: List[str]) -> List[WellDrawdown]:
     """ calls GWELLS API to get well screen information. """
 
     wells_results = []
-    done = False
-    offset = 0
 
-    # helpers to prevent unbounded requests
-    limit_requests = 100
-    i = 0
+    # avoid making queries with an excessively long list of wells.
+    chunk_length = 50
 
-    search_string = ','.join(wells_to_search)
+    # split requests into chunks based on chunk_length
+    chunks = [wells_to_search[i:i+chunk_length]
+              for i in range(0, len(wells_to_search), chunk_length)]
 
-    # TODO: break up requests
+    for chunk in chunks:
+        # helpers to prevent unbounded requests
+        done = False
+        limit_requests = 100
+        i = 0  # this i is for recording extra requests within each chunk, if necessary
 
-    while not done and i < limit_requests:
-        logger.info(f"https://gwells-dev-pr-1442.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
-        resp = requests.get(f"https://gwells-dev-pr-1442.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
+        # we are already making small chunks within the known API pagination limit,
+        # but in case that limit changes, we can still handle offset paging.
+        offset = 0
 
-        # break now if we didn't receive any results.
-        results = resp.json().get('results', None)
+        search_string = ','.join(chunk)
 
-        i += 1
+        while not done and i < limit_requests:
+            logger.info('making request to GWELLS API')
+            resp = requests.get(
+                f"https://gwells-dev-pr-1442.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
 
-        if not results:
-            done = True
-            break
+            # break now if we didn't receive any results.
+            results = resp.json().get('results', None)
 
-        # add results to a list.
-        wells_results += results
-        offset += len(results)
+            i += 1
 
-        # check for a "next" attribute, indicating the next limit/offset combo.
-        # when it is null, the pagination is done.
-        if not resp.json().get('next', None):
-            done = True
+            if not results:
+                done = True
+                break
 
-    # return zero results if an error occurred or we did not successfully get all the results.
-    # (avoid returning incomplete data)
-    if not done:
-        return []
+            # add results to a list.
+            wells_results += results
+            offset += len(results)
+
+            # check for a "next" attribute, indicating the next limit/offset combo.
+            # when it is null, the pagination is done.
+            if not resp.json().get('next', None):
+                done = True
+
+        # return zero results if an error occurred or we did not successfully get all the results.
+        # (avoid returning incomplete data)
+        if not done:
+            return []
 
     return wells_results
     # merge distance from Wally with screen/water info from GWELLS
@@ -129,8 +141,10 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
 
     # make a dict with keys being the well tag numbers
     for well in wells:
-        well_map[well.pop('well_tag_number')] = well
+        well_map[str(well.pop('well_tag_number'))] = well
 
+    logger.info(well_map)
+    logger.info(wells_with_distances)
     # create WellDrawdown data objects for every well we found nearby.  The last argument to WellDrawdown() is
     # the supplemental data that comes from GWELLS for each well.
-    return [WellDrawdown(well_tag_number=well[0], distance=well[1], **well_map.get(well[0], {})) for well in wells_with_distances]
+    return [WellDrawdown(well_tag_number=well[0], distance=well[1], **well_map.get(well[0].lstrip('0'), {})) for well in wells_with_distances]

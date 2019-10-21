@@ -35,3 +35,4 @@ class WellDrawdown(BaseModel):
     top_screen: Optional[float]
     top_screen_type: Optional[str]
     distance: Optional[float]
+    static_water_level: Optional[float]
