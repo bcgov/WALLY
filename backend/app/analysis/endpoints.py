@@ -73,7 +73,7 @@ def get_screens(wells_to_search: List[str]) -> List[WellDrawdown]:
         while not done and i < limit_requests:
             logger.info('making request to GWELLS API')
             resp = requests.get(
-                f"https://gwells-dev-pr-1442.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
+                f"https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
 
             # break now if we didn't receive any results.
             results = resp.json().get('results', None)
