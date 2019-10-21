@@ -54,11 +54,11 @@ def upgrade():
         UNION
         SELECT
         ST_AsText(ST_Centroid(gww."GEOMETRY")) AS center,
-        gww."WELL_TAG_NUMBER"::text AS primary_id,
+        gww."WELL_TAG_NO"::text AS primary_id,
         gww."WELL_LOCATION" AS name,
         'Ground water well' AS kind,
         'groundwater_wells' AS layer,
-        to_tsvector(concat_ws(' ', gww."WELL_TAG_NUMBER"::text, gww."WELL_LOCATION")) AS tsv
+        to_tsvector(concat_ws(' ', gww."WELL_TAG_NO"::text, gww."WELL_LOCATION")) AS tsv
         FROM ground_water_wells AS gww
     """)
 
