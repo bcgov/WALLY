@@ -30,7 +30,7 @@ const log = (level, message) => {
     console.log(JSON.stringify({ level, message, datetime: (new Date()).toISOString() }));
 };
 
-const generateFeatureReport = async (data) => {
+const featureReport = async (data) => {
     let props = {}
 
     // bbox is used to display the search area with a Mapbox map image.
@@ -131,37 +131,13 @@ const generateFeatureReport = async (data) => {
 }
 
 const styles = StyleSheet.create({
-    container: {
+    page: {
         flexDirection: 'column',
         justifyContent: 'flex-start',
-    },
-    Title: {
-        fontFamily: 'MyriadWebPro',
-        fontSize: 22,
-        marginTop: 10,
-        marginLeft: 10
+        paddingBottom: 20
     },
     section: {
         margin: 25
-    },
-    header: {
-        fontFamily: 'MyriadWebPro',
-        fontWeight: 'bold',
-        fontSize: 16,
-        marginTop: 10,
-        padding: 5
-    },
-    text: {
-        fontFamily: 'MyriadWebPro',
-        fontSize: 12,
-        paddingTop: 2,
-        paddingLeft: 10
-    },
-    chart: {
-        width: 400,
-        height: 300,
-        margin: 30,
-        alignSelf: 'center'
     },
     date: {
         fontFamily: 'MyriadWebPro',
@@ -195,7 +171,7 @@ class FeatureReport extends React.Component {
         return (
             <Document title="Water Allocation Report">
                 {/* Header and report summary */}
-                <Page size="LETTER" style={styles.container}>
+                <Page size="LETTER" style={styles.page}>
                     <Header/>
                     <Text style={styles.date}>
                         Report Created: {createDate}
@@ -210,7 +186,7 @@ class FeatureReport extends React.Component {
                 {/* Aquifer section */}
                 {featureData[strings.aquifers] && featureData[strings.aquifers].geojson &&
                     !!featureData[strings.aquifers].geojson.features &&
-                    <Page size="LETTER" wrap style={styles.container}>
+                    <Page size="LETTER" wrap style={styles.page}>
                         <Aquifer
                             aquifers={featureData[strings.aquifers]}
                         ></Aquifer>
@@ -232,7 +208,7 @@ class FeatureReport extends React.Component {
                 {featureData[strings.ECOCAT] &&
                     featureData[strings.ECOCAT].geojson &&
                     !!featureData[strings.ECOCAT].geojson.features &&
-                    <Page size="LETTER" wrap style={styles.container}>
+                    <Page size="LETTER" wrap style={styles.page}>
                         <EcoCat
                             data={featureData[strings.ECOCAT]}
                         ></EcoCat>
@@ -241,7 +217,7 @@ class FeatureReport extends React.Component {
 
                 {/* All other data that doesn't have custom components will be displayed in list format. */}
                 {extraSections.map((s, i) => (
-                <Page size="LETTER" wrap style={styles.container} key={i}>
+                <Page size="LETTER" wrap style={styles.page} key={i}>
                     <GenericDatasheet
                         wrap
                         data={s}
@@ -257,4 +233,4 @@ class FeatureReport extends React.Component {
     }
 }
 
-export default generateFeatureReport;
+export default featureReport;
