@@ -143,8 +143,6 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
     for well in wells:
         well_map[str(well.pop('well_tag_number'))] = well
 
-    logger.info(well_map)
-    logger.info(wells_with_distances)
     # create WellDrawdown data objects for every well we found nearby.  The last argument to WellDrawdown() is
     # the supplemental data that comes from GWELLS for each well.
-    return [WellDrawdown(well_tag_number=well[0], distance=well[1], **well_map.get(well[0].lstrip('0'), {})) for well in wells_with_distances]
+    return [WellDrawdown(well_tag_number=well[0], distance=well[1], **well_map.get(str(well[0]).lstrip('0'), {})) for well in wells_with_distances]
