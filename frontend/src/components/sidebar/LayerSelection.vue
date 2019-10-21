@@ -17,12 +17,48 @@
     </v-row>
     <v-treeview
       selectable
-      selected-color="grey darken-2"
       v-model="selectedLayers"
       @input="handleSelectLayer"
       v-if="layers && categories"
+      hoverable
+      open-on-click
       :items="categories"
-    ></v-treeview>
+      >
+      <template v-slot:label="{ item }">
+          <div>
+            <span>{{item.name}}</span>
+            <v-dialog v-if="!item.children" width="650">
+              <template v-slot:activator="{ on }">
+                <v-icon class="appendRight" v-on="on">
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              <v-card shaped>
+                <v-card-title class="headline grey lighten-3" primary-title>
+                  <v-icon class="mr-2">
+                    mdi-information-outline
+                  </v-icon> 
+                  <div style="{color:grey}">{{item.name}}</div>
+                </v-card-title>
+                <v-card-text class="mt-4">
+                  {{item.description}}
+                </v-card-text>
+                <v-divider></v-divider>
+                <v-card-actions>
+                  <v-btn
+                    text
+                    color="primary accent-4"
+                    v-bind:href=item.source_url
+                    target="_blank"
+                  >
+                    Link to Data Source
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </div>
+      </template>
+    </v-treeview>
   </div>
 </template>
 
@@ -75,7 +111,9 @@ export default {
       layers.forEach((layer) => {
         const layerNode = {
           id: layer.display_data_name,
-          name: layer.display_name
+          name: layer.name,
+          description: layer.description,
+          source_url: layer.source_url,
         }
         if (!catMap[layer.layer_category_code]) {
           // this category hasn't been seen yet, start it with this layer in it
@@ -104,5 +142,7 @@ export default {
 </script>
 
 <style>
-
+.appendRight{
+  float:right;
+}
 </style>
