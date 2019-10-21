@@ -27,13 +27,15 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.highlight_columns,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
+        DataSource.name,
+        DataSource.description,
+        DataSource.source_url,
         LayerCategory.display_order,
         DisplayCatalogue.layer_category_code,
-        WmsCatalogue.description,
         WmsCatalogue.wms_name,
         WmsCatalogue.wms_style,)
 
-    wms_result = wms_query.join(WmsCatalogue).join(LayerCategory).filter(
+    wms_result = wms_query.join(WmsCatalogue).join(LayerCategory).join(DataSource).filter(
         DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all() \
 
     api_query = db.query(
@@ -43,11 +45,13 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.layer_category_code,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
+        DataSource.name,
+        DataSource.description,
+        DataSource.source_url,
         LayerCategory.display_order,
-        ApiCatalogue.description,
         ApiCatalogue.url,)
 
-    api_result = api_query.join(ApiCatalogue).join(LayerCategory).filter(
+    api_result = api_query.join(ApiCatalogue).join(LayerCategory).join(DataSource).filter(
         DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id) \
         .all()
 
@@ -58,11 +62,13 @@ def get_display_catalogue(db: Session):
         DisplayCatalogue.layer_category_code,
         DisplayCatalogue.label,
         DisplayCatalogue.label_column,
+        DataSource.name,
+        DataSource.description,
+        DataSource.source_url,
         LayerCategory.display_order,
-        VectorCatalogue.description,
         VectorCatalogue.vector_name,)
 
-    vector_result = vector_query.join(VectorCatalogue).join(LayerCategory) \
+    vector_result = vector_query.join(VectorCatalogue).join(LayerCategory).join(DataSource) \
         .filter(DisplayCatalogue.vector_catalogue_id == VectorCatalogue.vector_catalogue_id) \
         .all()
 
