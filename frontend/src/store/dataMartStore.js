@@ -8,7 +8,9 @@ export default {
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
+    singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
     loadingFeature: false,
+    loadingMultipleFeatures: false,
     featureError: ''
   },
   actions: {
@@ -32,6 +34,7 @@ export default {
       ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
         .then((response) => {
           commit('setLoadingFeature', false)
+          commit('setLayerSelectionActiveState', false)
           let feature = response.data
           commit('setDataMartFeatureInfo',
             {
@@ -49,19 +52,18 @@ export default {
         })
     },
     getDataMartFeatures ({ commit }, payload) {
+      commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
 
-      var bbox = payload.bounds
-      bbox = bbox.map((x) => {
-        return 'bbox=' + x + '&'
-      })
+      let polygon = payload.bounds
+      let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
 
       var width = 'width=' + payload.size.x + '&'
       var height = 'height=' + payload.size.y
 
-      var params = layers.join('') + bbox.join('') + width + height
+      var params = layers.join('') + polygonQ + width + height
 
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate?' + params)
@@ -76,10 +78,20 @@ export default {
           commit('setDisplayTemplates', { displayTemplates })
         }).catch((error) => {
           console.log(error)
+        }).finally(() => {
+          commit('setLoadingMultipleFeatures', false)
         })
     }
   },
   mutations: {
+    setLoadingMultipleFeatures (state, payload) {
+      state.loadingMultipleFeatures = payload
+    },
+    setSingleSelectionFeatures (state, payload) {
+      // sets the group of features that were selected by clicking on the map.
+      // since features may be stacked and/or adjacent, one click will often return several results.
+      state.singleSelectionFeatures = payload
+    },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
     },
@@ -114,6 +126,15 @@ export default {
     selectionBoundingBox: state => state.selectionBoundingBox,
     activeDataMarts: state => state.activeDataMarts,
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
-    allDataMarts: () => [] // ideally grab these from the meta data api
+    allDataMarts: () => [], // ideally grab these from the meta data api
+    singleSelectionFeatures: state => state.singleSelectionFeatures,
+    loadingMultipleFeatures: state => state.loadingMultipleFeatures,
+    featureSelectionExists: state => {
+      // returns a boolean indicating whether there is a selection active (either single or multiple features
+      // selected)
+      const singleFeatureSelected = !!(state.dataMartFeatureInfo && state.dataMartFeatureInfo.display_data_name)
+      const multipleFeaturesSelected = !!(state.dataMartFeatures && state.dataMartFeatures.length)
+      return singleFeatureSelected || multipleFeaturesSelected || !!state.loadingMultipleFeatures
+    }
   }
 }

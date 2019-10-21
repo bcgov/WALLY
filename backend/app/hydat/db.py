@@ -9,14 +9,14 @@ from sqlalchemy import Column, Integer, ForeignKey, String, MetaData, func
 from sqlalchemy.orm import Session, relationship
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
-
+from shapely.geometry import Polygon
 import app.hydat.models as streams_v1
 from app.hydat.db_models import DlyFlow, Station, DlyLevel
 
 logger = logging.getLogger("api")
 
 
-def get_stations(db: Session, bbox: List[float] = []):
+def get_stations(db: Session, search_area: Polygon = None):
     """ List all stream monitoring stations in BC as a FeatureCollection.
 
         Accepts a `bbox` argument (as a list of coordinates) to constrain the search to an area.
@@ -25,9 +25,10 @@ def get_stations(db: Session, bbox: List[float] = []):
     q = db.query(Station).filter(
         Station.prov_terr_state_loc == 'BC')
 
-    if len(bbox) == 4:
+    if search_area:
         q = q.filter(
-            Station.geom.intersects(func.ST_MakeEnvelope(*bbox))
+            func.ST_Intersects(func.ST_GeomFromText(
+                search_area.wkt, 4326), Station.geom)
         )
 
     return q.all()
@@ -96,9 +97,9 @@ def get_available_level_years(db: Session, station: str):
 # Function name needs to match get_as_geojson name in app.db.base_class.py
 # this is so the generic aggregate function can call the same function name
 # between baselayerclass objects and custom data objects such as Hydat
-def get_as_geojson(db: Session, bbox: List[float] = []) -> FeatureCollection:
+def get_as_geojson(db: Session, search_area: Polygon) -> FeatureCollection:
     """ calls get_stations and formats the result in geojson """
-    stations = get_stations(db, bbox)
+    stations = get_stations(db, search_area)
 
     # add properties to geojson Feature objects
     points = [
