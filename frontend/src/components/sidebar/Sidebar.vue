@@ -29,23 +29,34 @@
           <template v-slot:label="{ item }">
               <div>
                 <span>{{item.name}}</span>
-                <v-dialog v-model="dialog" width="500" >
+                <v-dialog v-if="!item.children" width="650">
                   <template v-slot:activator="{ on }">
-                    <v-icon 
-                      v-if="item.children.length == 0" 
-                      class="appendRight"
-                      v-on="on" >info</v-icon>
-                  </template> 
-                  <v-card>
-                    <v-card-title class="headline grey lighten-2" primary-title>
-                      {{item.name}}
+                    <v-icon class="appendRight" v-on="on">
+                      mdi-information-outline
+                    </v-icon>
+                  </template>
+                  <v-card shaped>
+                    <v-card-title class="headline grey lighten-3" primary-title>
+                      <v-icon class="mr-2">
+                        mdi-information-outline
+                      </v-icon> 
+                      <div style="{color:grey}">{{item.name}}</div>
                     </v-card-title>
-                    <v-card-text>
+                    <v-card-text class="mt-4">
                       {{item.description}}
                     </v-card-text>
                     <v-divider></v-divider>
-                    <span><a :href="item.source_url" :alt="item.source_url" target="_blank">{{item.source_url}}</a></span>
-                </v-card>
+                    <v-card-actions>
+                      <v-btn
+                        text
+                        color="deep-purple accent-4"
+                        v-bind:href=item.source_url
+                        target="_blank"
+                      >
+                       Link to Data Source
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
                 </v-dialog>
               </div>
           </template>
