@@ -23,6 +23,7 @@ describe('LayerSelection', () => {
     }
     getters = {
       isMapLayerActive: state => layerId => false,
+      activeMapLayers: () => ([]),
       dataMartFeatureInfo: () => {
       },
       dataMartFeatures: () => [],

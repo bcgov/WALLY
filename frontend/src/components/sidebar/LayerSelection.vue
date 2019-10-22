@@ -18,7 +18,7 @@
     <v-treeview
       selectable
       selected-color="grey darken-2"
-      :value="selectedMapLayerNames"
+      :value="activeMapLayers.map(layer => layer.display_data_name)"
       @input="handleSelectLayer"
       v-if="layers && categories"
       hoverable
@@ -81,12 +81,12 @@ export default {
       'dataMartFeatures',
       'dataMartFeatureInfo',
       'allMapLayers',
-      'selectedMapLayerNames',
       'mapLayerName',
       'getMapLayer',
       'getCategories',
       'layerSelectionActive',
-      'featureSelectionExists'
+      'featureSelectionExists',
+      'activeMapLayers'
     ]),
     allowDisableLayerSelection () {
       return this.featureSelectionExists
