@@ -47,6 +47,8 @@ import { mapGetters } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
+import circle from '@turf/circle'
+import EventBus from '../../services/EventBus'
 
 export default {
   name: 'DistanceToWells',
@@ -95,6 +97,7 @@ export default {
       this.$store.commit('addMapLayer', 'groundwater_wells')
     },
     fetchWells: debounce(function () {
+      this.showCircle()
       this.loading = true
       if (!this.radiusIsValid(this.radius)) {
         return
@@ -117,6 +120,18 @@ export default {
         return this.inputRules[k](val) !== true
       })
       return !invalid
+    },
+    showCircle () {
+      const options = { steps: 32, units: 'kilometers', properties: { display_data_name: 'user_search_radius' } }
+      const radius = this.radius / 1000
+      const shape = circle(this.coordinates, radius, options)
+      shape.id = 'user_search_radius'
+
+      // remove old shapes
+      EventBus.$emit('draw.remove', shape.id)
+
+      // add the new one
+      EventBus.$emit('draw:add', shape)
     }
   },
   watch: {

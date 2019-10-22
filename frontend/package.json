@@ -13,6 +13,7 @@
     "@mapbox/mapbox-gl-geocoder": "^4.4.1",
     "@mdi/font": "^4.4.95",
     "@turf/bbox": "^6.0.1",
+    "@turf/circle": "^6.0.1",
     "axios": "^0.19.0",
     "chart.js": "^2.8.0",
     "core-js": "^2.6.5",

@@ -40,6 +40,8 @@ export default {
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
+    EventBus.$on('draw:add', this.addDrawShape)
+    EventBus.$on('draw:remove', this.removeDrawShape)
     EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
@@ -53,6 +55,8 @@ export default {
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
+    EventBus.$off('draw:add', this.addDrawShape)
+    EventBus.$on('draw:remove', this.removeDrawShape)
     EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
     EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
@@ -139,6 +143,13 @@ export default {
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
+    },
+    addDrawShape (shape) {
+      // adds a mapbox-gl-draw shape to the map
+      this.draw.add(shape)
+    },
+    removeDrawShape (shapeID) {
+      // removes a shape by its ID.
     },
     clearSelections () {
       this.replaceOldFeatures()
