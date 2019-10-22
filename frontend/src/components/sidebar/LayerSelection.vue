@@ -17,7 +17,7 @@
     </v-row>
     <v-treeview
       selectable
-      v-model="selectedLayers"
+      :value="activeMapLayers.map(layer => layer.display_data_name)"
       @input="handleSelectLayer"
       v-if="layers && categories"
       hoverable
@@ -37,7 +37,7 @@
                 <v-card-title class="headline grey lighten-3" primary-title>
                   <v-icon class="mr-2">
                     mdi-information-outline
-                  </v-icon> 
+                  </v-icon>
                   <div style="{color:grey}">{{item.name}}</div>
                 </v-card-title>
                 <v-card-text class="mt-4">
@@ -84,7 +84,8 @@ export default {
       'getMapLayer',
       'getCategories',
       'layerSelectionActive',
-      'featureSelectionExists'
+      'featureSelectionExists',
+      'activeMapLayers'
     ]),
     allowDisableLayerSelection () {
       return this.featureSelectionExists
@@ -113,7 +114,7 @@ export default {
           id: layer.display_data_name,
           name: layer.name,
           description: layer.description,
-          source_url: layer.source_url,
+          source_url: layer.source_url
         }
         if (!catMap[layer.layer_category_code]) {
           // this category hasn't been seen yet, start it with this layer in it
