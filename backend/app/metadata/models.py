@@ -13,6 +13,9 @@ class Layer(BaseModel):
     highlight_columns: List[str]
     wms_name: str = ''
     wms_style: str = ''
+    name: str = ''
+    description: str = ''
+    source_url: str = ''
     vector_name: str = ''
     layer_category_code: str = ''
     url: str = ''

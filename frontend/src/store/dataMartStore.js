@@ -128,6 +128,13 @@ export default {
     isDataMartActive: state => displayDataName => !!state.activeDataMarts.find((x) => x && x.displayDataName === displayDataName),
     allDataMarts: () => [], // ideally grab these from the meta data api
     singleSelectionFeatures: state => state.singleSelectionFeatures,
-    loadingMultipleFeatures: state => state.loadingMultipleFeatures
+    loadingMultipleFeatures: state => state.loadingMultipleFeatures,
+    featureSelectionExists: state => {
+      // returns a boolean indicating whether there is a selection active (either single or multiple features
+      // selected)
+      const singleFeatureSelected = !!(state.dataMartFeatureInfo && state.dataMartFeatureInfo.display_data_name)
+      const multipleFeaturesSelected = !!(state.dataMartFeatures && state.dataMartFeatures.length)
+      return singleFeatureSelected || multipleFeaturesSelected || !!state.loadingMultipleFeatures
+    }
   }
 }
