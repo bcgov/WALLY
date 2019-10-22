@@ -99,7 +99,6 @@ def get_screens(wells_to_search: List[str]) -> List[WellDrawdown]:
             return []
 
     return wells_results
-    # merge distance from Wally with screen/water info from GWELLS
 
 
 def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[WellDrawdown]:
@@ -145,4 +144,10 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
 
     # create WellDrawdown data objects for every well we found nearby.  The last argument to WellDrawdown() is
     # the supplemental data that comes from GWELLS for each well.
-    return [WellDrawdown(well_tag_number=well[0], distance=well[1], **well_map.get(str(well[0]).lstrip('0'), {})) for well in wells_with_distances]
+    return [
+        WellDrawdown(
+            well_tag_number=well[0],
+            distance=well[1],
+            **well_map.get(str(well[0]).lstrip('0'), {})
+        )
+        for well in wells_with_distances]
