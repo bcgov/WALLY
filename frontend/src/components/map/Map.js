@@ -122,6 +122,7 @@ export default {
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
       this.map.addControl(this.draw, 'top-left')
+      this.map.addControl(new mapboxgl.ScaleControl({ position: 'bottom-left' }))
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
