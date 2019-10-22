@@ -27,7 +27,8 @@ def get_stations(db: Session, search_area: Polygon = None):
 
     if search_area:
         q = q.filter(
-            func.ST_Intersects(search_area.wkt, Station.geom)
+            func.ST_Intersects(func.ST_GeomFromText(
+                search_area.wkt, 4326), Station.geom)
         )
 
     return q.all()

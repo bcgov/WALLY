@@ -49,5 +49,4 @@
     -ms-user-select: none;
     user-select: none;
   }
-
 </style>

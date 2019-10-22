@@ -90,8 +90,24 @@ export default {
           icon,
           iconSize
         })
+        return legendItems
+      } 
+
+      // Gradient color items that interpolate between 2+ values
+      if(paint.color[0] == "interpolate") {
+        legendItems.push({
+          'text': '',
+          'color': paint.color[6],
+          'outlineColor': paint.outlineColor,
+          'lineWidth': paint.width,
+          'strokeWidth': '1px',
+          icon,
+          iconSize
+        })
+        return legendItems
       }
 
+      // Multiple legend items in this layer
       for (let i = 1; i < paint.color.length; i += 2) {
         if (paint.color[i].constructor === Array) {
           text = paint.color[i][2].join(', ')

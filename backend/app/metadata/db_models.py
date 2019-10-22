@@ -132,6 +132,10 @@ class DisplayCatalogue(Base):
         'metadata.layer_category.layer_category_code'), comment='references a layer category')
     layer_category = relationship("LayerCategory", back_populates="layers")
 
+    data_source_id = Column(Integer, ForeignKey('metadata.data_source.data_source_id'),
+                                 comment='references catalogue data source')
+    data_source = relationship("DataSource")
+
 
 class DisplayTemplate(Base):
     __tablename__ = 'display_template'
