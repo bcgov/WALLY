@@ -91,16 +91,10 @@ export default {
         zoom: 4.7 // starting zoom
       })
 
-      const clearSelections = () => {
-        this.replaceOldFeatures()
-        this.$store.commit('clearDataMartFeatures')
-        this.$store.commit('clearDisplayTemplates')
-      }
-
       const modes = MapboxDraw.modes
-      modes.simple_select.onTrash = clearSelections
-      modes.draw_polygon.onTrash = clearSelections
-      modes.draw_point.onTrash = clearSelections
+      modes.simple_select.onTrash = this.clearSelections
+      modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_point.onTrash = this.clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -144,6 +138,16 @@ export default {
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
+    },
+    clearSelections () {
+      this.replaceOldFeatures()
+      this.$store.commit('clearDataMartFeatures')
+      this.$store.commit('clearDisplayTemplates')
+
+      if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_point') {
+        this.$store.commit('resetDataMartFeatureInfo')
+        EventBus.$emit('highlight:clear')
+      }
     },
     handleModeChange (e) {
       if (e.mode === 'draw_polygon') {

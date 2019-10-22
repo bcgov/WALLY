@@ -67,7 +67,7 @@ export default {
   methods: {
     calculateTopOfScreens (screenSet) {
       console.log(screenSet)
-      if (!screenSet) {
+      if (!screenSet || !screenSet.length) {
         return null
       }
       // get the "top" value of all the screens and return the minimum.
