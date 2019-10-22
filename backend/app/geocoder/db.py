@@ -23,9 +23,15 @@ def lookup_by_text(db: Session, query: str):
     # - adding :* (e.g. `query:*`) indicates prefix matching (partial matches for beginning of word)
     # - plainto_tsquery is similar to to_tsquery but allows spaces, but does NOT support :* prefix matching
     #   (exact match to at least 1 word only)
+    # q = select([geocode]) \
+    #     .where(text("tsv @@ plainto_tsquery(:query)")) \
+    #     .order_by(func.ts_rank('tsv', func.plainto_tsquery(query))) \
+    #     .limit(5)
+
+    query = query.replace(" ", "<->")
     q = select([geocode]) \
-        .where(text("tsv @@ plainto_tsquery(:query)")) \
-        .order_by(func.ts_rank('tsv', func.plainto_tsquery(query))) \
+        .where(text("tsv @@ to_tsquery(:query)")) \
+        .order_by(func.ts_rank('tsv', func.to_tsquery(query))) \
         .limit(5)
 
     features = []
