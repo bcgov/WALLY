@@ -35,6 +35,7 @@ describe('Sidebar', () => {
       },
       dataMartFeatures: () => [],
       allMapLayers: () => testLayers.layers,
+      activeMapLayers: () => ([]),
       getCategories: () => testLayers.categories,
       getMapLayer: () => () => ({
         display_data_name: 'test',
