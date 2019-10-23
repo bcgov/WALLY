@@ -16,24 +16,24 @@ depends_on = None
 
 
 def upgrade():
-    # op.drop_constraint('PRIMARY', 'ecocat_water_related_reports', type_='primary')
+    # Ecocat's pk REPORT_POINT_ID was not unique so this changes it to REPORT_ID which is.
     op.execute('ALTER TABLE ecocat_water_related_reports DROP CONSTRAINT ecocat_water_related_reports_pkey CASCADE')
     op.create_primary_key('ecocat_water_related_reports_pkey', 'ecocat_water_related_reports', ['REPORT_ID'])
     
-    op.alter_column('automated_snow_weather_station_locations', 'SNOW_ASWS_STN_ID', _type=Integer)
-    op.alter_column('bc_major_watersheds', 'OBJECTID', _type=Integer)
-    op.alter_column('bc_wildfire_active_weather_stations', 'WEATHER_STATIONS_ID', _type=Integer)
-    op.alter_column('cadastral', 'PARCEL_FABRIC_POLY_ID', _type=Integer)
-    op.alter_column('critical_habitat_species_at_risk', 'CRITICAL_HABITAT_ID', _type=Integer)
-    op.alter_column('ecocat_water_related_reports', 'REPORT_ID', _type=Integer)
-    op.alter_column('freshwater_atlas_stream_directions', 'OBJECTID', _type=Integer)
-    op.alter_column('freshwater_atlas_watersheds', 'WATERSHED_FEATURE_ID', _type=Integer)
-    op.alter_column('ground_water_aquifers', 'AQ_TAG', _type=Integer)
-    op.alter_column('ground_water_wells', 'WELL_TAG_NO', _type=Integer)
-    op.alter_column('water_allocation_restrictions', 'OBJECTID', _type=Integer)
-    op.alter_column('water_rights_licenses', 'WLS_WRL_SYSID', _type=Integer)
-    op.alter_column('hydat.stations', 'station_number', _type=Integer)
-    
+    # Change all Primary Key types from SERIAL to INTEGER to eliminate autoincrementing behaviour.
+    op.execute('ALTER TABLE automated_snow_weather_station_locations ALTER COLUMN "SNOW_ASWS_STN_ID" TYPE INTEGER USING "SNOW_ASWS_STN_ID"::integer')
+    op.execute('ALTER TABLE bc_major_watersheds ALTER COLUMN "OBJECTID" TYPE INTEGER USING "OBJECTID"::integer')
+    op.execute('ALTER TABLE bc_wildfire_active_weather_stations ALTER COLUMN "WEATHER_STATIONS_ID" TYPE INTEGER USING "WEATHER_STATIONS_ID"::integer')
+    op.execute('ALTER TABLE cadastral ALTER COLUMN "PARCEL_FABRIC_POLY_ID" TYPE INTEGER USING "PARCEL_FABRIC_POLY_ID"::integer')
+    op.execute('ALTER TABLE critical_habitat_species_at_risk ALTER COLUMN "CRITICAL_HABITAT_ID" TYPE INTEGER USING "CRITICAL_HABITAT_ID"::integer')
+    op.execute('ALTER TABLE ecocat_water_related_reports ALTER COLUMN "REPORT_ID" TYPE INTEGER USING "REPORT_ID"::integer')
+    op.execute('ALTER TABLE freshwater_atlas_stream_directions ALTER COLUMN "OBJECTID" TYPE INTEGER USING "OBJECTID"::integer')
+    op.execute('ALTER TABLE freshwater_atlas_watersheds ALTER COLUMN "WATERSHED_FEATURE_ID" TYPE INTEGER USING "WATERSHED_FEATURE_ID"::integer')
+    # ground_water_aquifers has a String pk type so no need to alter
+    # ground_water_wells has a String pk type so no need to alter
+    op.execute('ALTER TABLE water_allocation_restrictions ALTER COLUMN "OBJECTID" TYPE INTEGER USING "OBJECTID"::integer')
+    op.execute('ALTER TABLE water_rights_licenses ALTER COLUMN "WLS_WRL_SYSID" TYPE INTEGER USING "WLS_WRL_SYSID"::integer')
+    # hydat.Station has a String pk type so no need to alter
 
 def downgrade():
     pass
