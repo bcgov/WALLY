@@ -1,6 +1,7 @@
 """
 Database tables and data access functions for Wally Data Layer Meta Information
 """
+import re
 from sqlalchemy.orm import Session, load_only
 from sqlalchemy.sql import select
 from sqlalchemy import func, text
@@ -12,6 +13,8 @@ from shapely import wkt
 from geoalchemy2.elements import WKTElement
 
 logger = getLogger("geocoder")
+search_symbols = re.compile(r'[^\w {2,}]', re.UNICODE)
+search_spaces = re.compile(r'[ ]+')
 
 
 def lookup_by_text(db: Session, query: str):
@@ -23,12 +26,12 @@ def lookup_by_text(db: Session, query: str):
     # - adding :* (e.g. `query:*`) indicates prefix matching (partial matches for beginning of word)
     # - plainto_tsquery is similar to to_tsquery but allows spaces, but does NOT support :* prefix matching
     #   (exact match to at least 1 word only)
-    # q = select([geocode]) \
-    #     .where(text("tsv @@ plainto_tsquery(:query)")) \
-    #     .order_by(func.ts_rank('tsv', func.plainto_tsquery(query))) \
-    #     .limit(5)
 
-    query = query.replace(" ", "<->")
+    # remove symbols and then convert spaces to the "followed by" operator <->
+    # which is similar to `&` but will retain word order when searching.
+    query = search_symbols.sub('', query)
+    query = search_spaces.sub('<->', query)
+
     q = select([geocode]) \
         .where(text("tsv @@ to_tsquery(:query)")) \
         .order_by(func.ts_rank('tsv', func.to_tsquery(query))) \

@@ -53,13 +53,31 @@ def upgrade():
 
         UNION
         SELECT
-        ST_AsText(ST_Centroid(gww."GEOMETRY")) AS center,
-        gww."WELL_TAG_NO"::text AS primary_id,
+        ST_AsText(gww."GEOMETRY") AS center,
+        LTRIM(gww."WELL_TAG_NO"::text, '0') AS primary_id,
         gww."WELL_LOCATION" AS name,
         'Ground water well' AS kind,
-        'groundwater_wells' AS layer,
-        to_tsvector(concat_ws(' ', gww."WELL_TAG_NO"::text, gww."WELL_LOCATION")) AS tsv
+        'ground_water_wells' AS layer,
+        to_tsvector(concat_ws(' ', LTRIM(gww."WELL_TAG_NO"::text, '0'), gww."WELL_LOCATION")) AS tsv
         FROM ground_water_wells AS gww
+
+        UNION SELECT
+        ST_AsText(ST_Centroid(aq."GEOMETRY")) AS center,
+        LTRIM(aq."AQ_TAG"::text, '0') AS primary_id,
+        aq."AQNAME" AS name,
+        'Aquifer' AS kind,
+        'ground_water_aquifers' AS layer,
+        to_tsvector(concat_ws(' ', LTRIM(aq."AQ_TAG"::text, '0'), aq."AQNAME", aq."AQUIFER_NAME", aq."DESCRIPTIVE_LOCATION")) AS tsv
+        FROM ground_water_aquifers AS aq
+
+        UNION SELECT
+        ST_AsText(ecocat."GEOMETRY") AS center,
+        ecocat."REPORT_ID"::text AS primary_id,
+        ecocat."TITLE" AS name,
+        'Report' AS kind,
+        'ecocat_water_related_reports' AS layer,
+        to_tsvector(concat_ws(' ', ecocat."REPORT_ID"::text, ecocat."TITLE", ecocat."SHORT_DESCRIPTION", ecocat."AUTHOR")) AS tsv
+        FROM ecocat_water_related_reports as ecocat
     """)
 
     op.execute("""
