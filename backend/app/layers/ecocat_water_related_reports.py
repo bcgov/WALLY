@@ -10,7 +10,7 @@ class EcocatWaterRelatedReports(BaseLayerTable):
 
     REPORT_POINT_ID = Column(Integer, comment='')
     FEATURE_CODE = Column(String, comment='')
-    REPORT_ID = Column(Integer, primary_key=True, comment='')
+    REPORT_ID = Column(Integer, primary_key=True, autoincrement=False, comment='')
     TITLE = Column(String, comment='')
     SHORT_DESCRIPTION = Column(String, comment='')
     AUTHOR = Column(String, comment='')

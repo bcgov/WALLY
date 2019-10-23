@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class BcWildfireActiveWeatherStations(BaseLayerTable):
     __tablename__ = 'bc_wildfire_active_weather_stations'
 
-    WEATHER_STATIONS_ID	= Column(Integer, primary_key=True, comment='WEATHER STATION ID is a system generated '
+    WEATHER_STATIONS_ID	= Column(Integer, primary_key=True, autoincrement=False, comment='WEATHER STATION ID is a system generated '
                                                                        'unique identifier number.')
     STATION_CODE = Column(Integer, comment='STATION_CODE is the internal unique number assigned to this weather '
                                            'station, e.g., 67 .')

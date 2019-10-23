@@ -544,7 +544,7 @@ class Station(BaseTable):
     __tablename__ = 'stations'
     __table_args__ = {'schema': 'hydat'}
 
-    station_number = Column(Text, primary_key=True)
+    station_number = Column(Text, primary_key=True, autoincrement=False)
     station_name = Column(Text)
     prov_terr_state_loc = Column(Text)
     regional_office_id = Column(Text)

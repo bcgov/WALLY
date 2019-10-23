@@ -14,7 +14,7 @@ logger = getLogger("groundwater_wells")
 class GroundWaterWells(BaseLayerTable):
     __tablename__ = 'ground_water_wells'
 
-    WELL_TAG_NO = Column(String, primary_key=True, comment='WELL TAG NO is the unique number of the '
+    WELL_TAG_NO = Column(String, primary_key=True, autoincrement=False, comment='WELL TAG NO is the unique number of the '
                                                            'groundwater well as assigned '
                                                            'by the Province of British Columbia')
     OBJECTID = Column(Integer, comment='OBJECTID is a required attribute of feature classes and object classes in '
