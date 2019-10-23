@@ -39,13 +39,14 @@ def lookup_by_text(db: Session, query: str):
         return FeatureCollection(features)
 
     query = search_spaces.sub('<->', query.strip())
+    query_prefix = query + ":*"
 
     q = select([geocode]) \
-        .where(text("tsv @@ to_tsquery(:query)")) \
-        .order_by(func.ts_rank('tsv', func.to_tsquery(query))) \
+        .where(text("tsv @@ to_tsquery(:query_prefix)")) \
+        .order_by(geocode.c.primary_id.ilike(query), func.ts_rank('tsv', func.to_tsquery(query_prefix))) \
         .limit(5)
 
-    for row in db.execute(q, {"query": f"{query}:*"}):
+    for row in db.execute(q, {"query": query, "query_prefix": query_prefix}):
         # parse center point coordinate, which comes in a ST_AsText (wkt) column.
         point = wkt.loads(row.center)
 

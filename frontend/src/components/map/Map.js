@@ -102,6 +102,7 @@ export default {
       modes.simple_select.onTrash = clearSelections
       modes.draw_polygon.onTrash = clearSelections
       modes.draw_point.onTrash = clearSelections
+      modes.direct_select.onTrash = clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -117,7 +118,8 @@ export default {
         mapboxgl: this.map,
         origin: ApiService.baseURL,
         marker: false,
-        container: 'geocoder-container'
+        container: 'geocoder-container',
+        minLength: 1
       })
       geocoder.on('result', this.updateBySearchResult)
 
@@ -197,7 +199,7 @@ export default {
         this.map.on('mouseleave', vector, this.resetCursor)
       }
     },
-    updateBySearchResult(data) {
+    updateBySearchResult (data) {
       let payload = {
         display_data_name: data.result.layer,
         pk: data.result.primary_id

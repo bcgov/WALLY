@@ -64,10 +64,10 @@ def upgrade():
         UNION SELECT
         ST_AsText(ST_Centroid(aq."GEOMETRY")) AS center,
         LTRIM(aq."AQ_TAG"::text, '0') AS primary_id,
-        aq."AQNAME" AS name,
+        aq."DESCRIPTIVE_LOCATION" AS name,
         'Aquifer' AS kind,
         'ground_water_aquifers' AS layer,
-        to_tsvector(concat_ws(' ', LTRIM(aq."AQ_TAG"::text, '0'), aq."AQNAME", aq."AQUIFER_NAME", aq."DESCRIPTIVE_LOCATION")) AS tsv
+        to_tsvector(concat_ws(' ', LTRIM(aq."AQ_TAG"::text, '0'), aq."AQUIFER_NAME", aq."DESCRIPTIVE_LOCATION")) AS tsv
         FROM ground_water_aquifers AS aq
 
         UNION SELECT
