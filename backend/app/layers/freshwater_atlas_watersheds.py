@@ -70,7 +70,7 @@ class FreshwaterAtlasWatersheds(BaseLayerTable):
     FEATURE_CODE = Column(String, comment='FEATURE CODE contains a value based on the Canadian Council '
                                           'of Surveys and Mappings (CCSM) system for classification of '
                                           'geographic features.')
-    GEOMETRY = Column(Geometry, comment='')
+    GEOMETRY = Column(Geometry(srid=4326), comment='')
     OBJECTID = Column(Integer, comment='')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='')
     FEATURE_AREA_SQM = Column(Float, comment='FEATURE_AREA_SQM is the system calculated area of a '

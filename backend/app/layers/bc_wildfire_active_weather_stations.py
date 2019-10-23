@@ -8,8 +8,8 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class BcWildfireActiveWeatherStations(BaseLayerTable):
     __tablename__ = 'bc_wildfire_active_weather_stations'
 
-    WEATHER_STATIONS_ID	= Column(Integer, primary_key=True, comment='WEATHER STATION ID is a system generated '
-                                                                       'unique identifier number.')
+    WEATHER_STATIONS_ID = Column(Integer, primary_key=True, comment='WEATHER STATION ID is a system generated '
+                                 'unique identifier number.')
     STATION_CODE = Column(Integer, comment='STATION_CODE is the internal unique number assigned to this weather '
                                            'station, e.g., 67 .')
     STATION_NAME = Column(String, comment='STATION_NAME is a derived name of a weather station based on geographic '
@@ -27,10 +27,10 @@ class BcWildfireActiveWeatherStations(BaseLayerTable):
                                       'derived from the TRIM DEM.')
     INSTALL_DATE = Column(DateTime, comment='INSTALL_DATE is the date when the weather station was '
                                             'physically installed.')
-    SHAPE = Column(Geometry, comment='SHAPE is the column used to reference the spatial coordinates '
-                                     'defining the feature.')
+    SHAPE = Column(Geometry(srid=4326), comment='SHAPE is the column used to reference the spatial coordinates '
+                   'defining the feature.')
     OBJECTID = Column(Integer, comment='OBJECTID is a column required by spatial layers that interact with '
                                        'ESRI ArcSDE. It is populated with unique values automatically by SDE.')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to store '
-                                            'annotation, curve features and CAD data when using the SDO_GEOMETRY '
-                                            'storage data type.')
+                              'annotation, curve features and CAD data when using the SDO_GEOMETRY '
+                              'storage data type.')

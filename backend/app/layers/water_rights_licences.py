@@ -109,8 +109,8 @@ class WaterRightsLicenses(BaseLayerTable):
                                                     'Water District. It is a combination of District and Precinct '
                                                     'codes and names, e.g., New Westminster / Coquitlam. Not all '
                                                     'Water Districts contain Precincts.')
-    SHAPE = Column(Geometry, comment='SHAPE is the column used to reference the spatial coordinates '
-                                     'defining the feature.')
+    SHAPE = Column(Geometry(srid=4326), comment='SHAPE is the column used to reference the spatial coordinates '
+                   'defining the feature.')
     OBJECTID = Column(Integer, comment='OBJECTID is a column required by spatial layers that interact with '
                                        'ESRI ArcSDE. It is populated with unique values automatically by SDE.')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE ANNO CAD DATA is a binary column used by spatial tools to '
