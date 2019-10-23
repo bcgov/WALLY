@@ -27,17 +27,23 @@ def lookup_by_text(db: Session, query: str):
     # - plainto_tsquery is similar to to_tsquery but allows spaces, but does NOT support :* prefix matching
     #   (exact match to at least 1 word only)
 
+    features = []
+
     # remove symbols and then convert spaces to the "followed by" operator <->
     # which is similar to `&` but will retain word order when searching.
     query = search_symbols.sub('', query)
-    query = search_spaces.sub('<->', query)
+
+    # check if the simplified query contains anything. If not,
+    # stop the search here.
+    if not search_spaces.sub('', query):
+        return FeatureCollection(features)
+
+    query = search_spaces.sub('<->', query.strip())
 
     q = select([geocode]) \
         .where(text("tsv @@ to_tsquery(:query)")) \
         .order_by(func.ts_rank('tsv', func.to_tsquery(query))) \
         .limit(5)
-
-    features = []
 
     for row in db.execute(q, {"query": f"{query}:*"}):
         # parse center point coordinate, which comes in a ST_AsText (wkt) column.
@@ -57,5 +63,4 @@ def lookup_by_text(db: Session, query: str):
         feat['layer'] = row.layer
         features.append(feat)
 
-    fc = FeatureCollection(features)
-    return fc
+    return FeatureCollection(features)
