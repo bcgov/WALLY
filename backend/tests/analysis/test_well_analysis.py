@@ -89,5 +89,5 @@ def test_well_drawdown_calcs():
     test_data = merge_wells_datasources(wells_list, distance_results_from_db)
     test_data = with_drawdown(test_data)
 
-    assert test_data[0].swl_to_screen = 3
-    assert test_data[1].swl_to_bottom_of_well = 10
+    assert test_data[0].swl_to_screen == 3
+    assert test_data[1].swl_to_bottom_of_well == 10
