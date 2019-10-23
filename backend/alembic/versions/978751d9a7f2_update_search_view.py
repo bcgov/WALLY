@@ -17,6 +17,7 @@ depends_on = None
 
 
 def upgrade():
+    pass
     # A later migration updates this view so we can ignore the execute
     # replace materialized view with new view with extra records added.
     # note on table names: some layers like water_rights_licenses do not have
