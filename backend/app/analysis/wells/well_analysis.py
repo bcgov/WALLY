@@ -3,7 +3,7 @@ Database tables and data access functions for Water Survey of Canada's
 National Water Data Archive Hydrometic Data
 """
 import logging
-
+from typing import List
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
