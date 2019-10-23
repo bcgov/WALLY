@@ -18,10 +18,6 @@ const styles = StyleSheet.create({
       marginTop: 10,
       marginBottom: 10
     },
-    row: {
-      flexDirection: 'row',
-      flex: 1,
-    },
     section: {
       margin: 35,
       flex: 1
