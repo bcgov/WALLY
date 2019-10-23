@@ -56,8 +56,8 @@ def upgrade():
         ST_AsText(gww."GEOMETRY") AS center,
         LTRIM(gww."WELL_TAG_NO"::text, '0') AS primary_id,
         gww."WELL_LOCATION" AS name,
-        'Ground water well' AS kind,
-        'ground_water_wells' AS layer,
+        'Well' AS kind,
+        'groundwater_wells' AS layer,
         to_tsvector(concat_ws(' ', LTRIM(gww."WELL_TAG_NO"::text, '0'), gww."WELL_LOCATION")) AS tsv
         FROM ground_water_wells AS gww
 
@@ -66,7 +66,7 @@ def upgrade():
         LTRIM(aq."AQ_TAG"::text, '0') AS primary_id,
         aq."DESCRIPTIVE_LOCATION" AS name,
         'Aquifer' AS kind,
-        'ground_water_aquifers' AS layer,
+        'aquifers' AS layer,
         to_tsvector(concat_ws(' ', LTRIM(aq."AQ_TAG"::text, '0'), aq."AQUIFER_NAME", aq."DESCRIPTIVE_LOCATION")) AS tsv
         FROM ground_water_aquifers AS aq
 
