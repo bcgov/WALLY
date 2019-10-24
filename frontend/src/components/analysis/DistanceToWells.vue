@@ -23,19 +23,6 @@
           <template v-slot:item.distance="{ item }">
             <span>{{item.distance.toFixed(1)}}</span>
           </template>
-          <template v-slot:item.top_of_screen="{ item }">
-            <span>{{calculateTopOfScreens(item.screen_set)}}</span>
-          </template>
-          <template v-slot:item.swl_to_screen="{ item }">
-            <span v-if="item.screen_set && item.screen_set.length && item.static_water_level">
-              {{ calculateTopOfScreens(item.screen_set) - Number(item.static_water_level) }}
-            </span>
-          </template>
-          <template v-slot:item.swl_to_bottom_of_well="{ item }">
-            <span v-if="item.finished_well_depth && item.static_water_level">
-              {{  Number(item.finished_well_depth) - Number(item.static_water_level) }}
-            </span>
-          </template>
         </v-data-table>
       </v-col>
     </v-row>
@@ -71,7 +58,6 @@ export default {
       { text: 'Finished well depth (ft)', value: 'finished_well_depth', align: 'right' },
       { text: 'SWL to top of screen (ft)', value: 'swl_to_screen', align: 'right' },
       { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well', align: 'right' }
-
     ]
   }),
   computed: {
