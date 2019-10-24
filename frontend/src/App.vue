@@ -7,6 +7,18 @@
         fluid
       >
         <Toolbar/>
+        <v-snackbar v-model="error" color="error" bottom right>
+          <div v-if="errorMsg">{{ errorMsg }}</div>
+          <div v-else>There was an error reaching the server. Please try again later.</div>
+          <v-btn
+            dark
+            text
+            timeout="6000"
+            @click="error = false"
+          >
+            Close
+          </v-btn>
+        </v-snackbar>
         <router-view/>
       </v-container>
     </v-content>
@@ -16,12 +28,36 @@
 <script>
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
+import EventBus from './services/EventBus'
 
 export default {
   name: 'app',
   components: {
     Header,
     Toolbar
+  },
+  data: () => ({
+    error: false,
+    errorMsg: ''
+  }),
+  methods: {
+    clearError () {
+      this.error = false
+      this.errorMsg = ''
+    },
+    setError (msg) {
+      this.clearError()
+      this.error = !!msg
+      if (msg && msg !== true) {
+        this.errorMsg = msg
+      }
+    }
+  },
+  mounted () {
+    EventBus.$on('error', this.setError)
+  },
+  beforeDestroy () {
+    EventBus.$off('error', this.setError)
   }
 }
 </script>

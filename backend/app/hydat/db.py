@@ -82,6 +82,26 @@ def get_station_details(db: Session, station: str) -> streams_v1.StreamStation:
     return db.query(Station).get(station)
 
 
+def get_details(db: Session, station: str) -> Feature:
+    """ link to get_station_details with a generic name, used for compatibility
+        with layer SQLAlchemy model class methods.
+    """
+    stn = get_station_details(db, station)
+    data = streams_v1.StreamStation(
+        stream_flows_url=f"/api/v1/hydat/{stn.station_number}/flows",
+        stream_levels_url=f"/api/v1/hydat/{stn.station_number}/levels",
+        external_urls=[
+            {
+                "name": "Real-Time Hydrometric Data (Canada)",
+                "url": f"https://wateroffice.ec.gc.ca/report/real_time_e.html?stn={stn.station_number}"
+            },
+        ],
+        **stn.__dict__)
+    geom = Point([stn.longitude, stn.latitude])
+    feat = Feature(geometry=geom, properties=data)
+    return feat
+
+
 def get_available_flow_years(db: Session, station: str):
     """ fetch a list of years for which stream flow data is available """
     return db.query(DlyFlow).filter(

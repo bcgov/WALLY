@@ -23,8 +23,8 @@ export default {
           data: response.data
         })
         EventBus.$emit(`dataMart:updated`, payload)
-      }).catch((error) => {
-        console.log(error) // TODO create error state item and mutation
+      }).catch(() => {
+        EventBus.$emit('error', true)
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
@@ -45,10 +45,12 @@ export default {
             })
         })
         .catch((error) => {
+          const msg = error.response ? error.response.data.detail : true
           commit('setLoadingFeature', false)
-          commit('setFeatureError', error.response.data.detail)
+          commit('setFeatureError', msg)
           commit('setDataMartFeatureInfo', {})
-          console.log(error.response.data.detail) // TODO create error state item and mutation
+          console.log(msg) // TODO create error state item and mutation
+          EventBus.$emit('error', msg)
         })
     },
     getDataMartFeatures ({ commit }, payload) {
@@ -77,7 +79,8 @@ export default {
           })
           commit('setDisplayTemplates', { displayTemplates })
         }).catch((error) => {
-          console.log(error)
+          const msg = error.response ? error.response.data.detail : true
+          EventBus.$emit('error', msg)
         }).finally(() => {
           commit('setLoadingMultipleFeatures', false)
         })
