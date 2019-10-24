@@ -102,6 +102,7 @@ export default {
       modes.simple_select.onTrash = clearSelections
       modes.draw_polygon.onTrash = clearSelections
       modes.draw_point.onTrash = clearSelections
+      modes.direct_select.onTrash = clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -116,8 +117,11 @@ export default {
         accessToken: mapboxgl.accessToken,
         mapboxgl: this.map,
         origin: ApiService.baseURL,
-        container: 'geocoder-container'
+        marker: false,
+        container: 'geocoder-container',
+        minLength: 1
       })
+      geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
@@ -194,6 +198,16 @@ export default {
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
+    },
+    updateBySearchResult (data) {
+      let payload = {
+        display_data_name: data.result.layer,
+        pk: data.result.primary_id
+      }
+      this.$store.commit('addMapLayer', data.result.layer)
+      this.$store.dispatch('getDataMartFeatureInfo', payload)
+      this.clearHighlightLayer()
+      this.updateHighlightLayerData(data.result)
     },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {
