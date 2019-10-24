@@ -86,7 +86,6 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     feature = layer_class.get_details(db, pk)
     if not feature:
         raise HTTPException(status_code=404, detail="Feature information not found")
-    logger.info(feature)
     return feature
 
 
