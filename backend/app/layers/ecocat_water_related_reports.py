@@ -19,6 +19,6 @@ class EcocatWaterRelatedReports(BaseLayerTable):
     WATERBODY_IDENTIFIER = Column(String, comment='')
     LONG_DESCRIPTION = Column(String, comment='')
     REPORT_AUDIENCE = Column(String, comment='')
-    GEOMETRY = Column(Geometry, comment='')
+    GEOMETRY = Column(Geometry(srid=4326), comment='')
     OBJECTID = Column(Integer, comment='')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='')

@@ -172,7 +172,7 @@ class GroundWaterAquifers(BaseLayerTable):
                                                  'aquifer classes (Table 1). For example, a class IA aquifer would be '
                                                  'heavily developed with high vulnerability to contamination, while a '
                                                  'IIIC would be lightly developed with low vulnerability.')
-    GEOMETRY = Column(Geometry, comment='GEOMETRY is a ArcSDE spatial column.')
+    GEOMETRY = Column(Geometry(srid=4326), comment='GEOMETRY is a ArcSDE spatial column.')
     FEATURE_AREA_SQM = Column(Float, comment='')
     FEATURE_LENGTH_M = Column(Float, comment='')
     OBJECTID = Column(Integer, comment='OBJECTID is a required attribute of feature classes and object classes in a '

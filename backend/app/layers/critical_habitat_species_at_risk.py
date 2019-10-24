@@ -84,8 +84,8 @@ class CriticalHabitatSpeciesAtRisk(BaseLayerTable):
     LONGITUDE = Column(Float, comment='LONGITUDE is the geographic coordinate, in decimal degrees'
                                       ' (ddd.dddddd), of the location of the feature as measured from '
                                       'the prime meridian, e.g., -123.093544')
-    SHAPE = Column(Geometry, comment='SHAPE is the column used to reference the spatial coordinates'
-                                     ' defining the feature.')
+    SHAPE = Column(Geometry(srid=4326), comment='SHAPE is the column used to reference the spatial coordinates'
+                   ' defining the feature.')
     OBJECTID = Column(Integer, comment='OBJECTID is a column required by spatial layers that interact'
                                        ' with ESRI ArcSDE. It is populated with unique values automatically by SDE.')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE ANNO CAD DATA is a binary column used by spatial tools '
