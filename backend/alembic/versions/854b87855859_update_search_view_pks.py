@@ -26,7 +26,7 @@ def upgrade():
     op.execute("""SELECT UpdateGeometrySRID('cadastral', 'SHAPE', 4326)""")
     op.execute("""SELECT UpdateGeometrySRID('ecocat_water_related_reports', 'GEOMETRY', 4326)""")
     op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_stream_directions', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_watersheds', 'GEOMETRY', 4326)""")
+    # op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_watersheds', 'GEOMETRY', 4326)""")
     op.execute("""SELECT UpdateGeometrySRID('ground_water_aquifers', 'GEOMETRY', 4326)""")
     op.execute("""SELECT UpdateGeometrySRID('ground_water_wells', 'GEOMETRY', 4326)""")
     op.execute("""SELECT UpdateGeometrySRID('water_allocation_restrictions', 'GEOMETRY', 4326)""")
