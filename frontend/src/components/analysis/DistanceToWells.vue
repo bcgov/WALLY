@@ -67,18 +67,6 @@ export default {
     ...mapGetters(['isMapLayerActive'])
   },
   methods: {
-    calculateTopOfScreens (screenSet) {
-      console.log(screenSet)
-      if (!screenSet || !screenSet.length) {
-        return null
-      }
-      // get the "top" value of all the screens and return the minimum.
-      // explicitly check against "null" here because 0 is a valid value,
-      // but we may see "null" from time to time.
-      const screenTops = screenSet.map((x) => x.start).filter((x) => x !== null && x !== undefined)
-      console.log(screenTops)
-      return Math.min(...screenTops)
-    },
     enableWellsLayer () {
       this.$store.commit('addMapLayer', 'groundwater_wells')
     },
