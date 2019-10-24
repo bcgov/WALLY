@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class FreshwaterAtlasWatersheds(BaseLayerTable):
     __tablename__ = 'freshwater_atlas_watersheds'
 
-    WATERSHED_FEATURE_ID = Column(Integer, primary_key=True, comment='A unique identifier for each watershed '
+    WATERSHED_FEATURE_ID = Column(Integer, primary_key=True, autoincrement=False, comment='A unique identifier for each watershed '
                                                                      'in the layer.')
     WATERSHED_GROUP_ID = Column(Integer, comment='An automatically generate id that uniquely identifies '
                                                  'the watershed group feature.')

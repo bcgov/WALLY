@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class Cadastral(BaseLayerTable):
     __tablename__ = 'cadastral'
 
-    PARCEL_FABRIC_POLY_ID = Column(Integer, primary_key=True, comment='PARCEL_FABRIC_POLY_ID is a system generated '
+    PARCEL_FABRIC_POLY_ID = Column(Integer, primary_key=True, autoincrement=False, comment='PARCEL_FABRIC_POLY_ID is a system generated '
                                                                       'unique identification number.')
     PARCEL_NAME = Column(String, comment='PARCEL_NAME is the same as the PID, if there is one. If there is a '
                                          'PIN but no PID, then PARCEL_NAME is the PIN. If there is no PID nor '
