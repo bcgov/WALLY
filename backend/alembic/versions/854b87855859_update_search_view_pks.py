@@ -18,6 +18,21 @@ depends_on = None
 
 def upgrade():
     op.execute("DROP MATERIALIZED VIEW IF EXISTS geocode_lookup")
+
+    # since we can't change geometry properties when the materialized view is referencing
+    # these columns, this is an opportune time to update these columns.
+    op.execute("""SELECT UpdateGeometrySRID('bc_major_watersheds', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('bc_wildfire_active_weather_stations', 'SHAPE', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('cadastral', 'SHAPE', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('ecocat_water_related_reports', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_stream_directions', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_watersheds', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('ground_water_aquifers', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('ground_water_wells', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('water_allocation_restrictions', 'GEOMETRY', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('water_rights_licenses', 'SHAPE', 4326)""")
+    op.execute("""SELECT UpdateGeometrySRID('critical_habitat_species_at_risk', 'SHAPE', 4326)""")
+
     op.execute("""
         CREATE MATERIALIZED VIEW geocode_lookup AS
 
