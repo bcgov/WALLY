@@ -20,8 +20,8 @@ class FreshwaterAtlasStreamDirections(BaseLayerTable):
     FEATURE_CODE = Column(String, comment='FEATURE CODE contains a value based on the Canadian Council of Surveys'
                                           ' and Mappings (CCSM) system for classification of geographic features.')
     GEOMETRY = Column(Geometry(srid=4326), comment='GEOMETRY is the column used to reference the spatial coordinates '
-                      'defining the feature.')
-    OBJECTID = Column(Integer, primary_key=True, comment='OBJECTID is a required attribute of feature classes and '
+                                        'defining the feature.')
+    OBJECTID = Column(Integer, primary_key=True, autoincrement=False, comment='OBJECTID is a required attribute of feature classes and '
                                                          'object classes in a geodatabase.')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools '
                               'to store annotation, curve features and CAD data when using '

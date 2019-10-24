@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class CriticalHabitatSpeciesAtRisk(BaseLayerTable):
     __tablename__ = 'critical_habitat_species_at_risk'
 
-    CRITICAL_HABITAT_ID = Column(Integer, primary_key=True, comment='CRITICAL_HABITAT_ID: is a system generated '
+    CRITICAL_HABITAT_ID = Column(Integer, primary_key=True, autoincrement=False, comment='CRITICAL_HABITAT_ID: is a system generated '
                                                                     'unique identification number. This is the '
                                                                     'primary key of this table. e.g., 1')
     COSEWIC_SPECIES_ID = Column(String, comment='COSEWIC_SPECIES_ID is a unique identification number assigned to '
