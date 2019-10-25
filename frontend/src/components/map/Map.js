@@ -204,6 +204,11 @@ export default {
         display_data_name: data.result.layer,
         pk: data.result.primary_id
       }
+      // Our search db view trims the pks on search so we
+      // need to add the 00s back on feature requests 
+      if(payload.display_data_name === "groundwater_wells") {
+        payload.pk = payload.pk.padStart(12, '0')
+      }
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatureInfo', payload)
       this.clearHighlightLayer()
