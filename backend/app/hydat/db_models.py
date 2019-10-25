@@ -10,14 +10,21 @@ Warning: the original database schema did not include any foreign key constraint
 
 """
 # coding: utf-8
-from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Text, text, ForeignKey
-from sqlalchemy.orm import relationship
+from typing import List, Optional
+from geojson import Feature, Point
+from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Text, text, ForeignKey, func
+from sqlalchemy.orm import relationship, Session
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from geoalchemy2 import Geometry
-from app.db.base_class import BaseTable
+from app.db.base_class import BaseLayerTable
+import app.hydat.models as streams_v1
+import app.aggregator.db as agr_repo
+from shapely.geometry import Polygon
+from logging import getLogger
+logger = getLogger("Hydat")
 
 
-class AgencyList(BaseTable):
+class AgencyList(BaseLayerTable):
     __tablename__ = 'agency_list'
     __table_args__ = {'schema': 'hydat'}
 
@@ -27,7 +34,7 @@ class AgencyList(BaseTable):
     agency_fr = Column(Text)
 
 
-class AnnualInstantPeak(BaseTable):
+class AnnualInstantPeak(BaseLayerTable):
     __tablename__ = 'annual_instant_peaks'
     __table_args__ = (
         Index('idx_20802_annual_instant_peaks___uniqueindex',
@@ -49,7 +56,7 @@ class AnnualInstantPeak(BaseTable):
     symbol = Column(Text)
 
 
-class AnnualStatistic(BaseTable):
+class AnnualStatistic(BaseLayerTable):
     __tablename__ = 'annual_statistics'
     __table_args__ = (
         Index('idx_20940_annual_statistics_primarykey',
@@ -71,7 +78,7 @@ class AnnualStatistic(BaseTable):
     max_symbol = Column(Text)
 
 
-class ConcentrationSymbol(BaseTable):
+class ConcentrationSymbol(BaseLayerTable):
     __tablename__ = 'concentration_symbols'
     __table_args__ = {'schema': 'hydat'}
 
@@ -80,7 +87,7 @@ class ConcentrationSymbol(BaseTable):
     concentration_fr = Column(Text)
 
 
-class DataSymbol(BaseTable):
+class DataSymbol(BaseLayerTable):
     __tablename__ = 'data_symbols'
     __table_args__ = {'schema': 'hydat'}
 
@@ -89,7 +96,7 @@ class DataSymbol(BaseTable):
     symbol_fr = Column(Text)
 
 
-class DataType(BaseTable):
+class DataType(BaseLayerTable):
     __tablename__ = 'data_types'
     __table_args__ = {'schema': 'hydat'}
 
@@ -98,7 +105,7 @@ class DataType(BaseTable):
     data_type_fr = Column(Text)
 
 
-class DatumList(BaseTable):
+class DatumList(BaseLayerTable):
     __tablename__ = 'datum_list'
     __table_args__ = {'schema': 'hydat'}
 
@@ -108,7 +115,7 @@ class DatumList(BaseTable):
     datum_fr = Column(Text)
 
 
-class DlyFlow(BaseTable):
+class DlyFlow(BaseLayerTable):
     __tablename__ = 'dly_flows'
     __table_args__ = (
         Index('idx_20862_dly_flows_primarykey',
@@ -192,8 +199,33 @@ class DlyFlow(BaseTable):
     flow_symbol31 = Column(Text)
     station = relationship("Station", back_populates="dly_flows")
 
+    @classmethod
+    def get_available_flow_years(cls, db: Session, station: str):
+        """ fetch a list of years for which stream flow data is available """
+        return db.query(cls).filter(
+            cls.station_number == station).distinct("year")
 
-class DlyLevel(BaseTable):
+    @classmethod
+    def get_monthly_flows_by_station(cls, db: Session, station: str, year: int) -> List[streams_v1.MonthlyFlow]:
+        """ fetch monthly stream levels for a specified station_number and year """
+        if year:
+            return db.query(cls).filter(
+                cls.station_number == station,
+                cls.year == year
+            ).all()
+
+        # year not specified, return average by month for all available years.
+        return db.query(
+            func.avg(cls.monthly_mean).label('monthly_mean'),
+            func.min(cls.min).label('min'),
+            func.max(cls.max).label('max'),
+            cls.month) \
+            .filter(cls.station_number == station, cls.full_month == 1) \
+            .group_by(cls.month) \
+            .order_by(cls.month).all()
+
+
+class DlyLevel(BaseLayerTable):
     __tablename__ = 'dly_levels'
     __table_args__ = (
         Index('idx_20916_dly_levels_primarykey',
@@ -278,8 +310,34 @@ class DlyLevel(BaseTable):
     level_symbol31 = Column(Text)
     station = relationship("Station", back_populates="dly_levels")
 
+    @classmethod
+    def get_available_level_years(cls, db: Session, station: str):
+        """ fetch a list of years for which stream level data is available """
+        return db.query(cls).filter(
+            cls.station_number == station).distinct("year")
 
-class MeasurementCode(BaseTable):
+    @classmethod
+    def get_monthly_levels_by_station(cls, db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
+        """ fetch monthly stream levels for a specified station_number and year """
+        if year:
+            return db.query(cls).filter(
+                cls.station_number == station,
+                cls.year == year
+            ).all()
+
+        # year not specified, return an average by month for all years.
+        return db.query(
+            func.avg(cls.monthly_mean).label('monthly_mean'),
+            func.min(cls.min).label('min'),
+            func.max(cls.max).label('max'),
+            cls.month
+        ) \
+            .filter(cls.station_number == station, cls.full_month == 1) \
+            .group_by(cls.month) \
+            .order_by(cls.month).all()
+
+
+class MeasurementCode(BaseLayerTable):
     __tablename__ = 'measurement_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -288,7 +346,7 @@ class MeasurementCode(BaseTable):
     measurement_fr = Column(Text)
 
 
-class OperationCode(BaseTable):
+class OperationCode(BaseLayerTable):
     __tablename__ = 'operation_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -297,7 +355,7 @@ class OperationCode(BaseTable):
     operation_fr = Column(Text)
 
 
-class PeakCode(BaseTable):
+class PeakCode(BaseLayerTable):
     __tablename__ = 'peak_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -306,7 +364,7 @@ class PeakCode(BaseTable):
     peak_fr = Column(Text)
 
 
-class PrecisionCode(BaseTable):
+class PrecisionCode(BaseLayerTable):
     __tablename__ = 'precision_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -316,7 +374,7 @@ class PrecisionCode(BaseTable):
     precision_fr = Column(Text)
 
 
-class RegionalOfficeList(BaseTable):
+class RegionalOfficeList(BaseLayerTable):
     __tablename__ = 'regional_office_list'
     __table_args__ = {'schema': 'hydat'}
 
@@ -326,7 +384,7 @@ class RegionalOfficeList(BaseTable):
     regional_office_name_fr = Column(Text)
 
 
-class SampleRemarkCode(BaseTable):
+class SampleRemarkCode(BaseLayerTable):
     __tablename__ = 'sample_remark_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -336,7 +394,7 @@ class SampleRemarkCode(BaseTable):
     sample_remark_fr = Column(Text)
 
 
-class SedDataType(BaseTable):
+class SedDataType(BaseLayerTable):
     __tablename__ = 'sed_data_types'
     __table_args__ = {'schema': 'hydat'}
 
@@ -345,7 +403,7 @@ class SedDataType(BaseTable):
     sed_data_type_fr = Column(Text)
 
 
-class SedDlyLoad(BaseTable):
+class SedDlyLoad(BaseLayerTable):
     __tablename__ = 'sed_dly_loads'
     __table_args__ = (
         Index('idx_20910_sed_dly_loads_primarykey',
@@ -397,7 +455,7 @@ class SedDlyLoad(BaseTable):
     load31 = Column(DOUBLE_PRECISION)
 
 
-class SedDlySuscon(BaseTable):
+class SedDlySuscon(BaseLayerTable):
     __tablename__ = 'sed_dly_suscon'
     __table_args__ = (
         Index('idx_20886_sed_dly_suscon_primarykey',
@@ -479,7 +537,7 @@ class SedDlySuscon(BaseTable):
     suscon_symbol31 = Column(Text)
 
 
-class SedSample(BaseTable):
+class SedSample(BaseLayerTable):
     __tablename__ = 'sed_samples'
     __table_args__ = (
         Index('idx_20970_sed_samples_primarykey', 'station_number',
@@ -507,7 +565,7 @@ class SedSample(BaseTable):
     sv_depth2 = Column(DOUBLE_PRECISION)
 
 
-class SedSamplesPsd(BaseTable):
+class SedSamplesPsd(BaseLayerTable):
     __tablename__ = 'sed_samples_psd'
     __table_args__ = (
         Index('idx_20796_sed_samples_psd_primarykey', 'station_number',
@@ -522,7 +580,7 @@ class SedSamplesPsd(BaseTable):
     percent = Column(BigInteger)
 
 
-class SedVerticalLocation(BaseTable):
+class SedVerticalLocation(BaseLayerTable):
     __tablename__ = 'sed_vertical_location'
     __table_args__ = {'schema': 'hydat'}
 
@@ -531,7 +589,7 @@ class SedVerticalLocation(BaseTable):
     sampling_vertical_location_fr = Column(Text)
 
 
-class SedVerticalSymbol(BaseTable):
+class SedVerticalSymbol(BaseLayerTable):
     __tablename__ = 'sed_vertical_symbols'
     __table_args__ = {'schema': 'hydat'}
 
@@ -540,7 +598,7 @@ class SedVerticalSymbol(BaseTable):
     sampling_vertical_fr = Column(Text)
 
 
-class Station(BaseTable):
+class Station(BaseLayerTable):
     __tablename__ = 'stations'
     __table_args__ = {'schema': 'hydat'}
 
@@ -563,8 +621,43 @@ class Station(BaseTable):
     dly_flows = relationship("DlyFlow", back_populates="station")
     dly_levels = relationship("DlyLevel", back_populates="station")
 
+    @classmethod
+    def get_as_feature(cls, row, geom_col):
+        data = streams_v1.StreamStation(
+            name=row.station_name,
+            url=f"/api/v1/hydat/{row.station_number}",
+            stream_flows_url=f"/api/v1/hydat/{row.station_number}/flows",
+            stream_levels_url=f"/api/v1/hydat/{row.station_number}/levels",
+            external_urls=[
+                {
+                    "name": "Real-Time Hydrometric Data (Canada)",
+                    "url": f"https://wateroffice.ec.gc.ca/report/real_time_e.html?stn={row.station_number}"
+                },
+            ],
+            **row.__dict__)
+        pt = Point([row.longitude, row.latitude])
+        feat = Feature(geometry=pt, id=getattr(
+            row, cls.primary_key_name()), properties=data)
+        return feat
 
-class StnDataCollection(BaseTable):
+    @classmethod
+    def get_all(cls, db: Session, search_area: Polygon = None):
+        """ gets all records, with an optional bounding box """
+        q = db.query(cls).filter(
+            cls.prov_terr_state_loc == 'BC')
+
+        if search_area:
+            column = cls.get_geom_column(db)
+            q = q.filter(
+                func.ST_Intersects(func.ST_GeomFromText(
+                    search_area.wkt, 4326), column)
+            )
+        objs = q.all()
+        logger.info(objs)
+        return objs
+
+
+class StnDataCollection(BaseLayerTable):
     __tablename__ = 'stn_data_collection'
     __table_args__ = (
         Index('idx_20826_stn_data_collection___uniqueindex',
@@ -580,7 +673,7 @@ class StnDataCollection(BaseTable):
     operation_code = Column(Text)
 
 
-class StnDataRange(BaseTable):
+class StnDataRange(BaseLayerTable):
     __tablename__ = 'stn_data_range'
     __table_args__ = (
         Index('idx_20898_stn_data_range_primarykey', 'station_number',
@@ -596,7 +689,7 @@ class StnDataRange(BaseTable):
     record_length = Column(BigInteger)
 
 
-class StnDatumConversion(BaseTable):
+class StnDatumConversion(BaseLayerTable):
     __tablename__ = 'stn_datum_conversion'
     __table_args__ = (
         Index('idx_20874_stn_datum_conversion_primarykey',
@@ -610,7 +703,7 @@ class StnDatumConversion(BaseTable):
     conversion_factor = Column(DOUBLE_PRECISION)
 
 
-class StnDatumUnrelated(BaseTable):
+class StnDatumUnrelated(BaseLayerTable):
     __tablename__ = 'stn_datum_unrelated'
     __table_args__ = (
         Index('idx_20808_stn_datum_unrelated_primarykey',
@@ -624,7 +717,7 @@ class StnDatumUnrelated(BaseTable):
     year_to = Column(DateTime(True))
 
 
-class StnOperationSchedule(BaseTable):
+class StnOperationSchedule(BaseLayerTable):
     __tablename__ = 'stn_operation_schedule'
     __table_args__ = (
         Index('idx_20892_stn_operation_schedule___uniqueindex',
@@ -639,7 +732,7 @@ class StnOperationSchedule(BaseTable):
     month_to = Column(Text)
 
 
-class StnRegulation(BaseTable):
+class StnRegulation(BaseLayerTable):
     __tablename__ = 'stn_regulation'
     __table_args__ = {'schema': 'hydat'}
 
@@ -649,7 +742,7 @@ class StnRegulation(BaseTable):
     regulated = Column(BigInteger)
 
 
-class StnRemarkCode(BaseTable):
+class StnRemarkCode(BaseLayerTable):
     __tablename__ = 'stn_remark_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -659,7 +752,7 @@ class StnRemarkCode(BaseTable):
     remark_type_fr = Column(Text)
 
 
-class StnRemark(BaseTable):
+class StnRemark(BaseLayerTable):
     __tablename__ = 'stn_remarks'
     __table_args__ = (
         Index('idx_20868_stn_remarks___uniqueindex', 'station_number',
@@ -674,7 +767,7 @@ class StnRemark(BaseTable):
     remark_fr = Column(Text)
 
 
-class StnStatusCode(BaseTable):
+class StnStatusCode(BaseLayerTable):
     __tablename__ = 'stn_status_codes'
     __table_args__ = {'schema': 'hydat'}
 
@@ -683,7 +776,7 @@ class StnStatusCode(BaseTable):
     status_fr = Column(Text)
 
 
-class Version(BaseTable):
+class Version(BaseLayerTable):
     __tablename__ = 'version'
     __table_args__ = {'schema': 'hydat'}
 

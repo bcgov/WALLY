@@ -13,7 +13,7 @@ from shapely.geometry import shape, box, MultiPolygon, Polygon
 
 from app.db.utils import get_db
 from app.db.base_class import BaseLayerTable
-import app.hydat.db as streams_repo
+from app.hydat.db_models import Station as StreamStation
 import app.layers.water_rights_licences as water_rights_licences_repo
 import app.layers.ground_water_wells as ground_water_wells_repo
 from app.layers.water_rights_licences import WaterRightsLicenses
@@ -47,7 +47,7 @@ router = APIRouter()
 
 # returns a module or class that has `get_as_geojson` and `get_details` functions for looking up data from a layer
 API_DATASOURCES = {
-    "HYDAT": streams_repo,
+    "HYDAT": StreamStation,
     "aquifers": GroundWaterAquifers,
     "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations,
     "bc_major_watersheds": BcMajorWatersheds,
@@ -56,7 +56,7 @@ API_DATASOURCES = {
     "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
     "ecocat_water_related_reports": EcocatWaterRelatedReports,
     "groundwater_wells": GroundWaterWells,
-    "hydrometric_stream_flow": streams_repo,
+    "hydrometric_stream_flow": StreamStation,
     "water_allocation_restrictions": WaterAllocationRestrictions,
     "water_rights_licences": WaterRightsLicenses
 
@@ -80,12 +80,8 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
 
     # check if layer_class is a SQLAlchemy instance. If so, use the classmethod
     # on BaseLayerTable.
-    if isinstance(layer_class, DeclarativeMeta):
-        return agr_repo.get_layer_feature(db, layer_class, pk)
+    return agr_repo.get_layer_feature(db, layer_class, pk)
 
-    feature = layer_class.get_details(db, pk)
-    if not feature:
-        raise HTTPException(status_code=404, detail="Feature information not found")
     return feature
 
 

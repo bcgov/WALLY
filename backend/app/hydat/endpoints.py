@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
-import app.hydat.db as streams_repo
+from app.hydat.db_models import Station as StreamStation, DlyFlow, DlyLevel
 import app.hydat.models as streams_v1
 
 logger = getLogger("api")
@@ -24,7 +24,8 @@ def list_stations(db: Session = Depends(get_db)):
     """
 
     # fetch stations from database
-    stations = streams_repo.get_stations(db)
+    stations = db.query(StreamStation).filter(
+        StreamStation.prov_terr_state_loc == 'BC')
 
     # add properties to geojson Feature objects
     points = [
@@ -53,20 +54,22 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
     """
 
     # get basic station info
-    stn = streams_repo.get_station_details(db, station_number)
+    stn = db.query(StreamStation).get(station_number)
 
     if not stn:
         raise HTTPException(status_code=404, detail="Station not found")
 
     # get list of years for which data is available at this station
     # this helps hint at which years are worth displaying on selection boxes, etc.
-    flow_years = streams_repo.get_available_flow_years(db, station_number)
-    level_years = streams_repo.get_available_level_years(db, station_number)
+    flow_years = DlyFlow.get_available_flow_years(db, station_number)
+    level_years = DlyLevel.get_available_level_years(db, station_number)
 
     # combine queries/info into the StreamStation API model
     data = streams_v1.StreamStation(
-        flow_years=[row.year for row in flow_years],
-        level_years=[row.year for row in level_years],
+        name=stn.station_name,
+        url=f"/api/v1/hydat/{stn.station_number}",
+        flow_years=[stn.year for stn in flow_years],
+        level_years=[stn.year for stn in level_years],
         stream_flows_url=f"/api/v1/hydat/{stn.station_number}/flows",
         stream_levels_url=f"/api/v1/hydat/{stn.station_number}/levels",
         external_urls=[
@@ -86,11 +89,11 @@ def list_monthly_levels_by_year(station_number: str, year: int = None, db: Sessi
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html
     """
     # check station exists
-    stn = streams_repo.get_station_details(db, station_number)
+    stn = db.query(StreamStation).get(station_number)
     if not stn:
         raise HTTPException(status_code=404, detail="Station not found")
 
-    return streams_repo.get_monthly_levels_by_station(db, station_number, year)
+    return DlyLevel.get_monthly_levels_by_station(db, station_number, year)
 
 
 @router.get("/hydat/{station_number}/flows", response_model=List[streams_v1.MonthlyFlow])
@@ -100,8 +103,8 @@ def list_monthly_flows_by_year(station_number: str, year: int = None, db: Sessio
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html """
 
     # check station exists
-    stn = streams_repo.get_station_details(db, station_number)
+    stn = db.query(StreamStation).get(station_number)
     if not stn:
         raise HTTPException(status_code=404, detail="Station not found")
 
-    return streams_repo.get_monthly_flows_by_station(db, station_number, year)
+    return DlyFlow.get_monthly_flows_by_station(db, station_number, year)
