@@ -54,6 +54,11 @@ export default {
         })
     },
     getDataMartFeatures ({ commit }, payload) {
+      if (!payload.layers || !payload.layers.length) {
+        EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
+        return
+      }
+
       commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
@@ -73,6 +78,13 @@ export default {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data
           let displayTemplates = response.data.display_templates
+
+          if (!displayData.some(layer => {
+            return layer.geojson && layer.geojson.features.length
+          })) {
+            EventBus.$emit('info', 'No features were found in your search area.')
+            return
+          }
 
           displayData.forEach(layer => {
             commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })

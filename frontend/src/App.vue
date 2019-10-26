@@ -7,6 +7,8 @@
         fluid
       >
         <Toolbar/>
+
+        <!-- app error popup -->
         <v-snackbar v-model="error" color="error" bottom right>
           <div v-if="errorMsg">{{ errorMsg }}</div>
           <div v-else>There was an error reaching the server. Please try again later.</div>
@@ -19,6 +21,20 @@
             Close
           </v-btn>
         </v-snackbar>
+
+        <!-- app info e.g. hints that don't need to be an error message -->
+        <v-snackbar v-model="info" color="info" bottom right>
+          <div v-if="infoMsg">{{ infoMsg }}</div>
+          <v-btn
+            dark
+            text
+            timeout="6000"
+            @click="info = false"
+          >
+            Close
+          </v-btn>
+        </v-snackbar>
+
         <router-view/>
       </v-container>
     </v-content>
@@ -38,7 +54,9 @@ export default {
   },
   data: () => ({
     error: false,
-    errorMsg: ''
+    errorMsg: '',
+    info: false,
+    infoMsg: ''
   }),
   methods: {
     clearError () {
@@ -48,16 +66,39 @@ export default {
     setError (msg) {
       this.clearError()
       this.error = !!msg
+
+      // the error popup has a generic message if a specific string
+      // wasn't included as the event payload. However, if a msg exists,
+      // it's set here.
       if (msg && msg !== true) {
         this.errorMsg = msg
+      }
+    },
+    clearInfo () {
+      this.info = false
+      this.infoMsg = ''
+    },
+    setInfo (msg) {
+      this.clearInfo()
+
+      // unlike errors, there is no "general" info message when
+      // a msg string not provided. Ensure that the `info` event
+      // has a payload with a message.
+      if (msg && msg !== true) {
+        this.info = !!msg
+        this.infoMsg = msg
+      } else {
+        console.error('info event triggered without an info message as the payload')
       }
     }
   },
   mounted () {
     EventBus.$on('error', this.setError)
+    EventBus.$on('info', this.setInfo)
   },
   beforeDestroy () {
     EventBus.$off('error', this.setError)
+    EventBus.$off('info', this.setInfo)
   }
 }
 </script>
