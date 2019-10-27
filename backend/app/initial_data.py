@@ -1,7 +1,10 @@
 import logging
 import os
 import json
+from shapely.geometry import shape
+import shapely.geometry
 from app.db.session import db_session
+
 from app.hydat.factory import StationFactory
 from app.layers.water_rights_licences import WaterRightsLicenses
 from app.layers.automated_snow_weather_station_locations import AutomatedSnowWeatherStationLocations
@@ -15,8 +18,7 @@ from app.layers.bc_major_watersheds import BcMajorWatersheds
 from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
 from app.layers.ground_water_aquifers import GroundWaterAquifers
 from app.layers.water_allocation_restrictions import WaterAllocationRestrictions
-from geoalchemy2.shape import to_shape, from_shape, Point, Feature, FeatureCollection, Polygon, MultiPolygon, LineString
-# from geojson import Point, Feature, FeatureCollection, Polygon, MultiPolygon, LineString
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,7 +39,7 @@ def create_hydat_data():
 
 
 def load_dev_data():
-    directory = '/app/fixtures/layer_data_subsets/'
+    directory = '/app/fixtures/layer_subsets/'
 
     for filename in os.listdir(directory):
         if filename.endswith(".geojson"):
@@ -54,15 +56,16 @@ def load_dev_data():
 
                     # Create class instances
                     instances = []
-                    for obj in data["features"]:
-                        params = {**obj["properties"]}
-                        geo_field_name = 'SHAPE' if cls.shape_column_exists() else 'GEOMETRY'
-                        geometry = {**obj["geometry"]}
-                        wkb_element = from_shape(globals()[geometry["type"]](geometry["coordinates"]), srid=4326)
-                        logger.info(wkb_element)
-                        # params[geo_field_name] = to_shape({**obj["geometry"]})
-                        # Point((params["LONGITUDE"], params["LATITUDE"])) if cls.lat_lon_exists() else to_shape(row.SHAPE if cls.shape_column_exists() else row.GEOMETRY)
-                        # {**obj["geometry"]}
+                    for feature in data["features"]:
+                        params = {**feature["properties"]}
+                        geom = shape(feature["geometry"]).wkb_hex
+                        geom_field = 'SHAPE' if cls.shape_column_exists() else 'GEOMETRY'
+                        params[geom_field] = geom
+                        # str "None" is not compatible with field types other than str
+                        # so we replace with proper None here
+                        for k, v in params.items():
+                            if v == "None":
+                                params[k] = None
                         instance = cls(**params)
                         instances.append(instance)
 
@@ -88,7 +91,7 @@ def main():
 
     logger.info("Creating initial fixture data")
     create_hydat_data()
-    # load_dev_data()
+    load_dev_data()
     logger.info("Initial data created")
 
     logger.info(
