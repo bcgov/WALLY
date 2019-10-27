@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class GroundWaterAquifers(BaseLayerTable):
     __tablename__ = 'ground_water_aquifers'
 
-    AQ_TAG = Column(String, primary_key=True, comment='The AQ TAG is an alpha-numeric code assigned to the aquifer to '
+    AQ_TAG = Column(String, primary_key=True, autoincrement=False, comment='The AQ TAG is an alpha-numeric code assigned to the aquifer to '
                                                       'uniquely identify it.')
     FCODE = Column(String, comment='10	FCODE is a feature code is most importantly a means of linking a feature to '
                                    'its name and definition. For example, the code GB15300120 on a digital geographic '
@@ -172,7 +172,7 @@ class GroundWaterAquifers(BaseLayerTable):
                                                  'aquifer classes (Table 1). For example, a class IA aquifer would be '
                                                  'heavily developed with high vulnerability to contamination, while a '
                                                  'IIIC would be lightly developed with low vulnerability.')
-    GEOMETRY = Column(Geometry, comment='GEOMETRY is a ArcSDE spatial column.')
+    GEOMETRY = Column(Geometry(srid=4326), comment='GEOMETRY is a ArcSDE spatial column.')
     FEATURE_AREA_SQM = Column(Float, comment='')
     FEATURE_LENGTH_M = Column(Float, comment='')
     OBJECTID = Column(Integer, comment='OBJECTID is a required attribute of feature classes and object classes in a '

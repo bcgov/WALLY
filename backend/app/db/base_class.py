@@ -28,7 +28,7 @@ class CustomLayerBase(object):
         if search_area:
             column = cls.SHAPE if cls.shape_column_exists() else cls.GEOMETRY
             q = q.filter(
-                func.ST_Intersects(search_area.wkt, column)
+                func.ST_Intersects(func.ST_GeomFromText(search_area.wkt, 4326), column)
             )
 
         return q.all()

@@ -8,9 +8,9 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class EcocatWaterRelatedReports(BaseLayerTable):
     __tablename__ = 'ecocat_water_related_reports'
 
-    REPORT_POINT_ID = Column(Integer, primary_key=True, comment='')
+    REPORT_POINT_ID = Column(Integer, comment='')
     FEATURE_CODE = Column(String, comment='')
-    REPORT_ID = Column(Integer, comment='')
+    REPORT_ID = Column(Integer, primary_key=True, autoincrement=False, comment='')
     TITLE = Column(String, comment='')
     SHORT_DESCRIPTION = Column(String, comment='')
     AUTHOR = Column(String, comment='')
@@ -19,6 +19,6 @@ class EcocatWaterRelatedReports(BaseLayerTable):
     WATERBODY_IDENTIFIER = Column(String, comment='')
     LONG_DESCRIPTION = Column(String, comment='')
     REPORT_AUDIENCE = Column(String, comment='')
-    GEOMETRY = Column(Geometry, comment='')
+    GEOMETRY = Column(Geometry(srid=4326), comment='')
     OBJECTID = Column(Integer, comment='')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='')

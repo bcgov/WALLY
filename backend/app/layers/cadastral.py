@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class Cadastral(BaseLayerTable):
     __tablename__ = 'cadastral'
 
-    PARCEL_FABRIC_POLY_ID = Column(Integer, primary_key=True, comment='PARCEL_FABRIC_POLY_ID is a system generated '
+    PARCEL_FABRIC_POLY_ID = Column(Integer, primary_key=True, autoincrement=False, comment='PARCEL_FABRIC_POLY_ID is a system generated '
                                                                       'unique identification number.')
     PARCEL_NAME = Column(String, comment='PARCEL_NAME is the same as the PID, if there is one. If there is a '
                                          'PIN but no PID, then PARCEL_NAME is the PIN. If there is no PID nor '
@@ -51,8 +51,8 @@ class Cadastral(BaseLayerTable):
                                              'polygon in square meters.')
     FEATURE_LENGTH_M = Column(Float, comment='FEATURE_LENGTH_M is the system calculated length or perimeter of a '
                                              'geometry in meters.')
-    SHAPE = Column(Geometry, comment='SHAPE is the column used to reference the spatial coordinates defining '
-                                     'the feature.')
+    SHAPE = Column(Geometry(srid=4326), comment='SHAPE is the column used to reference the spatial coordinates defining '
+                   'the feature.')
     OBJECTID = Column(Integer, comment='OBJECTID is a column required by spatial layers that interact with ESRI '
                                        'ArcSDE. It is populated with unique values automatically by SDE.')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to store '
