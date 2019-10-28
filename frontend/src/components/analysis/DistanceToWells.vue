@@ -53,9 +53,9 @@ export default {
       { text: 'Well tag number', value: 'well_tag_number', align: 'right' },
       { text: 'Distance (m)', value: 'distance', align: 'right' },
       { text: 'Reported yield (USGPM)', value: 'well_yield', align: 'right' },
-      { text: 'Static water level (ft)', value: 'static_water_level', align: 'right' },
-      { text: 'Top of screen (ft)', value: 'top_of_screen', align: 'right' },
-      { text: 'Finished well depth (ft)', value: 'finished_well_depth', align: 'right' },
+      { text: 'Static water level (ft btoc)', value: 'static_water_level', align: 'right' },
+      { text: 'Top of screen (ft bgl)', value: 'top_of_screen', align: 'right' },
+      { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth', align: 'right' },
       { text: 'SWL to top of screen (ft)', value: 'swl_to_screen', align: 'right' },
       { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well', align: 'right' }
     ]
