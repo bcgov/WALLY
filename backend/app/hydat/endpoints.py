@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
-from app.hydat.db_models import Station as StreamStation, DlyFlow, DlyLevel
+from app.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
 import app.hydat.models as streams_v1
 
 logger = getLogger("api")
@@ -61,8 +61,8 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
 
     # get list of years for which data is available at this station
     # this helps hint at which years are worth displaying on selection boxes, etc.
-    flow_years = DlyFlow.get_available_flow_years(db, station_number)
-    level_years = DlyLevel.get_available_level_years(db, station_number)
+    flow_years = DailyFlow.get_available_flow_years(db, station_number)
+    level_years = DailyLevel.get_available_level_years(db, station_number)
 
     # combine queries/info into the StreamStation API model
     data = streams_v1.StreamStation(
@@ -93,7 +93,7 @@ def list_monthly_levels_by_year(station_number: str, year: int = None, db: Sessi
     if not stn:
         raise HTTPException(status_code=404, detail="Station not found")
 
-    return DlyLevel.get_monthly_levels_by_station(db, station_number, year)
+    return DailyLevel.get_monthly_levels_by_station(db, station_number, year)
 
 
 @router.get("/hydat/{station_number}/flows", response_model=List[streams_v1.MonthlyFlow])
@@ -107,4 +107,4 @@ def list_monthly_flows_by_year(station_number: str, year: int = None, db: Sessio
     if not stn:
         raise HTTPException(status_code=404, detail="Station not found")
 
-    return DlyFlow.get_monthly_flows_by_station(db, station_number, year)
+    return DailyFlow.get_monthly_flows_by_station(db, station_number, year)

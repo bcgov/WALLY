@@ -115,7 +115,7 @@ class DatumList(BaseLayerTable):
     datum_fr = Column(Text)
 
 
-class DlyFlow(BaseLayerTable):
+class DailyFlow(BaseLayerTable):
     __tablename__ = 'dly_flows'
     __table_args__ = (
         Index('idx_20862_dly_flows_primarykey',
@@ -225,7 +225,7 @@ class DlyFlow(BaseLayerTable):
             .order_by(cls.month).all()
 
 
-class DlyLevel(BaseLayerTable):
+class DailyLevel(BaseLayerTable):
     __tablename__ = 'dly_levels'
     __table_args__ = (
         Index('idx_20916_dly_levels_primarykey',
@@ -618,8 +618,8 @@ class Station(BaseLayerTable):
     contributor_id = Column(BigInteger)
     operator_id = Column(BigInteger, index=True)
     datum_id = Column(BigInteger)
-    dly_flows = relationship("DlyFlow", back_populates="station")
-    dly_levels = relationship("DlyLevel", back_populates="station")
+    dly_flows = relationship("DailyFlow", back_populates="station")
+    dly_levels = relationship("DailyLevel", back_populates="station")
 
     @classmethod
     def get_as_feature(cls, row, geom_col):
