@@ -66,7 +66,6 @@ export default {
     box-shadow: inset 0 -1px 0 #fcba19;
   }
 .bcgov-title {
-  font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
   font-weight: normal;
   font-size: 28px;
   margin: 5px 5px 0 18px;
