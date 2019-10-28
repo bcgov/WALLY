@@ -49,9 +49,9 @@
                 <dt>Finished well depth</dt>
                 <dd>The depth at which the well was 'finished'. It can be shallower from the total well depth which is the total depth at which the well was drilled. The finished depth is represented in units of feet bgl (below ground level).</dd>
                 <dt>SWL to top of screen</dt>
-                <dd>The distance from the static water level to top of screen (see definition above).</dd>
+                <dd>The distance from the static water level to top of screen (see definition above), in feet.</dd>
                 <dt>SWL to bottom of well</dt>
-                <dd>The distance from the static water level to the finished well depth (see definition above).</dd>
+                <dd>The distance from the static water level to the finished well depth (see definition above), in feet.</dd>
               </dl>
             </v-expansion-panel-content>
           </v-expansion-panel>
