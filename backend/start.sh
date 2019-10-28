@@ -22,6 +22,9 @@ if [ "$WALLY_ENV" = "DEV" ]; then
     python /app/app/initial_data.py
 fi
 
+# create a temp folder for prometheus metrics
+mkdir /app/multiproc-tmp
+
 # Merge Display Templates with existing templates
 python /app/app/merge_display_templates.py
 

@@ -7,13 +7,15 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-
+from starlette_exporter import PrometheusMiddleware, handle_metrics
 from app import config
 from app.router import api_router
 from app.db.session import Session
 
 app = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
 
+
+app.add_middleware(PrometheusMiddleware)
 
 # CORS
 origins = ["*"]
@@ -43,6 +45,9 @@ async def db_session_middleware(request: Request, call_next):
     response = await call_next(request)
     request.state.db.close()
     return response
+
+# expose metrics for Prometheus scraping.
+app.add_route("/metrics", handle_metrics)
 
 
 @app.get("/health")

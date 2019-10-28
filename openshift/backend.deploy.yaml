@@ -79,6 +79,8 @@ objects:
               value: wally-psql-master-${NAME}
             - name: WALLY_ENV
               value: "${ENVIRONMENT}"
+            - name: prometheus_multiproc_dir
+              value: "/app/multiproc-tmp"
       type: Rolling
     template:
       metadata:
