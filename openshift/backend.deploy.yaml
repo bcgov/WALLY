@@ -86,6 +86,8 @@ objects:
       metadata:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "8000"
         labels:
             app: wally-${NAME}
             env: ${NAME}
