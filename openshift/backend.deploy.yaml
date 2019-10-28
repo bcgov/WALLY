@@ -79,8 +79,6 @@ objects:
               value: wally-psql-master-${NAME}
             - name: WALLY_ENV
               value: "${ENVIRONMENT}"
-            - name: prometheus_multiproc_dir
-              value: "/app/multiproc-tmp"
       type: Rolling
     template:
       metadata:
@@ -120,6 +118,8 @@ objects:
             value: wally-psql-master-${NAME}
           - name: WALLY_ENV
             value: "${ENVIRONMENT}"
+          - name: prometheus_multiproc_dir
+            value: "/app/multiproc-tmp"
           image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api
