@@ -82,8 +82,6 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     # on BaseLayerTable.
     return agr_repo.get_layer_feature(db, layer_class, pk)
 
-    return feature
-
 
 @router.get("/aggregate")
 def aggregate_sources(
