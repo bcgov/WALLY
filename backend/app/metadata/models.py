@@ -29,6 +29,7 @@ class MapConfig(BaseModel):
     Client map config e.g. access tokens
     """
     mapbox_token: str
+    mapbox_style: str
 
 
 class LayerCategory(BaseModel):

@@ -8,6 +8,7 @@
 
 Environment variables:
 `MAPBOX_ACCESS_TOKEN` (required): a token from mapbox.com for making Mapbox API requests (e.g. requesting tiles and map images).
+`MAPBOX_STYLE` (required): a url from mapbox.com that sets which map style to use for dev or prod.
 
 Start the backend API and database stack with Docker Compose:
 

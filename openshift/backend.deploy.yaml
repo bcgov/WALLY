@@ -97,6 +97,11 @@ objects:
               secretKeyRef:
                 key: MAPBOX_ACCESS_TOKEN
                 name: mapbox-access-token
+          - name: MAPBOX_STYLE
+            valueFrom:
+              secretKeyRef:
+                key: MAPBOX_STYLE
+                name: mapbox-access-token
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:

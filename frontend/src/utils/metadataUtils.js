@@ -169,7 +169,7 @@ export const PRIMARY_KEYS = {
   'bc_wildfire_active_weather_stations': 'WEATHER_STATIONS_ID',
   'cadastral': 'PARCEL_FABRIC_POLY_ID',
   'critical_habitat_species_at_risk': 'CRITICAL_HABITAT_ID',
-  'ecocat_water_related_reports': 'REPORT_POINT_ID',
+  'ecocat_water_related_reports': 'REPORT_ID',
   'freshwater_atlas_stream_directions': 'OBJECTID',
   'freshwater_atlas_watersheds': 'WATERSHED_FEATURE_ID',
   'groundwater_wells': 'WELL_TAG_NO',
