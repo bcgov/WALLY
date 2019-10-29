@@ -18,6 +18,7 @@
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
 import Notifications from './components/Notifications'
+import '@bcgov/bc-sans/css/BCSans.css'
 
 export default {
   name: 'app',
@@ -35,34 +36,17 @@ export default {
   $mdi-font-path: "~@mdi/font/fonts" !default;
   @import '~@mdi/font/scss/materialdesignicons';
 
-  /* noto-sans-regular - latin */
-  @font-face {
-    font-family: 'Noto Sans'!important;
-    font-style: normal;
-    font-weight: 400;
-    src: url('./assets/fonts/NotoSans-Regular.eot'); /* IE9 Compat Modes */
-    src: local('Noto Sans'), local('NotoSans'),
-    url('./assets/fonts/NotoSans-Regular.eot') format('embedded-opentype'), /* IE6-IE8 */
-    url('./assets/fonts/NotoSans-Regular.woff2') format('woff2'), /* Super Modern Browsers */
-    url('./assets/fonts/NotoSans-Regular.woff') format('woff'), /* Modern Browsers */
-    url('./assets/fonts/NotoSans-Regular.ttf') format('truetype'), /* Safari, Android, iOS */
-    url('./assets/fonts/NotoSans-Regular.svg') format('svg'); /* Legacy iOS */
-  }
-
-  @font-face {
-    font-family: 'Noto Sans';
-    font-weight: 700;
-    src: url('./assets/fonts/NotoSans-Bold.eot'); /* IE9 Compat Modes */
-    src: local('Noto Sans'), local('NotoSans'),
-    url('./assets/fonts/NotoSans-Bold.eot') format('embedded-opentype'), /* IE6-IE8 */
-    url('./assets/fonts/NotoSans-Bold.woff2') format('woff2'), /* Super Modern Browsers */
-    url('./assets/fonts/NotoSans-Bold.woff') format('woff'), /* Modern Browsers */
-    url('./assets/fonts/NotoSans-Bold.ttf') format('truetype'), /* Safari, Android, iOS */
-    url('./assets/fonts/NotoSans-Bold.svg') format('svg'); /* Legacy iOS */
-  }
+  $app-font: "BCSans", "Noto Sans", Verdana, Arial, sans-serif!important;
   body {
-    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
+    font-family: $app-font;
     color: #494949;
+
+    .v-application {
+      font-family: $app-font;
+      .title {
+        font-family: $app-font;
+      }
+    }
   }
   a {
     color: #1A5A96;

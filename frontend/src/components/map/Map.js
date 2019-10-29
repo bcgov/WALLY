@@ -86,8 +86,8 @@ export default {
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
-        // style: 'mapbox://styles/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2', // stylesheet location
-        style: 'mapbox://styles/iit-water/ck1s98x7p02q01cmso5jcx4cm', // pk grouped stylesheet
+        style: process.env.VUE_APP_ENV === "dev" ? 'mapbox://styles/iit-water/ck22hx0391ch31dk9amwwr67x'
+          : 'mapbox://styles/iit-water/ck1s98x7p02q01cmso5jcx4cm' , // dev and prod map styles respectively
         center: [-124, 54.5], // starting position
         zoom: 4.7 // starting zoom
       })
@@ -215,6 +215,11 @@ export default {
       let payload = {
         display_data_name: data.result.layer,
         pk: data.result.primary_id
+      }
+      // Our search db view trims the pks on gwells queries
+      // so here we add the 00s back for feature requests
+      if(payload.display_data_name === "groundwater_wells") {
+        payload.pk = payload.pk.padStart(12, '0')
       }
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatureInfo', payload)
