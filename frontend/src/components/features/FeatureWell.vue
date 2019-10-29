@@ -110,7 +110,7 @@ export default {
         this.well_licence = r.data
       }).catch((e) => {
         this.licence_error = e
-        console.error(e)
+        // avoid an error popup here as this is just one section of data
       }).finally(() => {
         this.loading = false
       })

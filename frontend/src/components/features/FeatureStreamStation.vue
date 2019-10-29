@@ -45,6 +45,7 @@
 
 <script>
 import ApiService from '../../services/ApiService'
+import EventBus from '../../services/EventBus'
 import { LineChart } from '../chartjs/Charts'
 import { SHORT_MONTHS } from '../../constants/dates'
 
@@ -167,8 +168,8 @@ export default {
         this.station = r.data
         this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url)
       }).catch((e) => {
-        this.error = e
-        console.error(e)
+        const msg = e.response ? e.response.data.detail : true
+        EventBus.$emit('error', msg)
       }).finally(() => {
         this.loading = false
       })
@@ -179,7 +180,8 @@ export default {
         this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm3/s', this.flowData.map((x) => [x.max]))
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
-        console.error(e)
+        const msg = e.response ? e.response.data.detail : true
+        EventBus.$emit('error', msg)
       })
 
       ApiService.getRaw(levelURL).then((r) => {
@@ -187,7 +189,8 @@ export default {
         this.levelChartOptions = this.newChartOptions('Water level (average by month)', 'm', this.levelData.map((x) => [x.max]))
         setTimeout(() => { this.levelChartReady = true }, 0)
       }).catch((e) => {
-        console.error(e)
+        const msg = e.response ? e.response.data.detail : true
+        EventBus.$emit('error', msg)
       })
     },
     formatYears (val) {

@@ -23,8 +23,8 @@ export default {
           data: response.data
         })
         EventBus.$emit(`dataMart:updated`, payload)
-      }).catch((error) => {
-        console.log(error) // TODO create error state item and mutation
+      }).catch(() => {
+        EventBus.$emit('error', true)
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
@@ -45,13 +45,20 @@ export default {
             })
         })
         .catch((error) => {
+          const msg = error.response ? error.response.data.detail : true
           commit('setLoadingFeature', false)
-          commit('setFeatureError', error.response.data.detail)
+          commit('setFeatureError', msg)
           commit('setDataMartFeatureInfo', {})
-          console.log(error.response.data.detail) // TODO create error state item and mutation
+          console.log(msg) // TODO create error state item and mutation
+          EventBus.$emit('error', msg)
         })
     },
     getDataMartFeatures ({ commit }, payload) {
+      if (!payload.layers || !payload.layers.length) {
+        EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
+        return
+      }
+
       commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
@@ -72,12 +79,20 @@ export default {
           let displayData = response.data.display_data
           let displayTemplates = response.data.display_templates
 
+          if (!displayData.some(layer => {
+            return layer.geojson && layer.geojson.features.length
+          })) {
+            EventBus.$emit('info', 'No features were found in your search area.')
+            return
+          }
+
           displayData.forEach(layer => {
             commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
           })
           commit('setDisplayTemplates', { displayTemplates })
         }).catch((error) => {
-          console.log(error)
+          const msg = error.response ? error.response.data.detail : true
+          EventBus.$emit('error', msg)
         }).finally(() => {
           commit('setLoadingMultipleFeatures', false)
         })

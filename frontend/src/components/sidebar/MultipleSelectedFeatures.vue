@@ -87,7 +87,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import toBbox from '@turf/bbox'
-
+import EventBus from '../../services/EventBus'
 export default {
   name: 'MultipleSelectedFeatures',
   data: () => ({
@@ -144,7 +144,7 @@ export default {
           }).flat()
         }
       ).catch((e) => {
-        console.error(e)
+        EventBus.$emit('error', true)
       }).finally(() => {
         this.spreadsheetLoading = false
       })
@@ -163,7 +163,7 @@ export default {
           }).flat()
         }
       ).catch((e) => {
-        console.error(e)
+        EventBus.$emit('error', true)
       }).finally(() => {
         this.pdfReportLoading = false
       })

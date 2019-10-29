@@ -7,6 +7,7 @@
         fluid
       >
         <Toolbar/>
+        <Notifications/>
         <router-view/>
       </v-container>
     </v-content>
@@ -16,14 +17,18 @@
 <script>
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
+import Notifications from './components/Notifications'
 import '@bcgov/bc-sans/css/BCSans.css'
 
 export default {
   name: 'app',
   components: {
     Header,
-    Toolbar
-  }
+    Toolbar,
+    Notifications
+  },
+  data: () => ({
+  })
 }
 </script>
 
@@ -40,7 +45,7 @@ export default {
       font-family: $app-font;
       .title {
         font-family: $app-font;
-      } 
+      }
     }
   }
   a {

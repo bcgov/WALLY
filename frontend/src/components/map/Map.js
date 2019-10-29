@@ -149,9 +149,10 @@ export default {
       this.map.on('draw.modechange', this.handleModeChange)
     },
     handleModeChange (e) {
-      if (e.mode == 'draw_polygon') {
+      if (e.mode === 'draw_polygon') {
         this.isDrawingToolActive = true
-      } else if (e.mode == 'simple_select') {
+        this.polygonToolHelp()
+      } else if (e.mode === 'simple_select') {
         setTimeout(() => {
           this.isDrawingToolActive = false
         }, 500)
@@ -181,6 +182,17 @@ export default {
           }
         })
       })
+    },
+    polygonToolHelp () {
+      const disableKey = 'disablePolygonToolHelp'
+      if (JSON.parse(localStorage.getItem(disableKey)) !== true) {
+        EventBus.$emit(
+          'help',
+          {
+            text: 'Draw a polygon by single clicking a series of points. Finish drawing by clicking again on any of the points, or cancel by pressing Escape. The polygon can be cleared by pressing Delete or clicking the trash button.',
+            disableKey: disableKey
+          })
+      }
     },
     loadLayers () {
       const layers = this.allMapLayers
