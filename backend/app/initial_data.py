@@ -40,7 +40,7 @@ def create_hydat_data():
 
 def load_dev_data():
     directory = '/app/fixtures/layer_subsets/'
-
+    logger.info('temptest')
     for filename in os.listdir(directory):
         if filename.endswith(".geojson"):
             with open(os.path.join(directory, filename)) as json_file:
