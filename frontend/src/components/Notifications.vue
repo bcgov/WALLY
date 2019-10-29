@@ -14,7 +14,7 @@
     </v-snackbar>
 
     <!-- app info e.g. hints that don't need to be an error message -->
-    <v-snackbar v-model="info" color="info" bottom right :timeout="6000" id="infoNotification">
+    <v-snackbar v-model="info" color="info" bottom left :timeout="6000" id="infoNotification">
       <div v-if="infoMsg">{{ infoMsg }}</div>
       <v-btn
         dark
