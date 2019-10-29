@@ -21,17 +21,26 @@ def upgrade():
 
     # since we can't change geometry properties when the materialized view is referencing
     # these columns, this is an opportune time to update these columns.
-    op.execute("""SELECT UpdateGeometrySRID('bc_major_watersheds', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('bc_wildfire_active_weather_stations', 'SHAPE', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('bc_major_watersheds', 'GEOMETRY', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('bc_wildfire_active_weather_stations', 'SHAPE', 4326)""")
     op.execute("""SELECT UpdateGeometrySRID('cadastral', 'SHAPE', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('ecocat_water_related_reports', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_stream_directions', 'GEOMETRY', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('ecocat_water_related_reports', 'GEOMETRY', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('freshwater_atlas_stream_directions', 'GEOMETRY', 4326)""")
     # op.execute("""SELECT UpdateGeometrySRID('freshwater_atlas_watersheds', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('ground_water_aquifers', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('ground_water_wells', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('water_allocation_restrictions', 'GEOMETRY', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('water_rights_licenses', 'SHAPE', 4326)""")
-    op.execute("""SELECT UpdateGeometrySRID('critical_habitat_species_at_risk', 'SHAPE', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('ground_water_aquifers', 'GEOMETRY', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('ground_water_wells', 'GEOMETRY', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('water_allocation_restrictions', 'GEOMETRY', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('water_rights_licenses', 'SHAPE', 4326)""")
+    op.execute(
+        """SELECT UpdateGeometrySRID('critical_habitat_species_at_risk', 'SHAPE', 4326)""")
 
     op.execute("""
         CREATE MATERIALIZED VIEW geocode_lookup AS
@@ -70,10 +79,10 @@ def upgrade():
         SELECT
         ST_AsText(gww."GEOMETRY") AS center,
         LTRIM(gww."WELL_TAG_NO"::text, '0') AS primary_id,
-        gww."WELL_LOCATION" AS name,
+        NULL AS name,
         'Well' AS kind,
         'groundwater_wells' AS layer,
-        to_tsvector(concat_ws(' ', LTRIM(gww."WELL_TAG_NO"::text, '0'), gww."WELL_LOCATION")) AS tsv
+        to_tsvector(LTRIM(gww."WELL_TAG_NO"::text, '0')) AS tsv
         FROM ground_water_wells AS gww
 
         UNION SELECT
