@@ -58,9 +58,9 @@ def load_dev_data():
                     instances = []
                     for feature in data["features"]:
                         params = {**feature["properties"]}
-                        geom = shape(feature["geometry"]).wkb_hex
+                        geom = shape(feature["geometry"]).wkt
                         geom_field = 'SHAPE' if cls.shape_column_exists() else 'GEOMETRY'
-                        params[geom_field] = geom
+                        params[geom_field] = 'SRID=4326;' + geom
                         # str "None" is not compatible with field types other than str
                         # so we replace with proper None here
                         for k, v in params.items():
