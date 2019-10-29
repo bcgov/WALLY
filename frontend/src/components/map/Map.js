@@ -86,7 +86,7 @@ export default {
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
-        style: process.env.VUE_APP_ENV === "dev" ? 'mapbox://styles/iit-water/ck22hx0391ch31dk9amwwr67x'
+        style: process.env.WALLY_ENV === "DEV" ? 'mapbox://styles/iit-water/ck22hx0391ch31dk9amwwr67x'
           : 'mapbox://styles/iit-water/ck1s98x7p02q01cmso5jcx4cm' , // dev and prod map styles respectively
         center: [-124, 54.5], // starting position
         zoom: 4.7 // starting zoom
