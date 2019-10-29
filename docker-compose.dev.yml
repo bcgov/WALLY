@@ -22,20 +22,20 @@ services:
       - '8000:8000'
     depends_on: 
       - db
-  reporting:
-    build:
-      context: ./reporting
-    # volumes:
-    #   - ./reporting:/app
-    environment:
-      MAPBOX_ACCESS_TOKEN: "${MAPBOX_ACCESS_TOKEN}"
-    env_file:
-      - env-postgres.env
-      - env-backend.env
-    depends_on:
-      - db
-    ports:
-      - '3000:3000'
+  # reporting:
+  #   build:
+  #     context: ./reporting
+  #   # volumes:
+  #   #   - ./reporting:/app
+  #   environment:
+  #     MAPBOX_ACCESS_TOKEN: "${MAPBOX_ACCESS_TOKEN}"
+  #   env_file:
+  #     - env-postgres.env
+  #     - env-backend.env
+  #   depends_on:
+  #     - db
+  #   ports:
+  #     - '3000:3000'
   db:
     image: mdillon/postgis:11
     env_file:
