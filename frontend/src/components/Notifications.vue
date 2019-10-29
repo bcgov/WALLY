@@ -1,13 +1,12 @@
 <template>
   <div>
     <!-- app error popup -->
-    <v-snackbar v-model="error" color="error" bottom right>
+    <v-snackbar v-model="error" color="error" bottom right timeout="6000">
       <div v-if="errorMsg">{{ errorMsg }}</div>
       <div v-else>There was an error reaching the server. Please try again later.</div>
       <v-btn
         dark
         text
-        timeout="6000"
         @click="clearError"
       >
         Close
@@ -15,12 +14,11 @@
     </v-snackbar>
 
     <!-- app info e.g. hints that don't need to be an error message -->
-    <v-snackbar v-model="info" color="info" bottom right>
+    <v-snackbar v-model="info" color="info" bottom right timeout="6000">
       <div v-if="infoMsg">{{ infoMsg }}</div>
       <v-btn
         dark
         text
-        timeout="6000"
         @click="clearInfo"
       >
         Close
@@ -28,13 +26,12 @@
     </v-snackbar>
 
     <!-- help on features -->
-    <v-snackbar v-model="help" color="info" bottom left vertical>
+    <v-snackbar v-model="help" color="info" bottom left vertical timeout="15000">
       <div v-if="helpMsg && helpMsg.text">{{ helpMsg.text }}</div>
       <div class="d-flex">
         <v-btn
           dark
           text
-          timeout="6000"
           @click="disableHelp(helpMsg.disableKey)"
         >
           Don't show again
@@ -43,7 +40,6 @@
           dark
           text
           class="mx-5"
-          timeout="6000"
           @click="clearHelp"
         >
           Close
