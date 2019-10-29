@@ -16,6 +16,10 @@ class CustomBase(object):
 
 class CustomLayerBase(object):
 
+    def __init__(self, dictionary):
+        for k, v in dictionary.items():
+            setattr(self, k, v)
+
     @classmethod
     def get_all(cls, db: Session, search_area: Polygon = None):
         """ gets all records, with an optional bounding box """
