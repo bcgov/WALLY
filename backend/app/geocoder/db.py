@@ -38,12 +38,15 @@ def lookup_by_text(db: Session, query: str):
     if not search_spaces.sub('', query):
         return FeatureCollection(features)
 
-    query = search_spaces.sub('<->', query.strip())
+    query = search_spaces.sub('&', query.strip())
     query_prefix = query + ":*"
 
     q = select([geocode]) \
         .where(text("tsv @@ to_tsquery(:query_prefix)")) \
-        .order_by(geocode.c.primary_id.ilike(query), func.ts_rank('tsv', func.to_tsquery(query_prefix))) \
+        .order_by(
+            text("(CASE WHEN geocode_lookup.primary_id = :query THEN 1 ELSE 2 END)"),
+            func.ts_rank('tsv', func.to_tsquery(query_prefix))
+    ) \
         .limit(5)
 
     for row in db.execute(q, {"query": query, "query_prefix": query_prefix}):
