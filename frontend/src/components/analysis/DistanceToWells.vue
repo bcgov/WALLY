@@ -134,10 +134,10 @@ export default {
       shape.id = 'user_search_radius'
 
       // remove old shapes
-      EventBus.$emit('draw.remove', shape.id)
+      EventBus.$emit('shapes:reset')
 
       // add the new one
-      EventBus.$emit('draw:add', shape)
+      EventBus.$emit('shapes:add', shape)
     }
   },
   watch: {

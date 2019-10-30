@@ -40,8 +40,8 @@ export default {
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
-    EventBus.$on('draw:add', this.addDrawShape)
-    EventBus.$on('draw:remove', this.removeDrawShape)
+    EventBus.$on('shapes:add', this.addShape)
+    EventBus.$on('shapes:reset', this.removeShapes)
     EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
@@ -55,8 +55,8 @@ export default {
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
-    EventBus.$off('draw:add', this.addDrawShape)
-    EventBus.$on('draw:remove', this.removeDrawShape)
+    EventBus.$off('shapes:add', this.addShape)
+    EventBus.$off('shapes:reset', this.removeShapes)
     EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
     EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
@@ -145,12 +145,12 @@ export default {
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
     },
-    addDrawShape (shape) {
+    addShape (shape) {
       // adds a mapbox-gl-draw shape to the map
-      this.draw.add(shape)
+      this.map.getSource('customShapeData').setData(shape)
     },
-    removeDrawShape (shapeID) {
-      // removes a shape by its ID.
+    removeShapes () {
+      this.map.getSource('customShapeData').setData(polygon)
     },
     clearSelections () {
       this.replaceOldFeatures()
@@ -174,6 +174,17 @@ export default {
     initHighlightLayers () {
       this.map.on('load', () => {
         // initialize highlight layer
+        this.map.addSource('customShapeData', { type: 'geojson', data: polygon })
+        this.map.addLayer({
+          'id': 'customShape',
+          'type': 'fill',
+          'source': 'customShapeData',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(26, 193, 244, 0.08)',
+            'fill-outline-color': 'rgb(8, 159, 205)'
+          }
+        })
         this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
         this.map.addLayer({
           'id': 'highlightLayer',
