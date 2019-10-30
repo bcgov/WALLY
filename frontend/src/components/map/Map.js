@@ -266,15 +266,6 @@ export default {
       this.map.getSource('highlightPointData').setData(point)
       this.map.getSource('highlightLayerData').setData(polygon)
     },
-    handleAddFeature (f) {
-      let p = L.latLng(f.lat, f.lng)
-      if (p) {
-        L.popup()
-          .setLatLng(p)
-          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-          .openOn(this.map)
-      }
-    },
     handleAddWMSLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
