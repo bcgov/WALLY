@@ -1,5 +1,4 @@
-from app.analysis.endpoints import merge_wells_datasources
-from app.analysis.wells.well_analysis import with_drawdown, calculate_top_of_screen
+from app.analysis.wells.well_analysis import with_drawdown, calculate_top_of_screen, merge_wells_datasources
 from tests.utils import get_mock_session
 import logging
 logger = logging.getLogger('test')
