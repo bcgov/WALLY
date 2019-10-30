@@ -156,6 +156,9 @@ export default {
   },
   mounted () {
     this.fetchWells()
+  },
+  beforeDestroy () {
+    EventBus.$emit('shapes:reset')
   }
 }
 </script>
