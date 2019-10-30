@@ -11,12 +11,13 @@ from app.db.utils import get_db
 from app.analysis.wells.well_analysis import get_wells_by_distance, with_drawdown, merge_wells_datasources, get_screens
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown
+from app.analysis.licences.models import WaterRightsLicence
 logger = getLogger("geocoder")
 
 router = APIRouter()
 
 
-@router.get("/analysis/wells/nearby")
+@router.get("/analysis/wells/nearby", response_model=List[WellDrawdown])
 def get_nearby_wells(
     db: Session = Depends(get_db),
     point: str = Query(..., title="Point of interest",
@@ -46,7 +47,7 @@ def get_nearby_wells(
     return wells_drawdown_data
 
 
-@router.get("/analysis/licences/nearby")
+@router.get("/analysis/licences/nearby", response_model=List[WaterRightsLicence])
 def get_nearby_licences(
     db: Session = Depends(get_db),
     point: str = Query(..., title="Point of interest",
