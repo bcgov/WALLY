@@ -18,7 +18,7 @@ def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> li
 
     if radius > 10000:
         # some regions have thousands of wells in a 10km radius... limit search to that.
-        return []
+        radius = 10000
 
     # search within a given radius, adding a distance column denoting
     # distance from the centre point in metres
