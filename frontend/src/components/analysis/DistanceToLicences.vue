@@ -35,7 +35,7 @@
             <span>{{item.distance.toFixed(1)}}</span>
           </template>
           <template v-slot:item.QUANTITY="{ item }">
-            <span>{{item.QUANTITY}} {{item.QUANTITY_UNITS}}</span>
+            <span>{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
           </template>
         </v-data-table>
       </v-col>
