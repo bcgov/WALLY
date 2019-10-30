@@ -49,7 +49,7 @@
         <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
           <template v-slot:activator>
             <v-list-item-content>
-              <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}})</v-list-item-title>
+              <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
             </v-list-item-content>
           </template>
             <v-list-item>
