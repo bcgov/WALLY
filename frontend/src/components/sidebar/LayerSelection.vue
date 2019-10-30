@@ -17,6 +17,7 @@
     </v-row>
     <v-treeview
       selectable
+      selected-color="grey darken-2"
       :value="activeMapLayers.map(layer => layer.display_data_name)"
       @input="handleSelectLayer"
       v-if="layers && categories"
