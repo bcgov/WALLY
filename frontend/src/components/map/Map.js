@@ -90,8 +90,7 @@ export default {
 
       this.map = new mapboxgl.Map({
         container: 'map', // container id
-        // style: 'mapbox://styles/iit-water/ck0pm9gqz6qiw1cnxrf9s8yu2', // stylesheet location
-        style: 'mapbox://styles/iit-water/ck1s98x7p02q01cmso5jcx4cm', // pk grouped stylesheet
+        style: mapConfig.data.mapbox_style, // dev or prod map style
         center: [-124, 54.5], // starting position
         zoom: 4.7 // starting zoom
       })
@@ -100,6 +99,7 @@ export default {
       modes.simple_select.onTrash = this.clearSelections
       modes.draw_polygon.onTrash = this.clearSelections
       modes.draw_point.onTrash = this.clearSelections
+      modes.direct_select.onTrash = this.clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
@@ -115,8 +115,11 @@ export default {
         accessToken: mapboxgl.accessToken,
         mapboxgl: this.map,
         origin: ApiService.baseURL,
-        container: 'geocoder-container'
+        marker: false,
+        container: 'geocoder-container',
+        minLength: 1
       })
+      geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
@@ -165,6 +168,7 @@ export default {
     handleModeChange (e) {
       if (e.mode === 'draw_polygon') {
         this.isDrawingToolActive = true
+        this.polygonToolHelp()
       } else if (e.mode === 'simple_select') {
         setTimeout(() => {
           this.isDrawingToolActive = false
@@ -207,6 +211,17 @@ export default {
         })
       })
     },
+    polygonToolHelp () {
+      const disableKey = 'disablePolygonToolHelp'
+      if (JSON.parse(localStorage.getItem(disableKey)) !== true) {
+        EventBus.$emit(
+          'help',
+          {
+            text: 'Draw a polygon by single clicking a series of points. Finish drawing by clicking again on any of the points, or cancel by pressing Escape. The polygon can be cleared by pressing Delete or clicking the trash button.',
+            disableKey: disableKey
+          })
+      }
+    },
     loadLayers () {
       const layers = this.allMapLayers
 
@@ -222,6 +237,21 @@ export default {
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
+    },
+    updateBySearchResult (data) {
+      let payload = {
+        display_data_name: data.result.layer,
+        pk: data.result.primary_id
+      }
+      // Our search db view trims the pks on gwells queries
+      // so here we add the 00s back for feature requests
+      if (payload.display_data_name === 'groundwater_wells') {
+        payload.pk = payload.pk.padStart(12, '0')
+      }
+      this.$store.commit('addMapLayer', data.result.layer)
+      this.$store.dispatch('getDataMartFeatureInfo', payload)
+      this.clearHighlightLayer()
+      this.updateHighlightLayerData(data.result)
     },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {

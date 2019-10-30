@@ -30,7 +30,6 @@
 
 <style lang="scss">
   .wally-sidebar-category {
-    font-family: ‘Noto Sans’, Verdana, Arial, sans-serif!important;
     font-weight: bold!important;
     font-size: 16px!important;
   }
@@ -42,7 +41,6 @@
     padding-left: 25px;
     margin-bottom: 5px;
     cursor: pointer;
-    Font-family: ‘Noto Sans’, Verdana, Arial, sans-serif;
     font-size: 14px;
     -webkit-user-select: none;
     -moz-user-select: none;

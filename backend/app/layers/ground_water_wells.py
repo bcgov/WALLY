@@ -37,7 +37,7 @@ class GroundWaterWells(BaseLayerTable):
                                              'Water Resources mapping (variousscales) or from well cards with no '
                                              'cadastral information. Accuracy is +/-100 metres.E - digitized from '
                                              '1:50,000 NTS mapping. Accuracy is +/- 200 metres.')
-    GEOMETRY = Column(Geometry, comment='GEOMETRY is a ArcSDE spatial column.')
+    GEOMETRY = Column(Geometry(srid=4326), comment='GEOMETRY is a ArcSDE spatial column.')
     FCODE = Column(String, comment='FCODE feature code is most importantly a means of linking a feature to its '
                                    'name and definition. For example, the code GB15300120 on a digital geographic '
                                    'feature links it to the name "Lake - Dry" with the definition "A lake bed from '

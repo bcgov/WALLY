@@ -10,6 +10,8 @@ class StreamStation(BaseModel):
     """
     Information about a monitoring station where stream flow data is collected.
     """
+    name: str
+    url: str
     station_number: str
     station_name: str
     prov_terr_state_loc: str

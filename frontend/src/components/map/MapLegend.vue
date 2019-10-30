@@ -16,7 +16,8 @@
     border-radius: 3px;
     bottom: 30px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.10);
-    font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 20px;
     padding: 10px;
     position: absolute;
     right: 10px;

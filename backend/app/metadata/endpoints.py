@@ -9,7 +9,7 @@ from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.db.utils import get_db
-from app.config import MAPBOX_ACCESS_TOKEN
+from app.config import MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE
 import app.metadata.db as meta_repo
 import app.metadata.models as view_model
 
@@ -37,4 +37,4 @@ def get_map_config():
     Get config for frontend web map (e.g. access tokens)
     """
 
-    return view_model.MapConfig(mapbox_token=MAPBOX_ACCESS_TOKEN)
+    return view_model.MapConfig(mapbox_token=MAPBOX_ACCESS_TOKEN, mapbox_style=MAPBOX_STYLE)

@@ -1,6 +1,7 @@
 """
 Database tables and data access functions for Wally Data Layer Meta Information
 """
+import re
 from sqlalchemy.orm import Session, load_only
 from sqlalchemy.sql import select
 from sqlalchemy import func, text
@@ -12,6 +13,8 @@ from shapely import wkt
 from geoalchemy2.elements import WKTElement
 
 logger = getLogger("geocoder")
+search_symbols = re.compile(r'[^\w]', re.UNICODE)
+search_spaces = re.compile(r'[ ]+')
 
 
 def lookup_by_text(db: Session, query: str):
@@ -23,14 +26,30 @@ def lookup_by_text(db: Session, query: str):
     # - adding :* (e.g. `query:*`) indicates prefix matching (partial matches for beginning of word)
     # - plainto_tsquery is similar to to_tsquery but allows spaces, but does NOT support :* prefix matching
     #   (exact match to at least 1 word only)
-    q = select([geocode]) \
-        .where(text("tsv @@ plainto_tsquery(:query)")) \
-        .order_by(func.ts_rank('tsv', func.plainto_tsquery(query))) \
-        .limit(5)
 
     features = []
 
-    for row in db.execute(q, {"query": f"{query}:*"}):
+    # remove symbols and then convert spaces to the "followed by" operator <->
+    # which is similar to `&` but will retain word order when searching.
+    query = search_symbols.sub('', query)
+
+    # check if the simplified query contains anything. If not,
+    # stop the search here.
+    if not search_spaces.sub('', query):
+        return FeatureCollection(features)
+
+    query = search_spaces.sub('&', query.strip())
+    query_prefix = query + ":*"
+
+    q = select([geocode]) \
+        .where(text("tsv @@ to_tsquery(:query_prefix)")) \
+        .order_by(
+            text("(CASE WHEN geocode_lookup.primary_id = :query THEN 1 ELSE 2 END)"),
+            func.ts_rank('tsv', func.to_tsquery(query_prefix))
+    ) \
+        .limit(5)
+
+    for row in db.execute(q, {"query": query, "query_prefix": query_prefix}):
         # parse center point coordinate, which comes in a ST_AsText (wkt) column.
         point = wkt.loads(row.center)
 
@@ -44,7 +63,8 @@ def lookup_by_text(db: Session, query: str):
             formatted_name = f" - {row.name}"
         feat['place_name'] = f"{row.kind}: {row.primary_id}{formatted_name}"
         feat['place_type'] = row.kind
+        feat['primary_id'] = row.primary_id
+        feat['layer'] = row.layer
         features.append(feat)
 
-    fc = FeatureCollection(features)
-    return fc
+    return FeatureCollection(features)

@@ -8,10 +8,12 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from starlette.responses import Response
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.declarative.api import DeclarativeMeta
 from shapely.geometry import shape, box, MultiPolygon, Polygon
 
 from app.db.utils import get_db
-import app.hydat.db as streams_repo
+from app.db.base_class import BaseLayerTable
+from app.hydat.db_models import Station as StreamStation
 import app.layers.water_rights_licences as water_rights_licences_repo
 import app.layers.ground_water_wells as ground_water_wells_repo
 from app.layers.water_rights_licences import WaterRightsLicenses
@@ -42,12 +44,10 @@ router = APIRouter()
 # Data access functions are available for certain layers.
 # if a function is not available here, default to using
 # the web API listed with the layer metadata.
-# These functions must accept a db session and a bbox as a list of coords
-# (defined by 2 corners, e.g. x1, y1, x2, y2) and return a FeatureCollection.
-# For example:  get_stations_as_geojson(db: Session, bbox: List[float])
-# returns a module or class that has a `get_as_geojson` function for looking up data from a layer
+
+# returns a module or class that has `get_as_geojson` and `get_details` functions for looking up data from a layer
 API_DATASOURCES = {
-    "HYDAT": streams_repo,
+    "HYDAT": StreamStation,
     "aquifers": GroundWaterAquifers,
     "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations,
     "bc_major_watersheds": BcMajorWatersheds,
@@ -56,7 +56,7 @@ API_DATASOURCES = {
     "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
     "ecocat_water_related_reports": EcocatWaterRelatedReports,
     "groundwater_wells": GroundWaterWells,
-    "hydrometric_stream_flow": streams_repo,
+    "hydrometric_stream_flow": StreamStation,
     "water_allocation_restrictions": WaterAllocationRestrictions,
     "water_rights_licences": WaterRightsLicenses
 
@@ -78,6 +78,8 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     except:
         raise HTTPException(status_code=404, detail="Layer not found")
 
+    # check if layer_class is a SQLAlchemy instance. If so, use the classmethod
+    # on BaseLayerTable.
     return agr_repo.get_layer_feature(db, layer_class, pk)
 
 
