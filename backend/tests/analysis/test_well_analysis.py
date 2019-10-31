@@ -95,7 +95,9 @@ def test_well_drawdown_calcs():
 
 
 def test_calculate_top_of_screen_bad_input():
-    """ test that calculate_top_of_screen can handle bad input (data input errors) """
+    """ test that calculate_top_of_screen can handle bad input (data input errors),
+        specifically missing top/bottom screen depth
+    """
     distance_results_from_db = (
         ("0000123", 50),
         ("0000124", 55)
@@ -106,6 +108,8 @@ def test_calculate_top_of_screen_bad_input():
             "well_tag_number": 123,
             "static_water_level": 12,
             "screen_set": [
+                # some wells may have invalid screen sets, e.g. screen entries exist but don't have
+                # the top and/or bottom depth filled in.
                 {"start": None},
                 {"start": None}
             ]
