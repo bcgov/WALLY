@@ -44,7 +44,11 @@ def with_drawdown(wells: List[WellDrawdown]) -> List[WellDrawdown]:
         if well.screen_set:
             # well has a screen set: calculate the top of screen using
             # the screen set supplied by GWELLS.
-            well.top_of_screen = calculate_top_of_screen(well.screen_set)
+            try:
+                well.top_of_screen = calculate_top_of_screen(well.screen_set)
+
+            except:
+                well.top_of_screen = None
 
         if well.top_of_screen and well.static_water_level:
             # calculate the difference between the static water level

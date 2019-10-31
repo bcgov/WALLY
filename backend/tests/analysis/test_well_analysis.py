@@ -91,3 +91,33 @@ def test_well_drawdown_calcs():
 
     assert test_data[0].swl_to_screen == 3
     assert test_data[1].swl_to_bottom_of_well == 10
+
+
+def test_calculate_top_of_screen_bad_input():
+    """ test that calculate_top_of_screen can handle bad input (data input errors) """
+    distance_results_from_db = (
+        ("0000123", 50),
+        ("0000124", 55)
+    )
+
+    wells_list = [
+        {
+            "well_tag_number": 123,
+            "static_water_level": 12,
+            "screen_set": [
+                {"start": None},
+                {"start": None}
+            ]
+        },
+        {
+            "well_tag_number": 124,
+            "static_water_level": 12,
+            "finished_well_depth": 22
+        }
+    ]
+
+    test_data = merge_wells_datasources(wells_list, distance_results_from_db)
+    test_data = with_drawdown(test_data)
+
+    # returns none without throwing an exception
+    assert test_data[0].top_of_screen is None
