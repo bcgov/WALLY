@@ -88,11 +88,16 @@ export default {
       const mapConfig = await ApiService.get('api/v1/map-config')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
+      const zoomConfig = {
+        center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
+        zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
+      }
+
       this.map = new mapboxgl.Map({
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
-        center: [-124, 54.5], // starting position
-        zoom: 4.7 // starting zoom
+        center: zoomConfig.center, // starting position
+        zoom: zoomConfig.zoomLevel // starting zoom
       })
 
       const modes = MapboxDraw.modes
