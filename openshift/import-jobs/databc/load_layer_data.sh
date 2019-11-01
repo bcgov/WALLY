@@ -17,6 +17,6 @@ echo "Copying layer from Minio storage..."
 ./mc --config-dir=./.mc cp "minio/geojson/$1.zip" "./"
 
 echo "Loading data with ogr2ogr"
-ogr2ogr -f "PostgreSQL" PG:"host=$POSTGRES_SERVER port=5432 dbname=wally user=wally password=$POSTGRES_PASSWORD" "./$1.zip/$1.geojson" -nln $1 -t_srs EPSG:4326 -append -progress -skipfailures --config OGR_TRUNCATE YES --config PG_USE_COPY YES
+unzip -p "./$1.zip" | ogr2ogr -f "PostgreSQL" PG:"host=$POSTGRES_SERVER port=5432 dbname=wally user=wally password=$POSTGRES_PASSWORD" /vsistdin/ -nln $1 -t_srs EPSG:4326 -append -progress -skipfailures --config OGR_TRUNCATE YES --config PG_USE_COPY YES
 
 echo "Finished."
