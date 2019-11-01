@@ -26,6 +26,7 @@ objects:
         job: import-${JOB_NAME}
         name: wally-importer-${JOB_NAME}
     spec:
+      backoffLimit: 3
       parallelism: 1    
       completions: 1    
       template:         

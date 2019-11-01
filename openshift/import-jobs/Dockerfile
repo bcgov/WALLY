@@ -10,5 +10,6 @@ RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
 
 COPY ./hydat/load_hydat.sh /dataload
 COPY ./databc/load_layer_data.sh /dataload
+COPY ./databc/download_layer.sh /dataload
 USER 1021
 CMD ["/dataload/load_hydat.sh"]
