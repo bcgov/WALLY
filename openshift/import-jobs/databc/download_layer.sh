@@ -16,7 +16,7 @@ cd /dataload
 echo "Setting up Minio host"
 ./mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
-echo "renaming layer to $1"
+echo "downloading $1 from $2"
 curl -o "$1.zip" "$2"
 
 echo "Copying zipped layer to Minio storage..."
