@@ -3,7 +3,7 @@ FROM debian
 WORKDIR /dataload
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
   && chown -R wally:root /dataload \
-  && apt-get update && apt-get install -y pgloader curl unzip sqlite3 binutils libproj-dev gdal-bin \
+  && apt-get update && apt-get install -y pgloader curl zip unzip sqlite3 binutils libproj-dev gdal-bin \
   && rm -rf /var/lib/apt/lists/* \
   && curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
   && chmod +x mc
