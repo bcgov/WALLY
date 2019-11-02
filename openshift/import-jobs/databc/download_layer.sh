@@ -1,6 +1,12 @@
 #!/bin/bash
+# download_layer.sh
+# Use for downloading GeoJSON layer data when a zipped direct download link is available. The zip file
+# will be stored in the s3 storage (configured below - see Setting up Minio host) as <layer_table_name>.zip. 
+#
 # USAGE: ./download_layer.sh <layer_name> <url>
-# use only the layer name. There should be a <layer_name>.zip file available on the S3 storage configured below.
+# use the layer name from the Wally DB table that the data should be loaded into. You can check the database
+# or the SQLAlchemy model __tablename__ in `wally/backend/app/layers`.
+#
 # The environment must have the following env variables:
 # MINIO_ACCESS_KEY
 # MINIO_SECRET_KEY

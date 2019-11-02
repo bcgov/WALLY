@@ -81,6 +81,8 @@ class DataSource(Base):
                                 comment='The date the tiles for this map layer were last re-generated and made available on the tile server. Should be as close as possible to last_updated_data, but differences are expected due to tile processing times.')
     direct_link = Column(
         String, nullable=True, comment='A direct link to download the dataset from the source, if available.')
+    source_object_id = Column(String, nullable=True,
+                              comment='The ID on the upstream data source. This is specifically required for paging through the DataBC API. Note: do not rely on these IDs as permanent keys, only for sorting and paginating during queries (e.g. `sortBy=WLS_WRL_SYSID&startIndex=1000`)')
 
 
 class ApiCatalogue(Base):

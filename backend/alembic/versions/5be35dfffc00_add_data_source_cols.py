@@ -18,7 +18,6 @@ depends_on = None
 
 def upgrade():
     op.execute('SET search_path TO metadata')
-    op.execute('SET CONSTRAINTS ALL DEFERRED')
 
     # add foreign key column relating to data source
     op.add_column('data_source',
@@ -36,6 +35,10 @@ def upgrade():
     op.add_column('data_source',
                   sa.Column('direct_link', sa.String, nullable=True,
                             comment='A direct link to download the dataset from the source, if available.'))
+
+    op.add_column('data_source',
+                  sa.Column('source_object_id', sa.String, nullable=True,
+                            comment='The ID on the upstream data source. This is specifically required for paging through the DataBC API. Note: do not rely on these IDs as permanent keys, only for sorting and paginating during queries (e.g. `sortBy=WLS_WRL_SYSID&startIndex=1000`)'))
 
     op.execute("""
         UPDATE data_source AS ds SET source_object_name = CASE
@@ -73,7 +76,25 @@ def upgrade():
         WHEN ds.data_source_id = 13 THEN 'hydat.stations'
         ELSE NULL
         END
+    """)
 
+    op.execute("""
+        UPDATE data_source AS ds SET source_object_id = CASE
+        WHEN ds.data_source_id = 1  THEN 'SNOW_ASWS_STN_ID'
+        WHEN ds.data_source_id = 2  THEN NULL
+        WHEN ds.data_source_id = 3  THEN 'WTHR_STTNS'
+        WHEN ds.data_source_id = 4  THEN 'PARCEL_FABRIC_POLY_ID'
+        WHEN ds.data_source_id = 5  THEN 'CRITICAL_HABITAT_ID'
+        WHEN ds.data_source_id = 6  THEN 'REPORT_ID'
+        WHEN ds.data_source_id = 7  THEN NULL
+        WHEN ds.data_source_id = 8  THEN NULL
+        WHEN ds.data_source_id = 9  THEN 'AQ_TAG'
+        WHEN ds.data_source_id = 10 THEN 'WELL_TAG_NO'
+        WHEN ds.data_source_id = 11 THEN 'LINEAR_FEATURE_ID'
+        WHEN ds.data_source_id = 12 THEN 'WLS_WRL_SYSID'
+        WHEN ds.data_source_id = 13 THEN NULL
+        ELSE NULL
+        END
     """)
 
     op.alter_column('data_source', 'data_table_name', nullable=False)

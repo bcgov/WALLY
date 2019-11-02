@@ -1,19 +1,23 @@
 #!/bin/bash
 
-# USAGE: ./wfs_direct_download.sh <DataBC layer name> <sort key> <wally database table name>
-# all args are required. 
-# Sort key is needed for WFS pagination, which is likely required except for small (<10000 features) datasets.
-# this script will download data from DataBC WMS, using multiple requests if necessary, and upload it to an
+# USAGE: ./wfs_direct_download.sh <wally database table name>
+# 
+# Sort key is needed for WFS pagination, which is likely required except for small (<10000 features) datasets,
+# and will be looked up from the metadata.data_source table.
+#
+# This script will download data from DataBC WMS, using multiple requests if necessary, and upload it to an
 # S3 compatible storage (see line 66 for s3 config).
 
 set -e
 
 cd /dataload
 
-# temporary, just for testing
-DATABC_LAYER_NAME=$1
-SORT_KEY=$2
-WALLY_LAYER_NAME=$3
+
+row = $(psql -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" -c "select ds.source_object_name, ds.source_object_id FROM metadata.data_source WHERE data_table_name='$1';")
+
+DATABC_LAYER_NAME=row[0]
+SORT_KEY=row[1]
+WALLY_LAYER_NAME=$1
 
 [ -z "$DATABC_LAYER_NAME" ] && echo "No layer name provided. \nUsage: ./wfs_direct_download.sh <DATABC_LAYER_NAME> <sort_key> <wally_layer_name>" && exit 1
 [ -z "$SORT_KEY" ] && echo "No sort key provided (required by WFS). \nUsage: ./wfs_direct_download.sh <DATABC_LAYER_NAME> <sort_key> <wally_layer_name>" && exit 1
