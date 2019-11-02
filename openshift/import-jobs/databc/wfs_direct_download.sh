@@ -1,3 +1,11 @@
+#!/bin/bash
+
+# USAGE: ./wfs_direct_download.sh <DataBC layer name> <sort key> <wally database table name>
+# all args are required. 
+# Sort key is needed for WFS pagination, which is likely required except for small (<10000 features) datasets.
+# this script will download data from DataBC WMS, using multiple requests if necessary, and upload it to an
+# S3 compatible storage (see line 66 for s3 config).
+
 set -e
 
 cd /dataload
