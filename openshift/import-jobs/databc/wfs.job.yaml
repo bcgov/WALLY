@@ -16,14 +16,6 @@ parameters:
   name: JOB_NAME
   required: true
   value: dataload
-- description: Sort key. DataBC WFS server does not allow pagination without a sort key.
-  displayName: Sort key
-  name: SORT_KEY
-  required: true
-- description: DataBC catalogue item name, e.g. WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV.
-  displayName: DataBC catalogue item
-  name: DATABC_NAME
-  required: true
 objects:
   - apiVersion: batch/v1
     kind: Job
@@ -45,7 +37,7 @@ objects:
           - name: importer
             image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
             command: ['/dataload/wfs_direct_download.sh']
-            args: ['${DATABC_NAME}', '${SORT_KEY}', '${LAYER_NAME}']
+            args: ['${LAYER_NAME}']
             resources:
               requests:
                 cpu: 200m

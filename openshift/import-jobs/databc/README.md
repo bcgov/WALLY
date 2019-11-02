@@ -52,3 +52,5 @@ To be completed...
 ## Future steps/improvements
 
 All scripts in this folder have a corresponding OpenShift/k8s job template (*.job.yaml).  These jobs can be run in sequence (download data, load data, etc) by a task runner or just scheduled as cronjobs.
+
+The scripts make psql commands to get metadata and update "last_updated" type columns, and load data into tables using ogr2ogr.  This means these jobs/tools could be impacted by database changes by the backend API (`wally/backend`).  This includes tables defined in `wally/backend/app/layers` and `/wally/backend/app/metadata`.
