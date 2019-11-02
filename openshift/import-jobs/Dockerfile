@@ -8,7 +8,7 @@ RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
   && curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
   && chmod +x mc
 
-COPY ./hydat/load_hydat.sh /dataload
-COPY ./databc/*.sh /dataload
+COPY ./hydat/load_hydat.sh /dataload/
+COPY ./databc/*.sh /dataload/
 USER 1021
 CMD ["/dataload/load_hydat.sh"]
