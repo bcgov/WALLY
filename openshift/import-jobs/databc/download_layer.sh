@@ -1,5 +1,5 @@
 #!/bin/bash
-# USAGE: ./load_layer_data.sh <layer_name>
+# USAGE: ./download_layer.sh <layer_name> <url>
 # use only the layer name. There should be a <layer_name>.zip file available on the S3 storage configured below.
 # The environment must have the following env variables:
 # MINIO_ACCESS_KEY

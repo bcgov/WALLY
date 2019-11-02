@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY
+from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY, text
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
@@ -71,6 +71,17 @@ class DataSource(Base):
                            comment='related data store where this sources data is held after ETL')
     data_store = relationship("DataStore")
 
+    source_object_name = Column(String, nullable=True,
+                                comment='The object name reference at the external data source.  This is used to lookup datasets on directories like DataBC, e.g. WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW')
+    data_table_name = Column(String, nullable=False,
+                             comment='The table name where data for a map layer is stored. Used to help ogr2ogr and pgloader reference the correct table when processing new map layer data.')
+    last_updated_data = Column(DateTime, server_default=text('2019-01-01'), nullable=False,
+                               comment='The date the data for this map layer was last updated in the database.')
+    last_updated_tiles = Column(DateTime, server_default=text('2019-01-01'), nullable=False,
+                                comment='The date the tiles for this map layer were last re-generated and made available on the tile server. Should be as close as possible to last_updated_data, but differences are expected due to tile processing times.')
+    direct_link = Column(
+        String, nullable=True, comment='A direct link to download the dataset from the source, if available.')
+
 
 class ApiCatalogue(Base):
     __tablename__ = 'api_catalogue'
@@ -105,13 +116,13 @@ class DisplayCatalogue(Base):
         String, comment='this is the public name of the display layer')
     display_data_name = Column(String(200), unique=True,
                                comment='this is the main business key used throughout the application to '
-                                       'identify data layers and connect data to templates.')
+                               'identify data layers and connect data to templates.')
     label = Column(String, comment='label for label_column value')
     label_column = Column(
         String, comment='we use this column value as a list item label in the client')
     highlight_columns = Column(ARRAY(TEXT), comment='the key columns that have business value to the end user. '
-                                                    'We primarily will only show these columns in the '
-                                                    'client and report')
+                               'We primarily will only show these columns in the '
+                               'client and report')
 
     api_catalogue_id = Column(Integer, ForeignKey('metadata.api_catalogue.api_catalogue_id'),
                               comment='references api catalogue item')
@@ -133,7 +144,7 @@ class DisplayCatalogue(Base):
     layer_category = relationship("LayerCategory", back_populates="layers")
 
     data_source_id = Column(Integer, ForeignKey('metadata.data_source.data_source_id'),
-                                 comment='references catalogue data source')
+                            comment='references catalogue data source')
     data_source = relationship("DataSource")
 
 
