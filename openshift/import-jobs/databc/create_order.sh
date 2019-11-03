@@ -26,18 +26,15 @@ PAYLOAD=${PAYLOAD/<layer_url>/$LAYER_URL}
 
 # curl -Ls -H 'Content-Type: application/json' --data "$PAYLOAD" $PAYLOAD_URL
 
-ORDER_ID=$(curl -Ls -H 'Content-Type: application/json' --data "$PAYLOAD" $PAYLOAD_URL)
-echo "$ORDER_ID"
-ORDER_ID=$(echo $ORDER_ID | jq .Value)
+ORDER=$(curl -Ls -H 'Content-Type: application/json' --data "$PAYLOAD" $PAYLOAD_URL)
+echo "$ORDER"
+STATUS=$(echo "$ORDER" | jq .Status)
+echo $STATUS
+[[ $STATUS = '"FAILURE"' ]] && echo "Failed: $(echo $ORDER | jq .Description)" && exit 1
 
-(( $ORDER_ID+0 < 10000 )) && echo "$ORDER_ID" && exit 1
-
-
+ORDER_ID=$(echo "$ORDER" | jq .Value)
 echo "Order $ORDER_ID placed. Waiting for download to become available"
-exit 1
 
-# script needs work past this point
-# needs to exit on error codes (e.g. value = 11, 16 etc. Value will be a 7 digit order # if successful)
 declare -a link
 
 while true; do
