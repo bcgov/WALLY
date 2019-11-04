@@ -58,26 +58,24 @@ export default {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
         return
       }
-
+      commit('setLoadingFeature', true)
+      commit('setFeatureError', '')
       commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
-
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-
       var width = 'width=' + payload.size.x + '&'
       var height = 'height=' + payload.size.y
-
       var params = layers.join('') + polygonQ + width + height
-
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate?' + params)
         .then((response) => {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data
           let displayTemplates = response.data.display_templates
+          commit('setLoadingFeature', false)
 
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length
@@ -86,10 +84,52 @@ export default {
             return
           }
 
-          displayData.forEach(layer => {
-            commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
-          })
-          commit('setDisplayTemplates', { displayTemplates })
+          let feature = {}
+          let display_data_name = ''
+          let featureCount = 0
+
+          // If primary_key_match is in the payload then this query came from a search result
+          // From our returned radius search we can match the primary key to the specific search result 
+          if(payload.primary_key_match) {
+            display_data_name = displayData[0].layer
+            feature = displayData[0].geojson.features.find((f) => {
+              return f.id.toString() === payload.primary_key_match
+            })
+          } else {
+            // Add up number of features returned
+            // Set feature/layer information
+            displayData.forEach(layer => {
+              featureCount += layer.geojson.features.length
+              if(layer.geojson.features.length == 1) {
+                display_data_name = layer.layer
+                feature = layer.geojson.features[0]
+              }
+            })
+          }
+
+          // Check whether there is a single feature being returned in the click area
+          if(featureCount > 1) {
+            // Multiple features returned
+            displayData.forEach(layer => {
+              commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
+            })
+            // TODO currently we are not using displayTemplate information
+            // Need to clean this up or re-purpose it
+            commit('setDisplayTemplates', { displayTemplates })
+            commit('setDataMartFeatureInfo', {})
+          } else {
+            // Only one feature returned
+            commit('setDataMartFeatureInfo',
+            {
+              type: feature.type,
+              display_data_name: display_data_name,
+              geometry: feature.geometry,
+              properties: feature.properties
+            })
+            commit('setDataMartFeatures', {})
+          }
+          commit('setLoadingFeature', false)
+          commit('setLayerSelectionActiveState', false)
         }).catch((error) => {
           const msg = error.response ? error.response.data.detail : true
           EventBus.$emit('error', msg)
