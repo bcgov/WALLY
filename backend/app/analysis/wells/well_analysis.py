@@ -68,8 +68,6 @@ def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
 
     top_of_screen = None
 
-    logger.info(screen_set)
-
     if not screen_set or None in map(lambda x: x.start, screen_set):
         return None
 
