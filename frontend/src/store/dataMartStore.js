@@ -84,18 +84,28 @@ export default {
             return
           }
 
-          // Add up number of features returned
-          // Set feature/layer information
           let feature = {}
           let display_data_name = ''
           let featureCount = 0
-          displayData.forEach(layer => {
-            featureCount += layer.geojson.features.length
-            if(layer.geojson.features.length == 1) {
-              display_data_name = layer.layer
-              feature = layer.geojson.features[0]
-            }
-          })
+
+          // If primary_key_match is in the payload then this query came from a search result
+          // From our returned radius search we can match the primary key to the specific search result 
+          if(payload.primary_key_match) {
+            display_data_name = displayData[0].layer
+            feature = displayData[0].geojson.features.find((f) => {
+              return f.id.toString() === payload.primary_key_match
+            })
+          } else {
+            // Add up number of features returned
+            // Set feature/layer information
+            displayData.forEach(layer => {
+              featureCount += layer.geojson.features.length
+              if(layer.geojson.features.length == 1) {
+                display_data_name = layer.layer
+                feature = layer.geojson.features[0]
+              }
+            })
+          }
 
           // Check whether there is a single feature being returned in the click area
           if(featureCount > 1) {
@@ -103,18 +113,20 @@ export default {
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
-            commit('setDisplayTemplates', { displayTemplates }) 
+            // TODO currently we are not using displayTemplate information
+            // Need to clean this up or re-purpose it
+            commit('setDisplayTemplates', { displayTemplates })
             commit('setDataMartFeatureInfo', {})
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
-              {
-                type: feature.type,
-                display_data_name: display_data_name,
-                geometry: feature.geometry,
-                properties: feature.properties
-              })
-              commit('setDataMartFeatures', {})
+            {
+              type: feature.type,
+              display_data_name: display_data_name,
+              geometry: feature.geometry,
+              properties: feature.properties
+            })
+            commit('setDataMartFeatures', {})
           }
           commit('setLoadingFeature', false)
           commit('setLayerSelectionActiveState', false)

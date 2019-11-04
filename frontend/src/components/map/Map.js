@@ -70,8 +70,7 @@ export default {
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
       draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
-      isDrawingToolActive: false,
-      clickEventCooldown: false
+      isDrawingToolActive: false
     }
   },
   computed: {
@@ -149,7 +148,8 @@ export default {
 
       // special handling for parcels because we may not want to have
       // users turn this layer on/off (it should always be on)
-      this.map.on('click', 'parcels', this.setSingleFeature)
+      this.map.on('click', this.setSingleFeature)
+      // this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
 
@@ -241,23 +241,33 @@ export default {
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
         const vector = layer['display_data_name']
-        this.map.on('click', vector, this.setSingleFeature)
+        // this.map.on('click', vector, this.setSingleFeature)
         this.map.on('mouseenter', vector, this.setCursorPointer)
         this.map.on('mouseleave', vector, this.resetCursor)
       }
     },
     updateBySearchResult (data) {
+      let lat = data.result.center[1]
+      let lng = -Math.abs(data.result.center[0])
+      const options = { steps: 10, units: 'kilometers', properties: {} }
+      const bounds = circle([lng, lat], 0.01, options) // 10m radius (in km)
+      const canvas = this.map.getCanvas()
+      const size = { x: canvas.width, y: canvas.height }
       let payload = {
-        display_data_name: data.result.layer,
-        pk: data.result.primary_id
+        layers: [{display_data_name: data.result.layer}],
+        bounds: bounds,
+        size: size,
+        primary_key_match: data.result.primary_id
       }
       // Our search db view trims the pks on gwells queries
       // so here we add the 00s back for feature requests
-      if (payload.display_data_name === 'groundwater_wells') {
-        payload.pk = payload.pk.padStart(12, '0')
+      if (data.result.layer === 'groundwater_wells') {
+        payload.primary_key_match = payload.primary_key_match.padStart(12, '0')
       }
+
+      this.$store.commit('clearDataMartFeatures')
       this.$store.commit('addMapLayer', data.result.layer)
-      this.$store.dispatch('getDataMartFeatureInfo', payload)
+      this.$store.dispatch('getDataMartFeatures', payload)
       this.clearHighlightLayer()
       this.updateHighlightLayerData(data.result)
     },
@@ -423,20 +433,14 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      if (!this.isDrawingToolActive && !this.clickEventCooldown) {
+      if (!this.isDrawingToolActive) {
         const loc = e.lnglat
         const scale = MapScale(this.map)
-        const radius = scale / 1000 * 0.05 // scale radius based on map zoom level
+        const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }
         const bounds = circle([e.lngLat["lng"], e.lngLat["lat"]], radius, options)
         // this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
         this.getMapObjects(bounds)
-        // Each layer calls the setSingleFeature event which duplicates api calls
-        // So this cooldown only allows one click event to pass through at a time
-        this.clickEventCooldown = true
-        setTimeout(() => {
-          this.clickEventCooldown = false
-        }, 500)
       }
     },
     getPolygonCenter (arr) {
