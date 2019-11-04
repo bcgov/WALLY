@@ -59,6 +59,9 @@ export default {
         return
       }
 
+      commit('setLoadingFeature', true)
+      commit('setFeatureError', '')
+
       commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
@@ -78,6 +81,8 @@ export default {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data
           let displayTemplates = response.data.display_templates
+
+          commit('setLoadingFeature', false)
 
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length

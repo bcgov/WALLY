@@ -7,6 +7,8 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import HighlightPoint from './MapHighlightPoint'
+import MapScale from './MapScale'
+import circle from '@turf/circle'
 import * as metadata from '../../utils/metadataUtils'
 import bbox from '@turf/bbox'
 
@@ -373,13 +375,13 @@ export default {
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
-        // Calls API and gets and sets feature data
-        const feature = e.features[0]
-        let payload = {
-          display_data_name: feature.layer.id,
-          pk: feature.properties[metadata.PRIMARY_KEYS[feature.layer.id]]
-        }
-        this.$store.dispatch('getDataMartFeatureInfo', payload)
+        const loc = e.lnglat
+        const scale = MapScale(this.map)
+        const radius = scale / 1000 * 0.05 // scale radius based on map zoom level
+        const options = { steps: 10, units: 'kilometers', properties: {} }
+        const bounds = circle([e.lngLat["lng"], e.lngLat["lat"]], radius, options)
+        this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
+        this.getMapObjects(bounds)
       }
     },
     getPolygonCenter (arr) {
