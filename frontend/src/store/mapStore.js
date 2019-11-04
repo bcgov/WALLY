@@ -4,6 +4,7 @@ import ApiService from '../services/ApiService'
 
 export default {
   state: {
+    selectedMapLayerNames: [],
     activeMapLayers: [],
     mapLayers: [],
     highlightFeatureData: {},
@@ -53,6 +54,8 @@ export default {
     setActiveMapLayers (state, payload) {
       // accepts an array of layer names and sets the active map layers accordingly
 
+      state.selectedMapLayerNames = payload
+
       // list of prev layers.  the payload is the new list of layers about to be active.
       const prev = state.activeMapLayers.map(l => l.display_data_name)
 
@@ -69,7 +72,7 @@ export default {
       })
 
       // send an event to redraw any current features and update selection.
-      EventBus.$emit('draw:redraw')
+      EventBus.$emit('draw:redraw', { showFeatureList: false })
     },
     setMapLayers (state, payload) {
       state.mapLayers = payload
@@ -79,6 +82,7 @@ export default {
     }
   },
   getters: {
+    selectedMapLayerNames: state => state.selectedMapLayerNames,
     activeMapLayers: state => state.activeMapLayers,
     isMapLayerActive: state => displayDataName => !!state.activeMapLayers.find((x) => x && x.display_data_name === displayDataName),
     mapLayerName: (state) => (wmsName) => {

@@ -42,7 +42,9 @@ export default {
     EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
-    EventBus.$on('draw:redraw', () => this.handleSelect(this.draw.getAll()))
+    EventBus.$on('shapes:add', this.addShape)
+    EventBus.$on('shapes:reset', this.removeShapes)
+    EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
@@ -55,6 +57,8 @@ export default {
     EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
+    EventBus.$off('shapes:add', this.addShape)
+    EventBus.$off('shapes:reset', this.removeShapes)
     EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
     EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
@@ -87,30 +91,30 @@ export default {
       const mapConfig = await ApiService.get('api/v1/map-config')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
+      const zoomConfig = {
+        center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
+        zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
+      }
+
       this.map = new mapboxgl.Map({
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
-        center: [-124, 54.5], // starting position
-        zoom: 4.7 // starting zoom
+        center: zoomConfig.center, // starting position
+        zoom: zoomConfig.zoomLevel // starting zoom
       })
 
-      const clearSelections = () => {
-        this.replaceOldFeatures()
-        this.$store.commit('clearDataMartFeatures')
-        this.$store.commit('clearDisplayTemplates')
-      }
-
       const modes = MapboxDraw.modes
-      modes.simple_select.onTrash = clearSelections
-      modes.draw_polygon.onTrash = clearSelections
-      modes.draw_point.onTrash = clearSelections
-      modes.direct_select.onTrash = clearSelections
+      modes.simple_select.onTrash = this.clearSelections
+      modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_point.onTrash = this.clearSelections
+      modes.direct_select.onTrash = this.clearSelections
 
       this.draw = new MapboxDraw({
         modes: modes,
         displayControlsDefault: false,
         controls: {
           polygon: true,
+          point: true,
           trash: true
         }
       })
@@ -129,6 +133,7 @@ export default {
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
       this.map.addControl(this.draw, 'top-left')
+      this.map.addControl(new mapboxgl.ScaleControl({ position: 'bottom-left' }))
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
@@ -151,6 +156,23 @@ export default {
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
     },
+    addShape (shape) {
+      // adds a mapbox-gl-draw shape to the map
+      this.map.getSource('customShapeData').setData(shape)
+    },
+    removeShapes () {
+      this.map.getSource('customShapeData').setData(polygon)
+    },
+    clearSelections () {
+      this.replaceOldFeatures()
+      this.$store.commit('clearDataMartFeatures')
+      this.$store.commit('clearDisplayTemplates')
+
+      if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_point') {
+        this.$store.commit('resetDataMartFeatureInfo')
+        EventBus.$emit('highlight:clear')
+      }
+    },
     handleModeChange (e) {
       if (e.mode === 'draw_polygon') {
         this.isDrawingToolActive = true
@@ -164,6 +186,17 @@ export default {
     initHighlightLayers () {
       this.map.on('load', () => {
         // initialize highlight layer
+        this.map.addSource('customShapeData', { type: 'geojson', data: polygon })
+        this.map.addLayer({
+          'id': 'customShape',
+          'type': 'fill',
+          'source': 'customShapeData',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(26, 193, 244, 0.08)',
+            'fill-outline-color': 'rgb(8, 159, 205)'
+          }
+        })
         this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
         this.map.addLayer({
           'id': 'highlightLayer',
@@ -220,7 +253,7 @@ export default {
       }
       // Our search db view trims the pks on gwells queries
       // so here we add the 00s back for feature requests
-      if(payload.display_data_name === "groundwater_wells") {
+      if (payload.display_data_name === 'groundwater_wells') {
         payload.pk = payload.pk.padStart(12, '0')
       }
       this.$store.commit('addMapLayer', data.result.layer)
@@ -240,15 +273,6 @@ export default {
     clearHighlightLayer () {
       this.map.getSource('highlightPointData').setData(point)
       this.map.getSource('highlightLayerData').setData(polygon)
-    },
-    handleAddFeature (f) {
-      let p = L.latLng(f.lat, f.lng)
-      if (p) {
-        L.popup()
-          .setLatLng(p)
-          .setContent('Lat: ' + _.round(p.lat, 5) + ' Lng: ' + _.round(p.lng, 5))
-          .openOn(this.map)
-      }
     },
     handleAddWMSLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
@@ -348,19 +372,43 @@ export default {
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
-    handleSelect (feature) {
+    handleAddPointSelection (feature) {
+      feature.display_data_name = 'user_defined_point'
+      this.$store.commit('setDataMartFeatureInfo', feature)
+    },
+    handleSelect (feature, options) {
+      // default options when calling this handler.
+      //
+      // showFeatureList: whether features selected by the user should be immediately shown in
+      // a panel.  This might be false if the user is selecting layers and may want to select
+      // several before being "bumped" to the selected features list.
+      //
+      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
+      const defaultOptions = {
+        showFeatureList: true
+      }
+
+      options = Object.assign({}, defaultOptions, options)
+
       if (!feature || !feature.features || !feature.features.length) return
 
-      const newFeature = feature.features[0].id
-      this.replaceOldFeatures(newFeature)
+      console.log(options.showFeatureList)
 
+      if (options.showFeatureList) {
+        this.$store.commit('setLayerSelectionActiveState', false)
+      }
+
+      const newFeature = feature.features[0]
+      this.replaceOldFeatures(newFeature.id)
+
+      if (newFeature.geometry.type === 'Point') {
+        return this.handleAddPointSelection(newFeature)
+      }
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
-      const bounds = feature.features[0]
-      this.getMapObjects(bounds)
-      this.$store.commit('setSelectionBoundingBox', bounds)
-      this.$store.commit('setLayerSelectionActiveState', false)
+      this.getMapObjects(newFeature)
+      this.$store.commit('setSelectionBoundingBox', newFeature)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
@@ -419,7 +467,7 @@ export default {
   watch: {
     highlightFeatureData (value) {
       if (value && value.geometry) {
-        if (value.geometry.type == 'Point') {
+        if (value.geometry.type === 'Point') {
           let coordinates = value.geometry.coordinates
           value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
         }
@@ -429,7 +477,7 @@ export default {
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
-        if (value.geometry.type == 'Point') {
+        if (value.geometry.type === 'Point') {
           coordinates = this.formatLatLon(coordinates[0], coordinates[1])
           value.geometry.coordinates = coordinates
         } else {

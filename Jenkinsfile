@@ -256,6 +256,7 @@ pipeline {
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "REPLICAS=1",
+                  "CPU_LIMIT=400m",
                   "NAMESPACE=${project}"
                 ))
 

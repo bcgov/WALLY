@@ -72,3 +72,13 @@ requests:
     method: get
     expect:
       status: 200 # response is an excel file, so just check status code.
+  - name: Well radius search
+    url: "{{host}}/api/v1/analysis/wells/nearby?radius=1000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
+    method: get
+    expect:
+      status: 200
+  - name: Well radius search (invalid radius)
+    url: "{{host}}/api/v1/analysis/wells/nearby?radius=20000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
+    method: get
+    expect:
+      status: 422

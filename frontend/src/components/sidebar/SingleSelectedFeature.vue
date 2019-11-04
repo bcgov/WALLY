@@ -71,6 +71,7 @@ import StreamStation from '../features/FeatureStreamStation'
 import Well from '../features/FeatureWell'
 import Aquifer from '../features/FeatureAquifer'
 import EcoCat from '../features/FeatureEcocat'
+import UserDefinedPoint from '../features/FeatureUserDefinedPoint'
 
 export default {
   name: 'SingleSelectedFeature',
@@ -78,7 +79,8 @@ export default {
     StreamStation,
     Well,
     EcoCat,
-    Aquifer
+    Aquifer,
+    UserDefinedPoint
   },
   props: {
 
@@ -88,7 +90,8 @@ export default {
       hydrometric_stream_flow: StreamStation,
       aquifers: Aquifer,
       groundwater_wells: Well,
-      ecocat_water_related_reports: EcoCat
+      ecocat_water_related_reports: EcoCat,
+      user_defined_point: UserDefinedPoint
     }
   }),
   computed: {
@@ -102,6 +105,11 @@ export default {
   },
   methods: {
     handleCloseSingleFeature () {
+      // close the feature panel and reset the feature stored in dataMartStore.
+      // if this is a drawn point, send the event to clear the user selections.
+      if (this.dataMartFeatureInfo.display_data_name === 'user_defined_point') {
+        EventBus.$emit('draw:reset')
+      }
       this.$store.commit('resetDataMartFeatureInfo')
       EventBus.$emit('highlight:clear')
     },
