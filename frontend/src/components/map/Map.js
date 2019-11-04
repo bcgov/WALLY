@@ -66,7 +66,8 @@ export default {
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
       draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
-      isDrawingToolActive: false
+      isDrawingToolActive: false,
+      clickEventCooldown: false
     }
   },
   computed: {
@@ -374,14 +375,20 @@ export default {
       this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
     },
     setSingleFeature (e) {
-      if (!this.isDrawingToolActive) {
+      if (!this.isDrawingToolActive && !this.clickEventCooldown) {
         const loc = e.lnglat
         const scale = MapScale(this.map)
         const radius = scale / 1000 * 0.05 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }
         const bounds = circle([e.lngLat["lng"], e.lngLat["lat"]], radius, options)
-        this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
+        // this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
         this.getMapObjects(bounds)
+        // Each layer calls the setSingleFeature event which duplicates api calls
+        // So this cooldown only allows one click event to pass through at a time
+        this.clickEventCooldown = true
+        setTimeout(() => {
+          this.clickEventCooldown = false
+        }, 500)
       }
     },
     getPolygonCenter (arr) {

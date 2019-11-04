@@ -58,30 +58,23 @@ export default {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
         return
       }
-
       commit('setLoadingFeature', true)
       commit('setFeatureError', '')
-
       commit('setLoadingMultipleFeatures', true)
       var layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
-
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-
       var width = 'width=' + payload.size.x + '&'
       var height = 'height=' + payload.size.y
-
       var params = layers.join('') + polygonQ + width + height
-
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate?' + params)
         .then((response) => {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data
           let displayTemplates = response.data.display_templates
-
           commit('setLoadingFeature', false)
 
           if (!displayData.some(layer => {
@@ -91,10 +84,40 @@ export default {
             return
           }
 
+          // Add up number of features returned
+          // Set feature/layer information
+          let feature = {}
+          let display_data_name = ''
+          let featureCount = 0
           displayData.forEach(layer => {
-            commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
+            featureCount += layer.geojson.features.length
+            if(layer.geojson.features.length == 1) {
+              display_data_name = layer.layer
+              feature = layer.geojson.features[0]
+            }
           })
-          commit('setDisplayTemplates', { displayTemplates })
+
+          // Check whether there is a single feature being returned in the click area
+          if(featureCount > 1) {
+            // Multiple features returned
+            displayData.forEach(layer => {
+              commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
+            })
+            commit('setDisplayTemplates', { displayTemplates }) 
+            commit('setDataMartFeatureInfo', {})
+          } else {
+            // Only one feature returned
+            commit('setDataMartFeatureInfo',
+              {
+                type: feature.type,
+                display_data_name: display_data_name,
+                geometry: feature.geometry,
+                properties: feature.properties
+              })
+              commit('setDataMartFeatures', {})
+          }
+          commit('setLoadingFeature', false)
+          commit('setLayerSelectionActiveState', false)
         }).catch((error) => {
           const msg = error.response ? error.response.data.detail : true
           EventBus.$emit('error', msg)
