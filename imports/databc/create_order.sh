@@ -33,15 +33,4 @@ echo $STATUS
 [[ $STATUS = '"FAILURE"' ]] && echo "Failed: $(echo $ORDER | jq .Description)" && exit 1
 
 ORDER_ID=$(echo "$ORDER" | jq .Value)
-echo "Order $ORDER_ID placed. Waiting for download to become available"
-
-declare -a link
-
-while true; do
-  ((i++)) && ((i==300)) && echo "Exceeded loop limit ($i) without download link becoming available." && exit 1
-  sleep 15
-  echo "Checking status of order $ORDER_ID..."
-  link=$(curl -s https://apps.gov.bc.ca/pub/dwds-ofi/order/$ORDER_ID | jq -r '.ORDER_DOWNLOAD_PATH')
-  [[ ! -z "$link" ]] && echo "Order ready at $link" && break
-  echo "Order not ready yet. Checking again in 15 seconds..."
-done
+echo "Order placed: $ORDER_ID"
