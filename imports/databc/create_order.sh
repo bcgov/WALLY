@@ -42,6 +42,6 @@ while true; do
   sleep 15
   echo "Checking status of order $ORDER_ID..."
   link=$(curl -s https://apps.gov.bc.ca/pub/dwds-ofi/order/$ORDER_ID | jq -r '.ORDER_DOWNLOAD_PATH')
-  [ -z "$link" ] && echo "Order ready at $link" && break
+  [[ ! -z "$link" ]] && echo "Order ready at $link" && break
   echo "Order not ready yet. Checking again in 15 seconds..."
 done
