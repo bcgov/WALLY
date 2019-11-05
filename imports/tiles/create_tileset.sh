@@ -20,8 +20,7 @@ echo "Copying layer from Minio storage..."
 
 echo "Converting to mbtiles"
 
-unzip -p "./$1.zip" | tippecanoe -zg -o ./$1.mbtiles --drop-densest-as-needed
-
+unzip -p "./$1.zip" | tippecanoe -zg --exclude-all -o ./$1.mbtiles --drop-densest-as-needed
 
 echo "Copying $1.mbtiles to Minio storage..."
 ./mc --config-dir=./.mc cp "./$1.mbtiles" "minio/mbtiles"
