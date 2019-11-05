@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from app.db.utils import get_db
-from app.analysis.wells.well_analysis import get_wells_by_distance, with_drawdown
+from app.analysis.wells.well_analysis import get_wells_by_distance, calculate_available_drawdown
 from app.analysis.wells.models import WellDrawdown
 logger = getLogger("geocoder")
 
@@ -144,7 +144,7 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
 
     # create WellDrawdown data objects for every well we found nearby.  The last argument to WellDrawdown() is
     # the supplemental data that comes from GWELLS for each well.
-    return with_drawdown([
+    return calculate_available_drawdown([
         WellDrawdown(
             well_tag_number=well[0],
             distance=well[1],
