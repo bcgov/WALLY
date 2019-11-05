@@ -56,7 +56,7 @@ do
   echo "$downloaded downloaded, $matched total.  Making another request ..."
 
   sleep 3
-  curl -s -o "./.$DATABC_LAYER_NAME/$index.geojson" "https://openmaps.gov.bc.ca/geo/pub/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&outputFormat=json&typeNames=$DATABC_LAYER_NAME&count=10000&startIndex=$downloaded&sortBy=$SORT_KEY"
+  curl -s -o "./.$DATABC_LAYER_NAME/$index.geojson" "https://openmaps.gov.bc.ca/geo/pub/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&outputFormat=json&srsName=epsg:4326&typeNames=$DATABC_LAYER_NAME&count=10000&startIndex=$downloaded&sortBy=$SORT_KEY"
   retrieved_this_iter=$(jq '.numberReturned' "./.$DATABC_LAYER_NAME/$index.geojson")
   let downloaded=downloaded+retrieved_this_iter
   
