@@ -41,7 +41,7 @@ mkdir -p "./.$DATABC_LAYER_NAME"
 
 # download from the WFS service
 echo "Making request starting at $index"
-curl -s -o "./.$DATABC_LAYER_NAME/$index.geojson" "https://openmaps.gov.bc.ca/geo/pub/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&outputFormat=json&typeNames=$DATABC_LAYER_NAME&count=10000&startIndex=$downloaded&sortBy=$SORT_KEY"
+curl -s -o "./.$DATABC_LAYER_NAME/$index.geojson" "https://openmaps.gov.bc.ca/geo/pub/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&outputFormat=json&srsName=epsg:4326&typeNames=$DATABC_LAYER_NAME&count=10000&startIndex=$downloaded&sortBy=$SORT_KEY"
 matched=$(jq '.numberMatched' "./.$DATABC_LAYER_NAME/$index.geojson")
 retrieved=$(jq '.numberReturned' "./.$DATABC_LAYER_NAME/$index.geojson")
 let downloaded=downloaded+retrieved

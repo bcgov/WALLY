@@ -15,7 +15,7 @@ parameters:
   displayName: Job name
   name: JOB_NAME
   required: true
-  value: dataload
+  value: tippecanoe
 objects:
   - apiVersion: batch/v1
     kind: Job
