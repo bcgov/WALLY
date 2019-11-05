@@ -9,7 +9,7 @@
     >
       <img
         class="ml-5"
-        :src="require('../assets/bcgov_logo.svg')"
+        :src="require('../../assets/bcgov_logo.svg')"
         height="40" max-width="150"
         alt="Go to the Government of British Columbia website" />
       <v-toolbar-title class="bcgov-title">Water Allocation
@@ -32,7 +32,7 @@
 </template>
 
 <script>
-import EventBus from '../services/EventBus.js'
+import EventBus from '../../services/EventBus.js'
 
 export default {
   name: 'Header',

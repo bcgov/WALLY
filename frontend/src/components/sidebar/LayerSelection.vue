@@ -7,7 +7,7 @@
           v-if="allowDisableLayerSelection"
           class="elevation-1"
           small
-          @click.prevent="$store.commit('setLayerSelectionActiveState', false)"
+          @click.prevent="$store.commit('setLayerSelectionActive', false)"
         ><v-icon>arrow_back</v-icon></v-btn>
       </v-col>
       <v-col class="title" cols=6>
@@ -60,10 +60,11 @@
           </div>
       </template>
     </v-treeview>
+    <Chart :data="boxplotData.data" :layout="boxplotData.layout" :display-mode-bar="false" :key="4" class="chart"></Chart>
   </div>
 </template>
 
-<script src="LayerSelection.js"></script>
+<script src="./LayerSelection.js"></script>
 
 <style>
 .appendRight{

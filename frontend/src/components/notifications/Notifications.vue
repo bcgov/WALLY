@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import EventBus from '../services/EventBus'
+import EventBus from '../../services/EventBus'
 export default {
   name: 'Notifications',
   data: () => ({

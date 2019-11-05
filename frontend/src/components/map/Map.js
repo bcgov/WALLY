@@ -130,15 +130,15 @@ export default {
 
       // Add zoom and rotation controls to the map.
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
-      this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
-      this.map.addControl(this.draw, 'top-left')
+      this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+      this.map.addControl(this.draw, 'top-right')
       this.map.addControl(new mapboxgl.ScaleControl({ position: 'bottom-left' }))
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
         },
         showUserLocation: false
-      }), 'top-left')
+      }), 'top-right')
       this.map.on('style.load', () => {
         this.getMapLayers()
       })
@@ -405,7 +405,7 @@ export default {
       console.log(options.showFeatureList)
 
       if (options.showFeatureList) {
-        this.$store.commit('setLayerSelectionActiveState', false)
+        this.$store.commit('setLayerSelectionActive', false)
       }
 
       const newFeature = feature.features[0]

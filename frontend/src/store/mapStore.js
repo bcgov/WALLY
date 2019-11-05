@@ -31,7 +31,7 @@ export default {
     }
   },
   mutations: {
-    setLayerSelectionActiveState (state, payload) {
+    setLayerSelectionActive (state, payload) {
       state.layerSelectionActive = payload
     },
     setLayerCategories (state, payload) {

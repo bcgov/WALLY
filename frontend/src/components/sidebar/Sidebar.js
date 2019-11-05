@@ -2,7 +2,7 @@ import { mapGetters } from 'vuex'
 
 import SingleSelectedFeature from './SingleSelectedFeature'
 import MultipleSelectedFeatures from './MultipleSelectedFeatures'
-import LayerSelection from './LayerSelection'
+import LayerSelection from './LayerSelection.vue'
 
 export default {
   name: 'Sidebar',

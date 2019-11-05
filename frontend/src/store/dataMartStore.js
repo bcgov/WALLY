@@ -34,7 +34,7 @@ export default {
       ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
         .then((response) => {
           commit('setLoadingFeature', false)
-          commit('setLayerSelectionActiveState', false)
+          commit('setLayerSelectionActive', false)
           let feature = response.data
           commit('setDataMartFeatureInfo',
             {
@@ -129,7 +129,7 @@ export default {
             commit('setDataMartFeatures', {})
           }
           commit('setLoadingFeature', false)
-          commit('setLayerSelectionActiveState', false)
+          commit('setLayerSelectionActive', false)
         }).catch((error) => {
           const msg = error.response ? error.response.data.detail : true
           EventBus.$emit('error', msg)

@@ -1,5 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils'
-import Notifications from '../../src/components/Notifications'
+import Notifications from '../../src/components/notifications/Notifications'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'

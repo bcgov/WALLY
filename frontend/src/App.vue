@@ -15,9 +15,9 @@
 </template>
 
 <script>
-import Header from './components/Header'
-import Toolbar from './components/Toolbar'
-import Notifications from './components/Notifications'
+import Header from './components/common/Header'
+import Toolbar from './components/toolbar/Toolbar'
+import Notifications from './components/notifications/Notifications'
 import '@bcgov/bc-sans/css/BCSans.css'
 
 export default {
@@ -61,5 +61,8 @@ export default {
   }
   dl > dd {
     font-size: 1em;
+  }
+  .container {
+    height: 100%;
   }
 </style>

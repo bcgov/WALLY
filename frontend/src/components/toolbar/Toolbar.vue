@@ -34,9 +34,9 @@ export default {
   methods: {
     handleLayerSelectionState () {
       if (!this.featureSelectionExists) {
-        return this.$store.commit('setLayerSelectionActiveState', true)
+        return this.$store.commit('setLayerSelectionActive', true)
       }
-      this.$store.commit('setLayerSelectionActiveState', !this.layerSelectionActive)
+      this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
     }
   }
 }
