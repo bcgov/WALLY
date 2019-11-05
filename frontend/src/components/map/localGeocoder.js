@@ -1,4 +1,4 @@
-const coordinatesGeocoder = function (query) {
+function coordinatesGeocoder (query) {
   // allows searching (in the geocoder/search box) for lat/long coordinates
   // this code is from the Mapbox documentation
   // https://docs.mapbox.com/mapbox-gl-js/example/mapbox-gl-geocoder-accept-coordinates/
