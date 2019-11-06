@@ -14,7 +14,12 @@
       <v-list-item
         @click.prevent="handleLayerSelection">
         <!--        <v-list-item-action>-->
-        <v-icon>layers</v-icon>
+        <v-tooltip right>
+          <template v-slot:activator="{ on }">
+            <v-icon v-on="on">layers</v-icon>
+          </template>
+          <span>Layer Selection</span>
+        </v-tooltip>
         <!--        </v-list-item-action>-->
       </v-list-item>
       <v-list-item @click="">
@@ -30,6 +35,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import LayerSelection from '../layer_selection/LayerSelection'
+import router from '../../router.js'
 
 export default {
   name: 'Navigation',
@@ -49,11 +55,20 @@ export default {
   },
   methods: {
     handleLayerSelection () {
-      console.log(this.layerSelectionActive)
-      if (!this.featureSelectionExists) {
-        return this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
+      // router.push('/map-layers')
+      if (this.$route.path === '/map-layers') {
+        router.push('/')
+      } else {
+        router.push('/map-layers')
       }
-      this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
+      console.log('this route', this.$route)
+
+      // TODO: get rid of setLayerSelectionActive
+      // console.log(this.layerSelectionActive)
+      // if (!this.featureSelectionExists) {
+      //   return this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
+      // }
+      // this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
     }
   }
 }

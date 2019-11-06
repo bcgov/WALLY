@@ -3,6 +3,9 @@ import Router from 'vue-router'
 import Home from './components/common/Home.vue'
 import Login from './views/Login.vue'
 import Restricted from './views/Restricted.vue'
+import LayerSelection from './components/layer_selection/LayerSelection.vue'
+import Panels from './components/panels/Panels'
+import MapFeatureSelectionSingle from './components/panels/MapFeatureSelectionSingle'
 
 Vue.use(Router)
 
@@ -33,11 +36,24 @@ const router = new Router({
   routes: [
     {
       path: '/',
+      // redirect: '/map-layers',
       name: 'home',
       component: Home,
       meta: {
         requiresAuth: true
-      }
+      },
+      children: [
+        {
+          path: 'map-layers',
+          component: LayerSelection
+        },
+        {
+          path: 'map-info',
+          component: MapFeatureSelectionSingle// Panel - Info - containing Single selection or
+          // multi
+          // select
+        }
+      ]
     },
     {
       path: '/login',

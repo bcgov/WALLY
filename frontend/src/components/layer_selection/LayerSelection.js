@@ -2,6 +2,7 @@ import { mapGetters } from 'vuex'
 import EventBus from '../../services/EventBus'
 import Chart from '../charts/Chart'
 import InfoSheet from '../common/InfoSheet'
+import router from '../../router.js'
 
 const randomValues = (count, min, max) => {
   const delta = max - min
@@ -130,8 +131,8 @@ export default {
       this.$store.commit('setActiveMapLayers', selectedLayers)
     },
     closePanel () {
-      console.log('closing panel')
-      this.$store.commit('setLayerSelectionActive', false)
+      // this.$store.commit('setLayerSelectionActive', false)
+      router.push('/')
     }
   }
 }

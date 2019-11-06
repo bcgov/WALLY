@@ -1,8 +1,9 @@
 <template>
   <InfoSheet
-    :display="displayLayerSelection"
     :closePanel="this.closePanel"
-  >    <v-row>
+    :width="500"
+  >
+    <v-row>
       <v-col cols=2>
         <v-btn
           fab

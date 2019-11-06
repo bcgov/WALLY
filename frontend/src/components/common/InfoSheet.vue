@@ -1,53 +1,64 @@
 <template>
-  <div>
-    <v-expand-x-transition group>
-      <v-sheet
-        elevation="5"
-        width="800"
-        height="100%"
-        class="float-left"
-        id="info-sheet"
-        v-if="this.display"
-      >
-        <slot/>
-      </v-sheet>
-    </v-expand-x-transition>
-    <v-fade-transition>
+  <div id="info-sheet">
+    <v-sheet
+      elevation="5"
+      v-bind:width="this.width"
+      height="100%"
+      class="float-left"
+    >
+      <slot/>
+    </v-sheet>
     <v-btn
+      v-bind:style="this.closeButtonStyle"
       @click="closePanel"
       x-small
       tile
       color="white"
-      v-if="this.display"
     ><v-icon>close</v-icon></v-btn>
-    </v-fade-transition>
   </div>
-
 </template>
-<style>
-  #info-sheet{
+<style lang="scss">
+
+  #info-sheet {
     position: absolute;
+    z-index: 4;
+    height: 100%;
+  }
+  #info-sheet > .v-sheet{
     z-index: 5;
     padding: 10px;
   }
-  #info-sheet + .v-btn{
+  $btn-box-shadow: "0px 0px 1px -2px rgba(0,0,0,.2), 0px 0px 2px 0px rgba(0,0,0,.14), 0px 0px 5px 0px rgba(0,0,0,.12) !important";
+  #info-sheet > .v-btn {
     z-index: 4;
     width: 20px !important;
     height: 50px;
     position: absolute;
-    left: 800px;
     padding-left: 0;
     padding-right: 0;
+    /* custom box shadow */
+    -webkit-box-shadow: $btn-box-shadow;
+    -moz-box-shadow: $btn-box-shadow;
+    box-shadow: $btn-box-shadow;
   }
 </style>
 <script>
 export default {
   name: 'InfoSheet',
-  data: () => ({
-  }),
+  data: function () {
+    return {
+      closeButtonStyle: {
+        left: this.width + 'px'
+      }
+    }
+  },
   props: {
     closePanel: Function,
-    display: Boolean
+    display: Boolean,
+    width: {
+      type: Number,
+      default: 800
+    }
   },
   computed: {
   },

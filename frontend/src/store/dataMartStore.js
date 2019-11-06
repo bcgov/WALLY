@@ -1,5 +1,6 @@
 import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
+import router from '../router.js'
 
 export default {
   state: {
@@ -150,6 +151,11 @@ export default {
     },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
+      console.log('setDatamartfeatureinfo', payload)
+      // TODO: router-view redirect to /map-info/
+      if (payload.display_data_name === 'user_defined_point') {
+        router.push('/map-info')
+      }
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }

@@ -11,6 +11,7 @@ import MapScale from './MapScale'
 import circle from '@turf/circle'
 import * as metadata from '../../utils/metadataUtils'
 import bbox from '@turf/bbox'
+import router from '../../router.js'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
@@ -47,6 +48,7 @@ export default {
     EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
+    router.push('/map-layers')
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
   beforeDestroy () {

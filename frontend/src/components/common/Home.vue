@@ -7,24 +7,21 @@
 <template>
   <div class="home">
     <Navigation/>
-    <LayerSelection/>
-    <Toolbar/>
+      <transition name="expand-x">
+        <router-view></router-view>
+      </transition>
     <Map/>
   </div>
 </template>
 <script>
 import Map from '../map/Map.vue'
-import Sidebar from '../sidebar/Sidebar.vue'
 import Navigation from '../navigation/Navigation.vue'
-import LayerSelection from '../layer_selection/LayerSelection.vue'
 
 export default {
   name: 'Home',
   components: {
     Map,
-    Sidebar,
-    Navigation,
-    LayerSelection
+    Navigation
   }
 }
 </script>
@@ -39,4 +36,18 @@ export default {
         height: calc(100vh - 120px);
 
 }
+/* Custom animations for router-view transitions */
+.expand-x-enter, .expand-x-leave-to {
+  width: 0;
+}
+$expand-transition: "width 1s ease-in-out, opacity 03s ease 0.5s";
+.expand-x-enter-active, .expand-x-leave-active {
+  -webkit-transition: $expand-transition;
+  -moz-transition: $expand-transition;
+  -o-transition: $expand-transition;
+  transition: $expand-transition;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+.expand-x-enter-to, .expand-x-leave { width: 100%; }
 </style>
