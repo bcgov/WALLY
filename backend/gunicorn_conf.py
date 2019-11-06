@@ -36,6 +36,7 @@ log_data = {
     "host": host,
     "port": port,
 }
-logfile = '/app/.log/access.log'
+accesslog = '/app/.log/access.log'
+errorlog = '/app/.log/error.log'
 
 print(json.dumps(log_data))

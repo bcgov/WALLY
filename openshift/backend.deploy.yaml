@@ -169,6 +169,9 @@ objects:
             mountPath: /app/.log/
           - name: promtail-config
             mountPath: /etc/promtail
+          ports:
+          - containerPort: 3111
+            protocol: TCP
         volumes:
         - name: logging
           emptyDir: {}
