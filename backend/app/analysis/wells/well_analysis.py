@@ -2,7 +2,9 @@
 Database tables and data access functions for Water Survey of Canada's
 National Water Data Archive Hydrometic Data
 """
+import json
 import logging
+import requests
 from typing import List, Optional
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -78,3 +80,110 @@ def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
         # some screens are present in the dataset but do not have start/end values.
         return None
     return top_of_screen
+
+
+def get_screens(wells_to_search: List[str]) -> List[WellDrawdown]:
+    """ calls GWELLS API to get well screen information. """
+
+    wells_results = []
+
+    # avoid making queries with an excessively long list of wells.
+    chunk_length = 50
+
+    # split requests into chunks based on chunk_length
+    chunks = [wells_to_search[i:i+chunk_length]
+              for i in range(0, len(wells_to_search), chunk_length)]
+
+    for chunk in chunks:
+        # helpers to prevent unbounded requests
+        done = False
+        limit_requests = 100
+        i = 0  # this i is for recording extra requests within each chunk, if necessary
+
+        # we are already making small chunks within the known API pagination limit,
+        # but in case that limit changes, we can still handle offset paging.
+        offset = 0
+
+        search_string = ','.join(chunk)
+
+        while not done and i < limit_requests:
+            logger.info('making request to GWELLS API')
+            resp = requests.get(
+                f"https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
+
+            # break now if we didn't receive any results.
+            results = resp.json().get('results', None)
+
+            i += 1
+
+            if not results:
+                done = True
+                break
+
+            # add results to a list.
+            wells_results += results
+            offset += len(results)
+
+            # check for a "next" attribute, indicating the next limit/offset combo.
+            # when it is null, the pagination is done.
+            if not resp.json().get('next', None):
+                done = True
+
+        # return zero results if an error occurred or we did not successfully get all the results.
+        # (avoid returning incomplete data)
+        if not done:
+            return []
+
+    return wells_results
+
+
+def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[WellDrawdown]:
+    """
+    Merges a list of well details (from GWELLS), with a key/value dict of wells: distance (m)
+    to create a list of WellDrawdown data.
+    e.g. combines:
+        {
+            123: 50,
+            124: 55
+        }
+    with:
+        [
+            {
+                well_tag_number: 123,
+                static_water_level: 12
+            },
+            {
+                well_tag_number: 124,
+                static_water_level: 12
+            }
+        ]
+    to create:
+        [
+            {
+                well_tag_number: 123,
+                static_water_level: 12,
+                distance: 50
+            },
+            {
+                well_tag_number: 124,
+                static_water_level: 12,
+                distance: 55
+            }
+        ]
+    """
+
+    well_map = {}
+
+    # make a dict with keys being the well tag numbers
+    for well in wells:
+        well_map[str(well.pop('well_tag_number'))] = well
+
+    # create WellDrawdown data objects for every well we found nearby.  The last argument to WellDrawdown() is
+    # the supplemental data that comes from GWELLS for each well.
+    return calculate_available_drawdown([
+        WellDrawdown(
+            well_tag_number=well[0],
+            distance=well[1],
+            **well_map.get(str(well[0]).lstrip('0'), {})
+        )
+        for well in wells_with_distances])
