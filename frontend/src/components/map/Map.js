@@ -263,6 +263,8 @@ export default {
       // so here we add the 00s back for feature requests
       if (data.result.layer === 'groundwater_wells') {
         payload.primary_key_match = payload.primary_key_match.padStart(12, '0')
+      } else if (data.result.layer === 'aquifers') {
+        payload.primary_key_match = payload.primary_key_match.padStart(4, '0')
       }
 
       this.$store.commit('clearDataMartFeatures')
