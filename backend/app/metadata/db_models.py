@@ -148,6 +148,8 @@ class DisplayCatalogue(Base):
     data_source_id = Column(Integer, ForeignKey('metadata.data_source.data_source_id'),
                             comment='references catalogue data source')
     data_source = relationship("DataSource")
+    required_map_properties = Column(ARRAY(TEXT), nullable=False, server_default='{}',
+                                     comment='Properties that are required by the map for rendering markers/shapes, e.g. for colouring markers based on a value or property like POD_SUBTYPE')
 
 
 class DisplayTemplate(Base):
