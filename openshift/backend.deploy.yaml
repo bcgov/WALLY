@@ -159,7 +159,8 @@ objects:
           volumeMounts:
           - name: logging
             mountPath: /app/.log/
-        - name: promtail-container
+        - name: promtail
+          image: grafana/promtail:latest
           args:
           - -config.file=/etc/promtail/promtail.yaml
           - -client.url=http://loki:3100/api/prom/push
