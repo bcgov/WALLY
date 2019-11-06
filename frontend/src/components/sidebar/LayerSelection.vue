@@ -60,6 +60,22 @@
           </div>
       </template>
     </v-treeview>
+    <v-treeview
+      selectable
+      selected-color="grey darken-2"
+      v-if="layers && categories"
+      hoverable
+      open-on-click
+      @input="handleSelectBaseLayer"
+      :items="baseMapLayers"
+      :value="selectedBaseLayers"
+      >
+      <template v-slot:label="{ item }">
+          <div>
+            <span>{{item.name}}</span>
+          </div>
+      </template>
+    </v-treeview>
   </div>
 </template>
 
@@ -69,9 +85,6 @@ import EventBus from '../../services/EventBus'
 
 export default {
   name: 'LayerSelection',
-  data: () => ({
-    selectedLayers: []
-  }),
   computed: {
     ...mapGetters([
       'isMapLayerActive',
@@ -86,7 +99,9 @@ export default {
       'getCategories',
       'layerSelectionActive',
       'featureSelectionExists',
-      'activeMapLayers'
+      'activeMapLayers',
+      'selectedBaseLayers',
+      'baseMapLayers'
     ]),
     allowDisableLayerSelection () {
       return this.featureSelectionExists
@@ -128,7 +143,6 @@ export default {
       return catMap
     },
     handleResetLayers () {
-      this.selectedLayers = []
       EventBus.$emit('draw:reset', null)
       EventBus.$emit('highlight:clear')
       this.$store.commit('setActiveMapLayers', [])
@@ -138,6 +152,9 @@ export default {
     },
     handleSelectLayer (selectedLayers) {
       this.$store.commit('setActiveMapLayers', selectedLayers)
+    },
+    handleSelectBaseLayer (selectedBaseLayers) {
+      this.$store.commit('setActiveBaseMapLayers', selectedBaseLayers)
     }
   }
 }

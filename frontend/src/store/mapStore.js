@@ -9,7 +9,24 @@ export default {
     mapLayers: [],
     highlightFeatureData: {},
     layerCategories: [],
-    layerSelectionActive: true
+    layerSelectionActive: true,
+    selectedBaseLayers: [
+      'national-park',
+      'landuse',
+      'contour-line',
+      'hillshade'
+    ],
+    baseMapLayers: [{
+      id: 'base-map-layers',
+      name: 'Base Map Layers',
+      children: [
+        { id: 'mapbox-satellite', name: 'Satellite Imagery'},
+        { id: 'national-park', name: 'National Parks'},
+        { id: 'landuse', name: 'Land Use'},
+        { id: 'contour-line', name: 'Contours'},
+        { id: 'hillshade', name: 'Hillshade'}
+      ]
+    }]
   },
   actions: {
     getMapLayers ({ commit }) {
@@ -75,6 +92,12 @@ export default {
       // send an event to redraw any current features and update selection.
       EventBus.$emit('draw:redraw', { showFeatureList: false })
     },
+    setActiveBaseMapLayers(state, payload) {
+      let prev = state.selectedBaseLayers
+      prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:removed`, l))
+      payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))
+      state.selectedBaseLayers = payload
+    },
     setMapLayers (state, payload) {
       state.mapLayers = payload
     },
@@ -97,6 +120,8 @@ export default {
     allMapLayers: state => state.mapLayers,
     highlightFeatureData: state => state.highlightFeatureData,
     getCategories: state => state.layerCategories,
-    layerSelectionActive: state => state.layerSelectionActive
+    layerSelectionActive: state => state.layerSelectionActive,
+    selectedBaseLayers: state => state.selectedBaseLayers,
+    baseMapLayers: state => state.baseMapLayers
   }
 }
