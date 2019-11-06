@@ -18,7 +18,7 @@ cd /dataload
 declare -a row=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" \
   --single-transaction \
   --field-separator=' ' \
-  -c "SELECT dc.mapbox_layer_id FROM metadata.data_source AS dc JOIN metadata.data_source as ds on dc.data_source_id = ds.data_source_id WHERE ds.data_table_name='$1';"))
+  -c "SELECT dc.mapbox_layer_id FROM metadata.display_catalogue AS dc JOIN metadata.data_source as ds on dc.data_source_id = ds.data_source_id WHERE ds.data_table_name='$1';"))
 
 mapbox_layer_id="${row[0]}"
 
