@@ -32,7 +32,7 @@ class CustomLayerBase(object):
                     search_area.wkt, 4326), column)
             )
         objs = q.all()
-        logger.info(objs)
+        # logger.info(objs)
         return objs
 
     @classmethod
