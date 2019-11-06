@@ -7,7 +7,6 @@ import store from './store'
 import { AuthService } from './services/AuthService.js'
 import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
-import '@bcgov/bc-sans/css/BCSans.css'
 
 Vue.config.productionTip = false
 

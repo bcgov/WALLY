@@ -3,12 +3,12 @@ Database tables and data access functions for Water Survey of Canada's
 National Water Data Archive Hydrometic Data
 """
 import logging
-from typing import List
+from typing import List, Optional
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from app.layers.ground_water_wells import GroundWaterWells
-from app.analysis.wells.models import WellDrawdown
+from app.analysis.wells.models import WellDrawdown, Screen
 logger = logging.getLogger("api")
 
 
@@ -37,7 +37,7 @@ def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> li
     return q.all()
 
 
-def with_drawdown(wells: List[WellDrawdown]) -> List[WellDrawdown]:
+def calculate_available_drawdown(wells: List[WellDrawdown]) -> List[WellDrawdown]:
     """ takes a list of WellDrawdown objects and fills in drawdown calculations """
 
     for well in wells:
@@ -62,8 +62,19 @@ def with_drawdown(wells: List[WellDrawdown]) -> List[WellDrawdown]:
     return wells
 
 
-def calculate_top_of_screen(screen_set: list = []) -> float:
+def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
     """ calculates the top of screen from a given screen set
     screen sets come from GWELLS and have a start depth and end depth."""
 
-    return min([x.start for x in screen_set if x.start])
+    top_of_screen = None
+
+    if not screen_set or None in map(lambda x: x.start, screen_set):
+        return None
+
+    try:
+        top_of_screen = min([x.start for x in screen_set if x.start])
+    except ValueError:
+        # we expect occasional ValueErrors due to inconsistent screen data.
+        # some screens are present in the dataset but do not have start/end values.
+        return None
+    return top_of_screen

@@ -36,7 +36,7 @@ objects:
           containers:
           - name: importer
             image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
-            command: ['/dataload/mapbox-upload.sh']
+            command: ['/dataload/upload_tileset.sh']
             args: ['${LAYER_NAME}']
             resources:
               requests:
