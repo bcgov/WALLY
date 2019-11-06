@@ -33,8 +33,10 @@ export default {
   components: { MapLegend },
   mounted () {
     this.initMap()
-    EventBus.$on('layer:added', this.handleAddWMSLayer)
-    EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
+    EventBus.$on('layer:added', this.handleAddLayer)
+    EventBus.$on('layer:removed', this.handleRemoveLayer)
+    EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
+    EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('feature:added', this.handleAddFeature)
@@ -48,8 +50,10 @@ export default {
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
   beforeDestroy () {
-    EventBus.$off('layer:added', this.handleAddWMSLayer)
-    EventBus.$off('layer:removed', this.handleRemoveWMSLayer)
+    EventBus.$off('layer:added', this.handleAddLayer)
+    EventBus.$off('layer:removed', this.handleRemoveLayer)
+    EventBus.$off('baseLayer:added', this.handleAddBaseLayer)
+    EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('feature:added', this.handleAddFeature)
@@ -284,12 +288,18 @@ export default {
       this.map.getSource('highlightPointData').setData(point)
       this.map.getSource('highlightLayerData').setData(polygon)
     },
-    handleAddWMSLayer (displayDataName) {
+    handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
-    handleRemoveWMSLayer (displayDataName) {
+    handleRemoveLayer (displayDataName) {
       this.clearHighlightLayer()
       this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
+    },
+    handleAddBaseLayer (layerId) {
+      this.map.setLayoutProperty(layerId, 'visibility', 'visible')
+    },
+    handleRemoveBaseLayer (layerId) {
+      this.map.setLayoutProperty(layerId, 'visibility', 'none')
     },
     handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
