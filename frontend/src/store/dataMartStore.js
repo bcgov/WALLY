@@ -89,15 +89,16 @@ export default {
           let featureCount = 0
 
           // If primary_key_match is in the payload then this query came from a search result
-          // From our returned radius search we can match the primary key to the specific search result 
-          if(payload.primary_key_match) {
-            display_data_name = displayData[0].layer
-            feature = displayData[0].geojson.features.find((f) => {
-              return f.id.toString() === payload.primary_key_match
-            })
-          } else {
-            // Add up number of features returned
-            // Set feature/layer information
+          // from our returned radius search we try and match the primary key to the specific search result 
+          // if there is a match we set the feature to that object
+          feature = displayData[0].geojson.features.find((f) => {
+            return f.id.toString() === payload.primary_key_match
+          })
+          display_data_name = displayData[0].layer
+
+          // If no primary_key_match was found, then we add up the number of features returned
+          // and set the feature/layer information
+          if(!feature) {
             displayData.forEach(layer => {
               featureCount += layer.geojson.features.length
               if(layer.geojson.features.length == 1) {
