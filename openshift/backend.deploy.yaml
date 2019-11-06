@@ -156,6 +156,24 @@ objects:
             periodSeconds: 10
             successThreshold: 1
             timeoutSeconds: 1
+          volumeMounts:
+          - name: logging
+            mountPath: /app/.log/
+        - name: promtail-container
+          args:
+          - -config.file=/etc/promtail/promtail.yaml
+          - -client.url=http://loki:3100/api/prom/push
+          volumeMounts:
+          - name: logs
+            mountPath: /app/.log/
+          - name: promtail-config
+            mountPath: /etc/promtail
+        volumes:
+        - name: logging
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-configmap
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
