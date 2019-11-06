@@ -51,7 +51,7 @@ The output of `create_tileset.sh` is a `layer_name.mbtiles` file in the mbtiles 
 
 ### 4. Uploading vector tiles to the Mapbox service
 
-To be completed...
+The tiles folder also contains a script that uploads the generated .mbtiles files to mapbox: `./upload_tileset.sh <layer_name>`. This script uses the mapbox cli to upload and replace our existing vector tilesets in our mapbox account. When the upload finishes, mapbox processes the layer and then automatically updates our live map with the new vector data. Ideally the vector data in the live map matches what gets loaded into the database at all times.
 
 ## Future steps/improvements
 
