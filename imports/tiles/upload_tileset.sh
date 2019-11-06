@@ -8,7 +8,7 @@
 # MINIO_SECRET_KEY
 # POSTGRES_SERVER
 # POSTGRES_PASSWORD
-# MAPBOX_ACCESS_TOKEN
+# MAPBOX_UPLOAD_TOKEN
 # The database name is assumed to be "wally".
 
 set -e
@@ -29,6 +29,6 @@ echo "Copying mbtileset from Minio storage..."
 ./mc --config-dir=./.mc cp "minio/mbtiles/$1.mbtiles" "./"
 
 echo "Uploading $1.mbtiles to Mapbox using $mapbox_layer_id"
-mapbox upload "$mapbox_layer_id" "$1.mbtiles"
+mapbox --access-token "$MAPBOX_UPLOAD_TOKEN" upload "$mapbox_layer_id" "$1.mbtiles"
 
 echo "Finished."

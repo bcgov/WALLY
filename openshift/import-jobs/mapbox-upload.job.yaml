@@ -7,7 +7,7 @@ parameters:
   displayName: Environment name
   name: ENV_NAME
   value: staging
-- description: Map layer name.  A layer_name.zip and layer_name DB table should be available.
+- description: Map layer name. A layer_name.mbtiles and layer_name DB table should be available.
   displayName: Layer name
   name: LAYER_NAME
   required: true
@@ -71,10 +71,10 @@ objects:
                 secretKeyRef:
                   key: minioSecretKey
                   name: minio
-            - name: MAPBOX_ACCESS_TOKEN
+            - name: MAPBOX_UPLOAD_TOKEN
               valueFrom:
                 secretKeyRef:
-                  key: MAPBOX_ACCESS_TOKEN
+                  key: MAPBOX_UPLOAD_TOKEN
                   name: mapbox-access-token
             - name: POSTGRES_SERVER
               value: wally-psql-master-${ENV_NAME}
