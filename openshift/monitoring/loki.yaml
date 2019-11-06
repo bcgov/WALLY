@@ -78,7 +78,7 @@ objects:
       minReadySeconds: 0
       selector:
         matchLabels:
-          app: ${LOKI_SERVICE_NAME}
+          app: monitoring
           release: ${LOKI_SERVICE_NAME}
       strategy:
         type: RollingUpdate
