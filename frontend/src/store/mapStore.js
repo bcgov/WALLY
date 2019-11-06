@@ -38,12 +38,13 @@ export default {
       state.layerCategories = payload
     },
     addMapLayer (state, payload) {
-      state.activeMapLayers.push(
-        state.mapLayers.find((layer) => {
-          return layer.display_data_name === payload
-        })
-      )
-      EventBus.$emit(`layer:added`, payload)
+      let mapLayer = state.mapLayers.find((layer) => {
+        return layer.display_data_name === payload
+      })
+      if (!state.activeMapLayers.includes(mapLayer)) {
+        state.activeMapLayers.push(mapLayer)
+        EventBus.$emit(`layer:added`, payload)
+      }
     },
     removeMapLayer (state, payload) {
       state.activeMapLayers = state.activeMapLayers.filter((layer) => {
