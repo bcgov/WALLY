@@ -8,6 +8,7 @@ Create Date: 2019-11-01 17:16:31.388055
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects.postgresql import ARRAY, TEXT
 
 # revision identifiers, used by Alembic.
 revision = '5be35dfffc00'
@@ -39,6 +40,9 @@ def upgrade():
     op.add_column('data_source',
                   sa.Column('source_object_id', sa.String, nullable=True,
                             comment='The ID on the upstream data source. This is specifically required for paging through the DataBC API. Note: do not rely on these IDs as permanent keys, only for sorting and paginating during queries (e.g. `sortBy=WLS_WRL_SYSID&startIndex=1000`)'))
+
+    op.add_column('display_catalogue',
+                  sa.Column('required_map_properties', ARRAY(TEXT), nullable=False, server_default="{}", comment='Properties that are required by the map for rendering markers/shapes, e.g. for colouring markers based on a value or property like POD_SUBTYPE'))
 
     op.execute("""
         UPDATE data_source AS ds SET source_object_name = CASE
@@ -94,6 +98,17 @@ def upgrade():
         WHEN ds.data_source_id = 12 THEN 'WLS_WRL_SYSID'
         WHEN ds.data_source_id = 13 THEN NULL
         ELSE NULL
+        END
+    """)
+
+    # initial data for required_map_properties
+    # these are the fields that we need for coloring markers on the map based on properties of the features
+    op.execute("""
+        UPDATE display_catalogue AS dc SET required_map_properties = CASE
+            WHEN dc.display_data_name = 'water_rights_licences' THEN {'POD_SUBTYPE'}
+            WHEN dc.display_data_name = 'freshwater_atlas_stream_directions' THEN {'DOWNSTREAM_DIRECTION'}
+            WHEN dc.display_data_name = 'water_allocation_restrictions' THEN {'PRIMARY_RESTRICTION_CODE'}
+            ELSE {}
         END
     """)
 
