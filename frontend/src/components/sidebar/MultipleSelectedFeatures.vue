@@ -46,10 +46,10 @@
         Using value=0 in v-list-group defaults the collapsable list item to "closed".
         In this case, keep the list items collapsed unless there is only one to display.
           -->
-        <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="dataMartFeature.length > 1 ? 0 : 1">
+        <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
           <template v-slot:activator>
             <v-list-item-content>
-              <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}})</v-list-item-title>
+              <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
             </v-list-item-content>
           </template>
             <v-list-item>
@@ -59,6 +59,7 @@
                     :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
                     :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
                     :items-per-page="10"
+                    :hide-default-footer="value.length < 10"
                   >
                     <template v-slot:item="{ item }">
                       <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">

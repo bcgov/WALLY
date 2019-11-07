@@ -13,17 +13,9 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find streams near this point</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find licences near this point</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <v-row>
-            <v-col cols="12" md="4">
-              <v-text-field
-                label="Search radius (m)"
-                placeholder="1000"
-                v-model="radius"
-              ></v-text-field>
-            </v-col>
-          </v-row>
+          <DistanceToLicences :record="record" :coordinates="this.record.geometry.coordinates"></DistanceToLicences>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -32,10 +24,13 @@
 
 <script>
 import DistanceToWells from '../analysis/DistanceToWells'
+import DistanceToLicences from '../analysis/DistanceToLicences'
+
 export default {
   name: 'FeatureUserDefined',
   components: {
-    DistanceToWells
+    DistanceToWells,
+    DistanceToLicences
   },
   props: ['record'],
   data: () => ({
