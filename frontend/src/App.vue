@@ -6,7 +6,6 @@
         class="pa-0"
         fluid
       >
-        <Toolbar/>
         <Notifications/>
         <router-view/>
       </v-container>

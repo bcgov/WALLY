@@ -131,7 +131,9 @@ export default {
       geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
-      document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
+      // TODO: Don't do DOM manipulation here
+      // document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
+      this.map.addControl(geocoder)
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
       this.map.addControl(this.draw, 'top-right')
       this.map.addControl(new mapboxgl.ScaleControl({ position: 'bottom-left' }))

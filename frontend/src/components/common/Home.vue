@@ -1,9 +1,3 @@
-<!--<template>-->
-<!--    <v-row no-gutters class="content-wrap">-->
-<!--      <v-col cols=12 md=7 order=0 order-md=1><Map/></v-col>-->
-<!--      <v-col cols=12 md=5 order=1 order-md=0 class="content-panel"><Sidebar/></v-col>-->
-<!--    </v-row>-->
-<!--</template>-->
 <template>
   <div class="home">
     <Navigation/>

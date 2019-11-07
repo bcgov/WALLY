@@ -5,13 +5,7 @@
   >
     <v-row>
       <v-col cols=2>
-        <v-btn
-          fab
-          v-if="allowDisableLayerSelection"
-          class="elevation-1"
-          small
-          @click.prevent="$store.commit('setLayerSelectionActive', false)"
-        ><v-icon>arrow_back</v-icon></v-btn>
+
       </v-col>
       <v-col class="title" cols=6>
         Categories
@@ -63,7 +57,7 @@
         </div>
       </template>
     </v-treeview>
-    <Chart :data="boxplotData.data" :layout="boxplotData.layout" :display-mode-bar="false" :key="4" class="chart"></Chart>
+<!--    <Chart :data="boxplotData.data" :layout="boxplotData.layout" :display-mode-bar="false" :key="4" class="chart"></Chart>-->
   </InfoSheet>
 </template>
 

@@ -12,7 +12,7 @@
 
     <v-row>
       <v-list-item
-        @click.prevent="handleLayerSelection">
+        @click.prevent="toggleLayerSelection">
         <!--        <v-list-item-action>-->
         <v-tooltip right>
           <template v-slot:activator="{ on }">
@@ -22,10 +22,13 @@
         </v-tooltip>
         <!--        </v-list-item-action>-->
       </v-list-item>
-      <v-list-item @click="">
-        <v-list-item-action>
-          <v-icon>info</v-icon>
-        </v-list-item-action>
+      <v-list-item @click="toggleInfoSelection">
+        <v-tooltip right>
+          <template v-slot:activator="{ on }">
+            <v-icon v-on="on">info</v-icon>
+          </template>
+          <span>Info</span>
+        </v-tooltip>
       </v-list-item>
     </v-row>
 
@@ -50,11 +53,8 @@ export default {
       'featureSelectionExists'
     ])
   },
-  components: {
-    LayerSelection
-  },
   methods: {
-    handleLayerSelection () {
+    toggleLayerSelection () {
       // router.push('/map-layers')
       if (this.$route.path === '/map-layers') {
         router.push('/')
@@ -69,6 +69,13 @@ export default {
       //   return this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
       // }
       // this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
+    },
+    toggleInfoSelection () {
+      if (this.$route.path === '/map-info') {
+        router.push('/')
+      } else {
+        router.push('/map-info')
+      }
     }
   }
 }

@@ -3,7 +3,6 @@
     <v-sheet
       elevation="5"
       v-bind:width="this.width"
-      height="100%"
       class="float-left"
     >
       <slot/>
@@ -18,15 +17,17 @@
   </div>
 </template>
 <style lang="scss">
-
   #info-sheet {
     position: absolute;
     z-index: 4;
     height: 100%;
+    /*overflow: scroll;*/
   }
   #info-sheet > .v-sheet{
     z-index: 5;
     padding: 10px;
+    height: 100%;
+    overflow: scroll;
   }
   $btn-box-shadow: "0px 0px 1px -2px rgba(0,0,0,.2), 0px 0px 2px 0px rgba(0,0,0,.14), 0px 0px 5px 0px rgba(0,0,0,.12) !important";
   #info-sheet > .v-btn {

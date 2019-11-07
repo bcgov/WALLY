@@ -60,7 +60,7 @@
           </div>
       </template>
     </v-treeview>
-    <Chart :data="boxplotData.data" :layout="boxplotData.layout" :display-mode-bar="false" :key="4" class="chart"></Chart>
+<!--    <Chart :data="boxplotData.data" :layout="boxplotData.layout" :display-mode-bar="false" :key="4" class="chart"></Chart>-->
   </div>
 </template>
 
