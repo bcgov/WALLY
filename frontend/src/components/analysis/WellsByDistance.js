@@ -22,7 +22,10 @@ export default {
       boxPlotData: {
         data: [],
         layout: {
-          title: 'Well yields and depth'
+          title: 'Well yields and depth',
+          font: {
+            family: 'BCSans, Noto Sans, Verdana, Arial'
+          }
         }
       },
       radius: 1000,

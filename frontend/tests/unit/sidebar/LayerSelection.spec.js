@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
-import LayerSelection from '../../../src/components/sidebar/LayerSelection.vue'
+import LayerSelection from '../../../src/components/layer_selection/LayerSelection.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
