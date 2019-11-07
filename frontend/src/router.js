@@ -6,7 +6,7 @@ import Restricted from './views/Restricted.vue'
 import LayerSelection from './components/layer_selection/LayerSelection.vue'
 import MapFeatureSelectionSingle from './components/panels/MapFeatureSelectionSingle'
 import Analysis from './components/analysis/Analysis'
-import WellsByDistance from './components/analysis/WellsByDistance'
+import WellsByDistance from './components/analysis/WellsByDistance.vue'
 import Chart from './components/charts/Chart'
 
 Vue.use(Router)

@@ -82,6 +82,7 @@ export default {
     fetchWells: debounce(function () {
       this.showCircle()
       this.loading = true
+      this.boxPlotData.data = []
       if (!this.radiusIsValid(this.radius)) {
         return
       }
