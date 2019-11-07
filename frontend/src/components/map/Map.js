@@ -35,6 +35,10 @@ export default {
   name: 'Map',
   components: { MapLegend },
   mounted () {
+    if (router.currentRoute.path === '/') {
+      router.push('/map-layers')
+    }
+
     this.initMap()
     EventBus.$on('layer:added', this.handleAddWMSLayer)
     EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
@@ -48,7 +52,6 @@ export default {
     EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
-    router.push('/map-layers')
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
   beforeDestroy () {
@@ -389,6 +392,7 @@ export default {
       this.draw.delete(old.map((feature) => feature.id))
     },
     handleAddPointSelection (feature) {
+      console.log("selected feature")
       feature.display_data_name = 'user_defined_point'
       this.$store.commit('setDataMartFeatureInfo', feature)
     },
@@ -409,9 +413,16 @@ export default {
       if (!feature || !feature.features || !feature.features.length) return
 
       console.log(options.showFeatureList)
+      console.log('do we show feature list?')
 
       if (options.showFeatureList) {
+        console.log('selected something?')
+        // Hide Layer Selection
+        // TODO: Refactor mapStore or dataMartStore to only show one panel
+        //  at a time; depending on route
+
         this.$store.commit('setLayerSelectionActive', false)
+        this.$store.commit('setMapFeatureSelectionSingleActive', true)
       }
 
       const newFeature = feature.features[0]

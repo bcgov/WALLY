@@ -154,7 +154,7 @@ export default {
       console.log('setDatamartfeatureinfo', payload)
       // TODO: router-view redirect to /map-info/
       if (payload.display_data_name === 'user_defined_point') {
-        router.push('/map-info')
+        // router.push('/map-info')
       }
     },
     resetDataMartFeatureInfo: (state) => {

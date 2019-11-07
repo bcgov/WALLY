@@ -30,6 +30,14 @@
           <span>Info</span>
         </v-tooltip>
       </v-list-item>
+      <v-list-item @click="toggleChartSelection">
+        <v-tooltip right>
+          <template v-slot:activator="{ on }">
+            <v-icon v-on="on">mdi-chart-line</v-icon>
+          </template>
+          <span>Chart</span>
+        </v-tooltip>
+      </v-list-item>
     </v-row>
 
     <!--    <LayerSelection />-->
@@ -75,6 +83,13 @@ export default {
         router.push('/')
       } else {
         router.push('/map-info')
+      }
+    },
+    toggleChartSelection () {
+      if (this.$route.path === '/wells') {
+        router.push('/')
+      } else {
+        router.push('/wells')
       }
     }
   }

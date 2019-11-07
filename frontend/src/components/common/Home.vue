@@ -20,6 +20,9 @@ export default {
 }
 </script>
 <style lang="scss">
+  .home {
+    height: calc(100vh - 64px);
+  }
 .content-wrap {
         width: 100%;
         height: calc(100vh - 120px);

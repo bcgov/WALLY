@@ -9,10 +9,10 @@
     </v-sheet>
     <v-btn
       v-bind:style="this.closeButtonStyle"
-      @click="closePanel"
       x-small
       tile
       color="white"
+      to="/"
     ><v-icon>close</v-icon></v-btn>
   </div>
 </template>

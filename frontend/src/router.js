@@ -4,8 +4,10 @@ import Home from './components/common/Home.vue'
 import Login from './views/Login.vue'
 import Restricted from './views/Restricted.vue'
 import LayerSelection from './components/layer_selection/LayerSelection.vue'
-import Panels from './components/panels/Panels'
 import MapFeatureSelectionSingle from './components/panels/MapFeatureSelectionSingle'
+import Analysis from './components/analysis/Analysis'
+import WellsByDistance from './components/analysis/WellsByDistance'
+import Chart from './components/charts/Chart'
 
 Vue.use(Router)
 
@@ -52,6 +54,17 @@ const router = new Router({
           component: MapFeatureSelectionSingle// Panel - Info - containing Single selection or
           // multi
           // select
+        },
+        {
+          path: 'analysis',
+          component: Analysis,
+          children: [
+            {
+              path: 'wells-by-distance/:coordinates',
+              component: WellsByDistance,
+              props: true
+            }
+          ]
         }
       ]
     },
