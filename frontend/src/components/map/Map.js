@@ -9,6 +9,9 @@ import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
 import * as metadata from '../../utils/metadataUtils'
+import coordinatesGeocoder from './localGeocoder'
+import bbox from '@turf/bbox'
+
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
@@ -125,6 +128,7 @@ export default {
         mapboxgl: this.map,
         origin: ApiService.baseURL,
         marker: false,
+        localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
         minLength: 1
       })
@@ -256,7 +260,7 @@ export default {
       const canvas = this.map.getCanvas()
       const size = { x: canvas.width, y: canvas.height }
       let payload = {
-        layers: [{display_data_name: data.result.layer}],
+        layers: [{ display_data_name: data.result.layer }],
         bounds: bounds,
         size: size,
         primary_key_match: data.result.primary_id
@@ -269,11 +273,16 @@ export default {
         payload.primary_key_match = payload.primary_key_match.padStart(4, '0')
       }
 
+      this.clearHighlightLayer()
+      this.updateHighlightLayerData(data.result)
+
+      if (data.result.place_type === 'coordinate') {
+        return
+      }
+
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
-      this.clearHighlightLayer()
-      this.updateHighlightLayerData(data.result)
     },
     updateHighlightLayerData (data) {
       if (data.geometry.type === 'Point') {
@@ -448,7 +457,7 @@ export default {
         const scale = MapScale(this.map)
         const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }
-        const bounds = circle([e.lngLat["lng"], e.lngLat["lat"]], radius, options)
+        const bounds = circle([e.lngLat['lng'], e.lngLat['lat']], radius, options)
         // this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
         this.getMapObjects(bounds)
       }
