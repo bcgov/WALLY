@@ -33,7 +33,7 @@ objects:
         - job_name: system          
           pipeline_stages:
             - match:
-                selector: '{component="api"} |~ ".*GET \/health HTTP\/1\.1.*"'
+                selector: '{component="api"} |~ ".*GET .health HTTP.*"'
                 action: drop    
           static_configs:
             - targets:
