@@ -44,7 +44,7 @@ def upgrade():
     op.add_column('display_catalogue',
                   sa.Column('required_map_properties', ARRAY(TEXT), nullable=False, server_default="{}", comment='Properties that are required by the map for rendering markers/shapes, e.g. for colouring markers based on a value or property like POD_SUBTYPE'))
     op.add_column('display_catalogue',
-                  sa.Column('mapbox_layer_id', ARRAY(TEXT), nullable=False, server_default="{}", comment='The mapbox tileset ID used to upload and replace layer data via the mapbox api.'))
+                  sa.Column('mapbox_layer_id', sa.String, nullable=False, comment='The mapbox tileset ID used to upload and replace layer data via the mapbox api.'))
 
     op.execute("""
         UPDATE data_source AS ds SET source_object_name = CASE
