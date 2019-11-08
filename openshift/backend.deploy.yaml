@@ -164,6 +164,7 @@ objects:
           args:
           - -config.file=/etc/promtail/promtail.yaml
           - -client.url=http://loki:3100/api/prom/push
+          - -client.external-labels=pod=$(HOSTNAME)
           volumeMounts:
           - name: logging
             mountPath: /app/.log/
@@ -177,7 +178,7 @@ objects:
           emptyDir: {}
         - name: promtail-config
           configMap:
-            name: promtail-configmap
+            name: promtail-config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
