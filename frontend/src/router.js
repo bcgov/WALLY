@@ -8,6 +8,7 @@ import MapFeatureSelectionSingle from './components/panels/MapFeatureSelectionSi
 import Analysis from './components/analysis/Analysis'
 import WellsByDistance from './components/analysis/WellsByDistance.vue'
 import Chart from './components/charts/Chart'
+import MapFeatureSelection from './components/panels/MapFeatureSelection'
 
 Vue.use(Router)
 
@@ -51,7 +52,8 @@ const router = new Router({
         },
         {
           path: 'map-info',
-          component: MapFeatureSelectionSingle// Panel - Info - containing Single selection or
+          component: MapFeatureSelection// Panel - Info - containing Single
+          // selection or
           // multi
           // select
         },

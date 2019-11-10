@@ -1,19 +1,35 @@
 <template>
   <div id="info-sheet">
+    <v-expand-x-transition>
     <v-sheet
       elevation="5"
       v-bind:width="this.width"
       class="float-left"
+      v-show="!hidePanel"
     >
       <slot/>
     </v-sheet>
-    <v-btn
-      v-bind:style="this.closeButtonStyle"
+    </v-expand-x-transition>
+    <v-slide-x-reverse-transition>
+      <v-btn
       x-small
       tile
       color="white"
-      to="/"
+      @click="this.togglePanel"
+      class="close"
+      v-show="!hidePanel"
     ><v-icon>close</v-icon></v-btn>
+    </v-slide-x-reverse-transition>
+    <v-slide-x-transition>
+      <v-btn
+        v-show="hidePanel"
+        @click="togglePanel()"
+        large
+        tile
+      >
+        <v-icon>mdi-arrow-expand-right</v-icon> {{this.panelName}}
+      </v-btn>
+    </v-slide-x-transition>
   </div>
 </template>
 <style lang="scss">
@@ -30,7 +46,7 @@
     overflow: scroll;
   }
   $btn-box-shadow: "0px 0px 1px -2px rgba(0,0,0,.2), 0px 0px 2px 0px rgba(0,0,0,.14), 0px 0px 5px 0px rgba(0,0,0,.12) !important";
-  #info-sheet > .v-btn {
+  #info-sheet > .v-btn.close {
     z-index: 4;
     width: 20px !important;
     height: 50px;
@@ -46,29 +62,48 @@
 <script>
 export default {
   name: 'InfoSheet',
-  data: function () {
-    return {
-      closeButtonStyle: {
-        left: this.width + 'px'
-      }
-    }
-  },
   props: {
     closePanel: Function,
     display: Boolean,
     width: {
       type: Number,
       default: 800
+    },
+    hide: {
+      type: Boolean,
+      default: false
+    },
+    panelName: String
+  },
+  data: () => {
+    return {
+      hidePanel: false
     }
   },
   computed: {
+    closeButtonStyle () {
+      return {
+        left: this.width + 'px'
+      }
+    }
+  },
+  mounted () {
+    this.hidePanel = this.hide
+  },
+  updated (test) {
+    console.log('updates', test)
+    // this.hidePanel = false
   },
   methods: {
+
     handleLayerSelectionState () {
       if (!this.featureSelectionExists) {
         return this.$store.commit('setLayerSelectionActive', true)
       }
       this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
+    },
+    togglePanel () {
+      this.hidePanel = !this.hidePanel
     }
   }
 }

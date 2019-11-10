@@ -1,7 +1,6 @@
 <template>
-  <InfoSheet>
+  <InfoSheet :width=panelWidth panelName="Analysis">
   <router-view>
-
   </router-view>
   </InfoSheet>
 </template>
@@ -11,6 +10,11 @@ export default {
   name: 'Analysis',
   components: {
     InfoSheet
+  },
+  data: () => {
+    return {
+      panelWidth: 1000
+    }
   }
 }
 </script>

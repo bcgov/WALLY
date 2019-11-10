@@ -1,7 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions } from 'vuex'
-import * as _ from 'lodash'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -9,8 +8,6 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
-import * as metadata from '../../utils/metadataUtils'
-import bbox from '@turf/bbox'
 import router from '../../router.js'
 
 import qs from 'querystring'
@@ -38,19 +35,10 @@ export default {
     if (router.currentRoute.path === '/') {
       router.push('/map-layers')
     }
-
-    this.initMap()
-    EventBus.$on('layer:added', this.handleAddWMSLayer)
-    EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
-    EventBus.$on('dataMart:added', this.handleAddApiLayer)
-    EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
-    EventBus.$on('feature:added', this.handleAddFeature)
-    EventBus.$on('layers:loaded', this.loadLayers)
-    EventBus.$on('draw:reset', this.replaceOldFeatures)
-    EventBus.$on('shapes:add', this.addShape)
-    EventBus.$on('shapes:reset', this.removeShapes)
-    EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
-    EventBus.$on('highlight:clear', this.clearHighlightLayer)
+    this.initMap().then(() => {
+      this.setupEvents()
+      this.$store.commit('setMapReady', true)
+    })
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -59,7 +47,7 @@ export default {
     EventBus.$off('layer:removed', this.handleRemoveWMSLayer)
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
-    EventBus.$off('feature:added', this.handleAddFeature)
+    EventBus.$off('feature:add', this.addFeatureData)
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
     EventBus.$off('shapes:add', this.addShape)
@@ -163,12 +151,34 @@ export default {
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
     },
+    setupEvents () {
+      EventBus.$on('layer:added', this.handleAddWMSLayer)
+      EventBus.$on('layer:removed', this.handleRemoveWMSLayer)
+      EventBus.$on('dataMart:added', this.handleAddApiLayer)
+      EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
+      EventBus.$on('feature:add', this.addFeatureData)
+      EventBus.$on('layers:loaded', this.loadLayers)
+      EventBus.$on('draw:reset', this.replaceOldFeatures)
+      EventBus.$on('shapes:add', this.addShape)
+      EventBus.$on('shapes:reset', this.removeShapes)
+      EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
+      EventBus.$on('highlight:clear', this.clearHighlightLayer)
+    },
     addShape (shape) {
       // adds a mapbox-gl-draw shape to the map
-      this.map.getSource('customShapeData').setData(shape)
+      this.map.on('load', () => {
+        this.map.getSource('customShapeData').setData(shape)
+      })
     },
     removeShapes () {
-      this.map.getSource('customShapeData').setData(polygon)
+      this.map.on('load', () => {
+        this.map.getSource('customShapeData').setData(polygon)
+      })
+    },
+    addFeatureData (feature) {
+      this.map.on('load', () => {
+        this.$store.commit('setDataMartFeatureInfo', feature)
+      })
     },
     clearSelections () {
       this.replaceOldFeatures()
@@ -191,6 +201,7 @@ export default {
       }
     },
     initHighlightLayers () {
+      // TODO: Rename to initHighlightLayer
       this.map.on('load', () => {
         // initialize highlight layer
         this.map.addSource('customShapeData', { type: 'geojson', data: polygon })
@@ -392,9 +403,9 @@ export default {
       this.draw.delete(old.map((feature) => feature.id))
     },
     handleAddPointSelection (feature) {
-      console.log("selected feature")
       feature.display_data_name = 'user_defined_point'
       this.$store.commit('setDataMartFeatureInfo', feature)
+      router.push('/map-info')
     },
     handleSelect (feature, options) {
       // default options when calling this handler.
@@ -413,16 +424,16 @@ export default {
       if (!feature || !feature.features || !feature.features.length) return
 
       console.log(options.showFeatureList)
-      console.log('do we show feature list?')
+      console.log('handle select', 'feature-', feature, 'show featurelist - ', options.showFeatureList)
 
       if (options.showFeatureList) {
-        console.log('selected something?')
         // Hide Layer Selection
         // TODO: Refactor mapStore or dataMartStore to only show one panel
         //  at a time; depending on route
 
         this.$store.commit('setLayerSelectionActive', false)
         this.$store.commit('setMapFeatureSelectionSingleActive', true)
+        router.push('/map-info')
       }
 
       const newFeature = feature.features[0]

@@ -1,18 +1,17 @@
 <template>
   <div>
-
-    <v-card
-      outlined
-      color="grey lighten-4"
-      tile
-    >
-    <v-card-text>
-      <div>Point coordinates</div>
-      <span class="title">
-        {{coordinatesArr[0].toFixed(5)}}, {{coordinatesArr[1].toFixed(5)}}
-      </span>
-    </v-card-text>
-    </v-card>
+    <v-toolbar flat>
+      <v-banner color="indigo"
+                icon="mdi-map-marker"
+                icon-color="white"
+                width="100%"
+      >
+        <v-toolbar-title>
+          Point Coordinates
+        </v-toolbar-title>
+        {{coordinates}}
+      </v-banner>
+    </v-toolbar>
     <v-row>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field

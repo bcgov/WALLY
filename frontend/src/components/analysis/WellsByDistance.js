@@ -53,10 +53,24 @@ export default {
     },
     ...mapGetters([
       'isMapLayerActive',
-      'dataMartFeatureInfo'
+      'dataMartFeatureInfo',
+      'isMapReady'
     ])
   },
   methods: {
+    loadUserDefinedFeatureInfo () {
+      let feature = {
+        display_data_name: 'user_defined_point',
+        type: 'Feature',
+        properties: {
+        },
+        geometry: {
+          type: 'Point',
+          coordinates: this.coordinatesArr
+        }
+      }
+      EventBus.$emit('feature:add', feature)
+    },
     enableWellsLayer () {
       this.$store.commit('addMapLayer', 'groundwater_wells')
     },
@@ -123,21 +137,32 @@ export default {
     }
   },
   watch: {
+    isMapReady (value) {
+      if (value) {
+        this.loadUserDefinedFeatureInfo()
+        this.fetchWells()
+      }
+    },
     // record: {
     //   handler () {
     //     this.fetchWells()
     //   },
     //   deep: true
     // },
-    coordinatesArr () {
-      this.fetchWells()
+    dataMartFeatureInfo(value) {
+      if (value && value.geometry) {
+        this.fetchWells()
+      }
     },
     radius (value) {
       this.fetchWells()
     }
   },
+
   mounted () {
-    this.fetchWells()
+    this.$nextTick(function () {
+      this.loadUserDefinedFeatureInfo()
+    })
   },
   beforeDestroy () {
     EventBus.$emit('shapes:reset')

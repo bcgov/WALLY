@@ -1,7 +1,7 @@
 <template>
   <InfoSheet
-    :closePanel="this.closePanel"
     :width="500"
+    panelName="Layers"
   >
     <v-row>
       <v-col cols=2>

@@ -10,7 +10,8 @@ export default {
     highlightFeatureData: {},
     layerCategories: [],
     layerSelectionActive: true,
-    mapFeatureSelectionSingleActive: false
+    mapFeatureSelectionSingleActive: false,
+    isMapReady: false
   },
   actions: {
     getMapLayers ({ commit }) {
@@ -37,6 +38,9 @@ export default {
     },
     setMapFeatureSelectionSingleActive (state, payload) {
       state.mapFeatureSelectionSingleActive = payload
+    },
+    setMapReady (state, payload) {
+      state.isMapReady = payload
     },
     setLayerCategories (state, payload) {
       state.layerCategories = payload
@@ -87,6 +91,7 @@ export default {
     }
   },
   getters: {
+    isMapReady: state => state.isMapReady,
     selectedMapLayerNames: state => state.selectedMapLayerNames,
     activeMapLayers: state => state.activeMapLayers,
     isMapLayerActive: state => displayDataName => !!state.activeMapLayers.find((x) => x && x.display_data_name === displayDataName),
