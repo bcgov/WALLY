@@ -70,6 +70,7 @@ import EventBus from '../../services/EventBus'
 import StreamStation from '../features/FeatureStreamStation'
 import Well from '../features/FeatureWell'
 import Aquifer from '../features/FeatureAquifer'
+import Licence from '../features/FeatureLicence'
 import EcoCat from '../features/FeatureEcocat'
 import UserDefinedPoint from '../features/FeatureUserDefinedPoint'
 
@@ -80,6 +81,7 @@ export default {
     Well,
     EcoCat,
     Aquifer,
+    Licence,
     UserDefinedPoint
   },
   props: {
@@ -89,6 +91,8 @@ export default {
     featureComponents: {
       hydrometric_stream_flow: StreamStation,
       aquifers: Aquifer,
+      water_rights_licenses: Licence,
+      water_rights_licences: Licence,
       groundwater_wells: Well,
       ecocat_water_related_reports: EcoCat,
       user_defined_point: UserDefinedPoint
