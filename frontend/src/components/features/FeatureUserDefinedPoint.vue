@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import DistanceToWells from '../analysis/DistanceToWells'
-import DistanceToLicences from '../analysis/DistanceToLicences'
+import DistanceToWells from '../analysis/WellsByDistance'
+import DistanceToLicences from '../analysis/WaterRightsLicencesByDistance'
 
 export default {
   name: 'FeatureUserDefined',
