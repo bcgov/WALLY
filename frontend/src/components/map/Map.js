@@ -104,7 +104,8 @@ export default {
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
-        zoom: zoomConfig.zoomLevel // starting zoom
+        zoom: zoomConfig.zoomLevel, // starting zoom
+        attributionControl: false // hide default and re-add to the top left
       })
 
       const modes = MapboxDraw.modes
@@ -136,15 +137,17 @@ export default {
 
       // Add zoom and rotation controls to the map.
       document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
-      this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
-      this.map.addControl(this.draw, 'top-left')
-      this.map.addControl(new mapboxgl.ScaleControl({ position: 'bottom-left' }))
+      this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+      this.map.addControl(this.draw, 'top-right')
+      this.map.addControl(new mapboxgl.ScaleControl(), 'bottom-right')
+      this.map.addControl(new mapboxgl.ScaleControl({unit: 'imperial'}), 'bottom-right')
+      this.map.addControl(new mapboxgl.AttributionControl(), 'top-left')
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
         },
         showUserLocation: false
-      }), 'top-left')
+      }), 'top-right')
       this.map.on('style.load', () => {
         this.getMapLayers()
       })
