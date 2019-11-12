@@ -31,13 +31,49 @@ export default {
       { text: 'SWL to top of screen (ft)', value: 'swl_to_screen', align: 'right' },
       { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well', align: 'right' }
     ],
-    boxPlotData: {
+    boxPlotSWLData: {
       data: [],
+      id: 1,
       layout: {
-        title: 'Well yields and depth',
+        title: 'Static Water Level Depth',
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
-        }
+        },
+        yaxis: {
+          autorange: 'reversed'
+        },
+        autosize: false,
+        width: 250
+      }
+    },
+    boxPlotYieldData: {
+      data: [],
+      id: 2,
+      layout: {
+        title: 'Reported Well yields',
+        font: {
+          family: 'BCSans, Noto Sans, Verdana, Arial'
+        },
+        yaxis: {
+          autorange: 'reversed'
+        },
+        autosize: false,
+        width: 250
+      }
+    },
+    boxPlotFinishedDepthData: {
+      data: [],
+      id: '3',
+      layout: {
+        title: 'Finished Well depth',
+        font: {
+          family: 'BCSans, Noto Sans, Verdana, Arial'
+        },
+        yaxis: {
+          autorange: 'reversed'
+        },
+        autosize: false,
+        width: 250
       }
     }
   }),
@@ -54,7 +90,9 @@ export default {
     fetchWells: debounce(function () {
       this.showCircle()
       this.loading = true
-      this.boxPlotData.data = []
+      this.boxPlotSWLData.data = []
+      this.boxPlotYieldData.data = []
+      this.boxPlotFinishedDepthData.data = []
       if (!this.radiusIsValid(this.radius)) {
         return
       }
@@ -91,21 +129,28 @@ export default {
       EventBus.$emit('shapes:add', shape)
     },
     populateBoxPlotData (wells) {
-      let y = []
-      let y2 = []
+      let yieldY = []
+      let depthY = []
+      let swlY = []
       wells.forEach(well => {
-        y.push(Number(well.well_yield))
-        y2.push(Number(well.finished_well_depth))
+        yieldY.push(Number(well.well_yield))
+        depthY.push(Number(well.finished_well_depth))
+        swlY.push(Number(well.static_water_level))
       })
-      this.boxPlotData.data.push({
-        y: y,
+      this.boxPlotYieldData.data.push({
+        y: yieldY,
         type: 'box',
         name: 'Well Yields'
       })
-      this.boxPlotData.data.push({
-        y: y2,
+      this.boxPlotFinishedDepthData.data.push({
+        y: depthY,
         type: 'box',
-        name: 'Well Depth'
+        name: 'Finished Well Depth'
+      })
+      this.boxPlotSWLData.data.push({
+        y: swlY,
+        type: 'box',
+        name: 'Static Water Level Depth'
       })
     }
   },

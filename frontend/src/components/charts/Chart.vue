@@ -1,5 +1,5 @@
 <template>
-  <Plotly :data="data" :layout="layout" :key="4" class="chart" :displaylogo="false"></Plotly>
+  <Plotly :data="data" :layout="layout" :key="id" class="chart" :displaylogo="false" link="true"></Plotly>
 </template>
 <script>
 import { Plotly } from 'vue-plotly'
@@ -14,6 +14,14 @@ export default {
     layout: {
       title: String
     }
+  },
+  data () {
+    return {
+      id: null
+    }
+  },
+  mounted () {
+    this.id = this._uid
   }
 }
 </script>

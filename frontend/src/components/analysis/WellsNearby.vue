@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="wells_nearby">
     <v-row>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
@@ -30,12 +30,23 @@
       <v-col cols="12">
         <v-card :loading="loading" outlined tile >
          <Chart
-           :data="boxPlotData.data"
-           :layout="boxPlotData.layout"
-           :display-mode-bar="false"
-           :key="4"
+           :data="boxPlotYieldData.data"
+           :layout="boxPlotYieldData.layout"
+           :key="boxPlotYieldData.id"
            class="chart">
          </Chart>
+          <Chart
+            :data="boxPlotFinishedDepthData.data"
+            :layout="boxPlotFinishedDepthData.layout"
+            :key="boxPlotFinishedDepthData.id"
+            class="chart">
+          </Chart>
+          <Chart
+            :data="boxPlotSWLData.data"
+            :layout="boxPlotSWLData.layout"
+            :key="boxPlotSWLData.id"
+            class="chart">
+          </Chart>
         </v-card>
       </v-col>
     </v-row>
@@ -75,4 +86,14 @@
 </template>
 
 <script src="./WellsNearby.js"></script>
-<style></style>
+<style lang="scss">
+ #wells_nearby{
+  .plot-container{
+    width: 240px;
+    float: left;
+  }
+   .v-card{
+     min-height: 460px
+   }
+ }
+</style>
