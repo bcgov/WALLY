@@ -91,10 +91,10 @@ export default {
           iconSize
         })
         return legendItems
-      } 
+      }
 
       // Gradient color items that interpolate between 2+ values
-      if(paint.color[0] == "interpolate") {
+      if (paint.color[0] === 'interpolate') {
         legendItems.push({
           'text': '',
           'color': paint.color[6],

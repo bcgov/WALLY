@@ -29,9 +29,7 @@ export default {
       return this.layerSelectionActive || !this.featureSelectionExists
     },
     panelWidth () {
-      console.log('check')
       if (this.isSingleSelectedFeature || this.isMultipleSelectedFeatures) {
-        console.log('check2')
         return 800
       }
       return 500
