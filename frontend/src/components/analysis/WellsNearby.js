@@ -7,7 +7,7 @@ import EventBus from '../../services/EventBus'
 import Chart from '../charts/Chart'
 
 export default {
-  name: 'WellsByDistance',
+  name: 'WellsNearby',
   components: {
     Chart
   },

@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import DistanceToWells from '../analysis/WellsByDistance'
+import DistanceToWells from '../analysis/WellsNearby'
 import DistanceToLicences from '../analysis/WaterRightsLicencesByDistance'
 
 export default {
