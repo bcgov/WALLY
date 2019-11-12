@@ -4,9 +4,13 @@ import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
 import EventBus from '../../services/EventBus'
+import Chart from '../charts/Chart'
 
 export default {
-  name: 'DistanceToWells',
+  name: 'WellsByDistance',
+  components: {
+    Chart
+  },
   props: ['record', 'coordinates'],
   data: () => ({
     inputRules: {
@@ -26,7 +30,16 @@ export default {
       { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth', align: 'right' },
       { text: 'SWL to top of screen (ft)', value: 'swl_to_screen', align: 'right' },
       { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well', align: 'right' }
-    ]
+    ],
+    boxPlotData: {
+      data: [],
+      layout: {
+        title: 'Well yields and depth',
+        font: {
+          family: 'BCSans, Noto Sans, Verdana, Arial'
+        }
+      }
+    },
   }),
   computed: {
     isWellsLayerEnabled () {
@@ -41,6 +54,7 @@ export default {
     fetchWells: debounce(function () {
       this.showCircle()
       this.loading = true
+      this.boxPlotData.data = []
       if (!this.radiusIsValid(this.radius)) {
         return
       }
@@ -51,6 +65,7 @@ export default {
       }
       ApiService.query(`/api/v1/analysis/wells/nearby?${qs.stringify(params)}`).then((r) => {
         this.results = r.data
+        this.populateBoxPlotData(this.results)
       }).catch((e) => {
         console.error(e)
       }).finally(() => {
@@ -74,6 +89,24 @@ export default {
 
       // add the new one
       EventBus.$emit('shapes:add', shape)
+    },
+    populateBoxPlotData (wells) {
+      let y = []
+      let y2 = []
+      wells.forEach(well => {
+        y.push(Number(well.well_yield))
+        y2.push(Number(well.finished_well_depth))
+      })
+      this.boxPlotData.data.push({
+        y: y,
+        type: 'box',
+        name: 'Well Yields'
+      })
+      this.boxPlotData.data.push({
+        y: y2,
+        type: 'box',
+        name: 'Well Depth'
+      })
     }
   },
   watch: {

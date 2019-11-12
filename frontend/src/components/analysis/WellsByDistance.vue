@@ -27,6 +27,19 @@
       </v-col>
     </v-row>
     <v-row>
+      <v-col cols="12">
+        <v-card :loading="loading" outlined tile >
+         <Chart
+           :data="boxPlotData.data"
+           :layout="boxPlotData.layout"
+           :display-mode-bar="false"
+           :key="4"
+           class="chart">
+         </Chart>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col>
         <v-expansion-panels class="mt-5 elevation-0" multiple>
           <v-expansion-panel class="elevation-0">
