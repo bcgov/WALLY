@@ -17,9 +17,25 @@ cd /dataload
 declare -a row=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" \
   --single-transaction \
   --field-separator=' ' \
-  -c "SELECT dc.display_data_name FROM metadata.display_catalogue AS dc JOIN metadata.data_source as ds on dc.data_source_id = ds.data_source_id WHERE ds.data_table_name='$1';"))
+  -c "SELECT dc.display_data_name, dc.required_map_properties FROM metadata.display_catalogue AS dc JOIN metadata.data_source as ds on dc.data_source_id = ds.data_source_id WHERE ds.data_table_name='$1';"))
 
 mapbox_layer_name="${row[0]}"
+
+echo "using layer name: $mapbox_layer_name"
+map_properties=$(echo "${row[1]}" | tr -d '{' | tr -d '}')
+
+# extra arguments - for excluding all properties (default) or
+# adding in properties one by one (if present in $map_properties)
+extra_args="-X"
+
+if [[ $map_properties != "" ]]
+then
+  # construct extra args in the form of "-y POD_SUBTYPE -y LICENCE_NUMBER" etc
+  echo "$map_properties"
+  extra_args=$(echo "$map_properties" | sed "s/,/ -y /g" | sed "s/^/-y /")
+fi
+
+echo "using extra arguments for $mapbox_layer_name: $extra_args"
 
 echo "Setting up Minio host"
 ./mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
@@ -29,7 +45,7 @@ echo "Copying layer from Minio storage..."
 
 echo "Converting to mbtiles using layer name $mapbox_layer_name"
 
-unzip -p "./$1.zip" | tippecanoe -zg --exclude-all --force --layer="$mapbox_layer_name" -o "./$1.mbtiles" --drop-densest-as-needed
+unzip -p "./$1.zip" | tippecanoe -zg --exclude-all --force --layer="$mapbox_layer_name" -o "./$1.mbtiles" --drop-densest-as-needed "$extra_args"
 
 echo "Copying $1.mbtiles to Minio storage..."
 ./mc --config-dir=./.mc cp "./$1.mbtiles" "minio/mbtiles"
