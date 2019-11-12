@@ -1,11 +1,11 @@
 <template>
   <InfoSheet
-    :width="500"
-    panelName="Layers"
+    :width="panelWidth"
+    :panelName="panelName"
   >
       <LayerSelection v-if="displayLayerSelection"/>
-      <SingleSelectedFeature v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name"/>
-      <MultipleSelectedFeatures v-else-if="dataMartFeatures && dataMartFeatures.length"/>
+      <SingleSelectedFeature v-else-if="isSingleSelectedFeature"/>
+      <MultipleSelectedFeatures v-else-if="isMultipleSelectedFeatures"/>
 
       <!-- nothing to display -->
       <v-card class="mt-5" v-else>

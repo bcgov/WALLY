@@ -28,6 +28,45 @@ export default {
       // features selected
       return this.layerSelectionActive || !this.featureSelectionExists
     },
+    panelWidth () {
+      console.log('check')
+      if (this.isSingleSelectedFeature || this.isMultipleSelectedFeatures) {
+        console.log('check2')
+        return 800
+      }
+      return 500
+    },
+    panelName () {
+      if (this.displayLayerSelection) {
+        return 'Layers'
+      } else if (this.isSingleSelectedFeature) {
+        return 'Feature Info'
+      } else if (this.isMultipleSelectedFeatures) {
+        return 'Analysis'
+      } else {
+        return 'Expand'
+      }
+    },
+    isSingleSelectedFeature () {
+      return this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name
+    },
+    isMultipleSelectedFeatures () {
+      return this.dataMartFeatures && this.dataMartFeatures.length
+    },
+    // isEmptySelection () {
+    //   return !this.isSingleSelection && !this.isMultipleSelection
+    // },
+    // isSingleUserDefinedPointSelection () {
+    //   return this.isSingleSelection && this.dataMartFeatureInfo.display_data_name === 'user_defined_point'
+    // },
+    // isSingleSelection () {
+    //   return this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name !== undefined
+    // },
+    // isMultipleSelection () {
+    //   return this.dataMartFeatures && this.dataMartFeatures.length > 0 &&
+    //     this.dataMartFeatureInfo.display_data_name === undefined
+    // },
+
     ...mapGetters([
       'isMapLayerActive',
       'isDataMartActive',
