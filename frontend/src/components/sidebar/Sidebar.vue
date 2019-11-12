@@ -1,6 +1,7 @@
 <template>
-  <v-sheet
-    class="mt-0 px-5 fill-height"
+  <InfoSheet
+    :width="500"
+    panelName="Layers"
   >
       <LayerSelection v-if="displayLayerSelection"/>
       <SingleSelectedFeature v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name"/>
@@ -23,7 +24,7 @@
           <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
         </v-card-text>
       </v-card>
-  </v-sheet>
+  </InfoSheet>
 </template>
 
 <script src="./Sidebar.js"></script>

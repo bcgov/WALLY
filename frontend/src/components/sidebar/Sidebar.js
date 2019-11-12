@@ -3,13 +3,15 @@ import { mapGetters } from 'vuex'
 import SingleSelectedFeature from './SingleSelectedFeature'
 import MultipleSelectedFeatures from './MultipleSelectedFeatures'
 import LayerSelection from './LayerSelection'
+import InfoSheet from '../common/InfoSheet'
 
 export default {
   name: 'Sidebar',
   components: {
     SingleSelectedFeature,
     MultipleSelectedFeatures,
-    LayerSelection
+    LayerSelection,
+    InfoSheet
   },
   data () {
     return {

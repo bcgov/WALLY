@@ -1,8 +1,8 @@
 <template>
-    <v-row no-gutters class="content-wrap">
-      <v-col cols=12 md=7 order=0 order-md=1><Map/></v-col>
-      <v-col cols=12 md=5 order=1 order-md=0 class="content-panel"><Sidebar/></v-col>
-    </v-row>
+  <div class="home">
+    <Sidebar></Sidebar>
+    <Map></Map>
+  </div>
 </template>
 
 <script>
@@ -18,14 +18,31 @@ export default {
 }
 </script>
 <style lang="scss">
+.home {
+  height: calc(100vh - 64px);
+}
 .content-wrap {
-        width: 100%;
-        height: calc(100vh - 120px);
-    }
+  width: 100%;
+  height: calc(100vh - 120px);
+}
 
 .content-panel {
   overflow: auto;
-        height: calc(100vh - 120px);
+  height: calc(100vh - 120px);
 
 }
+/* Custom animations for router-view transitions */
+.expand-x-enter, .expand-x-leave-to {
+  width: 0;
+}
+$expand-transition: "width 1s ease-in-out, opacity 03s ease 0.5s";
+.expand-x-enter-active, .expand-x-leave-active {
+  -webkit-transition: $expand-transition;
+  -moz-transition: $expand-transition;
+  -o-transition: $expand-transition;
+  transition: $expand-transition;
+  transition-duration: 0.3s;
+  overflow: hidden;
+}
+.expand-x-enter-to, .expand-x-leave { width: 100%; }
 </style>
