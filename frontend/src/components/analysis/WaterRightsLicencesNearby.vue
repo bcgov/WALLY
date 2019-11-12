@@ -85,7 +85,7 @@ import circle from '@turf/circle'
 import EventBus from '../../services/EventBus'
 
 export default {
-  name: 'WaterRightsLicencesByDistance',
+  name: 'WaterRightsLicencesNearby',
   props: ['record', 'coordinates'],
   data: () => ({
     inputRules: {

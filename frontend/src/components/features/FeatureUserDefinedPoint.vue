@@ -24,7 +24,7 @@
 
 <script>
 import DistanceToWells from '../analysis/WellsNearby'
-import DistanceToLicences from '../analysis/WaterRightsLicencesByDistance'
+import DistanceToLicences from '../analysis/WaterRightsLicencesNearby'
 
 export default {
   name: 'FeatureUserDefined',
