@@ -1,10 +1,17 @@
 <template>
   <v-sheet class="pt-5">
-    <div class="headline">Point</div>
-    <dl>
-      <dt>Coordinates:</dt>
-      <dl>{{coordinates}}</dl>
-    </dl>
+    <v-toolbar flat>
+      <v-banner color="indigo"
+                icon="mdi-map-marker"
+                icon-color="white"
+                width="100%"
+      >
+        <v-toolbar-title>
+          Point Coordinates
+        </v-toolbar-title>
+        {{coordinates}}
+      </v-banner>
+    </v-toolbar>
     <v-expansion-panels class="mt-5" multiple>
       <v-expansion-panel>
         <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find wells near this point</v-expansion-panel-header>
