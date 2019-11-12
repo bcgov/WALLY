@@ -28,6 +28,7 @@ module.exports = {
     'jest-watch-typeahead/testname'
   ],
   'setupFiles': [
-    './jest.stubs.js'
+    './jest.stubs.js',
+    'jest-canvas-mock'
   ]
 }
