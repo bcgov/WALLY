@@ -6,9 +6,9 @@ import json
 import logging
 import requests
 from typing import List, Optional
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
-from shapely.geometry import Point
+from shapely.geometry import Point, LineString
 from app.layers.ground_water_wells import GroundWaterWells
 from app.analysis.wells.models import WellDrawdown, Screen
 logger = logging.getLogger("api")
@@ -187,3 +187,77 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
             **well_map.get(str(well[0]).lstrip('0'), {})
         )
         for well in wells_with_distances])
+
+
+def get_offset_point(line, percent_length_along_line, offset):
+    """ returns a point that is offset (in m) perpendicular to the line.
+    percent_length_along_line is the distance along the line the point should be,
+    expressed as a fraction (0 to 1) i.e. 0 is the beginning of the line, 1 is the end.
+    """
+    return func.ST_LineInterpolatePoint(
+        func.ST_Transform(
+            func.ST_OffsetCurve(
+                func.ST_Transform(
+                    # convert to BC albers for calculating offset in m
+                    func.ST_GeomFromText(line.wkt, 4326), 3005
+                ),
+                offset
+            ), 4326
+        ), percent_length_along_line
+    )
+
+
+def get_line_buffer_polygon(line: LineString, radius: float):
+    """ returns a buffer area around a LineString. """
+    return func.ST_Transform(func.ST_Buffer(
+        func.St_Transform(
+            func.ST_GeomFromText(line.wkt, 4326),
+            3005
+        ),
+        radius,
+        'endcap=flat join=round'
+    ), 4326)
+
+
+def get_wells_along_line(db: Session, line: LineString, radius: int):
+    """ returns wells along a given line, including wells that are within a buffer
+        determined by `radius` (m).
+        `radius` creates a buffer area next to the line that does not include any area
+        behind or beyond the start/end of the drawn line. The wells are ordered
+        by the distance from the origin (i.e. the beginning of the line, measured
+        along the axis).
+    """
+
+    # calculate a line normal to the user-defined line, at the start.
+    # This will be the "origin" for plots that use this data.  We need a line as a reference,
+    # so that we can measure distances along the axis, even when some points are offset from
+    # the centreline. The distance calculation will be from this line (so
+    # that distances are not affected by the offset).
+    normal_line = func.ST_MakeLine(
+        get_offset_point(line, 0, radius * -1),
+        get_offset_point(line, 0, radius)
+    )
+
+    distance = func.ST_Distance(
+        func.ST_Transform(normal_line, 3005),
+        func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
+    )
+
+    # Find wells along `line` that are within `radius` of the line.
+    # note on this query: PostGIS recommends using ST_DWithin instead of ST_Buffer for looking up
+    # points near another feature. However, we need results that are along a straight line and NOT simply
+    # within a certain distance of the line (for example, we don't want any points before or beyond the endpoints
+    # even if they are within the radius). Note use of endcap=flat.
+    q = db.query(
+        GroundWaterWells.WELL_TAG_NO.label("well_tag_number"),
+        GroundWaterWells.DEPTH_WELL_DRILLED.label("finished_well_depth"),
+        GroundWaterWells.WATER_DEPTH.label("water_depth"),
+        distance.label("distance_from_origin")) \
+        .filter(
+            func.ST_Contains(
+                get_line_buffer_polygon(line, radius),
+                GroundWaterWells.GEOMETRY
+            )
+    ).order_by('distance_from_origin')
+
+    return q.all()

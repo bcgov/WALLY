@@ -72,6 +72,7 @@ import Well from '../features/FeatureWell'
 import Aquifer from '../features/FeatureAquifer'
 import EcoCat from '../features/FeatureEcocat'
 import UserDefinedPoint from '../features/FeatureUserDefinedPoint'
+import UserDefinedLine from '../features/FeatureUserDefinedLine'
 
 export default {
   name: 'SingleSelectedFeature',
@@ -80,7 +81,8 @@ export default {
     Well,
     EcoCat,
     Aquifer,
-    UserDefinedPoint
+    UserDefinedPoint,
+    UserDefinedLine
   },
   props: {
 
@@ -91,7 +93,8 @@ export default {
       aquifers: Aquifer,
       groundwater_wells: Well,
       ecocat_water_related_reports: EcoCat,
-      user_defined_point: UserDefinedPoint
+      user_defined_point: UserDefinedPoint,
+      user_defined_line: UserDefinedLine
     }
   }),
   computed: {
