@@ -9,13 +9,13 @@
       <v-expansion-panel>
         <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find wells near this point</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <DistanceToWells :record="record" :coordinates="this.record.geometry.coordinates"></DistanceToWells>
+          <WellsNearby :record="record" :coordinates="this.record.geometry.coordinates"></WellsNearby>
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
         <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find licences near this point</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <DistanceToLicences :record="record" :coordinates="this.record.geometry.coordinates"></DistanceToLicences>
+          <WaterRightsLicencesNearby :record="record" :coordinates="this.record.geometry.coordinates"></WaterRightsLicencesNearby>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -23,14 +23,14 @@
 </template>
 
 <script>
-import DistanceToWells from '../analysis/WellsNearby'
-import DistanceToLicences from '../analysis/WaterRightsLicencesNearby'
+import WellsNearby from '../analysis/WellsNearby.vue'
+import WaterRightsLicencesNearby from '../analysis/WaterRightsLicencesNearby'
 
 export default {
   name: 'FeatureUserDefined',
   components: {
-    DistanceToWells,
-    DistanceToLicences
+    WellsNearby,
+    WaterRightsLicencesNearby
   },
   props: ['record'],
   data: () => ({

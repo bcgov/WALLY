@@ -74,5 +74,5 @@
   </div>
 </template>
 
-<script src="WellsNearby.js"></script>
+<script src="./WellsNearby.js"></script>
 <style></style>

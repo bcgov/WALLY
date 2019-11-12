@@ -39,7 +39,7 @@ export default {
           family: 'BCSans, Noto Sans, Verdana, Arial'
         }
       }
-    },
+    }
   }),
   computed: {
     isWellsLayerEnabled () {
