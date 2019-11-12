@@ -19,7 +19,7 @@ export default {
       max: value => value <= 10000 || 'Radius must be between 0 and 10000 m'
     },
     radius: 1000,
-    results: [],
+    wells: [],
     loading: false,
     headers: [
       { text: 'Well tag number', value: 'well_tag_number', align: 'right' },
@@ -102,8 +102,8 @@ export default {
         point: JSON.stringify(this.coordinates)
       }
       ApiService.query(`/api/v1/analysis/wells/nearby?${qs.stringify(params)}`).then((r) => {
-        this.results = r.data
-        this.populateBoxPlotData(this.results)
+        this.wells = r.data
+        this.populateBoxPlotData(this.wells)
       }).catch((e) => {
         console.error(e)
       }).finally(() => {

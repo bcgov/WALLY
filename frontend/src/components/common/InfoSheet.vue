@@ -36,7 +36,7 @@
   #info-sheet {
     position: absolute;
     z-index: 4;
-    height: 100%;
+    height: calc(100vh - 120px);
     /*overflow: scroll;*/
   }
   #info-sheet > .v-sheet{

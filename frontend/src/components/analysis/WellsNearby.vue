@@ -18,7 +18,7 @@
         <v-data-table
           :loading="loading"
           :headers="headers"
-          :items="results"
+          :items="wells"
         >
           <template v-slot:item.distance="{ item }">
             <span>{{item.distance.toFixed(1)}}</span>
