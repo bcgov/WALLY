@@ -66,7 +66,9 @@ objects:
           name: http-metrics
           targetPort: http-metrics
       selector:
-        app: ${LOKI_SERVICE_NAME}
+        app: monitoring
+        name: ${LOKI_SERVICE_NAME}
+        chart: loki-0.8.4
         release: ${LOKI_SERVICE_NAME}
   - apiVersion: v1
     kind: PersistentVolumeClaim
@@ -81,7 +83,7 @@ objects:
         - ReadWriteOnce
       resources:
         requests:
-          storage: "5Gi"
+          storage: "10Gi"
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
