@@ -1,5 +1,5 @@
 <template>
-  <Plotly :data="data" :layout="layout" :key="id" class="chart" :displaylogo="false" link="true"></Plotly>
+  <Plotly :data="data" :layout="layout" :key="id" class="chart" :display-mode-bar="false" :displaylogo="false" link="true"></Plotly>
 </template>
 <script>
 import { Plotly } from 'vue-plotly'

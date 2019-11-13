@@ -35,45 +35,76 @@ export default {
       data: [],
       id: 1,
       layout: {
-        title: 'Static Water Level Depth',
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
         },
         yaxis: {
-          autorange: 'reversed'
+          autorange: 'reversed',
+          fixedrange: true
+        },
+        xaxis: {
+          fixedrange: true
         },
         autosize: false,
-        width: 250
+        width: 250,
+        margin: { // Margins for the chart without a title
+          l: 50,
+          r: 50,
+          b: 50,
+          t: 10,
+          pad: 4
+        }
       }
     },
     boxPlotYieldData: {
       data: [],
       id: 2,
       layout: {
-        title: 'Reported Well yields',
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
         },
         yaxis: {
-          autorange: 'reversed'
+          autorange: 'reversed',
+          fixedrange: true
+        },
+        xaxis: {
+          fixedrange: true
         },
         autosize: false,
-        width: 250
+        width: 250,
+        margin: { // Margins for the chart without a title
+          l: 50,
+          r: 50,
+          b: 50,
+          t: 10,
+          pad: 4
+        }
       }
+
     },
     boxPlotFinishedDepthData: {
       data: [],
       id: '3',
       layout: {
-        title: 'Finished Well depth',
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
         },
         yaxis: {
-          autorange: 'reversed'
+          autorange: 'reversed',
+          fixedrange: true
+        },
+        xaxis: {
+          fixedrange: true
         },
         autosize: false,
-        width: 250
+        width: 250,
+        margin: { // Margins for the chart without a title
+          l: 50,
+          r: 50,
+          b: 50,
+          t: 10,
+          pad: 4
+        }
       }
     }
   }),
