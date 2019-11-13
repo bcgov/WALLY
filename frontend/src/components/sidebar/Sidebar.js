@@ -30,7 +30,7 @@ export default {
     },
     panelWidth () {
       if (this.isSingleSelectedFeature || this.isMultipleSelectedFeatures) {
-        return 800
+        return 850
       }
       return 500
     },

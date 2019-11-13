@@ -510,8 +510,15 @@ export default {
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
         }
+
+        // Offset the selected point to show up a little to the right
+        // So that the InfoSheet / floating panel doesn't cover it
+        let flyToCoordinates = [
+          coordinates[0] - 0.03,
+          coordinates[1]
+        ]
         this.map.flyTo({
-          center: [coordinates[0], coordinates[1]]
+          center: flyToCoordinates
         })
         this.updateHighlightLayerData(value)
       }
