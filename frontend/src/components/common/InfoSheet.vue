@@ -5,7 +5,7 @@
         elevation="5"
         v-bind:width="this.width"
         class="float-left"
-        v-show="!hidePanel"
+        v-show="infoPanelVisible"
       >
         <slot/>
       </v-sheet>
@@ -17,12 +17,12 @@
         color="white"
         @click="this.togglePanel"
         class="close"
-        v-show="!hidePanel"
+        v-show="infoPanelVisible"
       ><v-icon>close</v-icon></v-btn>
     </v-slide-x-reverse-transition>
     <v-slide-x-transition>
       <v-btn
-        v-show="hidePanel"
+        v-show="!infoPanelVisible"
         @click="togglePanel()"
         large
         tile
@@ -60,6 +60,7 @@
   }
 </style>
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'InfoSheet',
   props: {
@@ -69,18 +70,16 @@ export default {
       type: Number,
       default: 800
     },
-    hide: {
-      type: Boolean,
-      default: false
-    },
     panelName: String
   },
   data: () => {
     return {
-      hidePanel: false
     }
   },
   computed: {
+    ...mapGetters([
+      'infoPanelVisible'
+    ]),
     closeButtonStyle () {
       return {
         left: this.width + 'px'
@@ -88,10 +87,8 @@ export default {
     }
   },
   mounted () {
-    this.hidePanel = this.hide
   },
   methods: {
-
     handleLayerSelectionState () {
       if (!this.featureSelectionExists) {
         return this.$store.commit('setLayerSelectionActive', true)
@@ -99,7 +96,7 @@ export default {
       this.$store.commit('setLayerSelectionActive', !this.layerSelectionActive)
     },
     togglePanel () {
-      this.hidePanel = !this.hidePanel
+      this.$store.commit('toggleInfoPanelVisibility')
     }
   }
 }

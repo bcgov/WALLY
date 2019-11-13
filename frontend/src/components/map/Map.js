@@ -84,7 +84,8 @@ export default {
       'allDataMarts',
       'activeDataMarts',
       'highlightFeatureData',
-      'dataMartFeatureInfo'
+      'dataMartFeatureInfo',
+      'infoPanelVisible'
     ])
   },
   methods: {
@@ -517,15 +518,31 @@ export default {
 
         // Offset the selected point to show up a little to the right
         // So that the InfoSheet / floating panel doesn't cover it
-        let flyToCoordinates = [
-          coordinates[0] - 0.03,
-          coordinates[1]
-        ]
+        // TODO: move this calculation to a store function?
+        let flyToCoordinates = [...coordinates]
+        if (this.infoPanelVisible) {
+          flyToCoordinates[0] = flyToCoordinates[0] - 0.03
+        }
         this.map.flyTo({
           center: flyToCoordinates
         })
         this.updateHighlightLayerData(value)
       }
+    },
+    infoPanelVisible (value) {
+      // TODO: move this calculation to a store function?
+      let coordinates = this.map.getCenter()
+      let flyToCoordinates = [coordinates.lng, coordinates.lat]
+      if (!value) {
+        // Move the the left
+        flyToCoordinates[0] = flyToCoordinates[0] + 0.03
+      } else {
+        // Move to the right
+        flyToCoordinates[0] = flyToCoordinates[0] - 0.03
+      }
+      this.map.flyTo({
+        center: flyToCoordinates
+      })
     }
   }
 }
