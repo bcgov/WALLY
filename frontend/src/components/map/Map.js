@@ -12,7 +12,6 @@ import * as metadata from '../../utils/metadataUtils'
 import coordinatesGeocoder from './localGeocoder'
 import bbox from '@turf/bbox'
 
-
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
@@ -140,7 +139,7 @@ export default {
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
       this.map.addControl(this.draw, 'top-right')
       this.map.addControl(new mapboxgl.ScaleControl(), 'bottom-right')
-      this.map.addControl(new mapboxgl.ScaleControl({unit: 'imperial'}), 'bottom-right')
+      this.map.addControl(new mapboxgl.ScaleControl({ unit: 'imperial' }), 'bottom-right')
       this.map.addControl(new mapboxgl.AttributionControl(), 'top-left')
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
