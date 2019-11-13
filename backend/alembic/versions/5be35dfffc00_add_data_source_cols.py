@@ -107,7 +107,7 @@ def upgrade():
     # these are the fields that we need for coloring markers on the map based on properties of the features
     op.execute("""
         UPDATE display_catalogue AS dc SET required_map_properties = CASE
-            WHEN dc.display_data_name = 'water_rights_licences' THEN ARRAY['POD_SUBTYPE']
+            WHEN dc.display_data_name = 'water_rights_licences' THEN ARRAY['POD_SUBTYPE', 'LICENCE_NUMBER']
             WHEN dc.display_data_name = 'freshwater_atlas_stream_directions' THEN ARRAY['DOWNSTREAM_DIRECTION']
             WHEN dc.display_data_name = 'water_allocation_restrictions' THEN ARRAY['PRIMARY_RESTRICTION_CODE']
             ELSE ARRAY[]::text[]
