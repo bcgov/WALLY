@@ -4,14 +4,15 @@ metadata:
   creationTimestamp: '2019-08-11T18:49:55Z'
   generation: 8
   labels:
-    run: wally-staging-apitest
-  name: wally-staging-apitest
-  namespace: bfpeyx-test
+    name: apitest
+    app: monitoring
+  name: apitest
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
-    run: wally-staging-apitest
+    name: apitest
+    app: monitoring
   strategy:
     activeDeadlineSeconds: 21600
     resources: {}
@@ -29,7 +30,8 @@ spec:
         prometheus.io/scrape: 'true'
       creationTimestamp: null
       labels:
-        run: wally-staging-apitest
+        name: apitest
+        app: monitoring
     spec:
       containers:
         - args:
@@ -48,9 +50,9 @@ spec:
           envFrom:
             - secretRef:
                 name: apitest-test-creds
-          image: 'docker.io/stephenhillier/apitest:v0.2.0'
+          image: 'docker.io/stephenhillier/apitest:v0.3.0'
           imagePullPolicy: IfNotPresent
-          name: wally-staging-apitest
+          name: apitest
           resources:
             limits:
               cpu: 50m
