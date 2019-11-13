@@ -48,6 +48,9 @@ echo "Converting to mbtiles using layer name $mapbox_layer_name"
 # https://github.com/mapbox/tippecanoe
 # -zg : automatically choose the zoom levels points are visible at
 # --force: overwrite existing mbtiles file
+# -X: exclude all properties
+# -y: include specific property
+# -r1: prevent auto-grouping points 
 unzip -p "./$1.zip" | tippecanoe -zg --force --layer="$mapbox_layer_name" -o "./$1.mbtiles" -r1 "$extra_args"
 
 echo "Copying $1.mbtiles to Minio storage..."
