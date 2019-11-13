@@ -140,17 +140,17 @@ export default {
       this.boxPlotYieldData.data.push({
         y: yieldY,
         type: 'box',
-        name: 'Well Yields'
+        name: 'Well Yields (USGPM)'
       })
       this.boxPlotFinishedDepthData.data.push({
         y: depthY,
         type: 'box',
-        name: 'Finished Well Depth'
+        name: 'Finished Well Depth (ft bgl)'
       })
       this.boxPlotSWLData.data.push({
         y: swlY,
         type: 'box',
-        name: 'Static Water Level Depth'
+        name: 'Static Water Level Depth (ft)'
       })
     }
   },
