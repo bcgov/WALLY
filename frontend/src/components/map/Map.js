@@ -518,10 +518,10 @@ export default {
 
         // Offset the selected point to show up a little to the right
         // So that the InfoSheet / floating panel doesn't cover it
-        // TODO: move this calculation to a store function?
+        // TODO: Refactor this into clean & reusable code
         let flyToCoordinates = [...coordinates]
         if (this.infoPanelVisible) {
-          flyToCoordinates[0] = flyToCoordinates[0] - 0.03
+          flyToCoordinates[0] = flyToCoordinates[0] - 0.04
         }
         this.map.flyTo({
           center: flyToCoordinates
@@ -530,15 +530,15 @@ export default {
       }
     },
     infoPanelVisible (value) {
-      // TODO: move this calculation to a store function?
+      // TODO: Refactor this into clean & reusable code
       let coordinates = this.map.getCenter()
       let flyToCoordinates = [coordinates.lng, coordinates.lat]
       if (!value) {
         // Move the the left
-        flyToCoordinates[0] = flyToCoordinates[0] + 0.03
+        flyToCoordinates[0] = flyToCoordinates[0] + 0.04
       } else {
         // Move to the right
-        flyToCoordinates[0] = flyToCoordinates[0] - 0.03
+        flyToCoordinates[0] = flyToCoordinates[0] - 0.04
       }
       this.map.flyTo({
         center: flyToCoordinates
