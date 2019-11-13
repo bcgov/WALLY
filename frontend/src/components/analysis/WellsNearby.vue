@@ -1,6 +1,6 @@
 <template>
-  <div id="wells_nearby">
-    <v-row>
+  <v-container id="wells_nearby">
+    <v-row no-gutters>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
           label="Search radius (m)"
@@ -13,7 +13,7 @@
         <div class="caption"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row no-gutters>
       <v-col>
         <v-data-table
           :loading="loading"
@@ -26,7 +26,7 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row no-gutters>
       <v-col cols="12">
         <v-card :loading="loading" outlined tile >
          <Chart
@@ -50,7 +50,7 @@
         </v-card>
       </v-col>
     </v-row>
-    <v-row>
+    <v-row no-gutters>
       <v-col>
         <v-expansion-panels class="mt-5 elevation-0" multiple>
           <v-expansion-panel class="elevation-0">
@@ -82,14 +82,14 @@
         </v-expansion-panels>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script src="./WellsNearby.js"></script>
 <style lang="scss">
  #wells_nearby{
   .plot-container{
-    width: 240px;
+    width: 220px;
     float: left;
   }
    .v-card{

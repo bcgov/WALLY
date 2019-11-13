@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-row>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
@@ -73,7 +73,7 @@
         </v-expansion-panels>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script>
