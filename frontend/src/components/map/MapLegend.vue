@@ -1,10 +1,10 @@
 <template>
     <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
       <div v-for="(layer, i) in legend" v-bind:key="i">
-          <h4 v-if="layer.plenty">{{layer.name}}</h4>
+          <h4 v-if="layer.plenty" class="layerName">{{layer.name}}</h4>
           <div v-for="item in layer.legendItems" v-bind:key="item.text" v-bind:class="layer.className">
             <v-icon :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
-            <span class="subLayerName" v-if="layer.plenty">{{item.text}}</span>
+            <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
             <span class="layerName" v-else>{{layer.name}}</span>
           </div>
       </div>

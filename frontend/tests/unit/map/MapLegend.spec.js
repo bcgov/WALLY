@@ -97,11 +97,47 @@ describe('Map Legend Test', () => {
     wrapper.setData({ legend: legend })
     expect(
       wrapper.findAll('div#legend div').at(0)
-        .find('span.layerName').text()
+        .find('.layerName').text()
     ).toEqual('Aquifers')
   })
 
   it('Shows the legend items for a layer that has multiple legend items', () => {
-    expect(1).toBe(1)
+    let legend = []
+    let waterAllocRestriction = {
+      className: 'grouped',
+      legendItems: [{
+        color: 'hsl(302, 88%, 61%)',
+        icon: 'remove',
+        iconSize: 20,
+        outlineColor: false,
+        text: 'OR'
+      }, {
+        color: 'hsl(0, 83%, 51%)',
+        icon: 'remove',
+        iconSize: 20,
+        outlineColor: false,
+        text: 'FR'
+      }
+      ],
+      name: 'Water Allocation Restrictions',
+      plenty: true
+    }
+    legend.push(waterAllocRestriction)
+    wrapper.setData({ legend: legend })
+
+    let layerName = wrapper.findAll('div#legend div').at(0)
+      .find('.layerName').text()
+    let legendItems = wrapper.findAll('div#legend div').at(0)
+      .findAll('.grouped')
+
+    expect(layerName).toEqual('Water Allocation Restrictions')
+    expect(legendItems.length).toEqual(2)
+    expect(
+      legendItems.at(0).find('.legendItem').text()
+    ).toEqual('OR')
+
+    expect(
+      legendItems.at(1).find('.legendItem').text()
+    ).toEqual('FR')
   })
 })
