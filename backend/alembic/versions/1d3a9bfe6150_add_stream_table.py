@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '1d3a9bfe6150'
-down_revision = 'ab7b5daedfbd'
+down_revision = '5be35dfffc00'
 branch_labels = None
 depends_on = None
 
@@ -52,17 +52,36 @@ def upgrade():
                     sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='LINESTRING', srid=4326), autoincrement=False, nullable=True),
                     sa.PrimaryKeyConstraint('ogc_fid', name='fwa_stream_networks_pkey')
                     )
-    op.create_index('fwa_stream_networks_geom_geom_idx', 'fwa_stream_networks', ['geom'], unique=False)
+    op.create_index('fwa_stream_networks_geom_geom_idx', 'fwa_stream_networks', ['geom'], unique=False, postgresql_using="gist")
 
     # add metadata for this layer.
     op.execute('SET search_path TO metadata')
+
+    # add sequences to columns that are missing them.
+    op.execute("""
+        CREATE SEQUENCE vector_catalogue_id_seq;
+        CREATE SEQUENCE data_source_id_seq;
+
+        SELECT setval('vector_catalogue_id_seq', COALESCE((SELECT MAX(vector_catalogue_id)+1 FROM vector_catalogue), 1), false);
+        SELECT setval('data_source_id_seq', COALESCE((SELECT MAX(data_source_id)+1 FROM data_source), 1), false);
+
+        ALTER TABLE vector_catalogue ALTER COLUMN vector_catalogue_id SET DEFAULT NEXTVAL('vector_catalogue_id_seq');
+        ALTER TABLE data_source ALTER COLUMN data_source_id SET DEFAULT NEXTVAL('data_source_id_seq');
+
+        ALTER SEQUENCE vector_catalogue_id_seq OWNED BY vector_catalogue.vector_catalogue_id;
+        ALTER SEQUENCE data_source_id_seq OWNED BY data_source.data_source_id;
+    """)
+
+    # populate stream layer info
     op.execute("""
     WITH vc_id AS (
                 INSERT INTO vector_catalogue (
+                vector_catalogue_id,
                 description, 
                 vector_name,
                 create_user, create_date, update_user, update_date, effective_date, expiry_date
             ) VALUES (
+                NEXTVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id')),
                 'Freshwater Atlas Stream Networks', 
                 'fwa_stream_networks',
                 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
@@ -71,6 +90,7 @@ def upgrade():
 
         ds_id AS (
             INSERT INTO data_source (
+                data_source_id,
                 data_format_code,
                 name,
                 description,
@@ -80,6 +100,7 @@ def upgrade():
                 source_object_id,
                 create_user, create_date, update_user, update_date, effective_date, expiry_date
             ) VALUES (
+                NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                 'json',
                 'Freshwater Atlas Stream Networks',
                 'Flow network arcs (observed, inferred and constructed). Contains no banks, coast or watershed bourdary arcs. Directionalized and connected. Contains heirarchial key and route identifier.',
@@ -101,8 +122,9 @@ def upgrade():
             data_source_id,
             layer_category_code,
             mapbox_layer_id,
+            required_map_properties,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
-        ) VALUES (
+        ) SELECT
             'fwa_stream_networks',
             'Freshwater Atlas Stream Networks',
             'LINEAR_FEATURE_ID',
@@ -110,12 +132,12 @@ def upgrade():
             ARRAY[
                 'stream_order', 'stream_magnitude', 'feature_length_m', 'watershed_group_id'
             ],
-            vc_id,
-            ds_id,
+            vc_id.vector_catalogue_id,
+            ds_id.data_source_id,
             'FRESHWATER_MARINE',
-            '',
+            'iit-water.fwa-streams',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
-        );
+        FROM vc_id, ds_id ;
     """)
 
     op.execute('SET search_path TO public')
