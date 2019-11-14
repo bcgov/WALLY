@@ -55,16 +55,19 @@ def upgrade():
 
     op.execute("""
         INSERT INTO vector_catalogue (
+            vector_catalogue_id,
             description, 
             vector_name,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) VALUES (
+            (SELECT MAX(vector_catalogue_id) FROM vector_catalogue) + 1,
             'Water Rights Applications', 
             'water_rights_applications',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         );
 
         INSERT INTO data_source (
+            data_source_id,
             data_format_code,
             name,
             description,
@@ -74,6 +77,7 @@ def upgrade():
             source_object_id,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) VALUES (
+            (SELECT MAX(data_source_id) FROM data_source) + 1,
             'json',
             'Water Rights Applications - Public',
             'This is a province-wide SDE spatial layer displaying water rights licence application data, administrated under the Water Sustainability Act which includes application data for both surface water and groundwater Points of Diversions. Point of Diversion types include surface water Points of Diversion (PDs) groundwater Points of Well Diversion (PWDs) as well as Points of Groundwater diversion (PGs), non-well groundwater diversion points such as dugouts, ditches and quarries. This layer contains a record for each water licence application that has been both received and reviewed by FrountcounterBC. This layer contains a record of each current water licence application in the province which includes each POD type that exists in the province (each POD can have multiple licences). For each record, some basic information about the water licence application is included.',
@@ -117,9 +121,9 @@ def upgrade():
                 'POSTAL_CODE',
                 'DISTRICT_PRECINCT_NAME'
             ],
-            SELECT CURRVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id'),
-            SELECT CURRVAL(pg_get_serial_sequence('data_source','data_source_id'),
-            WATER_ADMINISTRATION,
+            (SELECT MAX(vector_catalogue_id) FROM vector_catalogue),
+            (SELECT MAX(data_source_id) FROM data_source),
+            'WATER_ADMINISTRATION',
             'iit-water.2svbut5f',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         );
