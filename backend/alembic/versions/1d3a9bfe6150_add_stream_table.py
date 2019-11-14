@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '1d3a9bfe6150'
-down_revision = '5be35dfffc00'
+down_revision = 'a2b8d50d796d'
 branch_labels = None
 depends_on = None
 
@@ -49,10 +49,10 @@ def upgrade():
                     sa.Column('FEATURE_LENGTH_M', postgresql.DOUBLE_PRECISION(precision=53), autoincrement=False, nullable=True),
                     sa.Column('GEOMETRY.LEN', sa.INTEGER(), autoincrement=False, nullable=True),
                     sa.Column('fme_feature_type', sa.VARCHAR(), autoincrement=False, nullable=True),
-                    sa.Column('geom', geoalchemy2.types.Geometry(geometry_type='LINESTRING', srid=4326), autoincrement=False, nullable=True),
+                    sa.Column('GEOMETRY', geoalchemy2.types.Geometry(geometry_type='LINESTRINGZ', srid=4326), autoincrement=False, nullable=True),
                     sa.PrimaryKeyConstraint('OGC_FID', name='fwa_stream_networks_pkey')
                     )
-    op.create_index('fwa_stream_networks_geom_geom_idx', 'fwa_stream_networks', ['geom'], unique=False, postgresql_using="gist")
+    op.create_index('fwa_stream_networks_geom_geom_idx', 'fwa_stream_networks', ['GEOMETRY'], unique=False, postgresql_using="gist")
 
     # add metadata for this layer.
     op.execute('SET search_path TO metadata')
