@@ -36,3 +36,11 @@ class FreshwaterAtlasStreamNetworks(BaseLayerTable):
     GEOMETRY_LEN = Column('GEOMETRY.LEN', Integer)
     fme_feature_type = Column(String)
     GEOMETRY = Column(Geometry(srid=4326), index=True)
+
+    def row2dict(self):
+        d = {}
+        for column in self.__table__.columns:
+            if column.name == "GEOMETRY" or column.name == "SHAPE" or column.name == "geom" or column.name == "GEOMETRY.LEN":
+                continue
+            d[column.name] = str(getattr(self, column.name))
+        return d
