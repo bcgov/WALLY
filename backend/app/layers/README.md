@@ -13,11 +13,14 @@ layer into the Wally application.
 3. Create the Alembic migration to create the table in the database along with any metadata
     - metadata tables: vector_catalogue, data_source, display_catalogue
     (example in this migrations /alembic/versions/a2b8d50d796d_add_water_applications.py)
-4. Create Production Mapbox layer - In the iit-water mapbox account, add the new layer and 
-    design it in the Wally Production style
-8. Create Testing Mapbox layer (Whistler Subset) - take a subset of the data around 
+4. Create Production Mapbox layer - 
+    - Use the tippecanoe cli to generate a mbtiles file from the raw geojson
+    - In the iit-water mapbox account upload the mbtiles file to create a new tileset
+    - Asign the tileset to the data layer
+    - Add the new layer in the Wally Production style and design the points/polygons
+5. Create Testing Mapbox layer (Whistler Subset) - take a subset of the data around 
     Whistler BC, and upload it to mapbox and create the layer in the
-    Wally Testing - Whistler style
+    Wally Testing - Whistler style similar to the production layer
 
 ## Cadastral/Parcels
 
