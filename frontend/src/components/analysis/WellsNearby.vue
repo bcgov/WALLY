@@ -26,9 +26,10 @@
         </v-data-table>
       </v-col>
     </v-row>
-    <v-row no-gutters>
+    <v-row no-gutters v-if="wells.length > 0">
       <v-col cols="12">
-        <v-card :loading="loading" outlined tile >
+        <v-card :loading="loading" outlined tile class="charts">
+          <div v-if="!loading">
          <Chart
            :data="boxPlotYieldData.data"
            :layout="boxPlotYieldData.layout"
@@ -47,6 +48,7 @@
             :key="boxPlotSWLData.id"
             class="chart">
           </Chart>
+          </div>
         </v-card>
       </v-col>
     </v-row>
