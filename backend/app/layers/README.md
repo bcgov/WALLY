@@ -13,14 +13,20 @@ layer into the Wally application.
 3. Create the Alembic migration to create the table in the database along with any metadata
     - metadata tables: vector_catalogue, data_source, display_catalogue
     (example in this migrations /alembic/versions/a2b8d50d796d_add_water_applications.py)
-4. Create Production Mapbox layer - 
-    - Use the tippecanoe cli to generate a mbtiles file from the raw geojson
+4. Upload raw data to Production and Staging Databases using ogr2ogr cli 
+    (example) ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=<dbname> user=<dbuser> password=<password>" "automated_snow_weather_station_locations.geojson" -nln automated_snow_weather_station_locations -overwrite
+5. Use the tippecanoe cli to generate a mbtiles file from the raw geojson
+    (example) tippecanoe -o wally_layers.mbtiles ground_water_aquifers.geojson automated_snow_weather_station_locations.geojson bc_major_watersheds.geojson bc_wildfire_active_weather_stations.geojson cadastral.geojson ecocat_water_related_reports.geojson hydrometric_stream_flow.geojson water_allocation_restrictions.geojson water_rights_licences.geojson --force -r1 -X
+    --force overrite existing file
+    -r1 turn off auto-grouping for points
+    -X exclude all properties (-y <proper_name> if you want to include a property)
+6. Create Production Mapbox layer
     - In the iit-water mapbox account upload the mbtiles file to create a new tileset
     - Asign the tileset to the data layer
     - Add the new layer in the Wally Production style and design the points/polygons
-5. Create Testing Mapbox layer (Whistler Subset) - take a subset of the data around 
-    Whistler BC, and upload it to mapbox and create the layer in the
-    Wally Testing - Whistler style similar to the production layer
+7. Create Testing Mapbox layer (Whistler Subset)
+    take a subset of the data around Whistler BC, and upload it to mapbox and create 
+    the layer in the Wally Testing - Whistler style similar to the production layer
 
 ## Cadastral/Parcels
 
