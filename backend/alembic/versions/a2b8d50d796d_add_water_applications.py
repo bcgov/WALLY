@@ -13,7 +13,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 
 # revision identifiers, used by Alembic.
 revision = 'a2b8d50d796d'
-down_revision = 'ab7b5daedfbd'
+down_revision = '5be35dfffc00'
 branch_labels = None
 depends_on = None
 
@@ -69,12 +69,18 @@ def upgrade():
             name,
             description,
             source_url,
+            source_object_name,
+            data_table_name,
+            source_object_id,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) VALUES (
             'json',
             'Water Rights Applications - Public',
             'This is a province-wide SDE spatial layer displaying water rights licence application data, administrated under the Water Sustainability Act which includes application data for both surface water and groundwater Points of Diversions. Point of Diversion types include surface water Points of Diversion (PDs) groundwater Points of Well Diversion (PWDs) as well as Points of Groundwater diversion (PGs), non-well groundwater diversion points such as dugouts, ditches and quarries. This layer contains a record for each water licence application that has been both received and reviewed by FrountcounterBC. This layer contains a record of each current water licence application in the province which includes each POD type that exists in the province (each POD can have multiple licences). For each record, some basic information about the water licence application is included.',
             'https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public#edc-pow',
+            'WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_APPLICTNS_SV',
+            'water_rights_applications',
+            'APPLICATION_JOB_NUMBER',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         );
 
@@ -87,13 +93,14 @@ def upgrade():
             vector_catalogue_id,
             data_source_id,
             layer_category_code,
+            mapbox_layer_id,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) VALUES (
             'water_rights_applications',
             'Water Rights Applications',
             'APPLICATION_JOB_NUMBER',
             'Application Job Number',
-            '{
+            ARRAY[
                 'APPLICATION_JOB_NUMBER', 
                 'POD_NUMBER', 
                 'POD_SUBTYPE', 
@@ -109,10 +116,11 @@ def upgrade():
                 'ADDRESS_LINE_1', 
                 'POSTAL_CODE',
                 'DISTRICT_PRECINCT_NAME'
-            }',
+            ],
             SELECT CURRVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id'),
             SELECT CURRVAL(pg_get_serial_sequence('data_source','data_source_id'),
             WATER_ADMINISTRATION,
+            'iit-water.2svbut5f',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         );
     """)
