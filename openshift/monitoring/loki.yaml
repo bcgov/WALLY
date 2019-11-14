@@ -31,14 +31,22 @@ objects:
       promtail.yaml: |
         scrape_configs:
         - job_name: system          
-          entry_parser: raw          
+          pipeline_stages:
+            - match:
+                selector: '{app="wally"} |~ ".*GET .health HTTP.*"'
+                action: drop    
           static_configs:
             - targets:
                 - localhost
               labels:
+                app: wally
                 job: wally               
-                my-label: test              
-                __path__: /app/.log/access.log
+                component: api              
+                __path__: /app/.log/error.log
+        server:
+            http_listen_port: 3111
+        positions:
+            filename: /app/.log/positions.yaml
   - apiVersion: v1
     kind: Service
     metadata:
@@ -58,9 +66,24 @@ objects:
           name: http-metrics
           targetPort: http-metrics
       selector:
-        app: ${LOKI_SERVICE_NAME}
+        app: monitoring
+        name: ${LOKI_SERVICE_NAME}
+        chart: loki-0.8.4
         release: ${LOKI_SERVICE_NAME}
-
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      labels:
+        component: logging
+        app: monitoring
+        name: ${LOKI_SERVICE_NAME}
+      name: ${LOKI_SERVICE_NAME}
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: "10Gi"
   - apiVersion: apps/v1
     kind: Deployment
     metadata:
@@ -149,7 +172,8 @@ objects:
               secret:
                 secretName: ${LOKI_SERVICE_NAME}
             - name: storage
-              emptyDir: {}
+              persistentVolumeClaim:
+                claimName: ${LOKI_SERVICE_NAME}
 parameters:
   - name: LOKI_SERVICE_NAME
     required: false
