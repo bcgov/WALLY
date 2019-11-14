@@ -1,10 +1,11 @@
 <template>
-  <v-sheet
-    class="mt-0 px-5 fill-height"
+  <InfoSheet
+    :width="panelWidth"
+    :panelName="panelName"
   >
       <LayerSelection v-if="displayLayerSelection"/>
-      <SingleSelectedFeature v-else-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name"/>
-      <MultipleSelectedFeatures v-else-if="dataMartFeatures && dataMartFeatures.length"/>
+      <SingleSelectedFeature v-else-if="isSingleSelectedFeature"/>
+      <MultipleSelectedFeatures v-else-if="isMultipleSelectedFeatures"/>
 
       <!-- nothing to display -->
       <v-card class="mt-5" v-else>
@@ -23,7 +24,7 @@
           <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
         </v-card-text>
       </v-card>
-  </v-sheet>
+  </InfoSheet>
 </template>
 
 <script src="./Sidebar.js"></script>

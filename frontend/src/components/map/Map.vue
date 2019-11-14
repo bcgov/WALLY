@@ -29,5 +29,13 @@
     .select-box-icon {
         background-image: url('../../assets/images/select-zoom.png');
     }
+    .mapboxgl-ctrl-scale:first-child {
+      margin-bottom: 0;
+    }
+    .mapboxgl-ctrl-scale:nth-child(2) {
+      border-style: solid solid none;
+      border-width: 2px 2px medium;
+      margin-top: -2px;
+    }
 </style>
 <script src="./Map.js"></script>

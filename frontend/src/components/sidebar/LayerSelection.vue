@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-row>
       <v-col cols=2>
         <v-btn
@@ -76,7 +76,7 @@
           </div>
       </template>
     </v-treeview>
-  </div>
+  </v-container>
 </template>
 
 <script>

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <v-container>
     <v-row>
       <v-col cols=2>
         <v-btn
@@ -59,7 +59,7 @@
         </template>
       </v-list>
     </v-card>
-  </div>
+  </v-container>
 </template>
 
 <script>
