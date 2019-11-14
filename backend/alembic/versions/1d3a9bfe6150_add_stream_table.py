@@ -138,7 +138,7 @@ def upgrade():
             'iit-water.fwa-streams',
             ARRAY[
                 'linear_feature_id'
-            ]
+            ],
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         FROM vc_id, ds_id ;
     """)
