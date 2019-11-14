@@ -127,7 +127,7 @@ def upgrade():
         ) SELECT
             'fwa_stream_networks',
             'Freshwater Atlas Stream Networks',
-            'LINEAR_FEATURE_ID',
+            'linear_feature_id',
             'Feature ID',
             ARRAY[
                 'stream_order', 'stream_magnitude', 'feature_length_m', 'watershed_group_id'
@@ -136,6 +136,9 @@ def upgrade():
             ds_id.data_source_id,
             'FRESHWATER_MARINE',
             'iit-water.fwa-streams',
+            ARRAY[
+                'linear_feature_id'
+            ]
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         FROM vc_id, ds_id ;
     """)
