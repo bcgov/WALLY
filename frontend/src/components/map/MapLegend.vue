@@ -14,7 +14,7 @@
   .legend {
     background-color: #fff;
     border-radius: 3px;
-    bottom: 30px;
+    bottom: 60px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.10);
     font-size: 12px;
     line-height: 20px;

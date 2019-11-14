@@ -12,7 +12,6 @@ import * as metadata from '../../utils/metadataUtils'
 import coordinatesGeocoder from './localGeocoder'
 import bbox from '@turf/bbox'
 
-
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
@@ -85,7 +84,8 @@ export default {
       'allDataMarts',
       'activeDataMarts',
       'highlightFeatureData',
-      'dataMartFeatureInfo'
+      'dataMartFeatureInfo',
+      'infoPanelVisible'
     ])
   },
   methods: {
@@ -104,7 +104,8 @@ export default {
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
-        zoom: zoomConfig.zoomLevel // starting zoom
+        zoom: zoomConfig.zoomLevel, // starting zoom
+        attributionControl: false // hide default and re-add to the top left
       })
 
       const modes = MapboxDraw.modes
@@ -135,16 +136,22 @@ export default {
       geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
-      document.getElementById('geocoder').appendChild(geocoder.onAdd(this.map))
-      this.map.addControl(new mapboxgl.NavigationControl(), 'top-left')
-      this.map.addControl(this.draw, 'top-left')
-      this.map.addControl(new mapboxgl.ScaleControl({ position: 'bottom-left' }))
+      if (!document.getElementById('geocoder').hasChildNodes()) {
+        document.getElementById('geocoder')
+          .appendChild(geocoder.onAdd(this.map))
+      }
+
+      this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
+      this.map.addControl(this.draw, 'top-right')
+      this.map.addControl(new mapboxgl.ScaleControl(), 'bottom-right')
+      this.map.addControl(new mapboxgl.ScaleControl({ unit: 'imperial' }), 'bottom-right')
+      this.map.addControl(new mapboxgl.AttributionControl(), 'top-left')
       this.map.addControl(new mapboxgl.GeolocateControl({
         positionOptions: {
           enableHighAccuracy: true
         },
         showUserLocation: false
-      }), 'top-left')
+      }), 'top-right')
       this.map.on('style.load', () => {
         this.getMapLayers()
       })
@@ -508,11 +515,34 @@ export default {
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
         }
+
+        // Offset the selected point to show up a little to the right
+        // So that the InfoSheet / floating panel doesn't cover it
+        // TODO: Refactor this into clean & reusable code
+        let flyToCoordinates = [...coordinates]
+        if (this.infoPanelVisible) {
+          flyToCoordinates[0] = flyToCoordinates[0] - 0.04
+        }
         this.map.flyTo({
-          center: [coordinates[0], coordinates[1]]
+          center: flyToCoordinates
         })
         this.updateHighlightLayerData(value)
       }
+    },
+    infoPanelVisible (value) {
+      // TODO: Refactor this into clean & reusable code
+      let coordinates = this.map.getCenter()
+      let flyToCoordinates = [coordinates.lng, coordinates.lat]
+      if (!value) {
+        // Move the the left
+        flyToCoordinates[0] = flyToCoordinates[0] + 0.04
+      } else {
+        // Move to the right
+        flyToCoordinates[0] = flyToCoordinates[0] - 0.04
+      }
+      this.map.flyTo({
+        center: flyToCoordinates
+      })
     }
   }
 }

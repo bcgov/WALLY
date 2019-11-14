@@ -117,21 +117,21 @@ def upgrade():
     # initial data for mapbox_layer_id's
     # these are the id's used to know which layers to replace in mapbox
     op.execute("""
-        UPDATE display_catalogue AS ds SET mapbox_layer_id = CASE
-            WHEN ds.display_data_name = 'automated_snow_weather_station_locations' THEN 'iit-water.2svbut5f'
-            WHEN ds.display_data_name = 'bc_major_watersheds' THEN 'iit-water.0tsq064k'
-            WHEN ds.display_data_name = 'bc_wildfire_active_weather_stations' THEN 'iit-water.2svbut5f'
-            WHEN ds.display_data_name = 'cadastral' THEN 'iit-water.36r1x37x'
-            WHEN ds.display_data_name = 'critical_habitat_species_at_risk' THEN 'iit-water.0tsq064k'
-            WHEN ds.display_data_name = 'ecocat_water_related_reports' THEN 'iit-water.2svbut5f'
-            WHEN ds.display_data_name = 'freshwater_atlas_stream_directions' THEN 'iit-water.7iwr3fo1'
-            WHEN ds.display_data_name = 'freshwater_atlas_watersheds' THEN 'iit-water.7iwr3fo1'
-            WHEN ds.display_data_name = 'ground_water_aquifers' THEN 'iit-water.0tsq064k'
-            WHEN ds.display_data_name = 'groundwater_wells' THEN 'iit-water.2svbut5f'
-            WHEN ds.display_data_name = 'water_allocation_restrictions' THEN 'iit-water.2ah76e1a'
-            WHEN ds.display_data_name = 'water_rights_licenses' THEN 'iit-water.2svbut5f'
-            WHEN ds.display_data_name = 'hydat.stations' THEN 'iit-water.2svbut5f'
-            ELSE 'iit-water.data'
+        UPDATE display_catalogue AS dc SET mapbox_layer_id = CASE
+            WHEN dc.display_data_name = 'automated_snow_weather_station_locations' THEN 'iit-water.2svbut5f'
+            WHEN dc.display_data_name = 'bc_major_watersheds' THEN 'iit-water.0tsq064k'
+            WHEN dc.display_data_name = 'bc_wildfire_active_weather_stations' THEN 'iit-water.2svbut5f'
+            WHEN dc.display_data_name = 'cadastral' THEN 'iit-water.36r1x37x'
+            WHEN dc.display_data_name = 'critical_habitat_species_at_risk' THEN 'iit-water.0tsq064k'
+            WHEN dc.display_data_name = 'ecocat_water_related_reports' THEN 'iit-water.2svbut5f'
+            WHEN dc.display_data_name = 'freshwater_atlas_stream_directions' THEN 'iit-water.7iwr3fo1'
+            WHEN dc.display_data_name = 'freshwater_atlas_watersheds' THEN 'iit-water.7iwr3fo1'
+            WHEN dc.display_data_name = 'ground_water_aquifers' THEN 'iit-water.0tsq064k'
+            WHEN dc.display_data_name = 'groundwater_wells' THEN 'iit-water.2svbut5f'
+            WHEN dc.display_data_name = 'water_allocation_restrictions' THEN 'iit-water.2ah76e1a'
+            WHEN dc.display_data_name = 'water_rights_licenses' THEN 'iit-water.2svbut5f'
+            WHEN dc.display_data_name = 'hydat.stations' THEN 'iit-water.2svbut5f'
+            ELSE ''
         END
     """)
 

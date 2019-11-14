@@ -28,6 +28,7 @@ export default {
               'className': (legendItems.length > 1) && 'grouped'
             }
             this.legend.push(layerLegend)
+            console.log(this.legend)
           }
         } catch (err) {
           console.error(err)

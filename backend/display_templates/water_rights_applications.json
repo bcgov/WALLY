@@ -1,0 +1,15 @@
+{
+    "display_template": {
+      "display_template_id": 16,
+      "title": "Water Rights Applications",
+      "display_order": 1600,
+      "display_data_names": [
+        "water_rights_applications"
+      ]
+    },
+    "charts": [],
+    "links": [],
+    "tables": [],
+    "images": [],
+    "formulas": []
+  }
