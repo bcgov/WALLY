@@ -137,7 +137,7 @@ def upgrade():
             'FRESHWATER_MARINE',
             'iit-water.fwa-streams',
             ARRAY[
-                'LINEAR_FEATURE_ID'
+                'LINEAR_FEATURE_ID', 'FWA_WATERSHED_CODE', 'LOCAL_WATERSHED_CODE'
             ],
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         FROM vc_id, ds_id ;
