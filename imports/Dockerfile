@@ -4,7 +4,7 @@ WORKDIR /dataload
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
   && chown -R wally:root /dataload \
   && apt-get update && apt-get install -y pgloader jq curl git zip unzip sqlite3 binutils libproj-dev gdal-bin python3 python3-pip \
-                                          build-essential libsqlite3-dev zlib1g-dev \
+                                          build-essential libsqlite3-dev zlib1g-dev postgresql-client \
   && rm -rf /var/lib/apt/lists/* \
   && curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
   && chmod +x mc \
