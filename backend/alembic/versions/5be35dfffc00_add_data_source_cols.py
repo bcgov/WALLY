@@ -88,7 +88,7 @@ def upgrade():
         UPDATE data_source AS ds SET source_object_id = CASE
         WHEN ds.data_source_id = 1  THEN 'SNOW_ASWS_STN_ID'
         WHEN ds.data_source_id = 2  THEN NULL
-        WHEN ds.data_source_id = 3  THEN 'WTHR_STTNS'
+        WHEN ds.data_source_id = 3  THEN 'WEATHER_STATIONS_ID'
         WHEN ds.data_source_id = 4  THEN 'PARCEL_FABRIC_POLY_ID'
         WHEN ds.data_source_id = 5  THEN 'CRITICAL_HABITAT_ID'
         WHEN ds.data_source_id = 6  THEN 'REPORT_ID'
