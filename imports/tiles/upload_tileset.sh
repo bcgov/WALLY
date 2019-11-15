@@ -11,7 +11,6 @@ declare -a layers=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRE
   --field-separator=' ' \
   -c "SELECT display_data_name FROM metadata.display_catalogue WHERE mapbox_layer_id='$1';"))
 
-
 # build list of mbtiles to join
 # layer_files=()
 # for l in "${layers[@]}"; do layer_files+=("$l.mbtiles"); done
