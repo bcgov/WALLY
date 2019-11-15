@@ -7,7 +7,7 @@ RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
                                           build-essential libsqlite3-dev zlib1g-dev \
   && rm -rf /var/lib/apt/lists/* \
   && curl -O https://dl.min.io/client/mc/release/linux-amd64/mc \
-  && chmod +x mc \
+  && chmod +x mc \ && cp mc /usr/local/bin/mc \
   && mkdir -p /dataload/tmp/tippecanoe-src \
   && git clone https://github.com/mapbox/tippecanoe.git /dataload/tmp/tippecanoe-src \
   && cd /dataload/tmp/tippecanoe-src && make && make install && cd /dataload && rm -rf /dataload/tmp/tippecanoe-src \
@@ -17,6 +17,7 @@ COPY ./hydat/load_hydat.sh /dataload/
 COPY ./databc/*.sh /dataload/
 COPY ./tiles/create_tileset.sh /dataload/
 COPY ./tiles/upload_tileset.sh /dataload/
+
 
 USER 1021
 CMD ["/dataload/load_hydat.sh"]
