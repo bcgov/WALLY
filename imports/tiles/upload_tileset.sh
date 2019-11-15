@@ -1,34 +1,37 @@
 #!/bin/bash
-# USAGE: ./create_tileset.sh <layer_name>
-# use only the layer name. The layer name MUST be the layer name as spelled in the Wally database table.
-# check the db table name or the __tablename__ of the SQLAlchemy model in the `wally/backend/app/layers` files.
-# There should be an identically spelled <layer_name>.zip file available on the S3 storage configured below.
-# The environment must have the following env variables:
-# MINIO_ACCESS_KEY
-# MINIO_SECRET_KEY
-# POSTGRES_SERVER
-# POSTGRES_PASSWORD
-# MAPBOX_UPLOAD_TOKEN
-# The database name is assumed to be "wally".
+# USAGE: ./create_tileset.sh <mapbox source id>
 
 set -e
-cd /dataload
+# cd /dataload
 
-# get metadata about this data source from Wally table metadata.data_source
-declare -a row=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" \
+mapbox_layer_id="$1"
+
+declare -a layers=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" \
   --single-transaction \
   --field-separator=' ' \
-  -c "SELECT dc.mapbox_layer_id FROM metadata.display_catalogue AS dc JOIN metadata.data_source as ds on dc.data_source_id = ds.data_source_id WHERE ds.data_table_name='$1';"))
+  -c "SELECT display_data_name FROM metadata.display_catalogue WHERE mapbox_layer_id='$1';"))
 
-mapbox_layer_id="${row[0]}"
+
+# build list of mbtiles to join
+# layer_files=()
+# for l in "${layers[@]}"; do layer_files+=("$l.mbtiles"); done
 
 echo "Setting up Minio host"
 ./mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
-echo "Copying mbtileset from Minio storage..."
-./mc --config-dir=./.mc cp "minio/mbtiles/$1.mbtiles" "./"
+for layer in "${layers[@]}"
+do
+  :
+  echo "Downloading $layer"
+  ./mc --config-dir=./.mc cp "minio/mbtiles/$layer.mbtiles" "./"
+done
 
-echo "Uploading $1.mbtiles to Mapbox using $mapbox_layer_id"
-mapbox --access-token "$MAPBOX_UPLOAD_TOKEN" upload "$mapbox_layer_id" "$1.mbtiles"
+tile-join -o "$mapbox_layer_id.mbtiles" ./*.mbtiles
 
-echo "Finished."
+echo "Copying mbtileset to Minio storage..."
+./mc --config-dir=./.mc cp "./" "minio/tilestaging/$mapbox_layer_id.mbtiles"
+
+echo "Uploading $mapbox_layer_id.mbtiles to Mapbox using $mapbox_layer_id"
+mapbox --access-token "$MAPBOX_UPLOAD_TOKEN" upload "$mapbox_layer_id" "$mapbox_layer_id.mbtiles"
+
+# echo "Finished."
