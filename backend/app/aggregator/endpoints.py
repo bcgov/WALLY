@@ -17,6 +17,7 @@ from app.hydat.db_models import Station as StreamStation
 import app.layers.water_rights_licences as water_rights_licences_repo
 import app.layers.ground_water_wells as ground_water_wells_repo
 from app.layers.water_rights_licences import WaterRightsLicenses
+from app.layers.water_rights_applications import WaterRightsApplications
 from app.layers.automated_snow_weather_station_locations import AutomatedSnowWeatherStationLocations
 from app.layers.bc_wildfire_active_weather_stations import BcWildfireActiveWeatherStations
 from app.layers.cadastral import Cadastral
@@ -58,7 +59,8 @@ API_DATASOURCES = {
     "groundwater_wells": GroundWaterWells,
     "hydrometric_stream_flow": StreamStation,
     "water_allocation_restrictions": WaterAllocationRestrictions,
-    "water_rights_licences": WaterRightsLicenses
+    "water_rights_licences": WaterRightsLicenses,
+    "water_rights_applications": WaterRightsApplications
 
     # these layers are causing performance issues.
     # leaving them commented out allows them to fall back to WMS fetching from DataBC.
