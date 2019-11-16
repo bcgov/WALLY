@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="pa-0 ma-0">
     <v-row>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
@@ -86,7 +86,7 @@ import EventBus from '../../services/EventBus'
 
 export default {
   name: 'WaterRightsLicencesNearby',
-  props: ['record', 'coordinates'],
+  props: ['record'],
   data: () => ({
     inputRules: {
       required: value => !!value || 'Required',
@@ -115,6 +115,9 @@ export default {
   computed: {
     isLicencesLayerEnabled () {
       return this.isMapLayerActive('water_rights_licences')
+    },
+    coordinates () {
+      return this.record.geometry.coordinates
     },
     filteredLicences () {
       let licences = this.results

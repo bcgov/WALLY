@@ -11,7 +11,7 @@ export default {
   components: {
     Chart
   },
-  props: ['record', 'coordinates'],
+  props: ['record'],
   data: () => ({
     inputRules: {
       required: value => !!value || 'Required',
@@ -112,15 +112,21 @@ export default {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
+    coordinates () {
+      return this.record.geometry.coordinates
+    },
     ...mapGetters(['isMapLayerActive'])
   },
   methods: {
     enableWellsLayer () {
       this.$store.commit('addMapLayer', 'groundwater_wells')
     },
-    fetchWells: debounce(function () {
-      this.showCircle()
+    fetchWells () {
       this.loading = true
+      this.wellRequest()
+    },
+    wellRequest: debounce(function () {
+      this.showCircle()
       this.boxPlotSWLData.data = []
       this.boxPlotYieldData.data = []
       this.boxPlotFinishedDepthData.data = []
@@ -191,9 +197,6 @@ export default {
         this.fetchWells()
       },
       deep: true
-    },
-    coordinates () {
-      this.fetchWells()
     },
     radius (value) {
       this.fetchWells()
