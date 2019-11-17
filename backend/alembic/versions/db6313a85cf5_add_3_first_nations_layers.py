@@ -69,7 +69,7 @@ def upgrade():
         sa.Column('COMMENTS', sa.VARCHAR(), autoincrement=False, nullable=True),
         sa.Column('OBJECTID', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column('SE_ANNO_CAD_DATA', sa.VARCHAR(), autoincrement=False, nullable=True),
-        sa.Column('fme_feature_type', sa.VARCHAR(), autoincrement=False, nullable=True),
+        sa.Column('FME_FEATURE_TYPE', sa.VARCHAR(), autoincrement=False, nullable=True),
         sa.Column('SHAPE', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint('ogc_fid', name='fn_community_locations_pkey')
     )
@@ -94,7 +94,7 @@ def upgrade():
         sa.Column('FEATURE_LENGTH_M', postgresql.DOUBLE_PRECISION(precision=53), autoincrement=False, nullable=True),
         sa.Column('GEOMETRY.AREA', sa.INTEGER(), autoincrement=False, nullable=True),
         sa.Column('GEOMETRY.LEN', sa.INTEGER(), autoincrement=False, nullable=True),
-        sa.Column('fme_feature_type', sa.VARCHAR(), autoincrement=False, nullable=True),
+        sa.Column('FME_FEATURE_TYPE', sa.VARCHAR(), autoincrement=False, nullable=True),
         sa.Column('SHAPE', geoalchemy2.types.Geometry(srid=4326), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint('ogc_fid', name='fn_treaty_areas_pkey')
     )

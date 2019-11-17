@@ -35,7 +35,7 @@ class CommunityLocation(BaseLayerTable):
     COMMENTS = Column(String)
     OBJECTID = Column(Integer)
     SE_ANNO_CAD_DATA = Column(String)
-    fme_feature_type = Column(String)
+    FME_FEATURE_TYPE = Column(String)
     SHAPE = Column(Geometry('POINT', 4326), index=True)
 
 
@@ -61,9 +61,7 @@ class TreatyArea(BaseLayerTable):
     OBJECTID = Column(Integer)
     FEATURE_AREA_SQM = Column(Float(53))
     FEATURE_LENGTH_M = Column(Float(53))
-    GEOMETRY_AREA = Column('GEOMETRY.AREA', Integer)
-    GEOMETRY_LEN = Column('GEOMETRY.LEN', Integer)
-    fme_feature_type = Column(String)
+    FME_FEATURE_TYPE = Column(String)
     SHAPE = Column(Geometry(srid=4326), index=True)
 
 
@@ -87,7 +85,5 @@ class TreatyLand(BaseLayerTable):
     SE_ANNO_CAD_DATA = Column(String)
     FEATURE_AREA_SQM = Column(Float(53))
     FEATURE_LENGTH_M = Column(Float(53))
-    GEOMETRY_AREA = Column('GEOMETRY.AREA', Integer)
-    GEOMETRY_LEN = Column('GEOMETRY.LEN', Integer)
-    fme_feature_type = Column(String)
+    FME_FEATURE_TYPE = Column(String)
     SHAPE = Column(Geometry(srid=4326), index=True)

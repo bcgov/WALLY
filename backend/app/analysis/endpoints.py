@@ -6,12 +6,14 @@ from typing import List
 from logging import getLogger
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
-from shapely.geometry import Point
+from shapely.geometry import Point, shape
 from app.db.utils import get_db
 from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, get_screens
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
+from app.analysis.first_nations.nearby_areas import get_nearest_areas
+from app.analysis.first_nations.models import NearbyAreasResponse
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -60,3 +62,19 @@ def get_nearby_licences(
 
     licences_with_distances = get_licences_by_distance(db, point_shape, radius)
     return licences_with_distances
+
+
+@router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
+def get_nearby_first_nations_contacts(
+    db: Session = Depends(get_db),
+    geometry: str = Query(...,
+                          title="Geometry to search near",
+                          description="Geometry (such as a point or polygon) to search within and near to")
+):
+    """
+    Search for First Nations Communities, First Nations Treaty Areas and First Nations Treaty Lands near a feature
+    """
+    geometry_parsed = json.loads(geometry)
+    geometry_shape = shape(geometry_parsed)
+    nearest = get_nearest_areas(db, geometry_shape)
+    return nearest

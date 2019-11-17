@@ -22,7 +22,7 @@
           <v-expansion-panel>
             <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">First Nations communities, treaty areas, lands</v-expansion-panel-header>
             <v-expansion-panel-content>
-              <FirstNationsContactsNearby :record="record"></FirstNationsContactsNearby>
+              <FirstNationsAreasNearby :record="record"></FirstNationsAreasNearby>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </template>
@@ -32,14 +32,14 @@
 <script>
 import WellsNearby from '../analysis/WellsNearby.vue'
 import WaterRightsLicencesNearby from '../analysis/WaterRightsLicencesNearby'
-import FirstNationsContactsNearby from '../analysis/FirstNationsContactsNearby'
+import FirstNationsAreasNearby from '../analysis/FirstNationsAreasNearby'
 
 export default {
   name: 'FeatureAnalysis',
   components: {
     WellsNearby,
     WaterRightsLicencesNearby,
-    FirstNationsContactsNearby
+    FirstNationsAreasNearby
   },
   props: ['record'],
   data: () => ({
