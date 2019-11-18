@@ -137,6 +137,7 @@ def upgrade():
 
     op.alter_column('data_source', 'data_table_name', nullable=False)
     op.alter_column('data_source', 'source_object_name', nullable=False)
+    op.alter_column('display_catalogue', 'mapbox_layer_id', nullable=False)
     op.execute('SET search_path TO public')
 
 
