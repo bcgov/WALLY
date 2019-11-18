@@ -51,3 +51,10 @@ Visit http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ for the download l
 | water_allocation_restrictions            | water_allocation_restrictions | unknown if supported (too many features) 
 | critical_habitat_species_at_risk         | critical_habitat_species_at_risk | unknown if supported (too many features)
 | water_rights_applications                | water_rights_applications | `oc process -f tippecanoe.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
+
+
+# Importing into the Wally database
+
+| Layer name (use as layer_name arg) | mapbox layer name | download job
+| --- | --- | --- |
+| water_rights_applications                    | water_rights_licences | `oc process -f import.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
