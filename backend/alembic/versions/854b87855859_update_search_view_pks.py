@@ -41,7 +41,8 @@ def upgrade():
         """SELECT UpdateGeometrySRID('water_rights_licenses', 'SHAPE', 4326)""")
     op.execute(
         """SELECT UpdateGeometrySRID('critical_habitat_species_at_risk', 'SHAPE', 4326)""")
-
+    op.execute(
+        """SELECT UpdateGeometrySRID('automated_snow_weather_station_locations', 'SHAPE', 4326)""")
     op.execute("""
         CREATE MATERIALIZED VIEW geocode_lookup AS
 
