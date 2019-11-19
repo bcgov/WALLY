@@ -52,6 +52,43 @@ Visit http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ for the download l
 | critical_habitat_species_at_risk         | critical_habitat_species_at_risk | unknown if supported (too many features)
 | water_rights_applications                | water_rights_applications | `oc process -f tippecanoe.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
 
+## Freshwater Atlas
+
+Freshwater Atlas layers are large and may need special options to process the layers into tiles.
+
+### Stream networks
+
+Break stream networks into 4 different chunks (zoom levels 0-4, 5-7, 8-10, and 11+).  The `STREAM_MAGNITUDE` property is used to filter out smaller streams/rivers when zoomed out.
+
+See https://docs.mapbox.com/mapbox-gl-js/style-spec/#other-filter or https://www.github.com/mapbox/tippecanoe for documentation on filters.
+
+```sh
+tippecanoe -l freshwater_atlas_stream_networks  -j '
+{
+  "*": [
+    "any",
+    [
+      "all",
+      ["<=", "$zoom", 4],
+      [">", "STREAM_MAGNITUDE", 700]
+    ],
+    [
+      "all",
+      [">", "$zoom", 4],
+      ["<", "$zoom", 8],
+      [">", "STREAM_MAGNITUDE", 300]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 8],
+      ["<=", "$zoom", 10],
+      [">", "STREAM_MAGNITUDE", 20]
+    ],
+    [">", "$zoom", 10]
+  ]
+}' -z11 -o freshwater_atlas_stream_networks.mbtiles -y LINEAR_FEATURE_ID -y FWA_WATERSHED_CODE -y LOCAL_WATERSHED_CODE -y STREAM_MAGNITUDE fwa_stream_networks.geojson```
+
+
 
 # Importing into the Wally database
 
