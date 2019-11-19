@@ -1,1 +1,35 @@
-{"type":"FeatureCollection","features":[{"type":"Feature","id":"WLA0Z116454-0001","geometry":{"type":"Point","coordinates":[-122.89611239,50.1506195]},"properties":{"WLS_WRA_SYSID":"1830","APPLICATION_JOB_NUMBER":"WLA0Z116454-0001","POD_NUMBER":"PD76227","POD_SUBTYPE":"POD","POD_DIVERSION_TYPE":"None","FILE_NUMBER":"2002485","APPLICATION_STATUS":"Refused","WELL_TAG_NUMBER":"None","PURPOSE_USE_CODE":"07C","PURPOSE_USE":"07C - Power: General ","QTY_DIVERSION_MAX_RATE":"None","QTY_UNITS_DIVERSION_MAX_RATE":"m3/sec","PRIMARY_APPLICANT_NAME":"Creekside Resources Inc. (71095)","ADDRESS_LINE_1":"C/O MOUNT CURRIE BAND","ADDRESS_LINE_2":"BOX 605","ADDRESS_LINE_3":"MOUNT CURRIE BC","ADDRESS_LINE_4":"None","COUNTRY":"Canada","POSTAL_CODE":"None","DISTRICT_PRECINCT_NAME":"New Westminster / Kent","OBJECTID":"672538","SE_ANNO_CAD_DATA":"None"}}]}
+{
+    "type": "FeatureCollection",
+    "features": [{
+        "type": "Feature",
+        "id": "WLA0Z116454-0001",
+        "geometry": {
+            "type": "Point",
+            "coordinates": [-122.89611239, 50.1506195]
+        },
+        "properties": {
+            "WLS_WRA_SYSID": "1830",
+            "APPLICATION_JOB_NUMBER": "WLA0Z116454-0001",
+            "POD_NUMBER": "PD76227",
+            "POD_SUBTYPE": "POD",
+            "POD_DIVERSION_TYPE": "None",
+            "FILE_NUMBER": "2002485",
+            "APPLICATION_STATUS": "Refused",
+            "WELL_TAG_NUMBER": "None",
+            "PURPOSE_USE_CODE": "07C",
+            "PURPOSE_USE": "07C - Power: General ",
+            "QTY_DIVERSION_MAX_RATE": "None",
+            "QTY_UNITS_DIVERSION_MAX_RATE": "m3/sec",
+            "PRIMARY_APPLICANT_NAME": "Creekside Resources Inc. (71095)",
+            "ADDRESS_LINE_1": "C/O MOUNT CURRIE BAND",
+            "ADDRESS_LINE_2": "BOX 605",
+            "ADDRESS_LINE_3": "MOUNT CURRIE BC",
+            "ADDRESS_LINE_4": "None",
+            "COUNTRY": "Canada",
+            "POSTAL_CODE": "None",
+            "DISTRICT_PRECINCT_NAME": "New Westminster / Kent",
+            "OBJECTID": "672538",
+            "SE_ANNO_CAD_DATA": "None"
+        }
+    }]
+}
