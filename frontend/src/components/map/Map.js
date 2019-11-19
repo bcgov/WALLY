@@ -159,7 +159,7 @@ export default {
       }), 'top-right')
       this.map.on('style.load', () => {
         this.getMapLayers()
-        this.initStreamHighlights(this)
+        this.initStreamHighlights()
       })
 
       this.initHighlightLayers()
