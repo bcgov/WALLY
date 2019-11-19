@@ -12,9 +12,9 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class WaterRightsApplications(BaseLayerTable):
     __tablename__ = 'water_rights_applications'
 
-    WLS_WRL_SYSID = Column(Integer, comment='WLS WRL SYSID is a system generated unique identification number.')
+    WLS_WRA_SYSID = Column(Integer, comment='WLS WRA SYSID is a system generated unique identification number.')
     APPLICATION_JOB_NUMBER = Column(String, primary_key=True, autoincrement=False,
-        comment='APPLICATION JOB NUMBER is a unique identifier for a ground water licence application, e.g. 1003202.')
+                                    comment='APPLICATION JOB NUMBER is a unique identifier for a ground water licence application, e.g. 1003202.')
     POD_NUMBER = Column(String, comment='POD NUMBER is the unique identifier for a Point of Diversion, e.g., PW189413. '
                                         'Each POD can have multiple licences associated with it.')
     POD_SUBTYPE = Column(String, comment='POD SUBTYPE distinguishes the different POD types, i.e., POD (a surface '
@@ -59,11 +59,6 @@ class WaterRightsApplications(BaseLayerTable):
     COUNTRY = Column(String, comment='COUNTRY is the applicant\'s country.')
     POSTAL_CODE = Column(
         String, comment='POSTAL CODE is the applicant\'s postal code.')
-    LATITUDE = Column(Float, comment='LATITUDE is the geographic coordinate, in decimal degrees (dd.dddddd), '
-                                     'of the location of the feature as measured from the equator, e.g., 55.323653.')
-    LONGITUDE = Column(Float, comment='LONGITUDE is the geographic coordinate, in decimal degrees (-ddd.dddddd), '
-                                      'of the location of the feature as measured from the prime meridian, '
-                                      'e.g., -123.093544.')
     DISTRICT_PRECINCT_NAME = Column(String, comment='DISTRICT PRECINCT NAME is a jurisdictional area within a '
                                                     'Water District. It is a combination of District and Precinct '
                                                     'codes and names, e.g., New Westminster / Coquitlam. Not all '

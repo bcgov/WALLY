@@ -9,9 +9,17 @@ from pydantic import BaseModel, Schema
 class WaterRightsLicence(BaseModel):
     """
     Water rights licences for analysing licences with a defined distance/buffer area.
+    Includes fields for applications, if using Water Rights Applications as a data source (in
+    addition to Water Rights Licences)
     """
 
     distance: float
+
+    # application fields. They will be blank if not applicable.
+    APPLICATION_JOB_NUMBER: Optional[str]
+    APPLICATION_STATUS: Optional[str]
+
+    # common fields
     LICENCE_NUMBER: Optional[str]
     LICENCE_STATUS: Optional[str]
     POD_NUMBER: Optional[str]

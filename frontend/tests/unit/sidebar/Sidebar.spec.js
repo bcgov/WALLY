@@ -44,7 +44,10 @@ describe('Sidebar', () => {
       layerSelectionActive: () => null,
       featureSelectionExists: () => null,
       featureError: () => null,
-      loadingFeature: () => null
+      loadingFeature: () => null,
+      infoPanelVisible: () => null,
+      baseMapLayers: () => [],
+      selectedBaseLayers: () => []
     }
   })
 

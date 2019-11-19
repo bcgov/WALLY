@@ -1,1 +1,43 @@
-{"name":"bc_wildfire_active_weather_stations","type":"FeatureCollection","features":[{"type":"Feature","id":521,"geometry":{"type":"Point","coordinates":[-123.109267,50.144331]},"properties":{"WEATHER_STATIONS_ID":"521","STATION_CODE":"896","STATION_NAME":"CALLAGHAN VALLEY (EC)","STATION_ACRONYM":"CVOD","LATITUDE":"50.144331","LONGITUDE":"-123.109267","ELEVATION":"869.0","INSTALL_DATE":"None","OBJECTID":"206219","SE_ANNO_CAD_DATA":"None"}},{"type":"Feature","id":573,"geometry":{"type":"Point","coordinates":[-123.041272,50.082506]},"properties":{"WEATHER_STATIONS_ID":"573","STATION_CODE":"1283","STATION_NAME":"CHEAKAMUS","STATION_ACRONYM":"CFCM","LATITUDE":"50.082506","LONGITUDE":"-123.041272","ELEVATION":"595.0","INSTALL_DATE":"None","OBJECTID":"206271","SE_ANNO_CAD_DATA":"None"}}]}
+{
+    "name": "bc_wildfire_active_weather_stations",
+    "type": "FeatureCollection",
+    "features": [{
+        "type": "Feature",
+        "id": 521,
+        "geometry": {
+            "type": "Point",
+            "coordinates": [-123.109267, 50.144331]
+        },
+        "properties": {
+            "WEATHER_STATIONS_ID": "521",
+            "STATION_CODE": "896",
+            "STATION_NAME": "CALLAGHAN VALLEY (EC)",
+            "STATION_ACRONYM": "CVOD",
+            "LATITUDE": "50.144331",
+            "LONGITUDE": "-123.109267",
+            "ELEVATION": "869.0",
+            "INSTALL_DATE": "None",
+            "OBJECTID": "206219",
+            "SE_ANNO_CAD_DATA": "None"
+        }
+    }, {
+        "type": "Feature",
+        "id": 573,
+        "geometry": {
+            "type": "Point",
+            "coordinates": [-123.041272, 50.082506]
+        },
+        "properties": {
+            "WEATHER_STATIONS_ID": "573",
+            "STATION_CODE": "1283",
+            "STATION_NAME": "CHEAKAMUS",
+            "STATION_ACRONYM": "CFCM",
+            "LATITUDE": "50.082506",
+            "LONGITUDE": "-123.041272",
+            "ELEVATION": "595.0",
+            "INSTALL_DATE": "None",
+            "OBJECTID": "206271",
+            "SE_ANNO_CAD_DATA": "None"
+        }
+    }]
+}
