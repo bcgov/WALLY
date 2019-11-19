@@ -29,7 +29,9 @@ describe('LayerSelection', () => {
       dataMartFeatures: () => [],
       allMapLayers: () => testLayers.layers,
       getCategories: () => testLayers.categories,
-      featureSelectionExists: () => null
+      featureSelectionExists: () => null,
+      baseMapLayers: () => [],
+      selectedBaseLayers: () => []
     }
     store = new Vuex.Store({ getters, mutations })
     wrapper = shallowMount(LayerSelection, {
