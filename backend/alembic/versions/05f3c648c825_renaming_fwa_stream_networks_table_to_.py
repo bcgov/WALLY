@@ -27,13 +27,22 @@ def upgrade():
     op.execute('ALTER INDEX "idx_fwa_stream_networks_GEOMETRY" '
                'RENAME TO "idx_freshwater_atlas_stream_networks_GEOMETRY"')
 
+    op.execute('UPDATE metadata.data_source SET data_table_name=\'freshwater_atlas_stream_networks\' '
+               'WHERE data_source_id=15 AND data_table_name=\'fwa_stream_networks\'')
+    op.execute('UPDATE metadata.display_catalogue SET display_data_name=\'freshwater_atlas_stream_networks\' '
+               'WHERE data_source_id=15 AND display_data_name=\'fwa_stream_networks\'')
 
 def downgrade():
     op.rename_table('freshwater_atlas_stream_networks', 'fwa_stream_networks')
-    op.execute('"ALTER SEQUENCE freshwater_atlas_stream_networks_OGC_FID_seq '
-               'RENAME TO fwa_stream_networks_OGC_FID_seq"')
+    op.execute('ALTER SEQUENCE "freshwater_atlas_stream_networks_OGC_FID_seq" '
+               'RENAME TO "fwa_stream_networks_OGC_FID_seq"')
 
     op.execute('ALTER INDEX freshwater_atlas_stream_networks_pkey RENAME TO fwa_stream_networks_pkey')
     op.execute('ALTER INDEX freshwater_atlas_stream_networks_geom_geom_idx RENAME TO fwa_stream_networks_geom_geom_idx')
     op.execute('ALTER INDEX "idx_freshwater_atlas_stream_networks_GEOMETRY" '
                'RENAME TO "idx_fwa_stream_networks_GEOMETRY"')
+
+    op.execute('UPDATE metadata.data_source SET data_table_name=\'fwa_stream_networks\' '
+               'WHERE data_source_id=15 AND data_table_name=\'freshwater_atlas_stream_networks\'')
+    op.execute('UPDATE metadata.display_catalogue SET display_data_name=\'fwa_stream_networks\' '
+               'WHERE data_source_id=15 AND display_data_name=\'freshwater_atlas_stream_networks\'')
