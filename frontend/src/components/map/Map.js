@@ -8,10 +8,7 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
-import * as metadata from '../../utils/metadataUtils'
 import coordinatesGeocoder from './localGeocoder'
-import bbox from '@turf/bbox'
-import _ from 'lodash';
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
@@ -285,7 +282,7 @@ export default {
           }
       })
     },
-    updateStreamHighlight(stream) {
+    updateStreamHighlights(stream) {
         // Get slected watershed code and trim un-needed depth
         const watershedCode = stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
 
@@ -423,7 +420,7 @@ export default {
       if(data.display_data_name === 'freshwater_atlas_stream_networks') {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(polygon)
-        this.updateStreamHighlight(data)
+        this.updateStreamHighlights(data)
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         this.map.getSource('highlightPointData').setData(data)
         this.map.getSource('highlightLayerData').setData(polygon)
