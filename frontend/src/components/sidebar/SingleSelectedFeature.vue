@@ -67,19 +67,21 @@ import { mapGetters } from 'vuex'
 import { humanReadable } from '../../helpers'
 import EventBus from '../../services/EventBus'
 
-import StreamStation from '../features/FeatureStreamStation'
-import Well from '../features/FeatureWell'
-import Aquifer from '../features/FeatureAquifer'
-import EcoCat from '../features/FeatureEcocat'
+import FeatureStreamStation from '../features/FeatureStreamStation'
+import FeatureWell from '../features/FeatureWell'
+import FeatureAquifer from '../features/FeatureAquifer'
+import FeatureLicence from '../features/FeatureLicence'
+import FeatureEcocat from '../features/FeatureEcocat'
 import UserDefinedPoint from '../features/FeatureUserDefinedPoint'
 
 export default {
   name: 'SingleSelectedFeature',
   components: {
-    StreamStation,
-    Well,
-    EcoCat,
-    Aquifer,
+    FeatureStreamStation,
+    FeatureWell,
+    FeatureEcocat,
+    FeatureAquifer,
+    FeatureLicence,
     UserDefinedPoint
   },
   props: {
@@ -87,10 +89,11 @@ export default {
   },
   data: () => ({
     featureComponents: {
-      hydrometric_stream_flow: StreamStation,
-      aquifers: Aquifer,
-      groundwater_wells: Well,
-      ecocat_water_related_reports: EcoCat,
+      hydrometric_stream_flow: FeatureStreamStation,
+      aquifers: FeatureAquifer,
+      water_rights_licences: FeatureLicence,
+      groundwater_wells: FeatureWell,
+      ecocat_water_related_reports: FeatureEcocat,
       user_defined_point: UserDefinedPoint
     }
   }),
