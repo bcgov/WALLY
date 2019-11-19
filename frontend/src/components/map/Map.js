@@ -353,6 +353,7 @@ export default {
             }
         })
         builder = builder.concat(elements)
+        // Recursive call step with current builder object and next segment selection
         return this.cleanDownStreams(streams, segmentCode, builder)
       } else {
         return builder
