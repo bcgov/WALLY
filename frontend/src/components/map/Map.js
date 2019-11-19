@@ -79,8 +79,7 @@ export default {
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
       draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
-      isDrawingToolActive: false,
-      highlightedStream: {}
+      isDrawingToolActive: false
     }
   },
   computed: {
@@ -240,21 +239,7 @@ export default {
       })
     },
     initStreamHighlights() {
-      this.map.addSource('fwa_streams_data', { type: 'vector', "url": "mapbox://iit-water.6q8q0qac" }) 
-      // this.map.addLayer({
-      //     "id": "streams",
-      //     "type": "line",
-      //     "source": "fwa_streams_data",
-      //     "source-layer": "freshwater_atlas_stream_networks",
-      //     "layout": {
-      //       "line-join": "round",
-      //       "line-cap": "round"
-      //     },
-      //     "paint": {
-      //         "line-color": "#234075",
-      //         "line-width": 1
-      //     }
-      // })
+      // This highlights the selected stream
       this.map.addSource('selectedStreamSource', { type: 'geojson', data: featureCollection })
       this.map.addLayer({
           "id": "selectedstream",
@@ -269,11 +254,12 @@ export default {
               "line-width": 3
           }
       })
-      this.map.addSource('upstreamSource', { type: 'geojson', data: featureCollection })
+      // This layer highlights all upstream stream segments
+      this.map.addSource('upStreamSource', { type: 'geojson', data: featureCollection })
       this.map.addLayer({
           "id": "upstream",
           "type": "line",
-          "source": "upstreamSource",
+          "source": "upStreamSource",
           "layout": {
             "line-join": "round",
             "line-cap": "round"
@@ -283,11 +269,12 @@ export default {
               "line-width": 3
           }
       })
-      this.map.addSource('downstreamSource', { type: 'geojson', data: featureCollection }) 
+      // This layer highlights all downstream stream segments
+      this.map.addSource('downStreamSource', { type: 'geojson', data: featureCollection }) 
       this.map.addLayer({
           "id": "downstream",
           "type": "line",
-          "source": "downstreamSource",
+          "source": "downStreamSource",
           "layout": {
             "line-join": "round",
             "line-cap": "round"
@@ -297,29 +284,9 @@ export default {
               "line-width": 3
           }
       })
-      this.map.on('mousemove', 'streams', this.updateStreamHighlight)
-      this.map.on('mouseleave', 'streams', function(e) {
-        var map = e.target.style.map
-        // map.getSource('upstreamSource').setData(featureCollection)
-        map.getCanvas().style.cursor = '';
-      })
     },
-    updateStreamHighlight(e) {
-
-      // Change the cursor style as a UI indicator.
-        // this.map.getCanvas().style.cursor = 'pointer'
-        
-        // set map reference
-        // var map = e.target.style.map
-
-        // Single out the first found feature and check for duplicate
-        var stream = e.features[0]
-
-        // Check if we're hovering over the same stream segment
-        // We don't want to re-calculate when we don't have to
-        if(_.isEqual(this.highlightedStream.properties, stream.properties)) 
-        { return } else { this.highlightedStream = stream }
-
+    updateStreamHighlight(stream) {
+        // Get slected watershed code and trim un-needed depth
         const watershedCode = stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
 
         // Build our downstream code list
@@ -329,10 +296,8 @@ export default {
           downstreamCodes.push(downstreamCodes[i] + "-" + codes[i+1])
         }
       
-        // get all streams from layer
-        var streams = this.map.querySourceFeatures('fwa_streams_data', {
-          sourceLayer: 'freshwater_atlas_stream_networks'
-        })
+        // get all visible streams from fwa steams layer
+        var streams = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
 
         // loop streams to find matching cases for selected, upstream, and downstream conditions
         let selectedFeatures = []
@@ -345,12 +310,14 @@ export default {
           if(downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length)  { downstreamFeatures.push(stream) } // down stream condition
         })
 
+        // Clean out downstream features that are upwards water flow
+        // TODO may want to toggle this based on user feedback
         let cleanedDownstreamFeatures = this.cleanDownStreams(downstreamFeatures, stream.properties["FWA_WATERSHED_CODE"])
 
         // Insert the upstream data into the upstream data source
         var upStreamCollection = Object.assign({}, featureCollection)
         upStreamCollection["features"] = upstreamFeatures
-        this.map.getSource('upstreamSource').setData(upStreamCollection)
+        this.map.getSource('upStreamSource').setData(upStreamCollection)
 
         // Insert the selected stream data into the selected stream data source
         var selectedStreamCollection = Object.assign({}, featureCollection)
@@ -360,9 +327,13 @@ export default {
         // Insert the downstream data into the downstream data source
         var downStreamCollection = Object.assign({}, featureCollection) 
         downStreamCollection["features"] = cleanedDownstreamFeatures
-        this.map.getSource('downstreamSource').setData(downStreamCollection)
+        this.map.getSource('downStreamSource').setData(downStreamCollection)
     },
     cleanDownStreams(streams, code, builder = []) {
+      // This is a recursive function that walks down the stream network
+      // from the selected stream segment location. It removes any stream
+      // segments that are at the same order but have an upwards stream flow.
+      // Returns an array (builder) of cleaned stream segment features.
       var segment = streams.find((s) => {
         if(s.properties["LOCAL_WATERSHED_CODE"]) {
           let local = s.properties["LOCAL_WATERSHED_CODE"]
@@ -447,17 +418,30 @@ export default {
       this.$store.dispatch('getDataMartFeatures', payload)
     },
     updateHighlightLayerData (data) {
-      if (data.geometry.type === 'Point') {
+      // For stream networks layer we add custom highlighting and reset poly/point highlight layering
+      if(data.display_data_name === 'freshwater_atlas_stream_networks') {
+        this.map.getSource('highlightPointData').setData(point)
+        this.map.getSource('highlightLayerData').setData(polygon)
+        this.updateStreamHighlight(data)
+      } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         this.map.getSource('highlightPointData').setData(data)
         this.map.getSource('highlightLayerData').setData(polygon)
+        this.clearStreamHighlightLayers()
       } else {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(data)
+        this.clearStreamHighlightLayers()
       }
     },
     clearHighlightLayer () {
       this.map.getSource('highlightPointData').setData(point)
       this.map.getSource('highlightLayerData').setData(polygon)
+      this.clearStreamHighlightLayers()
+    },
+    clearStreamHighlightLayers() {
+      this.map.getSource('selectedStreamSource').setData(featureCollection)
+      this.map.getSource('downStreamSource').setData(featureCollection)
+      this.map.getSource('upStreamSource').setData(featureCollection)
     },
     handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
