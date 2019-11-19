@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row>
+    <v-row no-gutters>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
           label="Search radius (m)"
@@ -24,6 +24,11 @@
         <v-checkbox v-model="tableOptions.subtypes.PG" class="mx-2" :label="`PG (${subtypeCounts.PG})`"></v-checkbox>
       </v-col>
     </v-row>
+    <v-row no-gutters>
+      <v-col>
+        <v-checkbox v-model="tableOptions.applications" class="mx-2" :label="`Water Rights Applications (${applicationCount})`"></v-checkbox>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col>
         <v-data-table
@@ -35,7 +40,7 @@
             <span>{{item.distance.toFixed(1)}}</span>
           </template>
           <template v-slot:item.QUANTITY="{ item }">
-            <span>{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
+            <span v-if="item.QUANTITY" >{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
           </template>
         </v-data-table>
       </v-col>
@@ -97,6 +102,9 @@ export default {
     results: [],
     loading: false,
     headers: [
+      { text: 'Distance', value: 'distance', align: 'right' },
+      { text: 'Application status', value: 'APPLICATION_STATUS', align: 'right' },
+      { text: 'Application number', value: 'APPLICATION_JOB_NUMBER', align: 'right' },
       { text: 'Licence number', value: 'LICENCE_NUMBER', align: 'right' },
       { text: 'POD number', value: 'POD_NUMBER', align: 'right' },
       { text: 'POD subtype', value: 'POD_SUBTYPE', align: 'right', filterable: true },
@@ -104,6 +112,7 @@ export default {
       { text: 'Quantity', value: 'QUANTITY', align: 'right' }
     ],
     tableOptions: {
+      applications: true,
       subtypes: {
         PWD: true,
         POD: true,
@@ -129,7 +138,15 @@ export default {
           licences = licences.filter(x => x.POD_SUBTYPE !== key)
         }
       }
+
+      if (!this.tableOptions.applications) {
+        licences = licences.filter(x => !x.APPLICATION_JOB_NUMBER)
+      }
+
       return licences
+    },
+    applicationCount () {
+      return this.results.filter(x => !!x.APPLICATION_JOB_NUMBER).length
     },
     subtypeCounts () {
       // counts each subtype in the results
@@ -149,6 +166,7 @@ export default {
   methods: {
     enableLicencesLayer () {
       this.$store.commit('addMapLayer', 'water_rights_licences')
+      this.$store.commit('addMapLayer', 'water_rights_applications')
     },
     fetchLicences: debounce(function () {
       this.showCircle()

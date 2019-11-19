@@ -428,8 +428,6 @@ export default {
 
       if (!feature || !feature.features || !feature.features.length) return
 
-      console.log(options.showFeatureList)
-
       if (options.showFeatureList) {
         this.$store.commit('setLayerSelectionActiveState', false)
       }
