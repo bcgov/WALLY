@@ -1,7 +1,7 @@
 """add table for mapbox sources
 
 Revision ID: c0266f14f5e6
-Revises: a2b8d50d796d
+Revises: 1d3a9bfe6150
 Create Date: 2019-11-15 20:20:24.603138
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'c0266f14f5e6'
-down_revision = 'a2b8d50d796d'
+down_revision = '1d3a9bfe6150'
 branch_labels = None
 depends_on = None
 
