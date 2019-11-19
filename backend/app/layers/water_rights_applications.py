@@ -12,7 +12,7 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class WaterRightsApplications(BaseLayerTable):
     __tablename__ = 'water_rights_applications'
 
-    WLS_WRA_SYSID = Column(Integer, comment='WLS WRL SYSID is a system generated unique identification number.')
+    WLS_WRA_SYSID = Column(Integer, comment='WLS WRA SYSID is a system generated unique identification number.')
     APPLICATION_JOB_NUMBER = Column(String, primary_key=True, autoincrement=False,
                                     comment='APPLICATION JOB NUMBER is a unique identifier for a ground water licence application, e.g. 1003202.')
     POD_NUMBER = Column(String, comment='POD NUMBER is the unique identifier for a Point of Diversion, e.g., PW189413. '
