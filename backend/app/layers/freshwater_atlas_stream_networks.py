@@ -4,7 +4,7 @@ from geoalchemy2 import Geometry
 
 
 class FreshwaterAtlasStreamNetworks(BaseLayerTable):
-    __tablename__ = 'fwa_stream_networks'
+    __tablename__ = 'freshwater_atlas_stream_networks'
 
     OGC_FID = Column(Integer, primary_key=True)
     LINEAR_FEATURE_ID = Column(Integer)

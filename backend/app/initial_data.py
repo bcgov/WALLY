@@ -18,7 +18,7 @@ from app.layers.bc_major_watersheds import BcMajorWatersheds
 from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
 from app.layers.ground_water_aquifers import GroundWaterAquifers
 from app.layers.water_allocation_restrictions import WaterAllocationRestrictions
-from app.layers.fwa_stream_networks import FreshwaterAtlasStreamNetworks
+from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 
 logging.basicConfig(level=logging.INFO)
