@@ -86,7 +86,7 @@ tippecanoe -l freshwater_atlas_stream_networks  -j '
     ],
     [">", "$zoom", 10]
   ]
-}' -z11 -o freshwater_atlas_stream_networks.mbtiles -y LINEAR_FEATURE_ID -y FWA_WATERSHED_CODE -y LOCAL_WATERSHED_CODE -y STREAM_MAGNITUDE fwa_stream_networks.geojson```
+}' -z11 -o freshwater_atlas_stream_networks.mbtiles -y LINEAR_FEATURE_ID -y FWA_WATERSHED_CODE -y LOCAL_WATERSHED_CODE -y STREAM_MAGNITUDE -y DOWNSTREAM_ROUTE_MEASURE fwa_stream_networks.geojson```
 
 
 
