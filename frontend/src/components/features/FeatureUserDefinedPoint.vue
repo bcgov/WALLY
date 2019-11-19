@@ -25,6 +25,12 @@
           <WaterRightsLicencesNearby :record="record" :coordinates="this.record.geometry.coordinates"></WaterRightsLicencesNearby>
         </v-expansion-panel-content>
       </v-expansion-panel>
+      <v-expansion-panel>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Streams near this point</v-expansion-panel-header>
+        <v-expansion-panel-content>
+          <StreamsNearby :record="record" :coordinates="this.record.geometry.coordinates"></StreamsNearby>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
     </v-expansion-panels>
   </v-sheet>
 </template>
@@ -32,12 +38,14 @@
 <script>
 import WellsNearby from '../analysis/WellsNearby.vue'
 import WaterRightsLicencesNearby from '../analysis/WaterRightsLicencesNearby'
+import StreamsNearby from '../analysis/StreamsNearby'
 
 export default {
   name: 'FeatureUserDefined',
   components: {
     WellsNearby,
-    WaterRightsLicencesNearby
+    WaterRightsLicencesNearby,
+    StreamsNearby
   },
   props: ['record'],
   data: () => ({
