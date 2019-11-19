@@ -12,7 +12,7 @@ from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
-from app.analysis.first_nations.nearby_areas import get_nearest_areas
+from app.analysis.first_nations.nearby_areas import get_nearest_locations
 from app.analysis.first_nations.models import NearbyAreasResponse
 logger = getLogger("geocoder")
 
@@ -65,7 +65,7 @@ def get_nearby_licences(
 
 
 @router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
-def get_nearby_first_nations_contacts(
+def get_nearby_first_nations_areas(
     db: Session = Depends(get_db),
     geometry: str = Query(...,
                           title="Geometry to search near",
@@ -76,5 +76,5 @@ def get_nearby_first_nations_contacts(
     """
     geometry_parsed = json.loads(geometry)
     geometry_shape = shape(geometry_parsed)
-    nearest = get_nearest_areas(db, geometry_shape)
+    nearest = get_nearest_locations(db, geometry_shape)
     return nearest

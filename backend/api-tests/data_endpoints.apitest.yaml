@@ -87,3 +87,27 @@ requests:
     method: get
     expect:
       status: 200
+  - name: First Nations search from point location
+    url: '{{host}}/api/v1/analysis/firstnations/nearby?geometry={"coordinates":[-122.93164184180638,50.15903067710735],"type":"Point"}'
+    method: get
+    expect:
+      status: 200
+      values:
+        nearest_communities:
+          exists: true # just checks that this is present in the response, whether or not any communities were found
+        nearest_treaty_areas:
+          exists: true
+        nearest_treaty_lands:
+          exists: true
+  - name: First Nations search from point location
+    url: '{{host}}/api/v1/analysis/firstnations/nearby?geometry={"type":"Polygon","coordinates":[[[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786]]]}'
+    method: get
+    expect:
+      status: 200
+      values:
+        nearest_communities:
+          exists: true
+        nearest_treaty_areas:
+          exists: true
+        nearest_treaty_lands:
+          exists: true
