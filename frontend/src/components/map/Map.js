@@ -240,21 +240,21 @@ export default {
       })
     },
     initStreamHighlights() {
-      this.map.addSource('fwa_streams_data', { type: 'vector', "url": "mapbox://iit-water.6ihj1ke0" }) 
-      this.map.addLayer({
-          "id": "streams",
-          "type": "line",
-          "source": "fwa_streams_data",
-          "source-layer": "FWA_STREAM_NETWORKS_SP-bdhkfq",
-          "layout": {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          "paint": {
-              "line-color": "#234075",
-              "line-width": 1
-          }
-      })
+      this.map.addSource('fwa_streams_data', { type: 'vector', "url": "mapbox://iit-water.6q8q0qac" }) 
+      // this.map.addLayer({
+      //     "id": "streams",
+      //     "type": "line",
+      //     "source": "fwa_streams_data",
+      //     "source-layer": "freshwater_atlas_stream_networks",
+      //     "layout": {
+      //       "line-join": "round",
+      //       "line-cap": "round"
+      //     },
+      //     "paint": {
+      //         "line-color": "#234075",
+      //         "line-width": 1
+      //     }
+      // })
       this.map.addSource('selectedStreamSource', { type: 'geojson', data: featureCollection })
       this.map.addLayer({
           "id": "selectedstream",
@@ -328,16 +328,10 @@ export default {
         for (let i = 0; i < codes.length - 1; i++) {
           downstreamCodes.push(downstreamCodes[i] + "-" + codes[i+1])
         }
-        console.log(watershedCode)
-        console.log(stream.properties)
-        console.log(stream.properties["DOWNSTREAM_ROUTE_MEASURE"])
-        console.log(stream.properties["LOCAL_WATERSHED_CODE"])
-        // console.log(downstreamCodes)
-        console.log("**********************")
       
         // get all streams from layer
         var streams = this.map.querySourceFeatures('fwa_streams_data', {
-          sourceLayer: 'FWA_STREAM_NETWORKS_SP-bdhkfq'
+          sourceLayer: 'freshwater_atlas_stream_networks'
         })
 
         // loop streams to find matching cases for selected, upstream, and downstream conditions
