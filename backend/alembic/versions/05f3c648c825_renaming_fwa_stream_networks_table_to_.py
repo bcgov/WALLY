@@ -31,6 +31,9 @@ def upgrade():
                'WHERE data_source_id=15 AND data_table_name=\'fwa_stream_networks\'')
     op.execute('UPDATE metadata.display_catalogue SET display_data_name=\'freshwater_atlas_stream_networks\' '
                'WHERE data_source_id=15 AND display_data_name=\'fwa_stream_networks\'')
+    op.execute('UPDATE metadata.vector_catalogue SET vector_name=\'freshwater_atlas_stream_networks\' '
+               'WHERE vector_catalogue_id=7 AND vector_name=\'fwa_stream_networks\'')
+
 
 def downgrade():
     op.rename_table('freshwater_atlas_stream_networks', 'fwa_stream_networks')
@@ -46,3 +49,5 @@ def downgrade():
                'WHERE data_source_id=15 AND data_table_name=\'freshwater_atlas_stream_networks\'')
     op.execute('UPDATE metadata.display_catalogue SET display_data_name=\'fwa_stream_networks\' '
                'WHERE data_source_id=15 AND display_data_name=\'freshwater_atlas_stream_networks\'')
+    op.execute('UPDATE metadata.vector_catalogue SET vector_name=\'fwa_stream_networks\' '
+               'WHERE vector_catalogue_id=7 AND vector_name=\'freshwater_atlas_stream_networks\'')
