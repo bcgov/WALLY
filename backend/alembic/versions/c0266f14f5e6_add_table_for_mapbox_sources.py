@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'c0266f14f5e6'
-down_revision = '1d3a9bfe6150'
+down_revision = '7fa8f38196e4'
 branch_labels = None
 depends_on = None
 
@@ -52,10 +52,12 @@ def upgrade():
         ('iit-water.7iwr3fo1', NULL),
         ('iit-water.0tsq064k', NULL),
         ('iit-water.36r1x37x', NULL),
-        ('iit-water.2ah76e1a', NULL);
+        ('iit-water.2ah76e1a', NULL),
+        ('iit-water.6q8q0qac', NULL);
     """)
 
     op.execute("""
+        UPDATE metadata.display_catalogue SET mapbox_layer_id='iit-water.6q8q0qac' WHERE mapbox_layer_id='iit-water.fwa-streams';
         UPDATE metadata.display_catalogue SET mapbox_source_id=mapbox_layer_id WHERE mapbox_layer_id != '';
     """)
 
