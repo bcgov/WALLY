@@ -12,7 +12,7 @@
         <v-list-item class="feature-content">
           <v-list-item-content>URL</v-list-item-content>
           <v-list-item-content>
-            <a :href="record.properties.URL_TO_BC_WEBSITE">
+            <a :href="record.properties.URL_TO_BC_WEBSITE" target="_blank">
             {{record.properties.URL_TO_BC_WEBSITE}}
             </a>
           </v-list-item-content>
