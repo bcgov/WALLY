@@ -538,13 +538,7 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
-        // Offset the selected point to show up a little to the right
-        // So that the InfoSheet / floating panel doesn't cover it
-        // TODO: Refactor this into clean & reusable code
         let flyToCoordinates = [...coordinates]
-        if (this.infoPanelVisible) {
-          flyToCoordinates[0] = flyToCoordinates[0] - 0.04
-        }
         this.map.flyTo({
           center: flyToCoordinates
         })
