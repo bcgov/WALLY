@@ -113,7 +113,7 @@ export default {
       return this.isMapLayerActive('groundwater_wells')
     },
     coordinates () {
-      return this.record.geometry.coordinates
+      return (this.record && this.record.geometry && this.record.geometry.coordinates) || []
     },
     ...mapGetters(['isMapLayerActive'])
   },

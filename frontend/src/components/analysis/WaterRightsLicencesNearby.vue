@@ -126,7 +126,7 @@ export default {
       return this.isMapLayerActive('water_rights_licences')
     },
     coordinates () {
-      return this.record.geometry.coordinates
+      return this.record && this.record.geometry && this.record.geometry.coordinates
     },
     filteredLicences () {
       let licences = this.results

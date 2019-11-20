@@ -36,7 +36,7 @@
         <v-card :loading="loading" outlined tile class="charts">
           <v-card-title>Insights ({{ wells.length }} wells):</v-card-title>
           <v-card-text>
-            <div v-if="!loading">
+            <div v-if="!loading" id="wells_charts">
               <Chart
                 :data="boxPlotYieldData.data"
                 :layout="boxPlotYieldData.layout"

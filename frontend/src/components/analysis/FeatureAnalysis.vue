@@ -2,7 +2,7 @@
       <v-expansion-panels class="mt-5" multiple>
 
         <!-- Single point analysis options -->
-        <template v-if="record.geometry.type === 'Point'">
+        <template v-if="record && record.geometry && record.geometry.type === 'Point'">
           <v-expansion-panel>
             <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find wells near this point</v-expansion-panel-header>
             <v-expansion-panel-content>
