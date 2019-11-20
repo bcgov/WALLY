@@ -28,35 +28,7 @@
       <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <v-dialog v-if="!item.children" width="650">
-              <template v-slot:activator="{ on }">
-                <v-icon class="appendRight" v-on="on">
-                  mdi-information-outline
-                </v-icon>
-              </template>
-              <v-card shaped>
-                <v-card-title class="headline grey lighten-3" primary-title>
-                  <v-icon class="mr-2">
-                    mdi-information-outline
-                  </v-icon>
-                  <div style="{color:grey}">{{item.name}}</div>
-                </v-card-title>
-                <v-card-text class="mt-4">
-                  {{item.description}}
-                </v-card-text>
-                <v-divider></v-divider>
-                <v-card-actions>
-                  <v-btn
-                    text
-                    color="primary accent-4"
-                    v-bind:href=item.source_url
-                    target="_blank"
-                  >
-                    Link to Data Source
-                  </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+            <LayerDialog :name=item.name :description=item.description :url=item.source_url />
           </div>
       </template>
     </v-treeview>
@@ -73,6 +45,7 @@
       <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
+            <LayerDialog :name=item.name :description=item.description :url=item.source_url />
           </div>
       </template>
     </v-treeview>
@@ -82,9 +55,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import EventBus from '../../services/EventBus'
+import LayerDialog from './LayerDialog'
 
 export default {
   name: 'LayerSelection',
+  components: {
+      LayerDialog
+  },
   computed: {
     ...mapGetters([
       'isMapLayerActive',
