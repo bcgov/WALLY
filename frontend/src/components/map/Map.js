@@ -81,11 +81,13 @@ export default {
       //  of just 300px
       if (this.infoPanelVisible) {
         return {
-          left: '300px'
+          left: '300px',
+          width: 'calc(100vw - 300px)'
         }
       }
       return {
-        left: 0
+        left: 0,
+        width: '100%'
       }
     },
     ...mapGetters([
@@ -178,6 +180,9 @@ export default {
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
+
+      // Show layer selection sidebar
+      this.$store.commit('toggleInfoPanelVisibility')
     },
     addShape (shape) {
       // adds a mapbox-gl-draw shape to the map
