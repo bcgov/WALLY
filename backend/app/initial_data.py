@@ -7,6 +7,7 @@ from app.db.session import db_session
 
 from app.hydat.factory import StationFactory
 from app.layers.water_rights_licences import WaterRightsLicenses
+from app.layers.water_rights_applications import WaterRightsApplications
 from app.layers.automated_snow_weather_station_locations import AutomatedSnowWeatherStationLocations
 from app.layers.bc_wildfire_active_weather_stations import BcWildfireActiveWeatherStations
 from app.layers.cadastral import Cadastral
@@ -18,6 +19,7 @@ from app.layers.bc_major_watersheds import BcMajorWatersheds
 from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
 from app.layers.ground_water_aquifers import GroundWaterAquifers
 from app.layers.water_allocation_restrictions import WaterAllocationRestrictions
+from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 
 logging.basicConfig(level=logging.INFO)
