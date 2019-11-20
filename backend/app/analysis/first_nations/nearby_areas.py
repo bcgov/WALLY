@@ -12,6 +12,8 @@ from app.analysis.first_nations.models import (
 )
 logger = logging.getLogger("api")
 
+# arbitrary maximum radius (in metres) to search within.
+# in the future, this could be a user-configurable option.
 MAX_RADIUS = 50000
 
 
