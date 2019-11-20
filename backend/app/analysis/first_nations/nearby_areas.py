@@ -14,6 +14,7 @@ logger = logging.getLogger("api")
 
 MAX_RADIUS = 50000
 
+
 def get_nearest_communities(db: Session, geometry):
     """ get nearest First Nations Community Locations"""
 
@@ -33,6 +34,7 @@ def get_nearest_communities(db: Session, geometry):
     return [CommunityResponse(
         **row[0].__dict__, distance=row[1]) for row in community_results]
 
+
 def get_nearest_treaty_lands(db: Session, geometry):
     """ gets nearest First Nations Treaty Lands """
 
@@ -49,7 +51,8 @@ def get_nearest_treaty_lands(db: Session, geometry):
     land_results = land_q.all()
 
     return [TreatyLandResponse(**row[0].__dict__, distance=row[1])
-             for row in land_results]
+            for row in land_results]
+
 
 def get_nearest_treaty_areas(db: Session, geometry):
     """ gets the nearest First Nations Treaty Areas """
@@ -66,7 +69,7 @@ def get_nearest_treaty_areas(db: Session, geometry):
     area_results = area_q.all()
 
     return [TreatyAreaResponse(**row[0].__dict__, distance=row[1])
-             for row in area_results]
+            for row in area_results]
 
 
 def get_nearest_locations(db: Session, geometry):
@@ -81,5 +84,3 @@ def get_nearest_locations(db: Session, geometry):
         nearest_treaty_areas=get_nearest_treaty_areas(db, geometry),
         nearest_treaty_lands=get_nearest_treaty_lands(db, geometry)
     )
-
-    return response
