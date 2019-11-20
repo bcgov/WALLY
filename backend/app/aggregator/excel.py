@@ -6,6 +6,15 @@ from starlette.responses import Response
 from app.aggregator.models import LayerResponse
 
 
+def escape_unicode(value):
+    """
+    escapes characters that can't be written to an excel cell.
+    note: this is NOT intended to remove accented characters or characters from other
+    languages.
+    """
+    return value.encode('unicode_escape').decode('utf-8') if isinstance(value, str) else value
+
+
 def xlsxExport(features: List[LayerResponse]):
     """
     packages features into an excel workbook.  Returns an HTTP response object that has the saved workbook
@@ -41,7 +50,9 @@ def xlsxExport(features: List[LayerResponse]):
         # add rows for every object in the collection, using the fields defined above.
         for f in features:
             props = f['properties']
-            ws.append([props.get(x) for x in fields])
+            ws.append([
+                escape_unicode(props.get(x)) for x in fields
+            ])
 
     response = Response(
         content=save_virtual_workbook(wb),

@@ -65,6 +65,11 @@ requests:
     method: get
     expect:
       status: 200 # response is an excel file, so just check status code.
+  - name: call excel report endpoint with Hydat layer
+    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers&layers=hydrometric_stream_flow&format=xlsx"
+    method: get
+    expect:
+      status: 200 # response is an excel file, so just check status code.
   - name: Well radius search
     url: "{{host}}/api/v1/analysis/wells/nearby?radius=1000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
     method: get
@@ -216,3 +221,15 @@ requests:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
+  - name: call aggregate endpoint with multiple layers (3 - fn_community_locations, fn_treaty_lands, fn_treaty_areas)
+    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=fn_treaty_lands&layers=fn_treaty_areas&layers=fn_community_locations"
+    method: get
+    expect:
+      status: 200
+      values:
+        display_data.[0].geojson.type: FeatureCollection
+        display_data.[1].geojson.type: FeatureCollection
+        display_data.[2].geojson.type: FeatureCollection
+        display_data.[0].layer: fn_treaty_lands
+        display_data.[1].layer: fn_treaty_areas
+        display_data.[2].layer: fn_community_locations

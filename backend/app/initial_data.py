@@ -20,6 +20,7 @@ from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
 from app.layers.ground_water_aquifers import GroundWaterAquifers
 from app.layers.water_allocation_restrictions import WaterAllocationRestrictions
 from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from app.layers.first_nations import CommunityLocation, TreatyArea, TreatyLand
 
 
 logging.basicConfig(level=logging.INFO)
@@ -68,6 +69,11 @@ def load_dev_data():
                         for k, v in params.items():
                             if v == "None":
                                 params[k] = None
+
+                        # remove values that can't be handled in this script.
+                        params.pop('GEOMETRY.AREA', None)
+                        params.pop('GEOMETRY.LEN', None)
+
                         instance = cls(**params)
                         instances.append(instance)
 
