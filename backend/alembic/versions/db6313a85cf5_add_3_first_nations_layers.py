@@ -12,7 +12,7 @@ import geoalchemy2
 
 # revision identifiers, used by Alembic.
 revision = 'db6313a85cf5'
-down_revision = 'a2b8d50d796d'
+down_revision = 'c0266f14f5e6'
 branch_labels = None
 depends_on = None
 
@@ -73,7 +73,9 @@ def upgrade():
         sa.Column('SHAPE', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint('ogc_fid', name='fn_community_locations_pkey')
     )
-    op.create_index('fn_community_locations_shape_geom_idx', 'fn_community_locations', ['SHAPE'], unique=False, postgresql_using="gist")
+    op.create_index(
+        'fn_community_locations_shape_geom_idx',
+        'fn_community_locations', ['SHAPE'], unique=False, postgresql_using="gist")
 
     op.create_table('fn_treaty_areas',
         sa.Column('ogc_fid', sa.INTEGER(), autoincrement=True, nullable=False),
@@ -98,28 +100,11 @@ def upgrade():
         sa.Column('SHAPE', geoalchemy2.types.Geometry(srid=4326), autoincrement=False, nullable=True),
         sa.PrimaryKeyConstraint('ogc_fid', name='fn_treaty_areas_pkey')
     )
-    op.create_index('fn_treaty_areas_shape_geom_idx', 'fn_treaty_areas', ['SHAPE'], unique=False, postgresql_using="gist")
+    op.create_index(
+        'fn_treaty_areas_shape_geom_idx',
+        'fn_treaty_areas', ['SHAPE'], unique=False, postgresql_using="gist")
 
     op.execute('SET search_path TO metadata')
-
-    # add sequences to columns that are missing them.
-    op.execute("""
-        CREATE SEQUENCE vector_catalogue_id_seq;
-        CREATE SEQUENCE data_source_id_seq;
-        SELECT setval('vector_catalogue_id_seq',
-                        COALESCE((SELECT MAX(vector_catalogue_id)+1 FROM vector_catalogue), 1),
-                        false);
-        SELECT setval('data_source_id_seq',
-                        COALESCE((SELECT MAX(data_source_id)+1 FROM data_source), 1),
-                        false);
-        ALTER TABLE vector_catalogue
-            ALTER COLUMN vector_catalogue_id SET DEFAULT NEXTVAL('vector_catalogue_id_seq');
-        ALTER TABLE data_source
-            ALTER COLUMN data_source_id SET DEFAULT NEXTVAL('data_source_id_seq');
-        ALTER SEQUENCE vector_catalogue_id_seq OWNED BY vector_catalogue.vector_catalogue_id;
-        ALTER SEQUENCE data_source_id_seq OWNED BY data_source.data_source_id;
-    """)
-
 
     # add metadata for this layer.
 
@@ -171,6 +156,7 @@ def upgrade():
             data_source_id,
             layer_category_code,
             mapbox_layer_id,
+            mapbox_source_id,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) SELECT
             'fn_community_locations',
@@ -183,6 +169,7 @@ def upgrade():
             vc_id.vector_catalogue_id,
             ds_id.data_source_id,
             'LAND_TENURE',
+            'iit-water.first-nations',
             'iit-water.first-nations',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
         FROM vc_id, ds_id ;
