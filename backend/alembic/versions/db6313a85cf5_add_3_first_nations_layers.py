@@ -108,6 +108,10 @@ def upgrade():
 
     # add metadata for this layer.
 
+    op.execute("""
+        INSERT INTO metadata.mapbox_source (mapbox_source_id, max_zoom) VALUES ('iit-water.first-nations', 9)
+    """)   
+
     # populate fn_community_locations info
     op.execute("""
     WITH vc_id AS (
