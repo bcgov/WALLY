@@ -150,6 +150,7 @@ class DisplayCatalogue(Base):
     data_source = relationship("DataSource")
     required_map_properties = Column(ARRAY(TEXT), nullable=False, server_default='{}',
                                      comment='Properties that are required by the map for rendering markers/shapes, e.g. for colouring markers based on a value or property like POD_SUBTYPE')
+    mapbox_source_id = Column(String, ForeignKey('metadata.mapbox_source.mapbox_source_id'), nullable=True)
 
 
 class DisplayTemplate(Base):
@@ -278,3 +279,9 @@ class LayerCategory(Base):
     description = Column(String(length=255))
     layers = relationship("DisplayCatalogue", back_populates="layer_category")
     display_order = Column(Integer)
+
+
+class MapboxSource(Base):
+    __tablename__ = 'mapbox_source'
+    mapbox_source_id = Column(String, primary_key=True)
+    max_zoom = Column(Integer)
