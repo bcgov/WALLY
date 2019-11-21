@@ -3,11 +3,11 @@ import logging
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 
-from app.layers.first_nations import CommunityLocation, TreatyArea, TreatyLand
+from app.layers.first_nations import CommunityLocations, TreatyAreas, TreatyLands
 from app.analysis.first_nations.models import (
     Community as CommunityResponse,
-    TreatyArea as TreatyAreaResponse,
-    TreatyLand as TreatyLandResponse,
+    TreatyAreas as TreatyAreasResponse,
+    TreatyLands as TreatyLandsResponse,
     NearbyAreasResponse
 )
 logger = logging.getLogger("api")
@@ -21,12 +21,12 @@ def get_nearest_communities(db: Session, geometry):
     """ get nearest First Nations Community Locations"""
 
     community_q = db.query(
-        CommunityLocation,
-        func.ST_Distance(func.Geography(CommunityLocation.SHAPE),
+        CommunityLocations,
+        func.ST_Distance(func.Geography(CommunityLocations.SHAPE),
                          func.ST_GeographyFromText(geometry.wkt)).label('distance')
     ) \
         .filter(
-            func.ST_DWithin(func.Geography(CommunityLocation.SHAPE),
+            func.ST_DWithin(func.Geography(CommunityLocations.SHAPE),
                             func.ST_GeographyFromText(geometry.wkt), MAX_RADIUS)
     ) \
         .order_by('distance')
@@ -41,36 +41,36 @@ def get_nearest_treaty_lands(db: Session, geometry):
     """ gets nearest First Nations Treaty Lands """
 
     land_q = db.query(
-        TreatyLand,
-        func.ST_Distance(func.Geography(TreatyLand.SHAPE),
+        TreatyLands,
+        func.ST_Distance(func.Geography(TreatyLands.SHAPE),
                          func.ST_GeographyFromText(geometry.wkt)).label('distance')
     ) \
         .filter(
-        func.ST_DWithin(func.Geography(TreatyLand.SHAPE),
+        func.ST_DWithin(func.Geography(TreatyLands.SHAPE),
                         func.ST_GeographyFromText(geometry.wkt), MAX_RADIUS)
     ) \
         .order_by('distance')
     land_results = land_q.all()
 
-    return [TreatyLandResponse(**row[0].__dict__, distance=row[1])
+    return [TreatyLandsResponse(**row[0].__dict__, distance=row[1])
             for row in land_results]
 
 
 def get_nearest_treaty_areas(db: Session, geometry):
     """ gets the nearest First Nations Treaty Areas """
     area_q = db.query(
-        TreatyArea,
-        func.ST_Distance(func.Geography(TreatyArea.SHAPE),
+        TreatyAreas,
+        func.ST_Distance(func.Geography(TreatyAreas.SHAPE),
                          func.ST_GeographyFromText(geometry.wkt)).label('distance')
     ) \
         .filter(
-        func.ST_DWithin(func.Geography(TreatyArea.SHAPE),
+        func.ST_DWithin(func.Geography(TreatyAreas.SHAPE),
                         func.ST_GeographyFromText(geometry.wkt), MAX_RADIUS)
     ) \
         .order_by('distance')
     area_results = area_q.all()
 
-    return [TreatyAreaResponse(**row[0].__dict__, distance=row[1])
+    return [TreatyAreasResponse(**row[0].__dict__, distance=row[1])
             for row in area_results]
 
 

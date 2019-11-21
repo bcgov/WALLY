@@ -3,7 +3,7 @@ from app.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
 
 
-class CommunityLocation(BaseLayerTable):
+class CommunityLocations(BaseLayerTable):
     """
     https://catalogue.data.gov.bc.ca/dataset/first-nation-community-locations
     """
@@ -39,7 +39,7 @@ class CommunityLocation(BaseLayerTable):
     SHAPE = Column(Geometry('POINT', 4326), index=True)
 
 
-class TreatyArea(BaseLayerTable):
+class TreatyAreas(BaseLayerTable):
     """
     https://catalogue.data.gov.bc.ca/dataset/first-nations-treaty-areas
     """
@@ -65,7 +65,7 @@ class TreatyArea(BaseLayerTable):
     SHAPE = Column(Geometry(srid=4326), index=True)
 
 
-class TreatyLand(BaseLayerTable):
+class TreatyLands(BaseLayerTable):
     """
     https://catalogue.data.gov.bc.ca/dataset/first-nations-treaty-lands
     """

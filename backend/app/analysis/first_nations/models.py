@@ -19,7 +19,7 @@ class Community(BaseModel):
         orm_mode = True
 
 
-class TreatyLand(BaseModel):
+class TreatyLands(BaseModel):
     """ model for nearby treaty lands """
     distance: float
     TREATY: str
@@ -31,7 +31,7 @@ class TreatyLand(BaseModel):
         orm_mode = True
 
 
-class TreatyArea(BaseModel):
+class TreatyAreas(BaseModel):
     """ model for nearby treaty lands """
     distance: float
     TREATY: str
@@ -50,5 +50,5 @@ class NearbyAreasResponse(BaseModel):
     """
 
     nearest_communities: List[Community]
-    nearest_treaty_lands: List[TreatyLand]
-    nearest_treaty_areas: List[TreatyArea]
+    nearest_treaty_lands: List[TreatyLands]
+    nearest_treaty_areas: List[TreatyAreas]
