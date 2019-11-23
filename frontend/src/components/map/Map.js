@@ -7,11 +7,16 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
+import distance from '@turf/distance'
+import buffer from '@turf/buffer'
 import circle from '@turf/circle'
+import intersect from '@turf/intersect'
+import bbox from '@turf/bbox'
 import coordinatesGeocoder from './localGeocoder'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
+import { truncate } from 'fs'
 
 const point = {
   'type': 'Feature',
@@ -72,6 +77,7 @@ export default {
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
       draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
+      drawDistance: null,
       isDrawingToolActive: false
     }
   },
@@ -123,6 +129,7 @@ export default {
       const modes = MapboxDraw.modes
       modes.simple_select.onTrash = this.clearSelections
       modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_line_string.onTrash = this.clearSelections
       modes.draw_point.onTrash = this.clearSelections
       modes.direct_select.onTrash = this.clearSelections
 
@@ -131,6 +138,7 @@ export default {
         displayControlsDefault: false,
         controls: {
           polygon: true,
+          line_string: true,
           point: true,
           trash: true
         }
@@ -169,7 +177,7 @@ export default {
       })
 
       this.initHighlightLayers()
-      this.listenForAreaSelect()
+      this.listenForDrawFinish()
 
       // special handling for parcels because we may not want to have
       // users turn this layer on/off (it should always be on)
@@ -205,6 +213,9 @@ export default {
       if (e.mode === 'draw_polygon') {
         this.isDrawingToolActive = true
         this.polygonToolHelp()
+      } else if (e.mode === 'draw_line_string') {
+        this.isDrawingToolActive = true
+        // TODO implement cross section help
       } else if (e.mode === 'simple_select') {
         setTimeout(() => {
           this.isDrawingToolActive = false
@@ -430,6 +441,38 @@ export default {
       feature.display_data_name = 'user_defined_point'
       this.$store.commit('setDataMartFeatureInfo', feature)
     },
+    handleAddDrawLine (feature) {
+      let coord = feature.geometry.coordinates
+      let dist = distance(coord[0], coord[1], {units: 'meters'})
+      let buff = buffer(feature, 50, {units: 'meters'})
+      let bBox = bbox(buff)
+      let min = this.map.project([bBox[0],bBox[1]])
+      let max = this.map.project([bBox[2],bBox[3]])
+      let features = this.map.queryRenderedFeatures([min, max], { layers: ['contour-line'] })
+      this.map.getSource('highlightLayerData').setData(features[0])
+      var filter = features.filter((f) => {
+        let sect = intersect(f, buff)
+        if(intersect(f, buff)){
+          return f
+        }
+      })
+      var elevations = filter.map((e) => {
+        return e.properties["ele"]
+      })
+      console.log(features)
+      console.log(filter)
+      console.log(elevations)
+
+      let crossSectionFeature = {
+        type: "Feature",
+        display_data_name: 'user_defined_line',
+        geometry: {},
+        properties: {distance: dist, elevations: elevations}
+      }
+      
+      // feature.display_data_name = 'user_defined_line'
+      // this.$store.commit('setDataMartFeatureInfo', crossSectionFeature)
+    },
     handleSelect (feature, options) {
       // default options when calling this handler.
       //
@@ -453,8 +496,13 @@ export default {
       const newFeature = feature.features[0]
       this.replaceOldFeatures(newFeature.id)
 
-      if (newFeature.geometry.type === 'Point') {
+      const type = newFeature.geometry.type
+      if (type === 'Point') {
         return this.handleAddPointSelection(newFeature)
+      } else if (type === 'LineString') {
+        if(newFeature.geometry.coordinates.length > 1) {
+          this.handleAddDrawLine(newFeature)
+        }
       }
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
@@ -462,7 +510,7 @@ export default {
       this.getMapObjects(newFeature)
       this.$store.commit('setSelectionBoundingBox', newFeature)
     },
-    listenForAreaSelect () {
+    listenForDrawFinish () {
       this.map.on('draw.create', this.handleSelect)
       this.map.on('draw.update', this.handleSelect)
     },

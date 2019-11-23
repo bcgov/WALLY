@@ -15,6 +15,7 @@
     "@mdi/font": "^4.4.95",
     "@turf/bbox": "^6.0.1",
     "@turf/circle": "^6.0.1",
+    "@turf/turf": "^5.1.6",
     "axios": "^0.19.0",
     "chart.js": "^2.8.0",
     "core-js": "^2.6.5",
