@@ -89,7 +89,7 @@ export default {
           let featureCount = 0
 
           // If primary_key_match is in the payload then this query came from a search result
-          // from our returned radius search we try and match the primary key to the specific search result 
+          // from our returned radius search we try and match the primary key to the specific search result
           // if there is a match we set the feature to that object
           feature = displayData[0].geojson.features.find((f) => {
             return f.id.toString() === payload.primary_key_match
@@ -98,10 +98,10 @@ export default {
 
           // If no primary_key_match was found, then we add up the number of features returned
           // and set the feature/layer information
-          if(!feature) {
+          if (!feature) {
             displayData.forEach(layer => {
               featureCount += layer.geojson.features.length
-              if(layer.geojson.features.length == 1) {
+              if (layer.geojson.features.length == 1) {
                 display_data_name = layer.layer
                 feature = layer.geojson.features[0]
               }
@@ -109,7 +109,7 @@ export default {
           }
 
           // Check whether there is a single feature being returned in the click area
-          if(featureCount > 1) {
+          if (featureCount > 1) {
             // Multiple features returned
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
@@ -121,12 +121,12 @@ export default {
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
-            {
-              type: feature.type,
-              display_data_name: display_data_name,
-              geometry: feature.geometry,
-              properties: feature.properties
-            })
+              {
+                type: feature.type,
+                display_data_name: display_data_name,
+                geometry: feature.geometry,
+                properties: feature.properties
+              })
             commit('setDataMartFeatures', {})
           }
           commit('setLoadingFeature', false)

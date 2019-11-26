@@ -60,7 +60,7 @@ import LayerDialog from './LayerDialog'
 export default {
   name: 'LayerSelection',
   components: {
-      LayerDialog
+    LayerDialog
   },
   computed: {
     ...mapGetters([

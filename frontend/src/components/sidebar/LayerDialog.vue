@@ -1,7 +1,7 @@
 <template>
     <v-dialog v-if="name && url" width="650">
         <template v-slot:activator="{ on }">
-        <v-icon class="appendRight" v-on="on">
+        <v-icon class="float-right" v-on="on">
             mdi-information-outline
         </v-icon>
         </template>
@@ -32,17 +32,14 @@
 
 <script>
 export default {
-    name: 'LayerDialog',
-    props: {
-        name: String,
-        description: String,
-        url: String
-    }
+  name: 'LayerDialog',
+  props: {
+    name: String,
+    description: String,
+    url: String
+  }
 }
 </script>
 
 <style>
-.appendRight{
-  float:right;
-}
 </style>

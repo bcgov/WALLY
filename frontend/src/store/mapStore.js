@@ -87,7 +87,7 @@ export default {
       // send an event to redraw any current features and update selection.
       EventBus.$emit('draw:redraw', { showFeatureList: false })
     },
-    setActiveBaseMapLayers(state, payload) {
+    setActiveBaseMapLayers (state, payload) {
       let prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:removed`, l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))
