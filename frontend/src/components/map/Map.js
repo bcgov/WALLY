@@ -80,6 +80,20 @@ export default {
     }
   },
   computed: {
+    mapStyle () {
+      // todo: move the panel width to the store & grab that value instead
+      //  of just 300px
+      if (this.infoPanelVisible) {
+        return {
+          left: '300px',
+          width: 'calc(100vw - 300px)'
+        }
+      }
+      return {
+        left: 0,
+        width: '100%'
+      }
+    },
     ...mapGetters([
       'allMapLayers',
       'activeMapLayers',
@@ -171,6 +185,9 @@ export default {
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
+
+      // Show layer selection sidebar
+      this.$store.commit('toggleInfoPanelVisibility')
     },
     addShape (shape) {
       // adds a mapbox-gl-draw shape to the map
@@ -213,7 +230,10 @@ export default {
             'fill-outline-color': 'rgb(8, 159, 205)'
           }
         })
-        this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
+        this.map.addSource('highlightLayerData', {
+          type: 'geojson',
+          data: polygon
+        })
         this.map.addLayer({
           'id': 'highlightLayer',
           'type': 'fill',
@@ -593,7 +613,11 @@ export default {
       const size = { x: canvas.width, y: canvas.height }
 
       this.$store.commit('clearDataMartFeatures')
-      this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
+      this.$store.dispatch('getDataMartFeatures', {
+        bounds: bounds,
+        size: size,
+        layers: this.activeMapLayers
+      })
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
@@ -607,7 +631,9 @@ export default {
       }
     },
     getPolygonCenter (arr) {
-      if (arr.length === 1) { return arr }
+      if (arr.length === 1) {
+        return arr
+      }
       var x = arr.map(x => x[0])
       var y = arr.map(x => x[1])
       var cx = (Math.min(...x) + Math.max(...x)) / 2
@@ -653,33 +679,12 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
-        // Offset the selected point to show up a little to the right
-        // So that the InfoSheet / floating panel doesn't cover it
-        // TODO: Refactor this into clean & reusable code
         let flyToCoordinates = [...coordinates]
-        if (this.infoPanelVisible) {
-          flyToCoordinates[0] = flyToCoordinates[0] - 0.04
-        }
         this.map.flyTo({
           center: flyToCoordinates
         })
         this.updateHighlightLayerData(value)
       }
-    },
-    infoPanelVisible (value) {
-      // TODO: Refactor this into clean & reusable code
-      let coordinates = this.map.getCenter()
-      let flyToCoordinates = [coordinates.lng, coordinates.lat]
-      if (!value) {
-        // Move the the left
-        flyToCoordinates[0] = flyToCoordinates[0] + 0.04
-      } else {
-        // Move to the right
-        flyToCoordinates[0] = flyToCoordinates[0] - 0.04
-      }
-      this.map.flyTo({
-        center: flyToCoordinates
-      })
     }
   }
 }
