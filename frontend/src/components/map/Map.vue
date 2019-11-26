@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <div id="map" class="map"></div>
+    <div>
+      <v-fade-transition>
+        <div id="map" class="map" v-bind:style="this.mapStyle"></div>
+      </v-fade-transition>
     <MapLegend :map="map"></MapLegend>
   </div>
 </template>
@@ -12,6 +14,7 @@
         z-index: 2;
         width: 100%;
         height: calc(100vh - 120px);
+        transition: all 0.3s ease-in-out;
     }
 
     .geolocate {

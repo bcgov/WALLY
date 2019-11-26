@@ -29,7 +29,8 @@ export default {
       return this.layerSelectionActive || !this.featureSelectionExists
     },
     panelWidth () {
-      if (this.isSingleSelectedFeature || this.isMultipleSelectedFeatures) {
+      if (!this.displayLayerSelection &&
+           (this.isSingleSelectedFeature || this.isMultipleSelectedFeatures)) {
         return 850
       }
       return 500

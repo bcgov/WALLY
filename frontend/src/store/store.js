@@ -1,6 +1,6 @@
 export default {
   state: {
-    infoPanelVisible: true
+    infoPanelVisible: false
   },
   mutations: {
     toggleInfoPanelVisibility (state) {
