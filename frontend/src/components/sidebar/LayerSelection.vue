@@ -28,7 +28,7 @@
       <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <LayerDialog :name=item.name :description=item.description :url=item.source_url />
+            <LayerDialog :name="item.name" :description="item.description" :url="item.source_url" />
           </div>
       </template>
     </v-treeview>
@@ -45,7 +45,7 @@
       <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <LayerDialog :name=item.name :description=item.description :url=item.source_url />
+            <LayerDialog :name="item.name" :description="item.description" :url="item.source_url" />
           </div>
       </template>
     </v-treeview>
