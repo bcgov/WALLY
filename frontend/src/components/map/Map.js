@@ -331,6 +331,8 @@ export default {
       // from the selected stream segment location. It removes any stream
       // segments that are at the same order but have an upwards stream flow.
       // Returns an array (builder) of cleaned stream segment features.
+      // The BigO of this function is linear with a max of apprx. 50 due
+      // to the max magnitude of a stream
       var segment = streams.find((s) => {
         if(s.properties["LOCAL_WATERSHED_CODE"]) {
           let local = s.properties["LOCAL_WATERSHED_CODE"]
