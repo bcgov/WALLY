@@ -9,6 +9,7 @@ class CommunityLocations(BaseLayerTable):
     """
     __tablename__ = 'fn_community_locations'
 
+    # ogc_fid is an automatic primary key created by ogr2ogr when loading this dataset.
     ogc_fid = Column(Integer, primary_key=True, autoincrement=True)
     COMMUNITY_LOCATION_ID = Column(Integer)
     FIRST_NATION_BC_NAME = Column(String)
@@ -45,6 +46,7 @@ class TreatyAreas(BaseLayerTable):
     """
     __tablename__ = 'fn_treaty_areas'
 
+    # ogc_fid is an automatic primary key created by ogr2ogr when loading this dataset.
     ogc_fid = Column(Integer, primary_key=True, autoincrement=True)
     TREATY_AREA_ID = Column(Integer)
     TREATY = Column(String)
@@ -71,6 +73,7 @@ class TreatyLands(BaseLayerTable):
     """
     __tablename__ = 'fn_treaty_lands'
 
+    # ogc_fid is an automatic primary key created by ogr2ogr when loading this dataset.
     ogc_fid = Column(Integer, primary_key=True, autoincrement=True)
     TREATY_LAND_ID = Column(Integer)
     TREATY = Column(String)
