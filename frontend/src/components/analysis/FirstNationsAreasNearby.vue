@@ -1,7 +1,14 @@
 <template>
   <v-container class="pa-0 ma-0">
     <v-card outlined>
-      <v-card-text class="grey--text text--darken-4">
+      <v-card-text v-if="loading" class="text-center">
+        <v-progress-circular
+          indeterminate
+          class="my-5"
+          color="grey"
+        ></v-progress-circular>
+      </v-card-text>
+      <v-card-text v-else class="grey--text text--darken-4">
         <div class="subtitle-1 mt-5">Nearest Communities</div>
         <dl id="nearestCommunities">
           <template v-for="(c, i) in communities">
