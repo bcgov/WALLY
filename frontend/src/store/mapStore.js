@@ -1,6 +1,7 @@
 import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
+import baseMapDescriptions from '../utils/baseMapDescriptions'
 
 export default {
   state: {
@@ -19,13 +20,7 @@ export default {
     baseMapLayers: [{
       id: 'base-map-layers',
       name: 'Base Map Layers',
-      children: [
-        { id: 'mapbox-satellite', name: 'Satellite Imagery'},
-        { id: 'national-park', name: 'National Parks'},
-        { id: 'landuse', name: 'Land Use'},
-        { id: 'contour-line', name: 'Contours'},
-        { id: 'hillshade', name: 'Hillshade'}
-      ]
+      children: baseMapDescriptions
     }]
   },
   actions: {
@@ -92,7 +87,7 @@ export default {
       // send an event to redraw any current features and update selection.
       EventBus.$emit('draw:redraw', { showFeatureList: false })
     },
-    setActiveBaseMapLayers(state, payload) {
+    setActiveBaseMapLayers (state, payload) {
       let prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:removed`, l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))

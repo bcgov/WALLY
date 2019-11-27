@@ -8,9 +8,7 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
-import * as metadata from '../../utils/metadataUtils'
 import coordinatesGeocoder from './localGeocoder'
-import bbox from '@turf/bbox'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
@@ -28,6 +26,10 @@ const polygon = {
     'type': 'Polygon',
     'coordinates': [[]]
   }
+}
+const featureCollection = {
+  "type": "FeatureCollection",
+  "features": []
 }
 
 export default {
@@ -78,6 +80,20 @@ export default {
     }
   },
   computed: {
+    mapStyle () {
+      // todo: move the panel width to the store & grab that value instead
+      //  of just 300px
+      if (this.infoPanelVisible) {
+        return {
+          left: '300px',
+          width: 'calc(100vw - 300px)'
+        }
+      }
+      return {
+        left: 0,
+        width: '100%'
+      }
+    },
     ...mapGetters([
       'allMapLayers',
       'activeMapLayers',
@@ -154,6 +170,7 @@ export default {
       }), 'top-right')
       this.map.on('style.load', () => {
         this.getMapLayers()
+        this.initStreamHighlights()
       })
 
       this.initHighlightLayers()
@@ -168,6 +185,9 @@ export default {
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
+
+      // Show layer selection sidebar
+      this.$store.commit('toggleInfoPanelVisibility')
     },
     addShape (shape) {
       // adds a mapbox-gl-draw shape to the map
@@ -210,7 +230,10 @@ export default {
             'fill-outline-color': 'rgb(8, 159, 205)'
           }
         })
-        this.map.addSource('highlightLayerData', { type: 'geojson', data: polygon })
+        this.map.addSource('highlightLayerData', {
+          type: 'geojson',
+          data: polygon
+        })
         this.map.addLayer({
           'id': 'highlightLayer',
           'type': 'fill',
@@ -231,6 +254,129 @@ export default {
           }
         })
       })
+    },
+    initStreamHighlights() {
+      // This highlights the selected stream
+      this.map.addSource('selectedStreamSource', { type: 'geojson', data: featureCollection })
+      this.map.addLayer({
+          "id": "selectedstream",
+          "type": "line",
+          "source": "selectedStreamSource",
+          "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+          },
+          "paint": {
+              "line-color": "#1500ff",
+              "line-width": 3
+          }
+      })
+      // This layer highlights all upstream stream segments
+      this.map.addSource('upStreamSource', { type: 'geojson', data: featureCollection })
+      this.map.addLayer({
+          "id": "upstream",
+          "type": "line",
+          "source": "upStreamSource",
+          "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+          },
+          "paint": {
+              "line-color": "#00ff26",
+              "line-width": 3
+          }
+      })
+      // This layer highlights all downstream stream segments
+      this.map.addSource('downStreamSource', { type: 'geojson', data: featureCollection }) 
+      this.map.addLayer({
+          "id": "downstream",
+          "type": "line",
+          "source": "downStreamSource",
+          "layout": {
+            "line-join": "round",
+            "line-cap": "round"
+          },
+          "paint": {
+              "line-color": "#ff4800",
+              "line-width": 3
+          }
+      })
+    },
+    updateStreamHighlights(stream) {
+        // Get slected watershed code and trim un-needed depth
+        const watershedCode = stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
+
+        // Build our downstream code list
+        const codes = watershedCode.split("-")
+        var downstreamCodes = [codes[0]]
+        for (let i = 0; i < codes.length - 1; i++) {
+          downstreamCodes.push(downstreamCodes[i] + "-" + codes[i+1])
+        }
+      
+        // get all visible streams from fwa steams layer
+        var streams = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
+
+        // loop streams to find matching cases for selected, upstream, and downstream conditions
+        let selectedFeatures = []
+        let upstreamFeatures = []
+        let downstreamFeatures = []
+        streams.forEach(stream => {
+          const code = stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'') // remove empty stream ids
+          if(code === watershedCode)  { selectedFeatures.push(stream) } // selected stream condition
+          if(code.includes(watershedCode) && code.length > watershedCode.length)  { upstreamFeatures.push(stream) } // up stream condition
+          if(downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length)  { downstreamFeatures.push(stream) } // down stream condition
+        })
+
+        // Clean out downstream features that are upwards water flow
+        // TODO may want to toggle this based on user feedback
+        let cleanedDownstreamFeatures = this.cleanDownStreams(downstreamFeatures, stream.properties["FWA_WATERSHED_CODE"])
+
+        // Insert the upstream data into the upstream data source
+        var upStreamCollection = Object.assign({}, featureCollection)
+        upStreamCollection["features"] = upstreamFeatures
+        this.map.getSource('upStreamSource').setData(upStreamCollection)
+
+        // Insert the selected stream data into the selected stream data source
+        var selectedStreamCollection = Object.assign({}, featureCollection)
+        selectedStreamCollection["features"] = selectedFeatures
+        this.map.getSource('selectedStreamSource').setData(selectedStreamCollection)
+
+        // Insert the downstream data into the downstream data source
+        var downStreamCollection = Object.assign({}, featureCollection) 
+        downStreamCollection["features"] = cleanedDownstreamFeatures
+        this.map.getSource('downStreamSource').setData(downStreamCollection)
+    },
+    cleanDownStreams(streams, code, builder = []) {
+      // This is a recursive function that walks down the stream network
+      // from the selected stream segment location. It removes any stream
+      // segments that are at the same order but have an upwards stream flow.
+      // Returns an array (builder) of cleaned stream segment features.
+      // The BigO of this function is linear with a max of apprx. 50 due
+      // to the max magnitude of a stream
+      var segment = streams.find((s) => {
+        if(s.properties["LOCAL_WATERSHED_CODE"]) {
+          let local = s.properties["LOCAL_WATERSHED_CODE"]
+          let global = s.properties["FWA_WATERSHED_CODE"]
+          if(local === code && global !== local) {
+            return s
+          }
+        }
+      })
+      if(segment) {
+        let drm = segment.properties["DOWNSTREAM_ROUTE_MEASURE"]
+        let segmentCode = segment.properties["FWA_WATERSHED_CODE"]
+        let elements = streams.filter((f) => { 
+          if(f.properties["FWA_WATERSHED_CODE"] === segmentCode && 
+             f.properties["DOWNSTREAM_ROUTE_MEASURE"] < drm){
+              return f
+            }
+        })
+        builder = builder.concat(elements)
+        // Recursive call step with current builder object and next segment selection
+        return this.cleanDownStreams(streams, segmentCode, builder)
+      } else {
+        return builder
+      }
     },
     polygonToolHelp () {
       const disableKey = 'disablePolygonToolHelp'
@@ -292,17 +438,30 @@ export default {
       this.$store.dispatch('getDataMartFeatures', payload)
     },
     updateHighlightLayerData (data) {
-      if (data.geometry.type === 'Point') {
+      // For stream networks layer we add custom highlighting and reset poly/point highlight layering
+      if(data.display_data_name === 'freshwater_atlas_stream_networks') {
+        this.map.getSource('highlightPointData').setData(point)
+        this.map.getSource('highlightLayerData').setData(polygon)
+        this.updateStreamHighlights(data)
+      } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         this.map.getSource('highlightPointData').setData(data)
         this.map.getSource('highlightLayerData').setData(polygon)
+        this.clearStreamHighlightLayers()
       } else {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(data)
+        this.clearStreamHighlightLayers()
       }
     },
     clearHighlightLayer () {
       this.map.getSource('highlightPointData').setData(point)
       this.map.getSource('highlightLayerData').setData(polygon)
+      this.clearStreamHighlightLayers()
+    },
+    clearStreamHighlightLayers() {
+      this.map.getSource('selectedStreamSource').setData(featureCollection)
+      this.map.getSource('downStreamSource').setData(featureCollection)
+      this.map.getSource('upStreamSource').setData(featureCollection)
     },
     handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
@@ -454,7 +613,11 @@ export default {
       const size = { x: canvas.width, y: canvas.height }
 
       this.$store.commit('clearDataMartFeatures')
-      this.$store.dispatch('getDataMartFeatures', { bounds: bounds, size: size, layers: this.activeMapLayers })
+      this.$store.dispatch('getDataMartFeatures', {
+        bounds: bounds,
+        size: size,
+        layers: this.activeMapLayers
+      })
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
@@ -468,7 +631,9 @@ export default {
       }
     },
     getPolygonCenter (arr) {
-      if (arr.length === 1) { return arr }
+      if (arr.length === 1) {
+        return arr
+      }
       var x = arr.map(x => x[0])
       var y = arr.map(x => x[1])
       var cx = (Math.min(...x) + Math.max(...x)) / 2
@@ -514,33 +679,12 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
-        // Offset the selected point to show up a little to the right
-        // So that the InfoSheet / floating panel doesn't cover it
-        // TODO: Refactor this into clean & reusable code
         let flyToCoordinates = [...coordinates]
-        if (this.infoPanelVisible) {
-          flyToCoordinates[0] = flyToCoordinates[0] - 0.04
-        }
         this.map.flyTo({
           center: flyToCoordinates
         })
         this.updateHighlightLayerData(value)
       }
-    },
-    infoPanelVisible (value) {
-      // TODO: Refactor this into clean & reusable code
-      let coordinates = this.map.getCenter()
-      let flyToCoordinates = [coordinates.lng, coordinates.lat]
-      if (!value) {
-        // Move the the left
-        flyToCoordinates[0] = flyToCoordinates[0] + 0.04
-      } else {
-        // Move to the right
-        flyToCoordinates[0] = flyToCoordinates[0] - 0.04
-      }
-      this.map.flyTo({
-        center: flyToCoordinates
-      })
     }
   }
 }
