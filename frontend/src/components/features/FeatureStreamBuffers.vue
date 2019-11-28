@@ -7,9 +7,9 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Stream 
+          {{this.record.properties.GNIS_NAME}}
         </v-toolbar-title>
-        {{this.record.properties.GNIS_NAME}}
+          Stream 
       </v-banner>
     </v-toolbar>
     <v-expansion-panels class="mt-5" multiple>
@@ -47,7 +47,7 @@ import StreamBufferIntersections from '../analysis/StreamBufferIntersections'
 export default {
   name: 'FeatureStreamBuffers',
   components: {
-    StreamBuffers
+    StreamBufferIntersections
   },
   props: ['record'],
   data: () => ({

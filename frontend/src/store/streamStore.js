@@ -1,4 +1,5 @@
 import ApiService from '../services/ApiService'
+import * as config from '../utils/streamHighlightsConfig'
 
 export default {
   state: {
@@ -6,6 +7,8 @@ export default {
       "type": "FeatureCollection",
       "features": []
     },
+    streamSources: config.sources,
+    streamLayers: config.layers,
     upStreamData: {},
     downStreamData: {},
     selectedStreamData: {}
@@ -34,7 +37,7 @@ export default {
             reject(error)
         })
     },
-    calculateStreamHighlights({commit}, payload) {
+    calculateStreamHighlights({commit, dispatch}, payload) {
       // Get slected watershed code and trim un-needed depth
       const watershedCode = payload.stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
 
@@ -58,26 +61,28 @@ export default {
 
       // Clean out downstream features that are upwards water flow
       // TODO may want to toggle this based on user feedback
-      let cleanedDownstreamFeatures = this.cleanDownStreams(downstreamFeatures, stream.properties["FWA_WATERSHED_CODE"])
+      dispatch('cleanDownStreams', { streams: downstreamFeatures, code: payload.stream.properties["FWA_WATERSHED_CODE"] })
 
       commit('setUpStreamData', upstreamFeatures)
       commit('setSelectedStreamData', selectedFeatures)
-      commit('setDownStreamData', cleanedDownstreamFeatures)
-    }
-  },
-  methods: {
-    cleanDownStreams(streams, code, builder = []) {
+      // commit('setDownStreamData', cleanedDownstreamFeatures)
+    },
+    cleanDownStreams({ commit, dispatch }, payload) {
+      let builder = payload.builder
+      if(!builder) {
+        builder = []
+      }
       // This is a recursive function that walks down the stream network
       // from the selected stream segment location. It removes any stream
       // segments that are at the same order but have an upwards stream flow.
       // Returns an array (builder) of cleaned stream segment features.
       // The BigO of this function is linear with a max of apprx. 50 due
       // to the max magnitude of a stream
-      var segment = streams.find((s) => {
+      var segment = payload.streams.find((s) => {
         if(s.properties["LOCAL_WATERSHED_CODE"]) {
           let local = s.properties["LOCAL_WATERSHED_CODE"]
           let global = s.properties["FWA_WATERSHED_CODE"]
-          if(local === code && global !== local) {
+          if(local === payload.code && global !== local) {
             return s
           }
         }
@@ -85,17 +90,17 @@ export default {
       if(segment) {
         let drm = segment.properties["DOWNSTREAM_ROUTE_MEASURE"]
         let segmentCode = segment.properties["FWA_WATERSHED_CODE"]
-        let elements = streams.filter((f) => { 
+        let elements = payload.streams.filter((f) => { 
           if(f.properties["FWA_WATERSHED_CODE"] === segmentCode && 
-             f.properties["DOWNSTREAM_ROUTE_MEASURE"] < drm){
+            f.properties["DOWNSTREAM_ROUTE_MEASURE"] < drm){
               return f
             }
         })
         builder = builder.concat(elements)
         // Recursive call step with current builder object and next segment selection
-        return this.cleanDownStreams(streams, segmentCode, builder)
+        return dispatch('cleanDownStreams', { streams: payload.streams, code: segmentCode, builder: builder })
       } else {
-        return builder
+        commit('setDownStreamData', builder)
       }
     }
   },
@@ -120,11 +125,12 @@ export default {
       state.downStreamData = state.featureCollection
       state.selectedStreamData = state.featureCollection
     }
-    
   },
   getters: {
     getUpStreamData: state => state.upStreamData,
     getDownStreamData: state => state.downStreamData,
-    getSelectedStreamData: state => state.selectedStreamData
+    getSelectedStreamData: state => state.selectedStreamData,
+    getStreamSources: state => state.streamSources,
+    getStreamLayers: state => state.streamLayers
   }
 }
