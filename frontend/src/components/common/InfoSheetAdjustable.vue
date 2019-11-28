@@ -1,9 +1,9 @@
 <template>
-  <div id="info-sheet">
+  <div id="info-sheet" class="test" ref="infoPanel">
     <v-expand-x-transition>
       <v-sheet
         elevation="5"
-        v-bind:width="this.width"
+        v-bind:width="this.panelWidth"
         class="float-left"
         v-show="infoPanelVisible"
       >
@@ -18,7 +18,9 @@
         @click="this.togglePanel"
         class="close"
         v-show="infoPanelVisible"
-      ><v-icon>close</v-icon></v-btn>
+      >
+        <v-icon>close</v-icon>
+      </v-btn>
     </v-slide-x-reverse-transition>
     <v-slide-x-transition>
       <v-btn
@@ -27,25 +29,34 @@
         large
         tile
       >
-        <v-icon>mdi-arrow-expand-right</v-icon> {{this.panelName}}
+        <v-icon>mdi-arrow-expand-right</v-icon>
+        {{this.panelName}}
       </v-btn>
     </v-slide-x-transition>
+    <div class="draggableBorder" v-show="infoPanelVisible"></div>
   </div>
 </template>
 <style lang="scss">
+  $btn-box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, .2), 3px 2px 2px 0px rgba(0, 0, 0, .14), 3px 1px 3px 0px rgba(0, 0, 0, .12) !important;
   #info-sheet {
     position: absolute;
     z-index: 4;
     height: calc(100vh - 120px);
-    /*overflow: scroll;*/
+
+    button.close {
+      -webkit-box-shadow: $btn-box-shadow;
+      -moz-box-shadow: $btn-box-shadow;
+      box-shadow: $btn-box-shadow;
+    }
   }
-  #info-sheet > .v-sheet{
+
+  #info-sheet > .v-sheet {
     z-index: 5;
     padding: 10px;
     height: 100%;
     overflow: scroll;
   }
-  $btn-box-shadow: "0px 0px 1px -2px rgba(0,0,0,.2), 0px 0px 2px 0px rgba(0,0,0,.14), 0px 0px 5px 0px rgba(0,0,0,.12) !important";
+
   #info-sheet > .v-btn.close {
     z-index: 4;
     width: 20px !important;
@@ -53,14 +64,25 @@
     position: absolute;
     padding-left: 0;
     padding-right: 0;
-    /* custom box shadow */
-    -webkit-box-shadow: $btn-box-shadow;
-    -moz-box-shadow: $btn-box-shadow;
-    box-shadow: $btn-box-shadow;
+  }
+
+  .draggableBorder {
+    width: 6px;
+    height: 100%;
+    background-color: #003366;
+    opacity: 0.5;
+    float: left;
+    cursor: ew-resize;
+    transition: opacity 0.2s ease-in-out;
+
+    &:hover {
+      opacity: 1;
+    }
   }
 </style>
 <script>
 import { mapGetters } from 'vuex'
+
 export default {
   name: 'InfoSheet',
   props: {
@@ -72,21 +94,19 @@ export default {
     },
     panelName: String
   },
-  data: () => {
+  data () {
     return {
+      minPanelWidth: 300,
+      panelWidth: this.width
     }
   },
   computed: {
     ...mapGetters([
       'infoPanelVisible'
-    ]),
-    closeButtonStyle () {
-      return {
-        left: this.width + 'px'
-      }
-    }
+    ])
   },
   mounted () {
+    this.setEvents()
   },
   methods: {
     handleLayerSelectionState () {
@@ -97,6 +117,31 @@ export default {
     },
     togglePanel () {
       this.$store.commit('toggleInfoPanelVisibility')
+    },
+    setEvents () {
+      const minSize = this.minPanelWidth
+      const infoPanelBorder = this.$el.querySelector('.draggableBorder')
+      const infoPanel = this.$el.querySelector('#info-sheet .v-sheet')
+
+      let resize = (e) => {
+        infoPanel.style.width = (e.clientX > minSize) && e.clientX + 'px'
+      }
+
+      infoPanelBorder.addEventListener(
+        'mousedown',
+        () => {
+          document.addEventListener('mousemove', resize, false)
+        },
+        false
+      )
+
+      document.addEventListener(
+        'mouseup',
+        () => {
+          document.removeEventListener('mousemove', resize, false)
+        },
+        false
+      )
     }
   }
 }

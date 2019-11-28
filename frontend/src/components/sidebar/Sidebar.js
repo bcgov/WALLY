@@ -3,7 +3,7 @@ import { mapGetters } from 'vuex'
 import SingleSelectedFeature from './SingleSelectedFeature'
 import MultipleSelectedFeatures from './MultipleSelectedFeatures'
 import LayerSelection from './LayerSelection'
-import InfoSheet from '../common/InfoSheet'
+import InfoSheet from '../common/InfoSheetAdjustable'
 
 export default {
   name: 'Sidebar',
