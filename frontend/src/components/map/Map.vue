@@ -10,11 +10,30 @@
     @import "../../../node_modules/mapbox-gl/dist/mapbox-gl.css";
     @import "../../../node_modules/@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
     @import "../../../node_modules/@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+
     .map {
+    z-index: 2;
+    width: 100%;
+    height: 250px;
+    transition: all 0.3s ease-in-out;
+    }
+
+    @media (min-width: 600px) and (max-width: 959px) {
+      .map {
+        z-index: 2;
+        width: 100%;
+        height: 400px;
+        transition: all 0.3s ease-in-out;
+      }
+    }
+
+    @media (min-width: 960px) {
+      .map {
         z-index: 2;
         width: 100%;
         height: calc(100vh - 120px);
         transition: all 0.3s ease-in-out;
+      }
     }
 
     .geolocate {

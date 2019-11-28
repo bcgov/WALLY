@@ -13,8 +13,8 @@
       <div class="flex-grow-1"></div>
       <v-toolbar-items class="py-2">
       </v-toolbar-items>
+      <span id="geocoder" class="mr-5 geocoder"></span>
     </v-toolbar>
-    <div id="geocoder" class="mr-5 geocoder"></div>
   </div>
 </template>
 
@@ -52,9 +52,6 @@ export default {
     border: 1px solid #3B99FC;
   }
   #geocoder {
-    position: absolute;
     z-index: 4;
-    right:15px;
-    top: 8px;
   }
 </style>
