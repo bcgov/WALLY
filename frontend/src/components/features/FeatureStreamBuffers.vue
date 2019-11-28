@@ -7,22 +7,34 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Selected Stream
+          Stream 
         </v-toolbar-title>
         {{this.record.properties.GNIS_NAME}}
       </v-banner>
     </v-toolbar>
     <v-expansion-panels class="mt-5" multiple>
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find wells near this point</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up Stream Point Intersections</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <WellsNearby :record="record" :coordinates="this.record.geometry.coordinates"></WellsNearby>
+
+          <StreamBufferIntersections :record="record"></StreamBufferIntersections>
+
         </v-expansion-panel-content>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find licences and applications near this point</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Selected Stream Point Intersections</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <WaterRightsLicencesNearby :record="record" :coordinates="this.record.geometry.coordinates"></WaterRightsLicencesNearby>
+
+          <StreamBufferIntersections :record="record"></StreamBufferIntersections>
+        
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+      <v-expansion-panel>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Down Stream Point Intersections</v-expansion-panel-header>
+        <v-expansion-panel-content>
+
+          <StreamBufferIntersections :record="record"></StreamBufferIntersections>
+        
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -30,13 +42,12 @@
 </template>
 
 <script>
-import WellsNearby from '../analysis/WellsNearby.vue'
-import StreamRelatedPoints from '../analysis/StreamRelatedPoints'
+import StreamBufferIntersections from '../analysis/StreamBufferIntersections'
 
 export default {
   name: 'FeatureStreamBuffers',
   components: {
-    StreamRelatedPoints
+    StreamBuffers
   },
   props: ['record'],
   data: () => ({
