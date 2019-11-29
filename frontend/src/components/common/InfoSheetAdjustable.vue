@@ -1,5 +1,5 @@
 <template>
-  <div id="info-sheet" class="test" ref="infoPanel">
+  <div id="info-sheet" ref="infoPanel">
     <v-expand-x-transition>
       <v-sheet
         elevation="5"
@@ -107,6 +107,10 @@ export default {
   },
   mounted () {
     this.setEvents()
+    this.panelWidth = this.width
+  },
+  updated () {
+    this.panelWidth = this.width
   },
   methods: {
     handleLayerSelectionState () {

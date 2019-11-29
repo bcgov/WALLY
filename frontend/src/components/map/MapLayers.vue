@@ -15,9 +15,6 @@
       </v-col>
       <v-col cols=4 class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
     </v-row>
-    <v-row>
-      <v-col>test</v-col>
-    </v-row>
     <v-treeview
       selectable
       selected-color="grey darken-2"
@@ -132,7 +129,10 @@ export default {
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.commit('setActiveBaseMapLayers', selectedBaseLayers)
-    }
+    },
+    allowDisableLayerSelection () {
+      return this.featureSelectionExists
+    },
   }
 }
 </script>

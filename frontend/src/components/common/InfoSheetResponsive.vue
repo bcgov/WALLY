@@ -26,6 +26,7 @@
         @click="togglePanel()"
         large
         tile
+        class="expand-panel"
       >
         <v-icon>mdi-arrow-expand-right</v-icon> {{this.panelName}}
       </v-btn>
@@ -34,26 +35,31 @@
 </template>
 <style lang="scss">
   $btn-box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, .2), 3px 2px 2px 0px rgba(0, 0, 0, .14), 3px 1px 3px 0px rgba(0, 0, 0, .12) !important;
-  .overlay-small .info-sheet{
-    top: calc(50%);
+  .overlay-flex .overlay-small .info-sheet{
+    top: calc(50vh - 112px);
     width: calc(100vw);
+    height: calc(50vh);
 
     .v-btn.close {
-      display: none;
+      right: 0;
+      top: -50px;
+    }
+    .v-btn.expand-panel {
+      position: absolute;
+      bottom: 5px;
     }
     .v-sheet{
       width: 100% !important;
     }
   }
-  .overlay-medium .info-sheet,
-  .overlay-large .info-sheet{
+  .overlay-flex .overlay-medium .info-sheet,
+  .overlay-flex .overlay-large .info-sheet{
     .v-sheet{
       max-width: 50vw;
     }
-
   }
-  .info-sheet {
-    position: absolute;
+  .overlay-flex .info-sheet {
+    position: relative;
     z-index: 4;
     height: calc(100vh - 120px);
 
@@ -62,6 +68,9 @@
       -moz-box-shadow: $btn-box-shadow;
       box-shadow: $btn-box-shadow;
     }
+  }
+  .overlay-flex {
+    position: absolute;
   }
   .info-sheet > .v-sheet{
     z-index: 5;

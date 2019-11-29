@@ -1,23 +1,23 @@
 <template>
   <div id="app-overlay">
-    <div v-if="isFlexBoxComponent">
+    <div v-if="isFlexBoxComponent" class="overlay-flex">
       <div class="overlay-small d-flex d-md-none">
         <!-- smaller  -->
-        <InfoSheet>
+        <InfoSheet :width="panelWidth">
           <span class="overline">Small screen</span>
           <component :is="currentComponent"></component>
         </InfoSheet>
       </div>
       <div class="overlay-medium d-none d-md-flex d-lg-none">
         <!-- medium  -->
-        <InfoSheet>
+        <InfoSheet :width="panelWidth">
           <span class="overline">Medium screen</span>
           <component :is="currentComponent"></component>
         </InfoSheet>
       </div>
       <div class="overlay-large d-none d-lg-flex">
         <!-- large screens -->
-        <InfoSheet>
+        <InfoSheet :width="panelWidth">
           <span class="overline">Large screen</span>
           <component :is="currentComponent"></component>
         </InfoSheet>
@@ -35,10 +35,6 @@
 </template>
 <style lang="scss">
   #app-overlay{
-    /*position: relative;*/
-    /*> .overlay-small .info-sheet{*/
-    /*  top: 400px;*/
-    /*}*/
   }
 </style>
 <script>
@@ -61,6 +57,7 @@ export default {
   },
   data: () => {
     return {
+      // panelWidth: 500
     }
   },
   computed: {
@@ -81,11 +78,28 @@ export default {
       'loadingMultipleFeatures',
       'featureSelectionExists'
     ]),
-    panelWidth () {
-      return 500
-    },
+    // panelWidth () {
+    //   if (this.displayLayerSelection) {
+    //     return 500
+    //   } else {
+    //     return 800
+    //   }
+    // },
     panelName () {
-      return 'Layers'
+      if (this.displayLayerSelection) {
+        return 'Layers'
+      } else if (this.isSingleSelectedFeature) {
+        return 'Feature Info'
+      } else if (this.isMultipleSelectedFeatures) {
+        return 'Features'
+      }
+      return 'Expand'
+    },
+    panelWidth () {
+      if (this.displayLayerSelection) {
+        return 500
+      }
+      return 800
     },
     infoSheetComponent () {
       return this.$store.state.feature.adjustableSidePanel ? InfoSheetAdjustable : InfoSheet
@@ -111,12 +125,16 @@ export default {
     },
     currentComponent () {
       if (this.displayLayerSelection) {
+        // this.panelWidth = 500
         return MapLayers
       } else if (this.isSingleSelectedFeature) {
+        // this.panelWidth = 800
         return SingleSelectedFeature
       } else if (this.isMultipleSelectedFeatures) {
+        // this.panelWidth = 800
         return MultipleSelectedFeatures
       }
+      return null
     }
   },
   mounted () {
