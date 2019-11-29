@@ -209,7 +209,7 @@ export default {
       }
     },
     handleModeChange (e) {
-      if (e.mode === 'draw_polygon') {
+      if (e.mode === 'draw_polygon' || e.mode === 'draw_point') {
         this.isDrawingToolActive = true
         this.polygonToolHelp()
       } else if (e.mode === 'simple_select') {
