@@ -34,7 +34,25 @@
 </template>
 <style lang="scss">
   $btn-box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, .2), 3px 2px 2px 0px rgba(0, 0, 0, .14), 3px 1px 3px 0px rgba(0, 0, 0, .12) !important;
-  #info-sheet {
+  .overlay-small .info-sheet{
+    top: calc(50%);
+    width: calc(100vw);
+
+    .v-btn.close {
+      display: none;
+    }
+    .v-sheet{
+      width: 100% !important;
+    }
+  }
+  .overlay-medium .info-sheet,
+  .overlay-large .info-sheet{
+    .v-sheet{
+      max-width: calc(100vw - 50%);
+    }
+
+  }
+  .info-sheet {
     position: absolute;
     z-index: 4;
     height: calc(100vh - 120px);
@@ -45,13 +63,14 @@
       box-shadow: $btn-box-shadow;
     }
   }
-  #info-sheet > .v-sheet{
+  .info-sheet > .v-sheet{
     z-index: 5;
     padding: 10px;
     height: 100%;
     overflow: scroll;
+
   }
-  #info-sheet > .v-btn.close {
+  .info-sheet > .v-btn.close {
     z-index: 4;
     width: 20px !important;
     height: 50px;

@@ -32,7 +32,7 @@
 <style lang="scss">
   .wally-sidebar-category {
     font-weight: bold!important;
-    font-size: 16px!important;
+    /*font-size: 16px!important;*/
   }
 
   /* Customize the label (the container) */
@@ -42,7 +42,7 @@
     padding-left: 25px;
     margin-bottom: 5px;
     cursor: pointer;
-    font-size: 14px;
+    /*font-size: 14px;*/
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
