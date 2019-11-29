@@ -48,7 +48,7 @@
   .overlay-medium .info-sheet,
   .overlay-large .info-sheet{
     .v-sheet{
-      max-width: calc(100vw - 50%);
+      max-width: 50vw;
     }
 
   }

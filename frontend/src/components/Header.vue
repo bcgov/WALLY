@@ -29,13 +29,14 @@
       </div>
       <div class="wally-user mr-5">{{ name }}</div>
       <div class="mt-6">
-        <v-switch v-model="adjustableSidePanel" :label="sidePanelFeatureLabel"></v-switch>
+        <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch>
       </div>
     </v-app-bar>
 </template>
 
 <script>
 import EventBus from '../services/EventBus.js'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Header',
@@ -45,19 +46,18 @@ export default {
     }
   },
   computed: {
-    adjustableSidePanel: {
-      get () {
-        return this.$store.state.feature.adjustableSidePanel
-      },
-      set () {
-        this.$store.commit('toggleAdjustableSidePanel')
-      }
-    },
+    ...mapGetters([
+      'adjustableSidePanel'
+    ]),
     sidePanelFeatureLabel () {
-      return this.$store.state.feature.adjustableSidePanel ? 'Adjustable Side Panel' : 'Responsive Panel'
+      return this.adjustableSidePanel ? 'Adjustable Side Panel' : 'Responsive Panel'
     }
   },
   methods: {
+    toggleAdjustableSidePanel (){
+      console.log('toggling')
+      this.$store.commit('toggleAdjustableSidePanel')
+    },
     setName (payload) {
       const { name, authenticated } = payload
       if (authenticated) {

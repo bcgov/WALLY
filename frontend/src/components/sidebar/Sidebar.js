@@ -20,9 +20,6 @@ export default {
     }
   },
   computed: {
-    infoSheetComponent () {
-      return this.$store.state.feature.adjustableSidePanel ? InfoSheetAdjustable : InfoSheet
-    },
     displayLayerSelection () {
       // determines whether or not layer selection should be displayed.
       // this function allows a mix of both user action (clicking on Layers button)
