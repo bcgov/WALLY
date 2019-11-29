@@ -3,7 +3,8 @@ import { mapGetters } from 'vuex'
 import SingleSelectedFeature from './SingleSelectedFeature'
 import MultipleSelectedFeatures from './MultipleSelectedFeatures'
 import LayerSelection from './LayerSelection'
-import InfoSheet from '../common/InfoSheetAdjustable'
+import InfoSheetAdjustable from '../common/InfoSheetAdjustable'
+import InfoSheet from '../common/InfoSheet'
 
 export default {
   name: 'Sidebar',
@@ -11,13 +12,17 @@ export default {
     SingleSelectedFeature,
     MultipleSelectedFeatures,
     LayerSelection,
-    InfoSheet
+    InfoSheet,
+    InfoSheetAdjustable
   },
   data () {
     return {
     }
   },
   computed: {
+    infoSheetComponent () {
+      return this.$store.state.feature.adjustableSidePanel ? InfoSheetAdjustable : InfoSheet
+    },
     displayLayerSelection () {
       // determines whether or not layer selection should be displayed.
       // this function allows a mix of both user action (clicking on Layers button)

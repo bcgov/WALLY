@@ -124,7 +124,10 @@ export default {
       const infoPanel = this.$el.querySelector('#info-sheet .v-sheet')
 
       let resize = (e) => {
-        infoPanel.style.width = (e.clientX > minSize) && e.clientX + 'px'
+        const windowWidth = document.body.scrollWidth
+        const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
+
+        infoPanel.style.width = (e.clientX > minSize && e.clientX < maxSize) && e.clientX + 'px'
       }
 
       infoPanelBorder.addEventListener(

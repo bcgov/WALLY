@@ -32,7 +32,7 @@
 
 <script>
 export default {
-  name: 'LayerDialog',
+  name: 'MapLayerDialog',
   props: {
     name: String,
     description: String,

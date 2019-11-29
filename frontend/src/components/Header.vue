@@ -28,6 +28,9 @@
         </v-tooltip>
       </div>
       <div class="wally-user mr-5">{{ name }}</div>
+      <div class="mt-6">
+        <v-switch v-model="adjustableSidePanel" :label="sidePanelFeatureLabel"></v-switch>
+      </div>
     </v-app-bar>
 </template>
 
@@ -39,6 +42,19 @@ export default {
   data () {
     return {
       name: ''
+    }
+  },
+  computed: {
+    adjustableSidePanel: {
+      get () {
+        return this.$store.state.feature.adjustableSidePanel
+      },
+      set () {
+        this.$store.commit('toggleAdjustableSidePanel')
+      }
+    },
+    sidePanelFeatureLabel () {
+      return this.$store.state.feature.adjustableSidePanel ? 'Adjustable Side Panel' : 'Responsive Panel'
     }
   },
   methods: {
@@ -104,4 +120,9 @@ export default {
     visibility: visible;
   }
 }
+
+.v-input--switch label{
+   width: 100px;
+   font-size: smaller;
+ }
 </style>

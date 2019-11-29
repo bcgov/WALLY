@@ -1,5 +1,5 @@
 <template>
-  <InfoSheet
+  <component :is="infoSheetComponent"
     :width="panelWidth"
     :panelName="panelName"
   >
@@ -24,7 +24,7 @@
           <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
         </v-card-text>
       </v-card>
-  </InfoSheet>
+  </component>
 </template>
 
 <script src="./Sidebar.js"></script>

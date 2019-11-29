@@ -4,6 +4,7 @@ import store from './store'
 import map from './mapStore'
 import report from './reportStore'
 import dataMart from './dataMartStore'
+import feature from './featureStore'
 
 Vue.use(Vuex)
 
@@ -12,6 +13,7 @@ export default new Vuex.Store({
     store,
     map,
     dataMart,
-    report
+    report,
+    feature
   }
 })
