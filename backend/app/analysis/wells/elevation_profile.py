@@ -1,0 +1,85 @@
+""" functions for generating an elevation profile """
+from geojson import Feature
+from typing import List
+import requests
+from math import log
+from sqlalchemy.orm import Session
+from shapely.geometry import LineString, Point
+from shapely import wkt
+from logging import getLogger
+
+from app.analysis.wells.models import Elevation
+
+logger = getLogger("api")
+
+def get_profile_geojson(line: LineString) -> List[Feature]:
+    """ get geojson elevations along a line (GeoGratis - Government of Canada) """
+    steps = 10
+
+    line = line.wkt
+
+    if not line:
+        return []
+
+    resp = requests.get(
+        f"http://geogratis.gc.ca/services/elevation/cdem/profile.json?path={line}&steps={steps}"
+    )
+
+    return resp.json()
+
+def geojson_to_profile_line(elevations: List[Feature]) -> LineString:
+    """ uses GeoGratis (Government of Canada) API to retrieve elevation along a profile
+    line (as a LineString shape object"""
+    
+    profile_line = LineString(
+        [
+            (
+                f.get("geometry").get("coordinates")[0],
+                f.get("geometry").get("coordinates")[1],
+                f.get("altitude")
+            ) for f in elevations
+        ]
+    )
+
+    return profile_line
+
+def profile_line_by_length(db: Session, line: LineString):
+    """ convert a LineStringZ (3d line) to elevations along the length of the line """
+
+    q = """
+    SELECT
+            ST_Distance(ST_Force2D(geom),
+                ST_StartPoint(
+                    ST_Transform(
+                        ST_SetSRID(
+                            ST_GeomFromText(:line),
+                            4326
+                        ),
+                        3005
+                    )
+                )
+            ) as distance_from_origin,
+            ST_Z(geom) as elevation
+    FROM
+        (select
+            (
+                ST_DumpPoints(
+                    ST_Transform(
+                        ST_SetSRID(
+                            ST_GeomFromText(:line),
+                            4326
+                        ),
+                        3005
+                    )
+                )
+            ).geom
+        ) as pts;
+    """
+
+    elevs = []
+
+    rows = db.execute(q, {"line":line.wkt})
+    for row in rows:
+        elevs.append(Elevation(distance_from_origin=row[0], elevation=row[1]))
+    
+    return elevs

@@ -54,11 +54,20 @@ class WellSection(BaseModel):
     distance_from_origin: float
     finished_well_depth: Optional[float]
     water_depth: Optional[float]
-
+    ground_elevation_from_dem: Optional[float]
+    distance_from_origin_pt: Optional[float]
+    
     class Config:
         orm_mode = True
+
+
+class Elevation(BaseModel):
+    """ elevation data at a point """
+    distance_from_origin: float
+    elevation: float
 
 
 class CrossSection(BaseModel):
     search_area: Polygon
     wells: List[WellSection]
+    elevation_profile: List[Elevation]

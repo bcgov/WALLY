@@ -20,6 +20,9 @@ from app.analysis.wells.well_analysis import (
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown, WellSection, CrossSection
 from app.analysis.licences.models import WaterRightsLicence
+from app.analysis.wells.elevation_profile import (
+    get_profile_geojson, geojson_to_profile_line, profile_line_by_length
+)
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -83,7 +86,12 @@ def get_wells_section(
     line_parsed = json.loads(line)
     line_shape = LineString(line_parsed)
 
-    wells_along_line = get_wells_along_line(db, line_shape, radius)
+
+    profile_from_geogratis_dem = get_profile_geojson(line_shape)
+    profile_line_linestring = geojson_to_profile_line(profile_from_geogratis_dem)
+    profile_line = profile_line_by_length(db, profile_line_linestring)
+
+    wells_along_line = get_wells_along_line(db, line_shape, profile_line_linestring, radius)
 
     buffer = db.query(
         func.ST_asGeoJSON(get_line_buffer_polygon(
@@ -91,6 +99,6 @@ def get_wells_section(
     ).first()
 
     section = CrossSection(search_area=geojson.loads(
-        buffer[0]), wells=wells_along_line)
+        buffer[0]), wells=wells_along_line, elevation_profile=profile_line)
 
     return section

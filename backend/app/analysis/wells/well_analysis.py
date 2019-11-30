@@ -219,7 +219,7 @@ def get_line_buffer_polygon(line: LineString, radius: float):
     ), 4326)
 
 
-def get_wells_along_line(db: Session, line: LineString, radius: int):
+def get_wells_along_line(db: Session, line: LineString, profile: LineString, radius: int):
     """ returns wells along a given line, including wells that are within a buffer
         determined by `radius` (m).
         `radius` creates a buffer area next to the line that does not include any area
@@ -243,6 +243,18 @@ def get_wells_along_line(db: Session, line: LineString, radius: int):
         func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
     )
 
+    distance_from_origin_pt = func.ST_Distance(
+        func.ST_Transform(func.ST_StartPoint(func.ST_GeomFromText(line.wkt, 4326)), 3005),
+        func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
+    )
+
+    ground_elevation = func.ST_Z(
+        func.ST_LineInterpolatePoint(
+            func.ST_GeomFromText(profile.wkt),
+            func.ST_LineLocatePoint(func.ST_SetSRID(func.ST_GeomFromText(profile.wkt), 4326), GroundWaterWells.GEOMETRY)
+        )
+    )
+
     # Find wells along `line` that are within `radius` of the line.
     # note on this query: PostGIS recommends using ST_DWithin instead of ST_Buffer for looking up
     # points near another feature. However, we need results that are along a straight line and NOT simply
@@ -252,7 +264,9 @@ def get_wells_along_line(db: Session, line: LineString, radius: int):
         GroundWaterWells.WELL_TAG_NO.label("well_tag_number"),
         GroundWaterWells.DEPTH_WELL_DRILLED.label("finished_well_depth"),
         GroundWaterWells.WATER_DEPTH.label("water_depth"),
-        distance.label("distance_from_origin")) \
+        distance.label("distance_from_origin"),
+        distance_from_origin_pt.label("distance_from_origin_pt"),
+        ground_elevation.label("ground_elevation_from_dem")) \
         .filter(
             func.ST_Contains(
                 get_line_buffer_polygon(line, radius),
