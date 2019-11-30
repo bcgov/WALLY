@@ -1,0 +1,86 @@
+{
+   "emailAddress":"<email_address>",
+   "aoiType":"0",
+   "aoi":"",
+   "orderingApplication":"BCDC",
+   "crsType":"0",
+   "clippingMethodType":"1",
+   "formatType":"6",
+   "useAOIBounds":"",
+   "prepackagedItems":"",
+   "aoiName":"",
+   "featureItems":[
+      {
+         "featureItem":"WHSE_WATER_MANAGEMENT.WLS_STREAM_RESTRICTIONS_SP",
+         "filterValue":"",
+         "layerName":"Streams with Water Allocation Restrictions",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/streams-with-water-allocation-restrictions",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY",
+         "filterValue":"",
+         "layerName":"Freshwater Atlas Watersheds",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-watersheds",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS",
+         "filterValue":"",
+         "layerName":"BC Major Watersheds",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/bc-major-watersheds",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_WATER_MANAGEMENT.SSL_SNOW_ASWS_STNS_SP",
+         "filterValue":"",
+         "layerName":"Automated Snow Weather Station Locations",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/automated-snow-weather-station-locations",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_BASEMAPPING.FWA_STREAM_DIRECTIONS_SP",
+         "filterValue":"",
+         "layerName":"Freshwater Atlas Stream Directions",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-directions",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_LAND_AND_NATURAL_RESOURCE.PROT_WEATHER_STATIONS_SP",
+         "filterValue":"",
+         "layerName":"BC Wildfire Active Weather Stations",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/bc-wildfire-active-weather-stations",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW",
+         "filterValue":"",
+         "layerName":"Ecocat - Water related reports",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/ecological-catalogue-formerly-aquacat",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_WILDLIFE_MANAGEMENT.WCP_CRITICAL_HABITAT_SP",
+         "filterValue":"",
+         "layerName":"Critical Habitat for federally-listed species at risk (posted)",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/critical-habitat-for-federally-listed-species-at-risk-posted-",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      },
+      {
+         "featureItem":"WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
+         "filterValue":"",
+         "layerName":"ParcelMap BC Parcel Fabric",
+         "layerMetadataUrl":"https://catalogue.data.gov.bc.ca/dataset/parcelmap-bc-parcel-fabric",
+         "filterType":"No Filter",
+         "pctOfMax":5
+      }
+   ]
+}

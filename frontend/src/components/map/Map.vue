@@ -1,6 +1,8 @@
 <template>
-  <div>
-    <div id="map" class="map"></div>
+    <div>
+      <v-fade-transition>
+        <div id="map" class="map" v-bind:style="this.mapStyle"></div>
+      </v-fade-transition>
     <MapLegend :map="map"></MapLegend>
   </div>
 </template>
@@ -12,6 +14,7 @@
         z-index: 2;
         width: 100%;
         height: calc(100vh - 120px);
+        transition: all 0.3s ease-in-out;
     }
 
     .geolocate {
@@ -28,6 +31,14 @@
     }
     .select-box-icon {
         background-image: url('../../assets/images/select-zoom.png');
+    }
+    .mapboxgl-ctrl-scale:first-child {
+      margin-bottom: 0;
+    }
+    .mapboxgl-ctrl-scale:nth-child(2) {
+      border-style: solid solid none;
+      border-width: 2px 2px medium;
+      margin-top: -2px;
     }
 </style>
 <script src="./Map.js"></script>
