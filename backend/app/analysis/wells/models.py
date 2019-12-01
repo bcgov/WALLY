@@ -51,7 +51,6 @@ class WellSection(BaseModel):
     Well data for use in sections
     """
     well_tag_number: int
-    distance_from_origin: float
     finished_well_depth: Optional[float]
     water_depth: Optional[float]
     ground_elevation_from_dem: Optional[float]

@@ -228,24 +228,24 @@ def get_wells_along_line(db: Session, line: LineString, profile: LineString, rad
         along the axis).
     """
 
-    # calculate a line normal to the user-defined line, at the start.
-    # This will be the "origin" for plots that use this data.  We need a line as a reference,
-    # so that we can measure distances along the axis, even when some points are offset from
-    # the centreline. The distance calculation will be from this line (so
-    # that distances are not affected by the offset).
-    normal_line = func.ST_MakeLine(
-        get_offset_point(line, 0, radius * -1),
-        get_offset_point(line, 0, radius)
-    )
-
-    distance = func.ST_Distance(
-        func.ST_Transform(normal_line, 3005),
-        func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
-    )
-
-    distance_from_origin_pt = func.ST_Distance(
-        func.ST_Transform(func.ST_StartPoint(func.ST_GeomFromText(line.wkt, 4326)), 3005),
-        func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
+    # pythagorean thereom to calculate the distance along the profile line
+    distance_from_origin_pt = func.sqrt(
+        (
+            func.power(
+                func.ST_Distance(
+                    func.ST_Transform(func.ST_StartPoint(func.ST_GeomFromText(line.wkt, 4326)), 3005),
+                    func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
+                ),
+                2
+            ) + 
+            func.power(
+                func.ST_Distance(
+                    func.ST_Transform(func.ST_SetSRID(func.ST_GeomFromText(profile.wkt), 4326), 3005),
+                    func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
+                ),
+                2
+            )
+        )
     )
 
     ground_elevation = func.ST_Z(
@@ -262,9 +262,8 @@ def get_wells_along_line(db: Session, line: LineString, profile: LineString, rad
     # even if they are within the radius). Note use of endcap=flat.
     q = db.query(
         GroundWaterWells.WELL_TAG_NO.label("well_tag_number"),
-        GroundWaterWells.DEPTH_WELL_DRILLED.label("finished_well_depth"),
-        GroundWaterWells.WATER_DEPTH.label("water_depth"),
-        distance.label("distance_from_origin"),
+        (GroundWaterWells.DEPTH_WELL_DRILLED * 0.3048).label("finished_well_depth"), # converted to metres
+        (GroundWaterWells.WATER_DEPTH* 0.3048).label("water_depth"),
         distance_from_origin_pt.label("distance_from_origin_pt"),
         ground_elevation.label("ground_elevation_from_dem")) \
         .filter(
@@ -272,6 +271,6 @@ def get_wells_along_line(db: Session, line: LineString, profile: LineString, rad
                 get_line_buffer_polygon(line, radius),
                 GroundWaterWells.GEOMETRY
             )
-    ).order_by('distance_from_origin')
+    ).order_by('distance_from_origin_pt')
 
     return q.all()
