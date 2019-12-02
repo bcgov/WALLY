@@ -182,6 +182,7 @@ objects:
     spec:
       host: "${HOST}"
       tls:
+        insecureEdgeTerminationPolicy: Redirect
         termination: edge
       to:
         kind: Service

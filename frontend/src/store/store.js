@@ -8,6 +8,6 @@ export default {
     }
   },
   getters: {
-    infoPanelVisible: state => state.infoPanelVisible,
+    infoPanelVisible: state => state.infoPanelVisible
   }
 }

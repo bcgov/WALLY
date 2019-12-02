@@ -41,7 +41,9 @@ def xlsxExport(features: List[LayerResponse]):
         # add rows for every object in the collection, using the fields defined above.
         for f in features:
             props = f['properties']
-            ws.append([props.get(x) for x in fields])
+            ws.append([
+                props.get(x) for x in fields
+            ])
 
     response = Response(
         content=save_virtual_workbook(wb),

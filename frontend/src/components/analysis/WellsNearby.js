@@ -11,7 +11,7 @@ export default {
   components: {
     Chart
   },
-  props: ['record', 'coordinates'],
+  props: ['record'],
   data: () => ({
     inputRules: {
       required: value => !!value || 'Required',
@@ -22,14 +22,14 @@ export default {
     wells: [],
     loading: false,
     headers: [
-      { text: 'Well tag number', value: 'well_tag_number', align: 'right' },
-      { text: 'Distance (m)', value: 'distance', align: 'right' },
-      { text: 'Reported yield (USGPM)', value: 'well_yield', align: 'right' },
-      { text: 'Static water level (ft btoc)', value: 'static_water_level', align: 'right' },
-      { text: 'Top of screen (ft bgl)', value: 'top_of_screen', align: 'right' },
-      { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth', align: 'right' },
-      { text: 'SWL to top of screen (ft)', value: 'swl_to_screen', align: 'right' },
-      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well', align: 'right' }
+      { text: 'Distance (m)', value: 'distance' },
+      { text: 'Well tag number', value: 'well_tag_number' },
+      { text: 'Reported yield (USGPM)', value: 'well_yield' },
+      { text: 'Static water level (ft btoc)', value: 'static_water_level' },
+      { text: 'Top of screen (ft bgl)', value: 'top_of_screen' },
+      { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth' },
+      { text: 'SWL to top of screen (ft)', value: 'swl_to_screen' },
+      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well' }
     ],
     boxPlotSWLData: {
       data: [],
@@ -112,15 +112,21 @@ export default {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
+    coordinates () {
+      return (this.record && this.record.geometry && this.record.geometry.coordinates) || []
+    },
     ...mapGetters(['isMapLayerActive'])
   },
   methods: {
     enableWellsLayer () {
       this.$store.commit('addMapLayer', 'groundwater_wells')
     },
-    fetchWells: debounce(function () {
-      this.showCircle()
+    fetchWells () {
       this.loading = true
+      this.wellRequest()
+    },
+    wellRequest: debounce(function () {
+      this.showCircle()
       this.boxPlotSWLData.data = []
       this.boxPlotYieldData.data = []
       this.boxPlotFinishedDepthData.data = []
@@ -191,9 +197,6 @@ export default {
         this.fetchWells()
       },
       deep: true
-    },
-    coordinates () {
-      this.fetchWells()
     },
     radius (value) {
       this.fetchWells()

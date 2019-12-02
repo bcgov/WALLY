@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class="pa-0 ma-0">
     <v-row no-gutters>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
@@ -13,15 +13,15 @@
         <div class="caption"><a href="#" @click.prevent="enableLicencesLayer">Enable water rights licences map layer</a></div>
       </v-col>
     </v-row>
-    <v-row no-gutters>
+    <v-row no-gutters >
       <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.subtypes.POD" class="mx-2" :label="`POD (${subtypeCounts.POD})`"></v-checkbox>
+        <v-checkbox v-model="tableOptions.subtypes.POD" class="mx-2" :label="`Point of diversion (POD) (${subtypeCounts.POD})`"></v-checkbox>
       </v-col>
       <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.subtypes.PWD" class="mx-2" :label="`PWD (${subtypeCounts.PWD})`"></v-checkbox>
+        <v-checkbox v-model="tableOptions.subtypes.PWD" class="mx-2" :label="`Point of well diversion (PWD) (${subtypeCounts.PWD})`"></v-checkbox>
       </v-col>
       <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.subtypes.PG" class="mx-2" :label="`PG (${subtypeCounts.PG})`"></v-checkbox>
+        <v-checkbox v-model="tableOptions.subtypes.PG" class="mx-2" :label="`Point of groundwater diversion (PG) (${subtypeCounts.PG})`"></v-checkbox>
       </v-col>
     </v-row>
     <v-row no-gutters>
@@ -91,7 +91,7 @@ import EventBus from '../../services/EventBus'
 
 export default {
   name: 'WaterRightsLicencesNearby',
-  props: ['record', 'coordinates'],
+  props: ['record'],
   data: () => ({
     inputRules: {
       required: value => !!value || 'Required',
@@ -102,14 +102,14 @@ export default {
     results: [],
     loading: false,
     headers: [
-      { text: 'Distance', value: 'distance', align: 'right' },
-      { text: 'Application status', value: 'APPLICATION_STATUS', align: 'right' },
-      { text: 'Application number', value: 'APPLICATION_JOB_NUMBER', align: 'right' },
-      { text: 'Licence number', value: 'LICENCE_NUMBER', align: 'right' },
-      { text: 'POD number', value: 'POD_NUMBER', align: 'right' },
-      { text: 'POD subtype', value: 'POD_SUBTYPE', align: 'right', filterable: true },
+      { text: 'Distance', value: 'distance' },
+      { text: 'Application status', value: 'APPLICATION_STATUS' },
+      { text: 'Application number', value: 'APPLICATION_JOB_NUMBER' },
+      { text: 'Licence number', value: 'LICENCE_NUMBER' },
+      { text: 'POD number', value: 'POD_NUMBER' },
+      { text: 'POD subtype', value: 'POD_SUBTYPE', filterable: true },
       { text: 'Purpose use', value: 'PURPOSE_USE' },
-      { text: 'Quantity', value: 'QUANTITY', align: 'right' }
+      { text: 'Quantity', value: 'QUANTITY' }
     ],
     tableOptions: {
       applications: true,
@@ -124,6 +124,9 @@ export default {
   computed: {
     isLicencesLayerEnabled () {
       return this.isMapLayerActive('water_rights_licences')
+    },
+    coordinates () {
+      return this.record && this.record.geometry && this.record.geometry.coordinates
     },
     filteredLicences () {
       let licences = this.results
@@ -230,5 +233,7 @@ export default {
 </script>
 
 <style>
-
+label.theme--light.v-label {
+  color: rgba(0,0,0,.87)
+}
 </style>
