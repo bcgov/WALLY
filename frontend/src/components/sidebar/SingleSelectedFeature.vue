@@ -59,6 +59,9 @@
         </template>
       </v-list>
     </v-card>
+    <FeatureAnalysis
+      v-if="dataMartFeatureInfo"
+      :record="dataMartFeatureInfo"></FeatureAnalysis>
   </v-container>
 </template>
 
@@ -73,6 +76,9 @@ import FeatureAquifer from '../features/FeatureAquifer'
 import FeatureLicence from '../features/FeatureLicence'
 import FeatureEcocat from '../features/FeatureEcocat'
 import UserDefinedPoint from '../features/FeatureUserDefinedPoint'
+import FeatureCommunityLocation from '../features/FeatureCommunityLocation'
+
+import FeatureAnalysis from '../analysis/FeatureAnalysis'
 
 export default {
   name: 'SingleSelectedFeature',
@@ -82,7 +88,9 @@ export default {
     FeatureEcocat,
     FeatureAquifer,
     FeatureLicence,
-    UserDefinedPoint
+    UserDefinedPoint,
+    FeatureAnalysis,
+    FeatureCommunityLocation
   },
   props: {
 
@@ -94,7 +102,8 @@ export default {
       water_rights_licences: FeatureLicence,
       groundwater_wells: FeatureWell,
       ecocat_water_related_reports: FeatureEcocat,
-      user_defined_point: UserDefinedPoint
+      user_defined_point: UserDefinedPoint,
+      fn_community_locations: FeatureCommunityLocation
     }
   }),
   computed: {

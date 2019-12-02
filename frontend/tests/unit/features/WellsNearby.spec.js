@@ -32,12 +32,14 @@ describe('Wells Nearby', () => {
     wrapper = shallowMount(WellsNearby, {
       vuetify,
       store,
-      localVue
+      localVue,
+      propsData: {
+        record: { geometry: { 'coordinates': [-127.57192816676897, 50.53235018962306], 'type': 'Point' } }
+      }
     })
   })
 
   it('Redraws circle on map', () => {
-    wrapper.setProps({ coordinates: [-122.94492, 50.11588] })
     wrapper.vm.showCircle()
     expect(wrapper.emitted('shapes:reset'.toBeTruthy))
     expect(wrapper.emitted('shapes:add'.toBeTruthy))
@@ -92,7 +94,7 @@ describe('Wells Nearby', () => {
       well_yield: 180,
       well_yield_unit: 'USGPM'
     }
-    wrapper.setData({ wells: [well] })
-    expect(wrapper.findAll('#wells_nearby .charts .chart').length).toEqual(3)
+    wrapper.setData({ wells: [well], loading: false })
+    expect(wrapper.find('#wells_charts').findAll('.chart').length).toEqual(3)
   })
 })
