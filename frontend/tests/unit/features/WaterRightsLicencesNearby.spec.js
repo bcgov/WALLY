@@ -36,7 +36,10 @@ describe('WaterRightsLicencesNearby.vue', () => {
     const wrapper = shallowMount(WaterRightsLicencesNearby, {
       vuetify,
       store,
-      localVue
+      localVue,
+      propsData: {
+        record: { geometry: { 'coordinates': [-127.57192816676897, 50.53235018962306], 'type': 'Point' } }
+      }
     })
 
     wrapper.setData({
