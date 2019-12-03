@@ -20,6 +20,9 @@ The `JOB_NAME` parameter is arbitrary but cannot contain underscores.
 | water_allocation_restrictions            | water_allocation_restrictions | unknown if supported (too many features) 
 | critical_habitat_species_at_risk         | critical_habitat_species_at_risk | unknown if supported (too many features)
 | water_rights_applications                | water_rights_applications | `oc process -f wfs.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
+| fn_community_locations                   | fn_community_locations | `oc process -f wfs.job.yaml -p JOB_NAME=fncommunities -p LAYER_NAME=fn_community_locations | oc apply -f -`
+| fn_treaty_areas                          | fn_treaty_areas | `oc process -f wfs.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
+| fn_treaty_lands                          | fn_treaty_lands | `oc process -f wfs.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 
 ## Manual layers
 
@@ -51,6 +54,9 @@ Visit http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ for the download l
 | water_allocation_restrictions            | water_allocation_restrictions | unknown if supported (too many features) 
 | critical_habitat_species_at_risk         | critical_habitat_species_at_risk | unknown if supported (too many features)
 | water_rights_applications                | water_rights_applications | `oc process -f tippecanoe.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
+| fn_community_locations                   | fn_community_locations | `oc process -f tippecanoe.job.yaml -p JOB_NAME=fncommunities -p LAYER_NAME=fn_community_locations | oc apply -f -`
+| fn_treaty_areas                          | fn_treaty_areas | `oc process -f tippecanoe.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
+| fn_treaty_lands                          | fn_treaty_lands | `oc process -f tippecanoe.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 
 ## Freshwater Atlas
 
@@ -86,7 +92,12 @@ tippecanoe -l freshwater_atlas_stream_networks  -j '
     ],
     [">", "$zoom", 10]
   ]
-}' -z11 -o freshwater_atlas_stream_networks.mbtiles -y LINEAR_FEATURE_ID -y FWA_WATERSHED_CODE -y LOCAL_WATERSHED_CODE -y STREAM_MAGNITUDE -y DOWNSTREAM_ROUTE_MEASURE fwa_stream_networks.geojson```
+}' -z11 -o freshwater_atlas_stream_networks.mbtiles -y LINEAR_FEATURE_ID -y FWA_WATERSHED_CODE -y LOCAL_WATERSHED_CODE -y STREAM_MAGNITUDE -y DOWNSTREAM_ROUTE_MEASURE fwa_stream_networks.geojson
+```
+
+# Uploading tiles to Mapbox
+Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbtiles` files that are associated with that source ID and upload them all together using tile-join.
+| iit-water.first-nations                   | fn_community_locations, fn_treaty_areas, fn_treaty_lands | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=first-nations -p LAYER_NAME=iit-water.first-nations | oc apply -f -`
 
 
 
@@ -94,4 +105,14 @@ tippecanoe -l freshwater_atlas_stream_networks  -j '
 
 | Layer name (use as layer_name arg) | mapbox layer name | download job
 | --- | --- | --- |
-| water_rights_applications                    | water_rights_licences | `oc process -f import.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
+| water_rights_applications                    | water_rights_applications | `oc process -f import.job.yaml -p JOB_NAME=applications -p LAYER_NAME=water_rights_applications | oc apply -f -`
+| water_rights_licenses                    | water_rights_licenses | `oc process -f import.job.yaml -p JOB_NAME=licences -p LAYER_NAME=water_rights_licenses | oc apply -f -`
+| ground_water_wells                       | groundwater_wells | `oc process -f import.job.yaml -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells | oc apply -f -`
+| automated_snow_weather_station_locations | automated_snow_weather_station_locations | `oc process -f import.job.yaml -p JOB_NAME=snow -p LAYER_NAME=automated_snow_weather_station_locations | oc apply -f -`
+| bc_wildfire_active_weather_stations      | bc_wildfire_active_weather_stations | `oc process -f import.job.yaml -p JOB_NAME=wildfire -p LAYER_NAME=bc_wildfire_active_weather_stations | oc apply -f -`
+| ecocat_water_related_reports             | ecocat_water_related_reports | `oc process -f import.job.yaml -p JOB_NAME=ecocat -p LAYER_NAME=ecocat_water_related_reports | oc apply -f -`
+| ground_water_aquifers                    | aquifers | `oc process -f import.job.yaml -p JOB_NAME=aquifers -p LAYER_NAME=ground_water_aquifers | oc apply -f -`
+| fn_community_locations                   | fn_community_locations | `oc process -f import.job.yaml -p JOB_NAME=fncommunities -p LAYER_NAME=fn_community_locations | oc apply -f -`
+| fn_treaty_areas                          | fn_treaty_areas | `oc process -f import.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
+| fn_treaty_lands                          | fn_treaty_lands | `oc process -f import.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
+
