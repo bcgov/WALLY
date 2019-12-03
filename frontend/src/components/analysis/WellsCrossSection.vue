@@ -80,7 +80,7 @@ export default {
   computed: {
     chartData () {
       const wells = {
-        x: this.wells.map(w => w.distance_from_origin_pt),
+        x: this.wells.map(w => w.distance_from_origin),
         y: this.wells.map(w => w.finished_well_depth ? w.ground_elevation_from_dem - w.finished_well_depth : null),
         text: this.wells.map(w => w.well_tag_number),
         textposition: 'bottom center',
@@ -92,7 +92,7 @@ export default {
       }
 
       const waterDepth = {
-        x: this.wells.map(w => w.distance_from_origin_pt),
+        x: this.wells.map(w => w.distance_from_origin),
         y: this.wells.map(w => w.water_depth ? w.ground_elevation_from_dem - w.water_depth : null),
         mode: 'markers',
         marker: {

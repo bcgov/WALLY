@@ -93,11 +93,11 @@ def get_wells_section(
     profile_line_linestring = geojson_to_profile_line(profile_from_geogratis_dem)
     profile_line = profile_line_by_length(db, profile_line_linestring)
 
-    wells_along_line = get_wells_along_line(db, line_shape, profile_line_linestring, radius)
+    wells_along_line = get_wells_along_line(db, profile_line_linestring, radius)
 
     buffer = db.query(
         func.ST_asGeoJSON(get_line_buffer_polygon(
-            line_shape, radius)).label('search_area')
+            profile_line_linestring, radius)).label('search_area')
     ).first()
 
     section = CrossSection(search_area=geojson.loads(

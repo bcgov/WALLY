@@ -54,7 +54,7 @@ class WellSection(BaseModel):
     finished_well_depth: Optional[float]
     water_depth: Optional[float]
     ground_elevation_from_dem: Optional[float]
-    distance_from_origin_pt: Optional[float]
+    distance_from_origin: Optional[float]
     
     class Config:
         orm_mode = True

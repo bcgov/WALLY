@@ -1,6 +1,7 @@
 """
-Database tables and data access functions for Water Survey of Canada's
-National Water Data Archive Hydrometic Data
+Functions for simple analysis of wells, including querying them using spatial functions (e.g.
+along a profile line or in a given radius) and calculating values (such as available drawdown)
+using existing data.
 """
 import json
 import logging
@@ -189,24 +190,6 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
         for well in wells_with_distances])
 
 
-def get_offset_point(line, percent_length_along_line, offset):
-    """ returns a point that is offset (in m) perpendicular to the line.
-    percent_length_along_line is the distance along the line the point should be,
-    expressed as a fraction (0 to 1) i.e. 0 is the beginning of the line, 1 is the end.
-    """
-    return func.ST_LineInterpolatePoint(
-        func.ST_Transform(
-            func.ST_OffsetCurve(
-                func.ST_Transform(
-                    # convert to BC albers for calculating offset in m
-                    func.ST_GeomFromText(line.wkt, 4326), 3005
-                ),
-                offset
-            ), 4326
-        ), percent_length_along_line
-    )
-
-
 def get_line_buffer_polygon(line: LineString, radius: float):
     """ returns a buffer area around a LineString. """
     return func.ST_Transform(func.ST_Buffer(
@@ -219,7 +202,7 @@ def get_line_buffer_polygon(line: LineString, radius: float):
     ), 4326)
 
 
-def get_wells_along_line(db: Session, line: LineString, profile: LineString, radius: int):
+def get_wells_along_line(db: Session, profile: LineString, radius: int):
     """ returns wells along a given line, including wells that are within a buffer
         determined by `radius` (m).
         `radius` creates a buffer area next to the line that does not include any area
@@ -228,19 +211,22 @@ def get_wells_along_line(db: Session, line: LineString, profile: LineString, rad
         along the axis).
     """
 
-    # pythagorean thereom to calculate the distance along the profile line
-    distance_from_origin_pt = func.sqrt(
+    # Pythagorean thereom to calculate the distance along the profile line.
+    # This is necessary because we need to find the distance along the line,
+    # not the distance from the origin point to the well (which is likely offset from
+    # the profile line)
+    distance_from_origin = func.sqrt(
         (
             func.power(
                 func.ST_Distance(
-                    func.ST_Transform(func.ST_StartPoint(func.ST_GeomFromText(line.wkt, 4326)), 3005),
+                    func.ST_Transform(func.ST_StartPoint(func.ST_Force2d(func.ST_GeomFromText(profile.wkt, 4326))), 3005),
                     func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
                 ),
                 2
-            ) + 
+            ) +
             func.power(
                 func.ST_Distance(
-                    func.ST_Transform(func.ST_SetSRID(func.ST_GeomFromText(profile.wkt), 4326), 3005),
+                    func.ST_Transform(func.ST_Force2d(func.ST_GeomFromText(profile.wkt, 4326)), 3005),
                     func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
                 ),
                 2
@@ -248,10 +234,11 @@ def get_wells_along_line(db: Session, line: LineString, profile: LineString, rad
         )
     )
 
+    # interpolate the ground elevation at the distance from origin calculated above.
     ground_elevation = func.ST_Z(
         func.ST_LineInterpolatePoint(
-            func.ST_GeomFromText(profile.wkt),
-            func.ST_LineLocatePoint(func.ST_SetSRID(func.ST_GeomFromText(profile.wkt), 4326), GroundWaterWells.GEOMETRY)
+            func.ST_Transform(func.ST_GeomFromText(profile.wkt, 4326), 3005),
+            distance_from_origin / func.ST_Length(func.ST_Transform(func.ST_GeomFromText(profile.wkt, 4326), 3005))
         )
     )
 
@@ -264,13 +251,13 @@ def get_wells_along_line(db: Session, line: LineString, profile: LineString, rad
         GroundWaterWells.WELL_TAG_NO.label("well_tag_number"),
         (GroundWaterWells.DEPTH_WELL_DRILLED * 0.3048).label("finished_well_depth"), # converted to metres
         (GroundWaterWells.WATER_DEPTH* 0.3048).label("water_depth"),
-        distance_from_origin_pt.label("distance_from_origin_pt"),
+        distance_from_origin.label("distance_from_origin"),
         ground_elevation.label("ground_elevation_from_dem")) \
         .filter(
             func.ST_Contains(
-                get_line_buffer_polygon(line, radius),
+                get_line_buffer_polygon(profile, radius),
                 GroundWaterWells.GEOMETRY
             )
-    ).order_by('distance_from_origin_pt')
+    ).order_by('distance_from_origin')
 
     return q.all()
