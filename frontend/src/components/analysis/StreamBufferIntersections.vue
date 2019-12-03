@@ -2,6 +2,12 @@
   <v-container>
     <v-row no-gutters>
       <v-col cols="12" md="4" align-self="center">
+        <v-text-field
+            label="Stream Buffer (m)"
+            placeholder="20"
+            :rules="[inputRules.number, inputRules.max, inputRules.required]"
+            v-model="buffer"
+        ></v-text-field>
         <h1>{{streams}}</h1>
         <v-data-table
             :loading="loading"
@@ -30,6 +36,11 @@ export default {
   props: ['streamData'],
   data: () => ({
     buffer: 10,
+    inputRules: {
+      required: value => !!value || 'Required',
+      number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
+      max: value => value <= 100 || 'Buffer must be between 0 and 100 m'
+    },
     loading: false,
     layerOptions: {
         groundwater_wells: true,
@@ -55,6 +66,9 @@ export default {
         var layers = this.activeLayers.map((x) => {
             return 'layers=' + x + '&'
         })
+
+
+
         let polygon = payload.bounds
         let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
         var width = 'width=' + payload.size.x + '&'
