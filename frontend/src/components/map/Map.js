@@ -444,36 +444,38 @@ export default {
     handleAddDrawLine (feature) {
       let coord = feature.geometry.coordinates
       let dist = distance(coord[0], coord[1], {units: 'meters'})
-      let buff = buffer(feature, 10, {units: 'meters'})
+      let buff = buffer(feature, 20, {units: 'meters'})
       let bBox = bbox(buff)
       let poly = {
         'type': 'Feature',
         'geometry': {
           'type': 'Polygon',
           'coordinates': [
-            [bBox[0],bBox[1]], 
             [bBox[2],bBox[3]],
             [bBox[0],bBox[3]],
-            [bBox[2],bBox[1]]
+            [bBox[2],bBox[1]],
+            [bBox[0],bBox[1]] 
           ]
         }
       }
       let min = this.map.project([bBox[0],bBox[1]])
       let max = this.map.project([bBox[2],bBox[3]])
       let features = this.map.queryRenderedFeatures([min, max], { layers: ['contour-line'] })
+      console.log(features[0])
+      console.log(poly)
       this.map.getSource('highlightLayerData').setData(poly)
       var filter = features.filter((f) => {
         let sect = intersect(f, buff)
-        if(intersect(f, buff)){
+        if(sect){
           return f
         }
       })
       var elevations = filter.map((e) => {
         return e.properties["ele"]
       })
-      console.log(bBox)
-      console.log(features)
-      console.log(filter)
+      // console.log(bBox)
+      // console.log(features)
+      // console.log(filter)
       console.log(elevations)
 
       let crossSectionFeature = {
