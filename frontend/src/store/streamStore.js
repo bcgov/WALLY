@@ -14,28 +14,31 @@ export default {
     selectedStreamData: {}
   },
   actions: {
-    getBufferIntersections ({ commit }, payload) {
-      if (!payload.layers || !payload.layers.length) {
-        return
-      }
-      var layers = payload.layers.map((x) => {
-        return 'layers=' + x.display_data_name + '&'
-      })
-      let polygon = payload.bounds
-      let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-      var width = 'width=' + payload.size.x + '&'
-      var height = 'height=' + payload.size.y
-      var params = layers.join('') + polygonQ + width + height
-      ApiService.getApi('/aggregate?' + params)
-      .then((response) => {
-
-            commit('setUpStreamData', response.data.layers)
-            commit('setLayerCategories', response.data.categories)
-
-        })
-        .catch((error) => {
-            reject(error)
-        })
+    // getStreamBufferIntersections ({ commit }, payload) {
+    //   if (!payload.layers || !payload.layers.length) {
+    //     return
+    //   }
+    //   var layers = payload.layers.map((x) => {
+    //     return 'layers=' + x.display_data_name + '&'
+    //   })
+    //   let polygon = payload.bounds
+    //   let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
+    //   var width = 'width=' + payload.size.x + '&'
+    //   var height = 'height=' + payload.size.y
+    //   var params = layers.join('') + polygonQ + width + height
+    //   ApiService.getApi('/aggregate?' + params)
+    //   .then((response) => {
+    //       if(payload.segmentType == 'upstream') {
+            
+    //       } else if(payload.segmentType == 'downstream') { 
+            
+    //       } else {
+            
+    //       }
+    //     })
+    //     .catch((error) => {
+    //         reject(error)
+    //     })
     },
     calculateStreamHighlights({commit, dispatch}, payload) {
       // Get slected watershed code and trim un-needed depth

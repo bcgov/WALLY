@@ -21,6 +21,8 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex'
+
 export default {
   name: 'StreamBufferIntersections',
   components: {
@@ -47,16 +49,40 @@ export default {
     // ],
   }),
   methods: {
-      fetchBuffer() {
+    fetchStreamBufferIntersections() {
         this.loading = true
 
-      }
+        var layers = this.activeLayers.map((x) => {
+            return 'layers=' + x + '&'
+        })
+        let polygon = payload.bounds
+        let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
+        var width = 'width=' + payload.size.x + '&'
+        var height = 'height=' + payload.size.y
+        var params = layers.join('') + polygonQ + width + height
+        ApiService.getApi('/aggregate?' + params)
+        .then((response) => {
+            if(payload.segmentType == 'upstream') {
+                
+            } else if(payload.segmentType == 'downstream') { 
+                
+            } else {
+                
+            }
+            })
+            .catch((error) => {
+                reject(error)
+            })
+    }   
+
   },
   computed: {
     streams() {
         return this.streamData
     },
+    buffer() {
 
+    },
     activeLayers() {
         let layers = []
         for (const key of Object.keys(this.layerOptions)) {
