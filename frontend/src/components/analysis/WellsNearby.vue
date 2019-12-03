@@ -1,5 +1,5 @@
 <template>
-  <v-container id="wells_nearby">
+  <v-container id="wells_nearby" class="pa-0 ma-0">
     <v-row no-gutters>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
@@ -15,40 +15,48 @@
     </v-row>
     <v-row no-gutters>
       <v-col>
-        <v-data-table
-          :loading="loading"
-          :headers="headers"
-          :items="wells"
-        >
-          <template v-slot:item.distance="{ item }">
-            <span>{{item.distance.toFixed(1)}}</span>
-          </template>
-        </v-data-table>
+        <v-card outlined tile>
+          <v-card-title>Wells <span v-if="!loading">&nbsp;({{ wells.length }} in area)</span></v-card-title>
+          <v-card-text>
+            <v-data-table
+              :loading="loading"
+              :headers="headers"
+              :items="wells"
+            >
+              <template v-slot:item.distance="{ item }">
+                <span>{{item.distance.toFixed(1)}}</span>
+              </template>
+            </v-data-table>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
-    <v-row no-gutters v-if="wells.length > 0">
+    <v-row no-gutters v-if="wells.length > 0" class="mt-5">
       <v-col cols="12">
         <v-card :loading="loading" outlined tile class="charts">
-          <div v-if="!loading">
-         <Chart
-           :data="boxPlotYieldData.data"
-           :layout="boxPlotYieldData.layout"
-           :key="boxPlotYieldData.id"
-           class="chart">
-         </Chart>
-          <Chart
-            :data="boxPlotFinishedDepthData.data"
-            :layout="boxPlotFinishedDepthData.layout"
-            :key="boxPlotFinishedDepthData.id"
-            class="chart">
-          </Chart>
-          <Chart
-            :data="boxPlotSWLData.data"
-            :layout="boxPlotSWLData.layout"
-            :key="boxPlotSWLData.id"
-            class="chart">
-          </Chart>
-          </div>
+          <v-card-title>Insights ({{ wells.length }} wells):</v-card-title>
+          <v-card-text>
+            <div v-if="!loading" id="wells_charts">
+              <Chart
+                :data="boxPlotYieldData.data"
+                :layout="boxPlotYieldData.layout"
+                :key="boxPlotYieldData.id"
+                class="chart">
+              </Chart>
+              <Chart
+                :data="boxPlotFinishedDepthData.data"
+                :layout="boxPlotFinishedDepthData.layout"
+                :key="boxPlotFinishedDepthData.id"
+                class="chart">
+              </Chart>
+              <Chart
+                :data="boxPlotSWLData.data"
+                :layout="boxPlotSWLData.layout"
+                :key="boxPlotSWLData.id"
+                class="chart">
+              </Chart>
+            </div>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -94,7 +102,7 @@
     width: 220px;
     float: left;
   }
-   .v-card{
+   .v-card.charts{
      min-height: 460px
    }
  }

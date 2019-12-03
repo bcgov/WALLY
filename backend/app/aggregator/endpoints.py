@@ -30,6 +30,7 @@ from app.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
 from app.layers.ground_water_aquifers import GroundWaterAquifers
 from app.layers.water_allocation_restrictions import WaterAllocationRestrictions
 from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from app.layers.first_nations import CommunityLocations, TreatyLands, TreatyAreas
 
 import app.hydat.models as streams_v1
 import app.aggregator.db as agr_repo
@@ -62,7 +63,10 @@ API_DATASOURCES = {
     "water_allocation_restrictions": WaterAllocationRestrictions,
     "water_rights_licences": WaterRightsLicenses,
     "water_rights_applications": WaterRightsApplications,
-    "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks
+    "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks,
+    "fn_treaty_areas": TreatyAreas,
+    "fn_community_locations": CommunityLocations,
+    "fn_treaty_lands": TreatyLands
 
     # these layers are causing performance issues.
     # leaving them commented out allows them to fall back to WMS fetching from DataBC.

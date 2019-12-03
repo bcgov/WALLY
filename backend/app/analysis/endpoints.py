@@ -8,7 +8,7 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, shape, LineString
 from app.db.utils import get_db
 from app.analysis.wells.well_analysis import (
     get_wells_by_distance,
@@ -23,6 +23,8 @@ from app.analysis.licences.models import WaterRightsLicence
 from app.analysis.wells.elevation_profile import (
     get_profile_geojson, geojson_to_profile_line, profile_line_by_length
 )
+from app.analysis.first_nations.nearby_areas import get_nearest_locations
+from app.analysis.first_nations.models import NearbyAreasResponse
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -102,3 +104,19 @@ def get_wells_section(
         buffer[0]), wells=wells_along_line, elevation_profile=profile_line)
 
     return section
+
+
+@router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
+def get_nearby_first_nations_areas(
+    db: Session = Depends(get_db),
+    geometry: str = Query(...,
+                          title="Geometry to search near",
+                          description="Geometry (such as a point or polygon) to search within and near to")
+):
+    """
+    Search for First Nations Communities, First Nations Treaty Areas and First Nations Treaty Lands near a feature
+    """
+    geometry_parsed = json.loads(geometry)
+    geometry_shape = shape(geometry_parsed)
+    nearest = get_nearest_locations(db, geometry_shape)
+    return nearest
