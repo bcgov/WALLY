@@ -39,7 +39,7 @@ export default {
     //     .catch((error) => {
     //         reject(error)
     //     })
-    },
+    // },
     calculateStreamHighlights({commit, dispatch}, payload) {
       // Get slected watershed code and trim un-needed depth
       const watershedCode = payload.stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
