@@ -62,33 +62,57 @@ export default {
     radius: 200,
     wells: [],
     elevations: [],
-    loading: false,
-    layout: {
-      title: 'Groundwater Wells',
-      yaxis: {
-        title: {
-          text: 'Elevation (masl)'
-        }
-      },
-      xaxis: {
-        title: {
-          text: 'Distance (m)'
-        }
-      }
-    }
+    loading: false
   }),
   computed: {
+    layout () {
+      const opts = {
+        shapes: [],
+        title: 'Groundwater Wells',
+        yaxis: {
+          title: {
+            text: 'Elevation (masl)'
+          }
+        },
+        xaxis: {
+          title: {
+            text: 'Distance (m)'
+          }
+        }
+      }
+
+      this.wells.forEach((w) => {
+        const rect = {
+          type: 'rect',
+          xref: 'x',
+          yref: 'y',
+          x0: w.distance_from_origin,
+          y0: w.ground_elevation_from_dem,
+          x1: w.distance_from_origin,
+          y1: w.ground_elevation_from_dem - w.finished_well_depth,
+          fillcolor: '#808080',
+          opacity: 0.3,
+          line: {
+            width: 3
+          }
+        }
+        opts.shapes.push(rect)
+      })
+      return opts
+    },
     chartData () {
       const wells = {
         x: this.wells.map(w => w.distance_from_origin),
         y: this.wells.map(w => w.finished_well_depth ? w.ground_elevation_from_dem - w.finished_well_depth : null),
         text: this.wells.map(w => w.well_tag_number),
         textposition: 'bottom center',
+        hovertemplate: '<b>Well</b>: %{text}' +
+                        '<br>Bottom elev.: %{y:.1f} m<br>',
         type: 'scatter',
         marker: {
           color: 'rgb(252,141,98)' },
         name: 'Finished well depth (reported)',
-        mode: 'markers+text'
+        mode: 'markers'
       }
 
       const waterDepth = {
@@ -99,6 +123,7 @@ export default {
           color: 'blue',
           symbol: 'triangle-down' },
         name: 'Depth to water (reported)',
+        hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
       }
 
