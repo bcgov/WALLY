@@ -12,9 +12,18 @@
 
       <div class="flex-grow-1"></div>
       <v-toolbar-items class="py-2">
+        <v-select
+          v-model="searchKind"
+          :items="searchOptions"
+          outlined
+          dense
+          single-line
+          label="Filter by"
+          class="mr-5">
+        </v-select>
+        <div id="geocoder" class="mr-5 geocoder"></div>
       </v-toolbar-items>
     </v-toolbar>
-    <div id="geocoder" class="mr-5 geocoder"></div>
   </div>
 </template>
 
@@ -23,6 +32,14 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'Toolbar',
   data: () => ({
+    searchKind: 'All',
+    searchOptions: [
+      'All',
+      'Wells',
+      'Water Licences',
+      'Aquifers',
+      'EcoCat Reports'
+    ]
   }),
   computed: {
     ...mapGetters([
@@ -52,9 +69,6 @@ export default {
     border: 1px solid #3B99FC;
   }
   #geocoder {
-    position: absolute;
     z-index: 4;
-    right:15px;
-    top: 8px;
   }
 </style>
