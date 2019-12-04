@@ -177,6 +177,10 @@ export default {
   },
   mounted () {
     this.fetchWellsAlongLine()
+  },
+  beforeDestroy () {
+    // reset shapes when closing this component
+    EventBus.$emit('shapes:reset')
   }
 }
 </script>
