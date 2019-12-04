@@ -1,45 +1,67 @@
 <template>
   <v-container>
     <v-row no-gutters>
-      <v-col cols="12" md="4" align-self="center">
+      <v-col cols="12" md="3" align-self="center">
         <v-text-field
-            label="Stream Buffer (m)"
+            label="Stream Buffer Size (m)"
             placeholder="20"
             :rules="[inputRules.number, inputRules.max, inputRules.required]"
             v-model="buffer"
         ></v-text-field>
       </v-col>
 
-        <v-row no-gutters >
-          <v-col cols="12" md="3">
-            <v-checkbox v-model="layerOptions.groundwater_wells" class="mx-2" :label="`Ground Water Wells (${resultCounts.groundwater_wells})`"></v-checkbox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-checkbox v-model="layerOptions.water_rights_licences" class="mx-2" :label="`Water Rights Licences (${resultCounts.water_rights_licences})`"></v-checkbox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-checkbox v-model="layerOptions.water_rights_applications" class="mx-2" :label="`Water Rights Applications (${resultCounts.water_rights_applications})`"></v-checkbox>
-          </v-col>
-          <v-col cols="12" md="3">
-            <v-checkbox v-model="layerOptions.hydrometric_stream_flow" class="mx-2" :label="`Stream Stations (${resultCounts.hydrometric_stream_flow})`"></v-checkbox>
-          </v-col>
-        </v-row>
-        <v-data-table
-          :loading="loading"
-          v-if="results.groundwater_wells"
-          :items="results.groundwater_wells"
-        ></v-data-table>
+      <v-col cols="12" md="3" />
+
+      <v-col cols="12" md="6">
+        <v-select
+          :items="layerOptions"
+          placeholder="Select a Layer to Analyze"
+          solo
+        ></v-select>
+      </v-col>
+
+      
+      <v-card class="my-2">
+        <v-card-title>
+        Upstream Segments
+        </v-card-title>
+        <v-card-text>
         <v-data-table
           :loading="loading"
           v-if="results"
           :items="results"
           :headers="headers"
         ></v-data-table>
+        </v-card-text>
+      </v-card>
+
+      <v-card class="my-2">
+        <v-card-title>
+        Selected Stream Segment
+      </v-card-title>
+        <v-card-text>
         <v-data-table
           :loading="loading"
-          v-if="results.hydrometric_stream_flow"
-          :items="results.hydrometric_stream_flow"
+          v-if="results"
+          :items="results"
+          :headers="headers"
         ></v-data-table>
+        </v-card-text>
+      </v-card>
+
+      <v-card class="my-2">
+        <v-card-title>
+        Downstream Segments
+      </v-card-title>
+        <v-card-text>
+        <v-data-table
+          :loading="loading"
+          v-if="results"
+          :items="results"
+          :headers="headers"
+        ></v-data-table>
+        </v-card-text>
+      </v-card>
 
     </v-row>
   </v-container>
@@ -67,12 +89,18 @@ export default {
       max: value => value <= 100 || 'Buffer must be between 0 and 100 m'
     },
     loading: false,
-    layerOptions: {
-        groundwater_wells: true,
-        water_rights_licences: false,
-        water_rights_applications: false,
-        hydrometric_stream_flow: false
-    },
+    // layerOptions: {
+    //     groundwater_wells: true,
+    //     water_rights_licences: false,
+    //     water_rights_applications: false,
+    //     hydrometric_stream_flow: false
+    // },
+    layerOptions: [
+      'Ground Water Wells',
+      'Water Rights Licences',
+      'Water Rights Applications',
+      'Stream Stations'
+    ],
     results: [],
     headers: [
       { text: 'Distance', value: 'distance' },
@@ -89,9 +117,9 @@ export default {
     fetchStreamBufferIntersections() {
       this.loading = true
 
-      var layers = this.activeLayers.map((layer) => {
-          return 'layers=' + layer + '&'
-      })
+      // var layers = this.activeLayers.map((layer) => {
+      //     return 'layers=' + layer + '&'
+      // })
       // let bufferPolygons = this.streams.features.map((stream) => {
       //   return buffer(stream.geometry, this.buffer, {units: 'meters'})
       // })
@@ -134,15 +162,15 @@ export default {
     streams() {
         return this.streamData
     },
-    activeLayers() {
-        let layers = []
-        for (const key of Object.keys(this.layerOptions)) {
-            if (this.layerOptions[key]) {
-                layers.push(key)
-            }
-        }
-        return layers
-    },
+    // activeLayers() {
+    //     let layers = []
+    //     for (const key of Object.keys(this.layerOptions)) {
+    //         if (this.layerOptions[key]) {
+    //             layers.push(key)
+    //         }
+    //     }
+    //     return layers
+    // },
     resultCounts () {
       let counts = {}
       // loop through the results, and count the number in each layer

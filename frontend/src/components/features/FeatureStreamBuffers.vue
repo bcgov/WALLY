@@ -14,21 +14,9 @@
     </v-toolbar>
     <v-expansion-panels class="mt-5" multiple>
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up Stream Analysis</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up/Down Stream Analysis</v-expansion-panel-header>
         <v-expansion-panel-content>
           <StreamBufferIntersections :streamData="getUpStreamData"></StreamBufferIntersections>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Selected Stream Analysis</v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <StreamBufferIntersections :streamData="getSelectedStreamData"></StreamBufferIntersections>
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-      <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Down Stream Analysis</v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <StreamBufferIntersections :streamData="getDownStreamData"></StreamBufferIntersections>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
