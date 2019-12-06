@@ -1,7 +1,7 @@
 import logging
 
 from shapely.geometry import Point
-from sqlalchemy import func, text
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger("api")
