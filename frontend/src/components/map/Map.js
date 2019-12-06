@@ -1,6 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -28,8 +28,8 @@ const polygon = {
   }
 }
 const featureCollection = {
-  "type": "FeatureCollection",
-  "features": []
+  'type': 'FeatureCollection',
+  'features': []
 }
 
 export default {
@@ -70,12 +70,10 @@ export default {
   },
   data () {
     return {
-      map: null,
       // legendControlContent: null,
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
       activeLayers: {},
-      draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
       isDrawingToolActive: false
     }
   },
@@ -101,7 +99,10 @@ export default {
       'activeDataMarts',
       'highlightFeatureData',
       'dataMartFeatureInfo',
-      'infoPanelVisible'
+      'infoPanelVisible',
+      'map',
+      'draw',
+      'geocoder'
     ])
   },
   methods: {
@@ -116,13 +117,13 @@ export default {
         zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
       }
 
-      this.map = new mapboxgl.Map({
+      this.setMap(new mapboxgl.Map({
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
         attributionControl: false // hide default and re-add to the top left
-      })
+      }))
 
       const modes = MapboxDraw.modes
       modes.simple_select.onTrash = this.clearSelections
@@ -130,7 +131,7 @@ export default {
       modes.draw_point.onTrash = this.clearSelections
       modes.direct_select.onTrash = this.clearSelections
 
-      this.draw = new MapboxDraw({
+      this.setDraw(new MapboxDraw({
         modes: modes,
         displayControlsDefault: false,
         controls: {
@@ -138,9 +139,9 @@ export default {
           point: true,
           trash: true
         }
-      })
+      }))
 
-      const geocoder = new MapboxGeocoder({
+      this.setGeocoder(new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: this.map,
         origin: ApiService.baseURL,
@@ -148,13 +149,13 @@ export default {
         localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
         minLength: 1
-      })
-      geocoder.on('result', this.updateBySearchResult)
+      }))
+      this.geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
       if (!document.getElementById('geocoder').hasChildNodes()) {
         document.getElementById('geocoder')
-          .appendChild(geocoder.onAdd(this.map))
+          .appendChild(this.geocoder.onAdd(this.map))
       }
 
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
@@ -255,98 +256,98 @@ export default {
         })
       })
     },
-    initStreamHighlights() {
+    initStreamHighlights () {
       // This highlights the selected stream
       this.map.addSource('selectedStreamSource', { type: 'geojson', data: featureCollection })
       this.map.addLayer({
-          "id": "selectedstream",
-          "type": "line",
-          "source": "selectedStreamSource",
-          "layout": {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          "paint": {
-              "line-color": "#1500ff",
-              "line-width": 3
-          }
+        'id': 'selectedstream',
+        'type': 'line',
+        'source': 'selectedStreamSource',
+        'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        'paint': {
+          'line-color': '#1500ff',
+          'line-width': 3
+        }
       })
       // This layer highlights all upstream stream segments
       this.map.addSource('upStreamSource', { type: 'geojson', data: featureCollection })
       this.map.addLayer({
-          "id": "upstream",
-          "type": "line",
-          "source": "upStreamSource",
-          "layout": {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          "paint": {
-              "line-color": "#00ff26",
-              "line-width": 3
-          }
+        'id': 'upstream',
+        'type': 'line',
+        'source': 'upStreamSource',
+        'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        'paint': {
+          'line-color': '#00ff26',
+          'line-width': 3
+        }
       })
       // This layer highlights all downstream stream segments
-      this.map.addSource('downStreamSource', { type: 'geojson', data: featureCollection }) 
+      this.map.addSource('downStreamSource', { type: 'geojson', data: featureCollection })
       this.map.addLayer({
-          "id": "downstream",
-          "type": "line",
-          "source": "downStreamSource",
-          "layout": {
-            "line-join": "round",
-            "line-cap": "round"
-          },
-          "paint": {
-              "line-color": "#ff4800",
-              "line-width": 3
-          }
+        'id': 'downstream',
+        'type': 'line',
+        'source': 'downStreamSource',
+        'layout': {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        'paint': {
+          'line-color': '#ff4800',
+          'line-width': 3
+        }
       })
     },
-    updateStreamHighlights(stream) {
-        // Get slected watershed code and trim un-needed depth
-        const watershedCode = stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
+    updateStreamHighlights (stream) {
+      // Get slected watershed code and trim un-needed depth
+      const watershedCode = stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '')
 
-        // Build our downstream code list
-        const codes = watershedCode.split("-")
-        var downstreamCodes = [codes[0]]
-        for (let i = 0; i < codes.length - 1; i++) {
-          downstreamCodes.push(downstreamCodes[i] + "-" + codes[i+1])
-        }
-      
-        // get all visible streams from fwa steams layer
-        var streams = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
+      // Build our downstream code list
+      const codes = watershedCode.split('-')
+      var downstreamCodes = [codes[0]]
+      for (let i = 0; i < codes.length - 1; i++) {
+        downstreamCodes.push(downstreamCodes[i] + '-' + codes[i + 1])
+      }
 
-        // loop streams to find matching cases for selected, upstream, and downstream conditions
-        let selectedFeatures = []
-        let upstreamFeatures = []
-        let downstreamFeatures = []
-        streams.forEach(stream => {
-          const code = stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'') // remove empty stream ids
-          if(code === watershedCode)  { selectedFeatures.push(stream) } // selected stream condition
-          if(code.includes(watershedCode) && code.length > watershedCode.length)  { upstreamFeatures.push(stream) } // up stream condition
-          if(downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length)  { downstreamFeatures.push(stream) } // down stream condition
-        })
+      // get all visible streams from fwa steams layer
+      var streams = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
 
-        // Clean out downstream features that are upwards water flow
-        // TODO may want to toggle this based on user feedback
-        let cleanedDownstreamFeatures = this.cleanDownStreams(downstreamFeatures, stream.properties["FWA_WATERSHED_CODE"])
+      // loop streams to find matching cases for selected, upstream, and downstream conditions
+      let selectedFeatures = []
+      let upstreamFeatures = []
+      let downstreamFeatures = []
+      streams.forEach(stream => {
+        const code = stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '') // remove empty stream ids
+        if (code === watershedCode) { selectedFeatures.push(stream) } // selected stream condition
+        if (code.includes(watershedCode) && code.length > watershedCode.length) { upstreamFeatures.push(stream) } // up stream condition
+        if (downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length) { downstreamFeatures.push(stream) } // down stream condition
+      })
 
-        // Insert the upstream data into the upstream data source
-        var upStreamCollection = Object.assign({}, featureCollection)
-        upStreamCollection["features"] = upstreamFeatures
-        this.map.getSource('upStreamSource').setData(upStreamCollection)
+      // Clean out downstream features that are upwards water flow
+      // TODO may want to toggle this based on user feedback
+      let cleanedDownstreamFeatures = this.cleanDownStreams(downstreamFeatures, stream.properties['FWA_WATERSHED_CODE'])
 
-        // Insert the selected stream data into the selected stream data source
-        var selectedStreamCollection = Object.assign({}, featureCollection)
-        selectedStreamCollection["features"] = selectedFeatures
-        this.map.getSource('selectedStreamSource').setData(selectedStreamCollection)
+      // Insert the upstream data into the upstream data source
+      var upStreamCollection = Object.assign({}, featureCollection)
+      upStreamCollection['features'] = upstreamFeatures
+      this.map.getSource('upStreamSource').setData(upStreamCollection)
 
-        // Insert the downstream data into the downstream data source
-        var downStreamCollection = Object.assign({}, featureCollection) 
-        downStreamCollection["features"] = cleanedDownstreamFeatures
-        this.map.getSource('downStreamSource').setData(downStreamCollection)
+      // Insert the selected stream data into the selected stream data source
+      var selectedStreamCollection = Object.assign({}, featureCollection)
+      selectedStreamCollection['features'] = selectedFeatures
+      this.map.getSource('selectedStreamSource').setData(selectedStreamCollection)
+
+      // Insert the downstream data into the downstream data source
+      var downStreamCollection = Object.assign({}, featureCollection)
+      downStreamCollection['features'] = cleanedDownstreamFeatures
+      this.map.getSource('downStreamSource').setData(downStreamCollection)
     },
-    cleanDownStreams(streams, code, builder = []) {
+    cleanDownStreams (streams, code, builder = []) {
       // This is a recursive function that walks down the stream network
       // from the selected stream segment location. It removes any stream
       // segments that are at the same order but have an upwards stream flow.
@@ -354,22 +355,22 @@ export default {
       // The BigO of this function is linear with a max of apprx. 50 due
       // to the max magnitude of a stream
       var segment = streams.find((s) => {
-        if(s.properties["LOCAL_WATERSHED_CODE"]) {
-          let local = s.properties["LOCAL_WATERSHED_CODE"]
-          let global = s.properties["FWA_WATERSHED_CODE"]
-          if(local === code && global !== local) {
+        if (s.properties['LOCAL_WATERSHED_CODE']) {
+          let local = s.properties['LOCAL_WATERSHED_CODE']
+          let global = s.properties['FWA_WATERSHED_CODE']
+          if (local === code && global !== local) {
             return s
           }
         }
       })
-      if(segment) {
-        let drm = segment.properties["DOWNSTREAM_ROUTE_MEASURE"]
-        let segmentCode = segment.properties["FWA_WATERSHED_CODE"]
-        let elements = streams.filter((f) => { 
-          if(f.properties["FWA_WATERSHED_CODE"] === segmentCode && 
-             f.properties["DOWNSTREAM_ROUTE_MEASURE"] < drm){
-              return f
-            }
+      if (segment) {
+        let drm = segment.properties['DOWNSTREAM_ROUTE_MEASURE']
+        let segmentCode = segment.properties['FWA_WATERSHED_CODE']
+        let elements = streams.filter((f) => {
+          if (f.properties['FWA_WATERSHED_CODE'] === segmentCode &&
+             f.properties['DOWNSTREAM_ROUTE_MEASURE'] < drm) {
+            return f
+          }
         })
         builder = builder.concat(elements)
         // Recursive call step with current builder object and next segment selection
@@ -439,7 +440,7 @@ export default {
     },
     updateHighlightLayerData (data) {
       // For stream networks layer we add custom highlighting and reset poly/point highlight layering
-      if(data.display_data_name === 'freshwater_atlas_stream_networks') {
+      if (data.display_data_name === 'freshwater_atlas_stream_networks') {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(polygon)
         this.updateStreamHighlights(data)
@@ -458,7 +459,7 @@ export default {
       this.map.getSource('highlightLayerData').setData(polygon)
       this.clearStreamHighlightLayers()
     },
-    clearStreamHighlightLayers() {
+    clearStreamHighlightLayers () {
       this.map.getSource('selectedStreamSource').setData(featureCollection)
       this.map.getSource('downStreamSource').setData(featureCollection)
       this.map.getSource('upStreamSource').setData(featureCollection)
@@ -655,6 +656,7 @@ export default {
     resetCursor () {
       this.map.getCanvas().style.cursor = ''
     },
+    ...mapMutations(['setMap', 'setDraw', 'setGeocoder']),
     ...mapActions(['getMapLayers'])
   },
   watch: {
