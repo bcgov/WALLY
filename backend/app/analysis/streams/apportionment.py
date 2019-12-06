@@ -47,8 +47,11 @@ def get_nearest_streams(db: Session, search_point: Point) -> list:
 
 
 # TODO: Create unit test for this
-def get_all_apportionment(streams, weighting_factor):
-    # Get the apportionment percentage for all streams. Remove stream if percentage is less than 10%
+def get_all_apportionment(streams, weighting_factor, force=False):
+    """Recursive function that gets the apportionment (in percentage) for all streams"""
+
+    if len(streams) > 10 and not force:
+        return True
 
     # Get the total apportionment
     total_apportionment = 0
@@ -59,7 +62,7 @@ def get_all_apportionment(streams, weighting_factor):
     # We need to loop again after we have the total so we know the percentage
     for i, stream in enumerate(streams):
         percentage = (stream['apportionment'] / total_apportionment) * 100
-        # Delete stream and re-calculate
+        # Delete stream if apportionment is less than 10% and re-calculate
         if percentage < 10:
             del streams[i]
             return get_all_apportionment(streams, weighting_factor)
