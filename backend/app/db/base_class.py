@@ -24,7 +24,6 @@ class CustomLayerBase(object):
     def get_all(cls, db: Session, search_area: Polygon = None):
         """ gets all records, with an optional bounding box """
         q = db.query(cls)
-        logger.info(search_area)
 
         if search_area:
             column = cls.get_geom_column(db)

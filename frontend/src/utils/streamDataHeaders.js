@@ -48,20 +48,6 @@ export const streamDataHeaders = {
         { text: 'Primary Res. Code', value: 'PRIMARY_RESTRICTION_CODE' },
         { text: 'Gnis Name', value: 'GNIS_NAME' },
     ],
-    fn_treaty_areas: [
-        { text: 'Treaty', value: 'TREATY' },
-        { text: 'First Nation Name', value: 'FIRST_NATION_NAME' },
-        { text: 'Effective Date', value: 'EFFECTIVE_DATE' },
-    ],
-    fn_community_locations: [
-        { text: 'Preferred Name', value: 'PREFERRED_NAME' },
-        { text: 'BC Name', value: 'FIRST_NATION_BC_NAME' },
-    ],
-    fn_treaty_lands: [
-        { text: 'Treaty', value: 'TREATY' },
-        { text: 'First Nation Name', value: 'FIRST_NATION_NAME' },
-        { text: 'Effective Date', value: 'EFFECTIVE_DATE' },
-    ],
     hydrometric_stream_stations: [
         { text: 'Station Number', value: 'station_number' },
     ]

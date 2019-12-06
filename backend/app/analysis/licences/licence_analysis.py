@@ -51,20 +51,3 @@ def get_licences_by_distance(db: Session, search_point: Point, radius: float) ->
     applications = [WaterRightsLicence(**row[0].__dict__, distance=row[1]) for row in applications_results]
 
     return licences + applications
-
-
-def get_licences_within_buffer(db: Session, geometry, buffer: float ) -> list:
-    """ List water rights licences within a buffer zone from a geometry
-    """
-    licences_results = db.query(
-        WaterRightsLicenses,
-        func.ST_Distance(func.Geography(WaterRightsLicenses.SHAPE),
-                         func.ST_GeographyFromText(geometry.wkt)).label('distance')
-    ) \
-        .filter(
-            func.ST_DWithin(func.Geography(WaterRightsLicenses.SHAPE),
-                            func.ST_GeographyFromText(geometry.wkt), buffer)
-    ) \
-    .order_by('distance').all()
-
-    return [WaterRightsLicence(**row[0].__dict__, distance=row[1]) for row in licences_results]

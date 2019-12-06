@@ -17,8 +17,6 @@ import { streamDataHeaders } from '../../utils/streamDataHeaders'
 
 export default {
   name: 'StreamBufferData',
-  components: {
-  },
   props: [
     'bufferData',
     'segmentType',
@@ -31,8 +29,6 @@ export default {
           selectedstream: 'Selected Stream Segment Features'
       }
   }),
-  methods: {
-  },
   computed: {
       title() {
           return this.titleLookup[this.segmentType]
@@ -40,12 +36,9 @@ export default {
       headers() {
           return streamDataHeaders[this.layerId]
       }
-  },
-  watch: {
-  },
+  }
 }
 </script>
 
 <style>
-
 </style>

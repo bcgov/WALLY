@@ -138,23 +138,6 @@ export default {
       let gnis = this.record.properties.GNIS_NAME
       return gnis !== 'None' ? gnis : this.record.properties.FEATURE_CODE
     },
-    // streams() {
-    //     return this.streamData
-    // },
-    // activeLayers() {
-    //     let layers = []
-    //     for (const key of Object.keys(this.layerOptions)) {
-    //         if (this.layerOptions[key]) {
-    //             layers.push(key)
-    //         }
-    //     }
-    //     return layers
-    // },
-    // layerItems() {
-    //   return this.layerOptions.map((l) => {
-    //     return l.name
-    //   })
-    // },
     // resultCounts () {
     //   let counts = {}
     //   // loop through the results, and count the number in each layer
