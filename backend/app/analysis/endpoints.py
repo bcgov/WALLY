@@ -10,7 +10,7 @@ from shapely.geometry import Point, shape
 from app.db.utils import get_db
 from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, get_screens
 from app.analysis.licences.licence_analysis import get_licences_by_distance
-from app.analysis.licences.licence_analysis import get_licences_within_buffer
+from app.analysis.streams.stream_analysis import get_features_within_buffer
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
 from app.analysis.first_nations.nearby_areas import get_nearest_locations
@@ -65,21 +65,6 @@ def get_nearby_licences(
     return licences_with_distances
 
 
-@router.get("/analysis/licences/buffer", response_model=List[WaterRightsLicence])
-def get_licences_within_buffer_zone(
-    db: Session = Depends(get_db),
-    geometry: str = Query(..., title="Geometry to search within",
-                       description="Complex Geometry to create buffer with and find points within."),
-    buffer: float = Query(100, title="Buffer size in meters",
-                          description="Buffer size to create around geometry", ge=0, le=100)
-):
-    geometry_parsed = json.loads(geometry)
-    geometry_shape = shape(geometry_parsed)
-
-    licences_within_buffer = get_licences_within_buffer(db, geometry_shape, buffer)
-    return licences_within_buffer
-
-
 @router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
 def get_nearby_first_nations_areas(
     db: Session = Depends(get_db),
@@ -94,3 +79,20 @@ def get_nearby_first_nations_areas(
     geometry_shape = shape(geometry_parsed)
     nearest = get_nearest_locations(db, geometry_shape)
     return nearest
+
+
+@router.get("/analysis/stream/features")
+def get_features_within_buffer_zone(
+    db: Session = Depends(get_db),
+    geometry: str = Query(..., title="Geometry to search within",
+                       description="Complex Geometry to create buffer with and find points within."),
+    buffer: float = Query(100, title="Buffer size in meters",
+                          description="Buffer size to create around geometry", ge=0, le=100),
+    layer: str = Query(..., title="Layer to Analyze", 
+                        description="Which layer to find points within buffer zone")
+):
+    geometry_parsed = json.loads(geometry)
+    geometry_shape = shape(geometry_parsed)
+
+    features = get_features_within_buffer(db, geometry_shape, buffer, layer)
+    return features

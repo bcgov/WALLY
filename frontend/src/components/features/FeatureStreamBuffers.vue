@@ -14,9 +14,30 @@
     </v-toolbar>
     <v-expansion-panels class="mt-5" multiple>
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up/Down Stream Analysis</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up Stream/Down Stream Features</v-expansion-panel-header>
         <v-expansion-panel-content>
-          <StreamBufferIntersections :streamData="getUpStreamData"></StreamBufferIntersections>
+          <v-row no-gutters>
+            <v-col cols="12" md="3" align-self="center">
+              <v-text-field
+                label="Stream Buffer Size (m)"
+                placeholder="20"
+                :rules="[inputRules.number, inputRules.max, inputRules.required]"
+                v-model="buffer"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" md="3" />
+            <v-col cols="12" md="6">
+              <v-select
+                solo
+                :items="layerOptions"
+                placeholder="Select a Layer to Analyze"
+                v-model="selectedLayer"
+              ></v-select>
+            </v-col>
+            <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+            <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedstream'" :layerId="selectedLayer" />
+            <SteamBufferData :bufferData="downStreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
+          </v-row>
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -24,27 +45,131 @@
 </template>
 
 <script>
-import StreamBufferIntersections from '../analysis/StreamBufferIntersections'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+import ApiService from '../../services/ApiService'
+import EventBus from '../../services/EventBus'
+import SteamBufferData from '../analysis/StreamBufferData'
+import buffer from '@turf/buffer'
+import union from '@turf/union'
+import qs from 'querystring'
 
 export default {
-  name: 'FeatureStreamBuffers',
+  name: 'StreamBufferIntersections',
   components: {
-    StreamBufferIntersections
+    SteamBufferData
   },
   props: ['record'],
   data: () => ({
-    buffer: 10
+    buffer: 10,
+    loading: false,
+    upstreamData: [],
+    selectedStreamData: [],
+    downStreamData: [],
+    selectedLayer: '',
+    inputRules: {
+      required: value => !!value || 'Required',
+      number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
+      max: value => value <= 100 || 'Buffer must be between 0 and 100 m'
+    },
+    layerOptions: [
+      { value: 'groundwater_wells', text: 'Ground Water Wells' },
+      { value: 'water_rights_licences', text: 'Water Rights Licences' },
+      { value: 'water_rights_applications', text: 'Water Rights Applications' },
+      { value: 'ecocat_water_related_reports', text: 'Ecocat Reports' },
+      { value: 'aquifers', text: 'Aquifers' },
+      { value: 'critical_habitat_species_at_risk', text: 'Critical Habitats' },
+      { value: 'water_allocation_restrictions', text: 'Allocation Restrictions' },
+      { value: 'fn_treaty_areas', text: 'First Nation Treaty Areas' },
+      { value: 'fn_community_locations', text: 'First Nation Community Locations' },
+      { value: 'fn_treaty_lands', text: 'First Nation Treaty Lands' },
+      { value: 'hydrometric_stream_flow', text: 'Stream Stations' }
+    ]
   }),
+  methods: {
+    updateStreamBuffers() {
+      this.fetchStreamBuffers(this.getUpStreamData, 'upstream')
+      this.fetchStreamBuffers(this.getDownStreamData, 'downstream')
+      this.fetchStreamBuffers(this.getSelectedStreamData, 'selectedstream')
+    },
+    fetchStreamBuffers(streams, type) {
+      let lineStrings = streams.features.map((stream) => {
+        return stream
+      })
+      if(lineStrings.length <= 0) { 
+        return 
+      }
+      let mergedLineStrings = union(...lineStrings)
+
+      const params = {
+        buffer: parseFloat(this.buffer),
+        geometry: JSON.stringify(mergedLineStrings.geometry),
+        layer: this.selectedLayer
+      }
+      ApiService.query(`/api/v1/analysis/stream/features?${qs.stringify(params)}`)
+        .then((response) => {
+          console.log(response.data)
+          let data = response.data
+          if (type === 'upstream') {
+            this.upstreamData = data
+          } else if(type === 'downstream') {
+            this.downStreamData = data
+          } else if(type === 'selectedstream'){
+            this.selectedStreamData = data
+          }
+          // this.loading = false
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    }   
+
+  },
   computed: {
+    // streams() {
+    //     return this.streamData
+    // },
+    // activeLayers() {
+    //     let layers = []
+    //     for (const key of Object.keys(this.layerOptions)) {
+    //         if (this.layerOptions[key]) {
+    //             layers.push(key)
+    //         }
+    //     }
+    //     return layers
+    // },
+    // layerItems() {
+    //   return this.layerOptions.map((l) => {
+    //     return l.name
+    //   })
+    // },
+    // resultCounts () {
+    //   let counts = {}
+    //   // loop through the results, and count the number in each layer
+    //   for (const key of Object.keys(this.layerOptions)) {
+    //     counts[key] = this.results.filter(x => x.display_data_name === key).length
+    //   }
+    //   return counts
+    // },
     ...mapGetters([
-      'getSelectedStreamData',
       'getUpStreamData',
-      'getDownStreamData'
+      'getDownStreamData',
+      'getSelectedStreamData'
     ])
+  },
+  watch: {
+    getSelectedStreamData() {
+      this.updateStreamBuffers()
+    },
+    buffer () {
+      this.updateStreamBuffers()
+    },
+    selectedLayer() {
+      this.updateStreamBuffers()
+    }
   },
 }
 </script>
 
 <style>
+
 </style>
