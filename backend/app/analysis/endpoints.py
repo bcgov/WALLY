@@ -87,7 +87,7 @@ def get_features_within_buffer_zone(
     geometry: str = Query(..., title="Geometry to search within",
                        description="Complex Geometry to create buffer with and find points within."),
     buffer: float = Query(100, title="Buffer size in meters",
-                          description="Buffer size to create around geometry", ge=0, le=100),
+                          description="Buffer size to create around geometry", ge=0, le=500),
     layer: str = Query(..., title="Layer to Analyze", 
                         description="Which layer to find points within buffer zone")
 ):
