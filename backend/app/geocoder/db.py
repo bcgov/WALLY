@@ -13,7 +13,7 @@ from shapely import wkt
 from geoalchemy2.elements import WKTElement
 
 logger = getLogger("geocoder")
-search_symbols = re.compile(r'[^\w]', re.UNICODE)
+search_symbols = re.compile(r'[^\w ]', re.UNICODE)
 search_spaces = re.compile(r'[ ]+')
 
 
