@@ -1,5 +1,5 @@
-import ApiService from '../services/ApiService'
 import * as config from '../utils/streamHighlightsConfig'
+import buffer from '@turf/buffer'
 
 export default {
   state: {
@@ -11,35 +11,12 @@ export default {
     streamLayers: config.layers,
     upStreamData: {},
     downStreamData: {},
-    selectedStreamData: {}
+    selectedStreamData: {},
+    upStreamBufferData: {},
+    downStreamBufferData: {},
+    selectedStreamBufferData: {}
   },
   actions: {
-    // getStreamBufferIntersections ({ commit }, payload) {
-    //   if (!payload.layers || !payload.layers.length) {
-    //     return
-    //   }
-    //   var layers = payload.layers.map((x) => {
-    //     return 'layers=' + x.display_data_name + '&'
-    //   })
-    //   let polygon = payload.bounds
-    //   let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-    //   var width = 'width=' + payload.size.x + '&'
-    //   var height = 'height=' + payload.size.y
-    //   var params = layers.join('') + polygonQ + width + height
-    //   ApiService.getApi('/aggregate?' + params)
-    //   .then((response) => {
-    //       if(payload.segmentType == 'upstream') {
-            
-    //       } else if(payload.segmentType == 'downstream') { 
-            
-    //       } else {
-            
-    //       }
-    //     })
-    //     .catch((error) => {
-    //         reject(error)
-    //     })
-    // },
     calculateStreamHighlights({commit, dispatch}, payload) {
       // Get slected watershed code and trim un-needed depth
       const watershedCode = payload.stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
@@ -127,6 +104,16 @@ export default {
       state.upStreamData = state.featureCollection
       state.downStreamData = state.featureCollection
       state.selectedStreamData = state.featureCollection
+    },
+    setStreamBufferData (state, payload) {
+      state.upStreamBufferData = buffer(state.upStreamData, payload)
+      state.downStreamBufferData = buffer(state.downStreamData, payload)
+      state.selectedStreamBufferData = buffer(state.selectedStreamData, payload)
+    },
+    resetStreamBufferData (state) {
+      state.upStreamBufferData = state.featureCollection
+      state.downStreamBufferData = state.featureCollection
+      state.selectedStreamBufferData = state.featureCollection
     }
   },
   getters: {
@@ -134,6 +121,9 @@ export default {
     getDownStreamData: state => state.downStreamData,
     getSelectedStreamData: state => state.selectedStreamData,
     getStreamSources: state => state.streamSources,
-    getStreamLayers: state => state.streamLayers
+    getStreamLayers: state => state.streamLayers,
+    getUpStreamBufferData: state => state.upStreamBufferData,
+    getDownStreamBufferData: state => state.downStreamBufferData,
+    getSelectedStreamBufferData: state => state.selectedStreamBufferData
   }
 }

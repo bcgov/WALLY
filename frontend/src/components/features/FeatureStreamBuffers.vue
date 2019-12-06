@@ -79,9 +79,6 @@ export default {
       { value: 'aquifers', text: 'Aquifers' },
       { value: 'critical_habitat_species_at_risk', text: 'Critical Habitats' },
       { value: 'water_allocation_restrictions', text: 'Allocation Restrictions' },
-      { value: 'fn_treaty_areas', text: 'First Nation Treaty Areas' },
-      { value: 'fn_community_locations', text: 'First Nation Community Locations' },
-      { value: 'fn_treaty_lands', text: 'First Nation Treaty Lands' },
       { value: 'hydrometric_stream_flow', text: 'Stream Stations' }
     ]
   }),
@@ -160,8 +157,9 @@ export default {
     getSelectedStreamData() {
       this.updateStreamBuffers()
     },
-    buffer () {
+    buffer (value) {
       this.updateStreamBuffers()
+      this.$store.commit('setStreamBufferData', value)
     },
     selectedLayer() {
       this.updateStreamBuffers()

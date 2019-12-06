@@ -103,7 +103,10 @@ export default {
       'getUpStreamData',
       'getDownStreamData',
       'getStreamSources',
-      'getStreamLayers'
+      'getStreamLayers',
+      'getSelectedStreamBufferData',
+      'getUpStreamBufferData',
+      'getDownStreamBufferData',
     ])
   },
   methods: {
@@ -579,6 +582,15 @@ export default {
     },
     getDownStreamData(value) {
       this.map.getSource(streamConfig.sources[2].name).setData(value)
+    },
+    getSelectedStreamBufferData(value) {
+      this.map.getSource(streamConfig.sources[3].name).setData(value)
+    },
+    getUpStreamBufferData(value) {
+      this.map.getSource(streamConfig.sources[4].name).setData(value)
+    },
+    getDownStreamBufferData(value) {
+      this.map.getSource(streamConfig.sources[5].name).setData(value)
     }
   }
 }

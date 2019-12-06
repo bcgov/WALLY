@@ -5,15 +5,27 @@ const featureCollection = {
 
 export const sources = [
     {
-        name: 'selectedStreamSource',
+        name: "selectedStreamSource",
         options: featureCollection
     },
     {
-        name: 'upStreamSource',
+        name: "upStreamSource",
         options: featureCollection
     },
     {
-        name: 'downStreamSource',
+        name: "downStreamSource",
+        options: featureCollection
+    },
+    {
+        name: "selectedStreamBufferSource",
+        options: featureCollection
+    },
+    {
+        name: "upStreamBufferSource",
+        options: featureCollection
+    },
+    {
+        name: "downStreamBufferSource",
         options: featureCollection
     },
 ]
@@ -56,6 +68,36 @@ export const layers = [
         "paint": {
             "line-color": "#ff4800",
             "line-width": 3
+        }
+    },
+    {
+        "id": "selectedstreambuffer",
+        "type": "fill",
+        "source": sources[3].name,
+        "layout": {
+        },
+        "paint": {
+            "fill-color": "rgba(21, 0, 255, 0.25)"
+        }
+    },
+    {
+        "id": "upstreambuffer",
+        "type": "fill",
+        "source": sources[4].name,
+        "layout": {
+        },
+        "paint": {
+            "fill-color": "rgba(0, 255, 38, 0.25)"
+        }
+    },
+    {
+        "id": "downstreambuffer",
+        "type": "fill",
+        "source": sources[5].name,
+        "layout": {
+        },
+        "paint": {
+            "fill-color": "rgba(255, 72, 0, 0.25)"
         }
     }
 ]
