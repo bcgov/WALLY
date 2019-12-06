@@ -1,5 +1,5 @@
 <template>
-    <v-card class="my-2">
+    <v-card class="my-2 flex">
         <div class="ml-4 mt-4 title">
             {{title}}
         </div>

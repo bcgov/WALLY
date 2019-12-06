@@ -106,9 +106,9 @@ export default {
       state.selectedStreamData = state.featureCollection
     },
     setStreamBufferData (state, payload) {
-      state.upStreamBufferData = buffer(state.upStreamData, payload)
-      state.downStreamBufferData = buffer(state.downStreamData, payload)
-      state.selectedStreamBufferData = buffer(state.selectedStreamData, payload)
+      state.upStreamBufferData = buffer(state.upStreamData, payload, { units: 'meters' })
+      state.downStreamBufferData = buffer(state.downStreamData, payload, { units: 'meters' })
+      state.selectedStreamBufferData = buffer(state.selectedStreamData, payload, { units: 'meters' })
     },
     resetStreamBufferData (state) {
       state.upStreamBufferData = state.featureCollection

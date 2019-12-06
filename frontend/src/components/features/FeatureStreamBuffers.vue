@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          {{this.record.properties.GNIS_NAME}}
+          {{streamName}}
         </v-toolbar-title>
           Selected Stream 
       </v-banner>
@@ -16,6 +16,11 @@
       <v-expansion-panel>
         <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up Stream/Down Stream Features</v-expansion-panel-header>
         <v-expansion-panel-content>
+          <v-row no-gutters v-if="this.selectedLayer">
+            <v-col cols="12">
+              <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{this.selectedLayer}} layer</a></div>
+            </v-col>
+          </v-row>
           <v-row no-gutters>
             <v-col cols="12" md="3" align-self="center">
               <v-text-field
@@ -34,10 +39,15 @@
                 v-model="selectedLayer"
               ></v-select>
             </v-col>
+          </v-row>
+          
+          <v-row no-gutters>
             <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedstream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="downStreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
           </v-row>
+
+          
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
@@ -60,7 +70,7 @@ export default {
   },
   props: ['record'],
   data: () => ({
-    buffer: 10,
+    buffer: 50,
     loading: false,
     upstreamData: [],
     selectedStreamData: [],
@@ -69,7 +79,7 @@ export default {
     inputRules: {
       required: value => !!value || 'Required',
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
-      max: value => value <= 100 || 'Buffer must be between 0 and 100 m'
+      max: value => value <= 500 || 'Buffer must be between 0 and 500 m'
     },
     layerOptions: [
       { value: 'groundwater_wells', text: 'Ground Water Wells' },
@@ -87,6 +97,9 @@ export default {
       this.fetchStreamBuffers(this.getUpStreamData, 'upstream')
       this.fetchStreamBuffers(this.getDownStreamData, 'downstream')
       this.fetchStreamBuffers(this.getSelectedStreamData, 'selectedstream')
+    },
+    enableMapLayer () {
+      this.$store.commit('addMapLayer', this.selectedLayer)
     },
     fetchStreamBuffers(streams, type) {
       let lineStrings = streams.features.map((stream) => {
@@ -119,9 +132,12 @@ export default {
           console.log(error)
         })
     }   
-
   },
   computed: {
+    streamName() {
+      let gnis = this.record.properties.GNIS_NAME
+      return gnis !== 'None' ? gnis : this.record.properties.FEATURE_CODE
+    },
     // streams() {
     //     return this.streamData
     // },
@@ -156,6 +172,7 @@ export default {
   watch: {
     getSelectedStreamData() {
       this.updateStreamBuffers()
+      this.$store.commit('setStreamBufferData', this.buffer)
     },
     buffer (value) {
       this.updateStreamBuffers()
