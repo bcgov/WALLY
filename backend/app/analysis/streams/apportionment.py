@@ -9,7 +9,7 @@ logger = logging.getLogger("api")
 
 def get_streams_with_apportionment(db: Session, search_point: Point, weighting_factor=2) -> list:
     streams = get_nearest_streams(db, search_point)
-    streams_with_apportionment = get_all_apportionment(streams, weighting_factor)
+    streams_with_apportionment = get_apportionment(streams, weighting_factor)
     return streams_with_apportionment
 
 
@@ -46,31 +46,30 @@ def get_nearest_streams(db: Session, search_point: Point) -> list:
     return [dict(row) for row in rp_nearest_streams]
 
 
-# TODO: Create unit test for this
-def get_all_apportionment(streams, weighting_factor, force=False):
+def get_apportionment(streams, weighting_factor, get_all=False, force_recursion=False):
     """Recursive function that gets the apportionment (in percentage) for all streams"""
 
-    if len(streams) > 10 and not force:
-        return True
+    # Don't do recursion if there are more than 10 streams
+    if len(streams) > 10 and not get_all and not force_recursion:
+        raise Exception("Can't compute apportionment for more than 10 streams. Set force_recursion=True.")
 
-    # Get the total apportionment
-    total_apportionment = 0
+    # Get the summation of the inverse distance formula
+    total = 0
     for stream in streams:
-        stream['apportionment'] = get_apportionment(stream['distance'], weighting_factor)
-        total_apportionment += stream['apportionment']
+        stream['inverse_distance'] = get_inverse_distance(stream['distance'], weighting_factor)
+        total += stream['inverse_distance']
 
     # We need to loop again after we have the total so we know the percentage
     for i, stream in enumerate(streams):
-        percentage = (stream['apportionment'] / total_apportionment) * 100
-        # Delete stream if apportionment is less than 10% and re-calculate
-        if percentage < 10:
+        percentage = (stream['inverse_distance'] / total) * 100
+        # Delete stream if apportionment is less than 10% and re-calculate. Skip this if get_all is True
+        if percentage < 10 and not get_all:
             del streams[i]
-            return get_all_apportionment(streams, weighting_factor)
-        stream['apportionment_percentage'] = percentage
+            return get_apportionment(streams, weighting_factor)
+        stream['apportionment'] = percentage
 
     return streams
 
 
-# TODO: Create unit test for this
-def get_apportionment(stream_distance, weighting_factor):
+def get_inverse_distance(stream_distance, weighting_factor):
     return 1 / (stream_distance ** weighting_factor)
