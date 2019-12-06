@@ -51,7 +51,7 @@ def get_apportionment(streams, weighting_factor, get_all=False, force_recursion=
 
     # Don't do recursion if there are more than 10 streams
     if len(streams) > 10 and not get_all and not force_recursion:
-        raise Exception("Can't compute apportionment for more than 10 streams. Set force_recursion=True.")
+        raise RecursionError('Cannot compute apportionment for more than 10 streams. Set force_recursion=True.')
 
     # Get the summation of the inverse distance formula
     total = 0
