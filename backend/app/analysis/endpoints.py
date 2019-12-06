@@ -12,7 +12,7 @@ from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
-from app.analysis.streams.apportionment import get_streams_apportionment
+from app.analysis.streams.apportionment import get_streams_with_apportionment
 from app.analysis.first_nations.nearby_areas import get_nearest_locations
 from app.analysis.first_nations.models import NearbyAreasResponse
 
@@ -70,15 +70,14 @@ def get_nearby_licences(
 def get_nearby_streams(
     db: Session = Depends(get_db),
     point: str = Query(..., title="Point of interest",
-                       description="Point of interest to centre search at"),
-    radius: float = Query(1000, title="Search radius",
-                          description="Search radius from point", ge=0, le=10000)
+                       description="Point of interest to centre search at")
 ):
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
+    weighting_factor = 2
 
-    streams_apportionment = get_streams_apportionment(db, point_shape, radius)
-    return streams_apportionment
+    streams_nearby = get_streams_with_apportionment(db, point_shape, weighting_factor)
+    return streams_nearby
 
 
 @router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
