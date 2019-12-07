@@ -19,6 +19,11 @@ logger = getLogger("geocoder")
 
 router = APIRouter()
 
+class BufferRequest(BaseModel):
+    geometry: str
+    buffer: float
+    layer: str
+
 
 @router.get("/analysis/wells/nearby", response_model=List[WellDrawdown])
 def get_nearby_wells(
@@ -81,23 +86,21 @@ def get_nearby_first_nations_areas(
     return nearest
 
 
-@router.get("/analysis/stream/features")
+@router.post("/analysis/stream/features")
 def get_features_within_buffer_zone(
-    db: Session = Depends(get_db),
-    geometry: str = Query(..., title="Geometry to query buffer against",
-                       description="Complex Geometry to create buffer with and find points within."),
-    buffer: float = Query(100, title="Buffer size in meters",
-                          description="Buffer size to create around geometry", ge=0, le=500),
-    layer: str = Query(..., title="Layer to Analyze", 
-                        description="Which layer to find points within buffer zone")
+    req: BufferRequest,
+    db: Session = Depends(get_db)
 ):
-    geometry_parsed = json.loads(geometry)
-    logger.info(geometry_parsed)
+    geometry_parsed = json.loads(req.geometry)
+    # geometry_shape = shape(geometry_parsed)
+    
+    lines = []
+    for line in geometry_parsed:
+        lines.append(shape(line))
 
-    geometry_shape = shape(geometry_parsed)
-    logger.info(geometry_shape)
+    # multiLineString = MultiLineString(lines)
 
-    features = get_features_within_buffer(db, geometry_shape, buffer, layer)
+    features = get_features_within_buffer(db, lines, req.buffer, req.layer)
     return features
 
 
