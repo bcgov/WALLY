@@ -15,6 +15,7 @@ from app.analysis.licences.models import WaterRightsLicence
 from app.analysis.first_nations.nearby_areas import get_nearest_locations
 from app.analysis.first_nations.models import NearbyAreasResponse
 from app.analysis.streams.stream_analysis import get_features_within_buffer, get_connected_streams
+from pydantic import BaseModel
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -92,16 +93,14 @@ def get_features_within_buffer_zone(
     db: Session = Depends(get_db)
 ):
     geometry_parsed = json.loads(req.geometry)
-    # geometry_shape = shape(geometry_parsed)
-    
-    lines = []
-    for line in geometry_parsed:
-        lines.append(shape(line))
+    logger.info(geometry_parsed)
 
-    # multiLineString = MultiLineString(lines)
+    geometry_shape = shape(geometry_parsed)
+    logger.info(geometry_shape)
 
-    features = get_features_within_buffer(db, lines, req.buffer, req.layer)
+    features = get_features_within_buffer(db, geometry_shape, req.buffer, req.layer)
     return features
+
 
 
 @router.get("/analysis/stream/connections")

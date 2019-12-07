@@ -108,7 +108,8 @@ export default {
       if(lineStrings.length <= 0) { 
         return 
       }
-      // let mergedLineStrings = union(...lineStrings)
+      // let mergedLineStrings = union(...lineStrings).geometry
+      // mergedLineStrings.type = 'MultiLineString'
 
       const params = {
         buffer: parseFloat(this.buffer),
@@ -116,7 +117,8 @@ export default {
         layer: this.selectedLayer
       }
       this.loading = true
-      ApiService.post(`/api/v1/analysis/stream/features?${qs.stringify(params)}`)
+      // ApiService.post(`/api/v1/analysis/stream/features?${qs.stringify(params)}`)
+      ApiService.post('/api/v1/analysis/stream/features', params)
         .then((response) => {
           let data = response.data
           if (type === 'upstream') {
