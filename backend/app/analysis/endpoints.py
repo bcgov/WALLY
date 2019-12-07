@@ -84,7 +84,7 @@ def get_nearby_first_nations_areas(
 @router.get("/analysis/stream/features")
 def get_features_within_buffer_zone(
     db: Session = Depends(get_db),
-    geometry: str = Query(..., title="Geometry to search within",
+    geometry: str = Query(..., title="Geometry to query buffer against",
                        description="Complex Geometry to create buffer with and find points within."),
     buffer: float = Query(100, title="Buffer size in meters",
                           description="Buffer size to create around geometry", ge=0, le=500),
@@ -92,7 +92,10 @@ def get_features_within_buffer_zone(
                         description="Which layer to find points within buffer zone")
 ):
     geometry_parsed = json.loads(geometry)
+    logger.info(geometry_parsed)
+
     geometry_shape = shape(geometry_parsed)
+    logger.info(geometry_shape)
 
     features = get_features_within_buffer(db, geometry_shape, buffer, layer)
     return features

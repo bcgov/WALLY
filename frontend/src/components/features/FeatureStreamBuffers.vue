@@ -47,12 +47,9 @@
             <SteamBufferData :bufferData="downStreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
           </v-row>
 
-          
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
-          {{this.record.properties}}
-
   </v-sheet>
 </template>
 
@@ -106,16 +103,16 @@ export default {
     },
     fetchStreamBuffers(streams, type) {
       let lineStrings = streams.features.map((stream) => {
-        return stream
+        return stream.geometry
       })
       if(lineStrings.length <= 0) { 
         return 
       }
-      let mergedLineStrings = union(...lineStrings)
+      // let mergedLineStrings = union(...lineStrings)
 
       const params = {
         buffer: parseFloat(this.buffer),
-        geometry: JSON.stringify(mergedLineStrings.geometry),
+        geometry: JSON.stringify(lineStrings),
         layer: this.selectedLayer
       }
       this.loading = true
