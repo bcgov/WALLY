@@ -191,7 +191,7 @@ export default {
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
 
-      this.map.on('moveend', this.updateStreamLayer)
+      this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
@@ -358,17 +358,20 @@ export default {
       }
     },
     updateStreamLayer (data) {
-      if(!data.properties) {
-        data = Object.assign({}, this.getSelectedStreamData.features[0])
+      let layer = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
+      this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
+    },
+    onMapMoveUpdateStreamLayer () {
+      if(this.getSelectedStreamData.features) {
+        var data = Object.assign({}, this.getSelectedStreamData.features[0])
         const currentZoom = this.map.getZoom();
         if (currentZoom != this.lastZoom) {
           this.$store.commit('resetStreamData')
           this.$store.commit('resetStreamBufferData')
           this.lastZoom = currentZoom;
         } 
+        this.updateStreamLayer(data)
       }
-      let layer = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
-      this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
     },
     clearHighlightLayer () {
       this.map.getSource('highlightPointData').setData(point)

@@ -8,8 +8,6 @@ export const streamDataHeaders = {
         { text: 'Yield Units', value: 'YIELD_UNIT_DESCRIPTION' }
     ],
     water_rights_licences: [
-        { text: 'Application status', value: 'APPLICATION_STATUS' },
-        { text: 'Application number', value: 'APPLICATION_JOB_NUMBER' },
         { text: 'Licence number', value: 'LICENCE_NUMBER' },
         { text: 'POD number', value: 'POD_NUMBER' },
         { text: 'POD subtype', value: 'POD_SUBTYPE'},

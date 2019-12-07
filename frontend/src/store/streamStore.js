@@ -131,10 +131,22 @@ export default {
       state.downStreamBufferData = buffer(state.downStreamData, payload, { units: 'meters' })
       state.selectedStreamBufferData = buffer(state.selectedStreamData, payload, { units: 'meters' })
     },
+    setUpStreamBufferData (state, payload) {
+      state.upStreamBufferData = buffer(state.upStreamData, payload, { units: 'meters' })
+    },
+    setDownStreamBufferData (state, payload) {
+      state.downStreamBufferData = buffer(state.downStreamData, payload, { units: 'meters' })
+    },
+    setSelectedStreamBufferData (state, payload) {
+      state.selectedStreamBufferData = buffer(state.selectedStreamData, payload, { units: 'meters' })
+    },
     resetStreamBufferData (state) {
       state.upStreamBufferData = state.featureCollection
       state.downStreamBufferData = state.featureCollection
       state.selectedStreamBufferData = state.featureCollection
+    },
+    setStreamAnalysisPanel (state, payload) {
+      state.streamAnalysisPanelOpen = payload
     }
   },
   getters: {

@@ -71,7 +71,7 @@ export default {
   data: () => ({
     buffer: 50,
     loading: false,
-    panelOpen: false,
+    panelOpen: [],
     upstreamData: [],
     selectedStreamData: [],
     downStreamData: [],
@@ -94,30 +94,32 @@ export default {
   }),
   methods: {
     updateStreamBuffers() {
-      this.fetchStreamBuffers(this.getUpStreamData, 'upstream')
-      this.fetchStreamBuffers(this.getDownStreamData, 'downstream')
-      this.fetchStreamBuffers(this.getSelectedStreamData, 'selectedstream')
+      this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
+      this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
+      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedstream')
     },
     enableMapLayer () {
       this.$store.commit('addMapLayer', this.selectedLayer)
     },
-    fetchStreamBuffers(streams, type) {
+    fetchStreamBufferInformation(streams, type) {
+      if(buffer <= 0 || !this.selectedLayer) {
+        return
+      }
+
       let lineStrings = streams.features.map((stream) => {
-        return stream.geometry
+        if(stream.geometry.type === 'LineString') {
+          return stream.geometry
+        }
       })
       if(lineStrings.length <= 0) { 
         return 
       }
-      // let mergedLineStrings = union(...lineStrings).geometry
-      // mergedLineStrings.type = 'MultiLineString'
-
       const params = {
         buffer: parseFloat(this.buffer),
         geometry: JSON.stringify(lineStrings),
         layer: this.selectedLayer
       }
       this.loading = true
-      // ApiService.post(`/api/v1/analysis/stream/features?${qs.stringify(params)}`)
       ApiService.post('/api/v1/analysis/stream/features', params)
         .then((response) => {
           let data = response.data
@@ -157,22 +159,39 @@ export default {
   watch: {
     panelOpen() {
       if(this.panelOpen.length > 0) {
+        this.$store.commit('setStreamAnalysisPanel', true)
         this.$store.commit('setStreamBufferData', this.buffer)
       } else {
+        this.$store.commit('setStreamAnalysisPanel', false)
         this.$store.commit('resetStreamBufferData')
       }
     },
-    getSelectedStreamData() {
-      this.updateStreamBuffers()
+    getUpStreamData() {
       if(this.panelOpen.length > 0) {
-        this.$store.commit('setStreamBufferData', this.buffer)
+        this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
+        this.$store.commit('setUpStreamBufferData', this.buffer)
+      }
+    },
+    getDownStreamData() {
+      if(this.panelOpen.length > 0) {
+        this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
+        this.$store.commit('setDownStreamBufferData', this.buffer)
+      }
+    },
+    getSelectedStreamData() {
+      if(this.panelOpen.length > 0) {
+        this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedstream')
+        this.$store.commit('setSelectedStreamBufferData', this.buffer)
       }
     },
     buffer (value) {
-      this.updateStreamBuffers()
-      if(this.panelOpen.length >  0) {
+      if(this.buffer > 0 && this.buffer < this.inputRules.max){
+        this.updateStreamBuffers()
         this.$store.commit('setStreamBufferData', value)
       }
+    },
+    selectedLayer() {
+      this.updateStreamBuffers()
     }
   },
 }

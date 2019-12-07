@@ -7,6 +7,7 @@
             <v-data-table
                 :items="bufferData"
                 :headers="headers"
+                :items-per-page="5"
             ></v-data-table>
         </v-card-text>
     </v-card>
