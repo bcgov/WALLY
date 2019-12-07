@@ -10,11 +10,11 @@ from shapely.geometry import Point, shape
 from app.db.utils import get_db
 from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, get_screens
 from app.analysis.licences.licence_analysis import get_licences_by_distance
-from app.analysis.streams.stream_analysis import get_features_within_buffer
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
 from app.analysis.first_nations.nearby_areas import get_nearest_locations
 from app.analysis.first_nations.models import NearbyAreasResponse
+from app.analysis.streams.stream_analysis import get_features_within_buffer, get_connected_streams
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -96,3 +96,14 @@ def get_features_within_buffer_zone(
 
     features = get_features_within_buffer(db, geometry_shape, buffer, layer)
     return features
+
+
+@router.get("/analysis/stream/connections")
+def get_stream_connections(
+    db: Session = Depends(get_db),
+    outflowCode: str = Query(..., title="The base outflow stream code",
+                       description="The code that identifies the baser outflow river to ocean"),
+):
+
+    streams = get_connected_streams(db, outflowCode)
+    return streams

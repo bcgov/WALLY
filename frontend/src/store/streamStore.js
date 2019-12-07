@@ -1,5 +1,7 @@
+import ApiService from '../services/ApiService'
 import * as config from '../utils/streamHighlightsConfig'
 import buffer from '@turf/buffer'
+import _ from 'lodash'
 
 export default {
   state: {
@@ -17,7 +19,26 @@ export default {
     selectedStreamBufferData: {}
   },
   actions: {
+    fetchConnectedStreams({commit, dispatch}, payload) {
+      // NOTE this action is the server backed query but at this point is too slow to implement
+      let fwaCode = payload.stream.properties["FWA_WATERSHED_CODE"]
+      let outflowCode = fwaCode.substring(0, fwaCode.indexOf('-') + 1)
+      const watershedCode = fwaCode.replace(/-000000/g,'')
+      ApiService.query(`/api/v1/analysis/stream/connections?outflowCode=${outflowCode}`)
+        .then((response) => {
+          console.log(response.data)
+          let params = {
+            stream: payload.stream,
+            streams: response.data
+          }
+          dispatch('calculateStreamHighlights', params)
+        })
+        .catch((error) => {
+          console.log(error)
+        })
+    },
     calculateStreamHighlights({commit, dispatch}, payload) {
+
       // Get slected watershed code and trim un-needed depth
       const watershedCode = payload.stream.properties["FWA_WATERSHED_CODE"].replace(/-000000/g,'')
 
@@ -87,17 +108,17 @@ export default {
   mutations: {
     setUpStreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection) 
-      collection["features"] = payload
+      collection["features"] = _.unionBy(payload, state.upStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0]) 
       state.upStreamData = collection
     },
     setDownStreamData (state, payload) {
-      let collection = Object.assign({}, state.featureCollection) 
-      collection["features"] = payload
+      let collection = Object.assign({}, state.featureCollection)
+      collection["features"] = _.unionBy(payload, state.downStreamData.features,  x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.downStreamData = collection
     },
     setSelectedStreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection) 
-      collection["features"] = payload
+      collection["features"] = _.unionBy(payload, state.selectedStreamData.features,  x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.selectedStreamData = collection
     },
     resetStreamData (state) {

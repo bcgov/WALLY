@@ -71,6 +71,7 @@ export default {
       // legendControlContent: null,
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
+      lastZoom: 6,
       activeLayers: {},
       draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
       isDrawingToolActive: false
@@ -181,12 +182,16 @@ export default {
       this.initHighlightLayers()
       this.listenForAreaSelect()
 
+      this.lastZoom = this.map.getZoom()
+
       // special handling for parcels because we may not want to have
       // users turn this layer on/off (it should always be on)
       this.map.on('click', this.setSingleFeature)
       // this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
+
+      this.map.on('moveend', this.updateStreamLayer)
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
@@ -333,24 +338,44 @@ export default {
       if(data.display_data_name === 'freshwater_atlas_stream_networks') {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(polygon)
-        let layer = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
-        this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
+
+        // For local rendered streams only calculation
+        this.$store.commit('resetStreamData')
+        this.updateStreamLayer(data)
+        
+        // Backend query for all connected streams
+        // this.$store.dispatch('fetchConnectedStreams', { stream: data })
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         this.map.getSource('highlightPointData').setData(data)
         this.map.getSource('highlightLayerData').setData(polygon)
         this.$store.commit('resetStreamData')
+        this.$store.commit('resetStreamBufferData')
       } else {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(data)
         this.$store.commit('resetStreamData')
+        this.$store.commit('resetStreamBufferData')
       }
+    },
+    updateStreamLayer (data) {
+      if(!data.properties) {
+        data = Object.assign({}, this.getSelectedStreamData.features[0])
+        const currentZoom = this.map.getZoom();
+        if (currentZoom != this.lastZoom) {
+          this.$store.commit('resetStreamData')
+          this.$store.commit('resetStreamBufferData')
+          this.lastZoom = currentZoom;
+        } 
+      }
+      let layer = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
+      this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
     },
     clearHighlightLayer () {
       this.map.getSource('highlightPointData').setData(point)
       this.map.getSource('highlightLayerData').setData(polygon)
       this.$store.commit('resetStreamData')
+      this.$store.commit('resetStreamBufferData')
     },
-
     handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },

@@ -12,7 +12,7 @@
           Selected Stream 
       </v-banner>
     </v-toolbar>
-    <v-expansion-panels class="mt-5" multiple>
+    <v-expansion-panels class="mt-5" multiple v-model="panelOpen">
       <v-expansion-panel>
         <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up Stream/Down Stream Features</v-expansion-panel-header>
         <v-expansion-panel-content>
@@ -51,6 +51,8 @@
         </v-expansion-panel-content>
       </v-expansion-panel>
     </v-expansion-panels>
+          {{this.record.properties}}
+
   </v-sheet>
 </template>
 
@@ -72,6 +74,7 @@ export default {
   data: () => ({
     buffer: 50,
     loading: false,
+    panelOpen: false,
     upstreamData: [],
     selectedStreamData: [],
     downStreamData: [],
@@ -115,9 +118,9 @@ export default {
         geometry: JSON.stringify(mergedLineStrings.geometry),
         layer: this.selectedLayer
       }
+      this.loading = true
       ApiService.query(`/api/v1/analysis/stream/features?${qs.stringify(params)}`)
         .then((response) => {
-          console.log(response.data)
           let data = response.data
           if (type === 'upstream') {
             this.upstreamData = data
@@ -126,7 +129,7 @@ export default {
           } else if(type === 'selectedstream'){
             this.selectedStreamData = data
           }
-          // this.loading = false
+          this.loading = false
         })
         .catch((error) => {
           console.log(error)
@@ -153,16 +156,24 @@ export default {
     ])
   },
   watch: {
+    panelOpen() {
+      if(this.panelOpen.length > 0) {
+        this.$store.commit('setStreamBufferData', this.buffer)
+      } else {
+        this.$store.commit('resetStreamBufferData')
+      }
+    },
     getSelectedStreamData() {
       this.updateStreamBuffers()
-      this.$store.commit('setStreamBufferData', this.buffer)
+      if(this.panelOpen.length > 0) {
+        this.$store.commit('setStreamBufferData', this.buffer)
+      }
     },
     buffer (value) {
       this.updateStreamBuffers()
-      this.$store.commit('setStreamBufferData', value)
-    },
-    selectedLayer() {
-      this.updateStreamBuffers()
+      if(this.panelOpen.length >  0) {
+        this.$store.commit('setStreamBufferData', value)
+      }
     }
   },
 }
