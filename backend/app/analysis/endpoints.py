@@ -6,7 +6,7 @@ from typing import List
 from logging import getLogger
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, shape
+from shapely.geometry import Point, shape, MultiLineString
 from app.db.utils import get_db
 from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, get_screens
 from app.analysis.licences.licence_analysis import get_licences_by_distance
@@ -93,12 +93,16 @@ def get_features_within_buffer_zone(
     db: Session = Depends(get_db)
 ):
     geometry_parsed = json.loads(req.geometry)
-    logger.info(geometry_parsed)
+    # geometry_shape = shape(geometry_parsed)
+    
+    lines = []
+    for line in geometry_parsed:
+        if(line):
+            lines.append(shape(line))
 
-    geometry_shape = shape(geometry_parsed)
-    logger.info(geometry_shape)
+    multiLineString = MultiLineString(lines)
 
-    features = get_features_within_buffer(db, geometry_shape, req.buffer, req.layer)
+    features = get_features_within_buffer(db, multiLineString, req.buffer, req.layer)
     return features
 
 
