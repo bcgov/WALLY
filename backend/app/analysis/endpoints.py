@@ -8,7 +8,8 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from shapely.geometry import Point, shape
 from app.db.utils import get_db
-from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, get_screens
+from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, \
+    get_screens
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
@@ -23,11 +24,11 @@ router = APIRouter()
 
 @router.get("/analysis/wells/nearby", response_model=List[WellDrawdown])
 def get_nearby_wells(
-    db: Session = Depends(get_db),
-    point: str = Query(..., title="Point of interest",
-                       description="Point of interest to centre search at"),
-    radius: float = Query(1000, title="Search radius",
-                          description="Search radius from point", ge=0, le=10000)
+        db: Session = Depends(get_db),
+        point: str = Query(..., title="Point of interest",
+                           description="Point of interest to centre search at"),
+        radius: float = Query(1000, title="Search radius",
+                              description="Search radius from point", ge=0, le=10000)
 ):
     """ finds wells near to a point
         fetches distance data using the Wally database, and combines
@@ -53,11 +54,11 @@ def get_nearby_wells(
 
 @router.get("/analysis/licences/nearby", response_model=List[WaterRightsLicence])
 def get_nearby_licences(
-    db: Session = Depends(get_db),
-    point: str = Query(..., title="Point of interest",
-                       description="Point of interest to centre search at"),
-    radius: float = Query(1000, title="Search radius",
-                          description="Search radius from point", ge=0, le=10000)
+        db: Session = Depends(get_db),
+        point: str = Query(..., title="Point of interest",
+                           description="Point of interest to centre search at"),
+        radius: float = Query(1000, title="Search radius",
+                              description="Search radius from point", ge=0, le=10000)
 ):
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
@@ -66,29 +67,57 @@ def get_nearby_licences(
     return licences_with_distances
 
 
-@router.get("/analysis/streams/apportionment")
+@router.get("/analysis/streams/nearby")
 def get_nearby_streams(
-    db: Session = Depends(get_db),
-    point: str = Query(..., title="Point of interest",
-                       description="Point of interest to centre search at")
+        db: Session = Depends(get_db),
+        point: str = Query(...,
+                           title="Point of interest",
+                           description="Point of interest to centre search at"),
+        limit: int = Query(10,
+                           title="",
+                           description="Number of nearby streams to be returned"),
+        get_all: bool = Query(False,
+                              title="",
+                              description="Get all nearby streams, even if its apportionment is "
+                                          "less than 10%"),
+        with_apportionment: bool = Query(True,
+                                         title="",
+                                         description="Get stream apportionment data"),
+        weighting_factor: int = Query(2,
+                                      title="",
+                                      description="Weighting factor for calculating apportionment")
 ):
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
-    weighting_factor = 2
 
-    streams_nearby = get_streams_with_apportionment(db, point_shape, weighting_factor)
+    streams_nearby = get_streams_with_apportionment(db, point_shape, limit, get_all,
+                                                    with_apportionment, weighting_factor)
     return streams_nearby
+
+
+@router.get("/analysis/streams/apportionment")
+def get_streams_apportionment(
+        db: Session = Depends(get_db),
+        ogc_fid: list = Query(..., title="A list of ogc_fid of streams",
+                              description="A list of ogc_fid of streams"),
+        weighting_factor: int = Query(..., title="", description="Weighting factor")
+):
+    streams = get_streams_by_ogc_fid(db, ogc_fid)
+    streams_with_apportionment = get_apportionment(streams, weighting_factor)
+    return streams_with_apportionment
 
 
 @router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
 def get_nearby_first_nations_areas(
-    db: Session = Depends(get_db),
-    geometry: str = Query(...,
-                          title="Geometry to search near",
-                          description="Geometry (such as a point or polygon) to search within and near to")
+        db: Session = Depends(get_db),
+        geometry: str = Query(...,
+                              title="Geometry to search near",
+                              description="Geometry (such as a point or polygon) to search within "
+                                          "and near to")
 ):
     """
-    Search for First Nations Communities, First Nations Treaty Areas and First Nations Treaty Lands near a feature
+    Search for First Nations Communities, First Nations Treaty Areas and First Nations Treaty Lands
+    near a feature
     """
     geometry_parsed = json.loads(geometry)
     geometry_shape = shape(geometry_parsed)

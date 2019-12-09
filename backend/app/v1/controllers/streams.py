@@ -1,10 +1,53 @@
 import logging
 
 from shapely.geometry import Point
-from sqlalchemy import text
+from sqlalchemy import text, func
 from sqlalchemy.orm import Session
+from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 logger = logging.getLogger("api")
+
+
+def get_nearest_streams_by_ogc_fid(
+        db: Session,
+        search_point: Point,
+        ogc_fids: list,
+) -> list:
+
+    streams_q = db.query(
+            FreshwaterAtlasStreamNetworks,
+            FreshwaterAtlasStreamNetworks.OGC_FID.label("ogc_fid"),
+            FreshwaterAtlasStreamNetworks.LENGTH_METRE.label("length_metre"),
+            FreshwaterAtlasStreamNetworks.FEATURE_SOURCE.label("feature_source"),
+            FreshwaterAtlasStreamNetworks.GNIS_NAME.label("gnis_name"),
+            FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label("left_right_tributary"),
+            FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
+            func.ST_AsText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
+            FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
+            func.ST_Distance(
+                func.Geography(FreshwaterAtlasStreamNetworks.GEOMETRY),
+                func.ST_GeographyFromText(search_point.wkt)
+            ).label('distance'),
+            func.ST_AsText(func.ST_ClosestPoint(
+                FreshwaterAtlasStreamNetworks.GEOMETRY,
+                func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326))
+            ).label('closest_stream_point')
+        ).filter(FreshwaterAtlasStreamNetworks.OGC_FID.in_(ogc_fids))
+
+        #     func.ST_GeographyFromText(search_point.wkt)).label('distance')
+        #         )\
+        # )\
+
+    # ST_Distance(nearest_streams.
+    # "GEOMETRY"::geography,
+    # ST_SetSRID(ST_GeographyFromText(: search_point), 4326)
+    # ) AS
+    # distance,
+
+    print(streams_q)
+    streams_rs = streams_q.all()
+    print(streams_rs)
+    return streams_rs
 
 
 def get_streams_with_apportionment(
@@ -85,3 +128,5 @@ def get_apportionment(streams, weighting_factor, get_all=False, force_recursion=
 
 def get_inverse_distance(stream_distance, weighting_factor):
     return 1 / (stream_distance ** weighting_factor)
+
+
