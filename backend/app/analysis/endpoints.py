@@ -93,7 +93,6 @@ def get_features_within_buffer_zone(
     db: Session = Depends(get_db)
 ):
     geometry_parsed = json.loads(req.geometry)
-    # geometry_shape = shape(geometry_parsed)
     
     lines = []
     for line in geometry_parsed:
