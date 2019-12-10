@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from app.db.utils import get_db
 
-from app.v1.controllers import streams as stream_controller
-from app.v1.schemas import streams as stream_schema
+from app.v1.streams import controller as stream_controller
+from app.v1.streams import schema as stream_schema
 logger = getLogger("streams")
 
 router = APIRouter()

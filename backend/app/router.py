@@ -8,7 +8,8 @@ from app.metadata.endpoints import router as metadata_v1
 from app.aggregator.endpoints import router as aggregator_v1
 from app.geocoder.endpoints import router as geocoder_v1
 from app.analysis.endpoints import router as analysis_v1
-from app.v1.routers import streams
+from app.v1.streams import endpoints as streams
+# from app.v1.router import streams
 
 api_router = APIRouter()
 
