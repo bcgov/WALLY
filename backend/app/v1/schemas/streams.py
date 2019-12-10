@@ -1,16 +1,16 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Any
 
 
 class Stream(BaseModel):
     # search_point
 
     ogc_fid: int
-    length_metre: float
-    feature_source: str
-    gnis_name: str
-    left_right_tributary: str
-    geometry_length: str
+    length_metre: Any
+    feature_source: Any
+    gnis_name: Any
+    left_right_tributary: Any
+    geometry_length: Any
     geometry: str
     watershed_group_code: str
     distance_degrees: float
@@ -22,10 +22,6 @@ class Stream(BaseModel):
 
 
 class Streams(BaseModel):
-    search_point: str
-    limit: int
-    get_all: bool
-    with_apportionment: bool
     weighting_factor: int
 
     streams: List[Stream]

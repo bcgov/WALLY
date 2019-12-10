@@ -13,7 +13,6 @@ from app.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown
 from app.analysis.licences.models import WaterRightsLicence
-from app.analysis.streams.apportionment import get_streams_with_apportionment
 from app.analysis.first_nations.nearby_areas import get_nearest_locations
 from app.analysis.first_nations.models import NearbyAreasResponse
 
@@ -65,46 +64,6 @@ def get_nearby_licences(
 
     licences_with_distances = get_licences_by_distance(db, point_shape, radius)
     return licences_with_distances
-
-
-@router.get("/analysis/streams/nearby")
-def get_nearby_streams(
-        db: Session = Depends(get_db),
-        point: str = Query(...,
-                           title="Point of interest",
-                           description="Point of interest to centre search at"),
-        limit: int = Query(10,
-                           title="",
-                           description="Number of nearby streams to be returned"),
-        get_all: bool = Query(False,
-                              title="",
-                              description="Get all nearby streams, even if its apportionment is "
-                                          "less than 10%"),
-        with_apportionment: bool = Query(True,
-                                         title="",
-                                         description="Get stream apportionment data"),
-        weighting_factor: int = Query(2,
-                                      title="",
-                                      description="Weighting factor for calculating apportionment")
-):
-    point_parsed = json.loads(point)
-    point_shape = Point(point_parsed)
-
-    streams_nearby = get_streams_with_apportionment(db, point_shape, limit, get_all,
-                                                    with_apportionment, weighting_factor)
-    return streams_nearby
-
-
-@router.get("/analysis/streams/apportionment")
-def get_streams_apportionment(
-        db: Session = Depends(get_db),
-        ogc_fid: list = Query(..., title="A list of ogc_fid of streams",
-                              description="A list of ogc_fid of streams"),
-        weighting_factor: int = Query(..., title="", description="Weighting factor")
-):
-    streams = get_streams_by_ogc_fid(db, ogc_fid)
-    streams_with_apportionment = get_apportionment(streams, weighting_factor)
-    return streams_with_apportionment
 
 
 @router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)

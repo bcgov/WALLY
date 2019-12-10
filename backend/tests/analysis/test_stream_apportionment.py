@@ -1,7 +1,7 @@
 import random
 import pytest
 
-from app.analysis.streams.apportionment import get_inverse_distance, get_apportionment
+from app.v1.controllers.streams import get_apportionment, get_inverse_distance
 import logging
 
 logger = logging.getLogger('test')

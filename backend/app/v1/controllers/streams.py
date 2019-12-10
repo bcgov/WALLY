@@ -8,22 +8,21 @@ from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNet
 logger = logging.getLogger("api")
 
 
-def get_nearest_streams_by_ogc_fid(
-        db: Session,
-        search_point: Point,
-        ogc_fids: list,
-) -> list:
+def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: list) -> list:
 
     streams_q = db.query(
-            FreshwaterAtlasStreamNetworks,
             FreshwaterAtlasStreamNetworks.OGC_FID.label("ogc_fid"),
             FreshwaterAtlasStreamNetworks.LENGTH_METRE.label("length_metre"),
             FreshwaterAtlasStreamNetworks.FEATURE_SOURCE.label("feature_source"),
             FreshwaterAtlasStreamNetworks.GNIS_NAME.label("gnis_name"),
             FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label("left_right_tributary"),
             FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
-            func.ST_AsText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
             FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
+            func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
+            func.ST_Distance(
+                FreshwaterAtlasStreamNetworks.GEOMETRY,
+                func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326)
+            ).label('distance_degrees'),
             func.ST_Distance(
                 func.Geography(FreshwaterAtlasStreamNetworks.GEOMETRY),
                 func.ST_GeographyFromText(search_point.wkt)
@@ -33,21 +32,14 @@ def get_nearest_streams_by_ogc_fid(
                 func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326))
             ).label('closest_stream_point')
         ).filter(FreshwaterAtlasStreamNetworks.OGC_FID.in_(ogc_fids))
+    logging.debug(streams_q)
 
-        #     func.ST_GeographyFromText(search_point.wkt)).label('distance')
-        #         )\
-        # )\
+    rs_streams = streams_q.all()
+    columns = [col['name'] for col in streams_q.column_descriptions]
 
-    # ST_Distance(nearest_streams.
-    # "GEOMETRY"::geography,
-    # ST_SetSRID(ST_GeographyFromText(: search_point), 4326)
-    # ) AS
-    # distance,
-
-    print(streams_q)
-    streams_rs = streams_q.all()
-    print(streams_rs)
-    return streams_rs
+    streams_with_columns = [{columns[i]: item for i, item in enumerate(row)} for row in rs_streams]
+    logging.debug(streams_with_columns)
+    return streams_with_columns
 
 
 def get_streams_with_apportionment(
@@ -102,6 +94,7 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
 def get_apportionment(streams, weighting_factor, get_all=False, force_recursion=False):
     """Recursive function that gets the apportionment (in percentage) for all streams"""
 
+    print('get apportionment')
     # Don't do recursion if there are more than 10 streams
     if len(streams) > 10 and not get_all and not force_recursion:
         raise RecursionError('Cannot compute apportionment for more than 10 streams. Set '
