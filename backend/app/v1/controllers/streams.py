@@ -4,6 +4,9 @@ from shapely.geometry import Point
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from geojson import Point, Feature, FeatureCollection
+import shapely.wkt
+import json
 
 logger = logging.getLogger("api")
 
@@ -19,6 +22,7 @@ def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: l
             FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
             FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
             func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
+            # FreshwaterAtlasStreamNetworks,
             func.ST_Distance(
                 FreshwaterAtlasStreamNetworks.GEOMETRY,
                 func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326)
@@ -27,7 +31,7 @@ def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: l
                 func.Geography(FreshwaterAtlasStreamNetworks.GEOMETRY),
                 func.ST_GeographyFromText(search_point.wkt)
             ).label('distance'),
-            func.ST_AsText(func.ST_ClosestPoint(
+            func.ST_AsGeoJSON(func.ST_ClosestPoint(
                 FreshwaterAtlasStreamNetworks.GEOMETRY,
                 func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326))
             ).label('closest_stream_point')
@@ -37,7 +41,13 @@ def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: l
     rs_streams = streams_q.all()
     columns = [col['name'] for col in streams_q.column_descriptions]
 
-    streams_with_columns = [{columns[i]: item for i, item in enumerate(row)} for row in rs_streams]
+    streams_with_columns = []
+    for row in rs_streams:
+        stream = {columns[i]: item for i, item in enumerate(row)}
+        stream['geojson'] = get_feature_geojson(stream)
+        stream['closest_stream_point'] = json.loads(stream['closest_stream_point'])
+        streams_with_columns.append(stream)
+
     logging.debug(streams_with_columns)
     return streams_with_columns
 
@@ -87,14 +97,15 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
       LIMIT :limit 
     """)
     rp_nearest_streams = db.execute(sql, {'search_point': search_point.wkt, 'limit': limit})
+    nearest_streams = [dict(row, geojson=get_feature_geojson(row)) for row in rp_nearest_streams]
 
-    return [dict(row) for row in rp_nearest_streams]
+    return nearest_streams
 
 
 def get_apportionment(streams, weighting_factor, get_all=False, force_recursion=False):
     """Recursive function that gets the apportionment (in percentage) for all streams"""
 
-    print('get apportionment')
+    logger.debug('get_apportionment')
     # Don't do recursion if there are more than 10 streams
     if len(streams) > 10 and not get_all and not force_recursion:
         raise RecursionError('Cannot compute apportionment for more than 10 streams. Set '
@@ -123,3 +134,14 @@ def get_inverse_distance(stream_distance, weighting_factor):
     return 1 / (stream_distance ** weighting_factor)
 
 
+def get_feature_geojson(stream) -> Feature:
+    stream_copy = dict(stream)
+    del stream_copy['closest_stream_point']
+    del stream_copy['ogc_fid']
+    feature = Feature(
+        geometry=shapely.wkt.loads(stream_copy['geometry']),
+        id=stream['ogc_fid'],
+        properties=dict(stream_copy)
+    )
+    del stream_copy['geometry']
+    return feature
