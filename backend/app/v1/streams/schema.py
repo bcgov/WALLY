@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Any
-from geojson import Point, Feature, FeatureCollection
-
+from geojson import Feature
 
 
 class Stream(BaseModel):
