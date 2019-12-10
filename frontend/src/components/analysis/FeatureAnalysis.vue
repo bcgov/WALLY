@@ -16,9 +16,9 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
           <v-expansion-panel>
-            <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find streams near this point</v-expansion-panel-header>
+            <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Stream apportionment near this point</v-expansion-panel-header>
             <v-expansion-panel-content>
-              <StreamsNearby :record="record"></StreamsNearby>
+              <StreamApportionment :record="record"></StreamApportionment>
             </v-expansion-panel-content>
           </v-expansion-panel>
         </template>
@@ -39,12 +39,12 @@
 import WellsNearby from '../analysis/WellsNearby.vue'
 import WaterRightsLicencesNearby from '../analysis/WaterRightsLicencesNearby'
 import FirstNationsAreasNearby from '../analysis/FirstNationsAreasNearby'
-import StreamsNearby from '../analysis/StreamsNearby'
+import StreamApportionment from './StreamApportionment'
 
 export default {
   name: 'FeatureAnalysis',
   components: {
-    StreamsNearby,
+    StreamApportionment,
     WellsNearby,
     WaterRightsLicencesNearby,
     FirstNationsAreasNearby
