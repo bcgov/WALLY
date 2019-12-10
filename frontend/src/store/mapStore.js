@@ -9,6 +9,7 @@ export default {
     activeMapLayers: [],
     mapLayers: [],
     highlightFeatureData: {},
+    highlightFeaturesData: [],
     layerCategories: [],
     layerSelectionActive: true,
     selectedBaseLayers: [
@@ -98,6 +99,9 @@ export default {
     },
     updateHighlightFeatureData (state, payload) {
       state.highlightFeatureData = payload
+    },
+    updateHighlightFeaturesData (state, payload) {
+      state.highlightFeaturesData = payload
     }
   },
   getters: {
@@ -114,6 +118,7 @@ export default {
     },
     allMapLayers: state => state.mapLayers,
     highlightFeatureData: state => state.highlightFeatureData,
+    highlightFeaturesData: state => state.highlightFeaturesData,
     getCategories: state => state.layerCategories,
     layerSelectionActive: state => state.layerSelectionActive,
     selectedBaseLayers: state => state.selectedBaseLayers,

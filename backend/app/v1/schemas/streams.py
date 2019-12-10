@@ -16,6 +16,7 @@ class Stream(BaseModel):
     geometry_length: Any
     # geometry: str
     watershed_group_code: str
+    fwa_watershed_code: str
     distance_degrees: float
     distance: float
 

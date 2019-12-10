@@ -21,6 +21,7 @@ def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: l
             FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label("left_right_tributary"),
             FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
             FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
+            FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.labe("fwa_watershed_code"),
             func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
             # FreshwaterAtlasStreamNetworks,
             func.ST_Distance(
@@ -79,7 +80,8 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
         nearest_streams."LEFT_RIGHT_TRIBUTARY" as left_right_tributary,
         nearest_streams."GEOMETRY.LEN" as geometry_length,
         ST_AsText(nearest_streams."GEOMETRY") as geometry,
-        nearest_streams."WATERSHED_GROUP_CODE" as watershed_group_code,
+        nearest_streams."WATERSHED_GROUP_CODE" as watershed_group_code, 
+        nearest_streams."FWA_WATERSHED_CODE" as fwa_watershed_code,
         ST_Distance(nearest_streams."GEOMETRY",
           ST_SetSRID(ST_GeomFromText(:search_point), 4326)
         ) AS distance_degrees,

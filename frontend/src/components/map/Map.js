@@ -302,6 +302,10 @@ export default {
         }
       })
     },
+    updateStreamsHighlights (streamsFeatureCollection) {
+      console.log('update stream highlights', streamsFeatureCollection)
+      this.map.getSource('selectedStreamSource').setData(streamsFeatureCollection)
+    },
     updateStreamHighlights (stream) {
       // Get slected watershed code and trim un-needed depth
       const watershedCode = stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '')
@@ -436,6 +440,9 @@ export default {
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
+    },
+    updateHighlightsLayerData (data) {
+      this.updateStreamsHighlights(data.feature_collection)
     },
     updateHighlightLayerData (data) {
       // For stream networks layer we add custom highlighting and reset poly/point highlight layering
@@ -666,6 +673,10 @@ export default {
         }
         this.updateHighlightLayerData(value)
       }
+    },
+    highlightFeaturesData (value) {
+      console.log('new fc')
+      this.updateHighlightsLayerData(value)
     },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
