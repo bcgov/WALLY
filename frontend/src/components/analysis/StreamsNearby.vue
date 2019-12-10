@@ -36,6 +36,8 @@ export default {
       }
       ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
         this.streams = r.data.streams
+
+        this.$store.commit('updateHighlightFeatureData', this.streams)
       }).catch((e) => {
         console.error(e)
       }).finally(() => {

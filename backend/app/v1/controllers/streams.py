@@ -87,7 +87,7 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
           ST_SetSRID(ST_GeographyFromText(:search_point), 4326)
         ) AS distance,
         ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
-        ST_AsText(ST_ClosestPoint(
+        ST_AsGeoJSON(ST_ClosestPoint(
         nearest_streams."GEOMETRY", 
         ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
       FROM
@@ -97,7 +97,12 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
       LIMIT :limit 
     """)
     rp_nearest_streams = db.execute(sql, {'search_point': search_point.wkt, 'limit': limit})
-    nearest_streams = [dict(row, geojson=get_feature_geojson(row)) for row in rp_nearest_streams]
+    nearest_streams = [
+        dict(row,
+             geojson=get_feature_geojson(row),
+             closest_stream_point=json.loads(row['closest_stream_point'])
+             ) for row in rp_nearest_streams
+    ]
 
     return nearest_streams
 
