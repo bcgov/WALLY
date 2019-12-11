@@ -3,14 +3,14 @@
     :width="panelWidth"
     :panelName="panelName"
   >
-      <LayerSelection v-if="displayLayerSelection"/>
+      <router-view></router-view>
+      <!-- <LayerSelection v-if="displayLayerSelection"/>
       <SingleSelectedFeature v-else-if="isSingleSelectedFeature"/>
-      <MultipleSelectedFeatures v-else-if="isMultipleSelectedFeatures"/>
+      <MultipleSelectedFeatures v-else-if="isMultipleSelectedFeatures"/> -->
 
       <!-- nothing to display -->
-      <v-card class="mt-5" v-else>
+      <!-- <v-card class="mt-5" v-else>
         <v-card-text>
-          <!-- display a loading message if features are loading. -->
           <div v-if="loadingFeature || loadingMultipleFeatures">
             <v-progress-linear
               indeterminate
@@ -23,7 +23,7 @@
           </div>
           <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
         </v-card-text>
-      </v-card>
+      </v-card> -->
   </InfoSheet>
 </template>
 

@@ -1,5 +1,6 @@
 import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
+import router from '../router'
 
 export default {
   state: {
@@ -150,10 +151,12 @@ export default {
     },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
+      router.push('/feature')
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }
       state.featureError = ''
+      router.go(-1)
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },

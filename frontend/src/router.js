@@ -4,6 +4,9 @@ import Home from './components/Home.vue'
 import Login from './views/Login.vue'
 import Restricted from './views/Restricted.vue'
 
+import LayerSelection from './components/sidebar/LayerSelection'
+import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
+
 Vue.use(Router)
 
 const guard = (to, from, next) => {
@@ -37,7 +40,19 @@ const router = new Router({
       component: Home,
       meta: {
         requiresAuth: true
-      }
+      },
+      children: [
+        {
+          path: '/layers',
+          name: 'layer-selection',
+          component: LayerSelection
+        },
+        {
+          path: '/feature',
+          name: 'single-feature',
+          component: SingleSelectedFeature
+        }
+      ]
     },
     {
       path: '/login',

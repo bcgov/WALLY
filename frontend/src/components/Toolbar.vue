@@ -5,7 +5,7 @@
         <v-btn
           color="primary"
           @click.prevent="handleLayerSelectionState"
-          :outlined="!layerSelectionActive && this.featureSelectionExists"
+          :outlined="$route.name !== 'layer-selection'"
           width=128
         ><v-icon>layers</v-icon> Layers</v-btn>
       </v-toolbar-items>
@@ -52,10 +52,15 @@ export default {
   },
   methods: {
     handleLayerSelectionState () {
-      if (!this.featureSelectionExists) {
-        return this.$store.commit('setLayerSelectionActiveState', true)
-      }
+      // if (!this.featureSelectionExists) {
+      //   return this.$store.commit('setLayerSelectionActiveState', true)
+      // }
       this.$store.commit('setLayerSelectionActiveState', !this.layerSelectionActive)
+
+      if (this.$route.name === 'layer-selection') {
+        return this.$router.go(-1)
+      }
+      return this.$router.push('/layers')
     },
     updateGeocoderType (featureType) {
       // update the search types (e.g. wells, aquifers etc) to be passed to the geocoder
