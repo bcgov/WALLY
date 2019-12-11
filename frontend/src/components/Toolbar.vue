@@ -94,6 +94,7 @@ export default {
   .wally-toolbar {
     box-shadow: inset 0 -1px 0 grey;
     z-index: 3;
+    position: relative;
   }
   .mapboxgl-ctrl-geocoder {
     width: 164rem!important;
