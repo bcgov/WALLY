@@ -32,7 +32,7 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
 export default {
-  name: 'StreamsNearby',
+  name: 'StreamApportionment',
   props: ['record'],
   data: () => ({
     loading: false,
@@ -99,11 +99,14 @@ export default {
         this.calculateApportionment()
       }
     },
+    testFunc(){
+
+    },
     removeOverlaps () {
       // This removes overlapping streams. It keeps the first stream in the array
       let watershedCodes = []
       let newStreamArr = []
-      this.streams.forEach((stream, i) => {
+      this.streams.forEach(stream => {
         if (!watershedCodes.includes(stream['fwa_watershed_code'])) {
           newStreamArr.push(stream)
           watershedCodes.push(stream['fwa_watershed_code'])
