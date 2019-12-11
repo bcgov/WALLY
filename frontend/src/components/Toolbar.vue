@@ -34,6 +34,7 @@ export default {
   name: 'Toolbar',
   data: () => ({
     searchFeatureType: null,
+    layerSelectTriggered: false,
     searchOptions: [
       { text: 'All', value: null, placeholder: 'Search' },
       { text: 'Wells', value: 'groundwater_wells', placeholder: 'Search by well tag number' },
@@ -58,8 +59,18 @@ export default {
       this.$store.commit('setLayerSelectionActiveState', !this.layerSelectionActive)
 
       if (this.$route.name === 'layer-selection') {
-        return this.$router.go(-1)
+        // use history if the layer select button was triggered in the application,
+        // otherwise go to the home route. This allows us to use the browser history
+        // to go back to the previous screen (after selecting layers), without
+        // leaving the application (if the layer select was not triggered in app, but
+        // instead the user clicked a bookmark directly to /layers)
+        if (this.layerSelectTriggered) {
+          return this.$router.go(-1)
+        } else {
+          return this.$router.push('/')
+        }
       }
+      this.layerSelectTriggered = true
       return this.$router.push('/layers')
     },
     updateGeocoderType (featureType) {

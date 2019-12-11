@@ -6,6 +6,7 @@ import Restricted from './views/Restricted.vue'
 
 import LayerSelection from './components/sidebar/LayerSelection'
 import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
+import Start from './components/sidebar/Start'
 
 Vue.use(Router)
 
@@ -42,6 +43,11 @@ const router = new Router({
         requiresAuth: true
       },
       children: [
+        {
+          path: '/',
+          name: 'start',
+          component: Start
+        },
         {
           path: '/layers',
           name: 'layer-selection',

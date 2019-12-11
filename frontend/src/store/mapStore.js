@@ -5,7 +5,7 @@ import baseMapDescriptions from '../utils/baseMapDescriptions'
 
 export default {
   state: {
-    map: {},
+    map: null,
     draw: {},
     geocoder: {},
     selectedMapLayerNames: [],
@@ -27,6 +27,50 @@ export default {
     }]
   },
   actions: {
+    async addPointOfInterest ({ state, dispatch }, feature) {
+      if (!state.map.loaded()) {
+        return
+      }
+
+      const newFeature = state.draw.add(feature)
+      dispatch('handleSelect', { features: [feature] })
+    },
+    handleAddPointSelection ({ commit, dispatch, state }, feature) {
+      feature.display_data_name = 'point_of_interest'
+      commit('setDataMartFeatureInfo', feature)
+    },
+    handleSelect ({ commit, dispatch, state }, feature, options) {
+      // default options when calling this handler.
+      //
+      // showFeatureList: whether features selected by the user should be immediately shown in
+      // a panel.  This might be false if the user is selecting layers and may want to select
+      // several before being "bumped" to the selected features list.
+      //
+      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
+      const defaultOptions = {
+        showFeatureList: true
+      }
+
+      options = Object.assign({}, defaultOptions, options)
+
+      if (!feature || !feature.features || !feature.features.length) return
+
+      if (options.showFeatureList) {
+        commit('setLayerSelectionActiveState', false)
+      }
+
+      const newFeature = feature.features[0]
+      commit('replaceOldFeatures', newFeature.id)
+
+      if (newFeature.geometry.type === 'Point') {
+        return dispatch('handleAddPointSelection', newFeature)
+      }
+      // for drawn rectangular regions, the polygon describing the rectangle is the first
+      // element in the array of drawn features.
+      // note: this is what might break if extending the selection tools to draw more objects.
+      dispatch('getMapObjects', newFeature)
+      commit('setSelectionBoundingBox', newFeature)
+    },
     getMapLayers ({ commit }) {
       // We only fetch maplayers if we don't have a copy cached
       if (this.state.mapLayers === undefined) {
@@ -43,9 +87,28 @@ export default {
             })
         })
       }
+    },
+    async getMapObjects ({ commit, dispatch, state, getters }, bounds) {
+      // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
+
+      const canvas = await state.map.getCanvas()
+      const size = { x: canvas.width, y: canvas.height }
+
+      commit('clearDataMartFeatures')
+      dispatch('getDataMartFeatures', {
+        bounds: bounds,
+        size: size,
+        layers: state.activeMapLayers
+      })
     }
   },
   mutations: {
+    replaceOldFeatures (state, newFeature = null) {
+      // replace all previously drawn features with the new one.
+      // this has the effect of only allowing one selection box to be drawn at a time.
+      const old = state.draw.getAll().features.filter((f) => f.id !== newFeature)
+      state.draw.delete(old.map((feature) => feature.id))
+    },
     setMap (state, payload) {
       state.map = payload
     },

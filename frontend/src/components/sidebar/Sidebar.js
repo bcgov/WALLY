@@ -56,7 +56,7 @@ export default {
     //   return !this.isSingleSelection && !this.isMultipleSelection
     // },
     // isSingleUserDefinedPointSelection () {
-    //   return this.isSingleSelection && this.dataMartFeatureInfo.display_data_name === 'user_defined_point'
+    //   return this.isSingleSelection && this.dataMartFeatureInfo.display_data_name === 'point_of_interest'
     // },
     // isSingleSelection () {
     //   return this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name !== undefined

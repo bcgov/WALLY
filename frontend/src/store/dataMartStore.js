@@ -1,6 +1,7 @@
 import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
 import router from '../router'
+import centroid from '@turf/centroid'
 
 export default {
   state: {
@@ -86,7 +87,7 @@ export default {
           }
 
           let feature = {}
-          let display_data_name = ''
+          let layerName = ''
           let featureCount = 0
 
           // If primary_key_match is in the payload then this query came from a search result
@@ -95,15 +96,15 @@ export default {
           feature = displayData[0].geojson.features.find((f) => {
             return f.id.toString() === payload.primary_key_match
           })
-          display_data_name = displayData[0].layer
+          layerName = displayData[0].layer
 
           // If no primary_key_match was found, then we add up the number of features returned
           // and set the feature/layer information
           if (!feature) {
             displayData.forEach(layer => {
               featureCount += layer.geojson.features.length
-              if (layer.geojson.features.length == 1) {
-                display_data_name = layer.layer
+              if (layer.geojson.features.length === 1) {
+                layerName = layer.layer
                 feature = layer.geojson.features[0]
               }
             })
@@ -124,7 +125,7 @@ export default {
             commit('setDataMartFeatureInfo',
               {
                 type: feature.type,
-                display_data_name: display_data_name,
+                display_data_name: layerName,
                 geometry: feature.geometry,
                 properties: feature.properties
               })
@@ -151,12 +152,19 @@ export default {
     },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
-      router.push('/feature')
+      router.push({
+        name: 'single-feature',
+        query: {
+          type: payload.geometry.type,
+          layer: payload.display_data_name,
+          location: payload.geometry ? centroid(payload).geometry.coordinates.join(',') : null
+        }
+      })
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }
       state.featureError = ''
-      router.go(-1)
+      router.push('/')
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
