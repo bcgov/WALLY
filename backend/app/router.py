@@ -3,7 +3,7 @@ Registers endpoints from different apps.
 """
 from fastapi import APIRouter
 
-from app.hydat.endpoints import router as streams_v1
+from app.hydat.endpoints import router as hydat_streams_v1
 from app.metadata.endpoints import router as metadata_v1
 from app.aggregator.endpoints import router as aggregator_v1
 from app.geocoder.endpoints import router as geocoder_v1
@@ -17,6 +17,7 @@ api_router.include_router(metadata_v1)
 api_router.include_router(aggregator_v1)
 api_router.include_router(geocoder_v1)
 api_router.include_router(analysis_v1)
+api_router.include_router(hydat_streams_v1)
 
 
 api_router.include_router(
