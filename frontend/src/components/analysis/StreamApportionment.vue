@@ -14,10 +14,10 @@
       <v-col>
         <v-card v-for="(stream, index) in streams" tile v-bind:key="index" v-on:click="highlight(stream)">
           <v-card-text>
-            {{stream.gnis_name ? stream.gnis_name : '-'}}
-            ({{stream.length_metre.toFixed(2)}}m)
-            Distance: {{stream.distance.toFixed(2)}}m
-            Apportionment: {{stream.apportionment.toFixed(2)}}%
+            {{stream['gnis_name'] ? stream['gnis_name'] : '-'}}
+            ({{stream['length_metre'] ? stream['length_metre'].toFixed(2): ''}}m)
+            Distance: {{stream['distance'] ? stream['distance'].toFixed(2): ''}}m
+            Apportionment: {{stream['apportionment'] ? stream['apportionment'].toFixed(2) :''}}%
             <v-icon small class="float-right" v-on:click="deleteStream(index)">mdi-trash-can</v-icon>
           </v-card-text>
         </v-card>
@@ -98,9 +98,6 @@ export default {
         this.streams.splice(index, 1)
         this.calculateApportionment()
       }
-    },
-    testFunc(){
-
     },
     removeOverlaps () {
       // This removes overlapping streams. It keeps the first stream in the array

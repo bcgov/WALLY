@@ -55,22 +55,47 @@ describe('Stream apportionment tests', () => {
     }
   }
 
-  it('Displays streams', () => {
-    wrapper.setProps(propsData)
+  it('Displays streams in a table', () => {
     expect(wrapper.findAll('.v-card').length).toEqual(0)
     wrapper.setData({ streams: testStreams })
     expect(wrapper.findAll('.v-card').length).toEqual(3)
   })
 
   it('Calculates apportionment', () => {
-    expect(1).toEqual(1)
+    let data = [
+      { distance: 2, length_metre: 12.2 },
+      { distance: 4, length_metre: 12.2 }
+    ]
+    wrapper.setData({ streams: data })
+    wrapper.vm.calculateApportionment()
+    expect(wrapper.vm.streams[0]['apportionment']).toEqual(80)
+    expect(wrapper.vm.streams[1]['apportionment']).toEqual(20)
   })
 
-  it('Calculates apportionment 2', () => {
-    expect(1).toEqual(1)
-  })
-
-  it('Calculates apportionment 3', () => {
-    expect(1).toEqual(1)
+  it('Can remove overlapping streams', () => {
+    let data = [
+      { distance: 2, fwa_watershed_code: 5555, length_metre: 12.2 },
+      { distance: 7, fwa_watershed_code: 5555, length_metre: 12.2 },
+      { distance: 4, fwa_watershed_code: 5556, length_metre: 12.2 }
+    ]
+    let result = [
+      {
+        'apportionment': 80,
+        'distance': 2,
+        'length_metre': 12.2,
+        'fwa_watershed_code': 5555,
+        'inverse_distance': 0.25
+      },
+      {
+        'apportionment': 20,
+        'distance': 4,
+        'length_metre': 12.2,
+        'fwa_watershed_code': 5556,
+        'inverse_distance': 0.0625
+      }
+    ]
+    wrapper.setData({ streams: data })
+    wrapper.vm.removeOverlaps()
+    expect(wrapper.vm.streams).toEqual(result)
   })
 })
