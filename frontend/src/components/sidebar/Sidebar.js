@@ -3,6 +3,7 @@ import { mapGetters } from 'vuex'
 import SingleSelectedFeature from './SingleSelectedFeature'
 import MultipleSelectedFeatures from './MultipleSelectedFeatures'
 import LayerSelection from './LayerSelection'
+import InfoSheetAdjustable from '../common/InfoSheetAdjustable'
 import InfoSheet from '../common/InfoSheet'
 
 export default {
@@ -11,7 +12,8 @@ export default {
     SingleSelectedFeature,
     MultipleSelectedFeatures,
     LayerSelection,
-    InfoSheet
+    InfoSheet,
+    InfoSheetAdjustable
   },
   data () {
     return {

@@ -1,5 +1,5 @@
 <template>
-  <InfoSheet
+  <component :is="infoSheetComponent"
     :width="panelWidth"
     :panelName="panelName"
   >
@@ -24,7 +24,7 @@
           <p v-else class="grey--text text--darken-4">Select a region using the rectangular tool or click on wells, aquifers, water licences and other features to display information.</p>
         </v-card-text>
       </v-card>
-  </InfoSheet>
+  </component>
 </template>
 
 <script src="./Sidebar.js"></script>
@@ -32,7 +32,7 @@
 <style lang="scss">
   .wally-sidebar-category {
     font-weight: bold!important;
-    font-size: 16px!important;
+    /*font-size: 16px!important;*/
   }
 
   /* Customize the label (the container) */
@@ -42,7 +42,7 @@
     padding-left: 25px;
     margin-bottom: 5px;
     cursor: pointer;
-    font-size: 14px;
+    /*font-size: 14px;*/
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
