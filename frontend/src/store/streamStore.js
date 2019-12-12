@@ -1,5 +1,5 @@
 import ApiService from '../services/ApiService'
-import * as config from '../utils/streamHighlightsConfig'
+import * as config from '../utils/streamHighlights.config'
 import buffer from '@turf/buffer'
 import _ from 'lodash'
 

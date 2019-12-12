@@ -11,10 +11,10 @@ from shapely import wkb
 
 logger = logging.getLogger("api")
 
-def get_connected_streams(db: Session, outflowCode: str) -> list:
+def get_connected_streams(db: Session, outflowcode: str) -> list:
 
     q = db.query(FreshwaterAtlasStreamNetworks) \
-        .filter(FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.startswith(outflowCode))
+        .filter(FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.startswith(outflowcode))
 
     results = q.all()
 

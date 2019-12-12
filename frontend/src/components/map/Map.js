@@ -9,7 +9,7 @@ import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
 import coordinatesGeocoder from './localGeocoder'
-import * as streamConfig from '../../utils/streamHighlightsConfig'
+import * as streamConfig from '../../utils/streamHighlights.config'
 
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'

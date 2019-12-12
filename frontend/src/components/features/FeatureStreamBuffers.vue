@@ -42,7 +42,7 @@
           </v-row>
           
           <v-row no-gutters>
-            <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+            <SteamBufferData :bufferData="upStreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedstream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="downStreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
           </v-row>
@@ -72,7 +72,7 @@ export default {
     buffer: 50,
     loading: false,
     panelOpen: [],
-    upstreamData: [],
+    upStreamData: [],
     selectedStreamData: [],
     downStreamData: [],
     selectedLayer: '',
@@ -124,7 +124,7 @@ export default {
         .then((response) => {
           let data = response.data
           if (type === 'upstream') {
-            this.upstreamData = data
+            this.upStreamData = data
           } else if(type === 'downstream') {
             this.downStreamData = data
           } else if(type === 'selectedstream'){
