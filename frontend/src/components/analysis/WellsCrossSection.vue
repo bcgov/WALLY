@@ -154,6 +154,18 @@ export default {
         this.loading = false
       })
     },
+    fetchWellsLithology(wellIds) {
+      //https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/lithology?wells=123,1234&limit=100
+      ApiService.query(`/api/v1/analysis/wells/section?${qs.stringify(params)}`).then((r) => {
+        this.wells = r.data.wells
+        this.elevations = r.data.elevation_profile
+        this.showBuffer(r.data.search_area)
+      }).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.loading = false
+      })
+    },
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'
 
