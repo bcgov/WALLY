@@ -6,10 +6,10 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
-from app.db.utils import get_db
+from api.db.utils import get_db
 
-from app.v1.streams import controller as stream_controller
-from app.v1.streams import schema as stream_schema
+from api.v1.streams import controller as stream_controller
+from api.v1.streams import schema as stream_schema
 logger = getLogger("streams")
 
 router = APIRouter()
