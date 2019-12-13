@@ -5,7 +5,7 @@ import os
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
-from app.db.base import BaseTable  # noqa
+from api.db.base import BaseTable  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

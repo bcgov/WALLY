@@ -1,7 +1,7 @@
 #!/bin/bash
 # USAGE: ./load_layer_data.sh <layer_name>
 # use only the layer name. The layer name MUST be the layer name as spelled in the Wally database table.
-# check the db table name or the __tablename__ of the SQLAlchemy model in the `wally/backend/app/layers` files.
+# check the db table name or the __tablename__ of the SQLAlchemy model in the `wally/backend/api/layers` files.
 # There should be an identically spelled <layer_name>.zip file available on the S3 storage configured below.
 # The environment must have the following env variables:
 # MINIO_ACCESS_KEY

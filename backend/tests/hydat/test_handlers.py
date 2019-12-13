@@ -1,4 +1,4 @@
-from app.hydat.endpoints import list_stations
+from api.hydat.endpoints import list_stations
 from tests.utils import get_mock_session
 
 
