@@ -81,12 +81,12 @@ export default {
     mapStyle () {
       // todo: move the panel width to the store & grab that value instead
       //  of just 300px
-      if (this.infoPanelVisible) {
-        return {
-          left: '300px',
-          width: 'calc(100vw - 300px)'
-        }
-      }
+      // if (this.infoPanelVisible) {
+      //   return {
+      //     left: '300px',
+      //     width: 'calc(100vw - 300px)'
+      //   }
+      // }
       return {
         left: 0,
         width: '100%'
