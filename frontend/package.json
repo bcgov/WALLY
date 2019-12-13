@@ -13,6 +13,8 @@
     "@mapbox/mapbox-gl-draw": "^1.1.2",
     "@mapbox/mapbox-gl-geocoder": "^4.5.0",
     "@mdi/font": "^4.4.95",
+    "@sentry/browser": "^5.9.1",
+    "@sentry/integrations": "^5.8.0",
     "@turf/bbox": "^6.0.1",
     "@turf/bbox-polygon": "^6.0.1",
     "@turf/buffer": "^5.1.5",
