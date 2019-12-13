@@ -51,4 +51,3 @@ def get_licences_by_distance(db: Session, search_point: Point, radius: float) ->
     applications = [WaterRightsLicence(**row[0].__dict__, distance=row[1]) for row in applications_results]
 
     return licences + applications
-    
