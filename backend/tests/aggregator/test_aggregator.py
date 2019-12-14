@@ -2,7 +2,7 @@ import geojson
 from urllib.parse import parse_qs, urlparse
 
 from api.aggregator.aggregate import build_wms_query
-from api.aggregator.models import WMSGetMapQuery, WMSRequest
+from api.aggregator.models import WMSGetMapQuery, ExternalAPIRequest
 from api.aggregator.excel import xlsxExport
 from api.aggregator.models import LayerResponse
 
@@ -25,7 +25,7 @@ def test_wms_url():
         layers="WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
     )
 
-    layer = WMSRequest(
+    layer = ExternalAPIRequest(
         url="https://openmaps.gov.bc.ca/geo/pub/WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW/ows?",
         layer="WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
         q=layer_q

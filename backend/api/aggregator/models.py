@@ -1,7 +1,7 @@
 """
 API models and response schemas for aggregating data from WMS and API sources
 """
-from typing import List, Optional
+from typing import List, Optional, Union
 from pydantic import BaseModel
 from geojson import Feature, FeatureCollection
 from asyncio import Future
@@ -35,11 +35,16 @@ class WMSGetFeatureInfoQuery(BaseModel):
     layers: str
 
 
-class WMSRequest(BaseModel):
+class GWELLSAPIParams(BaseModel):
+    """ request params for GWELLS API requests """
+    within: str
+
+
+class ExternalAPIRequest(BaseModel):
     """ a WMS feature request """
     url: str
     layer: str
-    q: WMSGetMapQuery
+    q: Union[WMSGetMapQuery, GWELLSAPIParams]
 
 
 class LayerResponse(BaseModel):

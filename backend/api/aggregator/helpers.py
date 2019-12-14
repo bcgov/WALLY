@@ -1,4 +1,8 @@
 import math
+import json
+from geojson import dumps
+from shapely.geometry import mapping
+from api.aggregator.models import ExternalAPIRequest, GWELLSAPIParams
 
 EARTH_RADIUS = 6378137
 MAX_LATITUDE = 85.0511287798
@@ -17,3 +21,19 @@ def spherical_mercator_unproject(x, y):
     d = 180 / math.pi
     return [(2 * math.atan(math.exp(y / EARTH_RADIUS)) - (math.pi / 2)) * d, x * d / EARTH_RADIUS]
 
+
+def gwells_api_request(within):
+    """
+    creates an ExternalAPIRequest object with params for accessing data from the
+    GWELLS API.
+    """
+    url = 'https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells'
+    params = GWELLSAPIParams(
+        within=json.dumps(mapping(within))
+    )
+
+    return ExternalAPIRequest(
+        url=url,
+        layer='groundwater_wells',
+        q=params
+    )

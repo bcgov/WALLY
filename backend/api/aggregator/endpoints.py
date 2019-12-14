@@ -35,7 +35,8 @@ from api.layers.first_nations import CommunityLocations, TreatyLands, TreatyArea
 import api.hydat.models as streams_v1
 import api.aggregator.db as agr_repo
 from api.aggregator.aggregate import fetch_wms_features
-from api.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
+from api.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, ExternalAPIRequest, LayerResponse
+from api.aggregator.helpers import gwells_api_request
 from api.templating.template_builder import build_templates
 from api.aggregator.helpers import spherical_mercator_project
 from api.aggregator.excel import xlsxExport
@@ -58,7 +59,7 @@ API_DATASOURCES = {
     "cadastral": Cadastral,
     "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
     "ecocat_water_related_reports": EcocatWaterRelatedReports,
-    "groundwater_wells": GroundWaterWells,
+    # "groundwater_wells": GroundWaterWells,
     "hydrometric_stream_flow": StreamStation,
     "water_allocation_restrictions": WaterAllocationRestrictions,
     "water_rights_licences": WaterRightsLicenses,
@@ -72,6 +73,13 @@ API_DATASOURCES = {
     # leaving them commented out allows them to fall back to WMS fetching from DataBC.
     # "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections,
     # "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
+}
+
+# For external APIs that may require different parameters (e.g. not a WMS/GeoServer with
+# relatively consistent request params), add a helper function that returns an ExternalAPIRequest
+# object.
+EXTERNAL_API_REQUESTS = {
+    "groundwater_wells": gwells_api_request
 }
 
 
@@ -177,24 +185,38 @@ def aggregate_sources(
             internal_data.append(item)
             processed_layers[item.display_data_name] = True
 
-    # Create a WMSRequest object with all the values we need to make WMS requests for each of the
+    # Create a ExternalAPIRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
     for item in catalogue:
-        if item.wms_catalogue_id is None or item.display_data_name in processed_layers:
+        if item.display_data_name in processed_layers:
             continue
 
-        query = WMSGetMapQuery(
-            layers=item.wms_catalogue.wms_name,
-            bbox=bbox_string,
-            width=width,
-            height=height,
-        )
-        req = WMSRequest(
-            url=wms_url(item.wms_catalogue.wms_name),
-            layer=item.display_data_name,
-            q=query
-        )
-        wms_requests.append(req)
+        logger.info(item.display_data_name)
+
+        if EXTERNAL_API_REQUESTS[item.display_data_name]:
+
+            # use the helper function in EXTERNAL_API_REQUESTS (if available)
+            # to return an ExternalAPIRequest directly.
+            wms_requests.append(
+                EXTERNAL_API_REQUESTS[item.display_data_name](search_area)
+            )
+            logger.info('added external API request!')
+            continue
+
+        # if we don't have a direct API to access, fall back on WMS.
+        if item.wms_catalogue_id is not None:
+            query = WMSGetMapQuery(
+                layers=item.wms_catalogue.wms_name,
+                bbox=bbox_string,
+                width=width,
+                height=height,
+            )
+            req = ExternalAPIRequest(
+                url=wms_url(item.wms_catalogue.wms_name),
+                layer=item.display_data_name,
+                q=query
+            )
+            wms_requests.append(req)
 
     # Go and fetch features for each of the WMS endpoints we need, and make a FeatureCollection
     # out of all the aggregated features.
