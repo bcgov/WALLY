@@ -29,7 +29,8 @@ def gwells_api_request(within):
     """
     url = 'https://gwells-dev-pr-1495.pathfinder.gov.bc.ca/gwells/api/v1/wells/locations'
     params = GWELLSAPIParams(
-        within=json.dumps(mapping(within))
+        within=json.dumps(mapping(within)),
+        geojson="true"
     )
 
     return ExternalAPIRequest(
