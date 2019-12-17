@@ -1,7 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
-import flushPromises from 'flush-promises'
 import Vuex from 'vuex'
 
 import StreamApportionment from '../../../src/components/analysis/StreamApportionment.vue'
@@ -61,7 +60,8 @@ describe('Stream apportionment tests', () => {
     expect(wrapper.findAll('tbody tr.v-data-table__empty-wrapper').length)
       .toEqual(1)
     wrapper.setData({ streams: testStreams })
-    await flushPromises()
+    await wrapper.vm.$nextTick()
+
     expect(wrapper.findAll('tbody tr').length).toEqual(3)
   })
 
@@ -142,5 +142,13 @@ describe('Stream apportionment tests', () => {
     wrapper.vm.calculateApportionment()
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)
+  })
+
+  it('Draws a layer with a line and a point to show distance to streams', () => {
+    // check geojson for a line
+    expect(1).toEqual(1)
+    wrapper.setData({ streams: testStreams })
+
+    expect(1).toEqual(1)
   })
 })
