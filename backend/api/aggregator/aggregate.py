@@ -25,11 +25,12 @@ def build_wms_query(req: ExternalAPIRequest) -> str:
     return base_url + urlencode(dict(req.q))
 
 
-async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
+async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.Future:
     """ parse_result takes a response and puts it in a LayerResponse, which
     provides a summary and a collection of features """
     body = await res.read()
     features = []
+    data = {}
     fc = {}
 
     logger.info(body)
@@ -39,21 +40,29 @@ async def parse_result(res: ClientResponse, layer: str) -> asyncio.Future:
     # with a TypeError. In this case, we just continue with the defaults
     # set above.
     try:
-        fc = json.loads(body)
+        data = json.loads(body)
     except TypeError as e:
         logger.error(e)
     except json.JSONDecodeError as e:
         logger.error(e)
 
-    # check if fc looks like a geojson FeatureCollection, and if so,
+    # check if data looks like a geojson FeatureCollection, and if so,
     # make proper Features out of all the objects
-    if res.status == 200 and fc.get("type") and fc.get("type") == "FeatureCollection" and fc.get("features"):
-        for feat in fc["features"]:
+    if (res.status == 200 and
+        hasattr(data, "get") and
+        data.get("type", None) and
+        data.get("type", None) == "FeatureCollection"and
+        data.get("features", None)):
+        for feat in data["features"]:
             features.append(Feature(**feat))
+
+    # if we didn't recognize a geojson response, check if a formatter was supplied to create geojson.
+    elif res.status == 200 and req.formatter and len(data) > 0:
+        features = req.formatter(data)['features']
 
     return LayerResponse(
         status=res.status,
-        layer=layer,
+        layer=req.layer,
         geojson=FeatureCollection(features)
     )
 
@@ -65,7 +74,7 @@ async def fetch(req: ExternalAPIRequest, session: ClientSession) -> asyncio.Futu
     logger.info(url)
 
     async with session.get(url) as response:
-        return await asyncio.ensure_future(parse_result(response, req.layer))
+        return await asyncio.ensure_future(parse_result(response, req))
 
 
 async def batch_fetch(

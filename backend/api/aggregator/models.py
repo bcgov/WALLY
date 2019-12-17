@@ -3,9 +3,29 @@ API models and response schemas for aggregating data from WMS and API sources
 """
 from typing import List, Optional, Union
 from pydantic import BaseModel
-from geojson import Feature, FeatureCollection
+from geojson import Feature, FeatureCollection, Point
 from asyncio import Future
+from uuid import uuid4
 
+def json_to_geojson(id_field: str = ''):
+    """ returns a helper function that turns JSON results into GeoJSON,
+    using the provided id_field to give each feature an ID. """
+
+    if not id_field:
+        # if function was used without specifying an id_field,
+        # use a uuid as a placeholder. This will result in a
+        # random id being assigned to each feature.
+        id_field = uuid4()
+
+    def helper_function(self, result_list):
+        return FeatureCollection([
+            Feature(
+                id=x.get(id_field, uuid4()),
+                geometry=Point((x.get('longitude'), x.get('latitude'))),
+                properties=dict(x)
+            ) for x in result_list
+        ])
+    return helper_function
 
 class WMSGetMapQuery(BaseModel):
     """ query params needed to make a WMS feature request """
@@ -44,6 +64,7 @@ class ExternalAPIRequest(BaseModel):
     """ a WMS feature request """
     url: str
     layer: str
+    formatter: any = json_to_geojson() # optional formatter function that accepts a list and returns geojson
     q: Union[WMSGetMapQuery, GWELLSAPIParams]
 
 
