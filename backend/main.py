@@ -1,5 +1,5 @@
 """
-Main application entrypoint that initializes FastAPI and registers the endpoints defined in app/router.py.
+Main application entrypoint that initializes FastAPI and registers the endpoints defined in api/router.py.
 """
 
 from fastapi import FastAPI
@@ -8,11 +8,11 @@ from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
-from app import config
-from app.router import api_router
-from app.db.session import Session
+from api import config
+from api.router import api_router
+from api.db.session import Session
 
-app = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
+wally_api = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
 
 
 # CORS
@@ -24,7 +24,7 @@ if config.BACKEND_CORS_ORIGINS:
     for origin in origins_raw:
         use_origin = origin.strip()
         origins.append(use_origin)
-    app.add_middleware(
+    wally_api.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
         allow_credentials=True,
@@ -32,12 +32,12 @@ if config.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     ),
 
-app.add_middleware(GZipMiddleware)
+wally_api.add_middleware(GZipMiddleware)
 
-app.include_router(api_router, prefix=config.API_V1_STR)
+wally_api.include_router(api_router, prefix=config.API_V1_STR)
 
 
-@app.middleware("http")
+@wally_api.middleware("http")
 async def db_session_middleware(request: Request, call_next):
     request.state.db = Session()
     response = await call_next(request)
@@ -45,6 +45,6 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@app.get("/health")
+@wally_api.get("/health")
 def health_check():
     return Response(status_code=200, content=b"")

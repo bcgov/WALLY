@@ -333,9 +333,12 @@ export default {
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
     },
+    updateHighlightsLayerData (data) {
+      this.updateStreamsHighlights(data.feature_collection)
+    },
     updateHighlightLayerData (data) {
       // For stream networks layer we add custom highlighting and reset poly/point highlight layering
-      if(data.display_data_name === 'freshwater_atlas_stream_networks') {
+      if (data.display_data_name === 'freshwater_atlas_stream_networks') {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(polygon)
 
@@ -582,6 +585,10 @@ export default {
         }
         this.updateHighlightLayerData(value)
       }
+    },
+    highlightFeaturesData (value) {
+      console.log('new fc')
+      this.updateHighlightsLayerData(value)
     },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
