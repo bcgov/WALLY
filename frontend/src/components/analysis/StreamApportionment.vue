@@ -43,7 +43,7 @@
             <span>Remove streams that have less than 10% apportionment</span>
           </v-tooltip>
       </v-col>
-      <v-col>
+      <v-col cols="3">
         <v-text-field
           dense
           label="Weighting Factor"
