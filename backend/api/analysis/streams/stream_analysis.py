@@ -3,8 +3,8 @@ import logging
 import requests
 from sqlalchemy import func
 from sqlalchemy.orm import Session, load_only
-from app.aggregator.endpoints import API_DATASOURCES
-from app.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from api.aggregator.endpoints import API_DATASOURCES
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from geoalchemy2.shape import to_shape
 from geojson import Feature
 from shapely import wkb
