@@ -1,7 +1,6 @@
 <template>
   <v-container>
     <v-row>
-
       <v-col>
         <span class="text-sm-right">
           <span class="ma-2">
@@ -85,6 +84,36 @@
               </v-icon>
             </template>
           </v-data-table>
+      </v-col>
+    </v-row>
+    <v-row no-gutters>
+      <v-col>
+        <v-expansion-panels class="mt-5 elevation-0" multiple>
+          <v-expansion-panel class="elevation-0">
+            <v-expansion-panel-header disable-icon-rotate class="grey--text text--darken-4 subtitle-1">
+              Where does this information come from?
+              <template v-slot:actions>
+                <v-icon color="primary">mdi-help-circle-outline</v-icon>
+              </template>
+
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <p>Data on this page comes from <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network" target="_blank">Freshwater Atlas Stream Network</a>.</p>
+              <p>
+                Computations used are from the <a href="https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-science-series" target="_blank">Water Science Series</a>
+                publication WSS 2016-01 (<a href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=50832" target="_blank">Determining the Likelihood of Hydraulic Connection - Guidance for Determining the Effect of Diversion of Groundwater on Specific Streams</a>)
+              </p>
+              <p></p>
+              <dl>
+                <dt>Distance</dt>
+                <dd>Computed distance of the closest point of the stream to the selected point of interest</dd>
+                <dt>Apportionment</dt>
+                <dd>Apportion demand from diversion of groundwater on streams</dd>
+
+              </dl>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
       </v-col>
     </v-row>
   </v-container>
