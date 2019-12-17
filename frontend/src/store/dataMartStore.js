@@ -28,10 +28,11 @@ export default {
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
-      const { display_data_name, pk } = payload
+      let pk = payload.pk
+      let displayDataName = payload.display_data_name
       commit('setLoadingFeature', true)
       commit('setFeatureError', '')
-      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
+      ApiService.getApi('/feature?layer=' + displayDataName + '&pk=' + pk)
         .then((response) => {
           commit('setLoadingFeature', false)
           commit('setLayerSelectionActiveState', false)
@@ -39,7 +40,7 @@ export default {
           commit('setDataMartFeatureInfo',
             {
               type: feature.type,
-              display_data_name: display_data_name,
+              display_data_name: displayDataName,
               geometry: feature.geometry,
               properties: feature.properties
             })
@@ -85,7 +86,7 @@ export default {
           }
 
           let feature = {}
-          let display_data_name = ''
+          let displayDataName = ''
           let featureCount = 0
 
           // If primary_key_match is in the payload then this query came from a search result
@@ -94,15 +95,15 @@ export default {
           feature = displayData[0].geojson.features.find((f) => {
             return f.id.toString() === payload.primary_key_match
           })
-          display_data_name = displayData[0].layer
+          displayDataName = displayData[0].layer
 
           // If no primary_key_match was found, then we add up the number of features returned
           // and set the feature/layer information
           if (!feature) {
             displayData.forEach(layer => {
               featureCount += layer.geojson.features.length
-              if (layer.geojson.features.length == 1) {
-                display_data_name = layer.layer
+              if (layer.geojson.features.length === 1) {
+                displayDataName = layer.layer
                 feature = layer.geojson.features[0]
               }
             })
@@ -123,7 +124,7 @@ export default {
             commit('setDataMartFeatureInfo',
               {
                 type: feature.type,
-                display_data_name: display_data_name,
+                display_data_name: displayDataName,
                 geometry: feature.geometry,
                 properties: feature.properties
               })
