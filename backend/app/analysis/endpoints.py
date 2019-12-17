@@ -110,7 +110,7 @@ def get_features_within_buffer_zone(
 def get_stream_connections(
     db: Session = Depends(get_db),
     outflowCode: str = Query(..., title="The base outflow stream code",
-                       description="The code that identifies the baser outflow river to ocean"),
+                       description="The code that identifies the base outflow river to ocean"),
 ):
 
     streams = get_connected_streams(db, outflowCode)
