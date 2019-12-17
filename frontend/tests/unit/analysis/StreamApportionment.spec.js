@@ -1,7 +1,7 @@
 import { createLocalVue, mount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
-import StreamApportionment from '../../../src/components/analysis/StreamApportionment'
+import StreamApportionment from '../../../src/components/analysis/StreamApportionment.vue'
 import Vuex from 'vuex'
 import testStreams from './testStreams.json'
 
