@@ -10,7 +10,19 @@ export default {
     streams: [],
     selected: [],
     weightingFactor: 2,
+    apportionmentMin: 10,
     multiSelect: false,
+    show: {
+      reloadAll: false,
+      removeOverlaps: true,
+      removeLowApportionment: true
+    },
+    weightingFactorValidation: {
+      required: value => !!value || 'Required',
+      number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
+      max: value => (value >= 2 && value <= 3) || 'Weighting factor must be' +
+        ' either 2 or 3'
+    },
     headers: [
       { text: 'GNIS Name', value: 'gnis_name' },
       { text: 'Length (m)', value: 'length_metre', align: 'end' },
@@ -48,6 +60,10 @@ export default {
           streamData.feature_collection.features.push(stream.geojson)
         })
 
+        this.show.reloadAll = false
+        this.show.removeOverlaps = true
+        this.show.removeLowApportionment = true
+
         this.$store.commit('updateHighlightFeaturesData', streamData)
       }).catch((e) => {
         console.error(e)
@@ -56,7 +72,6 @@ export default {
       })
     },
     highlight (stream) {
-      console.log('highlighting row', stream)
       let featureData = stream.geojson
       featureData['display_data_name'] = 'freshwater_atlas_stream_networks'
       featureData.properties['FWA_WATERSHED_CODE'] = featureData.properties['fwa_watershed_code']
@@ -84,6 +99,7 @@ export default {
         return stream['ogc_fid'] !== selectedStream['ogc_fid']
       })
       this.streams = [...newStreamArr]
+      this.show.reloadAll = true
       this.calculateApportionment()
     },
     removeSelected () {
@@ -93,6 +109,7 @@ export default {
         return !selectedIds.includes(stream['ogc_fid'])
       })
       this.streams = [...newStreamArr]
+      this.show.reloadAll = true
       this.calculateApportionment()
     },
     removeOverlaps () {
@@ -106,14 +123,18 @@ export default {
         }
       })
       this.streams = [...newStreamArr]
+      this.show.removeOverlaps = false
+      this.show.reloadAll = true
       this.calculateApportionment()
     },
-    removeLessThan (apportionment) {
+    removeStreamsWithLowApportionment (apportionment) {
       // Keep streams that have more than x% apportionment
       let newStreamArr = this.streams.filter(stream => {
         return stream['apportionment'] > apportionment
       })
       this.streams = [...newStreamArr]
+      this.show.removeLowApportionment = false
+      this.show.reloadAll = true
       this.calculateApportionment()
     }
   },
@@ -135,6 +156,11 @@ export default {
     },
     coordinates () {
       this.fetchStreams()
+    },
+    weightingFactor (value) {
+      if (value > 1 && value < 4) {
+        this.calculateApportionment()
+      }
     }
   },
   mounted () {

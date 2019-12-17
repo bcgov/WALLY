@@ -1,18 +1,17 @@
 <template>
   <v-container>
     <v-row>
-      <v-col>
+      <v-col cols="1">
         <span class="text-sm-right">
-          <span class="ma-2">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
                 <v-btn v-on:click="toggleMultiSelect" v-on="on" color="blue-grey" class="" icon>
-                  <v-icon v-if="multiSelect">mdi-pencil-box-multiple</v-icon>
+                  <v-icon v-if="multiSelect">mdi-cancel</v-icon>
                   <v-icon v-else>mdi-pencil-box-multiple-outline</v-icon>
                 </v-btn>
               </template>
-              <span v-if="!multiSelect">Delete multiple rows</span>
-              <span v-else>Disable MultiSelect</span>
+              <span v-if="!multiSelect">Remove multiple streams</span>
+              <span v-else>Cancel</span>
             </v-tooltip>
             <span v-show="multiSelect">
               <v-tooltip bottom>
@@ -25,9 +24,11 @@
               </v-tooltip>
             </span>
           </span>
+      </v-col>
+      <v-col>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn small  v-on:click="removeOverlaps" v-on="on" color="blue-grey lighten-4" class="ma-2">
+              <v-btn x-small v-show="show.removeOverlaps" v-on:click="removeOverlaps" v-on="on" color="blue-grey lighten-4" class="mb-1 mt-1">
                 <span class="hidden-sm-and-down">Remove overlaps</span>
               </v-btn>
             </template>
@@ -35,23 +36,32 @@
           </v-tooltip>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn small  v-on:click="removeLessThan(10)" v-on="on" color="blue-grey lighten-4" class="ma-2">
+              <v-btn x-small v-on:click="removeStreamsWithLowApportionment(apportionmentMin)" v-on="on" color="blue-grey lighten-4" class="mb-1 mt-1">
                 <span class="hidden-sm-and-down">Remove less than 10%</span>
               </v-btn>
             </template>
             <span>Remove streams that have less than 10% apportionment</span>
           </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn small  v-on:click="fetchStreams" v-on="on" color="blue-grey" dark tile class="ma-2" icon>
-                <v-icon >mdi-restore</v-icon>
-              </v-btn>
-            </template>
-            <span>Restore all streams</span>
-          </v-tooltip>
-        </span>
       </v-col>
-      <v-col cols="12" offset-md="1" md="4" align-self="center" v-if="!isFreshwaterAtlasStreamNetworksLayerEnabled">
+      <v-col>
+        <v-text-field
+          dense
+          label="Weighting Factor"
+          v-model="weightingFactor"
+          :rules="[weightingFactorValidation.number, weightingFactorValidation.max, weightingFactorValidation.required]"
+        ></v-text-field>
+      </v-col>
+      <v-col>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn small v-show="show.reloadAll" v-on:click="fetchStreams" v-on="on" color="blue-grey" dark tile class="ma-2" icon>
+              <v-icon >mdi-restore</v-icon>
+            </v-btn>
+          </template>
+          <span>Restore all streams</span>
+        </v-tooltip>
+      </v-col>
+      <v-col align-self="center" v-if="!isFreshwaterAtlasStreamNetworksLayerEnabled">
         <div class="caption"><a href="#" @click.prevent="enableFreshwaterAtlasStreamNetworksLayer">Enable streams map layer</a></div>
       </v-col>
     </v-row>
