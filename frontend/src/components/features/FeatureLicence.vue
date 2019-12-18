@@ -106,7 +106,7 @@ export default {
       return this.record.properties.LICENCE_NUMBER
     },
     licenceWithoutChars () {
-      return this.record.properties.LICENCE_NUMBER.replace(/D+/g, '')
+      return this.record.properties.LICENCE_NUMBER.replace(/\D+/g, '')
     }
   },
   methods: {
@@ -116,6 +116,11 @@ export default {
       }).catch((e) => {
         console.error(e)
       })
+    }
+  },
+  watch: {
+    licenceNumber () {
+      this.fetchDocuments()
     }
   },
   mounted () {
