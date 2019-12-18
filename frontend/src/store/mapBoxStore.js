@@ -2,6 +2,7 @@
  Start slowly refactoring the map store into this file
  */
 export default {
+  namespaced: true,
   state: {
     infoPanelVisible: true
   },
