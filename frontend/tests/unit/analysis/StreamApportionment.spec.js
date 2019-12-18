@@ -19,7 +19,7 @@ describe('Stream apportionment tests', () => {
   let store
   let getters
   let mutations
-  let propsData
+  // let propsData
   beforeEach(() => {
     getters = {
       isMapLayerActive: state => layerId => false
@@ -43,6 +43,7 @@ describe('Stream apportionment tests', () => {
     })
   })
 
+  /*
   propsData = {
     record: {
       'type': 'Feature',
@@ -54,6 +55,7 @@ describe('Stream apportionment tests', () => {
       'display_data_name': 'user_defined_point'
     }
   }
+  */
 
   it('Displays streams in a table', () => {
     expect(wrapper.findAll('.v-card').length).toEqual(0)

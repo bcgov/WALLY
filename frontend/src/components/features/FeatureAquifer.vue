@@ -58,7 +58,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import ApiService from '../../services/ApiService'
 
 export default {
   name: 'FeatureAquifer',
@@ -78,18 +77,18 @@ export default {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
-    isWaterLicencesLayerEnabled () {
-      return this.isMapLayerActive('water_rights_licences')
-    },
+    // isWaterLicencesLayerEnabled () {
+    //   return this.isMapLayerActive('water_rights_licences')
+    // },
     ...mapGetters(['isMapLayerActive'])
   },
   methods: {
     enableWellsLayer () {
       this.$store.commit('addMapLayer', 'groundwater_wells')
-    },
-    enableWaterLicencesLayer () {
-      this.$store.commit('addMapLayer', 'water_rights_licences')
     }
+    // enableWaterLicencesLayer () {
+    //   this.$store.commit('addMapLayer', 'water_rights_licences')
+    // }
   }
 }
 </script>
