@@ -202,6 +202,17 @@ def get_line_buffer_polygon(line: LineString, radius: float):
     ), 4326)
 
 
+def get_parallel_line_offset(db: Session, line: LineString, radius: float):
+    """ returns a parallel line perpendicular to a LineString. """
+    return db.query(func.ST_AsText(func.ST_Transform(func.ST_OffsetCurve(
+            func.St_Transform(
+                func.ST_GeomFromText(line.wkt, 4326),
+                3005
+            ),
+            radius
+    ), 4326))).first()
+            
+
 def get_wells_along_line(db: Session, profile: LineString, radius: int):
     """ returns wells along a given line, including wells that are within a buffer
         determined by `radius` (m).

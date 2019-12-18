@@ -9,13 +9,16 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shapely.geometry import Point, shape, LineString
+from shapely import wkt
+from geoalchemy2.shape import to_shape
 from app.db.utils import get_db
 from app.analysis.wells.well_analysis import (
     get_wells_by_distance,
     merge_wells_datasources,
     get_screens,
     get_wells_along_line,
-    get_line_buffer_polygon
+    get_line_buffer_polygon,
+    get_parallel_line_offset
 )
 from app.analysis.licences.licence_analysis import get_licences_by_distance
 from app.analysis.wells.models import WellDrawdown, WellSection, CrossSection
@@ -23,6 +26,7 @@ from app.analysis.licences.models import WaterRightsLicence
 from app.analysis.wells.elevation_profile import (
     get_profile_geojson, geojson_to_profile_line, profile_line_by_length
 )
+from app.analysis.wells.elevation_surface import fetch_surface_lines
 from app.analysis.first_nations.nearby_areas import get_nearest_locations
 from app.analysis.first_nations.models import NearbyAreasResponse
 logger = getLogger("geocoder")
@@ -88,11 +92,13 @@ def get_wells_section(
     line_parsed = json.loads(line)
     line_shape = LineString(line_parsed)
 
+    left = get_parallel_line_offset(db, line_shape, -radius)
+    right = get_parallel_line_offset(db, line_shape, radius)
+    lines = [left[0], line_shape.wkt, right[0]]
+    surface = fetch_surface_lines(lines) # surface of 3 lines used for 3d display
 
-    profile_from_geogratis_dem = get_profile_geojson(line_shape)
-    profile_line_linestring = geojson_to_profile_line(profile_from_geogratis_dem)
+    profile_line_linestring = surface[1]
     profile_line = profile_line_by_length(db, profile_line_linestring)
-
     wells_along_line = get_wells_along_line(db, profile_line_linestring, radius)
 
     buffer = db.query(
@@ -100,8 +106,12 @@ def get_wells_section(
             profile_line_linestring, radius)).label('search_area')
     ).first()
 
+    surface_lines = [list(line.coords) for line in surface]
+    logger.info(surface_lines)
+
     section = CrossSection(search_area=geojson.loads(
-        buffer[0]), wells=wells_along_line, elevation_profile=profile_line)
+        buffer[0]), wells=wells_along_line,
+        elevation_profile=profile_line, surface=surface)
 
     return section
 

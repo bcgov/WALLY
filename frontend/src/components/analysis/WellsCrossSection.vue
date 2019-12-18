@@ -88,8 +88,10 @@ export default {
       const opts = {
         shapes: [],
         title: 'Groundwater Wells',
+        width: 750,
+        height: 750,
         legend: {
-          x: 0,
+          x: -0.1,
           y: 1.2
         },
         yaxis: {
@@ -104,23 +106,43 @@ export default {
         }
       }
 
-      this.wells.forEach(w => {
+      // this.wells.forEach(w => {
+      //   const rect = {
+      //     type: 'rect',
+      //     xref: 'x',
+      //     yref: 'y',
+      //     x0: w.distance_from_origin,
+      //     y0: w.ground_elevation_from_dem,
+      //     x1: w.distance_from_origin,
+      //     y1: w.ground_elevation_from_dem - w.finished_well_depth,
+      //     fillcolor: '#808080',
+      //     opacity: 0.3,
+      //     line: {
+      //       width: 3
+      //     }
+      //   }
+      //   console.log(rect)
+      //   opts.shapes.push(rect)
+      // })
+
+      this.wellsLithology.forEach(lith => {
         const rect = {
           type: 'rect',
           xref: 'x',
           yref: 'y',
-          x0: w.distance_from_origin,
-          y0: w.ground_elevation_from_dem,
-          x1: w.distance_from_origin,
-          y1: w.ground_elevation_from_dem - w.finished_well_depth,
-          fillcolor: '#808080',
-          opacity: 0.3,
+          x0: lith.x,
+          y0: lith.y1,
+          x1: lith.x,
+          y1: lith.y0,
+          opacity: 0.5,
           line: {
+            color: lith.color,
             width: 3
           }
         }
         opts.shapes.push(rect)
       })
+
       return opts
     },
     chartData () {
@@ -158,18 +180,22 @@ export default {
         type: 'scatter'
       }
 
-      const lithology = {
-        x: this.wellsLithology.map(w => w.x),
-        y: this.wellsLithology.map(w => w.y0),
-        data: this.wellsLithology.map(w => w.data),
-        mode: 'markers',
-        marker: {
-          color: this.wellsLithology.map(w => w.color)
-        },
-        name: 'Lithology',
-        hovertemplate: 'Lithology TESTING.: %{data:.1f} m<br>',
-        type: 'scatter'
-      }
+      var lithology = []
+      this.wellsLithology.forEach(lith => {
+        const marker = {
+          x: [lith.x],
+          y: [lith.y0],
+          text: [lith.data],
+          mode: 'markers',
+          type: 'scatter',
+          marker: {
+            color: [lith.color]
+          },
+          name: '',
+          hovertemplate: '%{text} %{y} m'
+        }
+        lithology.push(marker)
+      })
 
       const elevProfile = {
         x: this.elevations.map(e => e.distance_from_origin),
@@ -179,10 +205,11 @@ export default {
         type: 'scatter'
       }
 
-      return [elevProfile, waterDepth, wells, lithology]
+      return [elevProfile, waterDepth, wells, ...lithology]
     },
     testData () {
-      return {
+      return [
+      {
         z: [
           [8.83, 8.89, 8.81, 8.87, 8.9, 8.87],
           [8.89, 8.94, 8.85, 8.94, 8.96, 8.92],
@@ -201,12 +228,34 @@ export default {
           [8.93, 8.97, 8.97, 9.18, 9.2, 9.18]
         ],
         type: 'surface'
-      }
+      },
+      {
+        x: [3, 3],
+        y: [6, 6],
+        z: [9, 6],
+        mode: 'lines+markers',
+        type: 'scatter3d',
+        marker: {
+          color: 'rgb(23, 190, 207)',
+          size: 6
+        }
+      },
+      {
+        x: [2, 2],
+        y: [6, 6],
+        z: [7, 6],
+        mode: 'lines+markers',
+        type: 'scatter3d',
+        marker: {
+          color: 'rgb(23, 190, 207)',
+          size: 6
+        }
+      }]
     },
     testLayout () {
       return {
-        title: 'Mt Bruno Elevation',
-        autosize: false,
+        title: 'Test Layout',
+        autosize: true,
         width: 500,
         height: 500,
         margin: {
@@ -226,11 +275,8 @@ export default {
       }
       ApiService.query(`/api/v1/analysis/wells/section?${qs.stringify(params)}`)
         .then(r => {
+          console.log(r.data)
           this.wells = r.data.wells
-
-          // HACK
-          this.wells[0].well_tag_number = 112316
-
           this.elevations = r.data.elevation_profile
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
@@ -244,43 +290,44 @@ export default {
         })
     },
     fetchWellsLithology (ids) {
-      // https://gwells-dev-pr-1489.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=112316
+      // https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=112316
       // ApiService.query(`/api/v1/analysis/wells/section?${qs.stringify(params)}`).then((r) => {
       // DEBUG
-      ids = '112316'
-      let result = `{"count":1,"next":null,"previous":null,"results":[{"well_tag_number":112316,"lithologydescription_set":[{"start":"0.00","end":"1.00","lithology_raw_data":"DARK BROWN TOPSOIL","lithology_colour":"brown","lithology_hardness":"Soft","lithology_observation":"DRY","water_bearing_estimated_flow":null},{"start":"1.00","end":"144.00","lithology_raw_data":"GRAVEL, FINE SAND","lithology_colour":"brown","lithology_hardness":"Medium","lithology_observation":"DRY","water_bearing_estimated_flow":null},{"start":"144.00","end":"167.00","lithology_raw_data":"GRAVEL, FINE SAND","lithology_colour":"brown","lithology_hardness":"Medium","lithology_observation":"WET","water_bearing_estimated_flow":"4.0000"},{"start":"167.00","end":"175.00","lithology_raw_data":"GRAVEL, MEDIUM SAND","lithology_colour":"rust-coloured","lithology_hardness":"Medium","lithology_observation":"WET, HIGH IRON","water_bearing_estimated_flow":"10.0000"},{"start":"175.00","end":"200.00","lithology_raw_data":"MEDIUM SAND, GRAVEL","lithology_colour":"grey","lithology_hardness":"Medium","lithology_observation":"WET","water_bearing_estimated_flow":"15.0000"}]}]}`
-      let results = JSON.parse(result).results
+      // ids = '112316'
+      // let result = `{"count":1,"next":null,"previous":null,"results":[{"well_tag_number":112316,"lithologydescription_set":[{"start":"0.00","end":"1.00","lithology_raw_data":"DARK BROWN TOPSOIL","lithology_colour":"brown","lithology_hardness":"Soft","lithology_observation":"DRY","water_bearing_estimated_flow":null},{"start":"1.00","end":"144.00","lithology_raw_data":"GRAVEL, FINE SAND","lithology_colour":"brown","lithology_hardness":"Medium","lithology_observation":"DRY","water_bearing_estimated_flow":null},{"start":"144.00","end":"167.00","lithology_raw_data":"GRAVEL, FINE SAND","lithology_colour":"brown","lithology_hardness":"Medium","lithology_observation":"WET","water_bearing_estimated_flow":"4.0000"},{"start":"167.00","end":"175.00","lithology_raw_data":"GRAVEL, MEDIUM SAND","lithology_colour":"rust-coloured","lithology_hardness":"Medium","lithology_observation":"WET, HIGH IRON","water_bearing_estimated_flow":"10.0000"},{"start":"175.00","end":"200.00","lithology_raw_data":"MEDIUM SAND, GRAVEL","lithology_colour":"grey","lithology_hardness":"Medium","lithology_observation":"WET","water_bearing_estimated_flow":"15.0000"}]}]}`
+      // let results = JSON.parse(result).results
 
-      var lithologyList = []
-      for (let index = 0; index < results.length; index++) {
-        const wellLithologySet = results[index]
-        let well = this.wells.find(
-          x => x.well_tag_number === wellLithologySet.well_tag_number
-        )
-        wellLithologySet.lithologydescription_set.forEach(w => {
-          lithologyList.push({
-            x: well.distance_from_origin,
-            y0: well.ground_elevation_from_dem - w.start / 3.281,
-            y1: well.ground_elevation_from_dem - w.end / 3.281,
-            data: w.lithology_raw_data,
-            color: w.lithology_colour,
-            hardness: w.lithology_hardness,
-            observation: w.lithology_observation,
-            flow: w.water_bearing_estimated_flow
+      // this.wellsLithology = lithologyList
+      console.log(ids)
+
+      ApiService.getRaw(`https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=${ids}`).then((r) => {
+        console.log(r.data.results)
+        let results = r.data.results
+        var lithologyList = []
+        for (let index = 0; index < results.length; index++) {
+          const wellLithologySet = results[index]
+          let well = this.wells.find(
+            x => x.well_tag_number === wellLithologySet.well_tag_number
+          )
+          wellLithologySet.lithologydescription_set.forEach(w => {
+            lithologyList.push({
+              x: well.distance_from_origin,
+              y0: well.ground_elevation_from_dem - (w.start * 0.3048),
+              y1: well.ground_elevation_from_dem - (w.end * 0.3048),
+              data: w.lithology_raw_data,
+              color: w.lithology_colour,
+              hardness: w.lithology_hardness,
+              observation: w.lithology_observation,
+              flow: w.water_bearing_estimated_flow
+            })
           })
-        })
-      }
-
-      this.wellsLithology = lithologyList
-
-      // ApiService.getRaw(`https://gwells-dev-pr-1489.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=${ids}`).then((r) => {
-      //   this.wellsLithology = r.data.results
-      //   console.log(this.wellsLithology)
-      // }).catch((e) => {
-      //   console.error(e)
-      // }).finally(() => {
-      //   this.loading = false
-      // })
+          this.wellsLithology = lithologyList
+        }
+      }).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.loading = false
+      })
     },
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'

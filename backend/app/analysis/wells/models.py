@@ -65,8 +65,11 @@ class Elevation(BaseModel):
     distance_from_origin: float
     elevation: float
 
+class Line(BaseModel):
+    points: List[float]
 
 class CrossSection(BaseModel):
     search_area: Polygon
     wells: List[WellSection]
     elevation_profile: List[Elevation]
+    surface: List[Line]
