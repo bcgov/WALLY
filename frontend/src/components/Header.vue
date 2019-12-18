@@ -54,7 +54,7 @@ export default {
     }
   },
   methods: {
-    toggleAdjustableSidePanel (){
+    toggleAdjustableSidePanel () {
       console.log('toggling')
       this.$store.commit('toggleAdjustableSidePanel')
     },

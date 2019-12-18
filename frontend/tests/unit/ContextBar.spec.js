@@ -1,4 +1,4 @@
-import { mount, shallowMount, createLocalVue } from '@vue/test-utils'
+import { mount, createLocalVue } from '@vue/test-utils'
 import ContextBar from '../../src/components/contextbar/ContextBar.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
