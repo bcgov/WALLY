@@ -77,12 +77,12 @@ export default {
           let displayTemplates = response.data.display_templates
           commit('setLoadingFeature', false)
 
-          if (!displayData.some(layer => {
-            return layer.geojson && layer.geojson.features.length
-          })) {
-            EventBus.$emit('info', 'No features were found in your search area.')
-            return
-          }
+          // if (!displayData.some(layer => {
+          //   return layer.geojson && layer.geojson.features.length
+          // })) {
+          //   EventBus.$emit('info', 'No features were found in your search area.')
+          //   return
+          // }
 
           let feature = {}
           let display_data_name = ''

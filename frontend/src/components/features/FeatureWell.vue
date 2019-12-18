@@ -1,11 +1,10 @@
 <template>
-  <v-card elevation=0 v-if="!wellLoading && well">
+  <v-card elevation=0>
 
-    <v-card-text>
+    <v-card-text v-if="!wellLoading">
       <div class="grey--text text--darken-4 headline" id="aquiferTitle">Well {{ well.well_tag_number }}</div>
       <div class="grey--text text--darken-2 title">Groundwater well</div>
-    <v-divider></v-divider>
-
+      <v-divider></v-divider>
       <v-list dense class="mx-0 px-0">
         <v-list-item class="feature-content">
           <v-list-item-content>Identification plate number</v-list-item-content>
@@ -13,13 +12,16 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Address</v-list-item-content>
-          <v-list-item-content>{{`${well.address || ''}${addressAndStreetProvided ? ', ' : ''}${well.SITE_AREA || ''}` }}</v-list-item-content>
+          <v-list-item-content>{{`${well.street_address || ''}${addressAndStreetProvided ? ', ' : ''}${well.city || ''}` }}</v-list-item-content>
         </v-list-item>
 
 <!-- NOTE: this is commented because these fields are available from GWELLS but aren't currently on
   the DataBC set.  We should switch to GWELLS own data asap and use the following data in this component:
  -->
-
+        <v-list-item>
+          <v-list-item-content>Well class</v-list-item-content>
+          <v-list-item-content>{{well.well_class}}</v-list-item-content>
+        </v-list-item>
         <v-list-item>
           <v-list-item-content>Intended water use</v-list-item-content>
           <v-list-item-content>{{well.intended_water_use}}</v-list-item-content>
@@ -60,6 +62,9 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
+    </v-card-text>
+    <v-card-text v-else>
+      <v-progress-circular indeterminate></v-progress-circular>
     </v-card-text>
   </v-card>
 </template>
