@@ -1,4 +1,3 @@
-import ApiService from '../services/ApiService'
 import * as config from '../utils/streamHighlights.config'
 import buffer from '@turf/buffer'
 import _ from 'lodash'
@@ -19,6 +18,7 @@ export default {
     selectedStreamBufferData: {}
   },
   actions: {
+    /*
     fetchConnectedStreams ({ commit, dispatch }, payload) {
       // NOTE this action is the server backed query but at this point is too slow to implement
       let fwaCode = payload.stream.properties['FWA_WATERSHED_CODE']
@@ -37,8 +37,9 @@ export default {
           console.log(error)
         })
     },
+    */
     calculateStreamHighlights ({ commit, dispatch }, payload) {
-      // Get slected watershed code and trim un-needed depth
+      // Get selected watershed code and trim un-needed depth
       const watershedCode = payload.stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '')
 
       // Build our downstream code list
@@ -55,8 +56,8 @@ export default {
       payload.streams.forEach(stream => {
         const code = stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '') // remove empty stream ids
         if (code === watershedCode) { selectedFeatures.push(stream) } // selected stream condition
-        if (code.includes(watershedCode) && code.length > watershedCode.length) { upstreamFeatures.push(stream) } // up stream condition
-        if (downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length) { downstreamFeatures.push(stream) } // down stream condition
+        if (code.includes(watershedCode) && code.length > watershedCode.length) { upstreamFeatures.push(stream) } // upstream condition
+        if (downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length) { downstreamFeatures.push(stream) } // downstream condition
       })
 
       // Clean out downstream features that are upwards water flow
@@ -149,8 +150,8 @@ export default {
     }
   },
   getters: {
-    getUpStreamData: state => state.upStreamData,
-    getDownStreamData: state => state.downStreamData,
+    getUpstreamData: state => state.upStreamData,
+    getDownstreamData: state => state.downStreamData,
     getSelectedStreamData: state => state.selectedStreamData,
     getStreamSources: state => state.streamSources,
     getStreamLayers: state => state.streamLayers,
