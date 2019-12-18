@@ -31,14 +31,14 @@
 </template>
 
 <script>
-  export default {
-    name: 'Dialog',
-    props: {
-      name: String,
-      description: String,
-      url: String
-    }
+export default {
+  name: 'Dialog',
+  props: {
+    name: String,
+    description: String,
+    url: String
   }
+}
 </script>
 
 <style>

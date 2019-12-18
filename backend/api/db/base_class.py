@@ -92,6 +92,10 @@ class CustomLayerBase(object):
             properties=row.row2dict()
         )
 
+    @classmethod
+    def get_as_properties(cls, row):
+        return row.row2dict()
+
     def row2dict(self):
         d = {}
         for column in self.__table__.columns:

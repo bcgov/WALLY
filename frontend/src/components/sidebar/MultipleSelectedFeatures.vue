@@ -129,7 +129,7 @@ export default {
         })
     },
     onMouseEnterListItem (feature, layerName) {
-      feature["display_data_name"] = layerName
+      feature['display_data_name'] = layerName
       this.$store.commit('updateHighlightFeatureData', feature)
     },
     createSpreadsheetFromSelection () {
