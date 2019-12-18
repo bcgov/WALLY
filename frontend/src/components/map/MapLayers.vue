@@ -132,7 +132,7 @@ export default {
     },
     allowDisableLayerSelection () {
       return this.featureSelectionExists
-    },
+    }
   }
 }
 </script>
