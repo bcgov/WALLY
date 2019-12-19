@@ -1,7 +1,7 @@
 #! /usr/bin/env sh
 set -e
 
-export APP_MODULE=${APP_MODULE:-"main:app"}
+export APP_MODULE=${APP_MODULE:-"main:wally_api"}
 
 HOST=${HOST:-0.0.0.0}
 PORT=${PORT:-8000}
@@ -19,11 +19,11 @@ fi
 
 # Load fixture data for dev environments
 if [ "$WALLY_ENV" = "DEV" ]; then
-    python /app/app/initial_data.py
+    python /app/api/initial_data.py
 fi
 
 # Merge Display Templates with existing templates
-python /app/app/merge_display_templates.py
+python /app/api/merge_display_templates.py
 
 # Start Uvicorn with live reload
 exec uvicorn --reload --host $HOST --port $PORT --log-level $LOG_LEVEL "$APP_MODULE"

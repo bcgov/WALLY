@@ -1,5 +1,5 @@
 <template>
-  <div id="info-sheet">
+  <div class="info-sheet">
     <v-expand-x-transition>
       <v-sheet
         elevation="5"
@@ -33,11 +33,17 @@
   </div>
 </template>
 <style lang="scss">
+  $btn-box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, .2), 3px 2px 2px 0px rgba(0, 0, 0, .14), 3px 1px 3px 0px rgba(0, 0, 0, .12) !important;
   #info-sheet {
     position: absolute;
     z-index: 4;
     height: calc(100vh - 120px);
-    /*overflow: scroll;*/
+
+    button.close {
+      -webkit-box-shadow: $btn-box-shadow;
+      -moz-box-shadow: $btn-box-shadow;
+      box-shadow: $btn-box-shadow;
+    }
   }
   #info-sheet > .v-sheet{
     z-index: 5;
@@ -45,7 +51,6 @@
     height: 100%;
     overflow: scroll;
   }
-  $btn-box-shadow: "0px 0px 1px -2px rgba(0,0,0,.2), 0px 0px 2px 0px rgba(0,0,0,.14), 0px 0px 5px 0px rgba(0,0,0,.12) !important";
   #info-sheet > .v-btn.close {
     z-index: 4;
     width: 20px !important;

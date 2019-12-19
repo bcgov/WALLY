@@ -28,11 +28,15 @@
         </v-tooltip>
       </div>
       <div class="wally-user mr-5">{{ name }}</div>
+      <div class="mt-6">
+        <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch>
+      </div>
     </v-app-bar>
 </template>
 
 <script>
 import EventBus from '../services/EventBus.js'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Header',
@@ -41,7 +45,19 @@ export default {
       name: ''
     }
   },
+  computed: {
+    ...mapGetters([
+      'adjustableSidePanel'
+    ]),
+    sidePanelFeatureLabel () {
+      return this.adjustableSidePanel ? 'Adjustable Side Panel' : 'Responsive Panel'
+    }
+  },
   methods: {
+    toggleAdjustableSidePanel () {
+      console.log('toggling')
+      this.$store.commit('toggleAdjustableSidePanel')
+    },
     setName (payload) {
       const { name, authenticated } = payload
       if (authenticated) {
@@ -104,4 +120,9 @@ export default {
     visibility: visible;
   }
 }
+
+.v-input--switch label{
+   width: 100px;
+   font-size: smaller;
+ }
 </style>

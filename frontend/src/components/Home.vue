@@ -1,19 +1,19 @@
 <template>
   <div class="home">
-    <Sidebar></Sidebar>
+    <Overlay></Overlay>
     <Map></Map>
   </div>
 </template>
 
 <script>
 import Map from '../components/map/Map.vue'
-import Sidebar from '../components/sidebar/Sidebar.vue'
+import Overlay from '../components/common/Overlay'
 
 export default {
   name: 'Home',
   components: {
-    Map,
-    Sidebar
+    Overlay,
+    Map
   }
 }
 </script>
