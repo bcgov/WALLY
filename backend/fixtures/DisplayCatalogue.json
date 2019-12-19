@@ -25,7 +25,7 @@
   {
     "display_data_name": "groundwater_wells",
     "display_name": "Groundwater Wells",
-    "label_column": "WELL_TAG_NUMBER",
+    "label_column": "well_tag_number",
     "label": "Well tag number",
     "highlight_columns": [
       "WELL_TAG_NUMBER",
