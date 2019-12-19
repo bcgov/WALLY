@@ -210,7 +210,7 @@ export default {
       var z = []
       // build our surface points layer
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+        const line = lines[i]
         x.push(line.map(l => l[0]))
         y.push(line.map(l => l[1]))
         z.push(line.map(l => l[2]))
@@ -229,14 +229,14 @@ export default {
           showlegend: false,
           line: {
             width: 3,
-            color: 'blue', //lith.color
+            color: 'blue' // lith.color
           },
           marker: {
             size: 5,
-            color: 'black' //lith.color,
+            color: 'black' // lith.color,
           },
           hovertemplate: '%{text} %{y} m',
-          name: '',
+          name: ''
         }
         lithologyMarkers.push(marker)
       })
@@ -249,10 +249,10 @@ export default {
           type: 'surface',
           contours: {
             z: {
-              show:true,
+              show: true,
               usecolormap: true,
-              highlightcolor:"#42f462",
-              project:{z: true}
+              highlightcolor: '#42f462',
+              project: { z: true }
             }
           }
         },

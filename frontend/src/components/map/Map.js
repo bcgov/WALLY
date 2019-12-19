@@ -107,7 +107,7 @@ export default {
       'getStreamLayers',
       'getSelectedStreamBufferData',
       'getUpStreamBufferData',
-      'getDownStreamBufferData',
+      'getDownStreamBufferData'
     ])
   },
   methods: {
@@ -266,10 +266,10 @@ export default {
         })
       })
     },
-    initStreamHighlights() {
+    initStreamHighlights () {
       // Import sources and layers for stream segment highlighting
-      this.getStreamSources.forEach((s) =>  {
-        this.map.addSource(s.name, { type: "geojson", data: s.options })
+      this.getStreamSources.forEach((s) => {
+        this.map.addSource(s.name, { type: 'geojson', data: s.options })
       })
       this.getStreamLayers.forEach((l) => {
         this.map.addLayer(l)
@@ -346,7 +346,7 @@ export default {
         // For local rendered streams only calculation
         this.$store.commit('resetStreamData')
         this.updateStreamLayer(data)
-        
+
         // Backend query for all connected streams
         // this.$store.dispatch('fetchConnectedStreams', { stream: data })
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
@@ -366,14 +366,14 @@ export default {
       this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
     },
     onMapMoveUpdateStreamLayer () {
-      if(this.getSelectedStreamData.features) {
+      if (this.getSelectedStreamData.features) {
         var data = Object.assign({}, this.getSelectedStreamData.features[0])
-        const currentZoom = this.map.getZoom();
-        if (currentZoom != this.lastZoom) {
+        const currentZoom = this.map.getZoom()
+        if (currentZoom !== this.lastZoom) {
           this.$store.commit('resetStreamData')
           this.$store.commit('resetStreamBufferData')
-          this.lastZoom = currentZoom;
-        } 
+          this.lastZoom = currentZoom
+        }
         this.updateStreamLayer(data)
       }
     },
@@ -618,22 +618,22 @@ export default {
         this.updateHighlightLayerData(value)
       }
     },
-    getSelectedStreamData(value) {
+    getSelectedStreamData (value) {
       this.map.getSource(streamConfig.sources[0].name).setData(value)
     },
-    getUpStreamData(value) {
+    getUpStreamData (value) {
       this.map.getSource(streamConfig.sources[1].name).setData(value)
     },
-    getDownStreamData(value) {
+    getDownStreamData (value) {
       this.map.getSource(streamConfig.sources[2].name).setData(value)
     },
-    getSelectedStreamBufferData(value) {
+    getSelectedStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[3].name).setData(value)
     },
-    getUpStreamBufferData(value) {
+    getUpStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[4].name).setData(value)
     },
-    getDownStreamBufferData(value) {
+    getDownStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[5].name).setData(value)
     }
   }

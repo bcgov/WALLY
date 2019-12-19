@@ -6,13 +6,16 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 
 describe('Stream Store', () => {
-    let store
-    beforeEach(() => {
-        store = streamStore.default
-    })
+  var store
+  beforeEach(() => {
+    store = streamStore.default
+  })
 
-    it('calculates upstream segments', () => {
-        expect(true).toEqual(true) // placeholder
-    })
-    
+  it('checks store existence', () => {
+    expect(store).toBeTruthy()
+  })
+
+  it('calculates upstream segments', () => {
+    expect(true).toEqual(true) // placeholder
+  })
 })

@@ -9,7 +9,7 @@
         <v-toolbar-title>
           {{streamName}}
         </v-toolbar-title>
-          Selected Stream 
+          Selected Stream
       </v-banner>
     </v-toolbar>
     <v-expansion-panels class="mt-5" multiple v-model="panelOpen">
@@ -40,7 +40,7 @@
               ></v-select>
             </v-col>
           </v-row>
-          
+
           <v-row no-gutters>
             <SteamBufferData :bufferData="upStreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedstream'" :layerId="selectedLayer" />
@@ -54,13 +54,10 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
 import SteamBufferData from '../analysis/StreamBufferData'
 import buffer from '@turf/buffer'
-import union from '@turf/union'
-import qs from 'querystring'
 
 export default {
   name: 'StreamBufferIntersections',
@@ -93,7 +90,7 @@ export default {
     ]
   }),
   methods: {
-    updateStreamBuffers() {
+    updateStreamBuffers () {
       this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
       this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
       this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedstream')
@@ -101,18 +98,18 @@ export default {
     enableMapLayer () {
       this.$store.commit('addMapLayer', this.selectedLayer)
     },
-    fetchStreamBufferInformation(streams, type) {
-      if(buffer <= 0 || !this.selectedLayer) {
+    fetchStreamBufferInformation (streams, type) {
+      if (buffer <= 0 || !this.selectedLayer) {
         return
       }
 
       let lineStrings = streams.features.map((stream) => {
-        if(stream.geometry.type === 'LineString') {
+        if (stream.geometry.type === 'LineString') {
           return stream.geometry
         }
       })
-      if(lineStrings.length <= 0) { 
-        return 
+      if (lineStrings.length <= 0) {
+        return
       }
       const params = {
         buffer: parseFloat(this.buffer),
@@ -125,9 +122,9 @@ export default {
           let data = response.data
           if (type === 'upstream') {
             this.upStreamData = data
-          } else if(type === 'downstream') {
+          } else if (type === 'downstream') {
             this.downStreamData = data
-          } else if(type === 'selectedstream'){
+          } else if (type === 'selectedstream') {
             this.selectedStreamData = data
           }
           this.loading = false
@@ -135,10 +132,10 @@ export default {
         .catch((error) => {
           console.log(error)
         })
-    }   
+    }
   },
   computed: {
-    streamName() {
+    streamName () {
       let gnis = this.record.properties.GNIS_NAME
       return gnis !== 'None' ? gnis : this.record.properties.FEATURE_CODE
     },
@@ -157,8 +154,8 @@ export default {
     ])
   },
   watch: {
-    panelOpen() {
-      if(this.panelOpen.length > 0) {
+    panelOpen () {
+      if (this.panelOpen.length > 0) {
         this.$store.commit('setStreamAnalysisPanel', true)
         this.$store.commit('setStreamBufferData', this.buffer)
       } else {
@@ -166,34 +163,34 @@ export default {
         this.$store.commit('resetStreamBufferData')
       }
     },
-    getUpStreamData() {
-      if(this.panelOpen.length > 0) {
+    getUpStreamData () {
+      if (this.panelOpen.length > 0) {
         this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
         this.$store.commit('setUpStreamBufferData', this.buffer)
       }
     },
-    getDownStreamData() {
-      if(this.panelOpen.length > 0) {
+    getDownStreamData () {
+      if (this.panelOpen.length > 0) {
         this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
         this.$store.commit('setDownStreamBufferData', this.buffer)
       }
     },
-    getSelectedStreamData() {
-      if(this.panelOpen.length > 0) {
+    getSelectedStreamData () {
+      if (this.panelOpen.length > 0) {
         this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedstream')
         this.$store.commit('setSelectedStreamBufferData', this.buffer)
       }
     },
     buffer (value) {
-      if(this.buffer > 0 && this.buffer < this.inputRules.max){
+      if (this.buffer > 0 && this.buffer < this.inputRules.max) {
         this.updateStreamBuffers()
         this.$store.commit('setStreamBufferData', value)
       }
     },
-    selectedLayer() {
+    selectedLayer () {
       this.updateStreamBuffers()
     }
-  },
+  }
 }
 </script>
 

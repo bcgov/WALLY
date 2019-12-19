@@ -24,19 +24,19 @@ export default {
     'layerId'
   ],
   data: () => ({
-      titleLookup: {
-          upstream: 'Up Stream Features',
-          downstream: 'Down Stream Features',
-          selectedstream: 'Selected Stream Segment Features'
-      }
+    titleLookup: {
+      upstream: 'Up Stream Features',
+      downstream: 'Down Stream Features',
+      selectedstream: 'Selected Stream Segment Features'
+    }
   }),
   computed: {
-      title() {
-          return this.titleLookup[this.segmentType]
-      },
-      headers() {
-          return streamDataHeaders[this.layerId]
-      }
+    title () {
+      return this.titleLookup[this.segmentType]
+    },
+    headers () {
+      return streamDataHeaders[this.layerId]
+    }
   }
 }
 </script>
