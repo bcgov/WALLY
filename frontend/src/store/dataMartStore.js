@@ -14,6 +14,7 @@ export default {
     featureError: ''
   },
   actions: {
+    /*
     getDataMart ({ commit }, payload) {
       // Get the datamart either via API or wms layer
       const { displayDataName, url } = payload
@@ -53,6 +54,7 @@ export default {
           EventBus.$emit('error', msg)
         })
     },
+    */
     getDataMartFeatures ({ commit }, payload) {
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
@@ -85,7 +87,7 @@ export default {
           }
 
           let feature = {}
-          let display_data_name = ''
+          let displayDataName = ''
           let featureCount = 0
 
           // If primary_key_match is in the payload then this query came from a search result
@@ -94,15 +96,15 @@ export default {
           feature = displayData[0].geojson.features.find((f) => {
             return f.id.toString() === payload.primary_key_match
           })
-          display_data_name = displayData[0].layer
+          displayDataName = displayData[0].layer
 
           // If no primary_key_match was found, then we add up the number of features returned
           // and set the feature/layer information
           if (!feature) {
             displayData.forEach(layer => {
               featureCount += layer.geojson.features.length
-              if (layer.geojson.features.length == 1) {
-                display_data_name = layer.layer
+              if (layer.geojson.features.length === 1) {
+                displayDataName = layer.layer
                 feature = layer.geojson.features[0]
               }
             })
@@ -123,7 +125,7 @@ export default {
             commit('setDataMartFeatureInfo',
               {
                 type: feature.type,
-                display_data_name: display_data_name,
+                display_data_name: displayDataName,
                 geometry: feature.geometry,
                 properties: feature.properties
               })

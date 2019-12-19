@@ -76,6 +76,8 @@ API_DATASOURCES = {
     # leaving them commented out allows them to fall back to WMS fetching from DataBC.
     # "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections,
     # "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
+
+    # NOTE: Stream analysis also uses this dictionary for information lookup
 }
 
 # For external APIs that may require different parameters (e.g. not a WMS/GeoServer with
