@@ -25,10 +25,10 @@ from api.analysis.wells.well_analysis import (
 from api.analysis.licences.licence_analysis import get_licences_by_distance
 from api.analysis.wells.models import WellDrawdown, WellSection, CrossSection
 from api.analysis.licences.models import WaterRightsLicence
-from api.analysis.wells.elevation_profile import (
+from api.analysis.elevations.elevation_profile import (
     get_profile_geojson, geojson_to_profile_line, profile_line_by_length
 )
-from api.analysis.wells.elevation_surface import fetch_surface_lines
+from api.analysis.elevations.elevation_surface import fetch_surface_lines
 from api.analysis.first_nations.nearby_areas import get_nearest_locations
 from api.analysis.first_nations.models import NearbyAreasResponse
 from api.analysis.streams.stream_analysis import get_features_within_buffer, \

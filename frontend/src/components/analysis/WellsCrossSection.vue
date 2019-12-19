@@ -235,7 +235,7 @@ export default {
             size: 5,
             color: 'black' // lith.color,
           },
-          hovertemplate: '%{text} %{y} m',
+          hovertemplate: '%{text} %{z} m',
           name: ''
         }
         lithologyMarkers.push(marker)
@@ -341,8 +341,8 @@ export default {
               flow: w.water_bearing_estimated_flow
             })
           })
-          this.wellsLithology = lithologyList
         }
+        this.wellsLithology = lithologyList
       }).catch((e) => {
         console.error(e)
       }).finally(() => {

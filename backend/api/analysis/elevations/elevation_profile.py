@@ -8,9 +8,9 @@ from shapely.geometry import LineString, Point
 from shapely import wkt
 from logging import getLogger
 
-from api.analysis.wells.models import Elevation
+from api.analysis.elevations.models import Elevation
 
-logger = getLogger("api")
+logger = getLogger("elevation_profile")
 
 def get_profile_geojson(line: LineString) -> List[Feature]:
     """ get geojson elevations along a line (GeoGratis - Government of Canada) """
