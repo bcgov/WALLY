@@ -621,7 +621,6 @@ export default {
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
-        const loc = e.lnglat
         const scale = MapScale(this.map)
         const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }

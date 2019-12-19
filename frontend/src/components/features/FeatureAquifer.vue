@@ -58,7 +58,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import ApiService from '../../services/ApiService'
 
 export default {
   name: 'FeatureAquifer',
