@@ -33,7 +33,7 @@ export default {
         return
       }
 
-      const newFeature = state.draw.add(feature)
+      state.draw.add(feature)
       dispatch('handleSelect', { features: [feature] })
     },
     handleAddPointSelection ({ commit, dispatch, state }, feature) {
