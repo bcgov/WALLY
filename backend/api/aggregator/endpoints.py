@@ -149,19 +149,12 @@ def aggregate_sources(
         poly_parsed = json.loads(polygon)
         polygon = MultiPolygon([Polygon(x) for x in poly_parsed])
 
-        # bbox is no longer required, since we want to support polygon selection.
-        # in order to maintain compatibility with WMS, if a polygon is provided,
-        # create a bbox.  This feature could be removed in the near future if
-        # we stop supporting WMS altogether.
-        bbox = shape(polygon).bounds
-
-
     # define a search area out of the polygon shape
-    search_area = polygon
+    search_area = polygon or box(*bbox)
 
     albers_search_area = transform(pyproj.Transformer.from_proj(
-            pyproj.Proj(init='epsg:4326'),
-            pyproj.Proj(init='epsg:3005')
+        pyproj.Proj(init='epsg:4326'),
+        pyproj.Proj(init='epsg:3005')
     ).transform, search_area)
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their

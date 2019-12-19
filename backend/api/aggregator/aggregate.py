@@ -33,8 +33,6 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.
     data = {}
     fc = {}
 
-    logger.info(body)
-
     # try to load the response body.
     # if it's not JSON (e.g. xml, an html error page, etc.), it will fail
     # with a TypeError. In this case, we just continue with the defaults
@@ -52,7 +50,7 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.
         hasattr(data, "get") and
         "type" in data and
         data.get("type") == "FeatureCollection" and
-        "features" in data):
+            "features" in data):
         for feat in data["features"]:
             features.append(Feature(**feat))
 
