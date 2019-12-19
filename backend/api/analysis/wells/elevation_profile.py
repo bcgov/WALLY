@@ -8,7 +8,7 @@ from shapely.geometry import LineString, Point
 from shapely import wkt
 from logging import getLogger
 
-from app.analysis.wells.models import Elevation
+from api.analysis.wells.models import Elevation
 
 logger = getLogger("api")
 
