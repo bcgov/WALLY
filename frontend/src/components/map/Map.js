@@ -1,6 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -67,13 +67,11 @@ export default {
   },
   data () {
     return {
-      map: null,
       // legendControlContent: null,
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
       lastZoom: 6,
       activeLayers: {},
-      draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
       isDrawingToolActive: false
     }
   },
@@ -100,6 +98,9 @@ export default {
       'highlightFeatureData',
       'dataMartFeatureInfo',
       'infoPanelVisible',
+      'map',
+      'draw',
+      'geocoder',
       'getSelectedStreamData',
       'getUpStreamData',
       'getDownStreamData',
@@ -122,13 +123,13 @@ export default {
         zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
       }
 
-      this.map = new mapboxgl.Map({
+      this.setMap(new mapboxgl.Map({
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
         attributionControl: false // hide default and re-add to the top left
-      })
+      }))
 
       const modes = MapboxDraw.modes
       modes.simple_select.onTrash = this.clearSelections
@@ -136,7 +137,7 @@ export default {
       modes.draw_point.onTrash = this.clearSelections
       modes.direct_select.onTrash = this.clearSelections
 
-      this.draw = new MapboxDraw({
+      this.setDraw(new MapboxDraw({
         modes: modes,
         displayControlsDefault: false,
         controls: {
@@ -145,9 +146,9 @@ export default {
           line_string: true,
           trash: true
         }
-      })
+      }))
 
-      const geocoder = new MapboxGeocoder({
+      this.setGeocoder(new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: this.map,
         origin: ApiService.baseURL,
@@ -155,13 +156,13 @@ export default {
         localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
         minLength: 1
-      })
-      geocoder.on('result', this.updateBySearchResult)
+      }))
+      this.geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
       if (!document.getElementById('geocoder').hasChildNodes()) {
         document.getElementById('geocoder')
-          .appendChild(geocoder.onAdd(this.map))
+          .appendChild(this.geocoder.onAdd(this.map))
       }
 
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
@@ -583,6 +584,7 @@ export default {
     resetCursor () {
       this.map.getCanvas().style.cursor = ''
     },
+    ...mapMutations(['setMap', 'setDraw', 'setGeocoder']),
     ...mapActions(['getMapLayers'])
   },
   watch: {
