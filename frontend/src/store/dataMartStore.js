@@ -14,6 +14,7 @@ export default {
     featureError: ''
   },
   actions: {
+    /*
     getDataMart ({ commit }, payload) {
       // Get the datamart either via API or wms layer
       const { displayDataName, url } = payload
@@ -54,6 +55,7 @@ export default {
           EventBus.$emit('error', msg)
         })
     },
+    */
     getDataMartFeatures ({ commit }, payload) {
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')

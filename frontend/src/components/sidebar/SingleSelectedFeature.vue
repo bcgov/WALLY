@@ -77,8 +77,8 @@ import FeatureLicence from '../features/FeatureLicence'
 import FeatureEcocat from '../features/FeatureEcocat'
 import UserDefinedPoint from '../features/FeatureUserDefinedPoint'
 import UserDefinedLine from '../features/FeatureUserDefinedLine'
+import FeatureStreamBuffers from '../features/FeatureStreamBuffers'
 import FeatureCommunityLocation from '../features/FeatureCommunityLocation'
-
 import FeatureAnalysis from '../analysis/FeatureAnalysis'
 
 export default {
@@ -91,6 +91,7 @@ export default {
     FeatureLicence,
     UserDefinedPoint,
     UserDefinedLine,
+    FeatureStreamBuffers,
     FeatureAnalysis,
     FeatureCommunityLocation
   },
@@ -106,6 +107,7 @@ export default {
       ecocat_water_related_reports: FeatureEcocat,
       user_defined_point: UserDefinedPoint,
       user_defined_line: UserDefinedLine,
+      freshwater_atlas_stream_networks: FeatureStreamBuffers,
       fn_community_locations: FeatureCommunityLocation
     }
   }),

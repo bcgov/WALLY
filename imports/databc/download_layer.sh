@@ -5,7 +5,7 @@
 #
 # USAGE: ./download_layer.sh <layer_name> <url>
 # use the layer name from the Wally DB table that the data should be loaded into. You can check the database
-# or the SQLAlchemy model __tablename__ in `wally/backend/app/layers`.
+# or the SQLAlchemy model __tablename__ in `wally/backend/api/layers`.
 #
 # The environment must have the following env variables:
 # MINIO_ACCESS_KEY
