@@ -91,33 +91,3 @@ def get_nearby_first_nations_areas(
     geometry_shape = shape(geometry_parsed)
     nearest = get_nearest_locations(db, geometry_shape)
     return nearest
-
-
-@router.post("/analysis/stream/features")
-def get_features_within_buffer_zone(
-    req: BufferRequest,
-    db: Session = Depends(get_db)
-):
-    geometry_parsed = json.loads(req.geometry)
-    
-    lines = []
-    for line in geometry_parsed:
-        if(line):
-            lines.append(shape(line))
-
-    multiLineString = MultiLineString(lines)
-
-    features = get_features_within_buffer(db, multiLineString, req.buffer, req.layer)
-    return features
-
-
-
-@router.get("/analysis/stream/connections")
-def get_stream_connections(
-    db: Session = Depends(get_db),
-    outflowCode: str = Query(..., title="The base outflow stream code",
-                       description="The code that identifies the base outflow river to ocean"),
-):
-
-    streams = get_connected_streams(db, outflowCode)
-    return streams
