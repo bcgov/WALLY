@@ -6,7 +6,9 @@ from pydantic import BaseModel
 from geojson import Feature, FeatureCollection, Point
 from asyncio import Future
 from uuid import uuid4
+from logging import getLogger
 
+logger = getLogger('api')
 
 def json_to_geojson(id_field: str = ''):
     """ returns a helper function that turns JSON results into GeoJSON,
@@ -19,6 +21,11 @@ def json_to_geojson(id_field: str = ''):
         id_field = uuid4()
 
     def helper_function(self, result_list):
+
+        # check for pagination
+        if not isinstance(result_list, list) and 'results' in result_list:
+            result_list = result_list['results']
+
         return FeatureCollection([
             Feature(
                 id=x.get(id_field, uuid4()),
@@ -40,26 +47,25 @@ class WMSGetMapQuery(BaseModel):
     version: str = "1.1.1"
     format: str = "application/json;type=geojson"
     layers: str
+    cql_filter: Optional[str]
 
 
-class WMSGetFeatureInfoQuery(BaseModel):
+class WMSGetFeatureQuery(BaseModel):
     """ query params needed to make a WMS feature request """
-    bbox: str
-    x: int
-    y: int
-    width: int
-    height: int
-    service: str = "WMS"
-    request: str = "GetFeatureInfo"
-    srs: str = "EPSG:4326"
-    version: str = "1.1.1"
-    format: str = "application/json;type=geojson"
-    layers: str
+    service: str = "WFS"
+    request: str = "GetFeature"
+    count: int = 10000
+    srs: str = "EPSG:3005"
+    version: str = "2.0"
+    outputFormat: str = "json"
+    typeNames: str
+    cql_filter: Optional[str]
 
 
 class GWELLSAPIParams(BaseModel):
     """ request params for GWELLS API requests """
     within: str
+    geojson: str = "true"
 
 
 class ExternalAPIRequest(BaseModel):
@@ -67,7 +73,7 @@ class ExternalAPIRequest(BaseModel):
     url: str
     layer: str
     formatter: any = json_to_geojson()  # optional formatter function that accepts a list and returns geojson
-    q: Union[WMSGetMapQuery, GWELLSAPIParams, dict]
+    q: Union[WMSGetMapQuery, GWELLSAPIParams, WMSGetFeatureQuery, dict]
 
 
 class LayerResponse(BaseModel):

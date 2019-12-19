@@ -50,9 +50,9 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.
     # make proper Features out of all the objects
     if (res.status == 200 and
         hasattr(data, "get") and
-        data.get("type", None) and
-        data.get("type", None) == "FeatureCollection"and
-        data.get("features", None)):
+        "type" in data and
+        data.get("type") == "FeatureCollection" and
+        "features" in data):
         for feat in data["features"]:
             features.append(Feature(**feat))
 

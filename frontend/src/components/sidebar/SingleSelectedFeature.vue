@@ -22,7 +22,7 @@
     <!-- fallback generic feature panel for layers that do not have a custom component. Data displayed will be from
         the "highlight_columns" field of the layer catalogue.
       -->
-    <v-card v-else>
+    <v-card v-else elevation=1>
       <v-card-title class="subheading font-weight-bold">{{ humanReadable(dataMartFeatureInfo.display_data_name) }}</v-card-title>
 
       <v-divider></v-divider>
@@ -44,20 +44,16 @@
         </template>
       </div>
 
-      <v-list v-if="!loadingFeature">
-        <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
-          <v-hover v-slot:default="{ hover }" v-bind:key="`item-{$value}${index}`">
-            <v-card
-              class="pl-3 mb-2 pt-2 pb-2"
-              :elevation="hover ? 12 : 2"
-            >
-              <span><b>{{ humanReadable(name) }}: </b></span>
-              <span>{{ value }}</span>
-            </v-card>
-          </v-hover>
-          <v-divider :key="`divider-${index}`"></v-divider>
-        </template>
-      </v-list>
+      <v-card-text v-if="!loadingFeature">
+        <v-list dense class="mx-0 px-0">
+          <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
+            <v-list-item :key="`featureProperty${index}`">
+              <v-list-item-content>{{ humanReadable(name) }}</v-list-item-content>
+              <v-list-item-content>{{ value }}</v-list-item-content>
+            </v-list-item>
+          </template>
+        </v-list>
+      </v-card-text>
     </v-card>
     <FeatureAnalysis
       v-if="dataMartFeatureInfo"
