@@ -66,10 +66,10 @@ class Elevation(BaseModel):
     elevation: float
 
 class Line(BaseModel):
-    points: List[float]
+    points: List[tuple]
 
 class CrossSection(BaseModel):
     search_area: Polygon
     wells: List[WellSection]
     elevation_profile: List[Elevation]
-    surface: List[Line]
+    surface: List

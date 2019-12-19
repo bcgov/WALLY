@@ -93,11 +93,13 @@ def get_wells_section(
     line_shape = LineString(line_parsed)
 
     left = get_parallel_line_offset(db, line_shape, -radius)
+    left_half = get_parallel_line_offset(db, line_shape, -radius/2)
     right = get_parallel_line_offset(db, line_shape, radius)
-    lines = [left[0], line_shape.wkt, right[0]]
-    surface = fetch_surface_lines(lines) # surface of 3 lines used for 3d display
+    right_half = get_parallel_line_offset(db, line_shape, radius/2)
+    lines = [left[0], left_half[0], line_shape.wkt, right_half[0], right[0]]
+    surface = fetch_surface_lines(lines) # surface of 5 lines used for 3d display
 
-    profile_line_linestring = surface[1]
+    profile_line_linestring = surface[2]
     profile_line = profile_line_by_length(db, profile_line_linestring)
     wells_along_line = get_wells_along_line(db, profile_line_linestring, radius)
 
@@ -107,11 +109,14 @@ def get_wells_section(
     ).first()
 
     surface_lines = [list(line.coords) for line in surface]
-    logger.info(surface_lines)
+    # we need to reverse the point lists for the -radius results
+    surface_lines[0].reverse()
+    surface_lines[1].reverse()
 
+    # logger.info(surface_lines)
     section = CrossSection(search_area=geojson.loads(
         buffer[0]), wells=wells_along_line,
-        elevation_profile=profile_line, surface=surface)
+        elevation_profile=profile_line, surface=surface_lines)
 
     return section
 
