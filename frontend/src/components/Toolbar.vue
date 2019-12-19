@@ -11,17 +11,19 @@
       </v-toolbar-items>
 
       <div class="flex-grow-1"></div>
-      <v-toolbar-items class="py-2">
-      </v-toolbar-items>
+      <GeocoderSearch/>
     </v-toolbar>
-    <div id="geocoder" class="mr-5 geocoder"></div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
+import GeocoderSearch from './toolbar/GeocoderSearch'
 export default {
   name: 'Toolbar',
+  components: {
+    GeocoderSearch
+  },
   data: () => ({
   }),
   computed: {
@@ -43,18 +45,4 @@ export default {
 </script>
 
 <style>
-  .wally-toolbar {
-    box-shadow: inset 0 -1px 0 grey;
-    z-index: 3;
-  }
-  .mapboxgl-ctrl-geocoder {
-    width: 164rem!important;
-    border: 1px solid #3B99FC;
-  }
-  #geocoder {
-    position: absolute;
-    z-index: 4;
-    right:15px;
-    top: 8px;
-  }
 </style>
