@@ -7,6 +7,7 @@ from geojson import Feature, FeatureCollection, Point
 from asyncio import Future
 from uuid import uuid4
 
+
 def json_to_geojson(id_field: str = ''):
     """ returns a helper function that turns JSON results into GeoJSON,
     using the provided id_field to give each feature an ID. """
@@ -26,6 +27,7 @@ def json_to_geojson(id_field: str = ''):
             ) for x in result_list
         ])
     return helper_function
+
 
 class WMSGetMapQuery(BaseModel):
     """ query params needed to make a WMS feature request """
@@ -64,8 +66,8 @@ class ExternalAPIRequest(BaseModel):
     """ a WMS feature request """
     url: str
     layer: str
-    formatter: any = json_to_geojson() # optional formatter function that accepts a list and returns geojson
-    q: Union[WMSGetMapQuery, GWELLSAPIParams]
+    formatter: any = json_to_geojson()  # optional formatter function that accepts a list and returns geojson
+    q: Union[WMSGetMapQuery, GWELLSAPIParams, dict]
 
 
 class LayerResponse(BaseModel):
