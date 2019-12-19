@@ -77,12 +77,12 @@ export default {
           let displayTemplates = response.data.display_templates
           commit('setLoadingFeature', false)
 
-          // if (!displayData.some(layer => {
-          //   return layer.geojson && layer.geojson.features.length
-          // })) {
-          //   EventBus.$emit('info', 'No features were found in your search area.')
-          //   return
-          // }
+          // end here if no layers returned any data.
+          if (!displayData.some(layer => {
+            return layer.geojson && layer.geojson.features.length
+          })) {
+            return
+          }
 
           let feature = {}
           let display_data_name = ''
@@ -190,7 +190,7 @@ export default {
       // selected)
       const singleFeatureSelected = !!(state.dataMartFeatureInfo && state.dataMartFeatureInfo.display_data_name)
       const multipleFeaturesSelected = !!(state.dataMartFeatures && state.dataMartFeatures.length)
-      return singleFeatureSelected || multipleFeaturesSelected || !!state.loadingMultipleFeatures
+      return singleFeatureSelected || multipleFeaturesSelected
     }
   }
 }
