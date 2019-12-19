@@ -107,7 +107,7 @@ export default {
     },
     fetchWell () {
       this.wellLoading = true
-      ApiService.getRaw(`https://gwells-dev-pr-1495.pathfinder.gov.bc.ca/gwells/api/v1/wells/${this.id}`).then((r) => {
+      ApiService.getRaw(`https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/${this.id}`).then((r) => {
         this.well = r.data
       }).catch((e) => {
         this.wellError = e
@@ -118,7 +118,7 @@ export default {
     fetchLicence () {
       this.licenceLoading = true
 
-      ApiService.getRaw(`https://gwells-dev-pr-1495.pathfinder.gov.bc.ca/gwells/api/v1/wells/licensing?well_tag_number=${this.id}`).then((r) => {
+      ApiService.getRaw(`https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/licensing?well_tag_number=${this.id}`).then((r) => {
         this.well_licence = r.data
       }).catch((e) => {
         this.licence_error = e
