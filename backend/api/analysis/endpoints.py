@@ -4,7 +4,7 @@ Analysis functions for data in the Wally system
 import json
 from typing import List
 from logging import getLogger
-from fastapi import APIRouter, Depends, HTTPException, Query, Path
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from shapely.geometry import Point, shape, MultiLineString
 from pydantic import BaseModel
@@ -17,7 +17,7 @@ from api.analysis.wells.models import WellDrawdown
 from api.analysis.licences.models import WaterRightsLicence
 from api.analysis.first_nations.nearby_areas import get_nearest_locations
 from api.analysis.first_nations.models import NearbyAreasResponse
-from api.analysis.streams.stream_analysis import get_features_within_buffer, \
+from api.v1.stream.controller import get_features_within_buffer, \
     get_connected_streams
 
 logger = getLogger("geocoder")

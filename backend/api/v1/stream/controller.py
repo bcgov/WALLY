@@ -1,25 +1,22 @@
-import json
 import logging
-import requests
+
 from sqlalchemy import func
-from sqlalchemy.orm import Session, load_only
+from sqlalchemy.orm import Session
+
 from api.aggregator.endpoints import API_DATASOURCES
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
-from geoalchemy2.shape import to_shape
-from geojson import Feature
-from shapely import wkb
 
 logger = logging.getLogger("api")
 
-def get_connected_streams(db: Session, outflowcode: str) -> list:
 
-    q = db.query(FreshwaterAtlasStreamNetworks) \
-        .filter(FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.startswith(outflowcode))
+def get_connected_streams(db: Session, outflowCode: str) -> list:
+    q = db.query(FreshwaterAtlasStreamNetworks).filter(
+        FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.startswith(outflowCode))
 
     results = q.all()
 
-    feature_results = [FreshwaterAtlasStreamNetworks \
-        .get_as_feature(row, FreshwaterAtlasStreamNetworks.GEOMETRY) for row in results]
+    feature_results = [FreshwaterAtlasStreamNetworks.get_as_feature(
+        row, FreshwaterAtlasStreamNetworks.GEOMETRY) for row in results]
 
     return feature_results
 
@@ -36,10 +33,10 @@ def get_features_within_buffer(db: Session, geometry, buffer: float, layer: str)
                          func.ST_GeographyFromText(geometry.wkt)).label('distance')
     ) \
         .filter(
-            func.ST_DWithin(func.Geography(geom),
-                            func.ST_GeographyFromText(geometry.wkt), buffer)
+        func.ST_DWithin(func.Geography(geom),
+                        func.ST_GeographyFromText(geometry.wkt), buffer)
     ) \
-    .order_by('distance').all()
+        .order_by('distance').all()
 
     features = [layer_class.get_as_properties(row[0]) for row in feature_results]
 

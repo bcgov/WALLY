@@ -8,14 +8,14 @@ from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from api.db.utils import get_db
 
-from api.v1.streams import controller as stream_controller
-from api.v1.streams import schema as stream_schema
+from api.v1.streams import controller as streams_controller
+from api.v1.streams import schema as streams_schema
 logger = getLogger("streams")
 
 router = APIRouter()
 
 
-@router.get("/nearby", response_model=stream_schema.Streams)
+@router.get("/nearby", response_model=streams_schema.Streams)
 def get_nearby_streams(
         db: Session = Depends(get_db),
         point: str = Query(...,
@@ -38,7 +38,7 @@ def get_nearby_streams(
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
 
-    streams_nearby = stream_controller.get_streams_with_apportionment(
+    streams_nearby = streams_controller.get_streams_with_apportionment(
         db, point_shape, limit, get_all, with_apportionment, weighting_factor)
 
     return {
@@ -47,7 +47,7 @@ def get_nearby_streams(
     }
 
 
-@router.get("/apportionment", response_model=stream_schema.Streams)
+@router.get("/apportionment", response_model=streams_schema.Streams)
 def get_streams_apportionment(
         db: Session = Depends(get_db),
         point: str = Query(...,
@@ -59,8 +59,8 @@ def get_streams_apportionment(
 ):
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
-    streams_by_ocg_fid = stream_controller.get_nearest_streams_by_ogc_fid(db, point_shape, ogc_fid)
-    streams_with_apportionment = stream_controller.get_apportionment(streams_by_ocg_fid, weighting_factor)
+    streams_by_ocg_fid = streams_controller.get_nearest_streams_by_ogc_fid(db, point_shape, ogc_fid)
+    streams_with_apportionment = streams_controller.get_apportionment(streams_by_ocg_fid, weighting_factor)
     return {
         'weighting_factor': weighting_factor,
         'streams': streams_with_apportionment

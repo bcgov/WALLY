@@ -2,12 +2,12 @@
 API data models for Water Rights Licence analysis.
 These are external facing data models/schemas that users see.
 """
-from typing import Optional, List
-from pydantic import BaseModel, Schema
+from typing import Optional
+
+from pydantic import BaseModel
 
 
 class FreshWaterAtlasStreamNetworks(BaseModel):
-
     distance: float
     LICENCE_NUMBER: Optional[str]
     LICENCE_STATUS: Optional[str]
@@ -24,3 +24,9 @@ class FreshWaterAtlasStreamNetworks(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class BufferRequest(BaseModel):
+    geometry: str
+    buffer: float
+    layer: str
