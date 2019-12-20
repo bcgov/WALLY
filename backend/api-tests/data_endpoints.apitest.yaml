@@ -131,7 +131,7 @@ requests:
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_watersheds)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-127.058801334543&bbox=51.88141803274622&width=1286&height=1243&layers=freshwater_atlas_watersheds"
+    url: "{{host}}/api/v1/aggregate?polygon=[[[-123.01218163390963,50.098091859577636],[-123.0078944282,50.08021264021647],[-122.97502585109319,50.08800696615489],[-122.97716945394824,50.10244604378991],[-123.01218163390963,50.098091859577636]]]&layers=freshwater_atlas_watersheds"
     method: get
     expect:
       status: 200
