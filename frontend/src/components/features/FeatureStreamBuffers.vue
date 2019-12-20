@@ -54,13 +54,10 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
 import SteamBufferData from '../analysis/StreamBufferData'
 import buffer from '@turf/buffer'
-import union from '@turf/union'
-import qs from 'querystring'
 
 export default {
   name: 'StreamBufferIntersections',

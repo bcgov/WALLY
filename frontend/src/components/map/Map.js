@@ -1,6 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
@@ -67,13 +67,11 @@ export default {
   },
   data () {
     return {
-      map: null,
       // legendControlContent: null,
       // activeLayerGroup: L.layerGroup(),
       // markerLayerGroup: L.layerGroup(),
       lastZoom: 6,
       activeLayers: {},
-      draw: null, // mapbox draw object (controls drawn polygons e.g. for area select)
       isDrawingToolActive: false
     }
   },
@@ -100,6 +98,9 @@ export default {
       'highlightFeatureData',
       'dataMartFeatureInfo',
       'infoPanelVisible',
+      'map',
+      'draw',
+      'geocoder',
       'getSelectedStreamData',
       'getUpStreamData',
       'getDownStreamData',
@@ -107,7 +108,7 @@ export default {
       'getStreamLayers',
       'getSelectedStreamBufferData',
       'getUpStreamBufferData',
-      'getDownStreamBufferData',
+      'getDownStreamBufferData'
     ])
   },
   methods: {
@@ -122,13 +123,13 @@ export default {
         zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
       }
 
-      this.map = new mapboxgl.Map({
+      this.setMap(new mapboxgl.Map({
         container: 'map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
         attributionControl: false // hide default and re-add to the top left
-      })
+      }))
 
       const modes = MapboxDraw.modes
       modes.simple_select.onTrash = this.clearSelections
@@ -136,7 +137,7 @@ export default {
       modes.draw_point.onTrash = this.clearSelections
       modes.direct_select.onTrash = this.clearSelections
 
-      this.draw = new MapboxDraw({
+      this.setDraw(new MapboxDraw({
         modes: modes,
         displayControlsDefault: false,
         controls: {
@@ -144,9 +145,9 @@ export default {
           point: true,
           trash: true
         }
-      })
+      }))
 
-      const geocoder = new MapboxGeocoder({
+      this.setGeocoder(new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: this.map,
         origin: ApiService.baseURL,
@@ -154,13 +155,13 @@ export default {
         localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
         minLength: 1
-      })
-      geocoder.on('result', this.updateBySearchResult)
+      }))
+      this.geocoder.on('result', this.updateBySearchResult)
 
       // Add zoom and rotation controls to the map.
       if (!document.getElementById('geocoder').hasChildNodes()) {
         document.getElementById('geocoder')
-          .appendChild(geocoder.onAdd(this.map))
+          .appendChild(this.geocoder.onAdd(this.map))
       }
 
       this.map.addControl(new mapboxgl.NavigationControl(), 'top-right')
@@ -265,10 +266,10 @@ export default {
         })
       })
     },
-    initStreamHighlights() {
+    initStreamHighlights () {
       // Import sources and layers for stream segment highlighting
-      this.getStreamSources.forEach((s) =>  {
-        this.map.addSource(s.name, { type: "geojson", data: s.options })
+      this.getStreamSources.forEach((s) => {
+        this.map.addSource(s.name, { type: 'geojson', data: s.options })
       })
       this.getStreamLayers.forEach((l) => {
         this.map.addLayer(l)
@@ -345,7 +346,7 @@ export default {
         // For local rendered streams only calculation
         this.$store.commit('resetStreamData')
         this.updateStreamLayer(data)
-        
+
         // Backend query for all connected streams
         // this.$store.dispatch('fetchConnectedStreams', { stream: data })
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
@@ -365,14 +366,14 @@ export default {
       this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
     },
     onMapMoveUpdateStreamLayer () {
-      if(this.getSelectedStreamData.features) {
+      if (this.getSelectedStreamData.features) {
         var data = Object.assign({}, this.getSelectedStreamData.features[0])
-        const currentZoom = this.map.getZoom();
-        if (currentZoom != this.lastZoom) {
+        const currentZoom = this.map.getZoom()
+        if (currentZoom !== this.lastZoom) {
           this.$store.commit('resetStreamData')
           this.$store.commit('resetStreamBufferData')
-          this.lastZoom = currentZoom;
-        } 
+          this.lastZoom = currentZoom
+        }
         this.updateStreamLayer(data)
       }
     },
@@ -574,6 +575,7 @@ export default {
     resetCursor () {
       this.map.getCanvas().style.cursor = ''
     },
+    ...mapMutations(['setMap', 'setDraw', 'setGeocoder']),
     ...mapActions(['getMapLayers'])
   },
   watch: {
@@ -609,22 +611,22 @@ export default {
         this.updateHighlightLayerData(value)
       }
     },
-    getSelectedStreamData(value) {
+    getSelectedStreamData (value) {
       this.map.getSource(streamConfig.sources[0].name).setData(value)
     },
-    getUpStreamData(value) {
+    getUpStreamData (value) {
       this.map.getSource(streamConfig.sources[1].name).setData(value)
     },
-    getDownStreamData(value) {
+    getDownStreamData (value) {
       this.map.getSource(streamConfig.sources[2].name).setData(value)
     },
-    getSelectedStreamBufferData(value) {
+    getSelectedStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[3].name).setData(value)
     },
-    getUpStreamBufferData(value) {
+    getUpStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[4].name).setData(value)
     },
-    getDownStreamBufferData(value) {
+    getDownStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[5].name).setData(value)
     }
   }

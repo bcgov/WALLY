@@ -31,12 +31,12 @@ export default {
       }
   }),
   computed: {
-      title() {
-          return this.titleLookup[this.segmentType]
-      },
-      headers() {
-          return streamDataHeaders[this.layerId]
-      }
+    title () {
+      return this.titleLookup[this.segmentType]
+    },
+    headers () {
+      return streamDataHeaders[this.layerId]
+    }
   }
 }
 </script>
