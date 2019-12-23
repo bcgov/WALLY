@@ -3,7 +3,7 @@ Database tables and data access functions for Wally Data Layer Meta Information
 """
 from sqlalchemy import or_
 from sqlalchemy.orm import Session, load_only
-from api.metadata.db_models import (
+from api.v1.catalogue.db_models import (
     DisplayCatalogue,
     DisplayTemplate,
     DataSource,
