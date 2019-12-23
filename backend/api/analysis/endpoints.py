@@ -6,8 +6,7 @@ from typing import List
 from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, shape, MultiLineString
-from pydantic import BaseModel
+from shapely.geometry import Point, shape
 
 from api.db.utils import get_db
 from api.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_datasources, \
@@ -15,19 +14,11 @@ from api.analysis.wells.well_analysis import get_wells_by_distance, merge_wells_
 from api.analysis.licences.licence_analysis import get_licences_by_distance
 from api.analysis.wells.models import WellDrawdown
 from api.analysis.licences.models import WaterRightsLicence
-from api.analysis.first_nations.nearby_areas import get_nearest_locations
-from api.analysis.first_nations.models import NearbyAreasResponse
-from api.v1.stream.controller import get_features_within_buffer, \
-    get_connected_streams
+
 
 logger = getLogger("geocoder")
 
 router = APIRouter()
-
-class BufferRequest(BaseModel):
-    geometry: str
-    buffer: float
-    layer: str
 
 
 @router.get("/analysis/wells/nearby", response_model=List[WellDrawdown])
@@ -75,19 +66,3 @@ def get_nearby_licences(
     return licences_with_distances
 
 
-@router.get("/analysis/firstnations/nearby", response_model=NearbyAreasResponse)
-def get_nearby_first_nations_areas(
-        db: Session = Depends(get_db),
-        geometry: str = Query(...,
-                              title="Geometry to search near",
-                              description="Geometry (such as a point or polygon) to search within "
-                                          "and near to")
-):
-    """
-    Search for First Nations Communities, First Nations Treaty Areas and First Nations Treaty Lands
-    near a feature
-    """
-    geometry_parsed = json.loads(geometry)
-    geometry_shape = shape(geometry_parsed)
-    nearest = get_nearest_locations(db, geometry_shape)
-    return nearest

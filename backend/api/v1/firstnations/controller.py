@@ -4,7 +4,7 @@ from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 
 from api.layers.first_nations import CommunityLocations, TreatyAreas, TreatyLands
-from api.analysis.first_nations.models import (
+from api.v1.firstnations.schema import (
     Community as CommunityResponse,
     TreatyAreas as TreatyAreasResponse,
     TreatyLands as TreatyLandsResponse,

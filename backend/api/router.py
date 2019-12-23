@@ -10,6 +10,7 @@ from api.v1.geocoder import routes as geocoder
 from api.analysis.endpoints import router as analysis_v1
 from api.v1.streams import routes as streams
 from api.v1.stream import routes as stream
+from api.v1.firstnations import routes as firstnations
 
 api_router = APIRouter()
 
@@ -43,5 +44,12 @@ api_router.include_router(
     hydat_streams.router,
     prefix="/hydat",
     tags=["hydat"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    firstnations.router,
+    prefix="/firstnations",
+    tags=["firstnations"],
     responses={404: {"description": "Not found"}},
 )
