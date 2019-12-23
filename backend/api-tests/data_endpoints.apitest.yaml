@@ -233,3 +233,20 @@ requests:
         display_data.[0].layer: fn_treaty_lands
         display_data.[1].layer: fn_treaty_areas
         display_data.[2].layer: fn_community_locations
+  - name: Cross section endpoint, across Whistler data set
+    url: "{{host}}/api/v1/analysis/wells/section?radius=200&line=%5B%5B-122.96377711531765%2C50.10780689347729%5D%2C%5B-122.93100834718146%2C50.15894819669609%5D%5D"
+    method: get
+    expect:
+      status: 200
+      values:
+        search_area.type: Polygon
+        wells.[0].well_tag_number:
+          exists: true
+        wells.[0].distance_from_origin:
+          exists: true
+        elevation_profile.[0].distance_from_origin: 0 # the first 
+        elevation_profile.[0].elevation:
+          gt: 500 # all elevations in Whistler should be greater than 500, this is just a sanity check
+        surface.[0]:
+          exists: true
+

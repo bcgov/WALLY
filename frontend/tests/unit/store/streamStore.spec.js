@@ -5,6 +5,7 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 
 describe('Stream Store', () => {
+
   beforeEach(() => {
   })
 
