@@ -21,7 +21,7 @@ requests:
       - var: auth_token # set the {{auth_token}} here
         from: access_token
   - name: Get stations
-    url: "{{host}}/api/v1/hydat"
+    url: "{{host}}/api/v1/hydat/all"
     method: get
     expect:
       status: 200

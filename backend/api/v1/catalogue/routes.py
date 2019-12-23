@@ -17,7 +17,7 @@ logger = getLogger("catalogue")
 router = APIRouter()
 
 
-@router.get("/", response_model=view_model.Catalogue)
+@router.get("/all", response_model=view_model.Catalogue)
 def list_catalogue(db: Session = Depends(get_db)):
     """
     List all supported catalogue entries

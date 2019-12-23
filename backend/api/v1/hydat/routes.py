@@ -15,7 +15,7 @@ logger = getLogger("hydat")
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("/all")
 def list_stations(db: Session = Depends(get_db)):
     """
     List stream monitoring stations from data sourced from the National Water Data Archive.
