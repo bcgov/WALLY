@@ -12,12 +12,12 @@ from api.db.utils import get_db
 import api.v1.catalogue.db as meta_repo
 import api.v1.catalogue.models as view_model
 
-logger = getLogger("api")
+logger = getLogger("catalogue")
 
 router = APIRouter()
 
 
-@router.get("/catalogue", response_model=view_model.Catalogue)
+@router.get("/", response_model=view_model.Catalogue)
 def list_catalogue(db: Session = Depends(get_db)):
     """
     List all supported catalogue entries

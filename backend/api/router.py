@@ -4,7 +4,7 @@ Registers endpoints from different apps.
 from fastapi import APIRouter
 
 from api.v1.hydat import routes as hydat_streams
-from api.v1.catalogue.endpoints import router as metadata_v1
+from api.v1.catalogue import routes as catalogue
 from api.v1.aggregator import routes as aggregator
 from api.v1.geocoder import routes as geocoder
 from api.v1.licences import routes as licences
@@ -16,7 +16,12 @@ from api.v1.config import routes as config
 
 api_router = APIRouter()
 
-api_router.include_router(metadata_v1)
+api_router.include_router(
+    catalogue.router,
+    prefix="/catalogue",
+    tags=["catalogue"],
+    responses={404: {"description": "Not found"}},
+)
 
 api_router.include_router(
     aggregator.router,
