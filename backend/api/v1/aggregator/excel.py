@@ -3,7 +3,7 @@ import openpyxl
 from openpyxl.writer.excel import save_virtual_workbook
 from starlette.responses import Response
 
-from api.aggregator.models import LayerResponse
+from api.v1.aggregator.schema import LayerResponse
 
 
 def xlsxExport(features: List[LayerResponse]):

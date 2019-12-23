@@ -5,25 +5,17 @@ from logging import getLogger
 from typing import List
 import json
 from fastapi import APIRouter, Depends, HTTPException, Query
-from starlette.responses import Response
-from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
-from sqlalchemy.ext.declarative.api import DeclarativeMeta
 from shapely.geometry import shape, box, MultiPolygon, Polygon
 
 from api.db.utils import get_db
-from api.db.base_class import BaseLayerTable
 from api.v1.hydat.db_models import Station as StreamStation
-import api.layers.water_rights_licences as water_rights_licences_repo
-import api.layers.ground_water_wells as ground_water_wells_repo
 from api.layers.water_rights_licences import WaterRightsLicenses
 from api.layers.water_rights_applications import WaterRightsApplications
 from api.layers.automated_snow_weather_station_locations import AutomatedSnowWeatherStationLocations
 from api.layers.bc_wildfire_active_weather_stations import BcWildfireActiveWeatherStations
 from api.layers.cadastral import Cadastral
 from api.layers.critical_habitat_species_at_risk import CriticalHabitatSpeciesAtRisk
-from api.layers.freshwater_atlas_stream_directions import FreshwaterAtlasStreamDirections
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.ground_water_wells import GroundWaterWells
 from api.layers.bc_major_watersheds import BcMajorWatersheds
 from api.layers.ecocat_water_related_reports import EcocatWaterRelatedReports
@@ -32,13 +24,12 @@ from api.layers.water_allocation_restrictions import WaterAllocationRestrictions
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.layers.first_nations import CommunityLocations, TreatyLands, TreatyAreas
 
-import api.v1.hydat.schema as streams_v1
-import api.aggregator.db as agr_repo
-from api.aggregator.aggregate import fetch_wms_features
-from api.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse
+import api.v1.aggregator.controller as agr_repo
+from api.v1.aggregator.controller import fetch_wms_features
+from api.v1.aggregator.schema import WMSGetMapQuery, WMSRequest, LayerResponse
 from api.templating.template_builder import build_templates
-from api.aggregator.helpers import spherical_mercator_project
-from api.aggregator.excel import xlsxExport
+from api.v1.aggregator.helpers import spherical_mercator_project
+from api.v1.aggregator.excel import xlsxExport
 
 logger = getLogger("aggregator")
 
@@ -93,7 +84,7 @@ def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     return agr_repo.get_layer_feature(db, layer_class, pk)
 
 
-@router.get("/aggregate")
+@router.get("/")
 def aggregate_sources(
         db: Session = Depends(get_db),
         layers: List[str] = Query(

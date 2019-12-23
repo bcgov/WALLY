@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from api.aggregator.endpoints import API_DATASOURCES
+from api.v1.aggregator.routes import API_DATASOURCES
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 logger = logging.getLogger("api")

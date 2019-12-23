@@ -10,15 +10,14 @@ Warning: the original database schema did not include any foreign key constraint
 
 """
 # coding: utf-8
-from typing import List, Optional
+from typing import List
 from geojson import Feature, Point
-from sqlalchemy import BigInteger, Column, DateTime, Float, Index, Text, text, ForeignKey, func
+from sqlalchemy import BigInteger, Column, DateTime, Index, Text, text, ForeignKey, func
 from sqlalchemy.orm import relationship, Session
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from geoalchemy2 import Geometry
 from api.db.base_class import BaseLayerTable
 import api.v1.hydat.schema as hydat_schema
-import api.aggregator.db as agr_repo
 from shapely.geometry import Polygon
 from logging import getLogger
 logger = getLogger("Hydat")

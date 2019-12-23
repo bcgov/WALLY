@@ -5,9 +5,9 @@ from fastapi import APIRouter
 
 from api.v1.hydat import routes as hydat_streams
 from api.metadata.endpoints import router as metadata_v1
-from api.aggregator.endpoints import router as aggregator_v1
+from api.v1.aggregator import routes as aggregator
 from api.v1.geocoder import routes as geocoder
-from api.v1.licences.routes import router as licences
+from api.v1.licences import routes as licences
 from api.v1.streams import routes as streams
 from api.v1.stream import routes as stream
 from api.v1.firstnations import routes as firstnations
@@ -16,8 +16,13 @@ from api.v1.wells import routes as wells
 api_router = APIRouter()
 
 api_router.include_router(metadata_v1)
-api_router.include_router(aggregator_v1)
 
+api_router.include_router(
+    aggregator.router,
+    prefix="/aggregate",
+    tags=["aggregate"],
+    responses={404: {"description": "Not found"}},
+)
 
 api_router.include_router(
     streams.router,
