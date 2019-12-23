@@ -9,9 +9,8 @@ from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.config import MAPBOX_ACCESS_TOKEN, MAPBOX_STYLE
-import api.metadata.db as meta_repo
-import api.metadata.models as view_model
+import api.v1.catalogue.db as meta_repo
+import api.v1.catalogue.models as view_model
 
 logger = getLogger("api")
 
@@ -30,11 +29,3 @@ def list_catalogue(db: Session = Depends(get_db)):
 
     return view_model.Catalogue(layers=layers, categories=categories)
 
-
-@router.get("/map-config", response_model=view_model.MapConfig)
-def get_map_config():
-    """
-    Get config for frontend web map (e.g. access tokens)
-    """
-
-    return view_model.MapConfig(mapbox_token=MAPBOX_ACCESS_TOKEN, mapbox_style=MAPBOX_STYLE)
