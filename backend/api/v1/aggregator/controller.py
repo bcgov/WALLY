@@ -11,7 +11,7 @@ from aiohttp import ClientSession, ClientResponse
 from sqlalchemy.orm import Session
 from typing import List
 import logging
-from api.metadata.db_models import DisplayCatalogue, ApiCatalogue, WmsCatalogue
+from api.v1.catalogue.db_models import DisplayCatalogue
 from sqlalchemy.orm import joinedload
 from fastapi import HTTPException
 from api.v1.aggregator.schema import WMSRequest, LayerResponse
