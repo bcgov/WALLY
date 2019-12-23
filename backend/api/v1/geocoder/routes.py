@@ -5,7 +5,7 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.geocoder.db import lookup_by_text
+from api.v1.geocoder.controller import lookup_by_text
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -14,7 +14,7 @@ router = APIRouter()
 # search/geocoding control. To maintain compatibility with Mapbox geocoding,
 # this endpoint has to handle several path parameters that we don't need (_1 and _2).
 # The q parameter includes `.json` after the query string, so we need to handle that as well.
-@router.get("/geocoding/{_1}/{_2}/{query}.json")
+@router.get("/{_1}/{_2}/{query}.json")
 def geocode_lookup(
     db: Session = Depends(get_db),
     query: str = Path(..., title="Search query",
