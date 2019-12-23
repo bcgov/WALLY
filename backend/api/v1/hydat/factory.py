@@ -7,7 +7,7 @@ from typing import Optional
 from api.db.session import db_session
 from shapely.geometry import Point
 from geoalchemy2.elements import WKTElement
-from . import db_models
+from api.v1.hydat import db_models
 
 # base values to help generate a steady curve
 BASE_FLOWS = [1.1, 1.1, 1.2, 1.3, 1.2, 1, .9, .9, 1, 1.1, 1.2, 1.2]

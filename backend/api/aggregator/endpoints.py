@@ -13,7 +13,7 @@ from shapely.geometry import shape, box, MultiPolygon, Polygon
 
 from api.db.utils import get_db
 from api.db.base_class import BaseLayerTable
-from api.hydat.db_models import Station as StreamStation
+from api.v1.hydat.db_models import Station as StreamStation
 import api.layers.water_rights_licences as water_rights_licences_repo
 import api.layers.ground_water_wells as ground_water_wells_repo
 from api.layers.water_rights_licences import WaterRightsLicenses
@@ -32,7 +32,7 @@ from api.layers.water_allocation_restrictions import WaterAllocationRestrictions
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.layers.first_nations import CommunityLocations, TreatyLands, TreatyAreas
 
-import api.hydat.models as streams_v1
+import api.v1.hydat.schema as streams_v1
 import api.aggregator.db as agr_repo
 from api.aggregator.aggregate import fetch_wms_features
 from api.aggregator.models import WMSGetMapQuery, WMSGetFeatureInfoQuery, WMSRequest, LayerResponse

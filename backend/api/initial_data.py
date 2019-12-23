@@ -5,7 +5,8 @@ from shapely.geometry import shape
 import shapely.geometry
 from api.db.session import db_session
 
-from api.hydat.factory import StationFactory
+from api.v1.hydat.factory import StationFactory
+# Need imports from api.layers even though linter says they are unused
 from api.layers.water_rights_licences import WaterRightsLicenses
 from api.layers.water_rights_applications import WaterRightsApplications
 from api.layers.automated_snow_weather_station_locations import AutomatedSnowWeatherStationLocations
@@ -51,7 +52,7 @@ def load_dev_data():
 
                 # Get class name from file name
                 file = os.path.splitext(filename)[0]
-                cls = globals()[file]  # Need imports from api.layers even though linter says they are unused
+                cls = globals()[file]
 
                 # Only add subset fixture if no data exists in table
                 if db_session.query(cls).first() is None:

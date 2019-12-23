@@ -7,15 +7,15 @@ from fastapi import APIRouter, Depends, HTTPException
 from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
-import api.hydat.models as streams_v1
+from api.v1.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
+import api.v1.hydat.schema as hydat_schema
 
 logger = getLogger("api")
 
 router = APIRouter()
 
 
-@router.get("/hydat")
+@router.get("/")
 def list_stations(db: Session = Depends(get_db)):
     """
     List stream monitoring stations from data sourced from the National Water Data Archive.
@@ -45,7 +45,7 @@ def list_stations(db: Session = Depends(get_db)):
     return fc
 
 
-@router.get("/hydat/{station_number}", response_model=streams_v1.StreamStation)
+@router.get("/{station_number}", response_model=hydat_schema.StreamStation)
 def get_station(station_number: str, db: Session = Depends(get_db)):
     """
     Get information about a stream monitoring station. Data sourced from the National Water Data Archive.
@@ -65,7 +65,7 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
     level_years = DailyLevel.get_available_level_years(db, station_number)
 
     # combine queries/info into the StreamStation API model
-    data = streams_v1.StreamStation(
+    data = hydat_schema.StreamStation(
         name=stn.station_name,
         url=f"/api/v1/hydat/{stn.station_number}",
         flow_years=[stn.year for stn in flow_years],
@@ -82,7 +82,7 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
     return data
 
 
-@router.get("/hydat/{station_number}/levels", response_model=List[streams_v1.MonthlyLevel])
+@router.get("/{station_number}/levels", response_model=List[hydat_schema.MonthlyLevel])
 def list_monthly_levels_by_year(station_number: str, year: int = None, db: Session = Depends(get_db)):
     """ Monthly average levels for a given station and year. Data sourced from the National Water Data Archive.
 
@@ -96,7 +96,7 @@ def list_monthly_levels_by_year(station_number: str, year: int = None, db: Sessi
     return DailyLevel.get_monthly_levels_by_station(db, station_number, year)
 
 
-@router.get("/hydat/{station_number}/flows", response_model=List[streams_v1.MonthlyFlow])
+@router.get("/{station_number}/flows", response_model=List[hydat_schema.MonthlyFlow])
 def list_monthly_flows_by_year(station_number: str, year: int = None, db: Session = Depends(get_db)):
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 

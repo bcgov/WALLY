@@ -17,7 +17,7 @@ from sqlalchemy.orm import relationship, Session
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from geoalchemy2 import Geometry
 from api.db.base_class import BaseLayerTable
-import api.hydat.models as streams_v1
+import api.v1.hydat.schema as hydat_schema
 import api.aggregator.db as agr_repo
 from shapely.geometry import Polygon
 from logging import getLogger
@@ -206,7 +206,7 @@ class DailyFlow(BaseLayerTable):
             cls.station_number == station).distinct("year")
 
     @classmethod
-    def get_monthly_flows_by_station(cls, db: Session, station: str, year: int) -> List[streams_v1.MonthlyFlow]:
+    def get_monthly_flows_by_station(cls, db: Session, station: str, year: int) -> List[hydat_schema.MonthlyFlow]:
         """ fetch monthly stream levels for a specified station_number and year """
         if year:
             return db.query(cls).filter(
@@ -317,7 +317,7 @@ class DailyLevel(BaseLayerTable):
             cls.station_number == station).distinct("year")
 
     @classmethod
-    def get_monthly_levels_by_station(cls, db: Session, station: str, year: int) -> List[streams_v1.MonthlyLevel]:
+    def get_monthly_levels_by_station(cls, db: Session, station: str, year: int) -> List[hydat_schema.MonthlyLevel]:
         """ fetch monthly stream levels for a specified station_number and year """
         if year:
             return db.query(cls).filter(
@@ -623,7 +623,7 @@ class Station(BaseLayerTable):
 
     @classmethod
     def get_as_feature(cls, row, geom_col):
-        data = streams_v1.StreamStation(
+        data = hydat_schema.StreamStation(
             name=row.station_name,
             url=f"/api/v1/hydat/{row.station_number}",
             stream_flows_url=f"/api/v1/hydat/{row.station_number}/flows",
