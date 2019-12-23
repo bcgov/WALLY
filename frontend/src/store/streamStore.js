@@ -23,7 +23,6 @@ export default {
       // NOTE this action is the server backed query but at this point is too slow to implement
       let fwaCode = payload.stream.properties['FWA_WATERSHED_CODE']
       let outflowCode = fwaCode.substring(0, fwaCode.indexOf('-') + 1)
-      const watershedCode = fwaCode.replace(/-000000/g, '')
       ApiService.query(`/api/v1/stream/connections?outflowCode=${outflowCode}`)
         .then((response) => {
           console.log(response.data)
