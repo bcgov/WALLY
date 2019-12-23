@@ -143,6 +143,7 @@ export default {
         controls: {
           polygon: true,
           point: true,
+          line_string: true,
           trash: true
         }
       }))
@@ -491,6 +492,10 @@ export default {
       feature.display_data_name = 'user_defined_point'
       this.$store.commit('setDataMartFeatureInfo', feature)
     },
+    handleAddLineSelection (feature) {
+      feature.display_data_name = 'user_defined_line'
+      this.$store.commit('setDataMartFeatureInfo', feature)
+    },
     handleSelect (feature, options) {
       // default options when calling this handler.
       //
@@ -517,6 +522,11 @@ export default {
       if (newFeature.geometry.type === 'Point') {
         return this.handleAddPointSelection(newFeature)
       }
+
+      if (newFeature.geometry.type === 'LineString') {
+        return this.handleAddLineSelection(newFeature)
+      }
+
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
@@ -541,7 +551,6 @@ export default {
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
-        // const loc = e.lnglat
         const scale = MapScale(this.map)
         const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }
