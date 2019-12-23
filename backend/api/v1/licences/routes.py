@@ -31,5 +31,3 @@ def get_nearby_licences(
 
     licences_with_distances = get_licences_by_distance(db, point_shape, radius)
     return licences_with_distances
-
-
