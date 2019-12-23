@@ -2,15 +2,14 @@ import logging
 import asyncio
 import json
 from typing import List
-from urllib.parse import urlencode
-from shapely.geometry import LineString, Point
-from geojson import FeatureCollection, Feature
+from shapely.geometry import LineString
+from geojson import Feature
 from aiohttp import ClientSession, ClientResponse
 
-logger = logging.getLogger("elevation_surface")
+logger = logging.getLogger("elevations.controller")
 
 
-async def parse_result(res: ClientResponse) -> asyncio.Future:
+async def parse_result(res: ClientResponse) -> LineString:
     """  """
     body = await res.read()
     line = {}
@@ -36,8 +35,9 @@ async def parse_result(res: ClientResponse) -> asyncio.Future:
         ]
     )
 
+
 async def fetch(line: str, session: ClientSession) -> asyncio.Future:
-    """ asyncronously fetch one URL, expecting a geojson response """
+    """ asynchronously fetch one URL, expecting a geojson response """
     steps = 10
     if not line:
         return []
@@ -72,7 +72,8 @@ async def fetch_all(requests: List[str]) -> asyncio.Future:
                 batch_fetch(semaphore, req, session))
             tasks.append(task)
 
-        # return the gathered tasks, which will be a list of JSON responses when all requests return.
+        # return the gathered tasks,
+        # which will be a list of JSON responses when all requests return.
         return await asyncio.gather(*tasks)
 
 

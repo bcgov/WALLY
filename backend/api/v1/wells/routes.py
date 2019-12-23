@@ -10,10 +10,8 @@ from shapely.geometry import Point, LineString
 from api.db.utils import get_db
 from api.v1.wells.schema import WellDrawdown, CrossSection
 
-from api.v1.elevations.elevation_profile import (
-    get_profile_geojson, geojson_to_profile_line, profile_line_by_length
-)
-from api.v1.elevations.elevation_surface import fetch_surface_lines
+from api.v1.elevations.controllers.profile import get_profile_line_by_length
+from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
     get_wells_by_distance,
     merge_wells_datasources,
@@ -78,7 +76,7 @@ def get_wells_section(
     surface = fetch_surface_lines(lines) # surface of 5 lines used for 3d display
 
     profile_line_linestring = surface[2]
-    profile_line = profile_line_by_length(db, profile_line_linestring)
+    profile_line = get_profile_line_by_length(db, profile_line_linestring)
     wells_along_line = get_wells_along_line(db, profile_line_linestring, radius)
 
     buffer = db.query(

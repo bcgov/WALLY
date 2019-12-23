@@ -2,15 +2,13 @@
 from geojson import Feature
 from typing import List
 import requests
-from math import log
 from sqlalchemy.orm import Session
-from shapely.geometry import LineString, Point
-from shapely import wkt
+from shapely.geometry import LineString
 from logging import getLogger
 
-from api.v1.elevations.models import Elevation
+from api.v1.elevations.schema import Elevation
 
-logger = getLogger("elevation_profile")
+logger = getLogger("elevations.profile")
 
 
 def get_profile_geojson(line: LineString) -> List[Feature]:
@@ -32,7 +30,7 @@ def get_profile_geojson(line: LineString) -> List[Feature]:
 def geojson_to_profile_line(elevations: List[Feature]) -> LineString:
     """ uses GeoGratis (Government of Canada) API to retrieve elevation along a profile
     line (as a LineString shape object"""
-    
+
     profile_line = LineString(
         [
             (
@@ -45,7 +43,8 @@ def geojson_to_profile_line(elevations: List[Feature]) -> LineString:
 
     return profile_line
 
-def profile_line_by_length(db: Session, line: LineString):
+
+def get_profile_line_by_length(db: Session, line: LineString):
     """ convert a LineStringZ (3d line) to elevations along the length of the line """
 
     q = """
@@ -78,10 +77,10 @@ def profile_line_by_length(db: Session, line: LineString):
         ) as pts;
     """
 
-    elevs = []
+    elevation_profile = []
 
-    rows = db.execute(q, {"line":line.wkt})
+    rows = db.execute(q, {"line": line.wkt})
     for row in rows:
-        elevs.append(Elevation(distance_from_origin=row[0], elevation=row[1]))
-    
-    return elevs
+        elevation_profile.append(Elevation(distance_from_origin=row[0], elevation=row[1]))
+
+    return elevation_profile
