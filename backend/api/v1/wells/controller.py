@@ -2,7 +2,6 @@
 Database tables and data access functions for Water Survey of Canada's
 National Water Data Archive Hydrometic Data
 """
-import json
 import logging
 import requests
 from typing import List, Optional
@@ -10,7 +9,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from api.layers.ground_water_wells import GroundWaterWells
-from api.analysis.wells.models import WellDrawdown, Screen
+from api.v1.wells.schema import WellDrawdown, Screen
 logger = logging.getLogger("api")
 
 

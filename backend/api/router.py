@@ -11,6 +11,7 @@ from api.analysis.endpoints import router as analysis_v1
 from api.v1.streams import routes as streams
 from api.v1.stream import routes as stream
 from api.v1.firstnations import routes as firstnations
+from api.v1.wells import routes as wells
 
 api_router = APIRouter()
 
@@ -51,5 +52,12 @@ api_router.include_router(
     firstnations.router,
     prefix="/firstnations",
     tags=["firstnations"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    wells.router,
+    prefix="/wells",
+    tags=["wells"],
     responses={404: {"description": "Not found"}},
 )

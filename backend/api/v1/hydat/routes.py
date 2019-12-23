@@ -10,7 +10,7 @@ from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
 import api.v1.hydat.schema as hydat_schema
 
-logger = getLogger("api")
+logger = getLogger("hydat")
 
 router = APIRouter()
 

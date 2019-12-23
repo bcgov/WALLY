@@ -8,7 +8,7 @@ from api.db.utils import get_db
 from api.v1.firstnations.controller import get_nearest_locations
 from api.v1.firstnations.schema import NearbyAreasResponse
 
-logger = getLogger("geocoder")
+logger = getLogger("firstnations")
 
 router = APIRouter()
 

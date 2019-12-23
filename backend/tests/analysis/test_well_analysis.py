@@ -1,7 +1,6 @@
 from api.analysis.endpoints import merge_wells_datasources
-from api.analysis.wells.well_analysis import calculate_available_drawdown, calculate_top_of_screen
-from api.analysis.wells.models import Screen
-from tests.utils import get_mock_session
+from api.v1.wells.controller import calculate_available_drawdown, calculate_top_of_screen
+from api.v1.wells.schema import Screen
 import logging
 logger = logging.getLogger('test')
 
