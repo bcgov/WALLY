@@ -80,7 +80,7 @@ const featureReport = async (data) => {
         layers: layers
     })
     const layerData = await axios.get(
-        `http://${host}/api/v1/aggregate?${params}`
+        `http://${host}/api/v1/aggregate/?${params}`
     )
     log('info', 'data retrieved, generating map image...')
     props['bbox'] = bbox
