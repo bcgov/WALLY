@@ -9,8 +9,8 @@ from sqlalchemy.orm import Session
 from shapely.geometry import Point
 
 from api.db.utils import get_db
-from api.analysis.licences.licence_analysis import get_licences_by_distance
-from api.analysis.licences.models import WaterRightsLicence
+from api.v1.licences.controller import get_licences_by_distance
+from api.v1.licences.schema import WaterRightsLicence
 
 
 logger = getLogger("geocoder")
@@ -18,7 +18,7 @@ logger = getLogger("geocoder")
 router = APIRouter()
 
 
-@router.get("/analysis/licences/nearby", response_model=List[WaterRightsLicence])
+@router.get("/nearby", response_model=List[WaterRightsLicence])
 def get_nearby_licences(
         db: Session = Depends(get_db),
         point: str = Query(..., title="Point of interest",

@@ -1,12 +1,10 @@
-import json
 import logging
-import requests
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from api.layers.water_rights_licences import WaterRightsLicenses
 from api.layers.water_rights_applications import WaterRightsApplications
-from api.analysis.licences.models import WaterRightsLicence
+from api.v1.licences.schema import WaterRightsLicence
 logger = logging.getLogger("api")
 
 

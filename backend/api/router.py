@@ -7,7 +7,7 @@ from api.v1.hydat import routes as hydat_streams
 from api.metadata.endpoints import router as metadata_v1
 from api.aggregator.endpoints import router as aggregator_v1
 from api.v1.geocoder import routes as geocoder
-from api.analysis.endpoints import router as analysis_v1
+from api.v1.licences.routes import router as licences
 from api.v1.streams import routes as streams
 from api.v1.stream import routes as stream
 from api.v1.firstnations import routes as firstnations
@@ -17,7 +17,6 @@ api_router = APIRouter()
 
 api_router.include_router(metadata_v1)
 api_router.include_router(aggregator_v1)
-api_router.include_router(analysis_v1)
 
 
 api_router.include_router(
@@ -59,5 +58,12 @@ api_router.include_router(
     wells.router,
     prefix="/wells",
     tags=["wells"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    licences.router,
+    prefix="/licences",
+    tags=["licences"],
     responses={404: {"description": "Not found"}},
 )
