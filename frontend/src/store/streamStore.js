@@ -23,7 +23,7 @@ export default {
       // NOTE this action is the server backed query but at this point is too slow to implement
       let fwaCode = payload.stream.properties['FWA_WATERSHED_CODE']
       let outflowCode = fwaCode.substring(0, fwaCode.indexOf('-') + 1)
-      const watershedCode = fwaCode.replace(/-000000/g, '')
+
       ApiService.query(`/api/v1/analysis/stream/connections?outflowCode=${outflowCode}`)
         .then((response) => {
           console.log(response.data)
@@ -56,12 +56,14 @@ export default {
       payload.streams.forEach(stream => {
         const code = stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '') // remove empty stream ids
         if (code === watershedCode) { selectedFeatures.push(stream) } // selected stream condition
-        if (code.includes(watershedCode) && code.length > watershedCode.length) { upstreamFeatures.push(stream) } // upstream condition
-        if (downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length) { downstreamFeatures.push(stream) } // downstream condition
+
+        if (code.includes(watershedCode) && code.length > watershedCode.length) { upstreamFeatures.push(stream) } // up stream condition
+        if (downstreamCodes.indexOf(code) > -1 && code.length < watershedCode.length) { downstreamFeatures.push(stream) } // down stream condition
       })
 
       // Clean out downstream features that are upwards water flow
       // TODO may want to toggle this based on user feedback
+      dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
       dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
 
       commit('setUpstreamData', upstreamFeatures)
@@ -108,8 +110,8 @@ export default {
   mutations: {
     setUpstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
-      state.upstreamData = collection
+      collection['features'] = _.unionBy(payload, state.upStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      state.upStreamData = collection
     },
     setDownstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)

@@ -18,8 +18,14 @@ router = APIRouter()
 def geocode_lookup(
     db: Session = Depends(get_db),
     query: str = Path(..., title="Search query",
-                      description="Text to search for")
+                      description="Text to search for"),
+    feature_type: str = Query(
+        None,
+        title="Feature type to limit search to",
+        description="Feature type to limit search to. Defaults to all types",
+        alias="country"  # note: the Mapbox geocoder may send this query in the country parameter.
+    )
 ):
     """ provides lookup/geocoding of places that users search for """
 
-    return lookup_by_text(db, query)
+    return lookup_by_text(db, query, feature_type)

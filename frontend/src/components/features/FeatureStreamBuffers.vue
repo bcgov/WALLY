@@ -178,7 +178,7 @@ export default {
     getSelectedStreamData () {
       if (this.panelOpen.length > 0) {
         this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
-        this.$store.commit('setselectedStreamBufferData', this.buffer)
+        this.$store.commit('setSelectedStreamBufferData', this.buffer)
       }
     },
     buffer (value) {

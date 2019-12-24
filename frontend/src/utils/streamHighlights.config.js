@@ -32,7 +32,7 @@ export const sources = [
 
 export const layers = [
   {
-    'id': 'selectedstream',
+    'id': 'selectedStream',
     'type': 'line',
     'source': sources[0].name,
     'layout': {
@@ -71,7 +71,7 @@ export const layers = [
     }
   },
   {
-    'id': 'selectedstreambuffer',
+    'id': 'selectedStreamBuffer',
     'type': 'fill',
     'source': sources[3].name,
     'layout': {
@@ -81,7 +81,7 @@ export const layers = [
     }
   },
   {
-    'id': 'upstreambuffer',
+    'id': 'upstreamBuffer',
     'type': 'fill',
     'source': sources[4].name,
     'layout': {
@@ -91,7 +91,7 @@ export const layers = [
     }
   },
   {
-    'id': 'downstreambuffer',
+    'id': 'downstreamBuffer',
     'type': 'fill',
     'source': sources[5].name,
     'layout': {
