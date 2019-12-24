@@ -9,11 +9,11 @@ export const sources = [
     options: featureCollection
   },
   {
-    name: 'upStreamSource',
+    name: 'upstreamSource',
     options: featureCollection
   },
   {
-    name: 'downStreamSource',
+    name: 'downstreamSource',
     options: featureCollection
   },
   {
@@ -21,11 +21,11 @@ export const sources = [
     options: featureCollection
   },
   {
-    name: 'upStreamBufferSource',
+    name: 'upstreamBufferSource',
     options: featureCollection
   },
   {
-    name: 'downStreamBufferSource',
+    name: 'downstreamBufferSource',
     options: featureCollection
   }
 ]

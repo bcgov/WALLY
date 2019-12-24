@@ -10,11 +10,11 @@ export default {
     },
     streamSources: config.sources,
     streamLayers: config.layers,
-    upStreamData: {},
-    downStreamData: {},
+    upstreamData: {},
+    downstreamData: {},
     selectedStreamData: {},
-    upStreamBufferData: {},
-    downStreamBufferData: {},
+    upstreamBufferData: {},
+    downstreamBufferData: {},
     selectedStreamBufferData: {}
   },
   actions: {
@@ -44,7 +44,7 @@ export default {
 
       // Build our downstream code list
       const codes = watershedCode.split('-')
-      var downstreamCodes = [codes[0]]
+      let downstreamCodes = [codes[0]]
       for (let i = 0; i < codes.length - 1; i++) {
         downstreamCodes.push(downstreamCodes[i] + '-' + codes[i + 1])
       }
@@ -62,13 +62,13 @@ export default {
 
       // Clean out downstream features that are upwards water flow
       // TODO may want to toggle this based on user feedback
-      dispatch('cleanDownStreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
+      dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
 
-      commit('setUpStreamData', upstreamFeatures)
+      commit('setUpstreamData', upstreamFeatures)
       commit('setSelectedStreamData', selectedFeatures)
-      // commit('setDownStreamData', cleanedDownstreamFeatures)
+      // commit('setDownstreamData', cleanedDownstreamFeatures)
     },
-    cleanDownStreams ({ commit, dispatch }, payload) {
+    cleanDownstreams ({ commit, dispatch }, payload) {
       let builder = payload.builder
       if (!builder) {
         builder = []
@@ -79,7 +79,7 @@ export default {
       // Returns an array (builder) of cleaned stream segment features.
       // The BigO of this function is linear with a max of apprx. 50 due
       // to the max magnitude of a stream
-      var segment = payload.streams.find((s) => {
+      let segment = payload.streams.find((s) => {
         if (s.properties['LOCAL_WATERSHED_CODE']) {
           let local = s.properties['LOCAL_WATERSHED_CODE']
           let global = s.properties['FWA_WATERSHED_CODE']
@@ -99,22 +99,22 @@ export default {
         })
         builder = builder.concat(elements)
         // Recursive call step with current builder object and next segment selection
-        return dispatch('cleanDownStreams', { streams: payload.streams, code: segmentCode, builder: builder })
+        return dispatch('cleanDownstreams', { streams: payload.streams, code: segmentCode, builder: builder })
       } else {
-        commit('setDownStreamData', builder)
+        commit('setDownstreamData', builder)
       }
     }
   },
   mutations: {
-    setUpStreamData (state, payload) {
+    setUpstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.upStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
-      state.upStreamData = collection
+      collection['features'] = _.unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      state.upstreamData = collection
     },
-    setDownStreamData (state, payload) {
+    setDownstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.downStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
-      state.downStreamData = collection
+      collection['features'] = _.unionBy(payload, state.downstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      state.downstreamData = collection
     },
     setSelectedStreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
@@ -122,27 +122,27 @@ export default {
       state.selectedStreamData = collection
     },
     resetStreamData (state) {
-      state.upStreamData = state.featureCollection
-      state.downStreamData = state.featureCollection
+      state.upstreamData = state.featureCollection
+      state.downstreamData = state.featureCollection
       state.selectedStreamData = state.featureCollection
     },
     setStreamBufferData (state, payload) {
-      state.upStreamBufferData = buffer(state.upStreamData, payload, { units: 'meters' })
-      state.downStreamBufferData = buffer(state.downStreamData, payload, { units: 'meters' })
+      state.upstreamBufferData = buffer(state.upstreamData, payload, { units: 'meters' })
+      state.downstreamBufferData = buffer(state.downstreamData, payload, { units: 'meters' })
       state.selectedStreamBufferData = buffer(state.selectedStreamData, payload, { units: 'meters' })
     },
-    setUpStreamBufferData (state, payload) {
-      state.upStreamBufferData = buffer(state.upStreamData, payload, { units: 'meters' })
+    setUpstreamBufferData (state, payload) {
+      state.upstreamBufferData = buffer(state.upstreamData, payload, { units: 'meters' })
     },
-    setDownStreamBufferData (state, payload) {
-      state.downStreamBufferData = buffer(state.downStreamData, payload, { units: 'meters' })
+    setDownstreamBufferData (state, payload) {
+      state.downstreamBufferData = buffer(state.downstreamData, payload, { units: 'meters' })
     },
     setSelectedStreamBufferData (state, payload) {
       state.selectedStreamBufferData = buffer(state.selectedStreamData, payload, { units: 'meters' })
     },
     resetStreamBufferData (state) {
-      state.upStreamBufferData = state.featureCollection
-      state.downStreamBufferData = state.featureCollection
+      state.upstreamBufferData = state.featureCollection
+      state.downstreamBufferData = state.featureCollection
       state.selectedStreamBufferData = state.featureCollection
     },
     setStreamAnalysisPanel (state, payload) {
@@ -150,13 +150,13 @@ export default {
     }
   },
   getters: {
-    getUpstreamData: state => state.upStreamData,
-    getDownstreamData: state => state.downStreamData,
+    getUpstreamData: state => state.upstreamData,
+    getDownstreamData: state => state.downstreamData,
     getSelectedStreamData: state => state.selectedStreamData,
     getStreamSources: state => state.streamSources,
     getStreamLayers: state => state.streamLayers,
-    getUpStreamBufferData: state => state.upStreamBufferData,
-    getDownStreamBufferData: state => state.downStreamBufferData,
+    getUpstreamBufferData: state => state.upstreamBufferData,
+    getDownstreamBufferData: state => state.downstreamBufferData,
     getSelectedStreamBufferData: state => state.selectedStreamBufferData
   }
 }
