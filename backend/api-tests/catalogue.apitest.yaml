@@ -21,7 +21,7 @@ requests:
       - var: auth_token # set the {{auth_token}} here
         from: access_token
   - name: Get catalogue
-    url: "{{host}}/api/v1/catalogue"
+    url: "{{host}}/api/v1/catalogue/all"
     method: get
     expect:
       status: 200

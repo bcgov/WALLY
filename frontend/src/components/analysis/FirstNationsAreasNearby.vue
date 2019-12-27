@@ -132,7 +132,7 @@ export default {
       const params = {
         geometry: JSON.stringify(this.bounds)
       }
-      ApiService.query(`/api/v1/analysis/firstnations/nearby?${qs.stringify(params)}`).then((r) => {
+      ApiService.query(`/api/v1/firstnations/nearby?${qs.stringify(params)}`).then((r) => {
         this.communities = r.data.nearest_communities
         this.areas = r.data.nearest_treaty_areas
         this.lands = r.data.nearest_treaty_lands

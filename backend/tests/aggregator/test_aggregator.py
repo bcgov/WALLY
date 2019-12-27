@@ -1,10 +1,10 @@
 import geojson
 from urllib.parse import parse_qs, urlparse
 
-from api.aggregator.aggregate import build_wms_query
-from api.aggregator.models import WMSGetMapQuery, ExternalAPIRequest
-from api.aggregator.excel import xlsxExport
-from api.aggregator.models import LayerResponse
+from api.v1.aggregator.controller import build_wms_query
+from api.v1.aggregator.schema import WMSGetMapQuery, ExternalAPIRequest
+from api.v1.aggregator.excel import xlsxExport
+from api.v1.aggregator.schema import LayerResponse
 
 OVERLAP_AQUIFERS_HYDAT_LAYER = [-123.0681610107422,
                                 49.27430088974207, -122.98387527465822, 49.333176910734124]

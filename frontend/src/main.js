@@ -17,9 +17,9 @@ Vue.prototype.$auth = auth
 
 Sentry.init({
   dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
-  integrations: [new Integrations.Vue({ Vue,
+  integrations: process.env.VUE_APP_ENV === 'production' ? [new Integrations.Vue({ Vue,
     attachProps: true,
-    logErrors: true })]
+    logErrors: true })] : []
 })
 
 auth.init({

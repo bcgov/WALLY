@@ -5,6 +5,9 @@ import baseMapDescriptions from '../utils/baseMapDescriptions'
 
 export default {
   state: {
+    map: {},
+    draw: {},
+    geocoder: {},
     selectedMapLayerNames: [],
     activeMapLayers: [],
     mapLayers: [],
@@ -30,7 +33,7 @@ export default {
       if (this.state.mapLayers === undefined) {
         return new Promise((resolve, reject) => {
           console.log('Getting map layers')
-          ApiService.getApi('/catalogue')
+          ApiService.getApi('/catalogue/all')
             .then((response) => {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
@@ -44,6 +47,15 @@ export default {
     }
   },
   mutations: {
+    setMap (state, payload) {
+      state.map = payload
+    },
+    setDraw (state, payload) {
+      state.draw = payload
+    },
+    setGeocoder (state, payload) {
+      state.geocoder = payload
+    },
     setLayerSelectionActiveState (state, payload) {
       state.layerSelectionActive = payload
     },
@@ -122,6 +134,9 @@ export default {
     getCategories: state => state.layerCategories,
     layerSelectionActive: state => state.layerSelectionActive,
     selectedBaseLayers: state => state.selectedBaseLayers,
-    baseMapLayers: state => state.baseMapLayers
+    baseMapLayers: state => state.baseMapLayers,
+    map: state => state.map,
+    draw: state => state.draw,
+    geocoder: state => state.geocoder
   }
 }
