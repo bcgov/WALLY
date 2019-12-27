@@ -2,7 +2,7 @@ import math
 import json
 from geojson import dumps, FeatureCollection, Feature, Point
 from shapely.geometry import mapping
-from api.aggregator.models import ExternalAPIRequest, GWELLSAPIParams, json_to_geojson
+from api.v1.aggregator.schema import ExternalAPIRequest, GWELLSAPIParams, json_to_geojson
 
 EARTH_RADIUS = 6378137
 MAX_LATITUDE = 85.0511287798
