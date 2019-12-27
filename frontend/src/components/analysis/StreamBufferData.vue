@@ -27,7 +27,7 @@ export default {
     titleLookup: {
       upstream: 'Up Stream Features',
       downstream: 'Down Stream Features',
-      selectedstream: 'Selected Stream Segment Features'
+      selectedStream: 'Selected Stream Segment Features'
     }
   }),
   computed: {

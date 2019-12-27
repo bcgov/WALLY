@@ -110,7 +110,7 @@ export default {
       // Multiple legend items in this layer
       for (let i = 1; i < paint.color.length; i += 2) {
         if (paint.color[i].constructor === Array) {
-          text = paint.color[i][2].join(', ')
+          text = this.replaceLabelCode(paint.color[i][2].join(', '))
           color = paint.color[i + 1]
           legendItems.push({
             text,
@@ -122,6 +122,22 @@ export default {
         }
       }
       return legendItems
+    },
+    replaceLabelCode (code) {
+      switch (code) {
+        case 'OR':
+          return 'Office Reserve'
+        case 'FR':
+          return 'Fully Recorded'
+        case 'FR_EXC':
+          return 'Fully Recorded Except'
+        case 'PWS':
+          return 'Possible Water Shortage'
+        case 'PWS, RNW':
+          return 'Possible Water Shortage, Refused No Water'
+        default:
+          return ''
+      }
     }
   },
   computed: {

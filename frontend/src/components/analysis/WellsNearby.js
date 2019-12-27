@@ -138,7 +138,7 @@ export default {
         radius: parseFloat(this.radius),
         point: JSON.stringify(this.coordinates)
       }
-      ApiService.query(`/api/v1/analysis/wells/nearby?${qs.stringify(params)}`).then((r) => {
+      ApiService.query(`/api/v1/wells/nearby?${qs.stringify(params)}`).then((r) => {
         this.wells = r.data
         this.populateBoxPlotData(this.wells)
       }).catch((e) => {

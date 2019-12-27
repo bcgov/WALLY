@@ -30,7 +30,7 @@ export default {
     },
     downloadExcelReport ({ commit }, payload) {
       return new Promise((resolve, reject) => {
-        ApiService.getApi('/aggregate?' + qs.stringify(payload), { responseType: 'arraybuffer' })
+        ApiService.getApi('/aggregate/?' + qs.stringify(payload), { responseType: 'arraybuffer' })
           .then((res) => {
             console.log(res)
             let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })

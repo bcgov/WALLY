@@ -77,7 +77,7 @@ export default {
       if (this.state.mapLayers === undefined) {
         return new Promise((resolve, reject) => {
           console.log('Getting map layers')
-          ApiService.getApi('/catalogue')
+          ApiService.getApi('/catalogue/all')
             .then((response) => {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)

@@ -80,7 +80,7 @@ const featureReport = async (data) => {
         layers: layers
     })
     const layerData = await axios.get(
-        `http://${host}/api/v1/aggregate?${params}`
+        `http://${host}/api/v1/aggregate/?${params}`
     )
     log('info', 'data retrieved, generating map image...')
     props['bbox'] = bbox
@@ -123,7 +123,7 @@ const featureReport = async (data) => {
     // })
     log('info', 'map generated, retrieving layer catalogue info...')
     const catalogue = await axios.get(
-        `http://${host}/api/v1/catalogue`
+        `http://${host}/api/v1/catalogue/all`
     )
     props['catalogue'] = catalogue.data.layers
 

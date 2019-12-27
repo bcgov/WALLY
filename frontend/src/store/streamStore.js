@@ -23,7 +23,7 @@ export default {
       // NOTE this action is the server backed query but at this point is too slow to implement
       let fwaCode = payload.stream.properties['FWA_WATERSHED_CODE']
       let outflowCode = fwaCode.substring(0, fwaCode.indexOf('-') + 1)
-      ApiService.query(`/api/v1/analysis/stream/connections?outflowCode=${outflowCode}`)
+      ApiService.query(`/api/v1/stream/connections?outflowCode=${outflowCode}`)
         .then((response) => {
           console.log(response.data)
           let params = {
@@ -62,9 +62,9 @@ export default {
       // TODO may want to toggle this based on user feedback
       dispatch('cleanDownStreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
 
-      commit('setUpStreamData', upstreamFeatures)
+      commit('setUpstreamData', upstreamFeatures)
       commit('setSelectedStreamData', selectedFeatures)
-      // commit('setDownStreamData', cleanedDownstreamFeatures)
+      // commit('setDownstreamData', cleanedDownstreamFeatures)
     },
     cleanDownStreams ({ commit, dispatch }, payload) {
       let builder = payload.builder
@@ -99,17 +99,17 @@ export default {
         // Recursive call step with current builder object and next segment selection
         return dispatch('cleanDownStreams', { streams: payload.streams, code: segmentCode, builder: builder })
       } else {
-        commit('setDownStreamData', builder)
+        commit('setDownstreamData', builder)
       }
     }
   },
   mutations: {
-    setUpStreamData (state, payload) {
+    setUpstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
       collection['features'] = _.unionBy(payload, state.upStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.upStreamData = collection
     },
-    setDownStreamData (state, payload) {
+    setDownstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
       collection['features'] = _.unionBy(payload, state.downStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.downStreamData = collection

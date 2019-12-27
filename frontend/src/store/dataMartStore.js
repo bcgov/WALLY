@@ -31,10 +31,11 @@ export default {
       })
     },
     getDataMartFeatureInfo ({ commit }, payload) {
-      const { display_data_name, pk } = payload
+      let pk = payload.pk
+      let displayDataName = payload.display_data_name
       commit('setLoadingFeature', true)
       commit('setFeatureError', '')
-      ApiService.getApi('/feature?layer=' + display_data_name + '&pk=' + pk)
+      ApiService.getApi('/feature?layer=' + displayDataName + '&pk=' + pk)
         .then((response) => {
           commit('setLoadingFeature', false)
           commit('setLayerSelectionActiveState', false)
@@ -42,7 +43,7 @@ export default {
           commit('setDataMartFeatureInfo',
             {
               type: feature.type,
-              display_data_name: display_data_name,
+              display_data_name: displayDataName,
               geometry: feature.geometry,
               properties: feature.properties
             })
@@ -74,7 +75,7 @@ export default {
       var height = 'height=' + payload.size.y
       var params = layers.join('') + polygonQ + width + height
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
-      ApiService.getApi('/aggregate?' + params)
+      ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data

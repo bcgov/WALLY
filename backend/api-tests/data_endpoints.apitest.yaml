@@ -21,7 +21,7 @@ requests:
       - var: auth_token # set the {{auth_token}} here
         from: access_token
   - name: Get stations
-    url: "{{host}}/api/v1/hydat"
+    url: "{{host}}/api/v1/hydat/all"
     method: get
     expect:
       status: 200
@@ -61,32 +61,32 @@ requests:
     expect:
       status: 404
   - name: call excel report endpoint
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers&format=xlsx"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers&format=xlsx"
     method: get
     expect:
       status: 200 # response is an excel file, so just check status code.
   - name: call excel report endpoint with Hydat layer
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers&layers=hydrometric_stream_flow&format=xlsx"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers&layers=hydrometric_stream_flow&format=xlsx"
     method: get
     expect:
       status: 200 # response is an excel file, so just check status code.
   - name: Well radius search
-    url: "{{host}}/api/v1/analysis/wells/nearby?radius=1000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
+    url: "{{host}}/api/v1/wells/nearby?radius=1000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
     method: get
     expect:
       status: 200
   - name: Well radius search (invalid radius)
-    url: "{{host}}/api/v1/analysis/wells/nearby?radius=20000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
+    url: "{{host}}/api/v1/wells/nearby?radius=20000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
     method: get
     expect:
       status: 422
   - name: Licence radius search
-    url: "{{host}}/api/v1/analysis/licences/nearby?radius=1000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
+    url: "{{host}}/api/v1/licences/nearby?radius=1000&&point=%5B-122.90700522356728%2C49.31036202688435%5D"
     method: get
     expect:
       status: 200
   - name: First Nations search from point location
-    url: '{{host}}/api/v1/analysis/firstnations/nearby?geometry={"coordinates":[-122.93164184180638,50.15903067710735],"type":"Point"}'
+    url: '{{host}}/api/v1/firstnations/nearby?geometry={"coordinates":[-122.93164184180638,50.15903067710735],"type":"Point"}'
     method: get
     expect:
       status: 200
@@ -98,7 +98,7 @@ requests:
         nearest_treaty_lands:
           exists: true
   - name: First Nations search from point location
-    url: '{{host}}/api/v1/analysis/firstnations/nearby?geometry={"type":"Polygon","coordinates":[[[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786]]]}'
+    url: '{{host}}/api/v1/firstnations/nearby?geometry={"type":"Polygon","coordinates":[[[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786],[-122.9326263202208,50.1561293198786]]]}'
     method: get
     expect:
       status: 200
@@ -110,119 +110,119 @@ requests:
         nearest_treaty_lands:
           exists: true
   - name: call aggregate endpoint (aquifers)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (automated snow weather station locations)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=automated_snow_weather_station_locations"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=automated_snow_weather_station_locations"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (groundwater_wells)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=groundwater_wells"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=groundwater_wells"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_watersheds)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=freshwater_atlas_watersheds"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=freshwater_atlas_watersheds"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (hydrometric_stream_flow)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=hydrometric_stream_flow"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=hydrometric_stream_flow"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (bc_major_watersheds)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=bc_major_watersheds"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=bc_major_watersheds"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_stream_directions)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=freshwater_atlas_stream_directions"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=freshwater_atlas_stream_directions"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_stream_networks)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=freshwater_atlas_stream_networks"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=freshwater_atlas_stream_networks"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (water_allocation_restrictions)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_allocation_restrictions"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_allocation_restrictions"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (water_rights_applications)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_rights_applications"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_rights_applications"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (water_rights_licences)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_rights_licences"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_rights_licences"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (ecocat_water_related_reports)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=ecocat_water_related_reports"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=ecocat_water_related_reports"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (cadastral)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=cadastral"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=cadastral"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (critical_habitat_species_at_risk)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=critical_habitat_species_at_risk"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=critical_habitat_species_at_risk"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (bc_wildfire_active_weather_stations)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=bc_wildfire_active_weather_stations"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=bc_wildfire_active_weather_stations"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint with multiple layers (3 - wildfire, critical habitat, aquifers)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=bc_wildfire_active_weather_stations&layers=critical_habitat_species_at_risk&layers=aquifers"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=bc_wildfire_active_weather_stations&layers=critical_habitat_species_at_risk&layers=aquifers"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint with multiple layers (3 - fn_community_locations, fn_treaty_lands, fn_treaty_areas)
-    url: "{{host}}/api/v1/aggregate?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=fn_treaty_lands&layers=fn_treaty_areas&layers=fn_community_locations"
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=51.75045468386435&bbox=-126.258801334543&bbox=52.28141803274622&width=1286&height=1243&layers=fn_treaty_lands&layers=fn_treaty_areas&layers=fn_community_locations"
     method: get
     expect:
       status: 200
@@ -233,3 +233,20 @@ requests:
         display_data.[0].layer: fn_treaty_lands
         display_data.[1].layer: fn_treaty_areas
         display_data.[2].layer: fn_community_locations
+  - name: Cross section endpoint, across Whistler data set
+    url: "{{host}}/api/v1/wells/section?radius=200&line=%5B%5B-122.96377711531765%2C50.10780689347729%5D%2C%5B-122.93100834718146%2C50.15894819669609%5D%5D"
+    method: get
+    expect:
+      status: 200
+      values:
+        search_area.type: Polygon
+        wells.[0].well_tag_number:
+          exists: true
+        wells.[0].distance_from_origin:
+          exists: true
+        elevation_profile.[0].distance_from_origin: 0 # the first 
+        elevation_profile.[0].elevation:
+          gt: 500 # all elevations in Whistler should be greater than 500, this is just a sanity check
+        surface.[0]:
+          exists: true
+
