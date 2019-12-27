@@ -43,7 +43,7 @@
 
           <v-row no-gutters>
             <SteamBufferData :bufferData="upStreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
-            <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedstream'" :layerId="selectedLayer" />
+            <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedStream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="downStreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
           </v-row>
 
@@ -93,7 +93,7 @@ export default {
     updateStreamBuffers () {
       this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
       this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
-      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedstream')
+      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
     },
     enableMapLayer () {
       this.$store.commit('addMapLayer', this.selectedLayer)
@@ -117,14 +117,14 @@ export default {
         layer: this.selectedLayer
       }
       this.loading = true
-      ApiService.post('/api/v1/analysis/stream/features', params)
+      ApiService.post('/api/v1/stream/features', params)
         .then((response) => {
           let data = response.data
           if (type === 'upstream') {
             this.upStreamData = data
           } else if (type === 'downstream') {
             this.downStreamData = data
-          } else if (type === 'selectedstream') {
+          } else if (type === 'selectedStream') {
             this.selectedStreamData = data
           }
           this.loading = false
@@ -177,7 +177,7 @@ export default {
     },
     getSelectedStreamData () {
       if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedstream')
+        this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
         this.$store.commit('setSelectedStreamBufferData', this.buffer)
       }
     },
