@@ -46,7 +46,7 @@ export default {
         return
       }
 
-      setTimeout(() => this.map.redraw(), 0)
+      setTimeout(() => this.map.triggerRepaint(), 0)
     }
   }
 }

@@ -2,12 +2,33 @@
   <div>
     <v-toolbar fixed class="wally-toolbar" short>
       <v-toolbar-items class="py-2">
-        <v-btn
+
+        <v-menu
+              v-model="layerSelection"
+              :close-on-content-click="false"
+              :nudge-width="200"
+              offset-y
+              allow-overflow
+              class="layer-selection-menu"
+            >
+              <template v-slot:activator="{ on }">
+                <v-btn
+                  color="indigo"
+                  dark
+                  v-on="on"
+                >
+                  <v-icon>layers</v-icon> Layers
+                </v-btn>
+              </template>
+              <LayerSelection @closeDialog="layerSelection = false"/>
+        </v-menu>
+
+        <!-- <v-btn
           color="primary"
           @click.prevent="handleLayerSelectionState"
           :outlined="$route.name !== 'layer-selection'"
           width=128
-        ><v-icon>layers</v-icon> Layers</v-btn>
+        ><v-icon>layers</v-icon> Layers</v-btn> -->
         <SelectionMenu></SelectionMenu>
       </v-toolbar-items>
 
@@ -21,13 +42,16 @@
 import { mapGetters } from 'vuex'
 import GeocoderSearch from './toolbar/GeocoderSearch'
 import SelectionMenu from './toolbar/SelectionMenu'
+import LayerSelection from './sidebar/LayerSelection'
 export default {
   name: 'Toolbar',
   components: {
     GeocoderSearch,
-    SelectionMenu
+    SelectionMenu,
+    LayerSelection
   },
   data: () => ({
+    layerSelection: false
   }),
   computed: {
     ...mapGetters([
@@ -51,5 +75,8 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+.layer-selection-menu {
+  max-height: 60vh;
+}
 </style>
