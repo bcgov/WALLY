@@ -116,7 +116,7 @@ export default {
       water_rights_licences: FeatureLicence,
       groundwater_wells: FeatureWell,
       ecocat_water_related_reports: FeatureEcocat,
-      user_defined_point: UserDefinedPoint,
+      point_of_interest: UserDefinedPoint,
       user_defined_line: UserDefinedLine,
       freshwater_atlas_stream_networks: FeatureStreamBuffers,
       fn_community_locations: FeatureCommunityLocation
@@ -182,6 +182,8 @@ export default {
 
       if (this.$route.query.layer === 'point_of_interest') {
         this.$store.dispatch('addPointOfInterest', point)
+      } else {
+        this.$router.push('/')
       }
     }
   },

@@ -8,6 +8,7 @@
           :outlined="$route.name !== 'layer-selection'"
           width=128
         ><v-icon>layers</v-icon> Layers</v-btn>
+        <SelectionMenu></SelectionMenu>
       </v-toolbar-items>
 
       <div class="flex-grow-1"></div>
@@ -19,10 +20,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import GeocoderSearch from './toolbar/GeocoderSearch'
+import SelectionMenu from './toolbar/SelectionMenu'
 export default {
   name: 'Toolbar',
   components: {
-    GeocoderSearch
+    GeocoderSearch,
+    SelectionMenu
   },
   data: () => ({
   }),
@@ -30,7 +33,8 @@ export default {
     ...mapGetters([
       'layerSelectionActive',
       'singleSelectionFeatures',
-      'featureSelectionExists'
+      'featureSelectionExists',
+      'layerSelectTriggered'
     ])
   },
   methods: {
@@ -40,19 +44,7 @@ export default {
       // }
       this.$store.commit('setLayerSelectionActiveState', !this.layerSelectionActive)
 
-      if (this.$route.name === 'layer-selection') {
-        // use history if the layer select button was triggered in the application,
-        // otherwise go to the home route. This allows us to use the browser history
-        // to go back to the previous screen (after selecting layers), without
-        // leaving the application (if the layer select was not triggered in app, but
-        // instead the user clicked a bookmark directly to /layers)
-        if (this.layerSelectTriggered) {
-          return this.$router.go(-1)
-        } else {
-          return this.$router.push('/')
-        }
-      }
-      this.layerSelectTriggered = true
+      this.$store.commit('setLayerSelectTriggered', true)
       return this.$router.push('/layers')
     }
   }

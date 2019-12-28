@@ -1,11 +1,18 @@
 <template>
   <div class="home">
-    <Overlay></Overlay>
-    <Map></Map>
+    <v-row no-gutters>
+      <v-col :cols="12" :md="12 - sidebarColumns.md" :lg="12 - sidebarColumns.lg" :xl="12 - sidebarColumns.xl" order-md="1">
+        <Map></Map>
+      </v-col>
+      <v-col :cols="12" :md="sidebarColumns.md" :lg="sidebarColumns.lg" :xl="sidebarColumns.xl" order-md="0">
+        <Overlay></Overlay>
+      </v-col>
+    </v-row>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Map from '../components/map/Map.vue'
 import Overlay from '../components/common/Overlay'
 
@@ -14,6 +21,33 @@ export default {
   components: {
     Overlay,
     Map
+  },
+  data: () => ({
+    sidebarColumnDefaults: {
+      cols: 12,
+      md: 6,
+      lg: 4,
+      xl: 3
+    }
+  }),
+  computed: {
+    sidebarColumns () {
+      const sidebarColumns = this.$route.meta.sidebarColumns || {}
+      return Object.assign(this.sidebarColumnDefaults, sidebarColumns)
+    },
+    ...mapGetters(['map'])
+  },
+  watch: {
+    sidebarColumns () {
+      // redraw map when columns resizing.
+
+      if (!this.map.loaded()) {
+        // map hasn't loaded; no need to trigger redraw
+        return
+      }
+
+      setTimeout(() => this.map.redraw(), 0)
+    }
   }
 }
 </script>

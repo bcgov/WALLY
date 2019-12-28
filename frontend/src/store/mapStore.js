@@ -2,12 +2,14 @@ import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
+import router from '../router'
 
 export default {
   state: {
     map: null,
     draw: {},
     geocoder: {},
+    layerSelectTriggered: false,
     selectedMapLayerNames: [],
     activeMapLayers: [],
     mapLayers: [],
@@ -119,7 +121,23 @@ export default {
     setGeocoder (state, payload) {
       state.geocoder = payload
     },
+    setLayerSelectTriggered (state, payload) {
+      state.layerSelectTriggered = payload
+    },
     setLayerSelectionActiveState (state, payload) {
+      if (state.layerSelectionActive && !payload) {
+        if (state.layerSelectTriggered) {
+          return router.go(-1)
+        } else {
+          return router.push('/')
+        }
+      }
+
+      // when turning on layer selection
+      if (!state.layerSelectionActive && payload) {
+        state.layerSelectTriggered = true
+      }
+
       state.layerSelectionActive = payload
     },
     setLayerCategories (state, payload) {
@@ -200,6 +218,7 @@ export default {
     baseMapLayers: state => state.baseMapLayers,
     map: state => state.map,
     draw: state => state.draw,
-    geocoder: state => state.geocoder
+    geocoder: state => state.geocoder,
+    layerSelectTriggered: state => state.layerSelectTriggered
   }
 }

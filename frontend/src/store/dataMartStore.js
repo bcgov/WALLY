@@ -171,7 +171,12 @@ export default {
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
-    setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
+    setDataMartFeatures: (state, payload) => {
+      state.dataMartFeatures.push(payload)
+      router.push({
+        name: 'multiple-features'
+      })
+    },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     clearDisplayTemplates: (state) => { state.displayTemplates = [] },

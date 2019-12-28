@@ -29,7 +29,7 @@
       </div>
       <div class="wally-user mr-5">{{ name }}</div>
       <div class="mt-6">
-        <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch>
+        <!-- <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch> -->
       </div>
     </v-app-bar>
 </template>

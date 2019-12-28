@@ -170,6 +170,11 @@ export default {
         this.pdfReportLoading = false
       })
     }
+  },
+  mounted () {
+    if (!this.dataMartFeatures || !this.dataMartFeatures.length) {
+      this.$router.push('/')
+    }
   }
 }
 </script>

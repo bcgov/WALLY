@@ -24,12 +24,12 @@
       hoverable
       open-on-click
       :items="categories"
-      >
+    >
       <template v-slot:label="{ item }">
-          <div>
-            <span>{{item.name}}</span>
-            <LayerDialog :name="item.name" :description="item.description" :url="item.source_url" />
-          </div>
+        <div>
+          <span>{{item.name}}</span>
+          <Dialog :name="item.name" :description="item.description" :url="item.source_url" />
+        </div>
       </template>
     </v-treeview>
     <v-treeview
@@ -41,12 +41,12 @@
       @input="handleSelectBaseLayer"
       :items="baseMapLayers"
       :value="selectedBaseLayers"
-      >
+    >
       <template v-slot:label="{ item }">
-          <div>
-            <span>{{item.name}}</span>
-            <LayerDialog :name="item.name" :description="item.description" :url="item.source_url" />
-          </div>
+        <div>
+          <span>{{item.name}}</span>
+          <Dialog :name="item.name" :description="item.description" :url="item.source_url" />
+        </div>
       </template>
     </v-treeview>
   </v-container>
@@ -55,12 +55,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import EventBus from '../../services/EventBus'
-import LayerDialog from './LayerDialog'
+import Dialog from '../common/Dialog'
 
 export default {
-  name: 'LayerSelection',
+  name: 'MapLayerSelection',
   components: {
-    LayerDialog
+    Dialog
   },
   computed: {
     ...mapGetters([
@@ -80,9 +80,6 @@ export default {
       'selectedBaseLayers',
       'baseMapLayers'
     ]),
-    allowDisableLayerSelection () {
-      return this.featureSelectionExists
-    },
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
     },
@@ -132,13 +129,16 @@ export default {
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.commit('setActiveBaseMapLayers', selectedBaseLayers)
+    },
+    allowDisableLayerSelection () {
+      return this.featureSelectionExists
     }
   }
 }
 </script>
 
 <style>
-.appendRight{
-  float:right;
-}
+  .appendRight{
+    float:right;
+  }
 </style>

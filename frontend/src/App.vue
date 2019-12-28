@@ -8,7 +8,7 @@
       >
         <Toolbar/>
         <Notifications/>
-        <router-view/>
+        <Home/>
       </v-container>
     </v-content>
   </v-app>
@@ -17,6 +17,7 @@
 <script>
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
+import Home from './components/Home'
 import Notifications from './components/Notifications'
 import '@bcgov/bc-sans/css/BCSans.css'
 
@@ -25,7 +26,8 @@ export default {
   components: {
     Header,
     Toolbar,
-    Notifications
+    Notifications,
+    Home
   },
   data: () => ({
   })

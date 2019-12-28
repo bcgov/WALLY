@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Point Coordinates
+          Point of interest
         </v-toolbar-title>
         {{coordinates}}
       </v-banner>

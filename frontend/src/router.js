@@ -1,78 +1,64 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './components/Home.vue'
-import Login from './views/Login.vue'
-import Restricted from './views/Restricted.vue'
 
 import LayerSelection from './components/sidebar/LayerSelection'
 import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
+import MultipleSelectedFeatures from './components/sidebar/MultipleSelectedFeatures'
+
 import Start from './components/sidebar/Start'
 
 Vue.use(Router)
-
-const guard = (to, from, next) => {
-  if (to.matched.some(record => record.meta.requiresAuth)) {
-    // this route requires auth, check if logged in
-    // if not, redirect to login page.
-    if (!router.app.$auth.isAuthenticated()) {
-      next({
-        path: '/login',
-        query: { redirect: to.fullPath }
-      })
-    } else if (!router.app.$auth.hasRole('wally-view')) {
-      next({
-        path: '/request-access'
-      })
-    } else {
-      next()
-    }
-  } else {
-    next() // make sure to always call next()!
-  }
-}
 
 const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
+
     {
       path: '/',
       name: 'home',
-      component: Home,
+      component: Start,
       meta: {
-        requiresAuth: true
-      },
-      children: [
-        {
-          path: '/',
-          name: 'start',
-          component: Start
-        },
-        {
-          path: '/layers',
-          name: 'layer-selection',
-          component: LayerSelection
-        },
-        {
-          path: '/feature',
-          name: 'single-feature',
-          component: SingleSelectedFeature
+        sidebarColumns: {
+          md: 6,
+          lg: 4,
+          xl: 3
         }
-      ]
+      }
     },
     {
-      path: '/login',
-      name: 'login',
-      component: Login
+      path: '/layers',
+      name: 'layer-selection',
+      component: LayerSelection,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 4,
+          xl: 3
+        }
+      }
     },
     {
-      path: '/request-access',
-      component: Restricted,
-      name: 'request-access'
+      path: '/feature', // TODO: should refactor to be under /features/<feature_id>
+      name: 'single-feature',
+      component: SingleSelectedFeature,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/features',
+      name: 'multiple-features',
+      component: MultipleSelectedFeatures,
+      meta: {
+        sidebarColumns: {}
+      }
     }
   ]
 })
-
-router.beforeEach(guard)
 
 export default router
