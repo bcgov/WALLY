@@ -167,7 +167,6 @@ export default {
         // feature already exists
         return
       }
-
       const point = {
         type: 'Feature',
         id: 'point_of_interest',

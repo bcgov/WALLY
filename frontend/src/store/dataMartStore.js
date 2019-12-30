@@ -16,49 +16,7 @@ export default {
     featureError: ''
   },
   actions: {
-    /*
-    getDataMart ({ commit }, payload) {
-      // Get the datamart either via API or wms layer
-      const { displayDataName, url } = payload
-      ApiService.getRaw(url).then((response) => {
-        commit('addDataMart', {
-          displayDataName: displayDataName,
-          data: response.data
-        })
-        EventBus.$emit(`dataMart:updated`, payload)
-      }).catch(() => {
-        EventBus.$emit('error', true)
-      })
-    },
-    getDataMartFeatureInfo ({ commit }, payload) {
-      let pk = payload.pk
-      let displayDataName = payload.display_data_name
-      commit('setLoadingFeature', true)
-      commit('setFeatureError', '')
-      ApiService.getApi('/feature?layer=' + displayDataName + '&pk=' + pk)
-        .then((response) => {
-          commit('setLoadingFeature', false)
-          commit('setLayerSelectionActiveState', false)
-          let feature = response.data
-          commit('setDataMartFeatureInfo',
-            {
-              type: feature.type,
-              display_data_name: displayDataName,
-              geometry: feature.geometry,
-              properties: feature.properties
-            })
-        })
-        .catch((error) => {
-          const msg = error.response ? error.response.data.detail : true
-          commit('setLoadingFeature', false)
-          commit('setFeatureError', msg)
-          commit('setDataMartFeatureInfo', {})
-          console.log(msg) // TODO create error state item and mutation
-          EventBus.$emit('error', msg)
-        })
-    },
-    */
-    getDataMartFeatures ({ commit }, payload) {
+    getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
         return
@@ -85,7 +43,7 @@ export default {
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length
           })) {
-            EventBus.$emit('info', 'No features were found in your search area.')
+            // EventBus.$emit('info', 'No features were found in your search area.')
             return
           }
 
@@ -123,20 +81,27 @@ export default {
             // Need to clean this up or re-purpose it
             commit('setDisplayTemplates', { displayTemplates })
             commit('setDataMartFeatureInfo', {})
+            console.log('going to multiple features card')
+            router.push({
+              name: 'multiple-features'
+            })
           } else {
             // Only one feature returned
+            console.log('single feature')
             commit('setDataMartFeatureInfo',
               {
-                type: feature.type,
+                type: 'Feature',
                 display_data_name: displayDataName,
                 geometry: feature.geometry,
                 properties: feature.properties
               })
+
+            console.log(state.dataMartFeatureInfo)
             commit('setDataMartFeatures', {})
           }
           commit('setLoadingFeature', false)
-          commit('setLayerSelectionActiveState', false)
         }).catch((error) => {
+          console.error(error)
           const msg = error.response ? error.response.data.detail : true
           EventBus.$emit('error', msg)
         }).finally(() => {
@@ -155,6 +120,12 @@ export default {
     },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
+
+      // check if feature info is being reset. If so, stop here and don't alter route.
+      if (!payload || payload === {} || !payload.geometry || !payload.display_data_name) {
+        return
+      }
+
       router.push({
         name: 'single-feature',
         query: {
@@ -173,9 +144,6 @@ export default {
     setFeatureError: (state, payload) => { state.featureError = payload },
     setDataMartFeatures: (state, payload) => {
       state.dataMartFeatures.push(payload)
-      router.push({
-        name: 'multiple-features'
-      })
     },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },

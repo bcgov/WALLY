@@ -1,10 +1,10 @@
 <template>
   <div class="home">
     <v-row no-gutters>
-      <v-col :cols="12" :md="12 - sidebarColumns.md" :lg="12 - sidebarColumns.lg" :xl="12 - sidebarColumns.xl" order-md="1">
+      <v-col :cols="12" :md="mapColumns.md" :lg="mapColumns.lg" :xl="mapColumns.xl" :order-md="$route.meta.hide ? 0 : 1">
         <Map></Map>
       </v-col>
-      <v-col :cols="12" :md="sidebarColumns.md" :lg="sidebarColumns.lg" :xl="sidebarColumns.xl" order-md="0">
+      <v-col v-if="!$route.meta.hide" :cols="12" :md="sidebarColumns.md" :lg="sidebarColumns.lg" :xl="sidebarColumns.xl" order-md="0">
         <Overlay></Overlay>
       </v-col>
     </v-row>
@@ -35,18 +35,37 @@ export default {
       const sidebarColumns = this.$route.meta.sidebarColumns || {}
       return Object.assign(this.sidebarColumnDefaults, sidebarColumns)
     },
+    mapColumns () {
+      if (this.$route.meta.hide) {
+        return {
+          cols: 12,
+          md: 12,
+          lg: 12,
+          xl: 12
+        }
+      }
+      return {
+        cols: 12 - this.sidebarColumns.cols,
+        md: 12 - this.sidebarColumns.md,
+        lg: 12 - this.sidebarColumns.lg,
+        xl: 12 - this.sidebarColumns.xl
+      }
+    },
     ...mapGetters(['map'])
   },
   watch: {
-    sidebarColumns () {
+    mapColumns: {
+      deep: true,
+      handler: () => {
       // redraw map when columns resizing.
 
-      if (!this.map.loaded()) {
+        if (!this.map.loaded()) {
         // map hasn't loaded; no need to trigger redraw
-        return
-      }
+          return
+        }
 
-      setTimeout(() => this.map.triggerRepaint(), 0)
+        setTimeout(() => this.map.triggerRepaint(), 0)
+      }
     }
   }
 }

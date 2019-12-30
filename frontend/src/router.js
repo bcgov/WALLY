@@ -19,11 +19,7 @@ const router = new Router({
       name: 'home',
       component: Start,
       meta: {
-        sidebarColumns: {
-          md: 6,
-          lg: 4,
-          xl: 3
-        }
+        hide: true
       }
     },
     {

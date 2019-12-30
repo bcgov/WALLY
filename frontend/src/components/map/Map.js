@@ -341,7 +341,7 @@ export default {
       if (data.display_data_name === 'freshwater_atlas_stream_networks') {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(polygon)
-
+        console.log('messing with stream highlights')
         // For local rendered streams only calculation
         this.$store.commit('resetStreamData')
         this.updateStreamLayer(data)
@@ -599,10 +599,10 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
-        let flyToCoordinates = [...coordinates]
-        this.map.flyTo({
-          center: flyToCoordinates
-        })
+        // let flyToCoordinates = [...coordinates]
+        // this.map.flyTo({
+        //   center: flyToCoordinates
+        // })
         this.updateHighlightLayerData(value)
       }
     },

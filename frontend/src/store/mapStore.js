@@ -125,19 +125,6 @@ export default {
       state.layerSelectTriggered = payload
     },
     setLayerSelectionActiveState (state, payload) {
-      if (state.layerSelectionActive && !payload) {
-        if (state.layerSelectTriggered) {
-          return router.go(-1)
-        } else {
-          return router.push('/')
-        }
-      }
-
-      // when turning on layer selection
-      if (!state.layerSelectionActive && payload) {
-        state.layerSelectTriggered = true
-      }
-
       state.layerSelectionActive = payload
     },
     setLayerCategories (state, payload) {

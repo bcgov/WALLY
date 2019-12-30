@@ -3,12 +3,13 @@
     <v-menu offset-y>
         <template v-slot:activator="{ on }">
           <v-btn
-            color="primary"
-            class="ml-5"
-            dark
+            color="grey darken-3"
+            class="ml-3 selection-menu-buttons"
+            tile
+            text
             v-on="on"
           >
-            Selection
+            Selection <v-icon>keyboard_arrow_down</v-icon>
           </v-btn>
         </template>
         <v-list>
@@ -24,12 +25,13 @@
     <v-menu offset-y>
         <template v-slot:activator="{ on }">
           <v-btn
-            color="primary"
-            dark
-            class="ml-5"
+            color="grey darken-3"
+            class="ml-3 selection-menu-buttons"
+            tile
+            text
             v-on="on"
           >
-            Tools
+            Tools <v-icon>keyboard_arrow_down</v-icon>
           </v-btn>
         </template>
         <v-list>
@@ -55,6 +57,9 @@ export default {
       },
       {
         title: 'Draw a polygon and search for water data'
+      },
+      {
+        title: 'Clear selections'
       }
     ],
     toolOptions: [
@@ -78,5 +83,7 @@ export default {
 </script>
 
 <style>
-
+.selection-menu-buttons {
+  height: 100%!important;
+}
 </style>

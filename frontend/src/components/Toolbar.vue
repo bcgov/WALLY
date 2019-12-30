@@ -13,8 +13,9 @@
             >
               <template v-slot:activator="{ on }">
                 <v-btn
-                  color="indigo"
-                  dark
+                  color="grey darken-3"
+                  text
+                  tile
                   v-on="on"
                 >
                   <v-icon>layers</v-icon> Layers
