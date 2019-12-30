@@ -2,7 +2,6 @@ import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
-import router from '../router'
 
 export default {
   state: {
