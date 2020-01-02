@@ -82,59 +82,49 @@ def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
     return top_of_screen
 
 
-def get_screens(wells_to_search: List[str]) -> List[WellDrawdown]:
+def get_screens(point, radius) -> List[WellDrawdown]:
     """ calls GWELLS API to get well screen information. """
 
     wells_results = []
 
-    # avoid making queries with an excessively long list of wells.
-    chunk_length = 50
+    done = False
+    url = f"https://gwells-dev-pr-1505.pathfinder.gov.bc.ca/gwells/api/v1/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
+    # helpers to prevent unbounded requests
+    limit_requests = 100
+    i = 0  # this i is for recording extra requests within each chunk, if necessary
 
-    # split requests into chunks based on chunk_length
-    chunks = [wells_to_search[i:i+chunk_length]
-              for i in range(0, len(wells_to_search), chunk_length)]
+    while not done and i < limit_requests:
+        logger.info('external request: %s', url)
+        resp = requests.get(url)
 
-    for chunk in chunks:
-        # helpers to prevent unbounded requests
-        done = False
-        limit_requests = 100
-        i = 0  # this i is for recording extra requests within each chunk, if necessary
+        i += 1
+        # break now if we didn't receive any results.
+        results = resp.json().get('results', None)
+        if not results:
+            done = True
+            break
 
-        # we are already making small chunks within the known API pagination limit,
-        # but in case that limit changes, we can still handle offset paging.
-        offset = 0
+        # add results to a list.
+        wells_results += [WellDrawdown(**well) for well in results]
 
-        search_string = ','.join(chunk)
+        # check for a "next" attribute, indicating the next limit/offset combo.
+        # when it is null, the pagination is done.
+        next_url = resp.json().get('next', None)
+        if not next_url:
+            done = True
+        url = next_url
 
-        while not done and i < limit_requests:
-            logger.info('making request to GWELLS API')
-            resp = requests.get(
-                f"https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
 
-            # break now if we didn't receive any results.
-            results = resp.json().get('results', None)
+    # return zero results if an error occurred or we did not successfully get all the results.
+    # (avoid returning incomplete data)
+    if not done:
+        return []
 
-            i += 1
 
-            if not results:
-                done = True
-                break
 
-            # add results to a list.
-            wells_results += results
-            offset += len(results)
+    wells = calculate_available_drawdown(wells_results)
 
-            # check for a "next" attribute, indicating the next limit/offset combo.
-            # when it is null, the pagination is done.
-            if not resp.json().get('next', None):
-                done = True
-
-        # return zero results if an error occurred or we did not successfully get all the results.
-        # (avoid returning incomplete data)
-        if not done:
-            return []
-
-    return wells_results
+    return wells
 
 
 def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[WellDrawdown]:
