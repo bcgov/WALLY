@@ -1,7 +1,7 @@
 import geojson
 from urllib.parse import parse_qs, urlparse
 
-from api.v1.aggregator.controller import build_wms_query
+from api.v1.aggregator.controller import build_api_query
 from api.v1.aggregator.schema import WMSGetMapQuery, ExternalAPIRequest
 from api.v1.aggregator.excel import xlsxExport, geojson_to_xlsx
 from api.v1.aggregator.schema import LayerResponse
@@ -36,7 +36,7 @@ def test_wms_url():
     # check that the URL formed by the function is in the correct format (matches the one
     # known to work). Since the query string params might not be in the same order,
     # parse the queries to a dict before comparing.
-    q1 = urlparse(build_wms_query(layer)).query
+    q1 = urlparse(build_api_query(layer)).query
     q2 = urlparse(expected_url).query
 
     dict1 = parse_qs(q1)
@@ -61,6 +61,7 @@ def test_xlsx_export():
 
     resp_object = xlsxExport(datasets)
     assert resp_object.media_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
 
 def test_geojson_to_xlsx():
     """ test that the geojson_to_xlsx function returns a saved excel sheet """

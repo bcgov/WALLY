@@ -28,7 +28,7 @@ from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNet
 from api.layers.first_nations import CommunityLocations, TreatyLands, TreatyAreas
 
 import api.v1.aggregator.controller as agr_repo
-from api.v1.aggregator.controller import fetch_wms_features
+from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
 from api.v1.aggregator.helpers import gwells_api_request
 from api.templating.template_builder import build_templates
@@ -203,7 +203,7 @@ def aggregate_sources(
 
     # Go and fetch features for each of the WMS endpoints we need, and make a FeatureCollection
     # out of all the aggregated features.
-    feature_list = fetch_wms_features(wms_requests)
+    feature_list = fetch_geojson_features(wms_requests)
 
     # Loop through all datasets that are available internally.
     # We will make use of the data access function registered in API_DATASOURCES

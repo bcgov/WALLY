@@ -19,8 +19,8 @@ from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
 logger = logging.getLogger("aggregator")
 
 
-def build_wms_query(req: ExternalAPIRequest) -> str:
-    """ build_wms_query takes a ExternalAPIRequest object and returns a URL with query params """
+def build_api_query(req: ExternalAPIRequest) -> str:
+    """ build_api_query takes a ExternalAPIRequest object and returns a URL with query params """
 
     base_url = req.url
 
@@ -72,7 +72,7 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.
 
 async def fetch(req: ExternalAPIRequest, session: ClientSession) -> asyncio.Future:
     """ asyncronously fetch one URL, expecting a geojson response """
-    url = build_wms_query(req)
+    url = build_api_query(req)
 
     logger.info(url)
 
@@ -118,9 +118,10 @@ async def fetch_all(requests: List[ExternalAPIRequest]) -> asyncio.Future:
         return await asyncio.gather(*tasks)
 
 
-def fetch_wms_features(requests: List[ExternalAPIRequest]) -> List[LayerResponse]:
+def fetch_geojson_features(requests: List[ExternalAPIRequest]) -> List[LayerResponse]:
     """ fetch_geojson_features collects features from one or more sources and aggregates
-    them into a list of WMSResults, each containing the geojson response body and a status code """
+    them into a list of LayerResponse results, each containing the geojson response
+    body and a status code """
     return asyncio.run(fetch_all(requests))
 
 
@@ -145,4 +146,3 @@ def get_layer_feature(db: Session, layer_class, feature_id):
             status_code=404, detail="Feature information not found.")
 
     return layer_class.get_as_feature(q, geom)
-
