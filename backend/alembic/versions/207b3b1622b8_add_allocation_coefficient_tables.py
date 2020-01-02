@@ -28,7 +28,7 @@ def upgrade():
         Column('purpose_use_code', sa.String, comment='The code representing the purpose use.'),
         Column('purpose_use', sa.String, comment='The english written purpose use.'),
         Column('rationale', sa.String, comment='The rationale behind where these coefficients were derived from.'),
-        Column('monthly_coefficients', ARRAY(sa.Float), nullable=False, server_default="{}", comment='Co-efficient values for each month in order from January to Decemeber.')
+        Column('monthly_coefficients', ARRAY(sa.Float), nullable=False, server_default="{}", comment='Co-efficient values for each month in order from January to Decemeber.'),
 
         Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was created in the database.'),
@@ -46,7 +46,7 @@ def upgrade():
         Column('purpose_use', sa.String, comment='The english written purpose use.'),
         Column('rationale', sa.String, comment='The rationale behind where these coefficients were derived from.'),
         Column('annual_coefficient', sa.Float, comment='The coefficient for annual water return for this water rights purpose.'),
-        Column('monthly_coefficients', ARRAY(sa.Float), nullable=False, server_default="{}", comment='Co-efficient values for each month in order from January to Decemeber.')
+        Column('monthly_coefficients', ARRAY(sa.Float), nullable=False, server_default="{}", comment='Co-efficient values for each month in order from January to Decemeber.'),
 
         Column('create_user', sa.String(100), comment='The user who created this record in the database.'),
         Column('create_date', sa.DateTime, comment='Date and time (UTC) when the physical record was created in the database.'),
