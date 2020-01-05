@@ -16,9 +16,16 @@
           <v-list-item
             v-for="(item, index) in selectionOptions"
             :key="index"
-            @click="consoleLog"
+            :to="item.route"
           >
             <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+
+          <!-- extra list item for resetting selections -->
+          <v-list-item
+            @click="resetSelections"
+          >
+            <v-list-item-title>Reset selections</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -48,18 +55,19 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import EventBus from '../../services/EventBus'
 export default {
   name: 'SelectionMenu',
   data: () => ({
     selectionOptions: [
       {
-        title: 'Place a point of interest'
+        title: 'Place a point of interest',
+        route: { name: 'place-poi' }
       },
       {
-        title: 'Draw a polygon and search for water data'
-      },
-      {
-        title: 'Clear selections'
+        title: 'Draw a polygon and search for water data',
+        route: { name: 'polygon-tool' }
       }
     ],
     toolOptions: [
@@ -74,9 +82,20 @@ export default {
       }
     ]
   }),
+  computed: {
+    ...mapGetters(['map'])
+  },
   methods: {
     consoleLog () {
       console.log('a')
+    },
+    resetSelections () {
+      EventBus.$emit('draw:reset', null)
+      EventBus.$emit('highlight:clear')
+      this.$store.commit('resetDataMartFeatureInfo')
+      this.$store.commit('clearDataMartFeatures')
+      this.$store.commit('clearDisplayTemplates')
+      setTimeout(() => this.map.triggerRepaint(), 0)
     }
   }
 }

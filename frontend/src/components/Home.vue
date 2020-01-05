@@ -56,7 +56,7 @@ export default {
   watch: {
     mapColumns: {
       deep: true,
-      handler: () => {
+      handler: function () {
       // redraw map when columns resizing.
 
         if (!this.map.loaded()) {
