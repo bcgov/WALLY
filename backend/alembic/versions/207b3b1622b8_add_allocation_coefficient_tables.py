@@ -8,7 +8,7 @@ Create Date: 2020-01-01 16:44:50.184041
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import Column, Text, BigInteger
-from sqlalchemy.dialects.postgresql import ARRAY,
+from sqlalchemy.dialects.postgresql import ARRAY
 
 # revision identifiers, used by Alembic.
 revision = '207b3b1622b8'
