@@ -25,7 +25,7 @@ def upgrade():
 
     # populate freshwater_atlas_glaciers info
     op.execute("""
-    WITH vc_id AS (
+          WITH vc_id AS (
                 INSERT INTO vector_catalogue (
                 vector_catalogue_id,
                 description, 
@@ -60,6 +60,19 @@ def upgrade():
                 'WATERBODY_POLY_ID',
                 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
             ) RETURNING data_source_id
+        ),
+        wms_id AS (
+          INSERT INTO wms_catalogue (
+                wms_catalogue_id,
+                description,
+                wms_name,
+                create_user, create_date, update_user, update_date, effective_date, expiry_date
+            ) VALUES (
+                NEXTVAL(pg_get_serial_sequence('wms_catalogue','wms_catalogue_id')),
+                'Freshwater Atlas Glaciers', 
+                'WHSE_BASEMAPPING.FWA_GLACIERS_POLY',
+                'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
+            ) RETURNING wms_catalogue_id
         )
         INSERT INTO display_catalogue (
             display_data_name,
@@ -69,6 +82,7 @@ def upgrade():
             highlight_columns,
             vector_catalogue_id,
             data_source_id,
+            wms_catalogue_id,
             layer_category_code,
             mapbox_layer_id,
             mapbox_source_id,
@@ -83,11 +97,12 @@ def upgrade():
             ],
             vc_id.vector_catalogue_id,
             ds_id.data_source_id,
+            wms_id.wms_catalogue_id,
             'FRESHWATER_MARINE',
             'iit-water.0tsq064k',
             'iit-water.0tsq064k',
             'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
-        FROM vc_id, ds_id ;
+        FROM vc_id, ds_id, wms_id ;
     """)
 
     op.execute('SET search_path TO public') 
