@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from sqlalchemy import or_
 import logging
-from api.metadata.db_models import DisplayTemplate, DisplayCatalogue, DisplayTemplateDisplayCatalogueXref, \
-    ChartComponent, FormulaComponent, ImageComponent, LinkComponent
+from api.v1.catalogue.db_models import DisplayTemplate, ChartComponent, FormulaComponent, ImageComponent, LinkComponent
 from sqlalchemy.dialects.postgresql import ARRAY, VARCHAR
 
 

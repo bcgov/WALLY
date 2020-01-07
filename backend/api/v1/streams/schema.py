@@ -1,5 +1,9 @@
+"""
+API data models for FreshWater Stream Atlas analysis.
+These are external facing data models/schemas that users see.
+"""
 from pydantic import BaseModel
-from typing import List, Any
+from typing import List, Any, Optional
 from geojson import Feature
 
 

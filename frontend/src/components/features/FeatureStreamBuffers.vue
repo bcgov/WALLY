@@ -117,7 +117,7 @@ export default {
         layer: this.selectedLayer
       }
       this.loading = true
-      ApiService.post('/api/v1/analysis/stream/features', params)
+      ApiService.post('/api/v1/stream/features', params)
         .then((response) => {
           let data = response.data
           if (type === 'upstream') {

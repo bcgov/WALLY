@@ -56,4 +56,4 @@ The `bbox` param is mandatory.  There should be 4 `bbox=...` params that togethe
 
 http://localhost:3000/reports/featureReport?bbox=-122.93512344360353&bbox=49.294008682393994&bbox=-122.88173675537111&bbox=49.3310514349268&layers=aquifers&layers=hydrometric_stream_flow&layers=water_rights_licences
 
-http://localhost:8000/api/v1/aggregate?bbox=-122.93512344360353&bbox=49.294008682393994&bbox=-122.88173675537111&bbox=49.3310514349268&layers=aquifers&layers=hydrometric_stream_flow&layers=water_rights_licences
+http://localhost:8000/api/v1/aggregate/?bbox=-122.93512344360353&bbox=49.294008682393994&bbox=-122.88173675537111&bbox=49.3310514349268&layers=aquifers&layers=hydrometric_stream_flow&layers=water_rights_licences

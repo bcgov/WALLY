@@ -1,4 +1,4 @@
-from api.geocoder.db import lookup_by_text, search_spaces, search_symbols
+from api.v1.geocoder.controller import lookup_by_text, search_spaces, search_symbols
 from tests.utils import get_mock_session
 
 

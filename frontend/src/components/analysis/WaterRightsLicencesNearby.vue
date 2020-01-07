@@ -182,7 +182,7 @@ export default {
         radius: parseFloat(this.radius),
         point: JSON.stringify(this.coordinates)
       }
-      ApiService.query(`/api/v1/analysis/licences/nearby?${qs.stringify(params)}`).then((r) => {
+      ApiService.query(`/api/v1/licences/nearby?${qs.stringify(params)}`).then((r) => {
         this.results = r.data
       }).catch((e) => {
         console.error(e)

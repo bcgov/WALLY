@@ -3,7 +3,7 @@ import os
 import json
 import datetime
 from api.db.session import db_session
-from api.metadata.db_models import DisplayTemplate, ChartComponent, LinkComponent, ImageComponent, FormulaComponent
+from api.v1.catalogue.db_models import DisplayTemplate, ChartComponent, LinkComponent, ImageComponent, FormulaComponent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
