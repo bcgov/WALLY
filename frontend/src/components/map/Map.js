@@ -96,6 +96,7 @@ export default {
       'allDataMarts',
       'activeDataMarts',
       'highlightFeatureData',
+      'highlightFeatureCollectionData',
       'dataMartFeatureInfo',
       'infoPanelVisible',
       'map',
@@ -335,9 +336,17 @@ export default {
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
     },
+    /*
+      Highlights a FeatureCollection dataset
+     */
     updateHighlightsLayerData (data) {
-      this.updateStreamsHighlights(data.feature_collection)
+      if (data.display_data_name === 'stream_apportionment') {
+        this.map.getSource('streamApportionmentSource').setData(data.feature_collection)
+      }
     },
+    /*
+      Highlights a single Feature dataset
+     */
     updateHighlightLayerData (data) {
       // For stream networks layer we add custom highlighting and reset poly/point highlight layering
       if (data.display_data_name === 'freshwater_atlas_stream_networks') {
@@ -597,8 +606,7 @@ export default {
         this.updateHighlightLayerData(value)
       }
     },
-    highlightFeaturesData (value) {
-      console.log('new fc')
+    highlightFeatureCollectionData (value) {
       this.updateHighlightsLayerData(value)
     },
     dataMartFeatureInfo (value) {

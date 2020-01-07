@@ -48,23 +48,7 @@ export default {
       ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
         this.streams = r.data.streams
 
-        let streamData = {
-          display_data_name: 'freshwater_atlas_stream_networks',
-          feature_collection: {
-            type: 'FeatureCollection',
-            features: []
-          }
-        }
-
-        this.streams.forEach((stream) => {
-          streamData.feature_collection.features.push(stream.geojson)
-        })
-
-        this.show.reloadAll = false
-        this.show.removeOverlaps = true
-        this.show.removeLowApportionment = true
-
-        this.$store.commit('updateHighlightFeaturesData', streamData)
+        this.highlightStreams()
       }).catch((e) => {
         console.error(e)
       }).finally(() => {
@@ -72,10 +56,48 @@ export default {
       })
     },
     highlight (stream) {
-      let featureData = stream.geojson
-      featureData['display_data_name'] = 'freshwater_atlas_stream_networks'
-      featureData.properties['FWA_WATERSHED_CODE'] = featureData.properties['fwa_watershed_code']
-      this.$store.commit('updateHighlightFeatureData', featureData)
+      let featureStream = stream.geojson
+      featureStream['display_data_name'] = 'freshwater_atlas_stream_networks'
+      featureStream.properties['FWA_WATERSHED_CODE'] = featureStream.properties['fwa_watershed_code']
+      this.$store.commit('updateHighlightFeatureData', featureStream)
+
+      let featureDistanceLines = {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [
+            this.coordinates,
+            stream['closest_stream_point']['coordinates']
+          ]
+        },
+        'properties': {
+          'title': stream['distance'].toFixed(2) + 'm'
+        }
+      }
+
+      let featureClosestPoint = {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          'coordinates': stream['closest_stream_point']['coordinates']
+        },
+        'properties': {
+          'title': stream['distance'].toFixed(2) + 'm'
+        }
+      }
+
+      let streamData = {
+        display_data_name: 'stream_apportionment',
+        feature_collection: {
+          type: 'FeatureCollection',
+          features: [featureClosestPoint, featureDistanceLines]
+        }
+      }
+
+      // Highlight the stream
+      this.$store.commit('updateHighlightFeatureData', featureStream)
+      // Highlight the closest point & distance line to that stream
+      this.$store.commit('updateHighlightFeatureCollectionData', streamData)
     },
     calculateApportionment () {
       this.loading = true
@@ -92,6 +114,8 @@ export default {
       this.streams.forEach(stream => {
         stream['apportionment'] = (stream['inverse_distance'] / total) * 100
       })
+
+      this.highlightStreams()
       this.loading = false
     },
     deleteStream (selectedStream) {
@@ -136,6 +160,63 @@ export default {
       this.show.removeLowApportionment = false
       this.show.reloadAll = true
       this.calculateApportionment()
+    },
+    highlightStreams () {
+      let streamData = {
+        display_data_name: 'freshwater_atlas_stream_networks',
+        feature_collection: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      }
+      let distanceLines = []
+      let closestPoints = []
+
+      this.streams.forEach((stream) => {
+        streamData.feature_collection.features.push(stream.geojson)
+
+        let closestPoint = {
+          'type': 'Feature',
+          'geometry': stream['closest_stream_point'],
+          'properties': {
+            'title': ''
+          }
+        }
+        closestPoints.push(closestPoint)
+
+        const distanceLineCoordinates = [this.coordinates,
+          stream['closest_stream_point']['coordinates']
+        ]
+
+        let distanceLine = {
+          'type': 'Feature',
+          'geometry': {
+            'type': 'LineString',
+            'coordinates': distanceLineCoordinates
+          },
+          'properties': {
+            'title': stream['distance'].toFixed(2) + 'm'
+          }
+        }
+        distanceLines.push(distanceLine)
+      })
+
+      this.show.reloadAll = false
+      this.show.removeOverlaps = true
+      this.show.removeLowApportionment = true
+
+      const highlightData = {
+        display_data_name: 'stream_apportionment',
+        feature_collection: {
+          type: 'FeatureCollection',
+          features: [
+            ...closestPoints,
+            ...distanceLines
+          ]
+        }
+      }
+
+      this.$store.commit('updateHighlightFeatureCollectionData', highlightData)
     }
   },
   computed: {
