@@ -21,6 +21,7 @@ def upgrade():
     op.execute("""
         update metadata.wms_catalogue set wms_style='' where wms_style is null;
         alter table metadata.wms_catalogue alter column wms_style set not null;
+        alter table metadata.wms_catalogue alter column wms_style set default '';
     """)
 
 
