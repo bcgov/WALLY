@@ -36,7 +36,7 @@
           </v-tooltip>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-btn x-small v-on:click="removeStreamsWithLowApportionment(apportionmentMin)" v-on="on" color="blue-grey lighten-4" class="mb-1 mt-1">
+              <v-btn x-small v-show="show.removeLowApportionment" v-on:click="removeStreamsWithLowApportionment(apportionmentMin)" v-on="on" color="blue-grey lighten-4" class="mb-1 mt-1">
                 <span class="hidden-sm-and-down">Remove less than 10%</span>
               </v-btn>
             </template>

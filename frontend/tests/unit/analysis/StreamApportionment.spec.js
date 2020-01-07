@@ -20,7 +20,6 @@ describe('Stream apportionment tests', () => {
   let store
   let getters
   let mutations
-  // let propsData
 
   beforeEach(() => {
     getters = {
@@ -30,6 +29,7 @@ describe('Stream apportionment tests', () => {
       addMapLayer: jest.fn()
     }
     store = new Vuex.Store({ getters, mutations })
+
     wrapper = mount(StreamApportionment, {
       vuetify,
       store,
@@ -43,18 +43,6 @@ describe('Stream apportionment tests', () => {
       sync: false
     })
   })
-
-  // propsData = {
-  //   record: {
-  //     'type': 'Feature',
-  //     'properties': {},
-  //     'geometry': {
-  //       'coordinates': [-122.9769538778261, 50.10578278124623],
-  //       'type': 'Point'
-  //     },
-  //     'display_data_name': 'user_defined_point'
-  //   }
-  // }
 
   it('Displays streams in a table', async () => {
     expect(wrapper.findAll('tbody tr.v-data-table__empty-wrapper').length)

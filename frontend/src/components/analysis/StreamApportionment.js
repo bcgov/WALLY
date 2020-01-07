@@ -48,6 +48,10 @@ export default {
       ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
         this.streams = r.data.streams
 
+        this.show.reloadAll = false
+        this.show.removeOverlaps = true
+        this.show.removeLowApportionment = true
+
         this.highlightStreams()
       }).catch((e) => {
         console.error(e)
@@ -203,10 +207,6 @@ export default {
         distanceLines.push(distanceLine)
       })
 
-      this.show.reloadAll = false
-      this.show.removeOverlaps = true
-      this.show.removeLowApportionment = true
-
       const highlightData = {
         display_data_name: 'stream_apportionment',
         feature_collection: {
@@ -248,7 +248,12 @@ export default {
   },
   mounted () {
     this.fetchStreams()
+    if (!this.isFreshwaterAtlasStreamNetworksLayerEnabled) {
+      this.enableFreshwaterAtlasStreamNetworksLayer()
+    }
   },
   beforeDestroy () {
+    console.log('before destroy')
+    this.$store.commit('updateHighlightFeatureCollectionData', {})
   }
 }
