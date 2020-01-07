@@ -25,12 +25,6 @@ def json_to_geojson():
     using the provided id_field to give each feature an ID.
     Accepts a list of fields to exclude. """
 
-    if not id_field:
-        # if function was used without specifying an id_field,
-        # use a uuid as a placeholder. This will result in a
-        # random id being assigned to each feature.
-        id_field = uuid4()
-
     def helper_function(self, result_list):
 
         # check for pagination
@@ -39,7 +33,7 @@ def json_to_geojson():
 
         return FeatureCollection([
             Feature(
-                id=x.get(id_field, uuid4()),
+                id=x.get(self.id_field, uuid4()),
                 geometry=Point((x.get('longitude'), x.get('latitude'))),
                 properties={k: flatten_geojson_property(
                     v) for k, v in x.items() if k not in self.excluded_fields}
