@@ -99,6 +99,7 @@ describe('Stream apportionment tests', () => {
       }
     ]
     wrapper.setData({ streams: data })
+    wrapper.vm.highlightStreams = jest.fn()
     wrapper.vm.removeOverlaps()
     expect(wrapper.vm.streams).toEqual(result)
   })
@@ -139,6 +140,7 @@ describe('Stream apportionment tests', () => {
       }
     ]
     wrapper.setData({ streams: data })
+    wrapper.vm.highlightStreams = jest.fn()
     wrapper.vm.calculateApportionment()
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)

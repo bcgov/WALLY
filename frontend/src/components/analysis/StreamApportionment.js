@@ -100,7 +100,6 @@ export default {
       this.$store.commit('updateHighlightFeatureCollectionData', streamData)
     },
     calculateApportionment () {
-      this.loading = true
       const getInverseDistance = (distance) => {
         return 1 / Math.pow(distance, this.weightingFactor)
       }
@@ -114,7 +113,10 @@ export default {
       this.streams.forEach(stream => {
         stream['apportionment'] = (stream['inverse_distance'] / total) * 100
       })
-
+    },
+    reloadStreams () {
+      this.loading = true
+      this.calculateApportionment()
       this.highlightStreams()
       this.loading = false
     },
@@ -124,17 +126,17 @@ export default {
       })
       this.streams = [...newStreamArr]
       this.show.reloadAll = true
-      this.calculateApportionment()
+      this.reloadStreams()
     },
     removeSelected () {
-      // Remove user-selected streams and recalculate apportionment
+      // Remove user-selected streams
       let selectedIds = this.selected.map(selected => selected['ogc_fid'])
       let newStreamArr = this.streams.filter(stream => {
         return !selectedIds.includes(stream['ogc_fid'])
       })
       this.streams = [...newStreamArr]
       this.show.reloadAll = true
-      this.calculateApportionment()
+      this.reloadStreams()
     },
     removeOverlaps () {
       // This removes overlapping streams. It keeps the first stream in the array
@@ -149,7 +151,7 @@ export default {
       this.streams = [...newStreamArr]
       this.show.removeOverlaps = false
       this.show.reloadAll = true
-      this.calculateApportionment()
+      this.reloadStreams()
     },
     removeStreamsWithLowApportionment (apportionment) {
       // Keep streams that have more than x% apportionment
@@ -159,7 +161,7 @@ export default {
       this.streams = [...newStreamArr]
       this.show.removeLowApportionment = false
       this.show.reloadAll = true
-      this.calculateApportionment()
+      this.reloadStreams()
     },
     highlightStreams () {
       let streamData = {

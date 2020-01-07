@@ -49,7 +49,7 @@
           label="Weighting Factor"
           v-model="weightingFactor"
           :rules="[weightingFactorValidation.number, weightingFactorValidation.max, weightingFactorValidation.required]"
-        ></v-text-field>
+        />
       </v-col>
       <v-col>
         <v-tooltip bottom>
