@@ -30,13 +30,13 @@ def build_api_query(req: ExternalAPIRequest) -> str:
     return base_url + urlencode(dict(req.q))
 
 
-async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.Future:
-    """ parse_result takes a response and puts it in a LayerResponse, which
-    provides a summary and a collection of features """
+async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
+    """ parse_result takes an API response and returns features """
     body = await res.read()
     features = []
     data = {}
     fc = {}
+    next_url = None
 
     # try to load the response body.
     # if it's not JSON (e.g. xml, an html error page, etc.), it will fail
@@ -63,21 +63,55 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest) -> asyncio.
     elif res.status == 200 and req.formatter and len(data) > 0:
         features = req.formatter(data)['features']
 
-    return LayerResponse(
-        status=res.status,
-        layer=req.layer,
-        geojson=FeatureCollection(features)
-    )
+    if data.get('next', None) and data.get('results', None):
+        next_url = data['next']
+
+    return features, res.status, next_url
 
 
-async def fetch(req: ExternalAPIRequest, session: ClientSession) -> asyncio.Future:
-    """ asyncronously fetch one URL, expecting a geojson response """
+async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> LayerResponse:
+    """ asyncronously fetch results.
+        note: follows "next" urls for paginated responses and combines the results.
+    """
     url = build_api_query(req)
 
-    logger.info(url)
+    next_url = url
 
-    async with session.get(url) as response:
-        return await asyncio.ensure_future(parse_result(response, req))
+    layer_resp = LayerResponse(
+        status=0,
+        layer=req.layer,
+        geojson=FeatureCollection(features=[])
+    )
+
+    i = 0
+    MAX_PAGES = 20
+    features = []
+
+    # make request, and follow URLs for the next page if the response is paginated
+    # and "next" is provided in the response.
+    # continue to make requests until there is no "next" url.
+    while next_url:
+        i += 1
+
+        # stop request here if MAX_PAGES was exceeded. User should be notified immediately
+        # so that it's clear that there were more results available but we didn't retrieve them.
+        # note: MAX_PAGES is meant to be a safety to prevent looping indefinitely; it could be
+        # increased based on user needs.
+        if i > MAX_PAGES:
+            raise HTTPException(
+                status_code=400, detail=f"Too many results in search area ({req.layer}). Please try again using a smaller area.")
+
+        logger.info('external request: %s', next_url)
+        async with session.get(next_url) as response:
+            results, status, next_url = await asyncio.ensure_future(parse_result(response, req))
+            features.extend(results)
+
+            # preserve error statuses even if a later request returns 200 OK
+            if layer_resp.status < status:
+                layer_resp.status = status
+
+    layer_resp.geojson = FeatureCollection(features=features)
+    return layer_resp
 
 
 async def batch_fetch(
@@ -92,7 +126,7 @@ async def batch_fetch(
     # The semaphore will block at the limit, and not make any more requests until
     # the first requests return, keeping the number of active requests bounded.
     async with semaphore:
-        return await fetch(req, session)
+        return await fetch_results(req, session)
 
 
 async def fetch_all(requests: List[ExternalAPIRequest]) -> asyncio.Future:

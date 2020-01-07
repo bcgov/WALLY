@@ -10,6 +10,16 @@ from logging import getLogger
 
 logger = getLogger('api')
 
+
+def flatten_geojson_property(value):
+    """ flattens json values for use in geojson properties
+    """
+    if isinstance(value, list):
+        return ', '.join(value)
+
+    return value
+
+
 def json_to_geojson(id_field: str = ''):
     """ returns a helper function that turns JSON results into GeoJSON,
     using the provided id_field to give each feature an ID. """
@@ -30,7 +40,8 @@ def json_to_geojson(id_field: str = ''):
             Feature(
                 id=x.get(id_field, uuid4()),
                 geometry=Point((x.get('longitude'), x.get('latitude'))),
-                properties=dict(x)
+                properties={k: flatten_geojson_property(
+                    v) for k, v in x.items()}
             ) for x in result_list
         ])
     return helper_function
@@ -72,7 +83,8 @@ class ExternalAPIRequest(BaseModel):
     """ a WMS feature request """
     url: str
     layer: str
-    formatter: any = json_to_geojson()  # optional formatter function that accepts a list and returns geojson
+    # optional formatter function that accepts a list and returns geojson
+    formatter: any = json_to_geojson()
     q: Union[WMSGetMapQuery, GWELLSAPIParams, WMSGetFeatureQuery, dict]
 
 
