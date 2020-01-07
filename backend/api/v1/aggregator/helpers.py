@@ -2,6 +2,7 @@ import math
 import json
 from geojson import dumps, FeatureCollection, Feature, Point
 from shapely.geometry import mapping
+
 from api.v1.aggregator.schema import ExternalAPIRequest, GWELLSAPIParams, json_to_geojson
 
 EARTH_RADIUS = 6378137
@@ -36,6 +37,7 @@ def gwells_api_request(within):
     return ExternalAPIRequest(
         url=url,
         layer='groundwater_wells',
-        formatter=json_to_geojson('well_tag_number'),
+        excluded_fields=['well_guid', 'drilling_company'],
+        id_field="well_tag_number",
         q=params
     )

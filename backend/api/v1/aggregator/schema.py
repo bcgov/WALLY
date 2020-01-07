@@ -20,9 +20,10 @@ def flatten_geojson_property(value):
     return value
 
 
-def json_to_geojson(id_field: str = ''):
+def json_to_geojson():
     """ returns a helper function that turns JSON results into GeoJSON,
-    using the provided id_field to give each feature an ID. """
+    using the provided id_field to give each feature an ID.
+    Accepts a list of fields to exclude. """
 
     if not id_field:
         # if function was used without specifying an id_field,
@@ -41,7 +42,7 @@ def json_to_geojson(id_field: str = ''):
                 id=x.get(id_field, uuid4()),
                 geometry=Point((x.get('longitude'), x.get('latitude'))),
                 properties={k: flatten_geojson_property(
-                    v) for k, v in x.items()}
+                    v) for k, v in x.items() if k not in self.excluded_fields}
             ) for x in result_list
         ])
     return helper_function
@@ -84,8 +85,12 @@ class ExternalAPIRequest(BaseModel):
     url: str
     layer: str
     # optional formatter function that accepts a list and returns geojson
-    formatter: any = json_to_geojson()
+    formatter = json_to_geojson()
     q: Union[WMSGetMapQuery, GWELLSAPIParams, WMSGetFeatureQuery, dict]
+    # fields to exclude from responses (to avoid filling excel sheets with internal IDs, etc.)
+    excluded_fields = []
+    # an id field to populate geojson feature IDs (if not specified, a uuid will be created)
+    id_field: Optional[str]
 
 
 class LayerResponse(BaseModel):
