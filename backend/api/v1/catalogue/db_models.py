@@ -100,7 +100,9 @@ class WmsCatalogue(Base):
     wms_name = Column(
         String, comment='identifying layer name with the data bc wms server')
     wms_style = Column(
-        String, comment='style key to display data in different visualizations for wms layer')
+        String,
+        comment='style key to display data in different visualizations for wms layer',
+        nullable=False, default='')
 
 
 class VectorCatalogue(Base):
