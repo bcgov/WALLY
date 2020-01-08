@@ -155,6 +155,7 @@ export default {
         marker: false,
         localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
+        placeholder: 'Find a lat/long coordinate (degrees)',
         minLength: 1
       }))
       this.geocoder.on('result', this.updateBySearchResult)

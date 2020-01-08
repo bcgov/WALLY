@@ -1,15 +1,119 @@
 import re
+import pyproj
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from sqlalchemy import func, text
 from geojson import Feature, FeatureCollection
 from logging import getLogger
-from api.v1.geocoder.db_models import geocode
 from shapely import wkt
+from shapely.geometry import shape, mapping
+from shapely.ops import transform
+
+import api.v1.aggregator.controller as agr_repo
+from api.v1.aggregator.controller import fetch_geojson_features
+from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest
+from api.v1.aggregator.routes import EXTERNAL_API_REQUESTS
+from api.v1.geocoder.db_models import geocode
 
 logger = getLogger("geocoder")
 search_symbols = re.compile(r'[^\w ]', re.UNICODE)
 search_spaces = re.compile(r'[ ]+')
+
+# Search strings will match against any of the fields provided in SEARCH_FIELDS.
+SEARCH_FIELDS = {
+    "cadastral": ["PID_NUMBER"],
+    "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
+    "groundwater_wells": ["well_tag_number"],
+    "aquifers": ["AQNAME", "AQUIFER_NAME"],
+    "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
+}
+
+# WFS_LAYER_IDS maps layer names to DataBC API Catalogue layers.
+# This information can also be kept on the database table metadata.wms_catalogue,
+# and the lookup_feature function will also check there. However, there are issues
+# with having a wms_catalogue record for layers we intend to use as vector layers.
+# WFS_LAYER_IDS provides an alternative for the purpose of DataBC WFS lookups in
+# this file.
+WFS_LAYER_IDS = {
+    "cadastral": "WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
+    "aquifers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
+    "water_rights_licences": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
+}
+
+
+def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollection:
+    """ searches for feature locations using external APIs or internal data.
+        will make use of DataBC, using layer names from the Wally metadata catalogue,
+        unless another provider function is specified (e.g. for searching on GWELLS)
+    """
+
+    # look up the DataBC layer ID.
+    # first check in the WFS_LAYER_IDS constant defined above
+    layer = WFS_LAYER_IDS.get(feature_type, None)
+
+    # fall back on WMS metadata, if available
+    if not layer:
+        catalogue = agr_repo.get_display_catalogue(db, [feature_type])
+        if not catalogue and not catalogue[0].wms_catalogue_id:
+            raise HTTPException(status_code=400, detail="Feature type invalid")
+        layer = catalogue[0].wms_catalogue.wms_name
+
+    search_fields = SEARCH_FIELDS.get(feature_type, None)
+    if not search_fields or not layer:
+        raise HTTPException(status_code=400, detail="Feature type invalid")
+
+    # form CQL filter.
+    # note: this is not SQL, and this string will be sent over HTTP to a public server.
+    # this doesn't automatically carry the same risks as forming a SQL string.
+    cql_filter = f"{search_fields[0]} ILIKE '{query}%'"
+
+    # append additional filter statements if multiple search fields available.
+    if len(search_fields) > 1:
+        cql_filter = cql_filter + ' '.join([
+            f"OR {field} ILIKE '{query}%'" for field in search_fields[1:]
+        ])
+
+    query = WMSGetFeatureQuery(
+        typeNames=layer,
+        count=5,
+        # this is CQL, not SQL, and this string will be sent over HTTP.
+        cql_filter=cql_filter
+    )
+    req = ExternalAPIRequest(
+        url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
+        layer=feature_type,
+        q=query
+    )
+
+    # Fetch features.
+    feature_collection = fetch_geojson_features([req])
+    features = feature_collection[0].geojson['features']
+
+    # create a collection to add processed features to.
+    # this list will eventually be returned as geocoder results.
+    geocoder_features = []
+
+    # Some datasets in the DataBC API only output BC Albers (3005). Configure projection
+    # to SRID 4326 so we can get a representative point in lat/long degrees.
+    project = pyproj.Transformer.from_proj(
+        pyproj.Proj(init='epsg:3005'),
+        pyproj.Proj(init='epsg:4326'))
+
+    for feature in features:
+        geom = transform(project.transform, shape(feature.geometry))
+        new_feature = Feature(geometry=mapping(geom.centroid))
+
+        # add metadata to the feature. This info is required
+        # for displaying and zooming to search results.
+        new_feature['layer'] = feature_type
+        new_feature['center'] = [center.x, center.y]
+        new_feature['place_name'] = ' '.join(
+            [str(feature.properties.get(field, '')) for field in SEARCH_FIELDS[feature_type]])
+        new_feature['id'] = feature['id']
+        geocoder_features.append(new_feature)
+
+    return FeatureCollection(geocoder_features)
 
 
 def lookup_by_text(db: Session, query: str, feature_type: str):
