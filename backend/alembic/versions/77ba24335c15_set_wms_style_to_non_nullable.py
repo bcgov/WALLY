@@ -1,7 +1,7 @@
 """set wms_style to non nullable
 
 Revision ID: 77ba24335c15
-Revises: 8b74e6f682c9
+Revises: 207b3b1622b8
 Create Date: 2020-01-07 18:47:48.879507
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '77ba24335c15'
-down_revision = '8b74e6f682c9'
+down_revision = '207b3b1622b8'
 branch_labels = None
 depends_on = None
 

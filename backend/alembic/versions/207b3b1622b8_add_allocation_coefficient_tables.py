@@ -1,6 +1,6 @@
 """add allocation coefficient tables
 Revision ID: 207b3b1622b8
-Revises: 77ba24335c15 
+Revises: 8b74e6f682c9
 Create Date: 2020-01-01 16:44:50.184041
 """
 from alembic import op
@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 # revision identifiers, used by Alembic.
 revision = '207b3b1622b8'
-down_revision = '77ba24335c15'
+down_revision = '8b74e6f682c9'
 branch_labels = None
 depends_on = None
 
