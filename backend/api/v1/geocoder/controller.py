@@ -107,7 +107,7 @@ def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollect
         # add metadata to the feature. This info is required
         # for displaying and zooming to search results.
         new_feature['layer'] = feature_type
-        new_feature['center'] = [center.x, center.y]
+        new_feature['center'] = [geom.centroid.x, geom.centroid.y]
         new_feature['place_name'] = ' '.join(
             [str(feature.properties.get(field, '')) for field in SEARCH_FIELDS[feature_type]])
         new_feature['id'] = feature['id']
