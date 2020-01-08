@@ -116,7 +116,7 @@ export default {
     async initMap () {
       // temporary public token with limited scope (reading layers) just for testing.
 
-      const mapConfig = await ApiService.get('api/v1/map-config')
+      const mapConfig = await ApiService.get('api/v1/config/map')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
       const zoomConfig = {

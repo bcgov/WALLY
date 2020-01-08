@@ -12,31 +12,30 @@ logger = logging.getLogger("api")
 
 
 def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: list) -> list:
-
     streams_q = db.query(
-            FreshwaterAtlasStreamNetworks.OGC_FID.label("ogc_fid"),
-            FreshwaterAtlasStreamNetworks.LENGTH_METRE.label("length_metre"),
-            FreshwaterAtlasStreamNetworks.FEATURE_SOURCE.label("feature_source"),
-            FreshwaterAtlasStreamNetworks.GNIS_NAME.label("gnis_name"),
-            FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label("left_right_tributary"),
-            FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
-            FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
-            FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.labe("fwa_watershed_code"),
-            func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
-            # FreshwaterAtlasStreamNetworks,
-            func.ST_Distance(
-                FreshwaterAtlasStreamNetworks.GEOMETRY,
-                func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326)
-            ).label('distance_degrees'),
-            func.ST_Distance(
-                func.Geography(FreshwaterAtlasStreamNetworks.GEOMETRY),
-                func.ST_GeographyFromText(search_point.wkt)
-            ).label('distance'),
-            func.ST_AsGeoJSON(func.ST_ClosestPoint(
-                FreshwaterAtlasStreamNetworks.GEOMETRY,
-                func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326))
-            ).label('closest_stream_point')
-        ).filter(FreshwaterAtlasStreamNetworks.OGC_FID.in_(ogc_fids))
+        FreshwaterAtlasStreamNetworks.OGC_FID.label("ogc_fid"),
+        FreshwaterAtlasStreamNetworks.LENGTH_METRE.label("length_metre"),
+        FreshwaterAtlasStreamNetworks.FEATURE_SOURCE.label("feature_source"),
+        FreshwaterAtlasStreamNetworks.GNIS_NAME.label("gnis_name"),
+        FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label("left_right_tributary"),
+        FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
+        FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
+        FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.labe("fwa_watershed_code"),
+        func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
+        # FreshwaterAtlasStreamNetworks,
+        func.ST_Distance(
+            FreshwaterAtlasStreamNetworks.GEOMETRY,
+            func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326)
+        ).label('distance_degrees'),
+        func.ST_Distance(
+            func.Geography(FreshwaterAtlasStreamNetworks.GEOMETRY),
+            func.ST_GeographyFromText(search_point.wkt)
+        ).label('distance'),
+        func.ST_AsGeoJSON(func.ST_ClosestPoint(
+            FreshwaterAtlasStreamNetworks.GEOMETRY,
+            func.ST_SetSRID(func.ST_GeomFromText(search_point.wkt), 4326))
+        ).label('closest_stream_point')
+    ).filter(FreshwaterAtlasStreamNetworks.OGC_FID.in_(ogc_fids))
     logging.debug(streams_q)
 
     rs_streams = streams_q.all()
@@ -152,3 +151,15 @@ def get_feature_geojson(stream) -> Feature:
     )
     del stream_copy['geometry']
     return feature
+
+
+def get_connected_streams(db: Session, outflowCode: str) -> list:
+    q = db.query(FreshwaterAtlasStreamNetworks) \
+        .filter(FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.startswith(outflowCode))
+
+    results = q.all()
+
+    feature_results = [FreshwaterAtlasStreamNetworks.get_as_feature(
+        row, FreshwaterAtlasStreamNetworks.GEOMETRY) for row in results]
+
+    return feature_results
