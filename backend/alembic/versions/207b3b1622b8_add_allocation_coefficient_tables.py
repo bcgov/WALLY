@@ -1,7 +1,9 @@
 """add allocation coefficient tables
+
 Revision ID: 207b3b1622b8
 Revises: 8b74e6f682c9
 Create Date: 2020-01-01 16:44:50.184041
+
 """
 from alembic import op
 import sqlalchemy as sa
