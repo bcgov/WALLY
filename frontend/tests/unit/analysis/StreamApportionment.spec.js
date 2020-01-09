@@ -57,9 +57,10 @@ describe('Stream apportionment tests', () => {
   }
   */
 
-  it('Displays streams in a table', () => {
+  it('Displays streams in a table', async () => {
     expect(wrapper.findAll('.v-card').length).toEqual(0)
     wrapper.setData({ streams: testStreams })
+    await wrapper.vm.$nextTick()
     expect(wrapper.findAll('.v-card').length).toEqual(3)
   })
 
