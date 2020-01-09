@@ -1,7 +1,7 @@
 """update wells metadata
 
 Revision ID: 40a169a3bda1
-Revises: db6313a85cf5
+Revises: 46917c36174f
 Create Date: 2019-12-19 23:11:37.323132
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '40a169a3bda1'
-down_revision = 'db6313a85cf5'
+down_revision = '46917c36174f'
 branch_labels = None
 depends_on = None
 
