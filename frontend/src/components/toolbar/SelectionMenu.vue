@@ -18,14 +18,20 @@
             :key="index"
             :to="item.route"
           >
-            <v-list-item-title>{{ item.title }}</v-list-item-title>
+            <v-list-item-icon><v-icon v-if="item.icon">{{item.icon}}</v-icon></v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item-content>
           </v-list-item>
 
           <!-- extra list item for resetting selections -->
           <v-list-item
             @click="resetSelections"
           >
-            <v-list-item-title>Reset selections</v-list-item-title>
+            <v-list-item-icon><v-icon>mdi-delete-outline</v-icon></v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title>Reset selections</v-list-item-title>
+            </v-list-item-content>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -45,7 +51,7 @@
           <v-list-item
             v-for="(item, index) in toolOptions"
             :key="index"
-            @click="consoleLog"
+            :to="item.route"
           >
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
@@ -63,16 +69,19 @@ export default {
     selectionOptions: [
       {
         title: 'Place a point of interest',
-        route: { name: 'place-poi' }
+        route: { name: 'place-poi' },
+        icon: 'mdi-map-marker'
       },
       {
         title: 'Draw a polygon and search for water data',
-        route: { name: 'polygon-tool' }
+        route: { name: 'polygon-tool' },
+        icon: 'mdi-shape-polygon-plus'
       }
     ],
     toolOptions: [
       {
-        title: 'Plot subsurface data along a line (cross section)'
+        title: 'Plot subsurface data along a line (cross section)',
+        route: { name: 'cross-section' }
       },
       {
         title: 'Find data upstream or downstream from a point'
@@ -95,7 +104,7 @@ export default {
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
-      setTimeout(() => this.map.triggerRepaint(), 0)
+      setTimeout(() => this.map.resize(), 0)
     }
   }
 }
