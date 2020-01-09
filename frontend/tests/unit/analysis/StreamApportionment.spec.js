@@ -133,12 +133,4 @@ describe('Stream apportionment tests', () => {
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)
   })
-
-  it('Draws a layer with a line and a point to show distance to streams', () => {
-    // check geojson for a line
-    expect(1).toEqual(1)
-    wrapper.setData({ streams: testStreams })
-
-    expect(1).toEqual(1)
-  })
 })
