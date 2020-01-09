@@ -28,7 +28,7 @@ def gwells_api_request(within):
     creates an ExternalAPIRequest object with params for accessing data from the
     GWELLS API.
     """
-    url = 'https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v2/wells'
+    url = 'https://apps.nrs.gov.bc.ca.pathfinder.gov.bc.ca/gwells/api/v2/wells'
     params = GWELLSAPIParams(
         within=json.dumps(mapping(within)),
         geojson="false"

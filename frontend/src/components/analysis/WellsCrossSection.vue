@@ -317,7 +317,7 @@ export default {
       // this.wellsLithology = lithologyList
       // console.log(ids)
 
-      ApiService.getRaw(`https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=${ids}`).then((r) => {
+      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
         console.log(r.data.results)
         let results = r.data.results
         var lithologyList = []

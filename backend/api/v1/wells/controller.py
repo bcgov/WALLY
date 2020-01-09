@@ -88,7 +88,7 @@ def get_screens(point, radius) -> List[WellDrawdown]:
     wells_results = []
 
     done = False
-    url = f"https://gwells-staging.gov.bc.ca/gwells/api/v1/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
+    url = f"https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
     # helpers to prevent unbounded requests
     limit_requests = 100
     i = 0  # this i is for recording extra requests within each chunk, if necessary
