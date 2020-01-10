@@ -35,7 +35,7 @@ requests:
     expect:
       status: 200
       values:
-        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        type: "FeatureCollection"
         features.[0].place_name:
           exists: true
   - name: Search for parcel ID (leading zero)
@@ -44,7 +44,7 @@ requests:
     expect:
       status: 200
       values:
-        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        type: "FeatureCollection"
         features.[0].place_name:
           exists: true
   - name: Search for water licence
@@ -53,7 +53,7 @@ requests:
     expect:
       status: 200
       values:
-        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        type: "FeatureCollection"
         features.[0].place_name:
           exists: true
   - name: Search for an ecocat report
@@ -62,6 +62,6 @@ requests:
     expect:
       status: 200
       values:
-        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        type: "FeatureCollection"
         features.[0].place_name:
           exists: true
