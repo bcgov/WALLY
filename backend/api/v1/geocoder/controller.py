@@ -48,7 +48,7 @@ EXTERNAL_API_SEARCH_URLS = {
 
 def external_search(query, feature_type, url):
     """ Makes an external search request to a specified URL.  The url will have the search
-        text appended to it.
+        text appended to it. Returns geojson matches with extra data for the geocoder.
     """
     req = ExternalAPIRequest(
         url=url + query,
@@ -74,6 +74,12 @@ def external_search(query, feature_type, url):
 
 
 def wfs_search(db, query, feature_type):
+    """
+        Get feature info and coordinates for features that match `query` for
+        a given feature type. Returns geojson with extra metadata used by
+        the geocoder.
+    """
+
     # look up the DataBC layer ID.
     # first check in the WFS_LAYER_IDS constant defined above
     layer = WFS_LAYER_IDS.get(feature_type, None)
@@ -103,7 +109,6 @@ def wfs_search(db, query, feature_type):
     query = WMSGetFeatureQuery(
         typeNames=layer,
         count=5,
-        # this is CQL, not SQL, and this string will be sent over HTTP.
         cql_filter=cql_filter
     )
     req = ExternalAPIRequest(
