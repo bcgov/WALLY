@@ -21,11 +21,15 @@ export const sources = [
     options: featureCollection
   },
   {
-    name: 'upStreamBufferSource',
+    name: 'upstreamBufferSource',
     options: featureCollection
   },
   {
-    name: 'downStreamBufferSource',
+    name: 'downstreamBufferSource',
+    options: featureCollection
+  },
+  {
+    name: 'streamApportionmentSource',
     options: featureCollection
   }
 ]
@@ -98,6 +102,38 @@ export const layers = [
     },
     'paint': {
       'fill-color': 'rgba(255, 72, 0, 0.25)'
+    }
+  },
+  {
+    'id': 'closestPointsOnStream',
+    'type': 'circle',
+    'source': sources[6].name,
+    'layout': {},
+    'paint': {
+      'circle-color': 'rgb(255,83,212)',
+      'circle-radius': 2,
+      'circle-stroke-width': 1
+    }
+  },
+  {
+    'id': 'distanceLinesFromStream',
+    'type': 'line',
+    'source': sources[6].name,
+    'layout': {},
+    'paint': {
+      'line-color': 'rgb(55,184,228)',
+      'line-width': 3
+    }
+  },
+  {
+    'id': 'distanceLinesTextFromStream',
+    'type': 'symbol',
+    'source': sources[6].name,
+    'layout': {
+      'symbol-placement': 'line',
+      'text-font': ['Open Sans Regular'],
+      'text-field': '{title}',
+      'text-size': 12
     }
   }
 ]
