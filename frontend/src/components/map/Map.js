@@ -96,19 +96,20 @@ export default {
       'allDataMarts',
       'activeDataMarts',
       'highlightFeatureData',
+      'highlightFeatureCollectionData',
       'dataMartFeatureInfo',
       'infoPanelVisible',
       'map',
       'draw',
       'geocoder',
       'getSelectedStreamData',
-      'getUpStreamData',
-      'getDownStreamData',
+      'getUpstreamData',
+      'getDownstreamData',
       'getStreamSources',
       'getStreamLayers',
       'getSelectedStreamBufferData',
-      'getUpStreamBufferData',
-      'getDownStreamBufferData'
+      'getUpstreamBufferData',
+      'getDownstreamBufferData'
     ])
   },
   methods: {
@@ -335,9 +336,17 @@ export default {
       this.$store.commit('addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
     },
+    /*
+      Highlights a FeatureCollection dataset
+     */
     updateHighlightsLayerData (data) {
-      this.updateStreamsHighlights(data.feature_collection)
+      if (data.display_data_name === 'stream_apportionment') {
+        this.map.getSource('streamApportionmentSource').setData(data.feature_collection)
+      }
     },
+    /*
+      Highlights a single Feature dataset
+     */
     updateHighlightLayerData (data) {
       // For stream networks layer we add custom highlighting and reset poly/point highlight layering
       if (data.display_data_name === 'freshwater_atlas_stream_networks') {
@@ -597,8 +606,7 @@ export default {
         this.updateHighlightLayerData(value)
       }
     },
-    highlightFeaturesData (value) {
-      console.log('new fc')
+    highlightFeatureCollectionData (value) {
       this.updateHighlightsLayerData(value)
     },
     dataMartFeatureInfo (value) {
@@ -613,6 +621,8 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
+        // TODO: Remove this
+        // This centers the map on the selected point
         // let flyToCoordinates = [...coordinates]
         // this.map.flyTo({
         //   center: flyToCoordinates
@@ -623,19 +633,19 @@ export default {
     getSelectedStreamData (value) {
       this.map.getSource(streamConfig.sources[0].name).setData(value)
     },
-    getUpStreamData (value) {
+    getUpstreamData (value) {
       this.map.getSource(streamConfig.sources[1].name).setData(value)
     },
-    getDownStreamData (value) {
+    getDownstreamData (value) {
       this.map.getSource(streamConfig.sources[2].name).setData(value)
     },
     getSelectedStreamBufferData (value) {
       this.map.getSource(streamConfig.sources[3].name).setData(value)
     },
-    getUpStreamBufferData (value) {
+    getUpstreamBufferData (value) {
       this.map.getSource(streamConfig.sources[4].name).setData(value)
     },
-    getDownStreamBufferData (value) {
+    getDownstreamBufferData (value) {
       this.map.getSource(streamConfig.sources[5].name).setData(value)
     }
   }
