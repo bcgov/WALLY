@@ -1,6 +1,7 @@
 """
 API models and response schemas for aggregating data from WMS and API sources
 """
+import json
 from typing import List, Optional, Union
 from pydantic import BaseModel
 from geojson import Feature, FeatureCollection, Point
@@ -15,7 +16,7 @@ def flatten_geojson_property(value):
     """ flattens json values for use in geojson properties
     """
     if isinstance(value, list):
-        return ', '.join(value)
+        return ', '.join(json.dumps(value))
 
     return value
 
