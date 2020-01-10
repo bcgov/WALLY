@@ -4,9 +4,12 @@ Aggregate data from different WMS and/or API sources.
 from logging import getLogger
 from typing import List
 import json
+import pyproj
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from shapely.geometry import shape, box, MultiPolygon, Polygon
+from shapely.ops import transform
 
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation
@@ -25,8 +28,9 @@ from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNet
 from api.layers.first_nations import CommunityLocations, TreatyLands, TreatyAreas
 
 import api.v1.aggregator.controller as agr_repo
-from api.v1.aggregator.controller import fetch_wms_features
-from api.v1.aggregator.schema import WMSGetMapQuery, WMSRequest, LayerResponse
+from api.v1.aggregator.controller import fetch_geojson_features
+from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
+from api.v1.aggregator.helpers import gwells_api_request
 from api.templating.template_builder import build_templates
 from api.v1.aggregator.helpers import spherical_mercator_project
 from api.v1.aggregator.excel import xlsxExport
@@ -43,15 +47,15 @@ router = APIRouter()
 API_DATASOURCES = {
     "HYDAT": StreamStation,
     "aquifers": GroundWaterAquifers,
-    "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations,
+    # "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations,
     "bc_major_watersheds": BcMajorWatersheds,
-    "bc_wildfire_active_weather_stations": BcWildfireActiveWeatherStations,
+    # "bc_wildfire_active_weather_stations": BcWildfireActiveWeatherStations,
     "cadastral": Cadastral,
-    "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
-    "ecocat_water_related_reports": EcocatWaterRelatedReports,
-    "groundwater_wells": GroundWaterWells,
+    # "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
+    # "ecocat_water_related_reports": EcocatWaterRelatedReports,
+    # "groundwater_wells": GroundWaterWells,
     "hydrometric_stream_flow": StreamStation,
-    "water_allocation_restrictions": WaterAllocationRestrictions,
+    # "water_allocation_restrictions": WaterAllocationRestrictions,
     "water_rights_licences": WaterRightsLicenses,
     "water_rights_applications": WaterRightsApplications,
     "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks,
@@ -65,6 +69,21 @@ API_DATASOURCES = {
     # "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
 
     # NOTE: Stream analysis also uses this dictionary for information lookup
+}
+
+# For external APIs that may require different parameters (e.g. not a WMS/GeoServer with
+# relatively consistent request params), add a helper function that returns an ExternalAPIRequest
+# object.
+EXTERNAL_API_REQUESTS = {
+    "groundwater_wells": gwells_api_request
+}
+
+# DataBC names geometry fields either GEOMETRY or SHAPE
+# We will assume GEOMETRY, except for layers listed here.
+DATABC_GEOMETRY_FIELD = {
+    "automated_snow_weather_station_locations": "SHAPE",
+    "bc_wildfire_active_weather_stations": "SHAPE",
+    "critical_habitat_species_at_risk": "SHAPE",
 }
 
 
@@ -121,34 +140,13 @@ def aggregate_sources(
         poly_parsed = json.loads(polygon)
         polygon = MultiPolygon([Polygon(x) for x in poly_parsed])
 
-        # bbox is no longer required, since we want to support polygon selection.
-        # in order to maintain compatibility with WMS, if a polygon is provided,
-        # create a bbox.  This feature could be removed in the near future if
-        # we stop supporting WMS altogether.
-        bbox = shape(polygon).bounds
-
-    # This code section converts latlng EPSG:4326 values into mercator EPSG:3857
-    # and then takes the largest square to use as the bbox. Reason being that the databc
-    # WMS server doesn't handle non square bbox's very well on specific layers. This section
-    # also limits the max size to be no larger than 10000 meters because again WMS server has
-    # issues with large bbox's
-    # TODO find the limit of bbox size for layers and implement feature client side
-    #  that displays a square box with max size of limit
-    bottom_left = spherical_mercator_project(bbox[1], bbox[0])
-    top_right = spherical_mercator_project(bbox[3], bbox[2])
-    x_diff = bottom_left[0] - top_right[0]
-    y_diff = bottom_left[1] - top_right[1]
-    diff = min(round(abs(max(x_diff, y_diff))), 10000)
-    mercator_box = [bottom_left[1], bottom_left[0],
-                    bottom_left[1] + diff, bottom_left[0] + diff]
-
-    # Format the bounding box (which arrives in the querystring as a comma separated list)
-    bbox_string = ','.join(str(v) for v in mercator_box)
-
-    # define a search area out of the polygon shape, or, if that wasn't provided,
-    # the bounding box.  This request should return an error (earlier in the handler)
-    # if neither were supplied.
+    # define a search area out of the polygon shape
     search_area = polygon or box(*bbox)
+
+    albers_search_area = transform(pyproj.Transformer.from_proj(
+        pyproj.Proj(init='epsg:4326'),
+        pyproj.Proj(init='epsg:3005')
+    ).transform, search_area)
 
     # Compare requested layers against layers we keep track of.  The valid WMS layers and their
     # respective WMS endpoints will come from our metadata.
@@ -170,28 +168,42 @@ def aggregate_sources(
             internal_data.append(item)
             processed_layers[item.display_data_name] = True
 
-    # Create a WMSRequest object with all the values we need to make WMS requests for each of the
+    # Create a ExternalAPIRequest object with all the values we need to make WMS requests for each of the
     # WMS layers that we have metadata for.
     for item in catalogue:
-        if item.wms_catalogue_id is None or item.display_data_name in processed_layers:
+        if item.display_data_name in processed_layers:
             continue
 
-        query = WMSGetMapQuery(
-            layers=item.wms_catalogue.wms_name,
-            bbox=bbox_string,
-            width=width,
-            height=height,
-        )
-        req = WMSRequest(
-            url=wms_url(item.wms_catalogue.wms_name),
-            layer=item.display_data_name,
-            q=query
-        )
-        wms_requests.append(req)
+        logger.info(item.display_data_name)
+
+        if item.display_data_name in EXTERNAL_API_REQUESTS:
+
+            # use the helper function in EXTERNAL_API_REQUESTS (if available)
+            # to return an ExternalAPIRequest directly.
+            wms_requests.append(
+                EXTERNAL_API_REQUESTS[item.display_data_name](search_area)
+            )
+            logger.info('added external API request!')
+            continue
+
+        # if we don't have a direct API to access, fall back on WMS.
+        if item.wms_catalogue_id is not None:
+            query = WMSGetFeatureQuery(
+                typeNames=item.wms_catalogue.wms_name,
+                cql_filter=f"""
+                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {albers_search_area.wkt})
+                """
+            )
+            req = ExternalAPIRequest(
+                url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
+                layer=item.display_data_name,
+                q=query
+            )
+            wms_requests.append(req)
 
     # Go and fetch features for each of the WMS endpoints we need, and make a FeatureCollection
     # out of all the aggregated features.
-    feature_list = fetch_wms_features(wms_requests)
+    feature_list = fetch_geojson_features(wms_requests)
 
     # Loop through all datasets that are available internally.
     # We will make use of the data access function registered in API_DATASOURCES

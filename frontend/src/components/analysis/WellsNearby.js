@@ -13,6 +13,7 @@ export default {
   },
   props: ['record'],
   data: () => ({
+    spreadsheetLoading: false,
     inputRules: {
       required: value => !!value || 'Required',
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
@@ -118,6 +119,31 @@ export default {
     ...mapGetters(['isMapLayerActive'])
   },
   methods: {
+    exportDrawdownAsSpreadsheet () {
+      this.spreadsheetLoading = true
+      const params = {
+        radius: parseFloat(this.radius),
+        point: JSON.stringify(this.coordinates),
+        format: 'xlsx'
+      }
+      ApiService.query(`/api/v1/wells/nearby`, params, { responseType: 'arraybuffer' }).then((r) => {
+        console.log(r)
+        let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = 'WaterReport.xlsx'
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+      }).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.spreadsheetLoading = false
+      })
+    },
     enableWellsLayer () {
       this.$store.commit('addMapLayer', 'groundwater_wells')
     },
