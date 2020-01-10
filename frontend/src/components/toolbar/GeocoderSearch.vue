@@ -21,7 +21,7 @@ export default {
   data: () => ({
     searchFeatureType: null,
     searchOptions: [
-      { text: 'Coordinates', value: null, placeholder: 'Search by latitude, longitude' },
+      { text: 'Coordinates', value: null, placeholder: 'Find a location (example: -123, 51)' },
       { text: 'Parcel (PID)', value: 'cadastral', placeholder: 'Search by PID' },
       { text: 'Wells', value: 'groundwater_wells', placeholder: 'Search by well tag number' },
       { text: 'Water Licences', value: 'water_rights_licences', placeholder: 'Search by licence number or source name' },

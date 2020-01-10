@@ -22,7 +22,7 @@ search_spaces = re.compile(r'[ ]+')
 
 # Search strings will match against any of the fields provided in SEARCH_FIELDS.
 WFS_SEARCH_FIELDS = {
-    "cadastral": ["PID_NUMBER"],
+    "cadastral": ["PARCEL_NAME"],
     "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
     "aquifers": ["AQNAME", "AQUIFER_NAME"],
     "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
@@ -91,12 +91,12 @@ def wfs_search(query, feature_type):
     # form CQL filter.
     # note: this is not SQL, and this string will be sent over HTTP to a public server.
     # this doesn't automatically carry the same risks as forming a SQL string.
-    cql_filter = f"{search_fields[0]} ILIKE '{query}%'"
+    cql_filter = f"{search_fields[0]} ILIKE '%{query}%'"
 
     # append additional filter statements if multiple search fields available.
     if len(search_fields) > 1:
         cql_filter = cql_filter + ' '.join([
-            f"OR {field} ILIKE '{query}%'" for field in search_fields[1:]
+            f"OR {field} ILIKE '%{query}%'" for field in search_fields[1:]
         ])
 
     query = WMSGetFeatureQuery(
