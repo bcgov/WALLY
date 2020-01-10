@@ -47,7 +47,8 @@ describe('Notifications', () => {
   /*
   Buggy test
   Not working even when localStorage is mocked (and confirmed to work).
-  Issue is that the #helpNotification div doesn't go away
+  Issue is that the #helpNotification div doesn't go away (even though it
+   does when you test it out in the browser
   */
   // it('Help message can be disabled', async () => {
   //   EventBus.$emit('help', { text: 'test help msg', disableKey: 'testHelpKey' })
