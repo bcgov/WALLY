@@ -33,7 +33,7 @@ def json_to_geojson():
 
         return FeatureCollection([
             Feature(
-                id=x.get(self.id_field, uuid4()),
+                id=x.get(self.id_field, str(uuid4())),
                 geometry=Point((x.get('longitude'), x.get('latitude'))),
                 properties={k: flatten_geojson_property(
                     v) for k, v in x.items() if k not in self.excluded_fields}
@@ -85,6 +85,8 @@ class ExternalAPIRequest(BaseModel):
     excluded_fields = []
     # an id field to populate geojson feature IDs (if not specified, a uuid will be created)
     id_field: Optional[str]
+    # paginate: if set to False, do not follow pagination links (get one set of results only)
+    paginate = True
 
 
 class LayerResponse(BaseModel):

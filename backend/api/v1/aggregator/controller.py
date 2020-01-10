@@ -22,6 +22,11 @@ logger = logging.getLogger("aggregator")
 def build_api_query(req: ExternalAPIRequest) -> str:
     """ build_api_query takes a ExternalAPIRequest object and returns a URL with query params """
 
+    # if the query options weren't specified, return the url without
+    # adding to it.
+    if not req.q:
+        return req.url
+
     base_url = req.url
 
     if not base_url.endswith('?'):
@@ -105,10 +110,13 @@ async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> Laye
         async with session.get(next_url) as response:
             results, status, next_url = await asyncio.ensure_future(parse_result(response, req))
             features.extend(results)
-
             # preserve error statuses even if a later request returns 200 OK
             if layer_resp.status < status:
                 layer_resp.status = status
+
+        # if pagination is disabled, stop here.
+        if not req.paginate:
+            break
 
     layer_resp.geojson = FeatureCollection(features=features)
     return layer_resp

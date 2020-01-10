@@ -4,7 +4,7 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
 from sqlalchemy import func, text
-from geojson import Feature, FeatureCollection
+from geojson import Feature, FeatureCollection, Point
 from logging import getLogger
 from shapely import wkt
 from shapely.geometry import shape, mapping
@@ -21,10 +21,9 @@ search_symbols = re.compile(r'[^\w ]', re.UNICODE)
 search_spaces = re.compile(r'[ ]+')
 
 # Search strings will match against any of the fields provided in SEARCH_FIELDS.
-SEARCH_FIELDS = {
+WFS_SEARCH_FIELDS = {
     "cadastral": ["PID_NUMBER"],
     "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
-    "groundwater_wells": ["well_tag_number"],
     "aquifers": ["AQNAME", "AQUIFER_NAME"],
     "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
 }
@@ -41,13 +40,39 @@ WFS_LAYER_IDS = {
     "water_rights_licences": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
 }
 
+# searches will make a request to these external URLs, if available for the layer type
+EXTERNAL_API_SEARCH_URLS = {
+    "groundwater_wells": "https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/locations?limit=5&search="
+}
 
-def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollection:
-    """ searches for feature locations using external APIs or internal data.
-        will make use of DataBC, using layer names from the Wally metadata catalogue,
-        unless another provider function is specified (e.g. for searching on GWELLS)
+
+def external_search(query, feature_type, url):
+    """ Makes an external search request to a specified URL.  The url will have the search
+        text appended to it.
     """
+    req = ExternalAPIRequest(
+        url=url + query,
+        layer=feature_type,
+        q={},
+        paginate=False
+    )
+    # Fetch features.
+    feature_collection = fetch_geojson_features([req])
 
+    features = feature_collection[0].geojson['features']
+    geocoder_features = []
+
+    for feature in features:
+        feature['layer'] = feature_type
+        feature['center'] = (feature.geometry.coordinates[0], feature.geometry.coordinates[1])
+        feature['place_name'] = str(feature.properties['well_tag_number'])
+        logger.info(feature)
+        geocoder_features.append(feature)
+
+    return geocoder_features
+
+
+def wfs_search(query, feature_type):
     # look up the DataBC layer ID.
     # first check in the WFS_LAYER_IDS constant defined above
     layer = WFS_LAYER_IDS.get(feature_type, None)
@@ -59,7 +84,7 @@ def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollect
             raise HTTPException(status_code=400, detail="Feature type invalid")
         layer = catalogue[0].wms_catalogue.wms_name
 
-    search_fields = SEARCH_FIELDS.get(feature_type, None)
+    search_fields = WFS_SEARCH_FIELDS.get(feature_type, None)
     if not search_fields or not layer:
         raise HTTPException(status_code=400, detail="Feature type invalid")
 
@@ -109,9 +134,27 @@ def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollect
         new_feature['layer'] = feature_type
         new_feature['center'] = [geom.centroid.x, geom.centroid.y]
         new_feature['place_name'] = ' '.join(
-            [str(feature.properties.get(field, '')) for field in SEARCH_FIELDS[feature_type]])
+            [str(feature.properties.get(field, '')) for field in WFS_SEARCH_FIELDS[feature_type]])
         new_feature['id'] = feature['id']
         geocoder_features.append(new_feature)
+
+    return geocoder_features
+
+
+def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollection:
+    """ searches for feature locations using external APIs or internal data.
+        will make use of DataBC, using layer names from the Wally metadata catalogue,
+        unless another provider function is specified (e.g. for searching on GWELLS)
+    """
+
+    geocoder_features = []
+
+    if feature_type in EXTERNAL_API_SEARCH_URLS:
+        geocoder_features = external_search(query, feature_type, EXTERNAL_API_SEARCH_URLS.get(feature_type))
+    else:
+        geocoder_features = wfs_search(query, feature_type)
+
+    logger.info(geocoder_features)
 
     return FeatureCollection(geocoder_features)
 
