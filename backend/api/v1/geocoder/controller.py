@@ -64,7 +64,8 @@ def external_search(query, feature_type, url):
 
     for feature in features:
         feature['layer'] = feature_type
-        feature['center'] = (feature.geometry.coordinates[0], feature.geometry.coordinates[1])
+        feature['center'] = (feature.geometry.coordinates[0],
+                             feature.geometry.coordinates[1])
         feature['place_name'] = str(feature.properties['well_tag_number'])
         logger.info(feature)
         geocoder_features.append(feature)
@@ -72,7 +73,7 @@ def external_search(query, feature_type, url):
     return geocoder_features
 
 
-def wfs_search(query, feature_type):
+def wfs_search(db, query, feature_type):
     # look up the DataBC layer ID.
     # first check in the WFS_LAYER_IDS constant defined above
     layer = WFS_LAYER_IDS.get(feature_type, None)
@@ -150,9 +151,10 @@ def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollect
     geocoder_features = []
 
     if feature_type in EXTERNAL_API_SEARCH_URLS:
-        geocoder_features = external_search(query, feature_type, EXTERNAL_API_SEARCH_URLS.get(feature_type))
+        geocoder_features = external_search(
+            query, feature_type, EXTERNAL_API_SEARCH_URLS.get(feature_type))
     else:
-        geocoder_features = wfs_search(query, feature_type)
+        geocoder_features = wfs_search(db, query, feature_type)
 
     logger.info(geocoder_features)
 
