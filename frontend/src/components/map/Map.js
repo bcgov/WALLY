@@ -613,10 +613,10 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
-        let flyToCoordinates = [...coordinates]
-        this.map.flyTo({
-          center: flyToCoordinates
-        })
+        // let flyToCoordinates = [...coordinates]
+        // this.map.flyTo({
+        //   center: flyToCoordinates
+        // })
         this.updateHighlightLayerData(value)
       }
     },

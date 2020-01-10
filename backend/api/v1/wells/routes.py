@@ -9,7 +9,7 @@ from shapely.geometry import Point, LineString
 
 from api.db.utils import get_db
 from api.v1.wells.schema import WellDrawdown, CrossSection
-
+from api.v1.aggregator.excel import geojson_to_xlsx
 from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
@@ -32,7 +32,9 @@ def get_nearby_wells(
         point: str = Query(..., title="Point of interest",
                            description="Point of interest to centre search at"),
         radius: float = Query(1000, title="Search radius",
-                              description="Search radius from point", ge=0, le=10000)
+                              description="Search radius from point", ge=0, le=10000),
+        format: str = Query('json', title="Format",
+                            description="Format that results will be returned in (json, xlsx)")
 ):
     """ finds wells near to a point
         fetches distance data using the Wally database, and combines
@@ -42,16 +44,28 @@ def get_nearby_wells(
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
 
-    wells_with_distances = get_wells_by_distance(db, point_shape, radius)
+    # wells_with_distances = get_wells_by_distance(db, point_shape, radius)
 
-    # convert nearby wells to a list of strings of well tag numbers
-    wells_to_search = map(lambda x: str(
-        int(x[0])).lstrip("0"), wells_with_distances)
+    # # convert nearby wells to a list of strings of well tag numbers
+    # wells_to_search = map(lambda x: str(
+    #     int(x[0])).lstrip("0"), wells_with_distances)
 
-    wells_with_screens = get_screens(list(wells_to_search))
+    wells_drawdown_data = get_screens(point_shape, radius)
 
-    wells_drawdown_data = merge_wells_datasources(
-        wells_with_screens, wells_with_distances)
+    if format == 'xlsx':
+        return geojson_to_xlsx(
+            [geojson.FeatureCollection(
+                [
+                    geojson.Feature(
+                        geometry=geojson.Point([x.longitude, x.latitude]),
+                        properties=x.dict(exclude={'screen_set'})
+                    ) for x in wells_drawdown_data
+                ],
+                properties={
+                    "name": "Available drawdown"
+                }
+            )]
+        )
 
     return wells_drawdown_data
 
