@@ -20,10 +20,48 @@ requests:
     set:
       - var: auth_token # set the {{auth_token}} here
         from: access_token
-  - name: Search (using a hydat station name)
-    url: "{{host}}/api/v1/geocoding/a/a/creek.json"
+  - name: Search for wells
+    url: "{{host}}/api/v1/geocoding/a/a/123.json?country=groundwater_wells"
     method: get
     expect:
       status: 200
       values:
         type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        features.[0].place_name:
+          exists: true
+  - name: Search for parcel ID
+    url: "{{host}}/api/v1/geocoding/a/a/1000.json?country=cadastral"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        features.[0].place_name:
+          exists: true
+  - name: Search for parcel ID (leading zero)
+    url: "{{host}}/api/v1/geocoding/a/a/023.json?country=cadastral"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        features.[0].place_name:
+          exists: true
+  - name: Search for water licence
+    url: "{{host}}/api/v1/geocoding/a/a/123.json?country=water_rights_licences"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        features.[0].place_name:
+          exists: true
+  - name: Search for an ecocat report
+    url: "{{host}}/api/v1/geocoding/a/a/123.json?country=ecocat_water_related_reports"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection" # response should be a FeatureCollection object, which will contain this value.
+        features.[0].place_name:
+          exists: true
