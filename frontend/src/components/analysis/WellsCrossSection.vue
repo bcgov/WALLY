@@ -8,12 +8,12 @@
           <v-tab>3D Surface Section</v-tab>
           <v-tab-item>
             <v-card flat>
-              <Plotly :data="chartData" :layout="chartLayout"></Plotly>
+              <Plotly id="2dPlot" :data="chartData" :layout="chartLayout" ref="crossPlot"></Plotly>
             </v-card>
           </v-tab-item>
           <v-tab-item>
             <v-card flat>
-              <Plotly :data="surfaceData" :layout="surfaceLayout"></Plotly>
+              <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
             </v-card>
           </v-tab-item>
         </v-tabs>
@@ -55,11 +55,10 @@
                 </dd>
                 <dt>Depth to water</dt>
                 <dd>
-                  The depth to water, as reported in the DataBC
-                  <a
-                    href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells"
-                    target="_blank"
-                  >Ground Water Wells dataset</a> (see WATER_DEPTH).
+                  The depth to water, using data from <a
+                  href="https://apps.nrs.gov.bc.ca/gwells/"
+                  target="_blank"
+                  >Groundwater Wells and Aquifers</a>.
                 </dd>
                 <dt>Finished well depth</dt>
                 <dd>The finished well depth, as reported in the well report submitted by the well driller or pump installer (in metres).</dd>
@@ -82,11 +81,15 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
+import PlotlyJS from 'plotly.js'
 
 export default {
   name: 'WellsCrossSection',
   components: {
     Plotly
+  },
+  mounted () {
+    this.fetchWellsAlongLine()
   },
   props: ['record', 'coordinates'],
   data: () => ({
@@ -275,6 +278,7 @@ export default {
             color: 'black' // lith.color,
           },
           hovertemplate: '%{text} %{z} m',
+          // hoverinfo: 'skip',
           name: ''
         }
         lithologyMarkers.push(marker)
@@ -337,6 +341,8 @@ export default {
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
+          // Set plotly events
+          this.$refs.crossPlot.$on('click', this.setMarkerLabels);
         })
         .catch(e => {
           console.error(e)
@@ -344,6 +350,12 @@ export default {
         .finally(() => {
           this.loading = false
         })
+    },
+    setMarkerLabels(e) {
+      let points = e.points.map(p => {
+        return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
+      })
+      PlotlyJS.Fx.hover('2dPlot', points)
     },
     fetchWellsLithology (ids) {
       // https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=112316
@@ -357,7 +369,7 @@ export default {
       // this.wellsLithology = lithologyList
       // console.log(ids)
 
-      ApiService.getRaw(`https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=${ids}`).then((r) => {
+      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
         console.log(r.data.results)
         let results = r.data.results
         var lithologyList = []
@@ -409,9 +421,9 @@ export default {
       this.fetchWellsAlongLine()
     }
   },
-  mounted () {
-    this.fetchWellsAlongLine()
-  },
+  // mounted () {
+  //   this.fetchWellsAlongLine()
+  // },
   beforeDestroy () {
     // reset shapes when closing this component
     EventBus.$emit('shapes:reset')
