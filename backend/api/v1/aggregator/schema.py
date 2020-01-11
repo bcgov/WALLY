@@ -73,6 +73,7 @@ class GWELLSAPIParams(BaseModel):
     """ request params for GWELLS API requests """
     within: str
     geojson: str = "true"
+    limit = 100
 
 
 class ExternalAPIRequest(BaseModel):

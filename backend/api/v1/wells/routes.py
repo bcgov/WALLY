@@ -5,7 +5,7 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, mapping
 
 from api.db.utils import get_db
 from api.v1.wells.schema import WellDrawdown, CrossSection
@@ -15,6 +15,7 @@ from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
     get_wells_by_distance,
     merge_wells_datasources,
+    create_line_buffer,
     get_screens,
     get_wells_along_line,
     get_line_buffer_polygon,
@@ -87,16 +88,13 @@ def get_wells_section(
     right = get_parallel_line_offset(db, line_shape, radius)
     right_half = get_parallel_line_offset(db, line_shape, radius/2)
     lines = [left[0], left_half[0], line_shape.wkt, right_half[0], right[0]]
-    surface = fetch_surface_lines(lines) # surface of 5 lines used for 3d display
+    surface = fetch_surface_lines(lines)  # surface of 5 lines used for 3d display
 
     profile_line_linestring = surface[2]
     profile_line = get_profile_line_by_length(db, profile_line_linestring)
     wells_along_line = get_wells_along_line(db, profile_line_linestring, radius)
 
-    buffer = db.query(
-        func.ST_asGeoJSON(get_line_buffer_polygon(
-            profile_line_linestring, radius)).label('search_area')
-    ).first()
+    buffer = create_line_buffer(profile_line_linestring, radius)
 
     surface_lines = [list(line.coords) for line in surface]
     # we need to reverse the point lists for the -radius results
@@ -104,8 +102,7 @@ def get_wells_section(
     surface_lines[1].reverse()
 
     # logger.info(surface_lines)
-    section = CrossSection(search_area=geojson.loads(
-        buffer[0]), wells=wells_along_line,
-        elevation_profile=profile_line, surface=surface_lines)
+    section = CrossSection(search_area=mapping(buffer), wells=wells_along_line,
+                           elevation_profile=profile_line, surface=surface_lines)
 
     return section

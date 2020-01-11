@@ -7,6 +7,7 @@ import logging
 import requests
 import math
 import pyproj
+import time
 from typing import List, Optional
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
@@ -17,6 +18,16 @@ from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
 from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.wells.schema import WellDrawdown, Screen
 logger = logging.getLogger("api")
+
+transform_4326_3005 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:4326'),
+    pyproj.Proj(init='epsg:3005')
+).transform
+
+transform_3005_4326 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:3005'),
+    pyproj.Proj(init='epsg:4326')
+).transform
 
 
 def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> list:
@@ -182,16 +193,9 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
 
 
 def create_line_buffer(line: LineString, radius: float):
-
-    line = transform(pyproj.Transformer.from_proj(
-        pyproj.Proj(init='epsg:4326'),
-        pyproj.Proj(init='epsg:3005')
-    ).transform, line)
+    line = transform(transform_4326_3005, line)
     buf = line.buffer(radius, cap_style=CAP_STYLE.flat, join_style=JOIN_STYLE.round)
-    return transform(pyproj.Transformer.from_proj(
-        pyproj.Proj(init='epsg:3005'),
-        pyproj.Proj(init='epsg:4326')
-    ).transform, buf)
+    return transform(transform_3005_4326, buf)
 
 
 def get_line_buffer_polygon(line: LineString, radius: float):
@@ -225,14 +229,8 @@ def distance_along_line(line: LineString, point: Point):
     """
 
     # transform to BC Albers, which has a base unit of metres
-    point = transform(pyproj.Transformer.from_proj(
-        pyproj.Proj(init='epsg:4326'),
-        pyproj.Proj(init='epsg:3005')
-    ).transform, point)
-    line = transform(pyproj.Transformer.from_proj(
-        pyproj.Proj(init='epsg:4326'),
-        pyproj.Proj(init='epsg:3005')
-    ).transform, line)
+    point = transform(transform_4326_3005, point)
+    line = transform(transform_4326_3005, line)
 
     # note.  shapely's geom.distance calculates distance on a 2d plane
     a = point.distance(line.interpolate(0))
@@ -242,10 +240,7 @@ def distance_along_line(line: LineString, point: Point):
 
 def elevation_along_line(profile, distance):
     """ returns the elevation at `distance` metres along LineString Z `profile` """
-    profile = transform(pyproj.Transformer.from_proj(
-        pyproj.Proj(init='epsg:4326'),
-        pyproj.Proj(init='epsg:3005')
-    ).transform, profile)
+    profile = transform(transform_4326_3005, profile)
     return profile.interpolate(distance).z
 
 
@@ -257,7 +252,6 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         by the distance from the origin (i.e. the beginning of the line, measured
         along the axis).
     """
-
     buf = create_line_buffer(profile, radius)
 
     req = ExternalAPIRequest(
@@ -285,6 +279,7 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             "distance_from_origin": distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance)
         }
+
         wells_results.append(well_data)
 
     return wells_results
