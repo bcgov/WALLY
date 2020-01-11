@@ -119,15 +119,17 @@ export default {
         }
       }
 
-      this.wellsLithology.forEach(lith => {
+      this.wells.forEach(w => {
         const rect = {
           type: 'rect',
           xref: 'x',
           yref: 'y',
-          x0: lith.x,
-          y0: lith.y1,
-          x1: lith.x,
-          y1: lith.y0,
+          x0: w.distance_from_origin,
+          y0: w.ground_elevation_from_dem,
+          x1: w.distance_from_origin,
+          y1: w.finished_well_depth
+            ? w.ground_elevation_from_dem - w.finished_well_depth
+            : null,
           opacity: 0.5,
           line: {
             color: 'blue',
@@ -149,6 +151,7 @@ export default {
         ),
         text: this.wells.map(w => w.well_tag_number),
         textposition: 'bottom center',
+        showlegend: false,
         hovertemplate:
           '<b>Well</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
         type: 'scatter',
@@ -167,40 +170,76 @@ export default {
         mode: 'markers',
         marker: {
           color: 'blue',
-          symbol: 'triangle-down'
+          symbol: 'triangle-down',
+          size: 12
         },
         name: 'Depth to water (reported)',
         hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
       }
 
-      var lithology = []
-      this.wellsLithology.forEach(lith => {
-        const marker = {
-          x: [lith.x],
-          y: [lith.y0],
-          text: [lith.data],
-          mode: 'markers',
-          type: 'scatter',
-          showlegend: false,
-          marker: {
-            color: [lith.color]
-          },
-          name: '',
-          hovertemplate: '%{text} %{y} m'
-        }
-        lithology.push(marker)
-      })
+      // lithoPoints = []
+      // var lithoPoints = this.wellsLithology.map(l => {
+      //   return { x: l.x, y: l.y0, text: l.data, color: l.color }
+      // })
+
+      const lithology = {
+        x: this.wellsLithology.map(w => w.x),
+        y: this.wellsLithology.map(w => w.y0),
+        text: this.wellsLithology.map(w => w.data),
+        mode: 'markers+text',
+        type: 'scatter',
+        textposition: 'middle right',
+        marker: {
+          color: this.wellsLithology.map(w => w.color)
+        },
+        name: 'lithology',
+        texttemplate: '%{text}',
+        hoverinfo: 'text',
+        hovertemplate: '%{text} %{y} m'
+      }
+
+      // var lithology = []
+      // this.wellsLithology.forEach(lith => {
+      //   const marker = {
+      //     x: [lith.x],
+      //     y: [lith.y0],
+      //     text: [lith.data],
+      //     mode: 'markers',
+      //     type: 'scatter',
+      //     legendgroup: 'lithology',
+      //     showlegend: false,
+      //     marker: {
+      //       color: [lith.color]
+      //     },
+      //     name: '',
+      //     hovertemplate: '%{text} %{y} m'
+      //   }
+      //   lithology.push(marker)
+      // })
 
       const elevProfile = {
         x: this.elevations.map(e => e.distance_from_origin),
         y: this.elevations.map(e => e.elevation),
         mode: 'lines',
         name: 'Ground elevation',
-        type: 'scatter'
+        type: 'scatter',
+        showlegend: false
       }
 
-      return [elevProfile, waterDepth, wells, ...lithology]
+      const waterLevel = {
+        x: this.wells.map(w => w.distance_from_origin ? w.distance_from_origin : null),
+        y: this.wells.map(w => w.water_depth ? w.ground_elevation_from_dem - w.water_depth : null),
+        mode: 'lines',
+        name: 'Water Level',
+        line: {
+          color: 'blue',
+          width: 2
+        },
+        hoverinfo: 'none'
+      }
+
+      return [elevProfile, waterDepth, wells, lithology, waterLevel]
     },
     surfaceData () {
       var lines = this.surfacePoints
@@ -329,7 +368,7 @@ export default {
           )
           wellLithologySet.lithologydescription_set.forEach(w => {
             lithologyList.push({
-              x: well.distance_from_origin,
+              x: well.distance_from_origin ? well.distance_from_origin : 0,
               y0: well.ground_elevation_from_dem - (w.start * 0.3048),
               y1: well.ground_elevation_from_dem - (w.end * 0.3048),
               lat: wellLithologySet.latitude,
