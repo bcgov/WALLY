@@ -17,8 +17,7 @@ export default {
         try {
           mapLayerType = this.map.getLayer(layerID).type
 
-          if (mapLayerType === 'raster') {
-          } else {
+          if (mapLayerType !== 'raster') {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
             legendItems = this.getLegendItems(mapLayerPaint, mapLayerType)
             const layerLegend = {
@@ -136,7 +135,7 @@ export default {
         case 'PWS, RNW':
           return 'Possible Water Shortage, Refused No Water'
         default:
-          return ''
+          return code
       }
     }
   },

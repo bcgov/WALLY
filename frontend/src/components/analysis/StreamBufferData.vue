@@ -4,11 +4,11 @@
             {{title}}
         </div>
         <v-card-text>
-            <v-data-table
-                :items="bufferData"
-                :headers="headers"
-                :items-per-page="5"
-            ></v-data-table>
+          <v-data-table
+            :items="bufferData"
+            :headers="headers"
+            :items-per-page="5"
+          />
         </v-card-text>
     </v-card>
 </template>
@@ -25,8 +25,8 @@ export default {
   ],
   data: () => ({
     titleLookup: {
-      upstream: 'Up Stream Features',
-      downstream: 'Down Stream Features',
+      upstream: 'Upstream Features',
+      downstream: 'Downstream Features',
       selectedStream: 'Selected Stream Segment Features'
     }
   }),

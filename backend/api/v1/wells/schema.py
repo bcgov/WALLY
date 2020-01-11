@@ -23,6 +23,8 @@ class WellDrawdown(BaseModel):
     Well data focused on drawdown impact assessments
     """
     well_tag_number: int
+    latitude: float
+    longitude: float
     well_yield: Optional[float]
     diameter: Optional[str]
     aquifer: Optional[int]

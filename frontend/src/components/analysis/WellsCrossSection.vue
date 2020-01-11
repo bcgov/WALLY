@@ -55,11 +55,10 @@
                 </dd>
                 <dt>Depth to water</dt>
                 <dd>
-                  The depth to water, as reported in the DataBC
-                  <a
-                    href="https://catalogue.data.gov.bc.ca/dataset/ground-water-wells"
-                    target="_blank"
-                  >Ground Water Wells dataset</a> (see WATER_DEPTH).
+                  The depth to water, using data from <a
+                  href="https://apps.nrs.gov.bc.ca/gwells/"
+                  target="_blank"
+                  >Groundwater Wells and Aquifers</a>.
                 </dd>
                 <dt>Finished well depth</dt>
                 <dd>The finished well depth, as reported in the well report submitted by the well driller or pump installer (in metres).</dd>
@@ -318,7 +317,7 @@ export default {
       // this.wellsLithology = lithologyList
       // console.log(ids)
 
-      ApiService.getRaw(`https://gwells-staging.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=${ids}`).then((r) => {
+      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
         console.log(r.data.results)
         let results = r.data.results
         var lithologyList = []

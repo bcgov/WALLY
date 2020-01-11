@@ -145,4 +145,13 @@ describe('Map Legend Test', () => {
       legendItems.at(1).find('.legendItem').text()
     ).toEqual('FR')
   })
+
+  it('Replaces label code', () => {
+    expect(1).toEqual(1)
+    let legendText = wrapper.vm.replaceLabelCode('Test Label')
+    expect(legendText).toEqual('Test Label')
+
+    legendText = wrapper.vm.replaceLabelCode('OR')
+    expect(legendText).toEqual('Office Reserve')
+  })
 })

@@ -104,15 +104,23 @@ export default {
   computed: {
     licenceNumber () {
       return this.record.properties.LICENCE_NUMBER
+    },
+    licenceWithoutChars () {
+      return this.record.properties.LICENCE_NUMBER.replace(/\D+/g, '')
     }
   },
   methods: {
     fetchDocuments () {
-      axios.get(`https://j200.gov.bc.ca/ws/RestGWellsInterface/licence/${this.licenceNumber}`).then((r) => {
+      axios.get(`https://j200.gov.bc.ca/ws/RestGWellsInterface/licence/${this.licenceWithoutChars}`).then((r) => {
         this.documents = r.data
       }).catch((e) => {
         console.error(e)
       })
+    }
+  },
+  watch: {
+    licenceNumber () {
+      this.fetchDocuments()
     }
   },
   mounted () {
