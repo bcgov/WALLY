@@ -52,21 +52,6 @@ export default {
       }
     },
     ...mapGetters(['map'])
-  },
-  watch: {
-    mapColumns: {
-      deep: true,
-      handler: function () {
-      // redraw map when columns resizing.
-
-        if (!this.map.loaded()) {
-        // map hasn't loaded; no need to trigger redraw
-          return
-        }
-
-        setTimeout(() => this.map.triggerRepaint(), 0)
-      }
-    }
   }
 }
 </script>

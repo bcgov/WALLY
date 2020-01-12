@@ -191,7 +191,8 @@ export default {
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
 
-      this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
+      // NOTE: temporary
+      // this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
@@ -485,51 +486,6 @@ export default {
       // this has the effect of only allowing one selection box to be drawn at a time.
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
-    },
-    handleAddPointSelection (feature) {
-      feature.display_data_name = 'user_defined_point'
-      this.$store.commit('setDataMartFeatureInfo', feature)
-    },
-    handleAddLineSelection (feature) {
-      feature.display_data_name = 'user_defined_line'
-      this.$store.commit('setDataMartFeatureInfo', feature)
-    },
-    handleSelect (feature, options) {
-      // default options when calling this handler.
-      //
-      // showFeatureList: whether features selected by the user should be immediately shown in
-      // a panel.  This might be false if the user is selecting layers and may want to select
-      // several before being "bumped" to the selected features list.
-      //
-      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
-      const defaultOptions = {
-        showFeatureList: true
-      }
-
-      options = Object.assign({}, defaultOptions, options)
-
-      if (!feature || !feature.features || !feature.features.length) return
-
-      if (options.showFeatureList) {
-        this.$store.commit('setLayerSelectionActiveState', false)
-      }
-
-      const newFeature = feature.features[0]
-      this.replaceOldFeatures(newFeature.id)
-
-      if (newFeature.geometry.type === 'Point') {
-        return this.handleAddPointSelection(newFeature)
-      }
-
-      if (newFeature.geometry.type === 'LineString') {
-        return this.handleAddLineSelection(newFeature)
-      }
-
-      // for drawn rectangular regions, the polygon describing the rectangle is the first
-      // element in the array of drawn features.
-      // note: this is what might break if extending the selection tools to draw more objects.
-      this.getMapObjects(newFeature)
-      this.$store.commit('setSelectionBoundingBox', newFeature)
     },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)

@@ -126,6 +126,16 @@ export default {
         return
       }
 
+      if (payload.display_data_name === 'user_defined_line') {
+        return router.push({
+          name: 'cross-section',
+          query: {
+            layer: 'user_defined_line',
+            location: JSON.stringify(payload.geometry)
+          }
+        })
+      }
+
       router.push({
         name: 'single-feature',
         query: {

@@ -41,6 +41,10 @@ export default {
       feature.display_data_name = 'point_of_interest'
       commit('setDataMartFeatureInfo', feature)
     },
+    handleAddLineSelection ({ commit, dispatch, state }, feature) {
+      feature.display_data_name = 'user_defined_line'
+      commit('setDataMartFeatureInfo', feature)
+    },
     handleSelect ({ commit, dispatch, state }, feature, options) {
       // default options when calling this handler.
       //
@@ -49,6 +53,7 @@ export default {
       // several before being "bumped" to the selected features list.
       //
       // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
+
       const defaultOptions = {
         showFeatureList: true
       }
@@ -67,6 +72,11 @@ export default {
       if (newFeature.geometry.type === 'Point') {
         return dispatch('handleAddPointSelection', newFeature)
       }
+
+      if (newFeature.geometry.type === 'LineString') {
+        return dispatch('handleAddLineSelection', newFeature)
+      }
+
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
