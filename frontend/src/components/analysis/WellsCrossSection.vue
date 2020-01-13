@@ -96,7 +96,7 @@ import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
 import { mapGetters } from 'vuex'
 import html2canvas from 'html2canvas'
-import { saveAs } from 'file-saver';
+import { saveAs } from 'file-saver'
 export default {
   name: 'WellsCrossSection',
   components: {
@@ -118,7 +118,7 @@ export default {
     loading: false,
     ignoreButtons: [
       'toImage',
-      'sendDataToCloud', 
+      'sendDataToCloud',
       'hoverCompareCartesian',
       'hoverClosestCartesian',
       'toggleSpikelines'
@@ -226,7 +226,7 @@ export default {
           color: 'rgb(252,141,98)'
         },
         hoverlabel: {
-          namelength: 0 
+          namelength: 0
         },
         name: 'Finished well depth (reported)',
         mode: 'markers'
@@ -244,7 +244,7 @@ export default {
         },
         name: 'Depth to water (reported)',
         hoverlabel: {
-          namelength: 0 
+          namelength: 0
         },
         hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
@@ -265,7 +265,7 @@ export default {
         },
         name: 'Lithology',
         hoverlabel: {
-          namelength: 0 
+          namelength: 0
         },
         // texttemplate: '%{text}',
         // hoverinfo: 'text',
@@ -289,7 +289,7 @@ export default {
           width: 2
         },
         hoverlabel: {
-          namelength: 0 
+          namelength: 0
         },
         hoverinfo: 'none'
       }
@@ -398,7 +398,7 @@ export default {
           this.setAnnotationMarkers()
         })
     },
-    setAnnotationMarkers() {
+    setAnnotationMarkers () {
       var annotationGeoJson = [
         {
           type: 'Feature',
@@ -425,22 +425,22 @@ export default {
       // delete any existing markers
       this.removeElementsByClass('annotationMarker')
       // add markers to map
-      annotationGeoJson.forEach(function(marker) {
+      annotationGeoJson.forEach(function (marker) {
         // create a HTML element for each feature
-        var el = document.createElement('div');
-        el.className = 'annotationMarker';
-        el.innerText = marker.properties.symbol;
-        
+        var el = document.createElement('div')
+        el.className = 'annotationMarker'
+        el.innerText = marker.properties.symbol
+
         // make a marker for each feature and add to the map
         new mapboxgl.Marker(el)
           .setLngLat(marker.geometry.coordinates)
-          .addTo(mapObj);
+          .addTo(mapObj)
       })
     },
-    removeElementsByClass(className){
-      var elements = document.getElementsByClassName(className);
-      while(elements.length > 0){
-          elements[0].parentNode.removeChild(elements[0]);
+    removeElementsByClass (className) {
+      var elements = document.getElementsByClassName(className)
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0])
       }
     },
     fetchWellsLithology (ids) {
@@ -462,7 +462,7 @@ export default {
           let well = this.wells.find(
             x => x.well_tag_number === wellLithologySet.well_tag_number
           )
-          if(well) {
+          if (well) {
             wellLithologySet.lithologydescription_set.forEach(w => {
               lithologyList.push({
                 x: well.distance_from_origin ? well.distance_from_origin : 0,
@@ -493,7 +493,7 @@ export default {
       // add the new one
       EventBus.$emit('shapes:add', polygon)
     },
-    initPlotly() {
+    initPlotly () {
       // Subscribe to plotly select and lasso tools
       this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
       this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
@@ -515,7 +515,7 @@ export default {
       // this.$refs.crossPlot.$emit('plotly_click')
     },
     setMarkerLabels (e) {
-      if(e && e.points.length > 0) {
+      if (e && e.points.length > 0) {
         this.removeElementsByClass('select-outline')
         let points = e.points.map(p => {
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
@@ -525,21 +525,21 @@ export default {
       }
     },
     downloadPlotImage () {
-      var filename = "plot--".concat(new Date().toISOString()) + '.png'
+      var filename = 'plot--'.concat(new Date().toISOString()) + '.png'
       html2canvas(this.$refs.crossPlot.$el).then(canvas => {
-        canvas.toBlob(function(blob) {
-          saveAs(blob, filename); 
+        canvas.toBlob(function (blob) {
+          saveAs(blob, filename)
         })
       })
     },
     downloadMapImage () {
-      var filename = "map--".concat(new Date().toISOString()) + '.png'
+      var filename = 'map--'.concat(new Date().toISOString()) + '.png'
       html2canvas(this.map._container).then(canvas => {
-        canvas.toBlob(function(blob) {
-          saveAs(blob, filename); 
+        canvas.toBlob(function (blob) {
+          saveAs(blob, filename)
         })
       })
-    },
+    }
   },
   watch: {
     record: {
