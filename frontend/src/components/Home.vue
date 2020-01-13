@@ -1,13 +1,7 @@
 <template>
-  <div class="home">
-    <v-row no-gutters>
-      <v-col :cols="12" :md="mapColumns.md" :lg="mapColumns.lg" :xl="mapColumns.xl" :order-md="$route.meta.hide ? 0 : 1">
-        <Map></Map>
-      </v-col>
-      <v-col v-if="!$route.meta.hide" :cols="12" :md="sidebarColumns.md" :lg="sidebarColumns.lg" :xl="sidebarColumns.xl" order-md="0">
+  <div class="home d-flex">
         <Overlay></Overlay>
-      </v-col>
-    </v-row>
+        <Map :style="{ width: '100vw' }"></Map>
   </div>
 </template>
 

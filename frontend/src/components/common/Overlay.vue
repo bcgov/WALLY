@@ -1,6 +1,8 @@
 <template>
   <div id="app-overlay">
-    <router-view></router-view>
+    <InfoSheetAdjustable>
+      <router-view></router-view>
+    </InfoSheetAdjustable>
   </div>
 </template>
 <style lang="scss">
@@ -18,6 +20,7 @@ import MultipleSelectedFeatures from '../sidebar/MultipleSelectedFeatures'
 export default {
   name: 'Overlay',
   components: {
+    InfoSheetAdjustable
   },
   props: {
   },

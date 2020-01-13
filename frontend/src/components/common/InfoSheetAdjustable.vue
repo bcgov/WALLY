@@ -3,8 +3,7 @@
     <v-expand-x-transition>
       <v-sheet
         elevation="5"
-        v-bind:width="this.panelWidth"
-        class="float-left"
+        class="float-left feature-info-sheet"
         v-show="infoPanelVisible"
       >
         <slot/>
@@ -55,6 +54,13 @@
     padding: 10px;
     height: 100%;
     overflow: scroll;
+    width: 50vw;
+  }
+
+  @media screen and (min-width: 1900px) {
+    #info-sheet > .v-sheet {
+      width: 40vw;
+    }
   }
 
   #info-sheet > .v-btn.close {

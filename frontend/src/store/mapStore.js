@@ -143,6 +143,15 @@ export default {
       let mapLayer = state.mapLayers.find((layer) => {
         return layer.display_data_name === payload
       })
+
+      // mapLayer may be undefined if it wasn't found in the list of
+      // map layers (for example, addMapLayer was called before the layer
+      // catalogue loaded or was called with an unexpected layer).  If so,
+      // stop here.
+      if (!mapLayer) {
+        return
+      }
+
       if (!state.activeMapLayers.includes(mapLayer)) {
         state.activeMapLayers.push(mapLayer)
         EventBus.$emit(`layer:added`, payload)

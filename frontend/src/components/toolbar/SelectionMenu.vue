@@ -16,6 +16,7 @@
           <v-list-item
             v-for="(item, index) in selectionOptions"
             :key="index"
+            @click="toggleInfoPanelIfClosed"
             :to="item.route"
           >
             <v-list-item-icon><v-icon v-if="item.icon">{{item.icon}}</v-icon></v-list-item-icon>
@@ -52,6 +53,7 @@
             v-for="(item, index) in toolOptions"
             :key="index"
             :to="item.route"
+            @click="toggleInfoPanelIfClosed"
           >
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
@@ -84,15 +86,17 @@ export default {
         route: { name: 'cross-section' }
       },
       {
-        title: 'Find data upstream or downstream from a point'
+        title: 'Find data upstream or downstream from a point',
+        route: { name: 'upstream-downstream' }
       },
       {
-        title: 'Assign demand at a point to nearby streams'
+        title: 'Assign demand at a point to nearby streams',
+        route: { name: 'stream-apportionment' }
       }
     ]
   }),
   computed: {
-    ...mapGetters(['map'])
+    ...mapGetters(['map', 'infoPanelVisible'])
   },
   methods: {
     consoleLog () {
@@ -104,7 +108,16 @@ export default {
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
+      this.$store.commit('toggleInfoPanelVisibility', false)
+
       setTimeout(() => this.map.resize(), 0)
+    },
+    toggleInfoPanelIfClosed () {
+      setTimeout(() => {
+        if (!this.infoPanelVisible) {
+          this.$store.commit('toggleInfoPanelVisibility', true)
+        }
+      }, 0)
     }
   }
 }

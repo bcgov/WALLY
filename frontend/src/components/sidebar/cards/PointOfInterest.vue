@@ -19,18 +19,23 @@
 
 <script>
 import { mapGetters } from 'vuex'
+
 export default {
   name: 'PlacePointOfInterest',
+  components: {
+  },
   data: () => ({
 
   }),
   methods: {
     selectPoint () {
-      this.draw.changeMode('draw_point')
+      if (this.draw && this.draw.changeMode) {
+        this.draw.changeMode('draw_point')
+      }
     }
   },
   computed: {
-    ...mapGetters(['draw'])
+    ...mapGetters(['draw', 'dataMartFeatureInfo'])
   },
   mounted () {
     this.selectPoint()

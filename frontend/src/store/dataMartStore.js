@@ -136,14 +136,16 @@ export default {
         })
       }
 
-      router.push({
-        name: 'single-feature',
-        query: {
-          type: payload.geometry.type,
-          layer: payload.display_data_name,
-          location: payload.geometry ? centroid(payload).geometry.coordinates.join(',') : null
-        }
-      })
+      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'place-poi') {
+        router.push({
+          name: 'single-feature',
+          query: {
+            type: payload.geometry.type,
+            layer: payload.display_data_name,
+            location: payload.geometry ? centroid(payload).geometry.coordinates.join(',') : null
+          }
+        })
+      }
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }

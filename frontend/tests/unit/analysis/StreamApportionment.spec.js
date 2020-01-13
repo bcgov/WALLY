@@ -52,7 +52,7 @@ describe('Stream apportionment tests', () => {
         'coordinates': [-122.9769538778261, 50.10578278124623],
         'type': 'Point'
       },
-      'display_data_name': 'user_defined_point'
+      'display_data_name': 'point_of_interest'
     }
   }
   */
