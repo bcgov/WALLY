@@ -4,7 +4,6 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import StreamApportionment from '../../../src/components/analysis/StreamApportionment.vue'
-import testStreams from './testStreams.json'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
