@@ -8,9 +8,17 @@
           <v-tab>2D Cross Section</v-tab>
           <v-tab>3D Surface Section</v-tab>
           <v-tab-item>
-            <v-btn x-small v-on:click="savePlotlyImage" color="blue-grey lighten-4" class="mb-1 mt-5">
-              <span class="hidden-sm-and-down">Download Chart</span>
-            </v-btn>
+            <v-row>
+              <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+                <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
+              </v-btn>
+              <v-btn small v-on:click="downloadPlotImage" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+                <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download 2D Plot</span>
+              </v-btn>
+              <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
+                <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Map</span>
+              </v-btn>
+            </v-row>
             <v-card flat>
               <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
             </v-card>
@@ -86,6 +94,10 @@ import ApiService from '../../services/ApiService'
 import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
+import mapboxgl from 'mapbox-gl'
+import { mapGetters } from 'vuex'
+import html2canvas from 'html2canvas'
+import { saveAs } from 'file-saver';
 
 export default {
   name: 'WellsCrossSection',
@@ -115,6 +127,9 @@ export default {
     ]
   }),
   computed: {
+    ...mapGetters([
+      'map'
+    ]),
     chartLayout () {
       const opts = {
         shapes: [],
@@ -133,7 +148,46 @@ export default {
           title: {
             text: 'Distance (m)'
           }
-        }
+        },
+        annotations: [{
+          xref: 'paper',
+          yref: 'paper',
+          x: 0,
+          xanchor: 'right',
+          y: -0.1,
+          yanchor: 'bottom',
+          text: 'A',
+          showarrow: false,
+          font: {
+            size: 16,
+            color: '#ffffff'
+          },
+          align: 'center',
+          bordercolor: '#1A5A96',
+          borderwidth: 4,
+          borderpad: 4,
+          bgcolor: '#1A5A96',
+          opacity: 0.8
+        }, {
+          xref: 'paper',
+          yref: 'paper',
+          x: 1,
+          xanchor: 'left',
+          y: -0.1,
+          yanchor: 'bottom',
+          text: 'B',
+          showarrow: false,
+          font: {
+            size: 16,
+            color: '#ffffff'
+          },
+          align: 'center',
+          bordercolor: '#1A5A96',
+          borderwidth: 4,
+          borderpad: 4,
+          bgcolor: '#1A5A96',
+          opacity: 0.8
+        }]
       }
 
       this.wells.forEach(w => {
@@ -175,6 +229,9 @@ export default {
         marker: {
           color: 'rgb(252,141,98)'
         },
+        hoverlabel: {
+          namelength: 0 
+        },
         name: 'Finished well depth (reported)',
         mode: 'markers'
       }
@@ -191,6 +248,9 @@ export default {
           size: 12
         },
         name: 'Depth to water (reported)',
+        hoverlabel: {
+          namelength: 0 
+        },
         hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
       }
@@ -211,6 +271,9 @@ export default {
           color: this.wellsLithology.map(w => w.color)
         },
         name: 'Lithology',
+        hoverlabel: {
+          namelength: 0 
+        },
         // texttemplate: '%{text}',
         // hoverinfo: 'text',
         hovertemplate: '%{text} %{y} m'
@@ -233,6 +296,9 @@ export default {
         line: {
           color: 'blue',
           width: 2
+        },
+        hoverlabel: {
+          namelength: 0 
         },
         hoverinfo: 'none'
       }
@@ -336,14 +402,59 @@ export default {
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
-          
         })
         .catch(e => {
           console.error(e)
         })
         .finally(() => {
           this.loading = false
+          this.setAnnotationMarkers()
         })
+    },
+    setAnnotationMarkers() {
+      var annotationGeoJson = [
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: this.coordinates[0]
+          },
+          properties: {
+            'symbol': 'A'
+          }
+        },
+        {
+          type: 'Feature',
+          geometry: {
+            type: 'Point',
+            coordinates: this.coordinates[1]
+          },
+          properties: {
+            'symbol': 'B'
+          }
+        }
+      ]
+      var mapObj = this.map
+      // delete any existing markers
+      this.removeElementsByClass('annotationMarker')
+      // add markers to map
+      annotationGeoJson.forEach(function(marker) {
+        // create a HTML element for each feature
+        var el = document.createElement('div');
+        el.className = 'annotationMarker';
+        el.innerText = marker.properties.symbol;
+        
+        // make a marker for each feature and add to the map
+        new mapboxgl.Marker(el)
+          .setLngLat(marker.geometry.coordinates)
+          .addTo(mapObj);
+      })
+    },
+    removeElementsByClass(className){
+      var elements = document.getElementsByClassName(className);
+      while(elements.length > 0){
+          elements[0].parentNode.removeChild(elements[0]);
+      }
     },
     fetchWellsLithology (ids) {
       // https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=112316
@@ -366,20 +477,22 @@ export default {
           let well = this.wells.find(
             x => x.well_tag_number === wellLithologySet.well_tag_number
           )
-          wellLithologySet.lithologydescription_set.forEach(w => {
-            lithologyList.push({
-              x: well.distance_from_origin ? well.distance_from_origin : 0,
-              y0: well.ground_elevation_from_dem - (w.start * 0.3048),
-              y1: well.ground_elevation_from_dem - (w.end * 0.3048),
-              lat: wellLithologySet.latitude,
-              lon: wellLithologySet.longitude,
-              data: w.lithology_raw_data,
-              color: w.lithology_colour,
-              hardness: w.lithology_hardness,
-              observation: w.lithology_observation,
-              flow: w.water_bearing_estimated_flow
+          if(well) {
+            wellLithologySet.lithologydescription_set.forEach(w => {
+              lithologyList.push({
+                x: well.distance_from_origin ? well.distance_from_origin : 0,
+                y0: well.ground_elevation_from_dem - (w.start * 0.3048),
+                y1: well.ground_elevation_from_dem - (w.end * 0.3048),
+                lat: wellLithologySet.latitude,
+                lon: wellLithologySet.longitude,
+                data: w.lithology_raw_data,
+                color: w.lithology_colour,
+                hardness: w.lithology_hardness,
+                observation: w.lithology_observation,
+                flow: w.water_bearing_estimated_flow
+              })
             })
-          })
+          }
         }
         this.wellsLithology = lithologyList
       }).catch((e) => {
@@ -406,9 +519,21 @@ export default {
     },
     resetMarkerLabels () {
       PlotlyJS.Fx.hover('2dPlot', [])
+      // var xy = document.getElementsByClassName("xy");
+      // if(xy) {
+      //   // var event = new Event('plotly_deselect', {bubbles: true});
+      //   var event = new Event('plotly_doubleclick', {bubbles: true});
+      //   for (let i = 0; i < xy.length; i++) {
+      //     xy[i].dispatchEvent(event);
+      //   }
+      // }
+      // var event = new Event('plotly_click', {bubbles: true})
+      // this.$refs.crossPlot.$el.dispatchEvent(event)
+      // this.$refs.crossPlot.$emit('plotly_click')
     },
     setMarkerLabels (e) {
       if(e && e.points.length > 0) {
+        this.removeElementsByClass('select-outline')
         let points = e.points.map(p => {
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
         })
@@ -416,22 +541,22 @@ export default {
         PlotlyJS.Fx.hover('2dPlot', points)
       }
     },
-    savePlotlyImage () {
-      this.$refs.crossPlot.downloadImage()
+    downloadPlotImage () {
+      var filename = "plot--".concat(new Date().toISOString()) + '.png'
+      html2canvas(this.$refs.crossPlot.$el).then(canvas => {
+        canvas.toBlob(function(blob) {
+          saveAs(blob, filename); 
+        })
+      })
     },
-    // savePlotlyImage() {
-    //   const filename = `plot--${new Date().toISOString()}`
-    //   const options = Object.assign(
-    //     {
-    //       format: "png",
-    //       width: this.$refs.crossPlot.$el.clientWidth,
-    //       height: this.$refs.crossPlot.$el.clientHeight
-    //     },
-    //     { filename }
-    //   )
-    //   return PlotlyJS.downloadImage(this.$refs.crossPlot.$el, options)
-    // },
-    
+    downloadMapImage () {
+      var filename = "map--".concat(new Date().toISOString()) + '.png'
+      html2canvas(this.map._container).then(canvas => {
+        canvas.toBlob(function(blob) {
+          saveAs(blob, filename); 
+        })
+      })
+    },
   },
   watch: {
     record: {
@@ -455,4 +580,18 @@ export default {
 </script>
 
 <style>
+.annotationMarker {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  background: #1A5A96;
+  transform: rotate(-45deg);
+  position: absolute;
+  margin: -15px 0 0 15px;
+  color: #F0FFFF;
+  font-weight: bold;
+  font-size: 21px;
+  padding-left: 8px;
+  padding-top: 4px;
+}
 </style>

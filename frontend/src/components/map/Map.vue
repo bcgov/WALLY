@@ -1,7 +1,7 @@
 <template>
     <div>
       <v-fade-transition>
-        <div id="map" class="map" v-bind:style="this.mapStyle"></div>
+        <div id="wally-map" class="map" v-bind:style="this.mapStyle"></div>
       </v-fade-transition>
     <MapLegend :map="map"></MapLegend>
   </div>

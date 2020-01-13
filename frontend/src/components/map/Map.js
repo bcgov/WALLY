@@ -125,11 +125,12 @@ export default {
       }
 
       this.setMap(new mapboxgl.Map({
-        container: 'map', // container id
+        container: 'wally-map', // container id
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
-        attributionControl: false // hide default and re-add to the top left
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true // allows png export of map
       }))
 
       const modes = MapboxDraw.modes
