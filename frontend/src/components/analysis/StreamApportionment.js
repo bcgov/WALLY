@@ -20,8 +20,9 @@ export default {
     weightingFactorValidation: {
       required: value => !!value || 'Required',
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
-      max: value => (value === 1 && value === 2) || 'Weighting factor must be' +
-        ' either 1 (linear) or 2 (squared)'
+      values: value => (
+        parseFloat(value) === 1 || parseFloat(value) === 2
+      ) || 'Weighting factor must be either 1 (linear) or 2 (squared)'
     },
     headers: [
       { text: 'GNIS Name', value: 'gnis_name' },

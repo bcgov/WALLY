@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils'
+import {createLocalVue, mount} from '@vue/test-utils'
 import MapLegend from '../../../src/components/map/MapLegend.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
@@ -22,7 +22,7 @@ describe('Map Legend Test', () => {
     getters = {
       activeMapLayers: () => []
     }
-    store = new Vuex.Store({ getters })
+    store = new Vuex.Store({getters})
     wrapper = mount(MapLegend, {
       vuetify,
       store,
@@ -35,12 +35,12 @@ describe('Map Legend Test', () => {
   })
 
   it('Is hidden when empty', () => {
-    wrapper.setData({ legend: [] })
-    wrapper.setData({ legend: [] })
+    wrapper.setData({legend: []})
+    wrapper.setData({legend: []})
     expect(wrapper.findAll('div#legend').length).toBe(0)
   })
 
-  it('Is not hidden when not empty', () => {
+  it('Is not hidden when not empty', async () => {
     let legend = []
     legend.push({
       className: false,
@@ -64,13 +64,15 @@ describe('Map Legend Test', () => {
       name: 'Aquifers',
       plenty: false
     })
-    wrapper.setData({ legend: [] })
+    wrapper.setData({legend: []})
+    await wrapper.vm.$nextTick()
     expect(wrapper.findAll('div#legend').length).toEqual(0)
-    wrapper.setData({ legend: legend })
+    wrapper.setData({legend: legend})
+    await wrapper.vm.$nextTick()
     expect(wrapper.findAll('div#legend').length).toEqual(1)
   })
 
-  it('Shows the legend for the layer that\'s selected', () => {
+  it('Shows the legend for the layer that\'s selected', async () => {
     let legend = []
     legend.push({
       className: false,
@@ -94,14 +96,16 @@ describe('Map Legend Test', () => {
       name: 'Aquifers',
       plenty: false
     })
-    wrapper.setData({ legend: legend })
+    wrapper.setData({legend: legend})
+    await wrapper.vm.$nextTick()
+
     expect(
       wrapper.findAll('div#legend div').at(0)
         .find('.layerName').text()
     ).toEqual('Aquifers')
   })
 
-  it('Shows the legend items for a layer that has multiple legend items', () => {
+  it('Shows the legend items for a layer that has multiple legend items', async () => {
     let legend = []
     let waterAllocRestriction = {
       className: 'grouped',
@@ -124,6 +128,7 @@ describe('Map Legend Test', () => {
     }
     legend.push(waterAllocRestriction)
     wrapper.setData({ legend: legend })
+    await wrapper.vm.$nextTick()
 
     let layerName = wrapper.findAll('div#legend div').at(0)
       .find('.layerName').text()

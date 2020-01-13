@@ -48,7 +48,7 @@
           dense
           label="Weighting Factor"
           v-model="weightingFactor"
-          :rules="[weightingFactorValidation.number, weightingFactorValidation.max, weightingFactorValidation.required]"
+          :rules="[weightingFactorValidation.number, weightingFactorValidation.values, weightingFactorValidation.required]"
         />
       </v-col>
       <v-col>

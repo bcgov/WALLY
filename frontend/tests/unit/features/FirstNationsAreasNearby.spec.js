@@ -32,7 +32,7 @@ describe('FirstNationsAreasNearby.vue', () => {
     store = new Vuex.Store({ getters, mutations })
   })
 
-  it('displays nearest communities', () => {
+  it('displays nearest communities', async () => {
     const wrapper = shallowMount(FirstNationsAreasNearby, {
       vuetify,
       store,
@@ -48,11 +48,12 @@ describe('FirstNationsAreasNearby.vue', () => {
     wrapper.setData({
       communities: testResults.nearest_communities
     })
+    await wrapper.vm.$nextTick()
 
     // test data set has 4 communities
     expect(wrapper.find('#nearestCommunities').findAll('dt').length).toBe(4)
   })
-  it('displays nearest Treaty Areas', () => {
+  it('displays nearest Treaty Areas', async () => {
     const wrapper = shallowMount(FirstNationsAreasNearby, {
       vuetify,
       store,
@@ -69,10 +70,12 @@ describe('FirstNationsAreasNearby.vue', () => {
       areas: testResults.nearest_treaty_areas
     })
 
+    await wrapper.vm.$nextTick()
+
     // test data set has 7 Treaty Areas
     expect(wrapper.find('#nearestTreatyAreas').findAll('dt').length).toBe(7)
   })
-  it('displays nearest Treaty Lands', () => {
+  it('displays nearest Treaty Lands', async () => {
     const wrapper = shallowMount(FirstNationsAreasNearby, {
       vuetify,
       store,
@@ -88,6 +91,8 @@ describe('FirstNationsAreasNearby.vue', () => {
     wrapper.setData({
       lands: testResults.nearest_treaty_lands
     })
+
+    await wrapper.vm.$nextTick()
 
     // test data set has 11 Treaty Lands
     expect(wrapper.find('#nearestTreatyLands').findAll('dt').length).toBe(11)
