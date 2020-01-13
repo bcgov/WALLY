@@ -14,4 +14,4 @@ def get_map_config():
     Get config for frontend web map (e.g. access tokens)
     """
 
-    return view_model.MapConfig(mapbox_token='pk.eyJ1IjoiaWl0LXdhdGVyIiwiYSI6ImNrMHBrZzczZjBlZ2UzZG54NTZldTRtdmUifQ.70prUCk1zBMUFnqfDSywYg', mapbox_style='mapbox://styles/iit-water/ck22hx0391ch31dk9amwwr67x')
+    return view_model.MapConfig(mapbox_token=MAPBOX_ACCESS_TOKEN, mapbox_style=MAPBOX_STYLE)
