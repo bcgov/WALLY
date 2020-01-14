@@ -81,13 +81,11 @@ export default {
             // Need to clean this up or re-purpose it
             commit('setDisplayTemplates', { displayTemplates })
             commit('setDataMartFeatureInfo', {})
-            console.log('going to multiple features card')
             router.push({
               name: 'multiple-features'
             })
           } else {
             // Only one feature returned
-            console.log('single feature')
             commit('setDataMartFeatureInfo',
               {
                 type: 'Feature',
@@ -96,7 +94,6 @@ export default {
                 properties: feature.properties
               })
 
-            console.log(state.dataMartFeatureInfo)
             commit('setDataMartFeatures', {})
           }
           commit('setLoadingFeature', false)
@@ -136,7 +133,8 @@ export default {
         })
       }
 
-      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'place-poi') {
+      // todo: replace with route.meta option (e.g. "allowRedirect") to control automatically redirecting to feature cards.
+      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'place-poi' || router.currentRoute.name === 'multiple-features') {
         router.push({
           name: 'single-feature',
           query: {

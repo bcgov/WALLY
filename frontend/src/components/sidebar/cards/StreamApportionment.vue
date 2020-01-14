@@ -11,7 +11,9 @@
         </v-toolbar-title>
       </v-banner>
     </v-toolbar>
-    <div v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'point_of_interest'">
+    <div
+      v-if="dataMartFeatureInfo &&
+            dataMartFeatureInfo.display_data_name === 'point_of_interest'">
       <div class="pa-3 mt-3">
         Point at {{ dataMartFeatureInfo.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
       </div>
