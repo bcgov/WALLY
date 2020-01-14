@@ -306,7 +306,6 @@ export default {
         })
     },
     fetchWellsLithology (ids) {
-      // https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=112316
       // ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`).then((r) => {
       // DEBUG
       // ids = '112316'

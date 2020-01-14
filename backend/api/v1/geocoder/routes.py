@@ -3,9 +3,10 @@ Aggregate data from different WMS and/or API sources.
 """
 from logging import getLogger
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
+from geojson import FeatureCollection
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.v1.geocoder.controller import lookup_by_text
+from api.v1.geocoder.controller import lookup_by_text, lookup_feature
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -23,9 +24,17 @@ def geocode_lookup(
         None,
         title="Feature type to limit search to",
         description="Feature type to limit search to. Defaults to all types",
-        alias="country"  # note: the Mapbox geocoder may send this query in the country parameter.
+        # note: the Mapbox geocoder may send this query in the country parameter.
+        alias="country"
     )
 ):
     """ provides lookup/geocoding of places that users search for """
 
-    return lookup_by_text(db, query, feature_type)
+    # if no feature_type specified, return an empty collection.
+    # this may happen as a side effect of the Mapbox geocoder if user is
+    # using the input box to search coordinates.
+    if not feature_type:
+        return FeatureCollection(features=[])
+
+    return lookup_feature(db, query, feature_type)
+    # return lookup_by_text(db, query, feature_type)
