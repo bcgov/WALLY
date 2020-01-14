@@ -50,7 +50,7 @@ describe('Wells Nearby', () => {
     expect(wrapper.findAll('#wells_nearby .charts').length).toEqual(0)
   })
 
-  it('Shows a chart when there\'s data', () => {
+  it('Shows a chart when there\'s data', async () => {
     let well = {
       aquifer: null,
       aquifer_hydraulically_connected: null,
@@ -71,10 +71,11 @@ describe('Wells Nearby', () => {
       well_yield_unit: 'USGPM'
     }
     wrapper.setData({ wells: [well] })
+    await wrapper.vm.$nextTick()
     expect(wrapper.findAll('#wells_nearby .charts').length).toEqual(1)
   })
 
-  it('Shows all three charts when there\'s data', () => {
+  it('Shows all three charts when there\'s data', async () => {
     let well = {
       aquifer: null,
       aquifer_hydraulically_connected: null,
@@ -95,6 +96,7 @@ describe('Wells Nearby', () => {
       well_yield_unit: 'USGPM'
     }
     wrapper.setData({ wells: [well], loading: false })
+    await wrapper.vm.$nextTick()
     expect(wrapper.find('#wells_charts').findAll('.chart').length).toEqual(3)
   })
 })
