@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from geojson import FeatureCollection
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.v1.geocoder.controller import lookup_by_text, lookup_feature
+from api.v1.geocoder.controller import lookup_feature
 logger = getLogger("geocoder")
 
 router = APIRouter()
