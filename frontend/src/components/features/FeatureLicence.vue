@@ -3,11 +3,15 @@
     <v-card-text>
       <div class="grey--text text--darken-4 headline" id="licenceTitle">{{ record.properties.LICENCE_NUMBER }} - {{ record.properties.POD_NUMBER }}</div>
       <div class="grey--text text--darken-2 title">Water Rights Licence</div>
-      <v-divider></v-divider>
+      <v-divider/>
       <v-list dense class="mx-0 px-0">
         <v-list-item class="feature-content">
           <v-list-item-content>Licence number</v-list-item-content>
-          <v-list-item-content>{{record.properties.LICENCE_NUMBER}}</v-list-item-content>
+          <v-list-item-content>
+            <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${record.properties.LICENCE_NUMBER}`" target="_blank">
+              {{record.properties.LICENCE_NUMBER}}
+            </a>
+          </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>POD number</v-list-item-content>
