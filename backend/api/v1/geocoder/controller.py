@@ -132,6 +132,15 @@ def wfs_search(db, query, feature_type):
         pyproj.Proj(init='epsg:4326'))
 
     for feature in features:
+
+        # skip null geometries (e.g. a result with no coordinates)
+        # todo: in the future we should ideally ask DataBC only for features
+        # that can be placed on the map, but filtering on valid geom
+        # does not work the same for all layers so it's harder to push
+        # that requirement up to the API request.
+        if not feature.geometry:
+            continue
+
         geom = transform(project.transform, shape(feature.geometry))
         new_feature = Feature(geometry=mapping(geom.centroid))
 
