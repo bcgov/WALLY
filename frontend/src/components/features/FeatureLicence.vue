@@ -6,7 +6,7 @@
       <v-divider/>
       <v-list dense class="mx-0 px-0">
         <v-list-item class="feature-content">
-          <v-list-item-content>Licence number!</v-list-item-content>
+          <v-list-item-content>Licence number</v-list-item-content>
           <v-list-item-content>
             <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${record.properties.LICENCE_NUMBER}`" target="_blank">
               {{record.properties.LICENCE_NUMBER}}
