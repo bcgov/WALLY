@@ -37,4 +37,3 @@ def geocode_lookup(
         return FeatureCollection(features=[])
 
     return lookup_feature(db, query, feature_type)
-    # return lookup_by_text(db, query, feature_type)
