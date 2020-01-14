@@ -129,7 +129,8 @@ export default {
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
-        attributionControl: false // hide default and re-add to the top left
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
       }))
 
       const modes = MapboxDraw.modes
