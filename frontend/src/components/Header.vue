@@ -1,18 +1,18 @@
 <template>
-    <v-app-bar
-      clipped-left
-      app
-      color="#036"
-      dark
-      height="64"
-      class="wally-header"
-    >
-      <img
-        class="ml-5"
-        :src="require('../assets/bcgov_logo.svg')"
-        height="40" max-width="150"
-        alt="Go to the Government of British Columbia website" />
-      <v-toolbar-title class="bcgov-title">Water Allocation
+  <v-app-bar
+    clipped-left
+    app
+    color="#036"
+    dark
+    height="64"
+    class="wally-header"
+  >
+    <img
+      class="ml-5"
+      :src="require('../assets/bcgov_logo.svg')"
+      height="40" max-width="150"
+      alt="Go to the Government of British Columbia website" />
+    <v-toolbar-title class="bcgov-title">Water Allocation
 
       </v-toolbar-title>
       <span aria-label="This application is currently in Alpha phase" class="beta-banner">

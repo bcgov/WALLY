@@ -45,33 +45,20 @@
           </template>
         </div>
 
-        <v-list v-if="!loadingFeature">
+      <v-card-text v-if="!loadingFeature">
+        <v-list dense class="mx-0 px-0">
           <template v-for="(value, name, index) in getHighlightProperties(dataMartFeatureInfo)">
-            <v-hover v-slot:default="{ hover }" v-bind:key="`item-{$value}${index}`">
-              <v-card
-                class="pl-3 mb-2 pt-2 pb-2"
-                :elevation="hover ? 12 : 2"
-              >
-                <span><b>{{ humanReadable(name) }}: </b></span>
-                <span>{{ value }}</span>
-              </v-card>
-            </v-hover>
-            <v-divider :key="`divider-${index}`"></v-divider>
+            <v-list-item :key="`featureProperty${index}`">
+              <v-list-item-content>{{ humanReadable(name) }}</v-list-item-content>
+              <v-list-item-content>{{ value }}</v-list-item-content>
+            </v-list-item>
           </template>
         </v-list>
-      </v-card>
-      <FeatureAnalysis
-        v-if="dataMartFeatureInfo"
-        :record="dataMartFeatureInfo"></FeatureAnalysis>
-    </div>
-    <div v-else class="text-center">
-      <v-progress-circular
-        indeterminate
-        size=24
-        class="ma-5"
-        color="secondary"
-      ></v-progress-circular>
-    </div>
+      </v-card-text>
+    </v-card>
+    <FeatureAnalysis
+      v-if="dataMartFeatureInfo"
+      :record="dataMartFeatureInfo"></FeatureAnalysis>
   </v-container>
 </template>
 

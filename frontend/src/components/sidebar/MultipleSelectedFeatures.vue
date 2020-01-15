@@ -56,7 +56,7 @@
               <v-list-item-content>
                   <v-data-table
                     dense
-                    :headers="[{ text: getMapLayer(name).label_column, value: 'col1' }]"
+                    :headers="[{ text: getMapLayer(name).label, value: 'col1' }]"
                     :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
                     :items-per-page="10"
                     :hide-default-footer="value.length < 10"

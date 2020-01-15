@@ -5,13 +5,29 @@ using existing data.
 """
 import logging
 import requests
+import math
+import pyproj
+import time
 from typing import List, Optional
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, LineString
+from shapely.geometry import Point, LineString, CAP_STYLE, JOIN_STYLE, mapping, shape
+from shapely.ops import transform
 from api.layers.ground_water_wells import GroundWaterWells
+from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
+from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.wells.schema import WellDrawdown, Screen
 logger = logging.getLogger("api")
+
+transform_4326_3005 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:4326'),
+    pyproj.Proj(init='epsg:3005')
+).transform
+
+transform_3005_4326 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:3005'),
+    pyproj.Proj(init='epsg:4326')
+).transform
 
 
 def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> list:
@@ -82,59 +98,46 @@ def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
     return top_of_screen
 
 
-def get_screens(wells_to_search: List[str]) -> List[WellDrawdown]:
+def get_screens(point, radius) -> List[WellDrawdown]:
     """ calls GWELLS API to get well screen information. """
 
     wells_results = []
 
-    # avoid making queries with an excessively long list of wells.
-    chunk_length = 50
+    done = False
+    url = f"https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
+    # helpers to prevent unbounded requests
+    limit_requests = 100
+    i = 0  # this i is for recording extra requests within each chunk, if necessary
 
-    # split requests into chunks based on chunk_length
-    chunks = [wells_to_search[i:i+chunk_length]
-              for i in range(0, len(wells_to_search), chunk_length)]
+    while not done and i < limit_requests:
+        logger.info('external request: %s', url)
+        resp = requests.get(url)
 
-    for chunk in chunks:
-        # helpers to prevent unbounded requests
-        done = False
-        limit_requests = 100
-        i = 0  # this i is for recording extra requests within each chunk, if necessary
+        i += 1
+        # break now if we didn't receive any results.
+        results = resp.json().get('results', None)
+        if not results:
+            done = True
+            break
 
-        # we are already making small chunks within the known API pagination limit,
-        # but in case that limit changes, we can still handle offset paging.
-        offset = 0
+        # add results to a list.
+        wells_results += [WellDrawdown(**well) for well in results]
 
-        search_string = ','.join(chunk)
+        # check for a "next" attribute, indicating the next limit/offset combo.
+        # when it is null, the pagination is done.
+        next_url = resp.json().get('next', None)
+        if not next_url:
+            done = True
+        url = next_url
 
-        while not done and i < limit_requests:
-            logger.info('making request to GWELLS API')
-            resp = requests.get(
-                f"https://apps.nrs.gov.bc.ca/gwells/api/v1/wells/screens?wells={search_string}&limit=100&offset={offset}")
+    # return zero results if an error occurred or we did not successfully get all the results.
+    # (avoid returning incomplete data)
+    if not done:
+        return []
 
-            # break now if we didn't receive any results.
-            results = resp.json().get('results', None)
+    wells = calculate_available_drawdown(wells_results)
 
-            i += 1
-
-            if not results:
-                done = True
-                break
-
-            # add results to a list.
-            wells_results += results
-            offset += len(results)
-
-            # check for a "next" attribute, indicating the next limit/offset combo.
-            # when it is null, the pagination is done.
-            if not resp.json().get('next', None):
-                done = True
-
-        # return zero results if an error occurred or we did not successfully get all the results.
-        # (avoid returning incomplete data)
-        if not done:
-            return []
-
-    return wells_results
+    return wells
 
 
 def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[WellDrawdown]:
@@ -189,6 +192,12 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
         for well in wells_with_distances])
 
 
+def create_line_buffer(line: LineString, radius: float):
+    line = transform(transform_4326_3005, line)
+    buf = line.buffer(radius, cap_style=CAP_STYLE.flat, join_style=JOIN_STYLE.round)
+    return transform(transform_3005_4326, buf)
+
+
 def get_line_buffer_polygon(line: LineString, radius: float):
     """ returns a buffer area around a LineString. """
     return func.ST_Transform(func.ST_Buffer(
@@ -204,15 +213,38 @@ def get_line_buffer_polygon(line: LineString, radius: float):
 def get_parallel_line_offset(db: Session, line: LineString, radius: float):
     """ returns a parallel line perpendicular to a LineString. """
     return db.query(func.ST_AsText(func.ST_Transform(func.ST_OffsetCurve(
-            func.St_Transform(
-                func.ST_GeomFromText(line.wkt, 4326),
-                3005
-            ),
-            radius
+        func.St_Transform(
+            func.ST_GeomFromText(line.wkt, 4326),
+            3005
+        ),
+        radius
     ), 4326))).first()
-            
 
-def get_wells_along_line(db: Session, profile: LineString, radius: int):
+
+def distance_along_line(line: LineString, point: Point):
+    """ 
+    calculates the distance that `point` is along `line`. Note that 
+    this is the distance along the line, not from the beginning of the line
+    to the point.
+    """
+
+    # transform to BC Albers, which has a base unit of metres
+    point = transform(transform_4326_3005, point)
+    line = transform(transform_4326_3005, line)
+
+    # note.  shapely's geom.distance calculates distance on a 2d plane
+    a = point.distance(line.interpolate(0))
+    b = point.distance(line)
+    return math.sqrt(a**2 + b**2)
+
+
+def elevation_along_line(profile, distance):
+    """ returns the elevation at `distance` metres along LineString Z `profile` """
+    profile = transform(transform_4326_3005, profile)
+    return profile.interpolate(distance).z
+
+
+def get_wells_along_line(db: Session, profile: LineString, radius: float):
     """ returns wells along a given line, including wells that are within a buffer
         determined by `radius` (m).
         `radius` creates a buffer area next to the line that does not include any area
@@ -220,54 +252,34 @@ def get_wells_along_line(db: Session, profile: LineString, radius: int):
         by the distance from the origin (i.e. the beginning of the line, measured
         along the axis).
     """
+    buf = create_line_buffer(profile, radius)
 
-    # Pythagorean thereom to calculate the distance along the profile line.
-    # This is necessary because we need to find the distance along the line,
-    # not the distance from the origin point to the well (which is likely offset from
-    # the profile line)
-    distance_from_origin = func.sqrt(
-        (
-            func.power(
-                func.ST_Distance(
-                    func.ST_Transform(func.ST_StartPoint(func.ST_Force2d(func.ST_GeomFromText(profile.wkt, 4326))), 3005),
-                    func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
-                ),
-                2
-            ) +
-            func.power(
-                func.ST_Distance(
-                    func.ST_Transform(func.ST_Force2d(func.ST_GeomFromText(profile.wkt, 4326)), 3005),
-                    func.ST_Transform(GroundWaterWells.GEOMETRY, 3005)
-                ),
-                2
-            )
-        )
+    req = ExternalAPIRequest(
+        url="https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/screens",
+        q={
+            "within": buf.wkt,
+            "limit": 100
+        },
+        layer="gwells"
     )
+    feature_collection = fetch_geojson_features([req])[0].geojson
 
-    # interpolate the ground elevation at the distance from origin calculated above.
-    ground_elevation = func.ST_Z(
-        func.ST_LineInterpolatePoint(
-            func.ST_Transform(func.ST_GeomFromText(profile.wkt, 4326), 3005),
-            distance_from_origin / func.ST_Length(func.ST_Transform(func.ST_GeomFromText(profile.wkt, 4326), 3005))
+    wells_results = []
+
+    for well in feature_collection.features:
+        distance = distance_along_line(
+            LineString([coords[:2] for coords in list(profile.coords)]),
+            Point(shape(well.geometry))
         )
-    )
 
-    # Find wells along `line` that are within `radius` of the line.
-    # note on this query: PostGIS recommends using ST_DWithin instead of ST_Buffer for looking up
-    # points near another feature. However, we need results that are along a straight line and NOT simply
-    # within a certain distance of the line (for example, we don't want any points before or beyond the endpoints
-    # even if they are within the radius). Note use of endcap=flat.
-    q = db.query(
-        GroundWaterWells.WELL_TAG_NO.label("well_tag_number"),
-        (GroundWaterWells.DEPTH_WELL_DRILLED * 0.3048).label("finished_well_depth"), # converted to metres
-        (GroundWaterWells.WATER_DEPTH* 0.3048).label("water_depth"),
-        distance_from_origin.label("distance_from_origin"),
-        ground_elevation.label("ground_elevation_from_dem")) \
-        .filter(
-            func.ST_Contains(
-                get_line_buffer_polygon(profile, radius),
-                GroundWaterWells.GEOMETRY
-            )
-    ).order_by('distance_from_origin')
+        well_data = {
+            "well_tag_number": well.properties['well_tag_number'],
+            "finished_well_depth": float(well.properties['finished_well_depth']) * 0.3048 if well.properties['finished_well_depth'] else None,
+            "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties['static_water_level'] else None,
+            "distance_from_origin": distance,
+            "ground_elevation_from_dem": elevation_along_line(profile, distance)
+        }
 
-    return q.all()
+        wells_results.append(well_data)
+
+    return wells_results

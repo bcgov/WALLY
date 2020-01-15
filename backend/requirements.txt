@@ -20,7 +20,7 @@ cssutils==1.0.2
 dnspython==1.16.0
 email-validator==1.0.4
 emails==0.5.15
-fastapi==0.31.0
+fastapi==0.33.0
 GeoAlchemy2==0.6.3
 geojson==2.4.1
 gunicorn==19.9.0
@@ -48,7 +48,7 @@ psycopg2-binary==2.8.3
 py==1.8.0
 pycodestyle==2.5.0
 pycparser==2.19
-pydantic==0.29
+pydantic==0.30
 PyJWT==1.7.1
 pylint==2.3.1
 pyparsing==2.4.2
@@ -76,3 +76,4 @@ factory-boy==2.12.0
 geojson==2.4.1
 pytest==5.0.1
 alchemy-mock==0.4.1
+pyproj==2.4.2.post1

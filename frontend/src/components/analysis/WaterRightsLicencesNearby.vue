@@ -36,6 +36,13 @@
           :headers="headers"
           :items="filteredLicences"
         >
+          <template v-slot:item.LICENCE_NUMBER="{ item }">
+            <span v-if="item.LICENCE_NUMBER">
+              <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.LICENCE_NUMBER}`" target="_blank">
+                {{item.LICENCE_NUMBER}}
+              </a>
+            </span>
+          </template>
           <template v-slot:item.distance="{ item }">
             <span>{{item.distance.toFixed(1)}}</span>
           </template>

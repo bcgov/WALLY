@@ -14,7 +14,7 @@
     </v-toolbar>
     <v-expansion-panels class="mt-5" multiple v-model="panelOpen">
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Up Stream/Down Stream Features</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Upstream/Downstream Features</v-expansion-panel-header>
         <v-expansion-panel-content>
           <v-row no-gutters v-if="this.selectedLayer">
             <v-col cols="12">
@@ -28,7 +28,7 @@
                 placeholder="20"
                 :rules="[inputRules.number, inputRules.max, inputRules.required]"
                 v-model="buffer"
-              ></v-text-field>
+              />
             </v-col>
             <v-col cols="12" md="3" />
             <v-col cols="12" md="6">
@@ -37,14 +37,14 @@
                 :items="layerOptions"
                 placeholder="Select a Layer to Analyze"
                 v-model="selectedLayer"
-              ></v-select>
+              />
             </v-col>
           </v-row>
 
           <v-row no-gutters>
-            <SteamBufferData :bufferData="upStreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+            <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
             <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedStream'" :layerId="selectedLayer" />
-            <SteamBufferData :bufferData="downStreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
+            <SteamBufferData :bufferData="downstreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
           </v-row>
 
         </v-expansion-panel-content>
@@ -69,9 +69,9 @@ export default {
     buffer: 50,
     loading: false,
     panelOpen: [],
-    upStreamData: [],
+    upstreamData: [],
     selectedStreamData: [],
-    downStreamData: [],
+    downstreamData: [],
     selectedLayer: '',
     inputRules: {
       required: value => !!value || 'Required',
@@ -91,8 +91,8 @@ export default {
   }),
   methods: {
     updateStreamBuffers () {
-      this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
-      this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
+      this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
+      this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
       this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
     },
     enableMapLayer () {
@@ -121,9 +121,9 @@ export default {
         .then((response) => {
           let data = response.data
           if (type === 'upstream') {
-            this.upStreamData = data
+            this.upstreamData = data
           } else if (type === 'downstream') {
-            this.downStreamData = data
+            this.downstreamData = data
           } else if (type === 'selectedStream') {
             this.selectedStreamData = data
           }
@@ -148,8 +148,8 @@ export default {
     //   return counts
     // },
     ...mapGetters([
-      'getUpStreamData',
-      'getDownStreamData',
+      'getUpstreamData',
+      'getDownstreamData',
       'getSelectedStreamData'
     ])
   },
@@ -163,16 +163,16 @@ export default {
         this.$store.commit('resetStreamBufferData')
       }
     },
-    getUpStreamData () {
+    getUpstreamData () {
       if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getUpStreamData, 'upstream')
-        this.$store.commit('setUpStreamBufferData', this.buffer)
+        this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
+        this.$store.commit('setUpstreamBufferData', this.buffer)
       }
     },
-    getDownStreamData () {
+    getDownstreamData () {
       if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getDownStreamData, 'downstream')
-        this.$store.commit('setDownStreamBufferData', this.buffer)
+        this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
+        this.$store.commit('setDownstreamBufferData', this.buffer)
       }
     },
     getSelectedStreamData () {
