@@ -178,8 +178,6 @@ def aggregate_sources(
         if item.display_data_name in processed_layers:
             continue
 
-        logger.info(item.display_data_name)
-
         if item.display_data_name in EXTERNAL_API_REQUESTS:
 
             # use the helper function in EXTERNAL_API_REQUESTS (if available)
@@ -189,8 +187,6 @@ def aggregate_sources(
             )
             logger.info('added external API request!')
             continue
-
-        logger.info(item.display_data_name in DATABC_LAYER_IDS)
 
         # if we don't have a direct API to access, fall back on WMS.
         if item.display_data_name in DATABC_LAYER_IDS or item.wms_catalogue_id is not None:
