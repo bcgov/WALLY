@@ -109,8 +109,8 @@ export default {
   mutations: {
     setUpstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.upStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
-      state.upStreamData = collection
+      collection['features'] = _.unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      state.upstreamData = collection
     },
     setDownstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
