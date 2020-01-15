@@ -16,6 +16,7 @@
           <v-list-item
             v-for="(item, index) in selectionOptions"
             :key="index"
+            active-class="font-weight-bold"
             @click="toggleInfoPanelIfClosed"
             :to="item.route"
           >
@@ -53,6 +54,7 @@
             v-for="(item, index) in toolOptions"
             :key="index"
             :to="item.route"
+            active-class="font-weight-bold"
             @click="toggleInfoPanelIfClosed"
           >
             <v-list-item-title>{{ item.title }}</v-list-item-title>
@@ -82,11 +84,11 @@ export default {
     ],
     toolOptions: [
       {
-        title: 'Plot subsurface data along a line (cross section)',
+        title: 'Plot cross section',
         route: { name: 'cross-section' }
       },
       {
-        title: 'Find data upstream or downstream from a point',
+        title: 'Find data upstream or downstream along a stream',
         route: { name: 'upstream-downstream' }
       },
       {
