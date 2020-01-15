@@ -59,6 +59,7 @@
     <FeatureAnalysis
       v-if="dataMartFeatureInfo"
       :record="dataMartFeatureInfo"></FeatureAnalysis>
+    </div>
   </v-container>
 </template>
 
