@@ -39,36 +39,14 @@ logger = getLogger("aggregator")
 
 router = APIRouter()
 
-# Data access functions are available for certain layers.
-# if a function is not available here, default to using
-# the web API listed with the layer metadata.
-
 # returns a module or class that has `get_as_geojson` and `get_details` functions for looking up data from a layer
+# NOTE: this dict used to have a line for all layers. Removing (or commenting) will cause the aggregator function to
+# fall back fetching data on the fly from DataBC, as long as DATABC_LAYER_IDS or a wms_catalogue database entry
+# exists for that layer.
 API_DATASOURCES = {
     "HYDAT": StreamStation,
-    "aquifers": GroundWaterAquifers,
-    # "automated_snow_weather_station_locations": AutomatedSnowWeatherStationLocations,
-    "bc_major_watersheds": BcMajorWatersheds,
-    # "bc_wildfire_active_weather_stations": BcWildfireActiveWeatherStations,
-    "cadastral": Cadastral,
-    # "critical_habitat_species_at_risk": CriticalHabitatSpeciesAtRisk,
-    # "ecocat_water_related_reports": EcocatWaterRelatedReports,
-    # "groundwater_wells": GroundWaterWells,
     "hydrometric_stream_flow": StreamStation,
-    # "water_allocation_restrictions": WaterAllocationRestrictions,
-    "water_rights_licences": WaterRightsLicenses,
-    "water_rights_applications": WaterRightsApplications,
     "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks,
-    "fn_treaty_areas": TreatyAreas,
-    "fn_community_locations": CommunityLocations,
-    "fn_treaty_lands": TreatyLands
-
-    # these layers are causing performance issues.
-    # leaving them commented out allows them to fall back to WMS fetching from DataBC.
-    # "freshwater_atlas_stream_directions": FreshwaterAtlasStreamDirections,
-    # "freshwater_atlas_watersheds": FreshwaterAtlasWatersheds,
-
-    # NOTE: Stream analysis also uses this dictionary for information lookup
 }
 
 # For external APIs that may require different parameters (e.g. not a WMS/GeoServer with
@@ -78,12 +56,37 @@ EXTERNAL_API_REQUESTS = {
     "groundwater_wells": gwells_api_request
 }
 
+
+# DATABC_LAYER_IDS maps layer names to DataBC API Catalogue layers.
+# This information can also be kept on the database table metadata.wms_catalogue,
+# and the lookup_feature function will also check there. However, there are issues
+# with having a wms_catalogue record for layers we intend to use as vector layers.
+# DATABC_LAYER_IDS provides an alternative for the purpose of DataBC WFS lookups in
+# this file.
+DATABC_LAYER_IDS = {
+    "cadastral": "WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
+    "aquifers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
+    "water_rights_licences": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
+    "water_rights_applications": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_APPLICTNS_SV",
+    "fn_treaty_areas": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_AREA_SP",
+    "fn_community_locations": "WHSE_HUMAN_CULTURAL_ECONOMIC.FN_COMMUNITY_LOCATIONS_SP",
+    "fn_treaty_lands": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_LAND_SP",
+    "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS"
+}
+
+
 # DataBC names geometry fields either GEOMETRY or SHAPE
 # We will assume GEOMETRY, except for layers listed here.
 DATABC_GEOMETRY_FIELD = {
+    "water_rights_licences": "SHAPE",
+    "water_rights_applications": "SHAPE",
     "automated_snow_weather_station_locations": "SHAPE",
     "bc_wildfire_active_weather_stations": "SHAPE",
     "critical_habitat_species_at_risk": "SHAPE",
+    "cadastral": "SHAPE",
+    "fn_treaty_areas": "GEOMETRY",
+    "fn_community_locations": "SHAPE",
+    "fn_treaty_lands": "GEOMETRY",
 }
 
 
@@ -118,7 +121,8 @@ def aggregate_sources(
         bbox: List[float] = Query(
             [], title="Bounding box",
             description="Bounding box to constrain search, in format x1,y1,x2,y2.", max_length=4),
-        width: float = Query(500, title="Width", description="Width of area of interest"),
+        width: float = Query(500, title="Width",
+                             description="Width of area of interest"),
         height: float = Query(500, title="Height",
                               description="Height of area of interest"),
         format: str = Query('geojson', title="Format",
@@ -186,10 +190,13 @@ def aggregate_sources(
             logger.info('added external API request!')
             continue
 
+        logger.info(item.display_data_name in DATABC_LAYER_IDS)
+
         # if we don't have a direct API to access, fall back on WMS.
-        if item.wms_catalogue_id is not None:
+        if item.display_data_name in DATABC_LAYER_IDS or item.wms_catalogue_id is not None:
             query = WMSGetFeatureQuery(
-                typeNames=item.wms_catalogue.wms_name,
+                typeNames=DATABC_LAYER_IDS.get(
+                    item.display_data_name, None) or item.wms_catalogue.wms_name,
                 cql_filter=f"""
                     INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {albers_search_area.wkt})
                 """
