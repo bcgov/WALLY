@@ -2,32 +2,41 @@
   <div>
     <v-row>
       <v-col>
-        <v-tabs>
-          <v-tabs-slider></v-tabs-slider>
-          <v-tab>2D Cross Section</v-tab>
-          <v-tab>3D Surface Section</v-tab>
-          <v-tab-item>
-            <v-row>
-              <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
-                <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
-              </v-btn>
-              <v-btn small v-on:click="downloadPlotImage" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-                <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download 2D Plot</span>
-              </v-btn>
-              <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
-                <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Map</span>
-              </v-btn>
-            </v-row>
-            <v-card flat>
-              <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card flat>
-              <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
-            </v-card>
-          </v-tab-item>
-        </v-tabs>
+        <v-card-text v-if="loading" class="text-center">
+          <v-progress-circular
+            indeterminate
+            class="my-5"
+            color="grey"
+          ></v-progress-circular>
+        </v-card-text>
+        <div v-else>
+          <v-tabs>
+            <v-tabs-slider></v-tabs-slider>
+            <v-tab>2D Cross Section</v-tab>
+            <v-tab>3D Surface Section</v-tab>
+            <v-tab-item>
+              <v-row>
+                <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
+                </v-btn>
+                <v-btn small v-on:click="downloadMergedImage" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download 2D Plot</span>
+                </v-btn>
+                <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Map</span>
+                </v-btn>
+              </v-row>
+              <v-card flat>
+                <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
+              </v-card>
+            </v-tab-item>
+            <v-tab-item>
+              <v-card flat>
+                <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
+              </v-card>
+            </v-tab-item>
+          </v-tabs>
+        </div>
       </v-col>
     </v-row>
     <v-row no-gutters>

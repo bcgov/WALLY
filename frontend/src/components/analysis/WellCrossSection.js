@@ -7,6 +7,7 @@ import mapboxgl from 'mapbox-gl'
 import { mapGetters } from 'vuex'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
+import jsPDF from 'jspdf'
 
 export default {
   name: 'WellsCrossSection',
@@ -23,7 +24,7 @@ export default {
     wellsLithology: [],
     elevations: [],
     surfacePoints: [],
-    loading: false,
+    loading: true,
     ignoreButtons: [
       'toImage',
       'sendDataToCloud',
@@ -305,6 +306,7 @@ export default {
   },
   methods: {
     fetchWellsAlongLine () {
+      this.loading = true
       const params = {
         radius: parseFloat(this.radius),
         line: JSON.stringify(this.coordinates)
@@ -475,6 +477,38 @@ export default {
           saveAs(blob, filename)
         })
       })
+    },
+    downloadMergedImage () {
+      var doc = jsPDF({ orientation: 'landscape' })
+      var width = doc.internal.pageSize.getWidth()
+      var height = doc.internal.pageSize.getHeight()
+      var filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
+      html2canvas(this.map._container).then(canvas1 => {
+        var img1 = canvas1.toDataURL('image/png')
+        const imgProps1 = doc.getImageProperties(img1)
+        var size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
+        doc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
+        html2canvas(this.$refs.crossPlot.$el).then(canvas2 => {
+          doc.addPage() // add new page for next image
+          var img2 = canvas2.toDataURL('image/png')
+          const imgProps2 = doc.getImageProperties(img2)
+          var size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
+          doc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
+          doc.save(filename)
+        })
+      })
+    },
+    scaleImageToFit (ws, hs, wi, hi) {
+      var ri = wi / hi
+      var rs = ws / hs
+      var size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
+      return size
+    },
+    centerImage (ws, hs, hnew, wnew) {
+      var w = (ws - wnew) / 2
+      var h = (hs - hnew) / 2
+      var pos = [w, h]
+      return pos
     },
     lassoTool () {
       // layout.dragmode = 'lasso'
