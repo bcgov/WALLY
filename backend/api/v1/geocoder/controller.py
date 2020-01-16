@@ -13,7 +13,7 @@ from shapely.ops import transform
 import api.v1.aggregator.controller as agr_repo
 from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest
-from api.v1.aggregator.routes import EXTERNAL_API_REQUESTS
+from api.v1.aggregator.routes import EXTERNAL_API_REQUESTS, DATABC_LAYER_IDS as WFS_LAYER_IDS
 from api.v1.geocoder.db_models import geocode
 
 logger = getLogger("geocoder")
@@ -26,18 +26,6 @@ WFS_SEARCH_FIELDS = {
     "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
     "aquifers": ["AQNAME", "AQUIFER_NAME"],
     "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
-}
-
-# WFS_LAYER_IDS maps layer names to DataBC API Catalogue layers.
-# This information can also be kept on the database table metadata.wms_catalogue,
-# and the lookup_feature function will also check there. However, there are issues
-# with having a wms_catalogue record for layers we intend to use as vector layers.
-# WFS_LAYER_IDS provides an alternative for the purpose of DataBC WFS lookups in
-# this file.
-WFS_LAYER_IDS = {
-    "cadastral": "WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
-    "aquifers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
-    "water_rights_licences": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
 }
 
 # searches will make a request to these external URLs, if available for the layer type
