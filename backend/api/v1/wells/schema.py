@@ -2,7 +2,7 @@
 API data models.
 These are external facing data models/schemas that users see.
 """
-from typing import Optional, List
+from typing import Optional, List, Any
 from pydantic import BaseModel, Schema
 from geojson import Polygon
 
@@ -57,7 +57,7 @@ class WellSection(BaseModel):
     water_depth: Optional[float]
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
-    
+
     class Config:
         orm_mode = True
 
@@ -69,7 +69,7 @@ class Elevation(BaseModel):
 
 
 class CrossSection(BaseModel):
-    search_area: Polygon
+    search_area: Any
     wells: List[WellSection]
     elevation_profile: List[Elevation]
     surface: List

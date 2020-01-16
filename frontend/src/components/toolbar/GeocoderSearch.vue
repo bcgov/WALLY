@@ -21,9 +21,10 @@ export default {
   data: () => ({
     searchFeatureType: null,
     searchOptions: [
-      { text: 'All', value: null, placeholder: 'Search' },
+      { text: 'Coordinates', value: null, placeholder: 'Find a location (example: -123, 51)' },
+      { text: 'Parcel (PID)', value: 'cadastral', placeholder: 'Search by PID' },
       { text: 'Wells', value: 'groundwater_wells', placeholder: 'Search by well tag number' },
-      { text: 'Water Licences', value: 'water_rights_licences', placeholder: 'Search by licence number or source name' },
+      { text: 'Water Licences', value: 'water_rights_licences', placeholder: 'Search by licence or file number' },
       { text: 'Aquifers', value: 'aquifers', placeholder: 'Search by aquifer number' },
       { text: 'EcoCat Reports', value: 'ecocat_water_related_reports', placeholder: 'Search by report title' }
     ]

@@ -15,9 +15,6 @@ export default {
   },
   mounted () {
     this.fetchWellsAlongLine()
-    // setTimeout(() => { // ugly but fixes race condition with plot render
-    //   this.initPlotly()
-    // }, 500)
   },
   props: ['record', 'coordinates', 'panelOpen'],
   data: () => ({
@@ -160,10 +157,7 @@ export default {
         hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
       }
-      // lithoPoints = []
-      // var lithoPoints = this.wellsLithology.map(l => {
-      //   return { x: l.x, y: l.y0, text: l.data, color: l.color }
-      // })
+
       const lithology = {
         x: this.wellsLithology.map(w => w.x),
         y: this.wellsLithology.map(w => w.y0),
@@ -282,20 +276,20 @@ export default {
             x: a[0],
             y: a[1],
             z: a[2],
-            text: "A\'",
+            text: 'A\'',
             ay: -60,
             font: {
-              color: "black",
+              color: 'black',
               size: 18
             }
           }, {
             x: b[0],
             y: b[1],
             z: b[2],
-            text: "B\'",
+            text: 'B\'',
             ay: -60,
             font: {
-              color: "black",
+              color: 'black',
               size: 18
             }
           }]
@@ -420,7 +414,7 @@ export default {
       }).finally(() => {
         this.loading = false
         this.initPlotly()
-    })
+      })
     },
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'
@@ -484,7 +478,7 @@ export default {
     },
     lassoTool () {
       // layout.dragmode = 'lasso'
-      Plotly.relayout('myDiv', 'dragmode', 'lasso');
+      Plotly.relayout('myDiv', 'dragmode', 'lasso')
     }
   },
   watch: {
