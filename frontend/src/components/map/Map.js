@@ -156,7 +156,7 @@ export default {
         marker: false,
         localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
-        placeholder: 'Find a location (example: -123, 51)',
+        placeholder: 'Choose a type of feature to search for',
         minLength: 1
       }))
       this.geocoder.on('result', this.updateBySearchResult)

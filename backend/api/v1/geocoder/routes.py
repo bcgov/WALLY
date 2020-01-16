@@ -30,10 +30,10 @@ def geocode_lookup(
 ):
     """ provides lookup/geocoding of places that users search for """
 
-    # if no feature_type specified, return an empty collection.
-    # this may happen as a side effect of the Mapbox geocoder if user is
-    # using the input box to search coordinates.
-    if not feature_type:
+    # coordinates can be calculated on the frontend, but using the geocoder box
+    # triggers an API request anyway. If the user specified they only need
+    # coordinates, stop the request here and return an empty collection.
+    if feature_type == 'coordinates':
         return FeatureCollection(features=[])
 
     return lookup_feature(db, query, feature_type)
