@@ -242,7 +242,7 @@ export default {
       this.fetchStreams()
     },
     weightingFactor (value) {
-      if (value > 1 && value < 4) {
+      if (parseFloat(value) === 1 || parseFloat(value) === 2) {
         this.calculateApportionment()
       }
     }
