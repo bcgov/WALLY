@@ -156,7 +156,7 @@ export default {
         marker: false,
         localGeocoder: coordinatesGeocoder,
         container: 'geocoder-container',
-        placeholder: 'Find a location (example: -123, 51)',
+        placeholder: 'Choose a type of feature to search for',
         minLength: 1
       }))
       this.geocoder.on('result', this.updateBySearchResult)
@@ -317,13 +317,6 @@ export default {
         bounds: bounds,
         size: size,
         primary_key_match: data.result.primary_id
-      }
-      // Our search db view trims the pks on gwells queries
-      // so here we add the 00s back for feature requests
-      if (data.result.layer === 'groundwater_wells') {
-        payload.primary_key_match = payload.primary_key_match.padStart(12, '0')
-      } else if (data.result.layer === 'aquifers') {
-        payload.primary_key_match = payload.primary_key_match.padStart(4, '0')
       }
 
       this.clearHighlightLayer()
