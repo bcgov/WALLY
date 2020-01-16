@@ -63,11 +63,9 @@ export default {
       // Clean out downstream features that are upwards water flow
       // TODO may want to toggle this based on user feedback
       dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
-      dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
 
       commit('setUpstreamData', upstreamFeatures)
       commit('setSelectedStreamData', selectedFeatures)
-      // commit('setDownstreamData', cleanedDownstreamFeatures)
     },
     cleanDownstreams ({ commit, dispatch }, payload) {
       let builder = payload.builder
@@ -109,8 +107,8 @@ export default {
   mutations: {
     setUpstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.upStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
-      state.upStreamData = collection
+      collection['features'] = _.unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      state.upstreamData = collection
     },
     setDownstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
