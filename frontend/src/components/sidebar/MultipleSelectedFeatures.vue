@@ -96,7 +96,7 @@ export default {
     pdfReportLoading: false
   }),
   computed: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'getMapLayer',
       'dataMartFeatures',
       'selectionBoundingBox'

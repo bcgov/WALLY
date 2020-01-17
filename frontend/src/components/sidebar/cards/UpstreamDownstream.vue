@@ -48,7 +48,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
+    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
     if (!this.isStreamsLayerEnabled) {

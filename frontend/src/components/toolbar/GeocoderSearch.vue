@@ -30,7 +30,7 @@ export default {
     ]
   }),
   computed: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'geocoder'
     ])
   },

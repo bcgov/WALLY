@@ -80,7 +80,7 @@ export default {
     // isWaterLicencesLayerEnabled () {
     //   return this.isMapLayerActive('water_rights_licences')
     // },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
     enableWellsLayer () {

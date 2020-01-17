@@ -28,7 +28,12 @@ describe('Wells Nearby', () => {
       getCategories: () => [],
       featureSelectionExists: () => null
     }
-    store = new Vuex.Store({ getters, mutations })
+    let map = {
+      namespaced: true,
+      getters,
+      mutations
+    }
+    store = new Vuex.Store({ modules: { map } })
     wrapper = shallowMount(WellsNearby, {
       vuetify,
       store,

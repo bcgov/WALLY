@@ -63,22 +63,24 @@ export default {
     Dialog
   },
   computed: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'isMapLayerActive',
-      'isDataMartActive',
-      'loadingFeature',
-      'featureError',
-      'dataMartFeatures',
-      'dataMartFeatureInfo',
       'allMapLayers',
       'mapLayerName',
       'getMapLayer',
       'getCategories',
       'layerSelectionActive',
-      'featureSelectionExists',
       'activeMapLayers',
       'selectedBaseLayers',
       'baseMapLayers'
+    ]),
+    ...mapGetters([
+      'isDataMartActive',
+      'loadingFeature',
+      'featureError',
+      'dataMartFeatures',
+      'dataMartFeatureInfo',
+      'featureSelectionExists'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
@@ -119,16 +121,16 @@ export default {
     handleResetLayers () {
       EventBus.$emit('draw:reset', null)
       EventBus.$emit('highlight:clear')
-      this.$store.commit('setActiveMapLayers', [])
+      this.$store.commit('map/setActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
     },
     handleSelectLayer (selectedLayers) {
-      this.$store.commit('setActiveMapLayers', selectedLayers)
+      this.$store.commit('map/setActiveMapLayers', selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
-      this.$store.commit('setActiveBaseMapLayers', selectedBaseLayers)
+      this.$store.commit('map/setActiveBaseMapLayers', selectedBaseLayers)
     },
     allowDisableLayerSelection () {
       return this.featureSelectionExists

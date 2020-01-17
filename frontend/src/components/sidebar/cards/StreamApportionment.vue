@@ -66,7 +66,8 @@ export default {
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
+    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
     if (!this.isStreamsLayerEnabled) {

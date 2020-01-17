@@ -171,7 +171,7 @@ export default {
       }
       return counts
     },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
     enableLicencesLayer () {

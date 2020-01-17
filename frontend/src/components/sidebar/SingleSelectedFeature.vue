@@ -111,13 +111,15 @@ export default {
     }
   }),
   computed: {
+    ...mapGetters('map', [
+      'getMapLayer',
+      'map'
+    ]),
     ...mapGetters([
       'loadingFeature',
       'featureError',
-      'getMapLayer',
-      'dataMartFeatureInfo',
       'singleSelectionFeatures',
-      'map'
+      'dataMartFeatureInfo'
     ])
   },
   methods: {
@@ -168,7 +170,7 @@ export default {
       }
 
       if (this.$route.query.layer === 'point_of_interest') {
-        this.$store.dispatch('addPointOfInterest', point)
+        this.$store.dispatch('map/addPointOfInterest', point)
       } else {
         this.$router.push('/')
       }

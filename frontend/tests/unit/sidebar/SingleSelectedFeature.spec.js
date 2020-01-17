@@ -22,8 +22,25 @@ describe('SingleSelectedFeature', () => {
       removeMapLayer: jest.fn(),
       resetDataMartFeatureInfo: jest.fn()
     }
-    getters = {
+    let mapGetters = {
       isMapLayerActive: state => layerId => false,
+
+      allMapLayers: () => testLayers.layers,
+      getCategories: () => testLayers.categories,
+      getMapLayer: () => () => ({
+        display_data_name: 'test',
+        highlight_columns: []
+      }),
+      map: jest.fn()
+    }
+
+    let map = {
+      namespaced: true,
+      getters: mapGetters,
+      mutations
+    }
+
+    getters = {
       dataMartFeatureInfo: () => ({
         display_data_name: 'Test title',
         properties: {
@@ -31,18 +48,14 @@ describe('SingleSelectedFeature', () => {
         }
       }),
       dataMartFeatures: () => [],
-      allMapLayers: () => testLayers.layers,
-      getCategories: () => testLayers.categories,
       featureSelectionExists: () => null,
-      getMapLayer: () => () => ({
-        display_data_name: 'test',
-        highlight_columns: []
-      }),
       layerSelectionActive: () => null,
       featureError: () => null,
       loadingFeature: () => null
+
     }
-    store = new Vuex.Store({ getters, mutations })
+
+    store = new Vuex.Store({ modules: { map }, getters })
   })
 
   it('Single feature card renders title of the feature', () => {

@@ -4,10 +4,12 @@ import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 
 export default {
+  namespaced: true,
   state: {
     map: null,
     draw: {},
     geocoder: {},
+    activeSelection: null,
     layerSelectTriggered: false,
     selectedMapLayerNames: [],
     activeMapLayers: [],
@@ -39,11 +41,11 @@ export default {
     },
     handleAddPointSelection ({ commit, dispatch, state }, feature) {
       feature.display_data_name = 'point_of_interest'
-      commit('setDataMartFeatureInfo', feature)
+      commit('setDataMartFeatureInfo', feature, { root: true })
     },
     handleAddLineSelection ({ commit, dispatch, state }, feature) {
       feature.display_data_name = 'user_defined_line'
-      commit('setDataMartFeatureInfo', feature)
+      commit('setDataMartFeatureInfo', feature, { root: true })
     },
     handleSelect ({ commit, dispatch, state }, feature, options) {
       // default options when calling this handler.

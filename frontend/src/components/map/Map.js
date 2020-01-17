@@ -88,18 +88,20 @@ export default {
         width: '100%'
       }
     },
-    ...mapGetters([
+    ...mapGetters('map', [
       'allMapLayers',
       'activeMapLayers',
       'allDataMarts',
       'activeDataMarts',
       'highlightFeatureData',
       'highlightFeatureCollectionData',
-      'dataMartFeatureInfo',
-      'infoPanelVisible',
       'map',
       'draw',
-      'geocoder',
+      'geocoder'
+
+    ]),
+    ...mapGetters([
+      'dataMartFeatureInfo',
       'getSelectedStreamData',
       'getUpstreamData',
       'getDownstreamData',
@@ -536,8 +538,8 @@ export default {
     resetCursor () {
       this.map.getCanvas().style.cursor = ''
     },
-    ...mapMutations(['setMap', 'setDraw', 'setGeocoder', 'replaceOldFeatures']),
-    ...mapActions(['getMapLayers', 'getMapObjects', 'handleSelect', 'handleAddPointSelection'])
+    ...mapMutations('map', ['setMap', 'setDraw', 'setGeocoder', 'replaceOldFeatures']),
+    ...mapActions('map', ['getMapLayers', 'getMapObjects', 'handleSelect', 'handleAddPointSelection'])
   },
   watch: {
     highlightFeatureData (value) {

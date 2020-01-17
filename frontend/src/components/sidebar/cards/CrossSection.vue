@@ -43,7 +43,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['draw', 'dataMartFeatureInfo'])
+    ...mapGetters('map', ['draw']),
+    ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
     this.drawLine()

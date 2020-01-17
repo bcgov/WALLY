@@ -98,7 +98,8 @@ export default {
     ]
   }),
   computed: {
-    ...mapGetters(['map', 'infoPanelVisible'])
+    ...mapGetters('map', ['map']),
+    ...mapGetters(['infoPanelVisible'])
   },
   methods: {
     consoleLog () {

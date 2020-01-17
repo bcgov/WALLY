@@ -58,4 +58,5 @@ describe('Map Store', () => {
     const payload = 'water_rights_licenses'
     expect(store.getters.isMapLayerActive(store.state)(payload)).toBe(false)
   })
+
 })

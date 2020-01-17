@@ -34,7 +34,7 @@ export default {
   }),
   methods: {
     enableFreshwaterAtlasStreamNetworksLayer () {
-      this.$store.commit('addMapLayer', 'freshwater_atlas_stream_networks')
+      this.$store.commit('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
     toggleMultiSelect () {
       this.multiSelect = !this.multiSelect
@@ -229,7 +229,7 @@ export default {
     isFreshwaterAtlasStreamNetworksLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   watch: {
     record: {

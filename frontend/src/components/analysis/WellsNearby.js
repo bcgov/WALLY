@@ -116,7 +116,7 @@ export default {
     coordinates () {
       return (this.record && this.record.geometry && this.record.geometry.coordinates) || []
     },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
     exportDrawdownAsSpreadsheet () {
