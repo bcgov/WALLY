@@ -35,9 +35,9 @@ export default {
       'toggleSpikelines'
     ],
     headers: [
-      { text: 'Well Tag No.', value: 'well_tag_number', width: '33%' },
-      { text: 'Depth drilled (m)', value: 'finished_well_depth', width: '33%' },
-      { text: 'Water depth (m)', value: 'water_depth', width: '33%' },
+      { text: 'Well Tag No.', value: 'well_tag_number', align: 'center' },
+      { text: 'Depth drilled (m)', value: 'finished_well_depth', align: 'center' },
+      { text: 'Water depth (m)', value: 'water_depth', align: 'center' },
       { text: '', value: 'action', sortable: false }
     ],
     inputRules: {
@@ -186,8 +186,8 @@ export default {
         hoverlabel: {
           namelength: 0
         },
-        // texttemplate: '%{text}',
-        // hoverinfo: 'text',
+        texttemplate: '%{text}',
+        hoverinfo: 'text',
         hovertemplate: '%{text} %{y} m'
       }
       const elevProfile = {
@@ -489,7 +489,7 @@ export default {
       })
     },
     downloadMergedImage (plotType) {
-      var doc = jsPDF({ orientation: 'landscape' })
+      var doc = jsPDF()
       var width = doc.internal.pageSize.getWidth()
       var height = doc.internal.pageSize.getHeight()
       var filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
@@ -497,15 +497,16 @@ export default {
         var img1 = canvas1.toDataURL('image/png')
         const imgProps1 = doc.getImageProperties(img1)
         var size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
-        doc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
+        var crossDoc = jsPDF({ orientation: 'landscape', unit: 'pt', format: [size1[0], size1[1]] })
+        crossDoc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
         var plotContainer = plotType === '2d' ? this.$refs.crossPlot.$el : this.$refs.surfacePlot.$el
         html2canvas(plotContainer).then(canvas2 => {
-          doc.addPage() // add new page for next image
           var img2 = canvas2.toDataURL('image/png')
           const imgProps2 = doc.getImageProperties(img2)
           var size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
-          doc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
-          doc.save(filename)
+          crossDoc.addPage(size2[0], size2[1]) // add new page for next image
+          crossDoc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
+          crossDoc.save(filename)
         })
       })
     },
@@ -545,7 +546,7 @@ export default {
       this.wellsLithology = [...lithologyArr]
     },
     highlightWell (selected) {
-      console.log(selected)
+      // Placeholder
     }
   },
   watch: {

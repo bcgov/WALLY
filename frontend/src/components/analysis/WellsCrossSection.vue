@@ -66,32 +66,34 @@
         </v-row>
     </v-row>
     <v-row no-gutters>
-      <v-data-table
-        hide-default-footer
-        v-on:click:row="highlightWell"
-        v-model="selected"
-        :loading="loading"
-        :headers="headers"
-        item-key="well_tag_number"
-        :items="wells">
-        <template v-slot:item.well_tag_number="{ item }">
-          <span>{{item.well_tag_number}}</span>
-        </template>
-        <template v-slot:item.finished_well_depth="{ item }">
-          <span>{{item.finished_well_depth.toFixed(2)}}</span>
-        </template>
-        <template v-slot:item.water_depth="{ item }">
-          <span>{{item.water_depth.toFixed(2)}}</span>
-        </template>
-        <template v-slot:item.action="{ item }">
-          <v-icon
-            small
-            @click="deleteWell(item)"
-          >
-            delete
-          </v-icon>
-        </template>
-      </v-data-table>
+      <v-flex>
+        <v-data-table
+          hide-default-footer
+          v-on:click:row="highlightWell"
+          v-model="selected"
+          :loading="loading"
+          :headers="headers"
+          item-key="well_tag_number"
+          :items="wells">
+          <template v-slot:item.well_tag_number="{ item }">
+            <span>{{item.well_tag_number}}</span>
+          </template>
+          <template v-slot:item.finished_well_depth="{ item }">
+            <span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span>
+          </template>
+          <template v-slot:item.water_depth="{ item }">
+            <span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span>
+          </template>
+          <template v-slot:item.action="{ item }">
+            <v-icon
+              small
+              @click="deleteWell(item)"
+            >
+              delete
+            </v-icon>
+          </template>
+        </v-data-table>
+      </v-flex>
     </v-row>
     <v-row no-gutters>
       <v-col>
