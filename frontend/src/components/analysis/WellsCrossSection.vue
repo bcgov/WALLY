@@ -18,15 +18,15 @@
             <v-tab>3D Surface Section</v-tab>
             <v-tab-item>
               <v-row>
-                <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
+                <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
+                </v-btn>
+                <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>
                 </v-btn>
                 <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Plot</span>
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Plot</span>
                 </v-btn>
-                <!-- <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Map</span>
-                </v-btn> -->
               </v-row>
               <v-card-text v-if="loading" class="text-center">
                 <v-progress-circular
@@ -64,6 +64,34 @@
             </v-tab-item>
           </v-tabs>
         </v-row>
+    </v-row>
+    <v-row no-gutters>
+      <v-data-table
+        hide-default-footer
+        v-on:click:row="highlightWell"
+        v-model="selected"
+        :loading="loading"
+        :headers="headers"
+        item-key="well_tag_number"
+        :items="wells">
+        <template v-slot:item.well_tag_number="{ item }">
+          <span>{{item.well_tag_number}}</span>
+        </template>
+        <template v-slot:item.finished_well_depth="{ item }">
+          <span>{{item.finished_well_depth.toFixed(2)}}</span>
+        </template>
+        <template v-slot:item.water_depth="{ item }">
+          <span>{{item.water_depth.toFixed(2)}}</span>
+        </template>
+        <template v-slot:item.action="{ item }">
+          <v-icon
+            small
+            @click="deleteWell(item)"
+          >
+            delete
+          </v-icon>
+        </template>
+      </v-data-table>
     </v-row>
     <v-row no-gutters>
       <v-col>

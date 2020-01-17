@@ -24,6 +24,7 @@ export default {
     wellsLithology: [],
     elevations: [],
     surfacePoints: [],
+    selected: [],
     loading: true,
     timeout: {},
     ignoreButtons: [
@@ -32,6 +33,12 @@ export default {
       'hoverCompareCartesian',
       'hoverClosestCartesian',
       'toggleSpikelines'
+    ],
+    headers: [
+      { text: 'Well Tag No.', value: 'well_tag_number', width: '33%' },
+      { text: 'Depth drilled (m)', value: 'finished_well_depth', width: '33%' },
+      { text: 'Water depth (m)', value: 'water_depth', width: '33%' },
+      { text: '', value: 'action', sortable: false }
     ],
     inputRules: {
       required: value => !!value || 'Required',
@@ -132,19 +139,19 @@ export default {
             : null
         ),
         text: this.wells.map(w => w.well_tag_number),
-        textposition: 'bottom center',
+        textposition: 'bottom',
         showlegend: false,
+        name: 'Finished well depth (reported)',
         hovertemplate:
-          '<b>Well</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
+          '<br>Bottom elev.: %{y:.1f} m<br>',
+        mode: 'markers+text',
         type: 'scatter',
         marker: {
           color: 'rgb(252,141,98)'
         },
         hoverlabel: {
           namelength: 0
-        },
-        name: 'Finished well depth (reported)',
-        mode: 'markers'
+        }
       }
       const waterDepth = {
         x: this.wells.map(w => w.distance_from_origin),
@@ -406,6 +413,7 @@ export default {
           if (well) {
             wellLithologySet.lithologydescription_set.forEach(w => {
               lithologyList.push({
+                well_tag_number: wellLithologySet.well_tag_number,
                 x: well.distance_from_origin ? well.distance_from_origin : 0,
                 y0: well.ground_elevation_from_dem - (w.start * 0.3048),
                 y1: well.ground_elevation_from_dem - (w.end * 0.3048),
@@ -523,6 +531,21 @@ export default {
         return this.inputRules[k](val) !== true
       })
       return !invalid
+    },
+    deleteWell (selectedWell) {
+      // delete selected well from well list
+      let wellsArr = this.wells.filter(well => {
+        return well['well_tag_number'] !== selectedWell['well_tag_number']
+      })
+      // delete lithology of selected well from lithology list
+      let lithologyArr = this.wellsLithology.filter(lith => {
+        return lith['well_tag_number'] !== selectedWell['well_tag_number']
+      })
+      this.wells = [...wellsArr]
+      this.wellsLithology = [...lithologyArr]
+    },
+    highlightWell (selected) {
+      console.log(selected)
     }
   },
   watch: {
