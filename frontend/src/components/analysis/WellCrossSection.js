@@ -4,7 +4,7 @@ import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
@@ -47,9 +47,6 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters([
-      'map'
-    ]),
     chartLayout () {
       const opts = {
         shapes: [],
@@ -318,6 +315,12 @@ export default {
     }
   },
   methods: {
+    ...mapGetters([
+      'map'
+    ]),
+    ...mapActions([
+      'removeElementsByClass'
+    ]),
     fetchWellsAlongLine () {
       if (!this.radiusIsValid(this.radius)) {
         return
@@ -369,7 +372,7 @@ export default {
           }
         }
       ]
-      var mapObj = this.map
+      var mapObj = this.map()
       // delete any existing markers
       this.removeElementsByClass('annotationMarker')
       // add markers to map
@@ -385,22 +388,7 @@ export default {
           .addTo(mapObj)
       })
     },
-    removeElementsByClass (className) {
-      var elements = document.getElementsByClassName(className)
-      while (elements.length > 0) {
-        elements[0].parentNode.removeChild(elements[0])
-      }
-    },
     fetchWellsLithology (ids) {
-      // https://gwells-dev-pr-1488.pathfinder.gov.bc.ca/gwells/api/v1/wells/lithology?wells=112316
-      // ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`).then((r) => {
-      // DEBUG
-      // ids = '112316'
-      // let result = `{"count":2,"next":null,"previous":null,"results":[{"well_tag_number":72177,"latitude":50.146298,"longitude":-122.953464,"lithologydescription_set":[{"start":"0.00","end":"8.00","lithology_raw_data":"COURSE GRAVEL SOME BOULDERS","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"8.00","end":"17.00","lithology_raw_data":"WATER BEARING GRAVEL SOME SMALL BOULDERS","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"17.00","end":"26.00","lithology_raw_data":"DIRTY WATER BEARING SAND & GRAVEL","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"26.00","end":"71.00","lithology_raw_data":"dirty silty water-bearing sand & gravel, some wood","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"71.00","end":"77.00","lithology_raw_data":"VERY SILTY FINE SAND CLAY & WOOD","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"77.00","end":"86.00","lithology_raw_data":"dirty silty water-bearing sand and layers of clay, some gravel","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"86.00","end":"92.00","lithology_raw_data":"very silty fine water-bearing sand & layers of clay","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"92.00","end":"172.00","lithology_raw_data":"GRAY CLAY WITH LAYERS OF SILT","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"172.00","end":"180.00","lithology_raw_data":"VERY COURSE SHARP WATER BEARING GRAVEL","lithology_observation":null,"water_bearing_estimated_flow":null}]},{"well_tag_number":80581,"latitude":50.143818,"longitude":-122.959162,"lithologydescription_set":[{"start":"0.00","end":"4.00","lithology_raw_data":"brown sand and fill containing stones","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"4.00","end":"9.00","lithology_raw_data":"brown silty sandy soil containing wood, peat and stones","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"9.00","end":"14.00","lithology_raw_data":"grey clay","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"14.00","end":"30.00","lithology_raw_data":"grey compact silt containing wood","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"30.00","end":"34.00","lithology_raw_data":"peat and wood with some grey silt","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"34.00","end":"48.00","lithology_raw_data":"grey silt containing peat and wood","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"48.00","end":"52.00","lithology_raw_data":"grey silt with traces of peat seams and some wood","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"52.00","end":"74.00","lithology_raw_data":"darker grey silt","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"74.00","end":"81.00","lithology_raw_data":"brown firm silt containing seams of brown sand and stones, water-bearing","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"81.00","end":"116.00","lithology_raw_data":"grey with seams of stones and sand and some wood below 92'","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"116.00","end":"117.00","lithology_raw_data":"fine compact silty sand, fairly tight","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"117.00","end":"134.00","lithology_raw_data":"grey silt with seams of compact silty fine sand & containing wood from 117' to 127'","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"134.00","end":"136.00","lithology_raw_data":"grey, silty coarse gravel, sharp, silty wash","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"136.00","end":"139.00","lithology_raw_data":"grey silty coarse sand and broken coarse gravel","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"139.00","end":"142.00","lithology_raw_data":"grey compact silt, broken gravel & cobbles, sharp and tight","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"142.00","end":"145.00","lithology_raw_data":"large broken rock, yielding more water","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"145.00","end":"147.00","lithology_raw_data":"green broken rock, very tight","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"147.00","end":"158.00","lithology_raw_data":"broken grey and brown-coloured rock","lithology_observation":null,"water_bearing_estimated_flow":null},{"start":"158.00","end":"164.00","lithology_raw_data":"solid bedrock","lithology_observation":null,"water_bearing_estimated_flow":null}]}]}`
-      // let resultObj = JSON.parse(result)
-      // let results = resultObj.results
-      // this.wellsLithology = lithologyList
-      // console.log(ids)
       ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
         console.log(r.data.results)
         let results = r.data.results
@@ -453,18 +441,6 @@ export default {
       this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
       this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return true })
       PlotlyJS.Fx.hover('2dPlot', [])
-
-      // var xy = document.getElementsByClassName("xy");
-      // if(xy) {
-      //   // var event = new Event('plotly_deselect', {bubbles: true});
-      //   var event = new Event('plotly_doubleclick', {bubbles: true});
-      //   for (let i = 0; i < xy.length; i++) {
-      //     xy[i].dispatchEvent(event);
-      //   }
-      // }
-      // var event = new Event('plotly_click', {bubbles: true})
-      // this.$refs.crossPlot.$el.dispatchEvent(event)
-      // this.$refs.crossPlot.$emit('plotly_click')
     },
     setMarkerLabels (e) {
       if (e && e.points.length > 0) {

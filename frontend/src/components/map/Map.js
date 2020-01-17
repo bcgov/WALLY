@@ -215,6 +215,8 @@ export default {
       this.replaceOldFeatures()
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
+      this.$store.dispatch('removeElementsByClass', 'annotationMarker')
+      EventBus.$emit('shapes:reset')
 
       if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_point') {
         this.$store.commit('resetDataMartFeatureInfo')
@@ -222,7 +224,7 @@ export default {
       }
     },
     handleModeChange (e) {
-      if (e.mode === 'draw_polygon' || e.mode === 'draw_point') {
+      if (e.mode === 'draw_polygon' || e.mode === 'draw_point' || e.mode === 'draw_line_string') {
         this.isDrawingToolActive = true
         this.polygonToolHelp()
       } else if (e.mode === 'simple_select') {
@@ -394,6 +396,7 @@ export default {
       this.map.getSource('highlightLayerData').setData(polygon)
       this.$store.commit('resetStreamData')
       this.$store.commit('resetStreamBufferData')
+      this.$store.dispatch('removeElementsByClass', 'annotationMarker')
     },
     handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')

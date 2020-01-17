@@ -68,6 +68,7 @@
     <v-row no-gutters>
       <v-flex>
         <v-data-table
+          id="cross-section-well-table"
           hide-default-footer
           v-on:click:row="highlightWell"
           v-model="selected"
