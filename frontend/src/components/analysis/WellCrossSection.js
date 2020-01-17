@@ -25,13 +25,19 @@ export default {
     elevations: [],
     surfacePoints: [],
     loading: true,
+    timeout: {},
     ignoreButtons: [
       'toImage',
       'sendDataToCloud',
       'hoverCompareCartesian',
       'hoverClosestCartesian',
       'toggleSpikelines'
-    ]
+    ],
+    inputRules: {
+      required: value => !!value || 'Required',
+      number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number',
+      max: value => value <= 1000 || 'Radius must be between 0 and 1000 m'
+    }
   }),
   computed: {
     ...mapGetters([
@@ -306,6 +312,10 @@ export default {
   },
   methods: {
     fetchWellsAlongLine () {
+      if (!this.radiusIsValid(this.radius)) {
+        return
+      }
+
       this.loading = true
       const params = {
         radius: parseFloat(this.radius),
@@ -470,15 +480,7 @@ export default {
         })
       })
     },
-    downloadMapImage () {
-      var filename = 'map--'.concat(new Date().toISOString()) + '.png'
-      html2canvas(this.map._container).then(canvas => {
-        canvas.toBlob(function (blob) {
-          saveAs(blob, filename)
-        })
-      })
-    },
-    downloadMergedImage () {
+    downloadMergedImage (plotType) {
       var doc = jsPDF({ orientation: 'landscape' })
       var width = doc.internal.pageSize.getWidth()
       var height = doc.internal.pageSize.getHeight()
@@ -488,7 +490,8 @@ export default {
         const imgProps1 = doc.getImageProperties(img1)
         var size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
         doc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
-        html2canvas(this.$refs.crossPlot.$el).then(canvas2 => {
+        var plotContainer = plotType === '2d' ? this.$refs.crossPlot.$el : this.$refs.surfacePlot.$el
+        html2canvas(plotContainer).then(canvas2 => {
           doc.addPage() // add new page for next image
           var img2 = canvas2.toDataURL('image/png')
           const imgProps2 = doc.getImageProperties(img2)
@@ -512,7 +515,14 @@ export default {
     },
     lassoTool () {
       // layout.dragmode = 'lasso'
+      // example of how to click lasso tool programatically
       Plotly.relayout('myDiv', 'dragmode', 'lasso')
+    },
+    radiusIsValid (val) {
+      let invalid = Object.keys(this.inputRules).some((k) => {
+        return this.inputRules[k](val) !== true
+      })
+      return !invalid
     }
   },
   watch: {
@@ -530,7 +540,11 @@ export default {
       deep: true
     },
     radius (value) {
-      this.fetchWellsAlongLine()
+      // delay call to re-fetch data if user still inputting radius numbers
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(() => {
+        this.fetchWellsAlongLine()
+      }, 750)
     }
   },
   beforeDestroy () {

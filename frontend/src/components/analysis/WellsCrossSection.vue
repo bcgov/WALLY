@@ -1,15 +1,17 @@
 <template>
-  <div>
-    <v-row>
-      <v-col>
-        <v-card-text v-if="loading" class="text-center">
-          <v-progress-circular
-            indeterminate
-            class="my-5"
-            color="grey"
-          ></v-progress-circular>
-        </v-card-text>
-        <div v-else>
+  <v-container>
+    <v-row no-gutters>
+        <v-row>
+          <v-row no-gutters>
+            <v-col cols="12" md="4" align-self="center">
+              <v-text-field
+                label="Buffer Radius (m)"
+                placeholder="200"
+                :rules="[inputRules.number, inputRules.max, inputRules.required]"
+                v-model="radius"
+              ></v-text-field>
+            </v-col>
+          </v-row>
           <v-tabs>
             <v-tabs-slider></v-tabs-slider>
             <v-tab>2D Cross Section</v-tab>
@@ -19,25 +21,49 @@
                 <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
                   <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
                 </v-btn>
-                <v-btn small v-on:click="downloadMergedImage" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download 2D Plot</span>
+                <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Plot</span>
                 </v-btn>
-                <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
+                <!-- <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
                   <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Map</span>
-                </v-btn>
+                </v-btn> -->
               </v-row>
-              <v-card flat>
+              <v-card-text v-if="loading" class="text-center">
+                <v-progress-circular
+                  indeterminate
+                  class="my-5"
+                  color="grey"
+                ></v-progress-circular>
+              </v-card-text>
+              <v-card v-else flat>
                 <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
               </v-card>
             </v-tab-item>
             <v-tab-item>
-              <v-card flat>
+              <v-row>
+                <!-- <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
+                </v-btn> -->
+                <!-- <v-btn small v-on:click="downloadMergedImage('3d')" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Plot</span>
+                </v-btn> -->
+                <!-- <v-btn small v-on:click="downloadMapImage" color="blue-grey lighten-4" class="mb-1 mt-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Map</span>
+                </v-btn> -->
+              </v-row>
+              <v-card-text v-if="loading" class="text-center">
+                <v-progress-circular
+                  indeterminate
+                  class="my-5"
+                  color="grey"
+                ></v-progress-circular>
+              </v-card-text>
+              <v-card v-else flat>
                 <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
               </v-card>
             </v-tab-item>
           </v-tabs>
-        </div>
-      </v-col>
+        </v-row>
     </v-row>
     <v-row no-gutters>
       <v-col>
@@ -93,7 +119,7 @@
         </v-expansion-panels>
       </v-col>
     </v-row>
-  </div>
+  </v-container>
 </template>
 
 <script src="./WellCrossSection.js"></script>
@@ -109,8 +135,8 @@
   margin: -15px 0 0 15px;
   color: #F0FFFF;
   font-weight: bold;
-  font-size: 18px;
-  padding-left: 5px;
+  font-size: 16px;
+  padding-left: 6px;
   padding-top: 2px;
 }
 </style>
