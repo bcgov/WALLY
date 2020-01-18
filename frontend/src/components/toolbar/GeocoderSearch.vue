@@ -10,7 +10,8 @@
       label="Filter by"
       class="search-types-select">
     </v-select>
-    <div id="geocoder" class="mr-3 geocoder"></div>
+    <input class="disabled-search-placeholder mapboxgl-ctrl-geocoder" disabled placeholder="Choose a type of feature to search for" v-if="searchDisabled"/>
+    <div id="geocoder" class="mr-2 geocoder" v-show="!searchDisabled"></div>
     <v-btn @click="takeScreenshot" color="blue-grey" dark tile icon>
       <v-icon>mdi-camera</v-icon>
     </v-btn>
@@ -24,15 +25,19 @@ export default {
   data: () => ({
     searchFeatureType: null,
     searchOptions: [
-      { text: 'Coordinates', value: null, placeholder: 'Find a location (example: -123, 51)' },
+      { text: 'Select search', value: null, placeholder: 'Choose a type of feature to search for', disableSearch: true },
       { text: 'Parcel (PID)', value: 'cadastral', placeholder: 'Search by PID' },
-      { text: 'Wells', value: 'groundwater_wells', placeholder: 'Search by well tag number' },
+      { text: 'Well tag number', value: 'groundwater_wells', placeholder: 'Search by well tag number' },
+      { text: 'Coordinates', value: 'coordinates', placeholder: 'Find a location (example: -123, 51)' },
       { text: 'Water Licences', value: 'water_rights_licences', placeholder: 'Search by licence or file number' },
       { text: 'Aquifers', value: 'aquifers', placeholder: 'Search by aquifer number' },
       { text: 'EcoCat Reports', value: 'ecocat_water_related_reports', placeholder: 'Search by report title' }
     ]
   }),
   computed: {
+    searchDisabled () {
+      return this.searchOptions.find(x => x.value === this.searchFeatureType).disableSearch || false
+    },
     ...mapGetters([
       'geocoder'
     ]),
@@ -88,6 +93,11 @@ export default {
     border-style: solid;
     border-color: rgba(0,0,0,.24);
     border-radius: 0px 4px 4px 0px!important;
+  }
+  .disabled-search-placeholder {
+    padding-left: 10px;
+    width: 380px!important;
+    margin-right: 20px;
   }
   #geocoder {
     z-index: 4;

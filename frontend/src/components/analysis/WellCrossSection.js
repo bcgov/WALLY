@@ -528,6 +528,7 @@ export default {
   watch: {
     panelOpen (value) {
       if (value) {
+        this.$store.commit('addMapLayer', 'groundwater_wells')
         this.setAnnotationMarkers()
       } else {
         this.removeElementsByClass('annotationMarker')

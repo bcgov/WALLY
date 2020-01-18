@@ -75,7 +75,7 @@ def wfs_search(db, query, feature_type):
     # fall back on WMS metadata, if available
     if not layer:
         catalogue = agr_repo.get_display_catalogue(db, [feature_type])
-        if not catalogue and not catalogue[0].wms_catalogue_id:
+        if not catalogue or not catalogue[0].wms_catalogue_id:
             raise HTTPException(status_code=400, detail="Feature type invalid")
         layer = catalogue[0].wms_catalogue.wms_name
 
