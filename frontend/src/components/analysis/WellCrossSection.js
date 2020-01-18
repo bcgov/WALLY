@@ -445,13 +445,18 @@ export default {
       this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
       this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return true })
       PlotlyJS.Fx.hover('2dPlot', [])
+      // reset all selection data so points gain back opacity
+      this.$refs.crossPlot.data.forEach((d) => {
+        d.selectedpoints = null
+      })
+      this.$refs.crossPlot.react()
     },
     setMarkerLabels (e) {
       if (e && e.points.length > 0) {
       // This overrides hiding the hover labels
         this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
         this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return false })
-
+        // hide selection box
         this.removeElementsByClass('select-outline')
         let points = e.points.map(p => {
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
