@@ -140,7 +140,7 @@ export default {
         showlegend: false,
         name: 'Finished well depth (reported)',
         hovertemplate:
-          '<br>Bottom elev.: %{y:.1f} m<br>',
+          '<b>Well</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
         mode: 'markers+text',
         type: 'scatter',
         marker: {
@@ -195,9 +195,13 @@ export default {
         type: 'scatter',
         showlegend: false
       }
+      // order wells by distance from orgin so water levels connect linearly
+      let orderedWells = this.wells.sort(function (a, b) {
+        return parseFloat(a.distance_from_origin) - parseFloat(b.distance_from_origin)
+      })
       const waterLevel = {
-        x: this.wells.map(w => w.distance_from_origin ? w.distance_from_origin : null),
-        y: this.wells.map(w => w.water_depth ? w.ground_elevation_from_dem - w.water_depth : null),
+        x: orderedWells.map(w => w.distance_from_origin ? w.distance_from_origin : null),
+        y: orderedWells.map(w => w.water_depth ? w.ground_elevation_from_dem - w.water_depth : null),
         mode: 'lines',
         name: 'Water Level',
         line: {
