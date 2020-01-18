@@ -41,9 +41,9 @@
             </v-tab-item>
             <v-tab-item>
               <v-row>
-                <!-- <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">format_clear</v-icon>Reset Labels</span>
-                </v-btn> -->
+                <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
+                </v-btn>
                 <!-- <v-btn small v-on:click="downloadMergedImage('3d')" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
                   <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1">archive</v-icon>Download Plot</span>
                 </v-btn> -->

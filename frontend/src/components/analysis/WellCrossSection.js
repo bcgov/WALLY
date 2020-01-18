@@ -478,7 +478,7 @@ export default {
       var width = doc.internal.pageSize.getWidth()
       var height = doc.internal.pageSize.getHeight()
       var filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
-      html2canvas(this.map._container).then(canvas1 => {
+      html2canvas(this.map()._container).then(canvas1 => {
         var img1 = canvas1.toDataURL('image/png')
         const imgProps1 = doc.getImageProperties(img1)
         var size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
