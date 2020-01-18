@@ -11,7 +11,7 @@
   "dependencies": {
     "@bcgov/bc-sans": "^1.0.1",
     "@mapbox/mapbox-gl-draw": "^1.1.2",
-    "@mapbox/mapbox-gl-geocoder": "^4.5.0",
+    "@mapbox/mapbox-gl-geocoder": "^4.5.1",
     "@mdi/font": "^4.4.95",
     "@sentry/browser": "^5.9.1",
     "@sentry/integrations": "^5.8.0",
