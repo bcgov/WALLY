@@ -52,6 +52,7 @@ export default {
         shapes: [],
         title: 'Groundwater Wells',
         height: 800,
+        hovermode: 'closest',
         legend: {
           x: -0.1,
           y: 1.2
@@ -183,7 +184,7 @@ export default {
         hoverlabel: {
           namelength: 0
         },
-        texttemplate: '%{text}',
+        // texttemplate: '%{text}',
         hoverinfo: 'text',
         hovertemplate: '%{text} %{y} m'
       }
