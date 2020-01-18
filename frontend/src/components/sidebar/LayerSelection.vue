@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import EventBus from '../../services/EventBus'
 import Dialog from '../common/Dialog'
 
@@ -100,6 +100,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('map', ['updateActiveMapLayers']),
     filterLayersByCategory (layers) {
       let catMap = {}
 
@@ -129,7 +130,7 @@ export default {
       this.$store.commit('clearDisplayTemplates')
     },
     handleSelectLayer (selectedLayers) {
-      this.$store.commit('map/setActiveMapLayers', selectedLayers)
+      this.updateActiveMapLayers(selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.commit('map/setActiveBaseMapLayers', selectedBaseLayers)

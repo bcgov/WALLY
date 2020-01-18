@@ -39,6 +39,35 @@ export default {
       state.draw.add(feature)
       dispatch('handleSelect', { features: [feature] })
     },
+    updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
+      // accepts an array of layer names and sets the active map layers accordingly
+      state.selectedMapLayerNames = selectedLayers
+
+      // list of prev layers.  the payload is the new list of layers about to be active.
+      const prev = state.activeMapLayers.map(l => l.display_data_name)
+
+      // get list of layers that were deselected (they were in `prev`, but are not in payload),
+      // and sent an event to remove them.
+      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
+
+      // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
+      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`layer:added`, l))
+
+      // reset the list of active layers
+      commit('setActiveMapLayers', selectedLayers)
+
+      // redraw any current features and update selection.
+      dispatch('handleSelect', state.draw.getAll(), { showFeatureList: false })
+    },
+    disableLayer () {
+
+    },
+    expandMapLegend () {},
+    collapseMapLegend () {},
+    // addMapLayer () {},
+    removeMapLayer () {},
+    clearMapLayers () {},
+    // getFeatures() <--datamartStore
     handleAddPointSelection ({ commit, dispatch, state }, feature) {
       feature.display_data_name = 'point_of_interest'
       commit('setDataMartFeatureInfo', feature, { root: true })
@@ -166,27 +195,9 @@ export default {
       EventBus.$emit(`layer:removed`, payload)
     },
     setActiveMapLayers (state, payload) {
-      // accepts an array of layer names and sets the active map layers accordingly
-
-      state.selectedMapLayerNames = payload
-
-      // list of prev layers.  the payload is the new list of layers about to be active.
-      const prev = state.activeMapLayers.map(l => l.display_data_name)
-
-      // get list of layers that were deselected (they were in `prev`, but are not in payload),
-      // and sent an event to remove them.
-      prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
-
-      // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
-      payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`layer:added`, l))
-
-      // reset the list of active layers
       state.activeMapLayers = state.mapLayers.filter((l) => {
         return payload.includes(l.display_data_name)
       })
-
-      // send an event to redraw any current features and update selection.
-      EventBus.$emit('draw:redraw', { showFeatureList: false })
     },
     setActiveBaseMapLayers (state, payload) {
       let prev = state.selectedBaseLayers

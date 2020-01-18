@@ -24,7 +24,6 @@ describe('SingleSelectedFeature', () => {
     }
     let mapGetters = {
       isMapLayerActive: state => layerId => false,
-
       allMapLayers: () => testLayers.layers,
       getCategories: () => testLayers.categories,
       getMapLayer: () => () => ({
