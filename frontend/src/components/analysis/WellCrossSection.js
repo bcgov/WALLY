@@ -92,7 +92,7 @@ export default {
           xanchor: 'left',
           y: -0.1,
           yanchor: 'bottom',
-          text: 'B\'',
+          text: 'A',
           showarrow: false,
           font: {
             size: 16,
@@ -297,7 +297,7 @@ export default {
             x: b[0],
             y: b[1],
             z: b[2],
-            text: 'B\'',
+            text: 'A',
             ay: -60,
             font: {
               color: 'black',
@@ -368,7 +368,7 @@ export default {
             coordinates: this.coordinates[1]
           },
           properties: {
-            'symbol': 'B\''
+            'symbol': 'A'
           }
         }
       ]
