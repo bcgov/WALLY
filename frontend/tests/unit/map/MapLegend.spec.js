@@ -1,4 +1,4 @@
-import {createLocalVue, mount} from '@vue/test-utils'
+import { createLocalVue, mount } from '@vue/test-utils'
 import MapLegend from '../../../src/components/map/MapLegend.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
@@ -22,7 +22,7 @@ describe('Map Legend Test', () => {
     getters = {
       activeMapLayers: () => []
     }
-    store = new Vuex.Store({getters})
+    store = new Vuex.Store({ getters })
     wrapper = mount(MapLegend, {
       vuetify,
       store,
@@ -35,8 +35,8 @@ describe('Map Legend Test', () => {
   })
 
   it('Is hidden when empty', () => {
-    wrapper.setData({legend: []})
-    wrapper.setData({legend: []})
+    wrapper.setData({ legend: [] })
+    wrapper.setData({ legend: [] })
     expect(wrapper.findAll('div#legend').length).toBe(0)
   })
 
@@ -64,10 +64,10 @@ describe('Map Legend Test', () => {
       name: 'Aquifers',
       plenty: false
     })
-    wrapper.setData({legend: []})
+    wrapper.setData({ legend: [] })
     await wrapper.vm.$nextTick()
     expect(wrapper.findAll('div#legend').length).toEqual(0)
-    wrapper.setData({legend: legend})
+    wrapper.setData({ legend: legend })
     await wrapper.vm.$nextTick()
     expect(wrapper.findAll('div#legend').length).toEqual(1)
   })
@@ -96,7 +96,7 @@ describe('Map Legend Test', () => {
       name: 'Aquifers',
       plenty: false
     })
-    wrapper.setData({legend: legend})
+    wrapper.setData({ legend: legend })
     await wrapper.vm.$nextTick()
 
     expect(

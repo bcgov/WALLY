@@ -127,7 +127,8 @@ export default {
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
-        attributionControl: false // hide default and re-add to the top left
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
       }))
 
       const modes = MapboxDraw.modes
@@ -213,6 +214,8 @@ export default {
       this.replaceOldFeatures()
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
+      this.$store.dispatch('removeElementsByClass', 'annotationMarker')
+      EventBus.$emit('shapes:reset')
 
       if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
         this.$store.commit('resetDataMartFeatureInfo')
@@ -220,7 +223,7 @@ export default {
       }
     },
     handleModeChange (e) {
-      if (e.mode === 'draw_polygon' || e.mode === 'draw_point') {
+      if (e.mode === 'draw_polygon' || e.mode === 'draw_point' || e.mode === 'draw_line_string') {
         this.isDrawingToolActive = true
         this.polygonToolHelp()
       } else if (e.mode === 'simple_select') {
@@ -388,6 +391,7 @@ export default {
       this.map.getSource('highlightLayerData').setData(polygon)
       this.$store.commit('resetStreamData')
       this.$store.commit('resetStreamBufferData')
+      this.$store.dispatch('removeElementsByClass', 'annotationMarker')
     },
     handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
