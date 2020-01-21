@@ -74,7 +74,7 @@ export default {
           xanchor: 'right',
           y: -0.1,
           yanchor: 'bottom',
-          text: 'A\'',
+          text: 'A,
           showarrow: false,
           font: {
             size: 16,
@@ -93,7 +93,7 @@ export default {
           xanchor: 'left',
           y: -0.1,
           yanchor: 'bottom',
-          text: 'A',
+          text: 'B',
           showarrow: false,
           font: {
             size: 16,
@@ -292,7 +292,7 @@ export default {
             x: a[0],
             y: a[1],
             z: a[2],
-            text: 'A\'',
+            text: 'A',
             ay: -60,
             font: {
               color: 'black',
@@ -302,7 +302,7 @@ export default {
             x: b[0],
             y: b[1],
             z: b[2],
-            text: 'A',
+            text: 'B',
             ay: -60,
             font: {
               color: 'black',
@@ -363,7 +363,7 @@ export default {
             coordinates: this.coordinates[0]
           },
           properties: {
-            'symbol': 'A\''
+            'symbol': 'A'
           }
         },
         {
@@ -373,7 +373,7 @@ export default {
             coordinates: this.coordinates[1]
           },
           properties: {
-            'symbol': 'A'
+            'symbol': 'B'
           }
         }
       ]
