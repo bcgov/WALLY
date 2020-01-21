@@ -131,7 +131,7 @@ requests:
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_watersheds)
-    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.01218163390963,50.098091859577636],[-123.0078944282,50.08021264021647],[-122.97502585109319,50.08800696615489],[-122.97716945394824,50.10244604378991],[-123.01218163390963,50.098091859577636]]]&layers=freshwater_atlas_watersheds"
+    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.32324981689455,48.62428582180531],[-123.3225631713867,48.61940649998342],[-123.3138084411621,48.62099516817615],[-123.32324981689455,48.62428582180531]]]&layers=freshwater_atlas_watersheds"
     method: get
     expect:
       status: 200
@@ -145,21 +145,21 @@ requests:
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (bc_major_watersheds)
-    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.01218163390963,50.098091859577636],[-123.0078944282,50.08021264021647],[-122.97502585109319,50.08800696615489],[-122.97716945394824,50.10244604378991],[-123.01218163390963,50.098091859577636]]]&width=1286&height=1243&layers=bc_major_watersheds"
+    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.32324981689455,48.62428582180531],[-123.3225631713867,48.61940649998342],[-123.3138084411621,48.62099516817615],[-123.32324981689455,48.62428582180531]]]&width=1286&height=1243&layers=bc_major_watersheds"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_stream_directions)
-    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.01218163390963,50.098091859577636],[-123.0078944282,50.08021264021647],[-122.97502585109319,50.08800696615489],[-122.97716945394824,50.10244604378991],[-123.01218163390963,50.098091859577636]]]&layers=freshwater_atlas_stream_directions"
+    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.32324981689455,48.62428582180531],[-123.3225631713867,48.61940649998342],[-123.3138084411621,48.62099516817615],[-123.32324981689455,48.62428582180531]]]&layers=freshwater_atlas_stream_directions"
     method: get
     expect:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
   - name: call aggregate endpoint (freshwater_atlas_stream_networks)
-    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.01218163390963,50.098091859577636],[-123.0078944282,50.08021264021647],[-122.97502585109319,50.08800696615489],[-122.97716945394824,50.10244604378991],[-123.01218163390963,50.098091859577636]]]&layers=freshwater_atlas_stream_networks"
+    url: "{{host}}/api/v1/aggregate/?polygon=[[[-123.32324981689455,48.62428582180531],[-123.3225631713867,48.61940649998342],[-123.3138084411621,48.62099516817615],[-123.32324981689455,48.62428582180531]]]&layers=freshwater_atlas_stream_networks"
     method: get
     expect:
       status: 200
