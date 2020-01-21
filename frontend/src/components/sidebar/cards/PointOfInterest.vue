@@ -11,9 +11,14 @@
         </v-toolbar-title>
       </v-banner>
     </v-toolbar>
-    <div class="pa-5">
-      <p>Select a point on the map.</p>
-    </div>
+    <v-row class="pa-5">
+      <v-col cols=12 lg=8>
+        <p>Select a point on the map.</p>
+      </v-col>
+      <v-col class="text-right">
+        <v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

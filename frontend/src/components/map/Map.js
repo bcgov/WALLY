@@ -140,9 +140,9 @@ export default {
         modes: modes,
         displayControlsDefault: false,
         controls: {
-          polygon: true,
-          point: true,
-          line_string: true,
+          // polygon: true,
+          // point: true,
+          // line_string: true,
           trash: true
         }
       }))
