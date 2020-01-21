@@ -21,10 +21,6 @@
               <StreamApportionment :record="record"></StreamApportionment>
             </v-expansion-panel-content>
           </v-expansion-panel>
-        </template>
-
-        <!-- General (does not depend on geometry type) analysis  -->
-        <template>
           <v-expansion-panel>
             <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">First Nations communities, treaty areas, lands</v-expansion-panel-header>
             <v-expansion-panel-content>
