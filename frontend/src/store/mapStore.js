@@ -2,6 +2,8 @@ import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
+import html2canvas from 'html2canvas'
+import { saveAs } from 'file-saver'
 
 export default {
   state: {
@@ -43,6 +45,20 @@ export default {
               reject(error)
             })
         })
+      }
+    },
+    downloadMapImage ({ state }) {
+      var filename = 'map--'.concat(new Date().toISOString()) + '.png'
+      html2canvas(state.map._container).then(canvas => {
+        canvas.toBlob(function (blob) {
+          saveAs(blob, filename)
+        })
+      })
+    },
+    removeElementsByClass ({ state }, payload) {
+      var elements = document.getElementsByClassName(payload)
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0])
       }
     }
   },
