@@ -11,11 +11,16 @@
         </v-toolbar-title>
       </v-banner>
     </v-toolbar>
-    <WellsCrossSection
+    <div
+    v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'user_defined_line'">
+      <WellsCrossSection
       :record="dataMartFeatureInfo"
       :coordinates="dataMartFeatureInfo.geometry.coordinates"
-      v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'user_defined_line'"/>
-    <v-row class="pa-5">
+      />
+      <v-btn @click="() => drawLine({ newLine: true })" color="primary" outlined class="mt-5">Draw new line</v-btn>
+    </div>
+
+    <v-row class="pa-5" v-else>
       <v-col cols=12 lg=8>
         <p>Draw a line to plot a cross section of subsurface data.</p>
         <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
@@ -41,10 +46,11 @@ export default {
     wellsLayerAutomaticallyEnabled: false
   }),
   methods: {
-    drawLine () {
+    drawLine (options = {}) {
+      const newLine = options.newLine || false
       if (!this.draw ||
         !this.draw.changeMode ||
-        (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line')) {
+        (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line')) {
         return
       }
       this.draw.changeMode('draw_line_string')
