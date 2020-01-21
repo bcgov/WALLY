@@ -2,8 +2,11 @@ import logging
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-
-from api.v1.aggregator.routes import API_DATASOURCES
+from shapely.geometry import LineString, CAP_STYLE, JOIN_STYLE
+from shapely.ops import transform
+from api.v1.aggregator.controller import feature_search
+from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
+from api.v1.wells.controller import create_line_buffer
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 logger = logging.getLogger("api")
@@ -21,23 +24,15 @@ def get_connected_streams(db: Session, outflowCode: str) -> list:
     return feature_results
 
 
-def get_features_within_buffer(db: Session, geometry, buffer: float, layer: str) -> list:
+def get_features_within_buffer(db: Session, line, radius: float, layer: str) -> list:
     """ List features within a buffer zone from a geometry
     """
-    layer_class = API_DATASOURCES[layer]
-    geom = layer_class.get_geom_column(db)
+    line = transform(transform_4326_3005, line)
+    buf = line.buffer(radius, cap_style=CAP_STYLE.flat, join_style=JOIN_STYLE.round)
+    buf_simplified = buf.simplify(50, preserve_topology=False)
 
-    feature_results = db.query(
-        layer_class,
-        func.ST_Distance(func.Geography(geom),
-                         func.ST_GeographyFromText(geometry.wkt)).label('distance')
-    ) \
-        .filter(
-        func.ST_DWithin(func.Geography(geom),
-                        func.ST_GeographyFromText(geometry.wkt), buffer)
-    ) \
-        .order_by('distance').all()
+    buf_4326 = transform(transform_3005_4326, buf_simplified)
 
-    features = [layer_class.get_as_properties(row[0]) for row in feature_results]
+    features = feature_search(db, [layer], buf_4326)[0].geojson
 
-    return features
+    return [feature.properties for feature in features.features]

@@ -1,5 +1,6 @@
 import math
 import json
+import pyproj
 from geojson import dumps, FeatureCollection, Feature, Point
 from shapely.geometry import mapping
 
@@ -7,6 +8,16 @@ from api.v1.aggregator.schema import ExternalAPIRequest, GWELLSAPIParams, json_t
 
 EARTH_RADIUS = 6378137
 MAX_LATITUDE = 85.0511287798
+
+transform_4326_3005 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:4326'),
+    pyproj.Proj(init='epsg:3005')
+).transform
+
+transform_3005_4326 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:3005'),
+    pyproj.Proj(init='epsg:4326')
+).transform
 
 
 # Converts to x,y point array from lat lng

@@ -4,19 +4,75 @@ Functions for aggregating data from web requests and database records
 import logging
 import asyncio
 import json
+import logging
+
 from typing import List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from aiohttp import ClientSession, ClientResponse
+from shapely.ops import transform
 from sqlalchemy.orm import Session
 from typing import List
-import logging
-from api.v1.catalogue.db_models import DisplayCatalogue
 from sqlalchemy.orm import joinedload
 from fastapi import HTTPException
-from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
+
+from api.v1.catalogue.db_models import DisplayCatalogue
+from api.v1.hydat.db_models import Station as StreamStation
+from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005
+from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 logger = logging.getLogger("aggregator")
+
+# returns a module or class that has `get_as_geojson` and `get_details` functions for looking up data from a layer
+# NOTE: this dict used to have a line for all layers. Removing (or commenting) will cause the aggregator function to
+# fall back fetching data on the fly from DataBC, as long as DATABC_LAYER_IDS or a wms_catalogue database entry
+# exists for that layer.
+API_DATASOURCES = {
+    "HYDAT": StreamStation,
+    "hydrometric_stream_flow": StreamStation,
+    "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks,
+}
+
+# For external APIs that may require different parameters (e.g. not a WMS/GeoServer with
+# relatively consistent request params), add a helper function that returns an ExternalAPIRequest
+# object.
+EXTERNAL_API_REQUESTS = {
+    "groundwater_wells": gwells_api_request
+}
+
+
+# DATABC_LAYER_IDS maps layer names to DataBC API Catalogue layers.
+# This information can also be kept on the database table metadata.wms_catalogue,
+# and the lookup_feature function will also check there. However, there are issues
+# with having a wms_catalogue record for layers we intend to use as vector layers.
+# DATABC_LAYER_IDS provides an alternative for the purpose of DataBC WFS lookups in
+# this file.
+DATABC_LAYER_IDS = {
+    "cadastral": "WHSE_CADASTRE.PMBC_PARCEL_FABRIC_POLY_SVW",
+    "aquifers": "WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW",
+    "water_rights_licences": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_LICENCES_SV",
+    "water_rights_applications": "WHSE_WATER_MANAGEMENT.WLS_WATER_RIGHTS_APPLICTNS_SV",
+    "fn_treaty_areas": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_AREA_SP",
+    "fn_community_locations": "WHSE_HUMAN_CULTURAL_ECONOMIC.FN_COMMUNITY_LOCATIONS_SP",
+    "fn_treaty_lands": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_LAND_SP",
+    "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS"
+}
+
+
+# DataBC names geometry fields either GEOMETRY or SHAPE
+# We will assume GEOMETRY, except for layers listed here.
+DATABC_GEOMETRY_FIELD = {
+    "water_rights_licences": "SHAPE",
+    "water_rights_applications": "SHAPE",
+    "automated_snow_weather_station_locations": "SHAPE",
+    "bc_wildfire_active_weather_stations": "SHAPE",
+    "critical_habitat_species_at_risk": "SHAPE",
+    "cadastral": "SHAPE",
+    "fn_treaty_areas": "GEOMETRY",
+    "fn_community_locations": "SHAPE",
+    "fn_treaty_lands": "GEOMETRY",
+}
 
 
 def build_api_query(req: ExternalAPIRequest) -> str:
@@ -188,3 +244,90 @@ def get_layer_feature(db: Session, layer_class, feature_id):
             status_code=404, detail="Feature information not found.")
 
     return layer_class.get_as_feature(q, geom)
+
+
+def feature_search(db: Session, layers, search_area):
+    """ finds features in a given search area """
+
+    albers_search_area = transform(transform_4326_3005, search_area)
+
+    # Compare requested layers against layers we keep track of.  The valid WMS layers and their
+    # respective WMS endpoints will come from our metadata.
+    catalogue = get_display_catalogue(db, layers)
+
+    wms_requests = []
+
+    # keep track of layers that are processed.
+    # this enables us to use internal data, marking it as done, but fall
+    # back on making a WMS request if needed.
+    processed_layers = {}
+
+    # Internal datasets:
+    # Gather valid internal sources that were included in the request's `layers` param
+    internal_data = []
+    # logger.info([c.display_data_name for c in catalogue])
+    for item in catalogue:
+        if item.display_data_name in API_DATASOURCES:
+            internal_data.append(item)
+            processed_layers[item.display_data_name] = True
+
+    # Create a ExternalAPIRequest object with all the values we need to make WMS requests for each of the
+    # WMS layers that we have metadata for.
+    for item in catalogue:
+        if item.display_data_name in processed_layers:
+            continue
+
+        if item.display_data_name in EXTERNAL_API_REQUESTS:
+
+            # use the helper function in EXTERNAL_API_REQUESTS (if available)
+            # to return an ExternalAPIRequest directly.
+            wms_requests.append(
+                EXTERNAL_API_REQUESTS[item.display_data_name](search_area)
+            )
+            logger.info('added external API request!')
+            continue
+
+        # if we don't have a direct API to access, fall back on WMS.
+        if item.display_data_name in DATABC_LAYER_IDS or item.wms_catalogue_id is not None:
+            query = WMSGetFeatureQuery(
+                typeNames=DATABC_LAYER_IDS.get(
+                    item.display_data_name, None) or item.wms_catalogue.wms_name,
+                cql_filter=f"""
+                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {albers_search_area.wkt})
+                """
+            )
+            req = ExternalAPIRequest(
+                url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
+                layer=item.display_data_name,
+                q=query
+            )
+            wms_requests.append(req)
+
+    # Go and fetch features for each of the WMS endpoints we need, and make a FeatureCollection
+    # out of all the aggregated features.
+    feature_list = fetch_geojson_features(wms_requests)
+
+    # Loop through all datasets that are available internally.
+    # We will make use of the data access function registered in API_DATASOURCES
+    # to avoid making api calls to our own web server.
+    for dataset in internal_data:
+        display_data_name = dataset.display_data_name
+
+        # use function registered for this source
+        # API_DATASOURCES is a map of layer names to a module or class;
+        # Use it here to look up a module/class that has a `get_as_geojson`
+        # function for looking up data in a layer. This function will return geojson
+        # features in the bounding box for each layer, which we will package up
+        # into a response.
+        objects = API_DATASOURCES[display_data_name].get_as_geojson(
+            db, search_area)
+
+        feat_layer = LayerResponse(
+            layer=display_data_name,
+            status=200,
+            geojson=objects
+        )
+
+        feature_list.append(feat_layer)
+
+    return feature_list

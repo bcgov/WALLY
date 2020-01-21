@@ -16,18 +16,9 @@ from shapely.ops import transform
 from api.layers.ground_water_wells import GroundWaterWells
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
 from api.v1.aggregator.controller import fetch_geojson_features
+from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.wells.schema import WellDrawdown, Screen
 logger = logging.getLogger("api")
-
-transform_4326_3005 = pyproj.Transformer.from_proj(
-    pyproj.Proj(init='epsg:4326'),
-    pyproj.Proj(init='epsg:3005')
-).transform
-
-transform_3005_4326 = pyproj.Transformer.from_proj(
-    pyproj.Proj(init='epsg:3005'),
-    pyproj.Proj(init='epsg:4326')
-).transform
 
 
 def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> list:
