@@ -74,7 +74,7 @@ export default {
           xanchor: 'right',
           y: -0.1,
           yanchor: 'bottom',
-          text: 'A,
+          text: 'A',
           showarrow: false,
           font: {
             size: 16,
