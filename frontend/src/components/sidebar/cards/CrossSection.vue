@@ -15,9 +15,15 @@
       :record="dataMartFeatureInfo"
       :coordinates="dataMartFeatureInfo.geometry.coordinates"
       v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'user_defined_line'"/>
-    <div class="pa-5" v-else>
-      <p>Draw a line to plot a cross section of subsurface data.</p>
-    </div>
+    <v-row class="pa-5">
+      <v-col cols=12 lg=8>
+        <p>Draw a line to plot a cross section of subsurface data.</p>
+        <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
+      </v-col>
+      <v-col class="text-right">
+        <v-btn @click="drawLine" color="primary" outlined>Draw line</v-btn>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
@@ -32,24 +38,42 @@ export default {
     WellsCrossSection
   },
   data: () => ({
-
+    wellsLayerAutomaticallyEnabled: false
   }),
   methods: {
     drawLine () {
-      if (!this.draw || (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line')) {
+      if (!this.draw ||
+        !this.draw.changeMode ||
+        (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line')) {
         return
       }
       this.draw.changeMode('draw_line_string')
+    },
+    enableWellsLayer () {
+      this.$store.commit('addMapLayer', 'groundwater_wells')
+    },
+    disableWellsLayer () {
+      this.$store.commit('removeMapLayer', 'groundwater_wells')
     }
   },
   computed: {
-    ...mapGetters(['draw', 'dataMartFeatureInfo'])
+    isWellsLayerEnabled () {
+      return this.isMapLayerActive('groundwater_wells')
+    },
+    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
   },
   mounted () {
     this.drawLine()
+    if (!this.isWellsLayerEnabled) {
+      this.wellsLayerAutomaticallyEnabled = true
+      this.enableWellsLayer()
+    }
   },
   beforeDestroy () {
     this.draw.changeMode('simple_select')
+    if (this.wellsLayerAutomaticallyEnabled) {
+      this.disableWellsLayer()
+    }
   }
 }
 </script>
