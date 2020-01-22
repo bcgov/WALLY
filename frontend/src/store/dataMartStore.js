@@ -1,5 +1,7 @@
 import EventBus from '../services/EventBus.js'
 import ApiService from '../services/ApiService.js'
+import router from '../router'
+import centroid from '@turf/centroid'
 
 export default {
   state: {
@@ -14,49 +16,7 @@ export default {
     featureError: ''
   },
   actions: {
-    /*
-    getDataMart ({ commit }, payload) {
-      // Get the datamart either via API or wms layer
-      const { displayDataName, url } = payload
-      ApiService.getRaw(url).then((response) => {
-        commit('addDataMart', {
-          displayDataName: displayDataName,
-          data: response.data
-        })
-        EventBus.$emit(`dataMart:updated`, payload)
-      }).catch(() => {
-        EventBus.$emit('error', true)
-      })
-    },
-    getDataMartFeatureInfo ({ commit }, payload) {
-      let pk = payload.pk
-      let displayDataName = payload.display_data_name
-      commit('setLoadingFeature', true)
-      commit('setFeatureError', '')
-      ApiService.getApi('/feature?layer=' + displayDataName + '&pk=' + pk)
-        .then((response) => {
-          commit('setLoadingFeature', false)
-          commit('setLayerSelectionActiveState', false)
-          let feature = response.data
-          commit('setDataMartFeatureInfo',
-            {
-              type: feature.type,
-              display_data_name: displayDataName,
-              geometry: feature.geometry,
-              properties: feature.properties
-            })
-        })
-        .catch((error) => {
-          const msg = error.response ? error.response.data.detail : true
-          commit('setLoadingFeature', false)
-          commit('setFeatureError', msg)
-          commit('setDataMartFeatureInfo', {})
-          console.log(msg) // TODO create error state item and mutation
-          EventBus.$emit('error', msg)
-        })
-    },
-    */
-    getDataMartFeatures ({ commit }, payload) {
+    getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
         return
@@ -121,20 +81,24 @@ export default {
             // Need to clean this up or re-purpose it
             commit('setDisplayTemplates', { displayTemplates })
             commit('setDataMartFeatureInfo', {})
+            router.push({
+              name: 'multiple-features'
+            })
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
               {
-                type: feature.type,
+                type: 'Feature',
                 display_data_name: displayDataName,
                 geometry: feature.geometry,
                 properties: feature.properties
               })
+
             commit('setDataMartFeatures', {})
           }
           commit('setLoadingFeature', false)
-          commit('setLayerSelectionActiveState', false)
         }).catch((error) => {
+          console.error(error)
           const msg = error.response ? error.response.data.detail : true
           EventBus.$emit('error', msg)
         }).finally(() => {
@@ -153,14 +117,44 @@ export default {
     },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
+
+      // check if feature info is being reset. If so, stop here and don't alter route.
+      if (!payload || payload === {} || !payload.geometry || !payload.display_data_name) {
+        return
+      }
+
+      if (payload.display_data_name === 'user_defined_line') {
+        return router.push({
+          name: 'cross-section',
+          query: {
+            layer: 'user_defined_line',
+            location: JSON.stringify(payload.geometry)
+          }
+        })
+      }
+
+      // todo: replace with route.meta option (e.g. "allowRedirect") to control automatically redirecting to feature cards.
+      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'place-poi' || router.currentRoute.name === 'multiple-features') {
+        router.push({
+          name: 'single-feature',
+          query: {
+            type: payload.geometry.type,
+            layer: payload.display_data_name,
+            location: payload.geometry ? centroid(payload).geometry.coordinates.join(',') : null
+          }
+        })
+      }
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }
       state.featureError = ''
+      router.push('/')
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
-    setDataMartFeatures: (state, payload) => { state.dataMartFeatures.push(payload) },
+    setDataMartFeatures: (state, payload) => {
+      state.dataMartFeatures.push(payload)
+    },
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     clearDisplayTemplates: (state) => { state.displayTemplates = [] },

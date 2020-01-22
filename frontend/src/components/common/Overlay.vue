@@ -1,36 +1,8 @@
 <template>
   <div id="app-overlay">
-    <div v-if="isFlexBoxComponent" class="overlay-flex">
-      <div class="overlay-small d-flex d-md-none">
-        <!-- smaller  -->
-        <InfoSheet :width="panelWidth">
-          <span class="overline">Small screen</span>
-          <component :is="currentComponent"></component>
-        </InfoSheet>
-      </div>
-      <div class="overlay-medium d-none d-md-flex d-lg-none">
-        <!-- medium  -->
-        <InfoSheet :width="panelWidth">
-          <span class="overline">Medium screen</span>
-          <component :is="currentComponent"></component>
-        </InfoSheet>
-      </div>
-      <div class="overlay-large d-none d-lg-flex">
-        <!-- large screens -->
-        <InfoSheet :width="panelWidth">
-          <span class="overline">Large screen</span>
-          <component :is="currentComponent"></component>
-        </InfoSheet>
-      </div>
-    </div>
-    <div v-else>
-      <component :is="infoSheetComponent"
-                 :width="panelWidth"
-                 :panelName="panelName"
-      >
-        <component :is="currentComponent"></component>
-      </component>
-    </div>
+    <InfoSheetAdjustable>
+      <router-view></router-view>
+    </InfoSheetAdjustable>
   </div>
 </template>
 <style lang="scss">
@@ -48,10 +20,7 @@ import MultipleSelectedFeatures from '../sidebar/MultipleSelectedFeatures'
 export default {
   name: 'Overlay',
   components: {
-    InfoSheet,
-    MapLayers,
-    SingleSelectedFeature,
-    MultipleSelectedFeatures
+    InfoSheetAdjustable
   },
   props: {
   },
@@ -78,13 +47,6 @@ export default {
       'loadingMultipleFeatures',
       'featureSelectionExists'
     ]),
-    // panelWidth () {
-    //   if (this.displayLayerSelection) {
-    //     return 500
-    //   } else {
-    //     return 800
-    //   }
-    // },
     panelName () {
       if (this.displayLayerSelection) {
         return 'Layers'

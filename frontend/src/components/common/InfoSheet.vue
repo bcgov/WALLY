@@ -3,7 +3,6 @@
     <v-expand-x-transition>
       <v-sheet
         elevation="5"
-        v-bind:width="this.width"
         class="float-left"
         v-show="infoPanelVisible"
       >

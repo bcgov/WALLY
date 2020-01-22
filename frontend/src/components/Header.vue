@@ -14,24 +14,24 @@
       alt="Go to the Government of British Columbia website" />
     <v-toolbar-title class="bcgov-title">Water Allocation
 
-    </v-toolbar-title>
-    <span aria-label="This application is currently in Alpha phase" class="beta-banner">
-        Alpha
-    </span>
-    <div class="flex-grow-1"></div>
-    <div class="my-2 mr-3">
-      <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
-          <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
-        </template>
-        <span>Please send us any feedback or ideas you may have on how we can improve the app.</span>
-      </v-tooltip>
-    </div>
-    <div class="wally-user mr-5">{{ name }}</div>
-    <div class="mt-6">
-      <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch>
-    </div>
-  </v-app-bar>
+      </v-toolbar-title>
+      <span aria-label="This application is currently in Alpha phase" class="beta-banner">
+          Alpha
+      </span>
+      <div class="flex-grow-1"></div>
+      <div class="my-2 mr-3">
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
+          </template>
+          <span>Please send us any feedback or ideas you may have on how we can improve the app.</span>
+        </v-tooltip>
+      </div>
+      <div class="wally-user mr-5">{{ name }}</div>
+      <div class="mt-6">
+        <!-- <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch> -->
+      </div>
+    </v-app-bar>
 </template>
 
 <script>

@@ -1,11 +1,12 @@
 <template>
-  <div class="home">
-    <Overlay></Overlay>
-    <Map></Map>
+  <div class="home d-flex">
+        <Overlay></Overlay>
+        <Map :style="{ width: '100vw' }"></Map>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import Map from '../components/map/Map.vue'
 import Overlay from '../components/common/Overlay'
 
@@ -14,6 +15,37 @@ export default {
   components: {
     Overlay,
     Map
+  },
+  data: () => ({
+    sidebarColumnDefaults: {
+      cols: 12,
+      md: 6,
+      lg: 4,
+      xl: 3
+    }
+  }),
+  computed: {
+    sidebarColumns () {
+      const sidebarColumns = this.$route.meta.sidebarColumns || {}
+      return Object.assign(this.sidebarColumnDefaults, sidebarColumns)
+    },
+    mapColumns () {
+      if (this.$route.meta.hide) {
+        return {
+          cols: 12,
+          md: 12,
+          lg: 12,
+          xl: 12
+        }
+      }
+      return {
+        cols: 12 - this.sidebarColumns.cols,
+        md: 12 - this.sidebarColumns.md,
+        lg: 12 - this.sidebarColumns.lg,
+        xl: 12 - this.sidebarColumns.xl
+      }
+    },
+    ...mapGetters(['map'])
   }
 }
 </script>
