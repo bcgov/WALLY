@@ -5,11 +5,12 @@ from logging import getLogger
 from typing import List
 import json
 import pyproj
-
+import requests
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from shapely.geometry import shape, box, MultiPolygon, Polygon
 from shapely.ops import transform
+from urllib.parse import urlencode
 
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation
@@ -137,7 +138,8 @@ def glacial_area(
         raise HTTPException(
             status_code=400, detail="Polygon has zero area")
 
-    glacial_features = feature_search(db, [glaciers_layer], polygon)[0].geojson.features
+    glacial_features = feature_search(db, [glaciers_layer], polygon)[
+        0].geojson.features
 
     glacial_area = 0
     polygon = transform(transform_4326_3005, polygon)
@@ -151,3 +153,50 @@ def glacial_area(
     return {
         "coverage": coverage
     }
+
+
+@router.get("/stats/precipitation")
+def get_precipitation(
+    polygon: str = Query(
+        "", title="Search polygon",
+        description="Polygon to search within"),
+    output_variable: str = Query(
+        # pr - precipitation
+        # tasmax - maximum temp
+        # tasmin - minimum temp
+        # prsn - precipitation as snow
+        "pr",
+        title="Output variable",
+        description="Output variable (e.g. pr - precipitation). See https://services.pacificclimate.org/pcex/app/"),
+    dataset: str = Query(
+        # dataset code: default to CanESM2 1981-2010 precipitation
+        "pr_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada",
+        title="Dataset code",
+        description="Code for dataset to query. See https://services.pacificclimate.org/pcex/app/")
+):
+    """ Returns an average precipitation from the pacificclimate.org climate explorer service """
+    if not polygon:
+        raise HTTPException(
+            status_code=400, detail="No search bounds. Supply a `polygon` (geojson geometry)")
+
+    if polygon:
+        poly_parsed = json.loads(polygon)
+        polygon = MultiPolygon([Polygon(x) for x in poly_parsed])
+
+    pcic_url = "https://services.pacificclimate.org/pcex/api/timeseries?"
+
+    params = {
+        "id_": dataset,
+        "variable": output_variable,
+        "area": polygon.wkt
+    }
+
+    req_url = pcic_url + urlencode(params)
+
+    try:
+        resp = requests.get(req_url)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+    return resp.json()
