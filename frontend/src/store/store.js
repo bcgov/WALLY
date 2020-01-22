@@ -1,10 +1,10 @@
 export default {
   state: {
-    infoPanelVisible: false
+    infoPanelVisible: true
   },
   mutations: {
-    toggleInfoPanelVisibility (state) {
-      state.infoPanelVisible = !state.infoPanelVisible
+    toggleInfoPanelVisibility (state, payload) {
+      state.infoPanelVisible = payload !== undefined ? payload : !state.infoPanelVisible
     }
   },
   getters: {

@@ -7,9 +7,10 @@ import { saveAs } from 'file-saver'
 
 export default {
   state: {
-    map: {},
+    map: null,
     draw: {},
     geocoder: {},
+    layerSelectTriggered: false,
     selectedMapLayerNames: [],
     activeMapLayers: [],
     mapLayers: [],
@@ -30,6 +31,60 @@ export default {
     }]
   },
   actions: {
+    async addPointOfInterest ({ state, dispatch }, feature) {
+      if (!state.map.loaded()) {
+        return
+      }
+
+      state.draw.add(feature)
+      dispatch('handleSelect', { features: [feature] })
+    },
+    handleAddPointSelection ({ commit, dispatch, state }, feature) {
+      feature.display_data_name = 'point_of_interest'
+      commit('setDataMartFeatureInfo', feature)
+    },
+    handleAddLineSelection ({ commit, dispatch, state }, feature) {
+      feature.display_data_name = 'user_defined_line'
+      commit('setDataMartFeatureInfo', feature)
+    },
+    handleSelect ({ commit, dispatch, state }, feature, options) {
+      // default options when calling this handler.
+      //
+      // showFeatureList: whether features selected by the user should be immediately shown in
+      // a panel.  This might be false if the user is selecting layers and may want to select
+      // several before being "bumped" to the selected features list.
+      //
+      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
+
+      const defaultOptions = {
+        showFeatureList: true
+      }
+
+      options = Object.assign({}, defaultOptions, options)
+
+      if (!feature || !feature.features || !feature.features.length) return
+
+      if (options.showFeatureList) {
+        commit('setLayerSelectionActiveState', false)
+      }
+
+      const newFeature = feature.features[0]
+      commit('replaceOldFeatures', newFeature.id)
+
+      if (newFeature.geometry.type === 'Point') {
+        return dispatch('handleAddPointSelection', newFeature)
+      }
+
+      if (newFeature.geometry.type === 'LineString') {
+        return dispatch('handleAddLineSelection', newFeature)
+      }
+
+      // for drawn rectangular regions, the polygon describing the rectangle is the first
+      // element in the array of drawn features.
+      // note: this is what might break if extending the selection tools to draw more objects.
+      dispatch('getMapObjects', newFeature)
+      commit('setSelectionBoundingBox', newFeature)
+    },
     getMapLayers ({ commit }) {
       // We only fetch maplayers if we don't have a copy cached
       if (this.state.mapLayers === undefined) {
@@ -47,6 +102,19 @@ export default {
         })
       }
     },
+    async getMapObjects ({ commit, dispatch, state, getters }, bounds) {
+      // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
+
+      const canvas = await state.map.getCanvas()
+      const size = { x: canvas.width, y: canvas.height }
+
+      commit('clearDataMartFeatures')
+      dispatch('getDataMartFeatures', {
+        bounds: bounds,
+        size: size,
+        layers: state.activeMapLayers
+      })
+    },
     downloadMapImage ({ state }) {
       var filename = 'map--'.concat(new Date().toISOString()) + '.png'
       html2canvas(state.map._container).then(canvas => {
@@ -63,6 +131,12 @@ export default {
     }
   },
   mutations: {
+    replaceOldFeatures (state, newFeature = null) {
+      // replace all previously drawn features with the new one.
+      // this has the effect of only allowing one selection box to be drawn at a time.
+      const old = state.draw.getAll().features.filter((f) => f.id !== newFeature)
+      state.draw.delete(old.map((feature) => feature.id))
+    },
     setMap (state, payload) {
       state.map = payload
     },
@@ -71,6 +145,9 @@ export default {
     },
     setGeocoder (state, payload) {
       state.geocoder = payload
+    },
+    setLayerSelectTriggered (state, payload) {
+      state.layerSelectTriggered = payload
     },
     setLayerSelectionActiveState (state, payload) {
       state.layerSelectionActive = payload
@@ -82,6 +159,15 @@ export default {
       let mapLayer = state.mapLayers.find((layer) => {
         return layer.display_data_name === payload
       })
+
+      // mapLayer may be undefined if it wasn't found in the list of
+      // map layers (for example, addMapLayer was called before the layer
+      // catalogue loaded or was called with an unexpected layer).  If so,
+      // stop here.
+      if (!mapLayer) {
+        return
+      }
+
       if (!state.activeMapLayers.includes(mapLayer)) {
         state.activeMapLayers.push(mapLayer)
         EventBus.$emit(`layer:added`, payload)
@@ -153,6 +239,7 @@ export default {
     baseMapLayers: state => state.baseMapLayers,
     map: state => state.map,
     draw: state => state.draw,
-    geocoder: state => state.geocoder
+    geocoder: state => state.geocoder,
+    layerSelectTriggered: state => state.layerSelectTriggered
   }
 }

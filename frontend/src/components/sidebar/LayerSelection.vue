@@ -1,66 +1,68 @@
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols=2>
-        <v-btn
-          fab
-          v-if="allowDisableLayerSelection"
-          class="elevation-1"
-          small
-          @click.prevent="$store.commit('setLayerSelectionActiveState', false)"
-        ><v-icon>arrow_back</v-icon></v-btn>
-      </v-col>
-      <v-col class="title" cols=6>
-        Categories
-      </v-col>
-      <v-col cols=4 class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
-    </v-row>
-    <v-treeview
-      selectable
-      selected-color="grey darken-2"
-      :value="activeMapLayers.map(layer => layer.display_data_name)"
-      @input="handleSelectLayer"
-      v-if="layers && categories"
-      hoverable
-      open-on-click
-      :items="categories"
+<div id="layerSelectionCard">
+    <v-card class="pa-5" >
+      <v-row>
+        <v-col cols=2>
+          <v-btn
+            fab
+            v-if="allowDisableLayerSelection"
+            class="elevation-1"
+            small
+            @click.prevent="$emit('closeDialog')"
+          ><v-icon>arrow_back</v-icon></v-btn>
+        </v-col>
+        <v-col class="title" cols=6>
+          Categories
+        </v-col>
+        <v-col cols=4 class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+      </v-row>
+      <v-treeview
+        selectable
+        selected-color="grey darken-2"
+        :value="activeMapLayers.map(layer => layer.display_data_name)"
+        @input="handleSelectLayer"
+        v-if="layers && categories"
+        hoverable
+        open-on-click
+        :items="categories"
       >
-      <template v-slot:label="{ item }">
+        <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <LayerDialog :name="item.name" :description="item.description" :url="item.source_url" />
+            <Dialog :name="item.name" :description="item.description" :url="item.source_url" />
           </div>
-      </template>
-    </v-treeview>
-    <v-treeview
-      selectable
-      selected-color="grey darken-2"
-      v-if="layers && categories"
-      hoverable
-      open-on-click
-      @input="handleSelectBaseLayer"
-      :items="baseMapLayers"
-      :value="selectedBaseLayers"
+        </template>
+      </v-treeview>
+      <v-treeview
+        selectable
+        selected-color="grey darken-2"
+        v-if="layers && categories"
+        hoverable
+        open-on-click
+        @input="handleSelectBaseLayer"
+        :items="baseMapLayers"
+        :value="selectedBaseLayers"
       >
-      <template v-slot:label="{ item }">
+        <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <LayerDialog :name="item.name" :description="item.description" :url="item.source_url" />
+            <Dialog :name="item.name" :description="item.description" :url="item.source_url" />
           </div>
-      </template>
-    </v-treeview>
-  </v-container>
+        </template>
+      </v-treeview>
+    </v-card>
+  </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import EventBus from '../../services/EventBus'
-import LayerDialog from './LayerDialog'
+import Dialog from '../common/Dialog'
 
 export default {
-  name: 'LayerSelection',
+  name: 'MapLayerSelection',
   components: {
-    LayerDialog
+    Dialog
   },
   computed: {
     ...mapGetters([
@@ -80,9 +82,6 @@ export default {
       'selectedBaseLayers',
       'baseMapLayers'
     ]),
-    allowDisableLayerSelection () {
-      return this.featureSelectionExists
-    },
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
     },
@@ -132,13 +131,20 @@ export default {
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.commit('setActiveBaseMapLayers', selectedBaseLayers)
+    },
+    allowDisableLayerSelection () {
+      return this.featureSelectionExists
     }
   }
 }
 </script>
 
 <style>
-.appendRight{
-  float:right;
-}
+  .appendRight{
+    float:right;
+  }
+  #layerSelectionCard {
+    z-index: 999!important;
+    max-height: 60vh;
+  }
 </style>

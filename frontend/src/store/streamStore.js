@@ -1,6 +1,6 @@
 import * as config from '../utils/streamHighlights.config'
 import buffer from '@turf/buffer'
-import _ from 'lodash'
+import unionBy from 'lodash.unionby'
 
 export default {
   state: {
@@ -107,17 +107,17 @@ export default {
   mutations: {
     setUpstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      collection['features'] = unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.upstreamData = collection
     },
     setDownstreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.downstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      collection['features'] = unionBy(payload, state.downstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.downstreamData = collection
     },
     setSelectedStreamData (state, payload) {
       let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = _.unionBy(payload, state.selectedStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      collection['features'] = unionBy(payload, state.selectedStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.selectedStreamData = collection
     },
     resetStreamData (state) {
