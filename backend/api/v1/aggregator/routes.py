@@ -24,7 +24,7 @@ from api.v1.aggregator.controller import (
     DATABC_LAYER_IDS)
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
 from api.templating.template_builder import build_templates
-from api.v1.aggregator.helpers import spherical_mercator_project
+from api.v1.aggregator.helpers import spherical_mercator_project, transform_4326_3005
 from api.v1.aggregator.excel import xlsxExport
 
 logger = getLogger("aggregator")
@@ -35,7 +35,7 @@ router = APIRouter()
 @router.get("/feature")
 def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     """
-    Returns a geojson Feature object by primary key using display_data_name as the generic lookup field. 
+    Returns a geojson Feature object by primary key using display_data_name as the generic lookup field.
     relies heavily on CustomLayerBase in api.db.base_class.py but can be overridden in any custom data layer class
     """
     try:
@@ -109,3 +109,45 @@ def aggregate_sources(
 
 def wms_url(wms_id):
     return "https://openmaps.gov.bc.ca/geo/pub/" + wms_id + "/ows?"
+
+
+@router.get("/stats/glacier_coverage")
+def glacial_area(
+        db: Session = Depends(get_db),
+        polygon: str = Query(
+            "", title="Search polygon",
+            description="Polygon to search within"
+        )):
+    """
+    Generate a list of features from a variety of sources and map layers (specified by `layers`)
+    inside the map bounds defined by `bbox`.
+    """
+
+    glaciers_layer = 'freshwater_atlas_glaciers'
+
+    if not polygon:
+        raise HTTPException(
+            status_code=400, detail="No search bounds. Supply a `polygon` (geojson geometry)")
+
+    if polygon:
+        poly_parsed = json.loads(polygon)
+        polygon = MultiPolygon([Polygon(x) for x in poly_parsed])
+
+    if polygon.area <= 0:
+        raise HTTPException(
+            status_code=400, detail="Polygon has zero area")
+
+    glacial_features = feature_search(db, [glaciers_layer], polygon)[0].geojson.features
+
+    glacial_area = 0
+    polygon = transform(transform_4326_3005, polygon)
+
+    for glacier in glacial_features:
+        glacier_clipped = shape(glacier.geometry).intersection(polygon)
+        glacial_area += glacier_clipped.area
+
+    coverage = glacial_area / polygon.area
+
+    return {
+        "coverage": coverage
+    }

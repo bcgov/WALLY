@@ -56,7 +56,8 @@ DATABC_LAYER_IDS = {
     "fn_treaty_areas": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_AREA_SP",
     "fn_community_locations": "WHSE_HUMAN_CULTURAL_ECONOMIC.FN_COMMUNITY_LOCATIONS_SP",
     "fn_treaty_lands": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_LAND_SP",
-    "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS"
+    "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS",
+    "freshwater_atlas_glaciers": "WHSE_BASEMAPPING.FWA_GLACIERS_POLY"
 }
 
 
