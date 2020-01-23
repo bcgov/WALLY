@@ -39,10 +39,10 @@ export default {
     // EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
     // EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     // EventBus.$on('dataMart:added', this.handleAddApiLayer)
-    // EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
+    EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('layers:loaded', this.loadLayers)
     // EventBus.$on('draw:reset', this.replaceOldFeatures)
-    EventBus.$on('shapes:add', this.addShape)
+    // EventBus.$on('shapes:add', this.addShape)
     EventBus.$on('shapes:reset', this.removeShapes)
     // EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     // EventBus.$on('highlight:clear', this.clearHighlightLayer)
@@ -54,11 +54,11 @@ export default {
     // EventBus.$off('layer:removed', this.handleRemoveLayer)
     // EventBus.$off('baseLayer:added', this.handleAddBaseLayer)
     // EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
-    EventBus.$off('dataMart:added', this.handleAddApiLayer)
+    // EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('layers:loaded', this.loadLayers)
     // EventBus.$off('draw:reset', this.replaceOldFeatures)
-    EventBus.$off('shapes:add', this.addShape)
+    // EventBus.$off('shapes:add', this.addShape)
     EventBus.$off('shapes:reset', this.removeShapes)
     // EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
     // EventBus.$off('highlight:clear', this.clearHighlightLayer)
@@ -204,13 +204,13 @@ export default {
       // Show layer selection sidebar
       this.$store.commit('toggleInfoPanelVisibility')
     },
-    addShape (shape) {
-      // adds a mapbox-gl-draw shape to the map
-      this.map.getSource('customShapeData').setData(shape)
-    },
-    removeShapes () {
-      this.map.getSource('customShapeData').setData(polygon)
-    },
+    // addShape (shape) {
+    //   // adds a mapbox-gl-draw shape to the map
+    //   this.map.getSource('customShapeData').setData(shape)
+    // },
+    // removeShapes () {
+    //   this.map.getSource('customShapeData').setData(polygon)
+    // },
     clearSelections () {
       this.replaceOldFeatures()
       this.$store.commit('clearDataMartFeatures')

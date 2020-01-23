@@ -186,10 +186,12 @@ export default {
       shape.id = 'user_search_radius'
 
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      // EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
 
       // add the new one
-      EventBus.$emit('shapes:add', shape)
+      // EventBus.$emit('shapes:add', shape)
+      this.$store.commit('map/addShape', shape)
     },
     populateBoxPlotData (wells) {
       let yieldY = []
@@ -232,6 +234,7 @@ export default {
     this.fetchWells()
   },
   beforeDestroy () {
-    EventBus.$emit('shapes:reset')
+    // EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
   }
 }

@@ -351,10 +351,12 @@ export default {
       polygon.id = 'user_search_radius'
 
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      // EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
 
       // add the new one
-      EventBus.$emit('shapes:add', polygon)
+      // EventBus.$emit('shapes:add', polygon)
+      this.$store.commit('map/addShape', polygon)
     }
   },
   watch: {
@@ -373,7 +375,8 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
+    // EventBus.$emit('shapes:reset')
   }
 }
 </script>

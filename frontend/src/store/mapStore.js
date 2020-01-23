@@ -2,7 +2,20 @@ import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
-
+const emptyPoint = {
+  'type': 'Feature',
+  'geometry': {
+    'type': 'Point',
+    'coordinates': [[]]
+  }
+}
+const emptyPolygon = {
+  'type': 'Feature',
+  'geometry': {
+    'type': 'Polygon',
+    'coordinates': [[]]
+  }
+}
 export default {
   namespaced: true,
   state: {
@@ -180,22 +193,9 @@ export default {
     },
 
     clearHighlightLayer ({ commit, state }) {
-      const point = {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [[]]
-        }
-      }
-      const polygon = {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'Polygon',
-          'coordinates': [[]]
-        }
-      }
-      state.map.getSource('highlightPointData').setData(point)
-      state.map.getSource('highlightLayerData').setData(polygon)
+
+      state.map.getSource('highlightPointData').setData(emptyPoint)
+      state.map.getSource('highlightLayerData').setData(emptyPolygon)
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
     },
@@ -221,6 +221,13 @@ export default {
     },
     deactivateBaseLayer (state, layerId) {
       state.map.setLayoutProperty(layerId, 'visibility', 'none')
+    },
+    addShape (state, shape) {
+      // adds a mapbox-gl-draw shape to the map
+      state.map.getSource('customShapeData').setData(shape)
+    },
+    removeShapes (state) {
+      state.map.getSource('customShapeData').setData(emptyPolygon)
     },
     replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.
