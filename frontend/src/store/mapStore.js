@@ -161,7 +161,7 @@ export default {
     },
     clearMapLayers () {},
     // getFeatures() <--datamartStore
-    getMapLayers ({ commit }) {
+    getMapLayers ({ commit, dispatch }) {
       // We only fetch maplayers if we don't have a copy cached
       if (this.state.mapLayers === undefined) {
         return new Promise((resolve, reject) => {
@@ -170,7 +170,8 @@ export default {
             .then((response) => {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
-              EventBus.$emit(`layers:loaded`)
+              // EventBus.$emit(`layers:loaded`)
+              dispatch('loadLayers')
             })
             .catch((error) => {
               reject(error)
@@ -193,7 +194,6 @@ export default {
     },
 
     clearHighlightLayer ({ commit, state }) {
-
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
       commit('resetStreamData', {}, { root: true })
@@ -206,6 +206,22 @@ export default {
       // payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
+    },
+    loadLayers ({ state, commit }) {
+      const layers = state.mapLayers
+
+      // load each layer, but default to no visibility.
+      // the user can toggle layers on and off with the layer controls.
+      for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+
+        // All layers are now vector based sourced from mapbox
+        // so we don't need to check for layer type anymore
+        const vector = layer['display_data_name']
+        // this.map.on('click', vector, this.setSingleFeature)
+        state.map.on('mouseenter', vector, commit('setCursorPointer'))
+        state.map.on('mouseleave', vector, commit('resetCursor'))
+      }
     }
 
   },
@@ -314,6 +330,12 @@ export default {
     },
     updateHighlightFeatureCollectionData (state, payload) {
       state.highlightFeatureCollectionData = payload
+    },
+    setCursorPointer (state) {
+      state.map.getCanvas().style.cursor = 'pointer'
+    },
+    resetCursor (state) {
+      state.map.getCanvas().style.cursor = ''
     }
   },
   getters: {

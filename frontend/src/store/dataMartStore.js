@@ -114,7 +114,7 @@ export default {
       const layer = state.activeDataMarts.find((x) => {
         return x.display_data_name === payload.displayDataName
       })
-      commit('addGeoJSONLayer', layer, { root: true })
+      commit('map/addGeoJSONLayer', layer, { root: true })
       // this.addGeoJSONLayer(layer)
     }
   },

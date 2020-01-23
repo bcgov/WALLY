@@ -40,10 +40,10 @@ export default {
     // EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     // EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
-    EventBus.$on('layers:loaded', this.loadLayers)
+    // EventBus.$on('layers:loaded', this.loadLayers)
     // EventBus.$on('draw:reset', this.replaceOldFeatures)
     // EventBus.$on('shapes:add', this.addShape)
-    EventBus.$on('shapes:reset', this.removeShapes)
+    // EventBus.$on('shapes:reset', this.removeShapes)
     // EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     // EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
@@ -56,10 +56,10 @@ export default {
     // EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
     // EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
-    EventBus.$off('layers:loaded', this.loadLayers)
+    // EventBus.$off('layers:loaded', this.loadLayers)
     // EventBus.$off('draw:reset', this.replaceOldFeatures)
     // EventBus.$off('shapes:add', this.addShape)
-    EventBus.$off('shapes:reset', this.removeShapes)
+    // EventBus.$off('shapes:reset', this.removeShapes)
     // EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
     // EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
@@ -412,33 +412,33 @@ export default {
     handleRemoveApiLayer (displayDataName) {
       this.removeLayer(displayDataName)
     },
-    addGeoJSONLayer (layer) {
-      if (!layer || !layer.data) {
-        console.error('invalid format for data source/data mart')
-        return
-      }
-
-      // layer.data should have a "features" or "geojson" property, which
-      // must be a list of geojson Features.  For example, layer.data could be
-      // a FeatureCollection format object. The 'features' list will be added to the map.
-      let features
-      if (layer.data.features && layer.data.features.length) {
-        features = layer.data.features
-      } else if (layer.data.geojson && layer.data.geojson.length) {
-        features = layer.data.geojson
-      }
-      if (!features) {
-        console.error('could not find a features list or object to add to map')
-        return
-      }
-
-      // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
-      //   onEachFeature: function (feature, layer) {
-      //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
-      //   }
-      // })
-      this.activeLayers[layer.display_data_name].addTo(this.map)
-    },
+    // addGeoJSONLayer (layer) {
+    //   if (!layer || !layer.data) {
+    //     console.error('invalid format for data source/data mart')
+    //     return
+    //   }
+    //
+    //   // layer.data should have a "features" or "geojson" property, which
+    //   // must be a list of geojson Features.  For example, layer.data could be
+    //   // a FeatureCollection format object. The 'features' list will be added to the map.
+    //   let features
+    //   if (layer.data.features && layer.data.features.length) {
+    //     features = layer.data.features
+    //   } else if (layer.data.geojson && layer.data.geojson.length) {
+    //     features = layer.data.geojson
+    //   }
+    //   if (!features) {
+    //     console.error('could not find a features list or object to add to map')
+    //     return
+    //   }
+    //
+    //   // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
+    //   //   onEachFeature: function (feature, layer) {
+    //   //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
+    //   //   }
+    //   // })
+    //   this.activeLayers[layer.display_data_name].addTo(this.map)
+    // },
     addWMSLayer (layer) {
       const layerID = layer.display_data_name || layer.wms_name || layer.display_name
       if (!layerID) {
