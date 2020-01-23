@@ -235,13 +235,8 @@ def aggregate_sources(
     if format == 'xlsx':
         return xlsxExport(feature_list)
 
-    hydrated_templates = None
-    if feature_list:
-        hydrated_templates = build_templates(db, feature_list)
-
     response = {
-        'display_data': feature_list,
-        'display_templates': hydrated_templates
+        'display_data': feature_list
     }
 
     return response

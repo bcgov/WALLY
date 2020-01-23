@@ -22,7 +22,6 @@
     "@turf/circle": "^6.0.1",
     "@turf/union": "^6.0.3",
     "axios": "^0.19.0",
-    "chart.js": "^2.8.0",
     "core-js": "^2.6.5",
     "esri-leaflet": "^2.2.4",
     "file-saver": "^2.0.2",
