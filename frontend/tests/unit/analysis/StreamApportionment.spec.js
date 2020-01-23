@@ -18,19 +18,19 @@ describe('Stream apportionment tests', () => {
   let wrapper
   let store
   let getters
-  let mutations
+  let actions
 
   beforeEach(() => {
     getters = {
       isMapLayerActive: state => layerId => false
     }
-    mutations = {
+    actions = {
       addMapLayer: jest.fn()
     }
     let map = {
       namespaced: true,
       getters,
-      mutations
+      actions
     }
     let methods = {
       fetchStreams: jest.fn()

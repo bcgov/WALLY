@@ -37,53 +37,16 @@ export default {
       }
 
       state.draw.add(feature)
-      dispatch('handleSelect', { features: [feature] })
+      dispatch('addActiveSelection', { features: [feature] })
     },
-    updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
-      // accepts an array of layer names and sets the active map layers accordingly
-      state.selectedMapLayerNames = selectedLayers
-
-      // list of prev layers.  the payload is the new list of layers about to be active.
-      const prev = state.activeMapLayers.map(l => l.display_data_name)
-
-      // get list of layers that were deselected (they were in `prev`, but are not in payload),
-      // and sent an event to remove them.
-      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
-
-      // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
-      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`layer:added`, l))
-
-      // reset the list of active layers
-      commit('setActiveMapLayers', selectedLayers)
-
-      // redraw any current features and update selection.
-      dispatch('handleSelect', state.draw.getAll(), { showFeatureList: false })
-    },
-    disableLayer () {
-
-    },
-    expandMapLegend () {},
-    collapseMapLegend () {},
-    // addMapLayer () {},
-    removeMapLayer () {},
-    clearMapLayers () {},
-    // getFeatures() <--datamartStore
-    handleAddPointSelection ({ commit, dispatch, state }, feature) {
-      feature.display_data_name = 'point_of_interest'
-      commit('setDataMartFeatureInfo', feature, { root: true })
-    },
-    handleAddLineSelection ({ commit, dispatch, state }, feature) {
-      feature.display_data_name = 'user_defined_line'
-      commit('setDataMartFeatureInfo', feature, { root: true })
-    },
-    handleSelect ({ commit, dispatch, state }, feature, options) {
+    addActiveSelection ({ commit, dispatch, state }, feature, options) {
       // default options when calling this handler.
       //
       // showFeatureList: whether features selected by the user should be immediately shown in
       // a panel.  This might be false if the user is selecting layers and may want to select
       // several before being "bumped" to the selected features list.
       //
-      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
+      // example: this.addActiveSelection(feature, { showFeatureList: false })
 
       const defaultOptions = {
         showFeatureList: true
@@ -100,20 +63,88 @@ export default {
       const newFeature = feature.features[0]
       commit('replaceOldFeatures', newFeature.id)
 
+      // Active selection is a Point
       if (newFeature.geometry.type === 'Point') {
-        return dispatch('handleAddPointSelection', newFeature)
+        newFeature.display_data_name = 'point_of_interest'
+        commit('setDataMartFeatureInfo', newFeature, { root: true })
+        return
       }
 
+      // Active selection is a LineString
       if (newFeature.geometry.type === 'LineString') {
-        return dispatch('handleAddLineSelection', newFeature)
+        newFeature.display_data_name = 'user_defined_line'
+        commit('setDataMartFeatureInfo', newFeature, { root: true })
+        return
       }
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
       dispatch('getMapObjects', newFeature)
-      commit('setSelectionBoundingBox', newFeature)
+      commit('setSelectionBoundingBox', newFeature, { root: true })
     },
+    clearActiveSelection ({ commit }) {
+      commit('replaceOldFeatures', null)
+    },
+    getAllLayers () {
+
+    },
+    getLayerCategories () {
+
+    },
+
+    updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
+      // accepts an array of layer names and sets the active map layers accordingly
+      state.selectedMapLayerNames = selectedLayers
+
+      // list of prev layers.  the payload is the new list of layers about to be active.
+      const prev = state.activeMapLayers.map(l => l.display_data_name)
+
+      // get list of layers that were deselected (they were in `prev`, but are not in payload),
+      // and sent an event to remove them.
+      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
+
+      // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
+      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => commit('activateLayer', l))
+      // selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`layer:added`, l))
+
+      // reset the list of active layers
+      commit('setActiveMapLayers', selectedLayers)
+
+      // redraw any current features and update selection.
+      dispatch('addActiveSelection', state.draw.getAll(), { showFeatureList: false })
+    },
+    disableLayer () {
+
+    },
+    expandMapLegend () {},
+    collapseMapLegend () {},
+    addMapLayer ({ commit, dispatch, state }, displayDataName) {
+      let mapLayer = state.mapLayers.find((layer) => {
+        return layer.display_data_name === displayDataName
+      })
+
+      // mapLayer may be undefined if it wasn't found in the list of
+      // map layers (for example, addMapLayer was called before the layer
+      // catalogue loaded or was called with an unexpected layer).  If so,
+      // stop here.
+      if (!mapLayer) {
+        return
+      }
+
+      if (!state.activeMapLayers.includes(mapLayer)) {
+        state.activeMapLayers.push(mapLayer)
+        commit('activateLayer', displayDataName)
+      }
+    },
+    removeMapLayer ({state}, payload) {
+      state.activeMapLayers = state.activeMapLayers.filter((layer) => {
+        return layer.display_data_name !== payload
+      })
+      EventBus.$emit(`layer:removed`, payload)
+    },
+    clearMapLayers () {},
+    // getFeatures() <--datamartStore
     getMapLayers ({ commit }) {
       // We only fetch maplayers if we don't have a copy cached
       if (this.state.mapLayers === undefined) {
@@ -137,15 +168,19 @@ export default {
       const canvas = await state.map.getCanvas()
       const size = { x: canvas.width, y: canvas.height }
 
-      commit('clearDataMartFeatures')
+      commit('clearDataMartFeatures', {}, { root: true })
       dispatch('getDataMartFeatures', {
         bounds: bounds,
         size: size,
         layers: state.activeMapLayers
-      })
+      }, { root: true })
     }
+
   },
   mutations: {
+    activateLayer (state, displayDataName) {
+      state.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
+    },
     replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
@@ -170,30 +205,26 @@ export default {
     setLayerCategories (state, payload) {
       state.layerCategories = payload
     },
-    addMapLayer (state, payload) {
-      let mapLayer = state.mapLayers.find((layer) => {
-        return layer.display_data_name === payload
-      })
+    // addMapLayer (state, payload) {
+    //   let mapLayer = state.mapLayers.find((layer) => {
+    //     return layer.display_data_name === payload
+    //   })
+    //
+    //   // mapLayer may be undefined if it wasn't found in the list of
+    //   // map layers (for example, addMapLayer was called before the layer
+    //   // catalogue loaded or was called with an unexpected layer).  If so,
+    //   // stop here.
+    //   if (!mapLayer) {
+    //     return
+    //   }
+    //
+    //   if (!state.activeMapLayers.includes(mapLayer)) {
+    //     state.activeMapLayers.push(mapLayer)
+    //     // dispatch('activateLayer', payload)
+    //     EventBus.$emit(`layer:added`, payload)
+    //   }
+    // },
 
-      // mapLayer may be undefined if it wasn't found in the list of
-      // map layers (for example, addMapLayer was called before the layer
-      // catalogue loaded or was called with an unexpected layer).  If so,
-      // stop here.
-      if (!mapLayer) {
-        return
-      }
-
-      if (!state.activeMapLayers.includes(mapLayer)) {
-        state.activeMapLayers.push(mapLayer)
-        EventBus.$emit(`layer:added`, payload)
-      }
-    },
-    removeMapLayer (state, payload) {
-      state.activeMapLayers = state.activeMapLayers.filter((layer) => {
-        return layer.display_data_name !== payload
-      })
-      EventBus.$emit(`layer:removed`, payload)
-    },
     setActiveMapLayers (state, payload) {
       state.activeMapLayers = state.mapLayers.filter((l) => {
         return payload.includes(l.display_data_name)

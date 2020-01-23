@@ -175,8 +175,8 @@ export default {
   },
   methods: {
     enableLicencesLayer () {
-      this.$store.commit('addMapLayer', 'water_rights_licences')
-      this.$store.commit('addMapLayer', 'water_rights_applications')
+      this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
+      this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
     },
     fetchLicences: debounce(function () {
       this.showCircle()

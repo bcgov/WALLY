@@ -2,15 +2,6 @@
 <div id="layerSelectionCard">
     <v-card class="pa-5" >
       <v-row>
-        <v-col cols=2>
-          <v-btn
-            fab
-            v-if="allowDisableLayerSelection"
-            class="elevation-1"
-            small
-            @click.prevent="$emit('closeDialog')"
-          ><v-icon>arrow_back</v-icon></v-btn>
-        </v-col>
         <v-col class="title" cols=6>
           Categories
         </v-col>
@@ -100,7 +91,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions('map', ['updateActiveMapLayers']),
     filterLayersByCategory (layers) {
       let catMap = {}
 
@@ -122,7 +112,7 @@ export default {
       return catMap
     },
     handleResetLayers () {
-      EventBus.$emit('draw:reset', null)
+      this.$store.dispatch('map/clearActiveSelection')
       EventBus.$emit('highlight:clear')
       this.$store.commit('map/setActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
@@ -130,7 +120,7 @@ export default {
       this.$store.commit('clearDisplayTemplates')
     },
     handleSelectLayer (selectedLayers) {
-      this.updateActiveMapLayers(selectedLayers)
+      this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.commit('map/setActiveBaseMapLayers', selectedBaseLayers)

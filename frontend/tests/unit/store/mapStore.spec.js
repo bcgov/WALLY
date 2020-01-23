@@ -18,8 +18,9 @@ describe('Map Store', () => {
       }],
       activeMapLayers: []
     }
+    store.commit = jest.fn()
     let payload = 'water_rights_licenses'
-    store.mutations.addMapLayer(store.state, payload)
+    store.actions.addMapLayer(store, payload)
     expect(store.state.activeMapLayers[0]).toEqual({
       display_data_name: 'water_rights_licenses'
     })
@@ -35,7 +36,7 @@ describe('Map Store', () => {
       ]
     }
     let payload = 'water_rights_licenses'
-    store.mutations.removeMapLayer(store.state, payload)
+    store.actions.removeMapLayer(store, payload)
     expect(store.state.activeMapLayers.length).toBe(0)
   })
 

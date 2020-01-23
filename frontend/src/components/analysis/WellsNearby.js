@@ -145,7 +145,7 @@ export default {
       })
     },
     enableWellsLayer () {
-      this.$store.commit('addMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
     },
     fetchWells () {
       this.loading = true

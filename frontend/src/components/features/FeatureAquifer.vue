@@ -84,10 +84,10 @@ export default {
   },
   methods: {
     enableWellsLayer () {
-      this.$store.commit('addMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
     }
     // enableWaterLicencesLayer () {
-    //   this.$store.commit('addMapLayer', 'water_rights_licences')
+    //   this.$store.dispatch('addMapLayer', 'water_rights_licences')
     // }
   }
 }

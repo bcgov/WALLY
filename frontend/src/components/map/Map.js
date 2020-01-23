@@ -41,10 +41,10 @@ export default {
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('layers:loaded', this.loadLayers)
-    EventBus.$on('draw:reset', this.replaceOldFeatures)
+    // EventBus.$on('draw:reset', this.replaceOldFeatures)
     EventBus.$on('shapes:add', this.addShape)
     EventBus.$on('shapes:reset', this.removeShapes)
-    EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
+    // EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
     EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
@@ -57,10 +57,10 @@ export default {
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('layers:loaded', this.loadLayers)
-    EventBus.$off('draw:reset', this.replaceOldFeatures)
+    // EventBus.$off('draw:reset', this.replaceOldFeatures)
     EventBus.$off('shapes:add', this.addShape)
     EventBus.$off('shapes:reset', this.removeShapes)
-    EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
+    // EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
     EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
   data () {
@@ -328,7 +328,7 @@ export default {
       }
 
       this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('addMapLayer', data.result.layer)
+      this.$store.dispatch('map/addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
     },
     /*
@@ -389,7 +389,8 @@ export default {
       this.$store.commit('resetStreamBufferData')
     },
     handleAddLayer (displayDataName) {
-      this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
+      // this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
+      this.activateLayer(displayDataName)
     },
     handleRemoveLayer (displayDataName) {
       this.clearHighlightLayer()
@@ -486,15 +487,9 @@ export default {
       // delete this.legendGraphics[layer.id]
       delete this.activeLayers[layer.id]
     },
-    replaceOldFeatures (newFeature = null) {
-      // replace all previously drawn features with the new one.
-      // this has the effect of only allowing one selection box to be drawn at a time.
-      const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
-      this.draw.delete(old.map((feature) => feature.id))
-    },
     listenForAreaSelect () {
-      this.map.on('draw.create', this.handleSelect)
-      this.map.on('draw.update', this.handleSelect)
+      this.map.on('draw.create', this.addActiveSelection)
+      this.map.on('draw.update', this.addActiveSelection)
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
@@ -531,8 +526,19 @@ export default {
     resetCursor () {
       this.map.getCanvas().style.cursor = ''
     },
-    ...mapMutations('map', ['setMap', 'setDraw', 'setGeocoder', 'replaceOldFeatures']),
-    ...mapActions('map', ['getMapLayers', 'getMapObjects', 'handleSelect', 'handleAddPointSelection'])
+    ...mapMutations('map', [
+      'setMap',
+      'setDraw',
+      'setGeocoder',
+      'replaceOldFeatures',
+      'activateLayer'
+    ]),
+    ...mapActions('map', [
+      'getMapLayers',
+      'getMapObjects',
+      'addActiveSelection',
+      'handleAddPointSelection'
+    ])
   },
   watch: {
     highlightFeatureData (value) {

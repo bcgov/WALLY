@@ -119,7 +119,7 @@ export default {
       return catMap
     },
     handleResetLayers () {
-      EventBus.$emit('draw:reset', null)
+      this.$store.commit('map/replaceOldFeatures', null)
       EventBus.$emit('highlight:clear')
       this.$store.commit('map/setActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')

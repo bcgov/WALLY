@@ -127,7 +127,7 @@ export default {
       // close the feature panel and reset the feature stored in dataMartStore.
       // if this is a drawn point, send the event to clear the user selections.
       if (this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
-        EventBus.$emit('draw:reset')
+        this.$store.commit('map/replaceOldFeatures', null)
       }
       this.$store.commit('resetDataMartFeatureInfo')
       EventBus.$emit('highlight:clear')

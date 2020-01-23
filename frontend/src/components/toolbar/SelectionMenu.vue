@@ -106,7 +106,7 @@ export default {
       console.log('a')
     },
     resetSelections () {
-      EventBus.$emit('draw:reset', null)
+      this.$store.commit('map/replaceOldFeatures', null)
       EventBus.$emit('highlight:clear')
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
