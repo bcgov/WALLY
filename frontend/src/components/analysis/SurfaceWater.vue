@@ -1,9 +1,19 @@
 <template>
   <v-container class="pa-3 mt-3">
-    <template v-if="assessmentWatershed">
-      <div class="title mb-3">Assessment watershed</div>
-      <div class="font-weight-bold mb-3">{{ assessmentWatershedName }}</div>
-      <div v-if="assessmentWatershed.properties['AREA_HA']">Area: {{ assessmentWatershed.properties['AREA_HA'].toFixed(1) }} Ha</div>
+    <template v-if="watersheds && watersheds.length">
+      <div class="title mb-3">Watersheds</div>
+      <v-row align="center">
+        <v-col cols=12 md=6>Select watershed:</v-col>
+        <v-col cols=12 md=6>
+          <v-select
+            v-model="selectedWatershed"
+            :items="watershedOptions"
+            :menu-props="{ maxHeight: '400' }"
+            label="Select"
+            hint="Available watersheds at this location"
+          ></v-select>
+        </v-col>
+      </v-row>
     </template>
   </v-container>
 </template>
@@ -16,21 +26,20 @@ import qs from 'querystring'
 export default {
   name: 'SurfaceWaterDetails',
   data: () => ({
+    selectedWatershed: null,
     assessmentWatershed: null,
     hydrometricWatershed: null,
+    watersheds: [],
     geojsonLayersAdded: []
   }),
   computed: {
-    assessmentWatershedName () {
-      if (!this.assessmentWatershed) {
-        return null
-      }
-      return this.assessmentWatershed.properties['GNIS_NAME_1'] || this.assessmentWatershed.properties['WATERSHED_FEATURE_ID']
+    watershedOptions () {
+      return this.watersheds.map((w, i) => w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || `Watershed option ${i + 1}`)
     },
     ...mapGetters(['dataMartFeatureInfo', 'map'])
   },
   methods: {
-    addSingleWatershedLayer (id = 'singleWatershed', data, color = '#088', opacity = 0.4) {
+    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.4) {
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -46,35 +55,16 @@ export default {
         }
       })
     },
-    fetchAssessmentWatershed () {
+    fetchWatersheds () {
       const params = {
         point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
       }
-      ApiService.query(`/api/v1/aggregate/stats/assessment_watershed?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/aggregate/stats/watersheds?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
-          if (data && data.features && data.features.length === 1) {
-            this.assessmentWatershed = data.features[0]
-            this.addSingleWatershedLayer('singleAssessmentWatershed', data.features[0])
-            this.geojsonLayersAdded.push('singleAssessmentWatershed')
-          }
-        })
-        .catch(e => {
-          console.error(e)
-        })
-    },
-    fetchHydrometricWatershed () {
-      const params = {
-        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
-      }
-      ApiService.query(`/api/v1/aggregate/stats/hydrometric_watershed?${qs.stringify(params)}`)
-        .then(r => {
-          const data = r.data
-          if (data && data.features && data.features.length === 1) {
-            this.hydrometricWatershed = data.features[0]
-            this.addSingleWatershedLayer('singleHydrometricWatershed', data.features[0], '#ff5983', 0.3)
-            this.geojsonLayersAdded.push('singleHydrometricWatershed')
-          }
+          this.watersheds = data.features
+          this.addSingleWatershedLayer('watershedsAtLocation', data)
+          this.geojsonLayersAdded = ['watershedsAtLocation']
         })
         .catch(e => {
           console.error(e)
@@ -84,18 +74,19 @@ export default {
       if (this.geojsonLayersAdded.length === 0) {
         return
       }
-
+      console.log(this.geojsonLayersAdded.length)
       for (let i = this.geojsonLayersAdded.length - 1; 1 >= 0; i--) {
+        console.log(i)
         const layer = this.geojsonLayersAdded[i]
-        this.map.removeLayer(layer)
-        this.map.removeSource(layer)
-        this.geojsonLayersAdded.splice(i, 1)
+        if (layer) {
+          this.map.removeLayer(layer)
+          this.map.removeSource(layer)
+          this.geojsonLayersAdded.splice(i, 1)
+        }
       }
     },
     createWatersheds () {
-      this.resetGeoJSONLayers()
-      this.fetchAssessmentWatershed()
-      this.fetchHydrometricWatershed()
+      this.fetchWatersheds()
     }
   },
   watch: {

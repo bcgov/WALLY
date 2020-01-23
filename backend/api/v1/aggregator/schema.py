@@ -65,7 +65,7 @@ class WMSGetFeatureQuery(BaseModel):
     srs: str = "EPSG:3005"
     version: str = "2.0"
     outputFormat: str = "json"
-    typeNames: str
+    typeName: Optional[str]
     cql_filter: Optional[str]
 
 
@@ -82,7 +82,8 @@ class ExternalAPIRequest(BaseModel):
     layer: str
     # optional formatter function that accepts a list and returns geojson
     formatter = json_to_geojson()
-    q: Union[WMSGetMapQuery, GWELLSAPIParams, WMSGetFeatureQuery, dict]
+    q: Union[WMSGetMapQuery,
+             GWELLSAPIParams, WMSGetFeatureQuery, dict]
     # fields to exclude from responses (to avoid filling excel sheets with internal IDs, etc.)
     excluded_fields = []
     # an id field to populate geojson feature IDs (if not specified, a uuid will be created)

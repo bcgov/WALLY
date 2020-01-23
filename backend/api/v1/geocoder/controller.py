@@ -94,7 +94,7 @@ def wfs_search(db, query, feature_type):
         ])
 
     query = WMSGetFeatureQuery(
-        typeNames=layer,
+        typeName=layer,
         count=5,
         cql_filter=cql_filter
     )

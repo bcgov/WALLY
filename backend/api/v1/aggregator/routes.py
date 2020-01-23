@@ -269,3 +269,45 @@ def get_assessment_watershed(
             properties=dict(ws.properties)
         ) for ws in watersheds.features]
     return FeatureCollection(watershed_features)
+
+
+@router.get('/stats/watersheds')
+def get_assessment_watershed(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")
+):
+    """ returns an assessment watershed at this point, if any
+    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds
+    """
+    assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
+    fwa_watersheds_layer_id = 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY'
+    hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
+
+    search_layers = ','.join([
+        assessment_watershed_layer_id,
+        fwa_watersheds_layer_id,
+        hydrometric_watershed_layer_id
+    ])
+
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
+
+    if point:
+        point_parsed = json.loads(point)
+        point = Point(point_parsed)
+
+    watersheds = databc_feature_search(search_layers, point)
+
+    if not len(watersheds.features):
+        return FeatureCollection([])
+
+    watershed_features = [
+        Feature(
+            geometry=transform(transform_3005_4326, shape(ws.geometry)),
+            properties=dict(ws.properties),
+            id=i
+        ) for i, ws in enumerate(watersheds.features)]
+    return FeatureCollection(watershed_features)

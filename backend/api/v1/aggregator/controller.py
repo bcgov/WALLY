@@ -292,7 +292,7 @@ def feature_search(db: Session, layers, search_area):
         # if we don't have a direct API to access, fall back on WMS.
         if item.display_data_name in DATABC_LAYER_IDS or item.wms_catalogue_id is not None:
             query = WMSGetFeatureQuery(
-                typeNames=DATABC_LAYER_IDS.get(
+                typeName=DATABC_LAYER_IDS.get(
                     item.display_data_name, None) or item.wms_catalogue.wms_name,
                 cql_filter=f"""
                     INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {albers_search_area.wkt})
@@ -344,7 +344,7 @@ def databc_feature_search(layer, search_area) -> FeatureCollection:
     search_area = transform(transform_4326_3005, search_area)
 
     query = WMSGetFeatureQuery(
-        typeNames=DATABC_LAYER_IDS.get(
+        typeName=DATABC_LAYER_IDS.get(
             layer, layer),
         cql_filter=f"""
             INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {search_area.wkt})
