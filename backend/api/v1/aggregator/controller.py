@@ -57,7 +57,8 @@ DATABC_LAYER_IDS = {
     "fn_community_locations": "WHSE_HUMAN_CULTURAL_ECONOMIC.FN_COMMUNITY_LOCATIONS_SP",
     "fn_treaty_lands": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_LAND_SP",
     "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS",
-    "freshwater_atlas_glaciers": "WHSE_BASEMAPPING.FWA_GLACIERS_POLY"
+    "freshwater_atlas_glaciers": "WHSE_BASEMAPPING.FWA_GLACIERS_POLY",
+    "runoff_isolines": "WHSE_WATER_MANAGEMENT.HYDZ_ANNUAL_RUNOFF_LINE"
 }
 
 
@@ -332,3 +333,31 @@ def feature_search(db: Session, layers, search_area):
         feature_list.append(feat_layer)
 
     return feature_list
+
+
+def databc_feature_search(layer, search_area) -> FeatureCollection:
+    """ looks up features from `layer` in `search_area`.
+        Layer should be in DATABC_LAYER_IDS.
+        Search area should be SRID 4326.
+    """
+
+    search_area = transform(transform_4326_3005, search_area)
+
+    query = WMSGetFeatureQuery(
+        typeNames=DATABC_LAYER_IDS.get(
+            layer, layer),
+        cql_filter=f"""
+            INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {search_area.wkt})
+        """
+    )
+    req = ExternalAPIRequest(
+        url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
+        layer=layer,
+        q=query
+    )
+    feature_list = fetch_geojson_features([req])
+
+    if not len(feature_list):
+        raise HTTPException(status_code=404, detail="Dataset not found")
+
+    return feature_list[0].geojson

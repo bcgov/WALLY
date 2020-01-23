@@ -6,9 +6,11 @@ from typing import List
 import json
 import pyproj
 import requests
+import geojson
+from geojson import FeatureCollection, Feature
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from shapely.geometry import shape, box, MultiPolygon, Polygon
+from shapely.geometry import shape, box, MultiPolygon, Polygon, Point
 from shapely.ops import transform
 from urllib.parse import urlencode
 
@@ -17,6 +19,7 @@ from api.v1.hydat.db_models import Station as StreamStation
 
 from api.v1.aggregator.controller import (
     fetch_geojson_features,
+    databc_feature_search,
     get_layer_feature,
     feature_search,
     EXTERNAL_API_REQUESTS,
@@ -25,7 +28,7 @@ from api.v1.aggregator.controller import (
     DATABC_LAYER_IDS)
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
 from api.templating.template_builder import build_templates
-from api.v1.aggregator.helpers import spherical_mercator_project, transform_4326_3005
+from api.v1.aggregator.helpers import spherical_mercator_project, transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.excel import xlsxExport
 
 logger = getLogger("aggregator")
@@ -200,3 +203,69 @@ def get_precipitation(
         raise HTTPException(status_code=e.response.status_code, detail=str(e))
 
     return resp.json()
+
+
+@router.get('/stats/hydrometric_watershed')
+def get_hydrometric_watershed(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")
+):
+    """ returns a hydrometric watershed at this point, if any
+    https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries
+    """
+    hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
+
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
+
+    if point:
+        point_parsed = json.loads(point)
+        point = Point(point_parsed)
+
+    watersheds = databc_feature_search(hydrometric_watershed_layer_id, point)
+
+    if not len(watersheds.features):
+        return FeatureCollection([])
+
+    watershed_features = [
+        Feature(
+            geometry=transform(transform_3005_4326, shape(ws.geometry)),
+            properties=dict(ws.properties)
+        ) for ws in watersheds.features]
+    return FeatureCollection(watershed_features)
+
+
+@router.get('/stats/assessment_watershed')
+def get_assessment_watershed(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")
+):
+    """ returns an assessment watershed at this point, if any
+    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds
+    """
+    assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
+
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
+
+    if point:
+        point_parsed = json.loads(point)
+        point = Point(point_parsed)
+
+    watersheds = databc_feature_search(assessment_watershed_layer_id, point)
+
+    if not len(watersheds.features):
+        return FeatureCollection([])
+
+    watershed_features = [
+        Feature(
+            geometry=transform(transform_3005_4326, shape(ws.geometry)),
+            properties=dict(ws.properties)
+        ) for ws in watersheds.features]
+    return FeatureCollection(watershed_features)
