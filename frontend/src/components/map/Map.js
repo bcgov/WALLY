@@ -38,8 +38,8 @@ export default {
     // EventBus.$on('layer:removed', this.handleRemoveLayer)
     // EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
     // EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
-    EventBus.$on('dataMart:added', this.handleAddApiLayer)
-    EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
+    // EventBus.$on('dataMart:added', this.handleAddApiLayer)
+    // EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('layers:loaded', this.loadLayers)
     // EventBus.$on('draw:reset', this.replaceOldFeatures)
     EventBus.$on('shapes:add', this.addShape)
@@ -98,9 +98,9 @@ export default {
       'map',
       'draw',
       'geocoder'
-
     ]),
     ...mapGetters([
+      'activeDataMarts',
       'dataMartFeatureInfo',
       'getSelectedStreamData',
       'getUpstreamData',
@@ -403,12 +403,12 @@ export default {
     // handleRemoveBaseLayer (layerId) {
     //   this.map.setLayoutProperty(layerId, 'visibility', 'none')
     // },
-    handleAddApiLayer (datamart) {
-      const layer = this.activeDataMarts.find((x) => {
-        return x.display_data_name === datamart.displayDataName
-      })
-      this.addGeoJSONLayer(layer)
-    },
+    // handleAddApiLayer (datamart) {
+    //   const layer = this.activeDataMarts.find((x) => {
+    //     return x.display_data_name === datamart.displayDataName
+    //   })
+    //   this.addGeoJSONLayer(layer)
+    // },
     handleRemoveApiLayer (displayDataName) {
       this.removeLayer(displayDataName)
     },

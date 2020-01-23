@@ -178,6 +178,7 @@ export default {
         layers: state.activeMapLayers
       }, { root: true })
     },
+
     clearHighlightLayer ({ commit, state }) {
       const point = {
         'type': 'Feature',
@@ -264,7 +265,33 @@ export default {
     //     EventBus.$emit(`layer:added`, payload)
     //   }
     // },
+    addGeoJSONLayer ({ state, commit, dispatch }, layer) {
+      if (!layer || !layer.data) {
+        console.error('invalid format for data source/data mart')
+        return
+      }
 
+      // layer.data should have a "features" or "geojson" property, which
+      // must be a list of geojson Features.  For example, layer.data could be
+      // a FeatureCollection format object. The 'features' list will be added to the map.
+      let features
+      if (layer.data.features && layer.data.features.length) {
+        features = layer.data.features
+      } else if (layer.data.geojson && layer.data.geojson.length) {
+        features = layer.data.geojson
+      }
+      if (!features) {
+        console.error('could not find a features list or object to add to map')
+        return
+      }
+
+      // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
+      //   onEachFeature: function (feature, layer) {
+      //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
+      //   }
+      // })
+      state.activeLayers[layer.display_data_name].addTo(state.map)
+    },
     setActiveMapLayers (state, payload) {
       // TODO: See if this is actually used anywhere else
       // Could have been deprecated by updateActiveMapLayers

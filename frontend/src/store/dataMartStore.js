@@ -16,6 +16,11 @@ export default {
     featureError: ''
   },
   actions: {
+    addDataMart ({ state, dispatch }, payload) {
+      state.activeDataMarts.push(payload)
+      // EventBus.$emit(`dataMart:added`, payload)
+      dispatch('addApiLayer', payload)
+    },
     getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
@@ -104,6 +109,13 @@ export default {
         }).finally(() => {
           commit('setLoadingMultipleFeatures', false)
         })
+    },
+    addApiLayer ({ state, commit }, payload) {
+      const layer = state.activeDataMarts.find((x) => {
+        return x.display_data_name === payload.displayDataName
+      })
+      commit('addGeoJSONLayer', layer, { root: true })
+      // this.addGeoJSONLayer(layer)
     }
   },
   mutations: {
@@ -159,10 +171,6 @@ export default {
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     clearDisplayTemplates: (state) => { state.displayTemplates = [] },
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
-    addDataMart (state, payload) {
-      state.activeDataMarts.push(payload)
-      EventBus.$emit(`dataMart:added`, payload)
-    },
     removeDataMart (state, payload) {
       state.activeDataMarts = state.activeDataMarts.filter(function (source) {
         return source.displayDataName !== payload
