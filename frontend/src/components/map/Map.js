@@ -36,8 +36,8 @@ export default {
     this.initMap()
     // EventBus.$on('layer:added', this.handleAddLayer)
     // EventBus.$on('layer:removed', this.handleRemoveLayer)
-    EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
-    EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
+    // EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
+    // EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$on('layers:loaded', this.loadLayers)
@@ -52,8 +52,8 @@ export default {
   beforeDestroy () {
     // EventBus.$off('layer:added', this.handleAddLayer)
     // EventBus.$off('layer:removed', this.handleRemoveLayer)
-    EventBus.$off('baseLayer:added', this.handleAddBaseLayer)
-    EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
+    // EventBus.$off('baseLayer:added', this.handleAddBaseLayer)
+    // EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     EventBus.$off('layers:loaded', this.loadLayers)
@@ -388,20 +388,20 @@ export default {
     //   this.$store.commit('resetStreamData')
     //   this.$store.commit('resetStreamBufferData')
     // },
-    handleAddLayer (displayDataName) {
-      // this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
-      this.activateLayer(displayDataName)
-    },
-    handleRemoveLayer (displayDataName) {
-      this.clearHighlightLayer()
-      this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
-    },
-    handleAddBaseLayer (layerId) {
-      this.map.setLayoutProperty(layerId, 'visibility', 'visible')
-    },
-    handleRemoveBaseLayer (layerId) {
-      this.map.setLayoutProperty(layerId, 'visibility', 'none')
-    },
+    // handleAddLayer (displayDataName) {
+    //   // this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
+    //   this.activateLayer(displayDataName)
+    // },
+    // handleRemoveLayer (displayDataName) {
+    //   this.clearHighlightLayer()
+    //   this.map.setLayoutProperty(displayDataName, 'visibility', 'none')
+    // },
+    // handleAddBaseLayer (layerId) {
+    //   this.map.setLayoutProperty(layerId, 'visibility', 'visible')
+    // },
+    // handleRemoveBaseLayer (layerId) {
+    //   this.map.setLayoutProperty(layerId, 'visibility', 'none')
+    // },
     handleAddApiLayer (datamart) {
       const layer = this.activeDataMarts.find((x) => {
         return x.display_data_name === datamart.displayDataName

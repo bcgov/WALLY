@@ -124,7 +124,7 @@ export default {
       this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
-      this.$store.commit('map/setActiveBaseMapLayers', selectedBaseLayers)
+      this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)
     },
     allowDisableLayerSelection () {
       return this.featureSelectionExists

@@ -197,6 +197,14 @@ export default {
       state.map.getSource('highlightLayerData').setData(polygon)
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
+    },
+    setActiveBaseMapLayers ({ state, commit }, payload) {
+      let prev = state.selectedBaseLayers
+      // prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:removed`, l))
+      prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
+      // payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))
+      payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
+      state.selectedBaseLayers = payload
     }
 
   },
@@ -206,6 +214,12 @@ export default {
     },
     deactivateLayer (state, displayDataName) {
       state.map.setLayoutProperty(displayDataName, 'visibility', 'none')
+    },
+    activateBaseLayer (state, layerId) {
+      state.map.setLayoutProperty(layerId, 'visibility', 'visible')
+    },
+    deactivateBaseLayer (state, layerId) {
+      state.map.setLayoutProperty(layerId, 'visibility', 'none')
     },
     replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.
@@ -257,12 +271,6 @@ export default {
       state.activeMapLayers = state.mapLayers.filter((l) => {
         return payload.includes(l.display_data_name)
       })
-    },
-    setActiveBaseMapLayers (state, payload) {
-      let prev = state.selectedBaseLayers
-      prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:removed`, l))
-      payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))
-      state.selectedBaseLayers = payload
     },
     setMapLayers (state, payload) {
       state.mapLayers = payload
