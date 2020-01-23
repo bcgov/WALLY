@@ -211,17 +211,17 @@ export default {
     // removeShapes () {
     //   this.map.getSource('customShapeData').setData(polygon)
     // },
-    clearSelections () {
-      this.replaceOldFeatures()
-      this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('clearDisplayTemplates')
-
-      if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
-        this.$store.commit('resetDataMartFeatureInfo')
-        this.$store.dispatch('map/clearHighlightLayer')
-        // EventBus.$emit('highlight:clear')
-      }
-    },
+    // clearSelections () {
+    //   this.replaceOldFeatures()
+    //   this.$store.commit('clearDataMartFeatures')
+    //   this.$store.commit('clearDisplayTemplates')
+    //
+    //   if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
+    //     this.$store.commit('resetDataMartFeatureInfo')
+    //     this.$store.dispatch('map/clearHighlightLayer')
+    //     // EventBus.$emit('highlight:clear')
+    //   }
+    // },
     handleModeChange (e) {
       if (e.mode === 'draw_polygon' || e.mode === 'draw_point') {
         this.isDrawingToolActive = true
@@ -521,21 +521,24 @@ export default {
       lat = lat > 0 ? lat : -lat
       return [lon, lat]
     },
-    setCursorPointer () {
-      this.map.getCanvas().style.cursor = 'pointer'
-    },
-    resetCursor () {
-      this.map.getCanvas().style.cursor = ''
-    },
+    // setCursorPointer () {
+    //   this.map.getCanvas().style.cursor = 'pointer'
+    // },
+    // resetCursor () {
+    //   this.map.getCanvas().style.cursor = ''
+    // },
     ...mapMutations('map', [
       'setMap',
       'setDraw',
       'setGeocoder',
       'replaceOldFeatures',
-      'activateLayer'
+      'activateLayer',
+      'setCursorPointer',
+      'resetCursor'
     ]),
     ...mapActions('map', [
       'clearHighlightLayer',
+      'clearSelections',
       'getMapLayers',
       'getMapObjects',
       'addActiveSelection',

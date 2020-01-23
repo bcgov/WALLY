@@ -192,7 +192,17 @@ export default {
         layers: state.activeMapLayers
       }, { root: true })
     },
+    clearSelections ({ state, commit, dispatch }) {
+      commit('replaceOldFeatures')
+      commit('clearDataMartFeatures', {}, { root: true })
+      commit('clearDisplayTemplates', {}, { root: true })
 
+      // if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
+      commit('resetDataMartFeatureInfo', {}, { root: true })
+      dispatch('clearHighlightLayer')
+      // EventBus.$emit('highlight:clear')
+      // }
+    },
     clearHighlightLayer ({ commit, state }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
