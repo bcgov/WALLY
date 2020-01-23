@@ -113,7 +113,8 @@ export default {
     },
     handleResetLayers () {
       this.$store.dispatch('map/clearActiveSelection')
-      EventBus.$emit('highlight:clear')
+      // EventBus.$emit('highlight:clear')
+      this.$store.dispatch('map/clearHighlightLayer')
       // this.$store.commit('map/setActiveMapLayers', [])
       this.$store.dispatch('map/updateActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')

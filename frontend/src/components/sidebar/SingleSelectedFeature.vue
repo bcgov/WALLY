@@ -130,7 +130,8 @@ export default {
         this.$store.commit('map/replaceOldFeatures', null)
       }
       this.$store.commit('resetDataMartFeatureInfo')
-      EventBus.$emit('highlight:clear')
+      this.$store.dispatch('clearHighlightLayer')
+      // EventBus.$emit('highlight:clear')
     },
     humanReadable: (val) => humanReadable(val),
     getHighlightProperties (info) {

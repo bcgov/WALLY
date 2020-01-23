@@ -45,7 +45,7 @@ export default {
     EventBus.$on('shapes:add', this.addShape)
     EventBus.$on('shapes:reset', this.removeShapes)
     // EventBus.$on('draw:redraw', (opts) => this.handleSelect(this.draw.getAll(), opts))
-    EventBus.$on('highlight:clear', this.clearHighlightLayer)
+    // EventBus.$on('highlight:clear', this.clearHighlightLayer)
 
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
@@ -61,7 +61,7 @@ export default {
     EventBus.$off('shapes:add', this.addShape)
     EventBus.$off('shapes:reset', this.removeShapes)
     // EventBus.$off('draw:redraw', () => this.handleSelect(this.draw.getAll()))
-    EventBus.$off('highlight:clear', this.clearHighlightLayer)
+    // EventBus.$off('highlight:clear', this.clearHighlightLayer)
   },
   data () {
     return {
@@ -218,7 +218,8 @@ export default {
 
       if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
         this.$store.commit('resetDataMartFeatureInfo')
-        EventBus.$emit('highlight:clear')
+        this.$store.dispatch('map/clearHighlightLayer')
+        // EventBus.$emit('highlight:clear')
       }
     },
     handleModeChange (e) {
