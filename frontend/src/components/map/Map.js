@@ -34,8 +34,8 @@ export default {
   components: { MapLegend },
   mounted () {
     this.initMap()
-    EventBus.$on('layer:added', this.handleAddLayer)
-    EventBus.$on('layer:removed', this.handleRemoveLayer)
+    // EventBus.$on('layer:added', this.handleAddLayer)
+    // EventBus.$on('layer:removed', this.handleRemoveLayer)
     EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
     EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
@@ -50,8 +50,8 @@ export default {
     // this.$store.dispatch(FETCH_DATA_LAYERS)
   },
   beforeDestroy () {
-    EventBus.$off('layer:added', this.handleAddLayer)
-    EventBus.$off('layer:removed', this.handleRemoveLayer)
+    // EventBus.$off('layer:added', this.handleAddLayer)
+    // EventBus.$off('layer:removed', this.handleRemoveLayer)
     EventBus.$off('baseLayer:added', this.handleAddBaseLayer)
     EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
