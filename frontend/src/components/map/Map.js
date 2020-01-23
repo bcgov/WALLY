@@ -382,12 +382,12 @@ export default {
         this.updateStreamLayer(data)
       }
     },
-    clearHighlightLayer () {
-      this.map.getSource('highlightPointData').setData(point)
-      this.map.getSource('highlightLayerData').setData(polygon)
-      this.$store.commit('resetStreamData')
-      this.$store.commit('resetStreamBufferData')
-    },
+    // clearHighlightLayer () {
+    //   this.map.getSource('highlightPointData').setData(point)
+    //   this.map.getSource('highlightLayerData').setData(polygon)
+    //   this.$store.commit('resetStreamData')
+    //   this.$store.commit('resetStreamBufferData')
+    // },
     handleAddLayer (displayDataName) {
       // this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
       this.activateLayer(displayDataName)
@@ -534,6 +534,7 @@ export default {
       'activateLayer'
     ]),
     ...mapActions('map', [
+      'clearHighlightLayer',
       'getMapLayers',
       'getMapObjects',
       'addActiveSelection',

@@ -102,7 +102,8 @@ export default {
 
       // get list of layers that were deselected (they were in `prev`, but are not in payload),
       // and sent an event to remove them.
-      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
+      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => dispatch('removeMapLayer', l))
+      // prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
 
       // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
       selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => commit('activateLayer', l))
@@ -137,11 +138,13 @@ export default {
         commit('activateLayer', displayDataName)
       }
     },
-    removeMapLayer ({state}, payload) {
+    removeMapLayer ({ state, dispatch, commit }, payload) {
       state.activeMapLayers = state.activeMapLayers.filter((layer) => {
         return layer.display_data_name !== payload
       })
-      EventBus.$emit(`layer:removed`, payload)
+      dispatch('clearHighlightLayer')
+      commit('deactivateLayer', payload)
+      // EventBus.$emit(`layer:removed`, payload)
     },
     clearMapLayers () {},
     // getFeatures() <--datamartStore
@@ -174,12 +177,35 @@ export default {
         size: size,
         layers: state.activeMapLayers
       }, { root: true })
+    },
+    clearHighlightLayer ({ commit, state }) {
+      const point = {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [[]]
+        }
+      }
+      const polygon = {
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Polygon',
+          'coordinates': [[]]
+        }
+      }
+      state.map.getSource('highlightPointData').setData(point)
+      state.map.getSource('highlightLayerData').setData(polygon)
+      commit('resetStreamData', {}, { root: true })
+      commit('resetStreamBufferData', {}, { root: true })
     }
 
   },
   mutations: {
     activateLayer (state, displayDataName) {
       state.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
+    },
+    deactivateLayer (state, displayDataName) {
+      state.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
     replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.

@@ -35,6 +35,8 @@ describe('Map Store', () => {
         { display_data_name: 'water_rights_licenses' }
       ]
     }
+    store.dispatch = jest.fn()
+    store.commit = jest.fn()
     let payload = 'water_rights_licenses'
     store.actions.removeMapLayer(store, payload)
     expect(store.state.activeMapLayers.length).toBe(0)
