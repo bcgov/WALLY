@@ -62,9 +62,9 @@
           <v-card-title>Insights ({{ wells.length }} wells):</v-card-title>
           <v-card-text>
             <div v-if="!loading" id="wells_charts">
-              <Plotly id="boxPlotYield" :data="boxPlotYieldData.data" :layout="boxPlotYieldData.layout"></Plotly>
-              <Plotly id="boxPlotFinishedDepth" :data="boxPlotFinishedDepthData.data" :layout="boxPlotFinishedDepthData.layout"></Plotly>
-              <Plotly id="boxPlotSWL" :data="boxPlotSWLData.data" :layout="boxPlotSWLData.layout"></Plotly>
+              <Plotly id="boxPlotYield" :data="boxPlotYieldData.data" :layout="boxPlotYieldData.layout" class="chart"></Plotly>
+              <Plotly id="boxPlotFinishedDepth" :data="boxPlotFinishedDepthData.data" :layout="boxPlotFinishedDepthData.layout" class="chart"></Plotly>
+              <Plotly id="boxPlotSWL" :data="boxPlotSWLData.data" :layout="boxPlotSWLData.layout" class="chart"></Plotly>
             </div>
           </v-card-text>
         </v-card>
