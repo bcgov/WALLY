@@ -22,8 +22,5 @@ if [ "$WALLY_ENV" = "DEV" ]; then
     python /app/api/initial_data.py
 fi
 
-# Merge Display Templates with existing templates
-# python /app/api/merge_display_templates.py
-
 # Start Uvicorn with live reload
 exec uvicorn --reload --host $HOST --port $PORT --log-level $LOG_LEVEL "$APP_MODULE"
