@@ -142,6 +142,24 @@ export default {
         name: 'Finished well depth (reported)',
         hovertemplate:
           '<b>Well</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
+        mode: 'markers',
+        type: 'scatter',
+        marker: {
+          color: 'rgb(252,141,98)'
+        },
+        hoverlabel: {
+          namelength: 0
+        }
+      }
+      const wellTops = {
+        x: this.wells.map(w => w.distance_from_origin),
+        y: this.wells.map(w => w.ground_elevation_from_dem),
+        text: this.wells.map(w => w.well_tag_number),
+        textposition: 'top',
+        showlegend: false,
+        name: '',
+        hovertemplate:
+          '<b>WTN</b>: %{text}',
         mode: 'markers+text',
         type: 'scatter',
         marker: {
@@ -214,7 +232,7 @@ export default {
         },
         hoverinfo: 'none'
       }
-      return [elevProfile, waterDepth, wells, lithology, waterLevel]
+      return [elevProfile, wellTops, waterDepth, wells, lithology, waterLevel]
     },
     surfaceData () {
       var lines = this.surfacePoints
