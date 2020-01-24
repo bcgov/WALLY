@@ -3,7 +3,6 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
-import EventBus from '../../services/EventBus'
 import Chart from '../charts/Chart'
 
 export default {

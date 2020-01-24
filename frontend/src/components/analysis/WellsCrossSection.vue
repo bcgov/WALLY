@@ -79,7 +79,6 @@
 <script>
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
 
 export default {

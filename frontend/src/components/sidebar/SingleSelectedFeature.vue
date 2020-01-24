@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols=2>
           <v-btn
-            fab
+            fac
             class="elevation-1"
             small
             id="closeSingleSelectedFeature"
@@ -129,7 +129,7 @@ export default {
         this.$store.commit('map/replaceOldFeatures', null)
       }
       this.$store.commit('resetDataMartFeatureInfo')
-      this.$store.dispatch('clearHighlightLayer')
+      this.$store.dispatch('map/clearHighlightLayer')
       // EventBus.$emit('highlight:clear')
     },
     humanReadable: (val) => humanReadable(val),

@@ -271,15 +271,15 @@ export default {
         })
       })
     },
-    initStreamHighlights () {
-      // Import sources and layers for stream segment highlighting
-      this.getStreamSources.forEach((s) => {
-        this.map.addSource(s.name, { type: 'geojson', data: s.options })
-      })
-      this.getStreamLayers.forEach((l) => {
-        this.map.addLayer(l)
-      })
-    },
+    // initStreamHighlights () {
+    //   // Import sources and layers for stream segment highlighting
+    //   this.getStreamSources.forEach((s) => {
+    //     this.map.addSource(s.name, { type: 'geojson', data: s.options })
+    //   })
+    //   this.getStreamLayers.forEach((l) => {
+    //     this.map.addLayer(l)
+    //   })
+    // },
     polygonToolHelp () {
       const disableKey = 'disablePolygonToolHelp'
       if (JSON.parse(localStorage.getItem(disableKey)) !== true) {
@@ -291,22 +291,22 @@ export default {
           })
       }
     },
-    loadLayers () {
-      const layers = this.allMapLayers
-
-      // load each layer, but default to no visibility.
-      // the user can toggle layers on and off with the layer controls.
-      for (let i = 0; i < layers.length; i++) {
-        const layer = layers[i]
-
-        // All layers are now vector based sourced from mapbox
-        // so we don't need to check for layer type anymore
-        const vector = layer['display_data_name']
-        // this.map.on('click', vector, this.setSingleFeature)
-        this.map.on('mouseenter', vector, this.setCursorPointer)
-        this.map.on('mouseleave', vector, this.resetCursor)
-      }
-    },
+    // loadLayers () {
+    //   const layers = this.allMapLayers
+    //
+    //   // load each layer, but default to no visibility.
+    //   // the user can toggle layers on and off with the layer controls.
+    //   for (let i = 0; i < layers.length; i++) {
+    //     const layer = layers[i]
+    //
+    //     // All layers are now vector based sourced from mapbox
+    //     // so we don't need to check for layer type anymore
+    //     const vector = layer['display_data_name']
+    //     // this.map.on('click', vector, this.setSingleFeature)
+    //     this.map.on('mouseenter', vector, this.setCursorPointer)
+    //     this.map.on('mouseleave', vector, this.resetCursor)
+    //   }
+    // },
     updateBySearchResult (data) {
       let lat = data.result.center[1]
       let lng = -Math.abs(data.result.center[0])
@@ -543,7 +543,8 @@ export default {
       'getMapLayers',
       'getMapObjects',
       'addActiveSelection',
-      'handleAddPointSelection'
+      'handleAddPointSelection',
+      'initStreamHighlights'
     ])
   },
   watch: {

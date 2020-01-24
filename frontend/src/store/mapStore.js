@@ -1,4 +1,3 @@
-import EventBus from '../services/EventBus.js'
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
@@ -206,8 +205,12 @@ export default {
     clearHighlightLayer ({ commit, state }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
+      commit('updateHighlightFeatureCollectionData', {})
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
+    },
+    clearStreamHighlights ({ commit, state }) {
+
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
@@ -232,6 +235,15 @@ export default {
         state.map.on('mouseenter', vector, commit('setCursorPointer'))
         state.map.on('mouseleave', vector, commit('resetCursor'))
       }
+    },
+    initStreamHighlights ({ state, rootState }) {
+      // Import sources and layers for stream segment highlighting
+      rootState.getStreamSources.forEach((s) => {
+        state.map.addSource(s.name, { type: 'geojson', data: s.options })
+      })
+      rootState.getStreamLayers.forEach((l) => {
+        state.map.addLayer(l)
+      })
     }
 
   },
