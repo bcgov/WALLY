@@ -60,6 +60,7 @@ export default {
       //
       // example: this.addActiveSelection(feature, { showFeatureList: false })
 
+      console.log('addActiveSelection', feature, options)
       const defaultOptions = {
         showFeatureList: true
       }
@@ -236,12 +237,12 @@ export default {
         state.map.on('mouseleave', vector, commit('resetCursor'))
       }
     },
-    initStreamHighlights ({ state, rootState }) {
+    initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
-      rootState.getStreamSources.forEach((s) => {
+      rootGetters.getStreamSources.forEach((s) => {
         state.map.addSource(s.name, { type: 'geojson', data: s.options })
       })
-      rootState.getStreamLayers.forEach((l) => {
+      rootGetters.getStreamLayers.forEach((l) => {
         state.map.addLayer(l)
       })
     }
@@ -259,6 +260,9 @@ export default {
     },
     deactivateBaseLayer (state, layerId) {
       state.map.setLayoutProperty(layerId, 'visibility', 'none')
+    },
+    removeLayer (state, layerId) {
+      state.map.removeLayer(layerId)
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map
@@ -290,52 +294,6 @@ export default {
     },
     setLayerCategories (state, payload) {
       state.layerCategories = payload
-    },
-    // addMapLayer (state, payload) {
-    //   let mapLayer = state.mapLayers.find((layer) => {
-    //     return layer.display_data_name === payload
-    //   })
-    //
-    //   // mapLayer may be undefined if it wasn't found in the list of
-    //   // map layers (for example, addMapLayer was called before the layer
-    //   // catalogue loaded or was called with an unexpected layer).  If so,
-    //   // stop here.
-    //   if (!mapLayer) {
-    //     return
-    //   }
-    //
-    //   if (!state.activeMapLayers.includes(mapLayer)) {
-    //     state.activeMapLayers.push(mapLayer)
-    //     // dispatch('activateLayer', payload)
-    //     EventBus.$emit(`layer:added`, payload)
-    //   }
-    // },
-    addGeoJSONLayer ({ state, commit, dispatch }, layer) {
-      if (!layer || !layer.data) {
-        console.error('invalid format for data source/data mart')
-        return
-      }
-
-      // layer.data should have a "features" or "geojson" property, which
-      // must be a list of geojson Features.  For example, layer.data could be
-      // a FeatureCollection format object. The 'features' list will be added to the map.
-      let features
-      if (layer.data.features && layer.data.features.length) {
-        features = layer.data.features
-      } else if (layer.data.geojson && layer.data.geojson.length) {
-        features = layer.data.geojson
-      }
-      if (!features) {
-        console.error('could not find a features list or object to add to map')
-        return
-      }
-
-      // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
-      //   onEachFeature: function (feature, layer) {
-      //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
-      //   }
-      // })
-      state.activeLayers[layer.display_data_name].addTo(state.map)
     },
     setActiveMapLayers (state, payload) {
       // TODO: See if this is actually used anywhere else

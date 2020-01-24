@@ -11,6 +11,8 @@ import circle from '@turf/circle'
 import coordinatesGeocoder from './localGeocoder'
 import * as streamConfig from '../../utils/streamHighlights.config'
 
+import { getArrayDepth } from '../../helpers'
+
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
@@ -39,7 +41,7 @@ export default {
     // EventBus.$on('baseLayer:added', this.handleAddBaseLayer)
     // EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     // EventBus.$on('dataMart:added', this.handleAddApiLayer)
-    EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
+    // EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
     // EventBus.$on('layers:loaded', this.loadLayers)
     // EventBus.$on('draw:reset', this.replaceOldFeatures)
     // EventBus.$on('shapes:add', this.addShape)
@@ -55,7 +57,7 @@ export default {
     // EventBus.$off('baseLayer:added', this.handleAddBaseLayer)
     // EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
     // EventBus.$off('dataMart:added', this.handleAddApiLayer)
-    EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
+    // EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
     // EventBus.$off('layers:loaded', this.loadLayers)
     // EventBus.$off('draw:reset', this.replaceOldFeatures)
     // EventBus.$off('shapes:add', this.addShape)
@@ -92,7 +94,6 @@ export default {
       'allMapLayers',
       'activeMapLayers',
       'allDataMarts',
-      'activeDataMarts',
       'highlightFeatureData',
       'highlightFeatureCollectionData',
       'map',
@@ -409,9 +410,9 @@ export default {
     //   })
     //   this.addGeoJSONLayer(layer)
     // },
-    handleRemoveApiLayer (displayDataName) {
-      this.removeLayer(displayDataName)
-    },
+    // handleRemoveApiLayer (displayDataName) {
+    //   this.removeLayer(displayDataName)
+    // },
     // addGeoJSONLayer (layer) {
     //   if (!layer || !layer.data) {
     //     console.error('invalid format for data source/data mart')
@@ -479,16 +480,16 @@ export default {
 
       this.map.addLayer(newLayer, 'groundwater_wells')
     },
-    removeLayer (layer) {
-      // TODO: What's the diff between this and removeMapLayer?
-      const displayDataName = layer.display_data_name || layer
-      if (!displayDataName || !this.activeLayers[displayDataName]) {
-        return
-      }
-      this.map.removeLayer(layer.id)
-      // delete this.legendGraphics[layer.id]
-      delete this.activeLayers[layer.id]
-    },
+    // removeLayer (layer) {
+    //   // TODO: What's the diff between this and removeMapLayer?
+    //   const displayDataName = layer.display_data_name || layer
+    //   if (!displayDataName || !this.activeLayers[displayDataName]) {
+    //     return
+    //   }
+    //   this.map.removeLayer(layer.id)
+    //   // delete this.legendGraphics[layer.id]
+    //   delete this.activeLayers[layer.id]
+    // },
     listenForAreaSelect () {
       this.map.on('draw.create', this.addActiveSelection)
       this.map.on('draw.update', this.addActiveSelection)
@@ -513,9 +514,9 @@ export default {
       var cy = (Math.min(...y) + Math.max(...y)) / 2
       return [cx, cy]
     },
-    getArrayDepth (value) {
-      return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
-    },
+    // getArrayDepth (value) {
+    //   return Array.isArray(value) ? 1 + Math.max(...value.map(this.getArrayDepth)) : 0
+    // },
     formatLatLon (lon, lat) {
       // Formats lat lon to be within proper ranges
       lon = lon < 0 ? lon : -lon
@@ -567,7 +568,7 @@ export default {
           coordinates = this.formatLatLon(coordinates[0], coordinates[1])
           value.geometry.coordinates = coordinates
         } else {
-          let depth = this.getArrayDepth(coordinates)
+          let depth = getArrayDepth(coordinates)
           let flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
         }
