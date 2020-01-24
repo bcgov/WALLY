@@ -21,6 +21,11 @@ const emptyPolygon = {
   }
 }
 
+const emptyFeatureCollection = {
+  type: 'FeatureCollection',
+  features: [emptyPoint]
+}
+
 export default {
   namespaced: true,
   state: {
@@ -213,13 +218,13 @@ export default {
     clearHighlightLayer ({ commit, state, dispatch }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
-      commit('updateHighlightFeatureCollectionData', {})
+      dispatch('clearStreamHighlights')
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
       dispatch('removeElementsByClass', 'annotationMarker')
     },
-    clearStreamHighlights ({ commit, state }) {
-
+    clearStreamHighlights ({ state }) {
+      state.map.getSource('streamApportionmentSource').setData(emptyFeatureCollection)
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
