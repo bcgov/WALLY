@@ -15,20 +15,20 @@ import { getArrayDepth } from '../../helpers'
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
-const point = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'Point',
-    'coordinates': [[]]
-  }
-}
-const polygon = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'Polygon',
-    'coordinates': [[]]
-  }
-}
+// const point = {
+//   'type': 'Feature',
+//   'geometry': {
+//     'type': 'Point',
+//     'coordinates': [[]]
+//   }
+// }
+// const polygon = {
+//   'type': 'Feature',
+//   'geometry': {
+//     'type': 'Polygon',
+//     'coordinates': [[]]
+//   }
+// }
 
 export default {
   name: 'Map',
@@ -480,7 +480,6 @@ export default {
       this.map.addLayer(newLayer, 'groundwater_wells')
     },
     // removeLayer (layer) {
-    //   // TODO: What's the diff between this and removeMapLayer?
     //   const displayDataName = layer.display_data_name || layer
     //   if (!displayDataName || !this.activeLayers[displayDataName]) {
     //     return
