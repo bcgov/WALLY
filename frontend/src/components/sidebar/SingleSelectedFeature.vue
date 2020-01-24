@@ -67,7 +67,6 @@
 import { mapGetters } from 'vuex'
 
 import { humanReadable } from '../../helpers'
-import EventBus from '../../services/EventBus'
 
 import FeatureStreamStation from '../features/FeatureStreamStation'
 import FeatureWell from '../features/FeatureWell'

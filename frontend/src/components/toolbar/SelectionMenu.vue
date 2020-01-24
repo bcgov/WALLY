@@ -66,7 +66,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import EventBus from '../../services/EventBus'
 export default {
   name: 'SelectionMenu',
   data: () => ({

@@ -480,6 +480,7 @@ export default {
       this.map.addLayer(newLayer, 'groundwater_wells')
     },
     removeLayer (layer) {
+      // TODO: What's the diff between this and removeMapLayer?
       const displayDataName = layer.display_data_name || layer
       if (!displayDataName || !this.activeLayers[displayDataName]) {
         return

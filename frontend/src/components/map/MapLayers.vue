@@ -54,7 +54,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import EventBus from '../../services/EventBus'
 import Dialog from '../common/Dialog'
 
 export default {

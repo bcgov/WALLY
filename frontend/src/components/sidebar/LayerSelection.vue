@@ -46,8 +46,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import EventBus from '../../services/EventBus'
+import { mapGetters } from 'vuex'
 import Dialog from '../common/Dialog'
 
 export default {
