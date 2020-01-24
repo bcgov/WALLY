@@ -34,7 +34,6 @@ export default {
     ],
     boxPlotSWLData: {
       data: [],
-      id: 1,
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -59,7 +58,6 @@ export default {
     },
     boxPlotYieldData: {
       data: [],
-      id: 2,
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -85,7 +83,6 @@ export default {
     },
     boxPlotFinishedDepthData: {
       data: [],
-      id: '3',
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
