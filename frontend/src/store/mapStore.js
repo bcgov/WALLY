@@ -61,7 +61,6 @@ export default {
       //
       // example: this.addActiveSelection(feature, { showFeatureList: false })
 
-      console.log('addActiveSelection', feature, options)
       const defaultOptions = {
         showFeatureList: true
       }
