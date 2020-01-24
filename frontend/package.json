@@ -40,7 +40,6 @@
     "material-design-icons-iconfont": "^5.0.1",
     "moment": "^2.24.0",
     "vue": "^2.6.10",
-    "vue-chartjs": "^3.4.2",
     "vue-plotly": "^1.0.1",
     "vue-router": "^3.0.3",
     "vuetify": "^2.2.3",
