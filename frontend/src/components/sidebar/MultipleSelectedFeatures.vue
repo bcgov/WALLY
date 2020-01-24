@@ -70,7 +70,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import toBbox from '@turf/bbox'
 import EventBus from '../../services/EventBus'
 export default {
   name: 'MultipleSelectedFeatures',
