@@ -31,7 +31,6 @@ import api.v1.aggregator.controller as agr_repo
 from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
 from api.v1.aggregator.helpers import gwells_api_request
-from api.templating.template_builder import build_templates
 from api.v1.aggregator.helpers import spherical_mercator_project
 from api.v1.aggregator.excel import xlsxExport
 

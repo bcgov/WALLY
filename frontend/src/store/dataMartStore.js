@@ -6,7 +6,6 @@ import centroid from '@turf/centroid'
 export default {
   state: {
     activeDataMarts: [],
-    displayTemplates: [],
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
@@ -37,7 +36,6 @@ export default {
         .then((response) => {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data
-          let displayTemplates = response.data.display_templates
           commit('setLoadingFeature', false)
 
           // end here if no layers returned any data.
@@ -77,9 +75,6 @@ export default {
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
-            // TODO currently we are not using displayTemplate information
-            // Need to clean this up or re-purpose it
-            commit('setDisplayTemplates', { displayTemplates })
             commit('setDataMartFeatureInfo', {})
             router.push({
               name: 'multiple-features'
@@ -155,9 +150,7 @@ export default {
     setDataMartFeatures: (state, payload) => {
       state.dataMartFeatures.push(payload)
     },
-    setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
-    clearDisplayTemplates: (state) => { state.displayTemplates = [] },
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
     addDataMart (state, payload) {
       state.activeDataMarts.push(payload)
@@ -171,7 +164,6 @@ export default {
     }
   },
   getters: {
-    displayTemplates: state => state.displayTemplates,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     loadingFeature: state => state.loadingFeature,

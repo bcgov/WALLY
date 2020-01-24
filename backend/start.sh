@@ -22,8 +22,9 @@ if [ "$WALLY_ENV" = "DEV" ]; then
     python /app/api/initial_data.py
 fi
 
-# Merge Display Templates with existing templates
-python /app/api/merge_display_templates.py
+# Merge Display Templates with existing templates 
+# NO LONGER IN USE - Deprecated for removal
+# python /app/api/merge_display_templates.py
 
 echo "$GUNICORN_CONF" "$APP_MODULE"
 
