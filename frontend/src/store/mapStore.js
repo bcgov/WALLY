@@ -1,7 +1,11 @@
 // TODO: change to api call, or create new array just for map layers
+import html2canvas from 'html2canvas'
+import { saveAs } from 'file-saver'
+
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
+
 const emptyPoint = {
   'type': 'Feature',
   'geometry': {
@@ -16,6 +20,7 @@ const emptyPolygon = {
     'coordinates': [[]]
   }
 }
+
 export default {
   namespaced: true,
   state: {
@@ -196,6 +201,8 @@ export default {
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('clearDisplayTemplates', {}, { root: true })
+      dispatch('removeElementsByClass', 'annotationMarker')
+      commit('removeShapes')
 
       // if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
       commit('resetDataMartFeatureInfo', {}, { root: true })
@@ -203,12 +210,13 @@ export default {
       // EventBus.$emit('highlight:clear')
       // }
     },
-    clearHighlightLayer ({ commit, state }) {
+    clearHighlightLayer ({ commit, state, dispatch }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
       commit('updateHighlightFeatureCollectionData', {})
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
+      dispatch('removeElementsByClass', 'annotationMarker')
     },
     clearStreamHighlights ({ commit, state }) {
 
@@ -320,6 +328,20 @@ export default {
     updateHighlightsLayerData ({ state }, data) {
       if (data.display_data_name === 'stream_apportionment') {
         state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
+      }
+    },
+    downloadMapImage ({ state }) {
+      let filename = 'map--'.concat(new Date().toISOString()) + '.png'
+      html2canvas(state.map._container).then(canvas => {
+        canvas.toBlob(function (blob) {
+          saveAs(blob, filename)
+        })
+      })
+    },
+    removeElementsByClass ({ state }, payload) {
+      let elements = document.getElementsByClassName(payload)
+      while (elements.length > 0) {
+        elements[0].parentNode.removeChild(elements[0])
       }
     }
   },

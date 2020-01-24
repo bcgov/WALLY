@@ -22,17 +22,17 @@
         />
     </div>
 
-    <div class="pa-5" v-else>
-      <p>Select a point of interest (e.g. a proposed well site) to apportion demand to nearby streams.</p>
-      <v-btn v-if="noPointSelected" @click="selectPoint" color="secondary" tile outlined>Select point of interest</v-btn>
-    </div>
+    <v-row class="pa-5" v-else>
+      <v-col cols=12 lg=8><p>Select a point of interest (e.g. a proposed well site) to apportion demand to nearby streams.</p></v-col>
+      <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 
-import StreamApportionment from '../../analysis/StreamApportionment'
+import StreamApportionment from '../../analysis/StreamApportionment.vue'
 
 export default {
   name: 'StreamApportionmentStart',
@@ -56,13 +56,6 @@ export default {
     }
   },
   computed: {
-    noPointSelected () {
-      if (this.draw && this.draw.getMode !== 'draw_point' &&
-         this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name !== 'point_of_interest') {
-        return true
-      }
-      return false
-    },
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },

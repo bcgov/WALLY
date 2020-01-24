@@ -11,10 +11,10 @@
         </v-toolbar-title>
       </v-banner>
     </v-toolbar>
-    <StreamBufferData
+    <FeatureStreamBuffer
       :record="dataMartFeatureInfo"
       :coordinates="dataMartFeatureInfo.geometry.coordinates"
-      v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'point_of_interest'"/>
+      v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'freshwater_atlas_stream_networks'"/>
     <div class="pa-5" v-else>
       <p>Select a point on a stream to view water data upstream and downstream.</p>
     </div>
@@ -24,22 +24,17 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import StreamBufferData from '../../analysis/StreamBufferData'
+import FeatureStreamBuffer from '../../features/FeatureStreamBuffers'
 
 export default {
   name: 'UpstreamDownstream',
   components: {
-    StreamBufferData
+    FeatureStreamBuffer
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false
   }),
   methods: {
-    selectPoint () {
-      if (this.draw && this.draw.changeMode) {
-        this.draw.changeMode('draw_point')
-      }
-    },
     enableStreamsLayer () {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
@@ -52,6 +47,10 @@ export default {
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
+    if (this.draw) {
+      this.draw.changeMode('simple_select')
+    }
+
     if (!this.isStreamsLayerEnabled) {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()

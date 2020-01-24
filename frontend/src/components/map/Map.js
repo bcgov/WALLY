@@ -129,7 +129,8 @@ export default {
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
-        attributionControl: false // hide default and re-add to the top left
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
       }))
 
       const modes = MapboxDraw.modes
@@ -142,9 +143,9 @@ export default {
         modes: modes,
         displayControlsDefault: false,
         controls: {
-          polygon: true,
-          point: true,
-          line_string: true,
+          // polygon: true,
+          // point: true,
+          // line_string: true,
           trash: true
         }
       }))
@@ -223,7 +224,7 @@ export default {
     //   }
     // },
     handleModeChange (e) {
-      if (e.mode === 'draw_polygon' || e.mode === 'draw_point') {
+      if (e.mode === 'draw_polygon' || e.mode === 'draw_point' || e.mode === 'draw_line_string') {
         this.isDrawingToolActive = true
         this.polygonToolHelp()
       } else if (e.mode === 'simple_select') {
@@ -307,7 +308,10 @@ export default {
     //     this.map.on('mouseleave', vector, this.resetCursor)
     //   }
     // },
-    updateBySearchResult (data) {
+    async updateBySearchResult (data) {
+      this.draw.changeMode('simple_select')
+      await this.$router.push({ name: 'single-feature' })
+      console.log('route changed')
       let lat = data.result.center[1]
       let lng = -Math.abs(data.result.center[0])
       const options = { steps: 10, units: 'kilometers', properties: {} }

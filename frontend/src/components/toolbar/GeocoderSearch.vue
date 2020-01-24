@@ -11,12 +11,15 @@
       class="search-types-select">
     </v-select>
     <input class="disabled-search-placeholder mapboxgl-ctrl-geocoder" disabled placeholder="Choose a type of feature to search for" v-if="searchDisabled"/>
-    <div id="geocoder" class="mr-5 geocoder" v-show="!searchDisabled"></div>
+    <div id="geocoder" class="mr-2 geocoder" v-show="!searchDisabled"></div>
+    <v-btn @click="takeScreenshot" color="blue-grey" dark tile icon>
+      <v-icon>mdi-camera</v-icon>
+    </v-btn>
   </v-toolbar-items>
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   name: 'GeocoderSearch',
   data: () => ({
@@ -37,7 +40,8 @@ export default {
     },
     ...mapGetters('map', [
       'geocoder'
-    ])
+    ]),
+    ...mapActions(['downloadMapImage'])
   },
   methods: {
     updateGeocoderType (featureType) {
@@ -47,6 +51,9 @@ export default {
       // option is limited to place, poi, address etc.  This is intended to be
       // temporary to get feedback on whether this functionality will work for our users.
       this.geocoder.options.countries = featureType
+    },
+    takeScreenshot () {
+      this.$store.dispatch('downloadMapImage')
     }
   },
   watch: {

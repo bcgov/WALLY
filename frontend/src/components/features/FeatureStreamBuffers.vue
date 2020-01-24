@@ -1,55 +1,38 @@
 <template>
-  <v-sheet class="pt-5">
-    <v-toolbar flat>
-      <v-banner color="indigo"
-                icon="mdi-map-marker"
-                icon-color="white"
-                width="100%"
-      >
-        <v-toolbar-title>
-          {{streamName}}
-        </v-toolbar-title>
-          Selected Stream
-      </v-banner>
-    </v-toolbar>
-    <v-expansion-panels class="mt-5" multiple v-model="panelOpen">
-      <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Upstream/Downstream Features</v-expansion-panel-header>
-        <v-expansion-panel-content>
-          <v-row no-gutters v-if="this.selectedLayer">
-            <v-col cols="12">
-              <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{this.selectedLayer}} layer</a></div>
-            </v-col>
-          </v-row>
-          <v-row no-gutters>
-            <v-col cols="12" md="3" align-self="center">
-              <v-text-field
-                label="Stream Buffer Size (m)"
-                placeholder="20"
-                :rules="[inputRules.number, inputRules.max, inputRules.required]"
-                v-model="buffer"
-              />
-            </v-col>
-            <v-col cols="12" md="3" />
-            <v-col cols="12" md="6">
-              <v-select
-                solo
-                :items="layerOptions"
-                placeholder="Select a Layer to Analyze"
-                v-model="selectedLayer"
-              />
-            </v-col>
-          </v-row>
+  <v-sheet class="pa-5">
+    <div class="title my-3">
+          Selected Stream: {{streamName}}
+    </div>
+      <v-row no-gutters v-if="this.selectedLayer">
+        <v-col cols="12">
+          <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{this.selectedLayer}} layer</a></div>
+        </v-col>
+      </v-row>
+      <v-row no-gutters>
+        <v-col cols="12" md="3" align-self="center">
+          <v-text-field
+            label="Stream Buffer Size (m)"
+            placeholder="20"
+            :rules="[inputRules.number, inputRules.max, inputRules.required]"
+            v-model="buffer"
+          />
+        </v-col>
+        <v-col cols="12" md="3" />
+        <v-col cols="12" md="6">
+          <v-select
+            solo
+            :items="layerOptions"
+            placeholder="Select a Layer to Analyze"
+            v-model="selectedLayer"
+          />
+        </v-col>
+      </v-row>
 
-          <v-row no-gutters>
-            <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
-            <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedStream'" :layerId="selectedLayer" />
-            <SteamBufferData :bufferData="downstreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
-          </v-row>
-
-        </v-expansion-panel-content>
-      </v-expansion-panel>
-    </v-expansion-panels>
+      <v-row no-gutters>
+        <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+        <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedStream'" :layerId="selectedLayer" />
+        <SteamBufferData :bufferData="downstreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
+      </v-row>
   </v-sheet>
 </template>
 
