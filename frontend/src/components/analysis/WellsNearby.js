@@ -4,12 +4,12 @@ import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
 import EventBus from '../../services/EventBus'
-import Chart from '../charts/Chart'
+import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'WellsNearby',
   components: {
-    Chart
+    Plotly
   },
   props: ['record'],
   data: () => ({
