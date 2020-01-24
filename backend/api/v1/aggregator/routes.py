@@ -8,7 +8,7 @@ import pyproj
 import requests
 import geojson
 from geojson import FeatureCollection, Feature
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from shapely.geometry import shape, box, MultiPolygon, Polygon, Point
 from shapely.ops import transform
@@ -22,11 +22,13 @@ from api.v1.aggregator.controller import (
     databc_feature_search,
     get_layer_feature,
     feature_search,
+    calculate_glacial_area,
+    precipitation,
     EXTERNAL_API_REQUESTS,
     API_DATASOURCES,
     DATABC_GEOMETRY_FIELD,
     DATABC_LAYER_IDS)
-from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
+from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse, WatershedDetails
 from api.templating.template_builder import build_templates
 from api.v1.aggregator.helpers import spherical_mercator_project, transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.excel import xlsxExport
@@ -116,7 +118,7 @@ def wms_url(wms_id):
 
 
 @router.get("/stats/glacier_coverage")
-def glacial_area(
+def glacier_coverage(
         db: Session = Depends(get_db),
         polygon: str = Query(
             "", title="Search polygon",
@@ -140,18 +142,9 @@ def glacial_area(
     if polygon.area <= 0:
         raise HTTPException(
             status_code=400, detail="Polygon has zero area")
-
-    glacial_features = feature_search(db, [glaciers_layer], polygon)[
-        0].geojson.features
-
-    glacial_area = 0
     polygon = transform(transform_4326_3005, polygon)
 
-    for glacier in glacial_features:
-        glacier_clipped = shape(glacier.geometry).intersection(polygon)
-        glacial_area += glacier_clipped.area
-
-    coverage = glacial_area / polygon.area
+    coverage = glacial_area(db, polygon)
 
     return {
         "coverage": coverage
@@ -186,100 +179,22 @@ def get_precipitation(
         poly_parsed = json.loads(polygon)
         polygon = MultiPolygon([Polygon(x) for x in poly_parsed])
 
-    pcic_url = "https://services.pacificclimate.org/pcex/api/timeseries?"
-
-    params = {
-        "id_": dataset,
-        "variable": output_variable,
-        "area": polygon.wkt
-    }
-
-    req_url = pcic_url + urlencode(params)
-
-    try:
-        resp = requests.get(req_url)
-        resp.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=str(e))
-
-    return resp.json()
+    return precipitation(polygon, output_variable, dataset)
 
 
-@router.get('/stats/hydrometric_watershed')
-def get_hydrometric_watershed(
+@router.get('/watersheds')
+def get_watersheds(
     db: Session = Depends(get_db),
     point: str = Query(
         "", title="Search point",
         description="Point to search within")
 ):
-    """ returns a hydrometric watershed at this point, if any
+    """ returns a list of watersheds at this point, if any.
+    Watersheds are sourced from the following datasets:
+    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds
     https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries
-    """
-    hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
+    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-watersheds
 
-    if not point:
-        raise HTTPException(
-            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
-
-    if point:
-        point_parsed = json.loads(point)
-        point = Point(point_parsed)
-
-    watersheds = databc_feature_search(hydrometric_watershed_layer_id, point)
-
-    if not len(watersheds.features):
-        return FeatureCollection([])
-
-    watershed_features = [
-        Feature(
-            geometry=transform(transform_3005_4326, shape(ws.geometry)),
-            properties=dict(ws.properties)
-        ) for ws in watersheds.features]
-    return FeatureCollection(watershed_features)
-
-
-@router.get('/stats/assessment_watershed')
-def get_assessment_watershed(
-    db: Session = Depends(get_db),
-    point: str = Query(
-        "", title="Search point",
-        description="Point to search within")
-):
-    """ returns an assessment watershed at this point, if any
-    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds
-    """
-    assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
-
-    if not point:
-        raise HTTPException(
-            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
-
-    if point:
-        point_parsed = json.loads(point)
-        point = Point(point_parsed)
-
-    watersheds = databc_feature_search(assessment_watershed_layer_id, point)
-
-    if not len(watersheds.features):
-        return FeatureCollection([])
-
-    watershed_features = [
-        Feature(
-            geometry=transform(transform_3005_4326, shape(ws.geometry)),
-            properties=dict(ws.properties)
-        ) for ws in watersheds.features]
-    return FeatureCollection(watershed_features)
-
-
-@router.get('/stats/watersheds')
-def get_assessment_watershed(
-    db: Session = Depends(get_db),
-    point: str = Query(
-        "", title="Search point",
-        description="Point to search within")
-):
-    """ returns an assessment watershed at this point, if any
-    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds
     """
     assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
     fwa_watersheds_layer_id = 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY'
@@ -299,7 +214,7 @@ def get_assessment_watershed(
         point_parsed = json.loads(point)
         point = Point(point_parsed)
 
-    watersheds = databc_feature_search(search_layers, point)
+    watersheds = databc_feature_search(search_layers, search_area=point)
 
     if not len(watersheds.features):
         return FeatureCollection([])
@@ -308,6 +223,62 @@ def get_assessment_watershed(
         Feature(
             geometry=transform(transform_3005_4326, shape(ws.geometry)),
             properties=dict(ws.properties),
-            id=i
+            id=ws.id
         ) for i, ws in enumerate(watersheds.features)]
     return FeatureCollection(watershed_features)
+
+
+@router.get('/watersheds/{dataset_watershed_id}')
+def watershed_stats(
+    db: Session = Depends(get_db),
+    dataset_watershed_id: str = Path(...,
+                                     title="The watershed ID prefixed by dataset name")
+):
+    """ aggregates statistics/info about a watershed """
+
+    watershed_layer = '.'.join(dataset_watershed_id.split('.')[:2])
+    watershed_id = dataset_watershed_id.split('.')[-1:]
+
+    id_props = {
+        'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY': 'WATERSHED_FEATURE_ID',
+        'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY': 'WATERSHED_FEATURE_ID',
+        'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'HYD_WATERSHED_BND_POLY_ID'
+    }
+
+    cql_filter = f"{id_props[watershed_layer]}={watershed_id}"
+
+    watershed = databc_feature_search(watershed_layer, cql_filter=cql_filter)
+    if len(watershed.features) != 1:
+        raise HTTPException(
+            status_code=404, detail=f"Watershed with id {dataset_watershed_id} not found")
+
+    watershed = watershed.features[0]
+
+    watershed_area = watershed.properties['FEATURE_AREA_SQM']
+
+    watershed_poly = shape(watershed.geometry)
+    projected_geometry_area = watershed_poly.area
+
+    if len(list(zip(*watershed_poly.exterior.coords.xy))) > 100:
+        watershed_poly = watershed_poly.simplify(
+            watershed.properties['FEATURE_LENGTH_M'] / 100, preserve_topology=False)
+
+    projected_geometry_area_simplified = watershed_poly.area
+
+    precip_search_area = watershed_poly.simplify(
+        watershed.properties['FEATURE_LENGTH_M'] / 10)
+
+    precip = precipitation(
+        transform(transform_3005_4326, precip_search_area))
+    glacial_area_m, glacial_coverage = calculate_glacial_area(
+        db, transform(transform_3005_4326, watershed_poly))
+
+    return WatershedDetails(
+        precipitation=precip,
+        glacial_coverage=glacial_coverage,
+        glacial_area=glacial_area_m,
+        watershed_area=watershed_area,
+        projected_geometry_area=projected_geometry_area,
+        projected_geometry_area_simplified=projected_geometry_area_simplified,
+        precip_search_area=precip_search_area.area
+    )

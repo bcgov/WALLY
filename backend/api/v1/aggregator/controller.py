@@ -5,11 +5,12 @@ import logging
 import asyncio
 import json
 import logging
-
+import requests
 from typing import List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from aiohttp import ClientSession, ClientResponse
+from shapely.geometry import Polygon, MultiPolygon, shape, box
 from shapely.ops import transform
 from sqlalchemy.orm import Session
 from typing import List
@@ -18,7 +19,7 @@ from fastapi import HTTPException
 
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.hydat.db_models import Station as StreamStation
-from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005
+from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
@@ -120,7 +121,8 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
         data.get("type") == "FeatureCollection" and
             "features" in data):
         for feat in data["features"]:
-            features.append(Feature(**feat))
+            features.append(Feature(id=feat.pop('id', None), geometry=feat.pop(
+                'geometry'), properties=feat.pop('properties', {})))
 
     # if we didn't recognize a geojson response, check if a formatter was supplied to create geojson.
     elif res.status == 200 and req.formatter and len(data) > 0:
@@ -335,21 +337,31 @@ def feature_search(db: Session, layers, search_area):
     return feature_list
 
 
-def databc_feature_search(layer, search_area) -> FeatureCollection:
+def databc_feature_search(layer, search_area=None, cql_filter=None) -> FeatureCollection:
     """ looks up features from `layer` in `search_area`.
         Layer should be in DATABC_LAYER_IDS.
         Search area should be SRID 4326.
     """
+    if not search_area and not cql_filter:
+        raise HTTPException(
+            status_code=400, detail="Must provide either search_area or cql_filter")
 
-    search_area = transform(transform_4326_3005, search_area)
+    if search_area and cql_filter:
+        raise HTTPException(
+            status_code=400, detail="Must provide either search_area or cql_filter, not both")
+
+    if search_area:
+        search_area = transform(transform_4326_3005, search_area)
+        cql_filter = f"""
+                INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {search_area.wkt})
+            """
 
     query = WMSGetFeatureQuery(
         typeName=DATABC_LAYER_IDS.get(
             layer, layer),
-        cql_filter=f"""
-            INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {search_area.wkt})
-        """
+        cql_filter=cql_filter
     )
+
     req = ExternalAPIRequest(
         url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
         layer=layer,
@@ -361,3 +373,68 @@ def databc_feature_search(layer, search_area) -> FeatureCollection:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
     return feature_list[0].geojson
+
+
+def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> float:
+    """
+    Calculates percent glacial coverage using the area of `polygon` which intersects with features from
+    the DataBC FWA Glaciers dataset.
+    """
+
+    glaciers_layer = 'freshwater_atlas_glaciers'
+
+    logger.info(polygon)
+
+    glacial_features = feature_search(db, [glaciers_layer], polygon)[
+        0].geojson.features
+
+    glacial_area = 0
+
+    polygon = transform(transform_4326_3005, polygon)
+
+    for glacier in glacial_features:
+        glacier_clipped = shape(glacier.geometry).intersection(polygon)
+        logger.info('adding %s', str(glacier_clipped.area))
+
+        glacial_area += glacier_clipped.area
+
+    coverage = glacial_area / polygon.area
+
+    return (glacial_area, coverage)
+
+
+def precipitation(
+        polygon: Polygon,
+        output_variable: str = 'pr',
+        dataset: str = 'pr_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada'):
+    """ Returns an average precipitation from the pacificclimate.org climate explorer service """
+
+    pcic_url = "https://services.pacificclimate.org/pcex/api/timeseries?"
+
+    if len(list(zip(*polygon.exterior.coords.xy))) > 50:
+        logger.info("using polygon bounds for PCIC request")
+        polygon = box(*polygon.bounds)
+        logger.info(polygon)
+
+    params = {
+        "id_": dataset,
+        "variable": output_variable,
+        "area": polygon.wkt
+    }
+
+    req_url = pcic_url + urlencode(params)
+
+    logger.info('pcic request: %s', req_url)
+
+    try:
+        resp = requests.get(req_url)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+    return resp.json()
+
+
+def surface_water_rights_licences(polygon: Polygon):
+    """ returns surface water rights licences (filtered by POD subtype)"""
+    return ""

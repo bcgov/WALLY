@@ -103,3 +103,14 @@ class LayerResponse(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class WatershedDetails(BaseModel):
+    """ info about a watershed"""
+    precipitation: dict
+    glacial_coverage: float
+    glacial_area: float
+    watershed_area: float
+    projected_geometry_area: float
+    projected_geometry_area_simplified: float
+    precip_search_area: float

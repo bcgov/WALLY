@@ -10,10 +10,13 @@
             :items="watershedOptions"
             :menu-props="{ maxHeight: '400' }"
             label="Select"
+            item-text="label"
+            item-value="value"
             hint="Available watersheds at this location"
           ></v-select>
         </v-col>
       </v-row>
+      <WatershedDetails v-if="selectedWatershed" :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
     </template>
   </v-container>
 </template>
@@ -23,8 +26,13 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 import qs from 'querystring'
 
+import WatershedDetails from './WatershedDetails'
+
 export default {
   name: 'SurfaceWaterDetails',
+  components: {
+    WatershedDetails
+  },
   data: () => ({
     selectedWatershed: null,
     assessmentWatershed: null,
@@ -32,13 +40,36 @@ export default {
     watersheds: [],
     geojsonLayersAdded: []
   }),
+  watch: {
+    selectedWatershed (v) {
+      this.filterWatershed(v)
+    }
+  },
   computed: {
+    selectedWatershedRecord () {
+      if (!this.selectedWatershed || this.watersheds) {
+        return null
+      }
+      return this.watersheds.find((ws) => ws.id === this.selectedWatershed)
+    },
     watershedOptions () {
-      return this.watersheds.map((w, i) => w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || `Watershed option ${i + 1}`)
+      return this.watersheds.map((w, i) => ({
+        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || `Watershed ${i + 1}`,
+        value: w.id
+      }))
     },
     ...mapGetters(['dataMartFeatureInfo', 'map'])
   },
   methods: {
+    filterWatershed (id) {
+      this.geojsonLayersAdded.forEach((layerID) => {
+        this.map.setLayoutProperty(
+          layerID,
+          'visibility',
+          layerID.indexOf(`ws-${id}`) > -1 ? 'visible' : 'none'
+        )
+      })
+    },
     addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.4) {
       this.map.addLayer({
         id: id,
@@ -47,7 +78,9 @@ export default {
           type: 'geojson',
           data: data
         },
-        layout: {},
+        layout: {
+          visibility: 'none'
+        },
         paint: {
           'fill-color': color,
           'fill-outline-color': '#003366',
@@ -59,49 +92,34 @@ export default {
       const params = {
         point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
       }
-      ApiService.query(`/api/v1/aggregate/stats/watersheds?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/aggregate/watersheds?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features
-          this.addSingleWatershedLayer('watershedsAtLocation', data)
-          this.geojsonLayersAdded = ['watershedsAtLocation']
+          this.watersheds.forEach((ws, i) => {
+            this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
+            this.geojsonLayersAdded.push(`ws-${ws.id}`)
+          })
         })
         .catch(e => {
           console.error(e)
         })
     },
     resetGeoJSONLayers () {
-      if (this.geojsonLayersAdded.length === 0) {
-        return
-      }
-      console.log(this.geojsonLayersAdded.length)
-      for (let i = this.geojsonLayersAdded.length - 1; 1 >= 0; i--) {
-        console.log(i)
-        const layer = this.geojsonLayersAdded[i]
-        if (layer) {
-          this.map.removeLayer(layer)
-          this.map.removeSource(layer)
-          this.geojsonLayersAdded.splice(i, 1)
-        }
-      }
+      this.watersheds.forEach((wsId, i) => {
+        this.map.removeLayer(`ws-${wsId}`)
+        this.map.removeSource(`ws-${wsId}`)
+      })
+      this.watersheds = []
     },
     createWatersheds () {
       this.fetchWatersheds()
     }
   },
-  watch: {
-    // dataMartFeatureInfo: {
-    //   deep: true,
-    //   handler () {
-    //     this.createWatersheds()
-    //   }
-    // }
-  },
   mounted () {
     this.createWatersheds()
   },
   beforeDestroy () {
-    this.resetGeoJSONLayers()
   }
 }
 </script>
