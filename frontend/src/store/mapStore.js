@@ -1,6 +1,7 @@
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
+import HighlightPoint from '../components/map/MapHighlightPoint'
 const emptyPoint = {
   'type': 'Feature',
   'geometry': {
@@ -232,7 +233,7 @@ export default {
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
         const vector = layer['display_data_name']
-        // this.map.on('click', vector, this.setSingleFeature)
+        // state.map.on('click', vector, this.setSingleFeature)
         state.map.on('mouseenter', vector, commit('setCursorPointer'))
         state.map.on('mouseleave', vector, commit('resetCursor'))
       }
@@ -245,8 +246,83 @@ export default {
       rootGetters.getStreamLayers.forEach((l) => {
         state.map.addLayer(l)
       })
-    }
+    },
+    async initHighlightLayers ({ state }) {
+      await state.map.on('load', () => {
+        // initialize highlight layer
+        state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
+        state.map.addLayer({
+          'id': 'customShape',
+          'type': 'fill',
+          'source': 'customShapeData',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(26, 193, 244, 0.08)',
+            'fill-outline-color': 'rgb(8, 159, 205)'
+          }
+        })
+        state.map.addSource('highlightLayerData', {
+          type: 'geojson',
+          data: emptyPolygon
+        })
+        state.map.addLayer({
+          'id': 'highlightLayer',
+          'type': 'fill',
+          'source': 'highlightLayerData',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(154, 63, 202, 0.25)'
+          }
+        })
+        state.map.addImage('highlight-point', HighlightPoint(state.map, 90), { pixelRatio: 2 })
+        state.map.addSource('highlightPointData', { type: 'geojson', data: emptyPoint })
+        state.map.addLayer({
+          'id': 'highlightPoint',
+          'type': 'symbol',
+          'source': 'highlightPointData',
+          'layout': {
+            'icon-image': 'highlight-point'
+          }
+        })
+      })
+    },
+    /*
+      Highlights a single Feature dataset
+     */
+    updateHighlightLayerData ({ state, commit, dispatch }, data) {
+      // For stream networks layer we add custom highlighting and reset poly/point highlight layering
+      if (data.display_data_name === 'freshwater_atlas_stream_networks') {
+        state.map.getSource('highlightPointData').setData(emptyPoint)
+        state.map.getSource('highlightLayerData').setData(emptyPolygon)
+        // For local rendered streams only calculation
+        commit('resetStreamData', {}, { root: true })
 
+        // Update stream layer
+        let layer = state.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
+        dispatch('calculateStreamHighlights', { stream: data, streams: layer }, { root: true })
+
+        // Backend query for all connected streams
+        // this.$store.dispatch('fetchConnectedStreams', { stream: data })
+      } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
+        state.map.getSource('highlightPointData').setData(data)
+        state.map.getSource('highlightLayerData').setData(emptyPolygon)
+        commit('resetStreamData', {}, { root: true })
+        commit('resetStreamBufferData', {}, { root: true })
+      } else {
+        state.map.getSource('highlightPointData').setData(emptyPoint)
+        state.map.getSource('highlightLayerData').setData(data)
+        commit('resetStreamData', {}, { root: true })
+        commit('resetStreamBufferData', {}, { root: true })
+      }
+    },
+    /*
+     Highlights a FeatureCollection dataset
+    */
+    updateHighlightsLayerData ({ state }, data) {
+      if (data.display_data_name === 'stream_apportionment') {
+        state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
+      }
+    }
   },
   mutations: {
     activateLayer (state, displayDataName) {

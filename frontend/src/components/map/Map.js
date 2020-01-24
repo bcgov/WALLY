@@ -5,7 +5,6 @@ import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
-import HighlightPoint from './MapHighlightPoint'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
 import coordinatesGeocoder from './localGeocoder'
@@ -233,45 +232,45 @@ export default {
         }, 500)
       }
     },
-    initHighlightLayers () {
-      this.map.on('load', () => {
-        // initialize highlight layer
-        this.map.addSource('customShapeData', { type: 'geojson', data: polygon })
-        this.map.addLayer({
-          'id': 'customShape',
-          'type': 'fill',
-          'source': 'customShapeData',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(26, 193, 244, 0.08)',
-            'fill-outline-color': 'rgb(8, 159, 205)'
-          }
-        })
-        this.map.addSource('highlightLayerData', {
-          type: 'geojson',
-          data: polygon
-        })
-        this.map.addLayer({
-          'id': 'highlightLayer',
-          'type': 'fill',
-          'source': 'highlightLayerData',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(154, 63, 202, 0.25)'
-          }
-        })
-        this.map.addImage('highlight-point', HighlightPoint(this.map, 90), { pixelRatio: 2 })
-        this.map.addSource('highlightPointData', { type: 'geojson', data: point })
-        this.map.addLayer({
-          'id': 'highlightPoint',
-          'type': 'symbol',
-          'source': 'highlightPointData',
-          'layout': {
-            'icon-image': 'highlight-point'
-          }
-        })
-      })
-    },
+    // initHighlightLayers () {
+    //   this.map.on('load', () => {
+    //     // initialize highlight layer
+    //     this.map.addSource('customShapeData', { type: 'geojson', data: polygon })
+    //     this.map.addLayer({
+    //       'id': 'customShape',
+    //       'type': 'fill',
+    //       'source': 'customShapeData',
+    //       'layout': {},
+    //       'paint': {
+    //         'fill-color': 'rgba(26, 193, 244, 0.08)',
+    //         'fill-outline-color': 'rgb(8, 159, 205)'
+    //       }
+    //     })
+    //     this.map.addSource('highlightLayerData', {
+    //       type: 'geojson',
+    //       data: polygon
+    //     })
+    //     this.map.addLayer({
+    //       'id': 'highlightLayer',
+    //       'type': 'fill',
+    //       'source': 'highlightLayerData',
+    //       'layout': {},
+    //       'paint': {
+    //         'fill-color': 'rgba(154, 63, 202, 0.25)'
+    //       }
+    //     })
+    //     this.map.addImage('highlight-point', HighlightPoint(this.map, 90), { pixelRatio: 2 })
+    //     this.map.addSource('highlightPointData', { type: 'geojson', data: point })
+    //     this.map.addLayer({
+    //       'id': 'highlightPoint',
+    //       'type': 'symbol',
+    //       'source': 'highlightPointData',
+    //       'layout': {
+    //         'icon-image': 'highlight-point'
+    //       }
+    //     })
+    //   })
+    // },
     // initStreamHighlights () {
     //   // Import sources and layers for stream segment highlighting
     //   this.getStreamSources.forEach((s) => {
@@ -333,45 +332,45 @@ export default {
       this.$store.dispatch('map/addMapLayer', data.result.layer)
       this.$store.dispatch('getDataMartFeatures', payload)
     },
-    /*
-      Highlights a FeatureCollection dataset
-     */
-    updateHighlightsLayerData (data) {
-      if (data.display_data_name === 'stream_apportionment') {
-        this.map.getSource('streamApportionmentSource').setData(data.feature_collection)
-      }
-    },
+    // /*
+    //   Highlights a FeatureCollection dataset
+    //  */
+    // updateHighlightsLayerData (data) {
+    //   if (data.display_data_name === 'stream_apportionment') {
+    //     this.map.getSource('streamApportionmentSource').setData(data.feature_collection)
+    //   }
+    // },
     /*
       Highlights a single Feature dataset
      */
-    updateHighlightLayerData (data) {
-      // For stream networks layer we add custom highlighting and reset poly/point highlight layering
-      if (data.display_data_name === 'freshwater_atlas_stream_networks') {
-        this.map.getSource('highlightPointData').setData(point)
-        this.map.getSource('highlightLayerData').setData(polygon)
-        console.log('messing with stream highlights')
-        // For local rendered streams only calculation
-        this.$store.commit('resetStreamData')
-        this.updateStreamLayer(data)
-
-        // Backend query for all connected streams
-        // this.$store.dispatch('fetchConnectedStreams', { stream: data })
-      } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
-        this.map.getSource('highlightPointData').setData(data)
-        this.map.getSource('highlightLayerData').setData(polygon)
-        this.$store.commit('resetStreamData')
-        this.$store.commit('resetStreamBufferData')
-      } else {
-        this.map.getSource('highlightPointData').setData(point)
-        this.map.getSource('highlightLayerData').setData(data)
-        this.$store.commit('resetStreamData')
-        this.$store.commit('resetStreamBufferData')
-      }
-    },
-    updateStreamLayer (data) {
-      let layer = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
-      this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
-    },
+    // updateHighlightLayerData (data) {
+    //   // For stream networks layer we add custom highlighting and reset poly/point highlight layering
+    //   if (data.display_data_name === 'freshwater_atlas_stream_networks') {
+    //     this.map.getSource('highlightPointData').setData(point)
+    //     this.map.getSource('highlightLayerData').setData(polygon)
+    //     console.log('messing with stream highlights')
+    //     // For local rendered streams only calculation
+    //     this.$store.commit('resetStreamData')
+    //     this.updateStreamLayer(data)
+    //
+    //     // Backend query for all connected streams
+    //     // this.$store.dispatch('fetchConnectedStreams', { stream: data })
+    //   } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
+    //     this.map.getSource('highlightPointData').setData(data)
+    //     this.map.getSource('highlightLayerData').setData(polygon)
+    //     this.$store.commit('resetStreamData')
+    //     this.$store.commit('resetStreamBufferData')
+    //   } else {
+    //     this.map.getSource('highlightPointData').setData(point)
+    //     this.map.getSource('highlightLayerData').setData(data)
+    //     this.$store.commit('resetStreamData')
+    //     this.$store.commit('resetStreamBufferData')
+    //   }
+    // },
+    // updateStreamLayer (data) {
+    //   let layer = this.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
+    //   this.$store.dispatch('calculateStreamHighlights', { stream: data, streams: layer })
+    // },
     onMapMoveUpdateStreamLayer () {
       if (this.getSelectedStreamData.features) {
         var data = Object.assign({}, this.getSelectedStreamData.features[0])
@@ -545,7 +544,10 @@ export default {
       'getMapObjects',
       'addActiveSelection',
       'handleAddPointSelection',
-      'initStreamHighlights'
+      'initStreamHighlights',
+      'initHighlightLayers',
+      'updateHighlightLayerData',
+      'updateHighlightsLayerData'
     ])
   },
   watch: {
