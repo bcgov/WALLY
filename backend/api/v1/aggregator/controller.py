@@ -20,7 +20,7 @@ from fastapi import HTTPException
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.hydat.db_models import Station as StreamStation
 from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005, transform_3005_4326
-from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery
+from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery, LicenceDetails
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 logger = logging.getLogger("aggregator")
@@ -437,4 +437,85 @@ def precipitation(
 
 def surface_water_rights_licences(polygon: Polygon):
     """ returns surface water rights licences (filtered by POD subtype)"""
-    return ""
+
+    water_rights_layer = 'water_rights_licences'
+
+    licences = databc_feature_search(water_rights_layer, search_area=polygon)
+
+    total_licenced_qty_m3_yr = 0
+    licenced_qty_by_use_type = {}
+
+    for lic in licences.features:
+
+        # skip licence if not a surface water point of diversion (POD)
+        # other pod_subtype codes are associated with groundwater.
+        if lic.properties['POD_SUBTYPE'] != 'POD':
+            continue
+
+        qty = lic.properties['QUANTITY']
+        qty_unit = lic.properties['QUANTITY_UNITS'].strip()
+        purpose = lic.properties['PURPOSE_USE']
+
+        if qty_unit == 'm3/year':
+            pass
+        elif qty_unit == 'm3/day':
+            qty = qty * 365
+        elif qty_unit == 'm3/sec':
+            qty = qty * 60 * 60 * 24 * 365
+        else:
+            qty = 0
+
+        total_licenced_qty_m3_yr += qty
+        lic.properties['qty_m3_yr'] = qty
+
+        if purpose is not None:
+            if not licenced_qty_by_use_type.get(purpose, None):
+                licenced_qty_by_use_type[purpose] = 0
+            licenced_qty_by_use_type[purpose] += qty
+
+    licence_purpose_type_list = []
+
+    for purpose, qty in licenced_qty_by_use_type.items():
+        licence_purpose_type_list.append({
+            "purpose": purpose,
+            "qty": qty,
+            "units": "m3/year"
+        })
+
+    return LicenceDetails(
+        licences=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in licences.features
+        ]),
+        total_qty=total_licenced_qty_m3_yr,
+        total_qty_by_purpose=licence_purpose_type_list
+    )
+
+
+def get_watershed(watershed_id: str):
+    """ finds a watershed in DataBC watershed layers
+
+    """
+    watershed_layer = '.'.join(watershed_id.split('.')[:2])
+    watershed_feature = watershed_id.split('.')[-1:]
+
+    id_props = {
+        'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY': 'WATERSHED_FEATURE_ID',
+        'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY': 'WATERSHED_FEATURE_ID',
+        'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'HYD_WATERSHED_BND_POLY_ID'
+    }
+
+    logger.info(id_props)
+    logger.info(watershed_layer)
+
+    cql_filter = f"{id_props[watershed_layer]}={watershed_feature}"
+
+    watershed = databc_feature_search(watershed_layer, cql_filter=cql_filter)
+    if len(watershed.features) != 1:
+        raise HTTPException(
+            status_code=404, detail=f"Watershed with id {watershed_id} not found")
+
+    return watershed.features[0]

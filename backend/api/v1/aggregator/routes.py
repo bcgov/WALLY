@@ -24,6 +24,8 @@ from api.v1.aggregator.controller import (
     feature_search,
     calculate_glacial_area,
     precipitation,
+    surface_water_rights_licences,
+    get_watershed,
     EXTERNAL_API_REQUESTS,
     API_DATASOURCES,
     DATABC_GEOMETRY_FIELD,
@@ -236,23 +238,7 @@ def watershed_stats(
 ):
     """ aggregates statistics/info about a watershed """
 
-    watershed_layer = '.'.join(dataset_watershed_id.split('.')[:2])
-    watershed_id = dataset_watershed_id.split('.')[-1:]
-
-    id_props = {
-        'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY': 'WATERSHED_FEATURE_ID',
-        'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY': 'WATERSHED_FEATURE_ID',
-        'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'HYD_WATERSHED_BND_POLY_ID'
-    }
-
-    cql_filter = f"{id_props[watershed_layer]}={watershed_id}"
-
-    watershed = databc_feature_search(watershed_layer, cql_filter=cql_filter)
-    if len(watershed.features) != 1:
-        raise HTTPException(
-            status_code=404, detail=f"Watershed with id {dataset_watershed_id} not found")
-
-    watershed = watershed.features[0]
+    watershed = get_watershed(dataset_watershed_id)
 
     watershed_area = watershed.properties['FEATURE_AREA_SQM']
 
@@ -282,3 +268,28 @@ def watershed_stats(
         projected_geometry_area_simplified=projected_geometry_area_simplified,
         precip_search_area=precip_search_area.area
     )
+
+
+@router.get('/watersheds/{dataset_watershed_id}/licences')
+def get_watershed_demand(
+    dataset_watershed_id: str = Path(...,
+                                     title="The watershed ID prefixed by dataset name")
+):
+    """ returns data about watershed demand by querying DataBC """
+
+    watershed = get_watershed(dataset_watershed_id)
+
+    watershed_area = watershed.properties['FEATURE_AREA_SQM']
+
+    watershed_poly = shape(watershed.geometry)
+    projected_geometry_area = watershed_poly.area
+
+    if len(list(zip(*watershed_poly.exterior.coords.xy))) > 100:
+        watershed_poly = watershed_poly.simplify(
+            watershed.properties['FEATURE_LENGTH_M'] / 100, preserve_topology=False)
+
+    licence_data = surface_water_rights_licences(transform(transform_3005_4326, watershed_poly))
+
+    licence_data.projected_geometry_area = projected_geometry_area
+    licence_data.projected_geometry_area_simplified = watershed_poly.area
+    return licence_data

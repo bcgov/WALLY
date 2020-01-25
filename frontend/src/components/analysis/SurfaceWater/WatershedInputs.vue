@@ -29,8 +29,8 @@
 </template>
 
 <script>
-import ApiService from '../../services/ApiService'
-import Chart from '../charts/Chart'
+import ApiService from '../../../services/ApiService'
+import Chart from '../../charts/Chart'
 export default {
   name: 'WatershedDetails',
   props: ['watershedID', 'record'],

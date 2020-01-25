@@ -16,22 +16,30 @@
           ></v-select>
         </v-col>
       </v-row>
-      <WatershedDetails v-if="selectedWatershed" :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+      <div v-if="selectedWatershed">
+        <WatershedInputs :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+        <WatershedDemand :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+      </div>
+
     </template>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import ApiService from '../../services/ApiService'
+import mapboxgl from 'mapbox-gl'
+import ApiService from '../../../services/ApiService'
+import centroid from '@turf/centroid'
 import qs from 'querystring'
 
-import WatershedDetails from './WatershedDetails'
+import WatershedInputs from './WatershedInputs'
+import WatershedDemand from './WatershedDemand'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
-    WatershedDetails
+    WatershedInputs,
+    WatershedDemand
   },
   data: () => ({
     selectedWatershed: null,
@@ -71,6 +79,11 @@ export default {
       })
     },
     addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.4) {
+      let popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
+      })
+
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -86,6 +99,44 @@ export default {
           'fill-outline-color': '#003366',
           'fill-opacity': opacity
         }
+      }, 'water_rights_licences')
+
+      this.map.on('mouseenter', 'places', function (e) {
+      // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer'
+
+        let coordinates = centroid(e.features[0].geometry).coordinates.slice()
+        let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
+        let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
+        let sourceName = e.features[0].properties['SOURCE_NAME']
+        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
+        let purpose = e.features[0].properties['PURPOSE_USE']
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup
+          .setLngLat(coordinates)
+          .setHTML(`
+            <p></p>
+            <p>Licence no.: ${licenceNumber}</p>
+            <p>Primary licensee: ${licenseeName}</p>
+            <p>Source: ${sourceName}</p>
+            <p>${qty} m3/year</p>
+            <p>Purpose use: ${purpose}</p>
+          `)
+          .addTo(this.map)
+      })
+
+      this.map.on('mouseleave', 'places', function () {
+        this.map.getCanvas().style.cursor = ''
+        popup.remove()
       })
     },
     fetchWatersheds () {
@@ -106,11 +157,12 @@ export default {
         })
     },
     resetGeoJSONLayers () {
-      this.watersheds.forEach((wsId, i) => {
-        this.map.removeLayer(`ws-${wsId}`)
-        this.map.removeSource(`ws-${wsId}`)
+      this.watersheds.forEach((ws, i) => {
+        this.map.removeLayer(`ws-${ws.id}`)
+        this.map.removeSource(`ws-${ws.id}`)
       })
       this.watersheds = []
+      this.geojsonLayersAdded = []
     },
     createWatersheds () {
       this.fetchWatersheds()
@@ -120,6 +172,7 @@ export default {
     this.createWatersheds()
   },
   beforeDestroy () {
+    this.resetGeoJSONLayers()
   }
 }
 </script>

@@ -114,3 +114,15 @@ class WatershedDetails(BaseModel):
     projected_geometry_area: float
     projected_geometry_area_simplified: float
     precip_search_area: float
+
+
+class LicenceDetails(BaseModel):
+    """ statistics about licences in a given area """
+    licences: FeatureCollection
+    total_qty: float
+    total_qty_by_purpose: List
+    projected_geometry_area: Optional[float]
+    projected_geometry_area_simplified: Optional[float]
+
+    class Config:
+        arbitrary_types_allowed = True
