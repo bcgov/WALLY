@@ -3,6 +3,7 @@ import json
 from geojson import dumps, FeatureCollection, Feature, Point
 from shapely.geometry import mapping
 
+from api.config import GWELLS_API_URL
 from api.v1.aggregator.schema import ExternalAPIRequest, GWELLSAPIParams, json_to_geojson
 
 EARTH_RADIUS = 6378137
@@ -28,7 +29,7 @@ def gwells_api_request(within):
     creates an ExternalAPIRequest object with params for accessing data from the
     GWELLS API.
     """
-    url = 'https://apps.nrs.gov.bc.ca/gwells/api/v2/wells'
+    url = f"{GWELLS_API_URL}/api/v2/wells"
     params = GWELLSAPIParams(
         within=json.dumps(mapping(within)),
         geojson="false"
@@ -36,8 +37,8 @@ def gwells_api_request(within):
 
     return ExternalAPIRequest(
         url=url,
-        layer='groundwater_wells',
-        excluded_fields=['well_guid', 'drilling_company'],
+        layer="groundwater_wells",
+        excluded_fields=["well_guid", "drilling_company"],
         id_field="well_tag_number",
         q=params
     )
