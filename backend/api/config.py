@@ -28,3 +28,6 @@ SQLALCHEMY_DATABASE_URI = (
 )
 MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN", "")
 MAPBOX_STYLE = os.getenv("MAPBOX_STYLE", "")
+
+GWELLS_API_URL = os.getenv(
+    "GWELLS_API_URL", "https://gwells-prod.pathfinder.gov.bc.ca/gwells")

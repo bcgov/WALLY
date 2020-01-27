@@ -28,6 +28,10 @@
             </v-expansion-panel-content>
           </v-expansion-panel>
         </template>
+
+        <!-- General (does not depend on geometry type) analysis  -->
+        <template>
+        </template>
     </v-expansion-panels>
 </template>
 

@@ -40,7 +40,6 @@ export default {
     EventBus.$on('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$on('dataMart:added', this.handleAddApiLayer)
     EventBus.$on('dataMart:removed', this.handleRemoveApiLayer)
-    EventBus.$on('feature:added', this.handleAddFeature)
     EventBus.$on('layers:loaded', this.loadLayers)
     EventBus.$on('draw:reset', this.replaceOldFeatures)
     EventBus.$on('shapes:add', this.addShape)
@@ -57,7 +56,6 @@ export default {
     EventBus.$off('baseLayer:removed', this.handleRemoveBaseLayer)
     EventBus.$off('dataMart:added', this.handleAddApiLayer)
     EventBus.$off('dataMart:removed', this.handleRemoveApiLayer)
-    EventBus.$off('feature:added', this.handleAddFeature)
     EventBus.$off('layers:loaded', this.loadLayers)
     EventBus.$off('draw:reset', this.replaceOldFeatures)
     EventBus.$off('shapes:add', this.addShape)
@@ -129,7 +127,8 @@ export default {
         style: mapConfig.data.mapbox_style, // dev or prod map style
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
-        attributionControl: false // hide default and re-add to the top left
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
       }))
 
       const modes = MapboxDraw.modes
@@ -142,9 +141,9 @@ export default {
         modes: modes,
         displayControlsDefault: false,
         controls: {
-          polygon: true,
-          point: true,
-          line_string: true,
+          // polygon: true,
+          // point: true,
+          // line_string: true,
           trash: true
         }
       }))
@@ -195,7 +194,8 @@ export default {
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
 
-      this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
+      // NOTE: temporary
+      // this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
@@ -214,14 +214,16 @@ export default {
       this.replaceOldFeatures()
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
+      this.$store.dispatch('removeElementsByClass', 'annotationMarker')
+      EventBus.$emit('shapes:reset')
 
-      if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_point') {
+      if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
         this.$store.commit('resetDataMartFeatureInfo')
         EventBus.$emit('highlight:clear')
       }
     },
     handleModeChange (e) {
-      if (e.mode === 'draw_polygon' || e.mode === 'draw_point') {
+      if (e.mode === 'draw_polygon' || e.mode === 'draw_point' || e.mode === 'draw_line_string') {
         this.isDrawingToolActive = true
         this.polygonToolHelp()
       } else if (e.mode === 'simple_select') {
@@ -305,7 +307,10 @@ export default {
         this.map.on('mouseleave', vector, this.resetCursor)
       }
     },
-    updateBySearchResult (data) {
+    async updateBySearchResult (data) {
+      this.draw.changeMode('simple_select')
+      await this.$router.push({ name: 'single-feature' })
+      console.log('route changed')
       let lat = data.result.center[1]
       let lng = -Math.abs(data.result.center[0])
       const options = { steps: 10, units: 'kilometers', properties: {} }
@@ -346,7 +351,7 @@ export default {
       if (data.display_data_name === 'freshwater_atlas_stream_networks') {
         this.map.getSource('highlightPointData').setData(point)
         this.map.getSource('highlightLayerData').setData(polygon)
-
+        console.log('messing with stream highlights')
         // For local rendered streams only calculation
         this.$store.commit('resetStreamData')
         this.updateStreamLayer(data)
@@ -386,6 +391,7 @@ export default {
       this.map.getSource('highlightLayerData').setData(polygon)
       this.$store.commit('resetStreamData')
       this.$store.commit('resetStreamBufferData')
+      this.$store.dispatch('removeElementsByClass', 'annotationMarker')
     },
     handleAddLayer (displayDataName) {
       this.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
@@ -491,66 +497,9 @@ export default {
       const old = this.draw.getAll().features.filter((f) => f.id !== newFeature)
       this.draw.delete(old.map((feature) => feature.id))
     },
-    handleAddPointSelection (feature) {
-      feature.display_data_name = 'user_defined_point'
-      this.$store.commit('setDataMartFeatureInfo', feature)
-    },
-    handleAddLineSelection (feature) {
-      feature.display_data_name = 'user_defined_line'
-      this.$store.commit('setDataMartFeatureInfo', feature)
-    },
-    handleSelect (feature, options) {
-      // default options when calling this handler.
-      //
-      // showFeatureList: whether features selected by the user should be immediately shown in
-      // a panel.  This might be false if the user is selecting layers and may want to select
-      // several before being "bumped" to the selected features list.
-      //
-      // example: EventBus.$emit('draw:redraw', { showFeatureList: false })
-      const defaultOptions = {
-        showFeatureList: true
-      }
-
-      options = Object.assign({}, defaultOptions, options)
-
-      if (!feature || !feature.features || !feature.features.length) return
-
-      if (options.showFeatureList) {
-        this.$store.commit('setLayerSelectionActiveState', false)
-      }
-
-      const newFeature = feature.features[0]
-      this.replaceOldFeatures(newFeature.id)
-
-      if (newFeature.geometry.type === 'Point') {
-        return this.handleAddPointSelection(newFeature)
-      }
-
-      if (newFeature.geometry.type === 'LineString') {
-        return this.handleAddLineSelection(newFeature)
-      }
-
-      // for drawn rectangular regions, the polygon describing the rectangle is the first
-      // element in the array of drawn features.
-      // note: this is what might break if extending the selection tools to draw more objects.
-      this.getMapObjects(newFeature)
-      this.$store.commit('setSelectionBoundingBox', newFeature)
-    },
     listenForAreaSelect () {
       this.map.on('draw.create', this.handleSelect)
       this.map.on('draw.update', this.handleSelect)
-    },
-    getMapObjects (bounds) {
-      // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
-      const canvas = this.map.getCanvas()
-      const size = { x: canvas.width, y: canvas.height }
-
-      this.$store.commit('clearDataMartFeatures')
-      this.$store.dispatch('getDataMartFeatures', {
-        bounds: bounds,
-        size: size,
-        layers: this.activeMapLayers
-      })
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
@@ -587,8 +536,8 @@ export default {
     resetCursor () {
       this.map.getCanvas().style.cursor = ''
     },
-    ...mapMutations(['setMap', 'setDraw', 'setGeocoder']),
-    ...mapActions(['getMapLayers'])
+    ...mapMutations(['setMap', 'setDraw', 'setGeocoder', 'replaceOldFeatures']),
+    ...mapActions(['getMapLayers', 'getMapObjects', 'handleSelect', 'handleAddPointSelection'])
   },
   watch: {
     highlightFeatureData (value) {
@@ -615,8 +564,6 @@ export default {
           coordinates = this.getPolygonCenter(flattened)
         }
 
-        // TODO: Remove this
-        // This centers the map on the selected point
         // let flyToCoordinates = [...coordinates]
         // this.map.flyTo({
         //   center: flyToCoordinates
