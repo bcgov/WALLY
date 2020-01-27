@@ -49,7 +49,6 @@ describe('Wells Nearby', () => {
 
   it('Redraws circle on map', () => {
     wrapper.vm.showCircle()
-    // expect(wrapper.emitted('shapes:reset'.toBeTruthy))
     expect(store.commit).toHaveBeenCalledWith('map/removeShapes')
     const options = {
       steps: 32,

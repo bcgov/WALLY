@@ -35,7 +35,6 @@ describe('Stream apportionment tests', () => {
     let methods = {
       fetchStreams: jest.fn()
     }
-    // store = new Vuex.Store({ getters, mutations })
     store = new Vuex.Store({ modules: { map } })
 
     wrapper = shallowMount(StreamApportionment, {
