@@ -126,3 +126,26 @@ class LicenceDetails(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class SurficialGeologyTypeSummary(BaseModel):
+    """ 
+    Summary of features belonging to single type of surficial geology in a search area.
+    e.g. summary of all bedrock features in a search area, with a FeatureCollection,
+    total area, etc.
+    """
+    soil_type: str
+    area_within_watershed: float
+    geojson: FeatureCollection
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class SurficialGeologyDetails(BaseModel):
+    """ statistics about surficial geology
+    """
+    summary_by_type: List
+    coverage_area: Optional[float]
+    projected_geometry_area: Optional[float]
+    projected_geometry_area_simplified: Optional[float]

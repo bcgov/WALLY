@@ -26,6 +26,7 @@ from api.v1.aggregator.controller import (
     precipitation,
     surface_water_rights_licences,
     get_watershed,
+    surficial_geology,
     EXTERNAL_API_REQUESTS,
     API_DATASOURCES,
     DATABC_GEOMETRY_FIELD,
@@ -245,19 +246,14 @@ def watershed_stats(
     watershed_poly = shape(watershed.geometry)
     projected_geometry_area = watershed_poly.area
 
-    if len(list(zip(*watershed_poly.exterior.coords.xy))) > 100:
-        watershed_poly = watershed_poly.simplify(
-            watershed.properties['FEATURE_LENGTH_M'] / 100, preserve_topology=False)
+    watershed_rect = watershed_poly.minimum_rotated_rectangle
 
-    projected_geometry_area_simplified = watershed_poly.area
-
-    precip_search_area = watershed_poly.simplify(
-        watershed.properties['FEATURE_LENGTH_M'] / 10)
+    projected_geometry_area_simplified = watershed_rect.area
 
     precip = precipitation(
-        transform(transform_3005_4326, precip_search_area))
+        transform(transform_3005_4326, watershed_rect))
     glacial_area_m, glacial_coverage = calculate_glacial_area(
-        db, transform(transform_3005_4326, watershed_poly))
+        db, transform(transform_3005_4326, watershed_rect))
 
     return WatershedDetails(
         precipitation=precip,
@@ -266,7 +262,7 @@ def watershed_stats(
         watershed_area=watershed_area,
         projected_geometry_area=projected_geometry_area,
         projected_geometry_area_simplified=projected_geometry_area_simplified,
-        precip_search_area=precip_search_area.area
+        precip_search_area=watershed_rect.area
     )
 
 
@@ -284,12 +280,39 @@ def get_watershed_demand(
     watershed_poly = shape(watershed.geometry)
     projected_geometry_area = watershed_poly.area
 
-    if len(list(zip(*watershed_poly.exterior.coords.xy))) > 100:
-        watershed_poly = watershed_poly.simplify(
-            watershed.properties['FEATURE_LENGTH_M'] / 100, preserve_topology=False)
+    watershed_rect = watershed_poly.minimum_rotated_rectangle
 
-    licence_data = surface_water_rights_licences(transform(transform_3005_4326, watershed_poly))
+    licence_data = surface_water_rights_licences(
+        transform(transform_3005_4326, watershed_rect))
 
     licence_data.projected_geometry_area = projected_geometry_area
-    licence_data.projected_geometry_area_simplified = watershed_poly.area
+    licence_data.projected_geometry_area_simplified = watershed_rect.area
     return licence_data
+
+
+@router.get('/watersheds/{dataset_watershed_id}/surficial_geology')
+def get_surficial_geology(
+    dataset_watershed_id: str = Path(...,
+                                     title="The watershed ID prefixed by dataset name")
+):
+    """ returns data about watershed demand by querying DataBC """
+
+    watershed = get_watershed(dataset_watershed_id)
+
+    watershed_area = watershed.properties['FEATURE_AREA_SQM']
+
+    watershed_poly = shape(watershed.geometry)
+
+    logger.info(watershed_poly)
+
+    projected_geometry_area = watershed_poly.area
+
+    watershed_rect = watershed_poly.minimum_rotated_rectangle
+
+    surf_geol_summary = surficial_geology(
+        transform(transform_3005_4326, watershed_rect))
+
+    surf_geol_summary.projected_geometry_area = projected_geometry_area
+    surf_geol_summary.projected_geometry_area_simplified = watershed_rect.area
+
+    return surf_geol_summary

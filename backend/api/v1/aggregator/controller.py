@@ -20,7 +20,7 @@ from fastapi import HTTPException
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.hydat.db_models import Station as StreamStation
 from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005, transform_3005_4326
-from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery, LicenceDetails
+from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery, LicenceDetails, SurficialGeologyDetails
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 
 logger = logging.getLogger("aggregator")
@@ -297,7 +297,8 @@ def feature_search(db: Session, layers, search_area):
                 typeName=DATABC_LAYER_IDS.get(
                     item.display_data_name, None) or item.wms_catalogue.wms_name,
                 cql_filter=f"""
-                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {albers_search_area.wkt})
+                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {
+                               albers_search_area.wkt})
                 """
             )
             req = ExternalAPIRequest(
@@ -353,7 +354,8 @@ def databc_feature_search(layer, search_area=None, cql_filter=None) -> FeatureCo
     if search_area:
         search_area = transform(transform_4326_3005, search_area)
         cql_filter = f"""
-                INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {search_area.wkt})
+                INTERSECTS({DATABC_GEOMETRY_FIELD.get(
+                    layer, 'GEOMETRY')}, {search_area.wkt})
             """
 
     query = WMSGetFeatureQuery(
@@ -394,6 +396,11 @@ def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> float:
 
     for glacier in glacial_features:
         glacier_clipped = shape(glacier.geometry).intersection(polygon)
+
+        if not glacier_clipped.area:
+            logger.info('glacier outside search area')
+            continue
+
         logger.info('adding %s', str(glacier_clipped.area))
 
         glacial_area += glacier_clipped.area
@@ -446,6 +453,14 @@ def surface_water_rights_licences(polygon: Polygon):
     licenced_qty_by_use_type = {}
 
     for lic in licences.features:
+
+        feature_shape = shape(lic.geometry)
+        feature_shape_intersect = feature_shape.intersection(
+            transform(transform_4326_3005, polygon)
+        )
+        if not feature_shape_intersect.area:
+            logger.info('licence outside search area')
+            continue
 
         # skip licence if not a surface water point of diversion (POD)
         # other pod_subtype codes are associated with groundwater.
@@ -519,3 +534,82 @@ def get_watershed(watershed_id: str):
             status_code=404, detail=f"Watershed with id {watershed_id} not found")
 
     return watershed.features[0]
+
+
+def surficial_geology(polygon: Polygon):
+    """ surficial geology information from DataBC
+    https://catalogue.data.gov.bc.ca/dataset/terrain-inventory-mapping-tim-detailed-polygons-with-short-attribute-table-spatial-view
+
+    """
+
+    surf_geol_layer = "WHSE_TERRESTRIAL_ECOLOGY.STE_TER_INVENTORY_POLYS_SVW"
+
+    fc = databc_feature_search(surf_geol_layer, polygon)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    surficial_geology_dominant_types = {}
+    surficial_geology_features_by_type = {}
+
+    coverage_area = 0
+
+    for feature in fc.features:
+
+        feature_shape = shape(feature.geometry)
+        feature_shape_intersect = feature_shape.intersection(polygon_3005)
+
+        # DOMINANT_SURFICIAL_MATERIAL is the property we are looking for.
+        # it is a description of the surficial geology deposition method.
+        dominant_type = feature.properties.get(
+            'DOMINANT_SURFICIAL_MATERIAL', None)
+
+        if not dominant_type or not feature_shape_intersect.area:
+            continue
+
+        # initialize area for new soil types
+        if not surficial_geology_dominant_types.get(dominant_type, None):
+            surficial_geology_dominant_types[dominant_type] = 0
+
+        # initialize list of features for new soil types
+        if not surficial_geology_features_by_type.get(dominant_type, None):
+            surficial_geology_features_by_type[dominant_type] = []
+
+        # add to total area for this soil type
+        surficial_geology_dominant_types[dominant_type] += feature_shape_intersect.area
+
+        # create a SRID 4326 feature
+        # this feature will be returned in the JSON response and can
+        # be displayed on the map.
+        geom_4326 = transform(transform_3005_4326, feature_shape_intersect)
+        feat_4326 = Feature(
+            geometry=geom_4326,
+            id=feature.id,
+            properties=feature.properties
+        )
+
+        # adding the centroid makes it easier to add labels later
+        feat_4326.properties['centre'] = geom_4326.centroid.coords
+
+        surficial_geology_features_by_type[dominant_type].append(feat_4326)
+
+        coverage_area += feature_shape_intersect.area
+
+    surf_geol_list = []
+    geol_type_features = []
+
+    for soil_type, area in surficial_geology_dominant_types.items():
+
+        soil_type_fc = FeatureCollection(
+            surficial_geology_features_by_type.get(soil_type, []))
+
+        surf_geol_list.append({
+            "soil_type": soil_type,
+            "area_within_watershed": area,
+            "geojson": soil_type_fc
+
+        })
+
+    return SurficialGeologyDetails(
+        summary_by_type=surf_geol_list,
+        coverage_area=coverage_area
+    )

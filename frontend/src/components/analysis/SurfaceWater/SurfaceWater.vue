@@ -18,6 +18,7 @@
       </v-row>
       <div v-if="selectedWatershed">
         <WatershedInputs :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+        <SurficialGeology :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
         <WatershedDemand :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
       </div>
 
@@ -34,12 +35,14 @@ import qs from 'querystring'
 
 import WatershedInputs from './WatershedInputs'
 import WatershedDemand from './WatershedDemand'
+import SurficialGeology from './SurficialGeology'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
     WatershedInputs,
-    WatershedDemand
+    WatershedDemand,
+    SurficialGeology
   },
   data: () => ({
     selectedWatershed: null,
