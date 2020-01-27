@@ -130,7 +130,6 @@ export default {
       }
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.dispatch('map/clearHighlightLayer')
-      // EventBus.$emit('highlight:clear')
 
       if (this.$store.getters.dataMartFeatures && this.$store.getters.dataMartFeatures.length) {
         this.$router.push({ name: 'multiple-features' })

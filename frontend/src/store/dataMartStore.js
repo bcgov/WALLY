@@ -20,7 +20,6 @@ export default {
   actions: {
     addDataMart ({ state, dispatch }, payload) {
       state.activeDataMarts.push(payload)
-      // EventBus.$emit(`dataMart:added`, payload)
       dispatch('addApiLayer', payload)
     },
     getDataMartFeatures ({ commit, state }, payload) {
@@ -124,7 +123,6 @@ export default {
       state.activeDataMarts = state.activeDataMarts.filter(function (source) {
         return source.displayDataName !== payload
       })
-      // EventBus.$emit(`dataMart:removed`, payload)
       dispatch('removeDataMartLayer', payload)
     },
     removeDataMartLayer ({ state, commit }, layer) {

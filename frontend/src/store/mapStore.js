@@ -167,7 +167,6 @@ export default {
       })
       dispatch('clearHighlightLayer')
       commit('deactivateLayer', payload)
-      // EventBus.$emit(`layer:removed`, payload)
     },
     clearMapLayers () {},
     // getFeatures() <--datamartStore
@@ -180,7 +179,6 @@ export default {
             .then((response) => {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
-              // EventBus.$emit(`layers:loaded`)
               dispatch('loadLayers')
             })
             .catch((error) => {
@@ -212,7 +210,6 @@ export default {
       // if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
       commit('resetDataMartFeatureInfo', {}, { root: true })
       dispatch('clearHighlightLayer')
-      // EventBus.$emit('highlight:clear')
       // }
     },
     clearHighlightLayer ({ commit, state, dispatch }) {

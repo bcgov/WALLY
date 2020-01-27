@@ -106,7 +106,6 @@ export default {
     },
     resetSelections () {
       this.$store.commit('map/replaceOldFeatures', null)
-      // EventBus.$emit('highlight:clear')
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
