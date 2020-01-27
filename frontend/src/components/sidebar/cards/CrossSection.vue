@@ -56,10 +56,10 @@ export default {
       this.draw.changeMode('draw_line_string')
     },
     enableWellsLayer () {
-      this.$store.commit('addMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
     },
     disableWellsLayer () {
-      this.$store.commit('removeMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     }
   },
   computed: {
