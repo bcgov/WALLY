@@ -147,7 +147,7 @@ def glacier_coverage(
             status_code=400, detail="Polygon has zero area")
     polygon = transform(transform_4326_3005, polygon)
 
-    coverage = glacial_area(db, polygon)
+    coverage = calculate_glacial_area(db, polygon)
 
     return {
         "coverage": coverage

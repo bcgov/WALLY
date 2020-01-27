@@ -23,11 +23,9 @@
 <script>
 import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
-import Chart from '../../charts/Chart'
 export default {
   name: 'SurfaceWaterDemand',
   components: {
-    Chart
   },
   props: ['watershedID', 'record'],
   data: () => ({
