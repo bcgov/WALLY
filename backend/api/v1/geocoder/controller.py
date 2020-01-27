@@ -152,7 +152,7 @@ def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollect
 
     geocoder_features = []
 
-    if feature_type in EXTERNAL_API_SEARCH_URLS:
+    if feature_type in EXTERNAL_API_SEARCH_URLS.keys():
         geocoder_features = external_search(
             query, feature_type, EXTERNAL_API_SEARCH_URLS.get(feature_type))
     else:
