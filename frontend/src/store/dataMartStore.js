@@ -23,7 +23,6 @@ export default {
       dispatch('addApiLayer', payload)
     },
     getDataMartFeatures ({ commit, state }, payload) {
-      console.log('getting datamart features')
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
         return
@@ -117,7 +116,6 @@ export default {
         return x.display_data_name === payload.displayDataName
       })
       commit('addGeoJSONLayer', layer)
-      // this.addGeoJSONLayer(layer)
     },
     removeDataMart ({ state, dispatch }, payload) {
       state.activeDataMarts = state.activeDataMarts.filter(function (source) {
@@ -132,7 +130,6 @@ export default {
       }
       state.map.removeLayer(layer.id)
       commit('map/removeLayer', layer.id, { root: true })
-      // delete this.legendGraphics[layer.id]
       delete state.activeDataMartLayers[layer.id]
     }
   },

@@ -106,16 +106,6 @@ export default {
       dispatch('getMapObjects', newFeature)
       commit('setSelectionBoundingBox', newFeature, { root: true })
     },
-    clearActiveSelection ({ commit }) {
-      commit('replaceOldFeatures', null)
-    },
-    getAllLayers () {
-
-    },
-    getLayerCategories () {
-
-    },
-
     updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
       // accepts an array of layer names and sets the active map layers accordingly
       state.selectedMapLayerNames = selectedLayers
@@ -126,20 +116,15 @@ export default {
       // get list of layers that were deselected (they were in `prev`, but are not in payload),
       // and sent an event to remove them.
       prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => dispatch('removeMapLayer', l))
-      // prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => EventBus.$emit(`layer:removed`, l))
 
       // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
       selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => commit('activateLayer', l))
-      // selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`layer:added`, l))
 
       // reset the list of active layers
       commit('setActiveMapLayers', selectedLayers)
 
       // redraw any current features and update selection.
       dispatch('addActiveSelection', state.draw.getAll(), { showFeatureList: false })
-    },
-    disableLayer () {
-
     },
     expandMapLegend () {},
     collapseMapLegend () {},
@@ -168,8 +153,6 @@ export default {
       dispatch('clearHighlightLayer')
       commit('deactivateLayer', payload)
     },
-    clearMapLayers () {},
-    // getFeatures() <--datamartStore
     getMapLayers ({ commit, dispatch }) {
       // We only fetch maplayers if we don't have a copy cached
       if (this.state.mapLayers === undefined) {
@@ -225,9 +208,7 @@ export default {
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
-      // prev.filter((l) => !payload.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:removed`, l))
       prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
-      // payload.filter((l) => !prev.includes(l)).forEach((l) => EventBus.$emit(`baseLayer:added`, l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
     },

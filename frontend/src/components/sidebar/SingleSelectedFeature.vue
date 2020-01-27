@@ -4,7 +4,7 @@
       <v-row>
         <v-col cols=2>
           <v-btn
-            fac
+            fab
             class="elevation-1"
             small
             id="closeSingleSelectedFeature"
