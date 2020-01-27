@@ -10,6 +10,7 @@ from shapely import wkt
 from shapely.geometry import shape, mapping
 from shapely.ops import transform
 
+from api.config import GWELLS_API_URL
 import api.v1.aggregator.controller as agr_repo
 from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest
@@ -30,7 +31,7 @@ WFS_SEARCH_FIELDS = {
 
 # searches will make a request to these external URLs, if available for the layer type
 EXTERNAL_API_SEARCH_URLS = {
-    "groundwater_wells": "https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/locations?limit=5&search="
+    "groundwater_wells": f"{GWELLS_API_URL}/api/v2/wells/locations?limit=5&search="
 }
 
 

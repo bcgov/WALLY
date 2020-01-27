@@ -13,6 +13,7 @@ from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from shapely.geometry import Point, LineString, CAP_STYLE, JOIN_STYLE, mapping, shape
 from shapely.ops import transform
+from api.config import GWELLS_API_URL
 from api.layers.ground_water_wells import GroundWaterWells
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
 from api.v1.aggregator.controller import fetch_geojson_features
@@ -104,7 +105,7 @@ def get_screens(point, radius) -> List[WellDrawdown]:
     wells_results = []
 
     done = False
-    url = f"https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
+    url = f"{GWELLS_API_URL}/api/v2/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
     # helpers to prevent unbounded requests
     limit_requests = 100
     i = 0  # this i is for recording extra requests within each chunk, if necessary
@@ -194,7 +195,8 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
 
 def create_line_buffer(line: LineString, radius: float):
     line = transform(transform_4326_3005, line)
-    buf = line.buffer(radius, cap_style=CAP_STYLE.flat, join_style=JOIN_STYLE.round)
+    buf = line.buffer(radius, cap_style=CAP_STYLE.flat,
+                      join_style=JOIN_STYLE.round)
     return transform(transform_3005_4326, buf)
 
 
@@ -255,7 +257,7 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
     buf = create_line_buffer(profile, radius)
 
     req = ExternalAPIRequest(
-        url="https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/screens",
+        url=f"{GWELLS_API_URL}/api/v2/wells/screens",
         q={
             "within": buf.wkt,
             "limit": 100
