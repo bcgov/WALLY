@@ -12,9 +12,8 @@ from shapely.ops import transform
 
 from api.config import GWELLS_API_URL
 import api.v1.aggregator.controller as agr_repo
-from api.v1.aggregator.controller import fetch_geojson_features
+from api.v1.aggregator.controller import fetch_geojson_features, EXTERNAL_API_REQUESTS, DATABC_LAYER_IDS as WFS_LAYER_IDS
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest
-from api.v1.aggregator.routes import EXTERNAL_API_REQUESTS, DATABC_LAYER_IDS as WFS_LAYER_IDS
 from api.v1.geocoder.db_models import geocode
 
 logger = getLogger("geocoder")
