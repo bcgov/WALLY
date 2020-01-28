@@ -186,7 +186,6 @@ export default {
     clearSelections ({ state, commit, dispatch }) {
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
-      commit('clearDisplayTemplates', {}, { root: true })
       dispatch('removeElementsByClass', 'annotationMarker')
       commit('removeShapes')
 

@@ -116,7 +116,6 @@ export default {
       this.$store.dispatch('map/updateActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('clearDisplayTemplates')
     },
     handleSelectLayer (selectedLayers) {
       this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)

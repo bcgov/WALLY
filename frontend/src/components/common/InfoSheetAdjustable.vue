@@ -5,6 +5,7 @@
         elevation="5"
         class="float-left feature-info-sheet"
         v-show="infoPanelVisible"
+        tile
       >
         <slot/>
       </v-sheet>
