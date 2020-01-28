@@ -38,7 +38,7 @@ export default {
     searchDisabled () {
       return this.searchOptions.find(x => x.value === this.searchFeatureType).disableSearch || false
     },
-    ...mapGetters([
+    ...mapGetters('map', [
       'geocoder'
     ]),
     ...mapActions(['downloadMapImage'])

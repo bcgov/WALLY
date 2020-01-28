@@ -16,13 +16,16 @@ const vuetify = new Vuetify()
 describe('Map Legend Test', () => {
   let wrapper
   let store
-  let getters
 
   beforeEach(() => {
-    getters = {
-      activeMapLayers: () => []
+    let map = {
+      namespaced: true,
+      getters: {
+        activeMapLayers: () => []
+      }
     }
-    store = new Vuex.Store({ getters })
+
+    store = new Vuex.Store({ modules: { map } })
     wrapper = mount(MapLegend, {
       vuetify,
       store,

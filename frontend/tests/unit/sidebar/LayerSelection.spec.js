@@ -15,6 +15,7 @@ describe('LayerSelection', () => {
   let getters
   let wrapper
   let mutations
+  let map
 
   beforeEach(() => {
     mutations = {
@@ -33,7 +34,13 @@ describe('LayerSelection', () => {
       baseMapLayers: () => [],
       selectedBaseLayers: () => []
     }
-    store = new Vuex.Store({ getters, mutations })
+    map = {
+      namespaced: true,
+      getters,
+      mutations
+    }
+    store = new Vuex.Store({ modules: { map } })
+    store.dispatch = jest.fn()
     wrapper = shallowMount(LayerSelection, {
       vuetify,
       store,
@@ -49,11 +56,13 @@ describe('LayerSelection', () => {
     expect(wrapper.vm.categories.length).toBe(6)
     expect(wrapper.vm.categories[0].children.length).toBe(1)
   })
+
   it('calls handleSelectLayer and commits correct mutation', () => {
     let fakeLayerName = 'fake'
     wrapper.vm.handleSelectLayer([fakeLayerName]) // Will fail isMapLayerActive anyway
-    expect(mutations.setActiveMapLayers.mock.calls).toHaveLength(1)
-    expect(mutations.setActiveMapLayers.mock.calls[0][1])
-      .toEqual([fakeLayerName])
+    expect(store.dispatch).toHaveBeenCalledWith(
+      'map/updateActiveMapLayers',
+      [fakeLayerName]
+    )
   })
 })

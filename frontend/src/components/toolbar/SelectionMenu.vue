@@ -66,7 +66,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import EventBus from '../../services/EventBus'
 export default {
   name: 'SelectionMenu',
   data: () => ({
@@ -102,15 +101,16 @@ export default {
     ]
   }),
   computed: {
-    ...mapGetters(['map', 'infoPanelVisible'])
+    ...mapGetters('map', ['map']),
+    ...mapGetters(['infoPanelVisible'])
   },
   methods: {
     consoleLog () {
       console.log('a')
     },
     resetSelections () {
-      EventBus.$emit('draw:reset', null)
-      EventBus.$emit('highlight:clear')
+      this.$store.commit('map/replaceOldFeatures', null)
+      this.$store.dispatch('map/clearHighlightLayer')
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')

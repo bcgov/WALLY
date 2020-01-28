@@ -1,4 +1,4 @@
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
@@ -34,7 +34,7 @@ export default {
   }),
   methods: {
     enableFreshwaterAtlasStreamNetworksLayer () {
-      this.$store.commit('addMapLayer', 'freshwater_atlas_stream_networks')
+      this.addMapLayer('freshwater_atlas_stream_networks')
     },
     toggleMultiSelect () {
       this.multiSelect = !this.multiSelect
@@ -64,7 +64,7 @@ export default {
       let featureStream = stream.geojson
       featureStream['display_data_name'] = 'freshwater_atlas_stream_networks'
       featureStream.properties['FWA_WATERSHED_CODE'] = featureStream.properties['fwa_watershed_code']
-      this.$store.commit('updateHighlightFeatureData', featureStream)
+      this.updateHighlightFeatureData(featureStream)
 
       let featureDistanceLines = {
         'type': 'Feature',
@@ -100,9 +100,9 @@ export default {
       }
 
       // Highlight the stream
-      this.$store.commit('updateHighlightFeatureData', featureStream)
+      this.updateHighlightFeatureData(featureStream)
       // Highlight the closest point & distance line to that stream
-      this.$store.commit('updateHighlightFeatureCollectionData', streamData)
+      this.updateHighlightFeatureCollectionData(streamData)
     },
     calculateApportionment () {
       const getInverseDistance = (distance) => {
@@ -219,8 +219,10 @@ export default {
         }
       }
 
-      this.$store.commit('updateHighlightFeatureCollectionData', highlightData)
-    }
+      this.updateHighlightFeatureCollectionData(highlightData)
+    },
+    ...mapMutations('map', ['updateHighlightFeatureData', 'updateHighlightFeatureCollectionData']),
+    ...mapActions('map', ['addMapLayer'])
   },
   computed: {
     coordinates () {
@@ -229,7 +231,7 @@ export default {
     isFreshwaterAtlasStreamNetworksLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   watch: {
     record: {
@@ -254,7 +256,6 @@ export default {
     }
   },
   beforeDestroy () {
-    console.log('before destroy')
-    this.$store.commit('updateHighlightFeatureCollectionData', {})
+    this.updateHighlightFeatureData({})
   }
 }
