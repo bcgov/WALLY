@@ -67,7 +67,6 @@
 import { mapGetters } from 'vuex'
 
 import { humanReadable } from '../../helpers'
-import EventBus from '../../services/EventBus'
 
 import FeatureStreamStation from '../features/FeatureStreamStation'
 import FeatureWell from '../features/FeatureWell'
@@ -111,13 +110,15 @@ export default {
     }
   }),
   computed: {
+    ...mapGetters('map', [
+      'getMapLayer',
+      'map'
+    ]),
     ...mapGetters([
       'loadingFeature',
       'featureError',
-      'getMapLayer',
-      'dataMartFeatureInfo',
       'singleSelectionFeatures',
-      'map'
+      'dataMartFeatureInfo'
     ])
   },
   methods: {
@@ -125,10 +126,10 @@ export default {
       // close the feature panel and reset the feature stored in dataMartStore.
       // if this is a drawn point, send the event to clear the user selections.
       if (this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
-        EventBus.$emit('draw:reset')
+        this.$store.commit('map/replaceOldFeatures', null)
       }
       this.$store.commit('resetDataMartFeatureInfo')
-      EventBus.$emit('highlight:clear')
+      this.$store.dispatch('map/clearHighlightLayer')
 
       if (this.$store.getters.dataMartFeatures && this.$store.getters.dataMartFeatures.length) {
         this.$router.push({ name: 'multiple-features' })
@@ -172,7 +173,7 @@ export default {
       }
 
       if (this.$route.query.layer === 'point_of_interest') {
-        this.$store.dispatch('addPointOfInterest', point)
+        this.$store.dispatch('map/addPointOfInterest', point)
       } else {
         this.$router.push('/')
       }

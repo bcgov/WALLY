@@ -55,7 +55,7 @@ export default {
     layerSelection: false
   }),
   computed: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'layerSelectionActive',
       'singleSelectionFeatures',
       'featureSelectionExists',

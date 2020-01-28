@@ -29,7 +29,12 @@ describe('WaterRightsLicencesNearby.vue', () => {
       getCategories: () => [],
       featureSelectionExists: () => null
     }
-    store = new Vuex.Store({ getters, mutations })
+    let map = {
+      namespaced: true,
+      getters,
+      mutations
+    }
+    store = new Vuex.Store({ modules: { map } })
   })
 
   it('filters based on POD type', () => {
