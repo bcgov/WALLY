@@ -275,18 +275,11 @@ def get_watershed_demand(
 
     watershed = get_watershed(dataset_watershed_id)
 
-    watershed_area = watershed.properties['FEATURE_AREA_SQM']
-
     watershed_poly = shape(watershed.geometry)
-    projected_geometry_area = watershed_poly.area
-
-    watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     licence_data = surface_water_rights_licences(
-        transform(transform_3005_4326, watershed_rect))
+        transform(transform_3005_4326, watershed_poly))
 
-    licence_data.projected_geometry_area = projected_geometry_area
-    licence_data.projected_geometry_area_simplified = watershed_rect.area
     return licence_data
 
 

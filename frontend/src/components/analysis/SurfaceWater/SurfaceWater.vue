@@ -81,7 +81,7 @@ export default {
         )
       })
     },
-    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.4) {
+    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.3) {
       let popup = new mapboxgl.Popup({
         closeButton: false,
         closeOnClick: false

@@ -444,21 +444,25 @@ def precipitation(
 
 def surface_water_rights_licences(polygon: Polygon):
     """ returns surface water rights licences (filtered by POD subtype)"""
-
     water_rights_layer = 'water_rights_licences'
 
-    licences = databc_feature_search(water_rights_layer, search_area=polygon)
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    licences = databc_feature_search(
+        water_rights_layer, search_area=polygon_rect)
 
     total_licenced_qty_m3_yr = 0
     licenced_qty_by_use_type = {}
 
-    for lic in licences.features:
+    polygon_3005 = transform(transform_4326_3005, polygon)
 
+    features_within_search_area = []
+
+    for lic in licences.features:
         feature_shape = shape(lic.geometry)
-        feature_shape_intersect = feature_shape.intersection(
-            transform(transform_4326_3005, polygon)
-        )
-        if not feature_shape_intersect.area:
+
+        if not feature_shape.within(polygon_3005):
             logger.info('licence outside search area')
             continue
 
@@ -466,6 +470,8 @@ def surface_water_rights_licences(polygon: Polygon):
         # other pod_subtype codes are associated with groundwater.
         if lic.properties['POD_SUBTYPE'] != 'POD':
             continue
+
+        features_within_search_area.append(lic)
 
         qty = lic.properties['QUANTITY']
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
@@ -503,10 +509,12 @@ def surface_water_rights_licences(polygon: Polygon):
                 geometry=transform(transform_3005_4326, shape(feat.geometry)),
                 id=feat.id,
                 properties=feat.properties
-            ) for feat in licences.features
+            ) for feat in features_within_search_area
         ]),
         total_qty=total_licenced_qty_m3_yr,
-        total_qty_by_purpose=licence_purpose_type_list
+        total_qty_by_purpose=licence_purpose_type_list,
+        projected_geometry_area=polygon.area,
+        projected_geometry_area_simplified=polygon_rect.area
     )
 
 
