@@ -1,12 +1,24 @@
 import math
 import json
+import pyproj
 from geojson import dumps, FeatureCollection, Feature, Point
 from shapely.geometry import mapping
 
+from api.config import GWELLS_API_URL
 from api.v1.aggregator.schema import ExternalAPIRequest, GWELLSAPIParams, json_to_geojson
 
 EARTH_RADIUS = 6378137
 MAX_LATITUDE = 85.0511287798
+
+transform_4326_3005 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:4326'),
+    pyproj.Proj(init='epsg:3005')
+).transform
+
+transform_3005_4326 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:3005'),
+    pyproj.Proj(init='epsg:4326')
+).transform
 
 
 # Converts to x,y point array from lat lng
@@ -28,7 +40,7 @@ def gwells_api_request(within):
     creates an ExternalAPIRequest object with params for accessing data from the
     GWELLS API.
     """
-    url = 'https://apps.nrs.gov.bc.ca/gwells/api/v2/wells'
+    url = f"{GWELLS_API_URL}/api/v2/wells"
     params = GWELLSAPIParams(
         within=json.dumps(mapping(within)),
         geojson="false"
@@ -36,8 +48,8 @@ def gwells_api_request(within):
 
     return ExternalAPIRequest(
         url=url,
-        layer='groundwater_wells',
-        excluded_fields=['well_guid', 'drilling_company'],
+        layer="groundwater_wells",
+        excluded_fields=["well_guid", "drilling_company"],
         id_field="well_tag_number",
         q=params
     )

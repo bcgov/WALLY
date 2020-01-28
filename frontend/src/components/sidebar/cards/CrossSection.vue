@@ -56,17 +56,18 @@ export default {
       this.draw.changeMode('draw_line_string')
     },
     enableWellsLayer () {
-      this.$store.commit('addMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
     },
     disableWellsLayer () {
-      this.$store.commit('removeMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     }
   },
   computed: {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
-    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
+    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
     this.drawLine()

@@ -36,7 +36,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['draw'])
+    ...mapGetters('map', ['draw'])
   },
   mounted () {
     this.selectPoint()

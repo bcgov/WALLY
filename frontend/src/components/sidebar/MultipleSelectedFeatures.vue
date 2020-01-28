@@ -78,11 +78,8 @@ export default {
     pdfReportLoading: false
   }),
   computed: {
-    ...mapGetters([
-      'getMapLayer',
-      'dataMartFeatures',
-      'selectionBoundingBox'
-    ]),
+    ...mapGetters('map', ['getMapLayer']),
+    ...mapGetters(['dataMartFeatures', 'selectionBoundingBox']),
     selectedFeaturesList () {
       const selection = this.dataMartFeatures
       const filtered = selection.filter((x) => {

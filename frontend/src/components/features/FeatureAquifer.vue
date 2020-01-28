@@ -80,14 +80,14 @@ export default {
     // isWaterLicencesLayerEnabled () {
     //   return this.isMapLayerActive('water_rights_licences')
     // },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
     enableWellsLayer () {
-      this.$store.commit('addMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
     }
     // enableWaterLicencesLayer () {
-    //   this.$store.commit('addMapLayer', 'water_rights_licences')
+    //   this.$store.dispatch('addMapLayer', 'water_rights_licences')
     // }
   }
 }

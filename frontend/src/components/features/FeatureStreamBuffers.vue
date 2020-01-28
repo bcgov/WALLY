@@ -79,7 +79,7 @@ export default {
       this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
     },
     enableMapLayer () {
-      this.$store.commit('addMapLayer', this.selectedLayer)
+      this.$store.dispatch('map/addMapLayer', this.selectedLayer)
     },
     fetchStreamBufferInformation (streams, type) {
       if (buffer <= 0 || !this.selectedLayer) {

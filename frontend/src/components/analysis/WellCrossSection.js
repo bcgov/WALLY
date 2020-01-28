@@ -217,10 +217,10 @@ export default {
       return [elevProfile, waterDepth, wells, lithology, waterLevel]
     },
     surfaceData () {
-      var lines = this.surfacePoints
-      var x = []
-      var y = []
-      var z = []
+      let lines = this.surfacePoints
+      let x = []
+      let y = []
+      let z = []
       // build our surface points layer
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
@@ -229,7 +229,7 @@ export default {
         z.push(line.map(l => l[2]))
       }
       // add our lithology drop lines and markers
-      var lithologyMarkers = []
+      let lithologyMarkers = []
       this.wellsLithology.forEach(lith => {
         const marker = {
           x: [lith.lon, lith.lon],
@@ -273,7 +273,7 @@ export default {
     },
     surfaceLayout () {
       let a = this.surfacePoints[2][0]
-      var b = this.surfacePoints[2][this.surfacePoints[2].length - 1]
+      let b = this.surfacePoints[2][this.surfacePoints[2].length - 1]
 
       return {
         title: '',
@@ -320,10 +320,10 @@ export default {
     }
   },
   methods: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'map'
     ]),
-    ...mapActions([
+    ...mapActions('map', [
       'removeElementsByClass'
     ]),
     fetchWellsAlongLine () {
@@ -355,7 +355,7 @@ export default {
         })
     },
     setAnnotationMarkers () {
-      var annotationGeoJson = [
+      let annotationGeoJson = [
         {
           type: 'Feature',
           geometry: {
@@ -377,13 +377,13 @@ export default {
           }
         }
       ]
-      var mapObj = this.map()
+      let mapObj = this.map()
       // delete any existing markers
       this.removeElementsByClass('annotationMarker')
       // add markers to map
       annotationGeoJson.forEach(function (marker) {
         // create a HTML element for each feature
-        var el = document.createElement('div')
+        let el = document.createElement('div')
         el.className = 'annotationMarker'
         el.innerText = marker.properties.symbol
 
@@ -397,7 +397,7 @@ export default {
       ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
         console.log(r.data.results)
         let results = r.data.results
-        var lithologyList = []
+        let lithologyList = []
         for (let index = 0; index < results.length; index++) {
           const wellLithologySet = results[index]
           let well = this.wells.find(
@@ -467,7 +467,7 @@ export default {
       }
     },
     downloadPlotImage () {
-      var filename = 'plot--'.concat(new Date().toISOString()) + '.png'
+      let filename = 'plot--'.concat(new Date().toISOString()) + '.png'
       html2canvas(this.$refs.crossPlot.$el).then(canvas => {
         canvas.toBlob(function (blob) {
           saveAs(blob, filename)
@@ -475,21 +475,21 @@ export default {
       })
     },
     downloadMergedImage (plotType) {
-      var doc = jsPDF()
-      var width = doc.internal.pageSize.getWidth()
-      var height = doc.internal.pageSize.getHeight()
-      var filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
+      let doc = jsPDF()
+      let width = doc.internal.pageSize.getWidth()
+      let height = doc.internal.pageSize.getHeight()
+      let filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
       html2canvas(this.map()._container).then(canvas1 => {
-        var img1 = canvas1.toDataURL('image/png')
+        let img1 = canvas1.toDataURL('image/png')
         const imgProps1 = doc.getImageProperties(img1)
-        var size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
-        var crossDoc = jsPDF({ orientation: 'landscape', unit: 'pt', format: [size1[0], size1[1]] })
+        let size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
+        let crossDoc = jsPDF({ orientation: 'landscape', unit: 'pt', format: [size1[0], size1[1]] })
         crossDoc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
-        var plotContainer = plotType === '2d' ? this.$refs.crossPlot.$el : this.$refs.surfacePlot.$el
+        let plotContainer = plotType === '2d' ? this.$refs.crossPlot.$el : this.$refs.surfacePlot.$el
         html2canvas(plotContainer).then(canvas2 => {
-          var img2 = canvas2.toDataURL('image/png')
+          let img2 = canvas2.toDataURL('image/png')
           const imgProps2 = doc.getImageProperties(img2)
-          var size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
+          let size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
           crossDoc.addPage(size2[0], size2[1]) // add new page for next image
           crossDoc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
           crossDoc.save(filename)
@@ -497,15 +497,15 @@ export default {
       })
     },
     scaleImageToFit (ws, hs, wi, hi) {
-      var ri = wi / hi
-      var rs = ws / hs
-      var size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
+      let ri = wi / hi
+      let rs = ws / hs
+      let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
       return size
     },
     centerImage (ws, hs, hnew, wnew) {
-      var w = (ws - wnew) / 2
-      var h = (hs - hnew) / 2
-      var pos = [w, h]
+      let w = (ws - wnew) / 2
+      let h = (hs - hnew) / 2
+      let pos = [w, h]
       return pos
     },
     lassoTool () {
@@ -538,7 +538,7 @@ export default {
   watch: {
     panelOpen (value) {
       if (value) {
-        this.$store.commit('addMapLayer', 'groundwater_wells')
+        this.$store.commit('map/addMapLayer', 'groundwater_wells')
         this.setAnnotationMarkers()
       } else {
         this.removeElementsByClass('annotationMarker')
