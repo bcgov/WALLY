@@ -1,7 +1,4 @@
 // TODO: change to api call, or create new array just for map layers
-import html2canvas from 'html2canvas'
-import { saveAs } from 'file-saver'
-
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
@@ -311,14 +308,6 @@ export default {
       if (data.display_data_name === 'stream_apportionment') {
         state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
       }
-    },
-    downloadMapImage ({ state }) {
-      let filename = 'map--'.concat(new Date().toISOString()) + '.png'
-      html2canvas(state.map._container).then(canvas => {
-        canvas.toBlob(function (blob) {
-          saveAs(blob, filename)
-        })
-      })
     },
     removeElementsByClass ({ state }, payload) {
       let elements = document.getElementsByClassName(payload)
