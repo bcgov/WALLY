@@ -2,6 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
+import circle from '@turf/circle'
 
 import WellsNearby from '@/components/analysis/WellsNearby.vue'
 
@@ -16,7 +17,8 @@ describe('Wells Nearby', () => {
   beforeEach(() => {
     mutations = {
       setActiveMapLayers: jest.fn(),
-      removeMapLayer: jest.fn()
+      removeMapLayer: jest.fn(),
+      addShape: jest.fn()
     }
     getters = {
       isMapLayerActive: state => layerId => false,
@@ -28,7 +30,13 @@ describe('Wells Nearby', () => {
       getCategories: () => [],
       featureSelectionExists: () => null
     }
-    store = new Vuex.Store({ getters, mutations })
+    let map = {
+      namespaced: true,
+      getters,
+      mutations
+    }
+    store = new Vuex.Store({ modules: { map } })
+    store.commit = jest.fn()
     wrapper = shallowMount(WellsNearby, {
       vuetify,
       store,
@@ -41,8 +49,17 @@ describe('Wells Nearby', () => {
 
   it('Redraws circle on map', () => {
     wrapper.vm.showCircle()
-    expect(wrapper.emitted('shapes:reset'.toBeTruthy))
-    expect(wrapper.emitted('shapes:add'.toBeTruthy))
+    expect(store.commit).toHaveBeenCalledWith('map/removeShapes')
+    const options = {
+      steps: 32,
+      units: 'kilometers',
+      properties: { display_data_name: 'user_search_radius' }
+    }
+    const radius = wrapper.vm.radius / 1000
+    const shape = circle(wrapper.vm.coordinates, radius, options)
+    shape.id = 'user_search_radius'
+
+    expect(store.commit).toHaveBeenCalledWith('map/addShape', shape)
   })
 
   it('Is hidden when there\'s no data', () => {
