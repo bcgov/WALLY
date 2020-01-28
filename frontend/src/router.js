@@ -125,6 +125,14 @@ const router = new Router({
       meta: {
         sidebarColumns: {}
       }
+    },
+    {
+      path: '/isoline-runoff',
+      name: 'isoline-runoff',
+      component: IsolineRunoff,
+      meta: {
+        sidebarColumns: {}
+      }
     }
   ]
 })
