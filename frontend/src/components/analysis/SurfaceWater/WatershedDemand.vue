@@ -23,6 +23,14 @@
 <script>
 import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
+import mapboxgl from 'mapbox-gl'
+import centroid from '@turf/centroid'
+
+const popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false
+})
+
 export default {
   name: 'SurfaceWaterDemand',
   components: {
@@ -36,7 +44,7 @@ export default {
     ]
   }),
   computed: {
-    ...mapGetters(['map'])
+    ...mapGetters('map', ['map'])
   },
   watch: {
     watershedID () {
@@ -47,7 +55,7 @@ export default {
     }
   },
   methods: {
-    addSingleWatershedLayer (id = 'waterLicences', data, color = '#00e676', opacity = 0.5, max = 100000000) {
+    addLicencesLayer (id = 'waterLicences', data, color = '#00e676', opacity = 0.5, max = 100000000) {
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -69,6 +77,44 @@ export default {
           'circle-opacity': opacity
         }
       }, 'water_rights_licences')
+
+      this.map.on('mouseenter', id, (e) => {
+      // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer'
+
+        let coordinates = e.features[0].geometry.coordinates.slice()
+        let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
+        let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
+        let sourceName = e.features[0].properties['SOURCE_NAME']
+        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
+        let purpose = e.features[0].properties['PURPOSE_USE']
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup
+          .setLngLat(coordinates)
+          .setHTML(`
+            <p></p>
+            <p>Licence no.: ${licenceNumber}</p>
+            <p>Primary licensee: ${licenseeName}</p>
+            <p>Source: ${sourceName}</p>
+            <p>${qty} m3/year</p>
+            <p>Purpose use: ${purpose}</p>
+          `)
+          .addTo(this.map)
+      })
+
+      this.map.on('mouseleave', id, () => {
+        this.map.getCanvas().style.cursor = ''
+        popup.remove()
+      })
     },
     fetchLicenceData () {
       ApiService.query(`/api/v1/aggregate/watersheds/${this.watershedID}/licences`)
@@ -76,7 +122,7 @@ export default {
           this.licenceData = r.data
           console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          this.addSingleWatershedLayer('waterLicences', r.data.licences, '#00e676', 0.5, max)
+          this.addLicencesLayer('waterLicences', r.data.licences, '#00e676', 0.5, max)
         })
         .catch(e => {
           console.error(e)

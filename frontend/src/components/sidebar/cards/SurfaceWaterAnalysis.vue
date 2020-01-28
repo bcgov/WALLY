@@ -48,22 +48,22 @@ export default {
       }
     },
     enableApplicationsLayer () {
-      this.$store.commit('addMapLayer', 'water_rights_applications')
+      this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
     },
     disableApplicationsLayer () {
-      this.$store.commit('removeMapLayer', 'water_rights_applications')
+      this.$store.dispatch('map/removeMapLayer', 'water_rights_applications')
     },
     enableLicencesLayer () {
-      this.$store.commit('addMapLayer', 'water_rights_licences')
+      this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
     },
     disableLicencesLayer () {
-      this.$store.commit('removeMapLayer', 'water_rights_licences')
+      this.$store.dispatch('map/removeMapLayer', 'water_rights_licences')
     },
     enableHydatLayer () {
-      this.$store.commit('addMapLayer', 'hydrometric_stream_flow')
+      this.$store.dispatch('map/addMapLayer', 'hydrometric_stream_flow')
     },
     disableHydatLayer () {
-      this.$store.commit('removeMapLayer', 'hydrometric_stream_flow')
+      this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
     }
   },
   computed: {
@@ -76,7 +76,8 @@ export default {
     isHydatLayerEnabled () {
       return this.isMapLayerActive('hydrometric_stream_flow')
     },
-    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
+    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
     this.selectPoint()

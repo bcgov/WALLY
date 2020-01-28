@@ -17,34 +17,43 @@
         </v-col>
       </v-row>
       <div v-if="selectedWatershed">
-        <WatershedInputs :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
-        <SurficialGeology :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
-        <WatershedDemand :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+        <v-tabs>
+          <v-tab>Watershed Details</v-tab>
+          <v-tab>Availability</v-tab>
+          <v-tab>Demand</v-tab>
+          <v-tab-item>
+            <WatershedDetails :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+          </v-tab-item>
+          <v-tab-item>
+            <WatershedInputs :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+          </v-tab-item>
+          <v-tab-item>
+            <WatershedDemand :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+          </v-tab-item>
+        </v-tabs>
       </div>
-
     </template>
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import mapboxgl from 'mapbox-gl'
 import ApiService from '../../../services/ApiService'
-import centroid from '@turf/centroid'
 import qs from 'querystring'
 
 import WatershedInputs from './WatershedInputs'
 import WatershedDemand from './WatershedDemand'
-import SurficialGeology from './SurficialGeology'
+import WatershedDetails from './WatershedDetails'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
     WatershedInputs,
     WatershedDemand,
-    SurficialGeology
+    WatershedDetails
   },
   data: () => ({
+    infoTabs: null,
     selectedWatershed: null,
     assessmentWatershed: null,
     hydrometricWatershed: null,
@@ -69,7 +78,8 @@ export default {
         value: w.id
       }))
     },
-    ...mapGetters(['dataMartFeatureInfo', 'map'])
+    ...mapGetters(['dataMartFeatureInfo']),
+    ...mapGetters('map', ['map'])
   },
   methods: {
     filterWatershed (id) {
@@ -82,11 +92,6 @@ export default {
       })
     },
     addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.3) {
-      let popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false
-      })
-
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -103,44 +108,6 @@ export default {
           'fill-opacity': opacity
         }
       }, 'water_rights_licences')
-
-      this.map.on('mouseenter', 'places', function (e) {
-      // Change the cursor style as a UI indicator.
-        this.map.getCanvas().style.cursor = 'pointer'
-
-        let coordinates = centroid(e.features[0].geometry).coordinates.slice()
-        let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
-        let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
-        let sourceName = e.features[0].properties['SOURCE_NAME']
-        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
-        let purpose = e.features[0].properties['PURPOSE_USE']
-
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-        }
-
-        // Populate the popup and set its coordinates
-        // based on the feature found.
-        popup
-          .setLngLat(coordinates)
-          .setHTML(`
-            <p></p>
-            <p>Licence no.: ${licenceNumber}</p>
-            <p>Primary licensee: ${licenseeName}</p>
-            <p>Source: ${sourceName}</p>
-            <p>${qty} m3/year</p>
-            <p>Purpose use: ${purpose}</p>
-          `)
-          .addTo(this.map)
-      })
-
-      this.map.on('mouseleave', 'places', function () {
-        this.map.getCanvas().style.cursor = ''
-        popup.remove()
-      })
     },
     fetchWatersheds () {
       const params = {

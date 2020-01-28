@@ -32,7 +32,7 @@ export default {
     ]
   }),
   computed: {
-    ...mapGetters(['map'])
+    ...mapGetters('map', ['map'])
   },
   watch: {
     watershedID () {
