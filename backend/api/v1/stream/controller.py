@@ -24,11 +24,12 @@ def get_connected_streams(db: Session, outflowCode: str) -> list:
     return feature_results
 
 
-def get_features_within_buffer(db: Session, line, radius: float, layer: str) -> list:
+def get_features_within_buffer(db: Session, line, distance: float, layer: str) -> list:
     """ List features within a buffer zone from a geometry
     """
     line = transform(transform_4326_3005, line)
-    buf = line.buffer(radius, cap_style=CAP_STYLE.flat, join_style=JOIN_STYLE.round)
+    buf = line.buffer(distance, cap_style=CAP_STYLE.flat,
+                      join_style=JOIN_STYLE.round)
     buf_simplified = buf.simplify(50, preserve_topology=False)
 
     buf_4326 = transform(transform_3005_4326, buf_simplified)
