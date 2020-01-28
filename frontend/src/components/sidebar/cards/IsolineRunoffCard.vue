@@ -29,7 +29,7 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
-  name: 'IsolineRunoff',
+  name: 'IsolineRunoffCard',
   components: {
   },
   data: () => ({
@@ -42,7 +42,8 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
+    ...mapGetters('map', ['draw']),
+    ...mapGetters(['dataMartFeatureInfo', 'isMapLayerActive'])
   },
   mounted () {
     this.selectArea()
