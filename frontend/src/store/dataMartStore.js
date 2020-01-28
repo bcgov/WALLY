@@ -215,8 +215,7 @@ export default {
         return source.displayDataName !== payload
       })
       EventBus.$emit(`dataMart:removed`, payload)
-    },
-    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
+    }
   },
   getters: {
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
