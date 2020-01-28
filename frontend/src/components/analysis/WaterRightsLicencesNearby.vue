@@ -94,7 +94,6 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
-import EventBus from '../../services/EventBus'
 
 export default {
   name: 'WaterRightsLicencesNearby',
@@ -171,12 +170,12 @@ export default {
       }
       return counts
     },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
     enableLicencesLayer () {
-      this.$store.commit('addMapLayer', 'water_rights_licences')
-      this.$store.commit('addMapLayer', 'water_rights_applications')
+      this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
+      this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
     },
     fetchLicences: debounce(function () {
       this.showCircle()
@@ -210,10 +209,10 @@ export default {
       shape.id = 'user_search_radius'
 
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
 
       // add the new one
-      EventBus.$emit('shapes:add', shape)
+      this.$store.commit('map/addShape', shape)
     }
   },
   watch: {
@@ -234,7 +233,7 @@ export default {
     this.fetchLicences()
   },
   beforeDestroy () {
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
   }
 }
 </script>

@@ -6,6 +6,8 @@ import centroid from '@turf/centroid'
 export default {
   state: {
     activeDataMarts: [],
+    activeDataMartLayers: [], // comes from 'activeLayers' on Map.js;
+    // not sure if necessary (see dependencies)
     displayTemplates: [],
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
@@ -16,6 +18,10 @@ export default {
     featureError: ''
   },
   actions: {
+    addDataMart ({ state, dispatch }, payload) {
+      state.activeDataMarts.push(payload)
+      dispatch('addApiLayer', payload)
+    },
     getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
         EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
@@ -104,9 +110,58 @@ export default {
         }).finally(() => {
           commit('setLoadingMultipleFeatures', false)
         })
+    },
+    addApiLayer ({ state, commit }, payload) {
+      const layer = state.activeDataMarts.find((x) => {
+        return x.display_data_name === payload.displayDataName
+      })
+      commit('addGeoJSONLayer', layer)
+    },
+    removeDataMart ({ state, dispatch }, payload) {
+      state.activeDataMarts = state.activeDataMarts.filter(function (source) {
+        return source.displayDataName !== payload
+      })
+      dispatch('removeDataMartLayer', payload)
+    },
+    removeDataMartLayer ({ state, commit }, layer) {
+      const displayDataName = layer.display_data_name || layer
+      if (!displayDataName || !state.activeDataMartLayers[displayDataName]) {
+        return
+      }
+      state.map.removeLayer(layer.id)
+      commit('map/removeLayer', layer.id, { root: true })
+      delete state.activeDataMartLayers[layer.id]
     }
   },
   mutations: {
+    addGeoJSONLayer (state, layer) {
+      if (!layer || !layer.data) {
+        console.error('invalid format for data source/data mart')
+        return
+      }
+
+      // layer.data should have a "features" or "geojson" property, which
+      // must be a list of geojson Features.  For example, layer.data could be
+      // a FeatureCollection format object. The 'features' list will be added to the map.
+      let features
+      if (layer.data.features && layer.data.features.length) {
+        features = layer.data.features
+      } else if (layer.data.geojson && layer.data.geojson.length) {
+        features = layer.data.geojson
+      }
+      if (!features) {
+        console.error('could not find a features list or object to add to map')
+        return
+      }
+
+      // this.activeLayers[layer.display_data_name] = L.geoJSON(features, {
+      //   onEachFeature: function (feature, layer) {
+      //     layer.bindPopup('<h3>' + feature.properties.name + '</h3><p>' + feature.properties.description + '</p>')
+      //   }
+      // })
+      state.activeDataMartLayers[layer.display_data_name].addTo(state.map)
+    },
+
     setLoadingMultipleFeatures (state, payload) {
       state.loadingMultipleFeatures = payload
     },
@@ -158,17 +213,7 @@ export default {
     setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
     clearDisplayTemplates: (state) => { state.displayTemplates = [] },
-    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
-    addDataMart (state, payload) {
-      state.activeDataMarts.push(payload)
-      EventBus.$emit(`dataMart:added`, payload)
-    },
-    removeDataMart (state, payload) {
-      state.activeDataMarts = state.activeDataMarts.filter(function (source) {
-        return source.displayDataName !== payload
-      })
-      EventBus.$emit(`dataMart:removed`, payload)
-    }
+    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
     displayTemplates: state => state.displayTemplates,
