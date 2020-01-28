@@ -1,8 +1,6 @@
 import axios from 'axios'
 import qs from 'querystring'
 
-export const reportingServiceURL = process.env.VUE_APP_REPORTING_URL
-
 const ApiService = {
 
   init () {
