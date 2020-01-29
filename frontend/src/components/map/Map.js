@@ -3,7 +3,6 @@ import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
-import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
@@ -72,39 +71,40 @@ export default {
     async initMap () {
       // temporary public token with limited scope (reading layers) just for testing.
 
-      const mapConfig = await ApiService.get('api/v1/config/map')
-      mapboxgl.accessToken = mapConfig.data.mapbox_token
+      // const mapConfig = await ApiService.get('api/v1/config/map')
+      // mapboxgl.accessToken = mapConfig.data.mapbox_token
 
-      const zoomConfig = {
-        center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
-        zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
-      }
+      // const zoomConfig = {
+      //   center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
+      //   zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
+      // }
+      await this.$store.dispatch('map/initMapAndDraw')
 
-      this.setMap(new mapboxgl.Map({
-        container: 'map', // container id
-        style: mapConfig.data.mapbox_style, // dev or prod map style
-        center: zoomConfig.center, // starting position
-        zoom: zoomConfig.zoomLevel, // starting zoom
-        attributionControl: false, // hide default and re-add to the top left
-        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
-      }))
-
-      const modes = MapboxDraw.modes
-      modes.simple_select.onTrash = this.clearSelections
-      modes.draw_polygon.onTrash = this.clearSelections
-      modes.draw_point.onTrash = this.clearSelections
-      modes.direct_select.onTrash = this.clearSelections
-
-      this.setDraw(new MapboxDraw({
-        modes: modes,
-        displayControlsDefault: false,
-        controls: {
-          // polygon: true,
-          // point: true,
-          // line_string: true,
-          trash: true
-        }
-      }))
+      // this.setMap(new mapboxgl.Map({
+      //   container: 'map', // container id
+      //   style: mapConfig.data.mapbox_style, // dev or prod map style
+      //   center: zoomConfig.center, // starting position
+      //   zoom: zoomConfig.zoomLevel, // starting zoom
+      //   attributionControl: false, // hide default and re-add to the top left
+      //   preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
+      // }))
+      //
+      // const modes = MapboxDraw.modes
+      // modes.simple_select.onTrash = this.clearSelections
+      // modes.draw_polygon.onTrash = this.clearSelections
+      // modes.draw_point.onTrash = this.clearSelections
+      // modes.direct_select.onTrash = this.clearSelections
+      //
+      // this.setDraw(new MapboxDraw({
+      //   modes: modes,
+      //   displayControlsDefault: false,
+      //   controls: {
+      //     // polygon: true,
+      //     // point: true,
+      //     // line_string: true,
+      //     trash: true
+      //   }
+      // }))
 
       this.setGeocoder(new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
@@ -135,13 +135,7 @@ export default {
         },
         showUserLocation: false
       }), 'top-right')
-      this.map.on('style.load', () => {
-        this.getMapLayers()
-        this.initStreamHighlights()
-      })
-
-      this.initHighlightLayers()
-      this.listenForAreaSelect()
+      await this.$store.dispatch('map/loadMap')
 
       this.lastZoom = this.map.getZoom()
 
@@ -207,8 +201,8 @@ export default {
       }
 
       this.$store.commit('clearDataMartFeatures')
-      this.$store.dispatch('map/addMapLayer', data.result.layer)
-      this.$store.dispatch('getDataMartFeatures', payload)
+      await this.$store.dispatch('map/addMapLayer', data.result.layer)
+      await this.$store.dispatch('getDataMartFeatures', payload)
     },
     onMapMoveUpdateStreamLayer () {
       if (this.getSelectedStreamData.features) {

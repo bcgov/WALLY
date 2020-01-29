@@ -2,6 +2,8 @@
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
+import mapboxgl from 'mapbox-gl'
+import MapboxDraw from '@mapbox/mapbox-gl-draw'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -27,6 +29,7 @@ export default {
   namespaced: true,
   state: {
     map: null,
+    isMapReady: false,
     draw: {},
     geocoder: {},
     activeSelection: null,
@@ -51,8 +54,51 @@ export default {
     }]
   },
   actions: {
+    async initMapAndDraw ({ commit }) {
+      const mapConfig = await ApiService.get('api/v1/config/map')
+      mapboxgl.accessToken = mapConfig.data.mapbox_token
+
+      const zoomConfig = {
+        center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
+        zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
+      }
+
+      commit('setMap', new mapboxgl.Map({
+        container: 'map', // container id
+        style: mapConfig.data.mapbox_style, // dev or prod map style
+        center: zoomConfig.center, // starting position
+        zoom: zoomConfig.zoomLevel, // starting zoom
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
+      }))
+
+      const modes = MapboxDraw.modes
+      modes.simple_select.onTrash = this.clearSelections
+      modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_point.onTrash = this.clearSelections
+      modes.direct_select.onTrash = this.clearSelections
+
+      commit('setDraw', new MapboxDraw({
+        modes: modes,
+        displayControlsDefault: false,
+        controls: {
+          // polygon: true,
+          // point: true,
+          // line_string: true,
+          trash: true
+        }
+      }))
+    },
+    loadMap ({ state, dispatch }) {
+      state.map.on('style.load', () => {
+        dispatch('getMapLayers')
+        dispatch('initStreamHighlights')
+      })
+
+      dispatch('listenForAreaSelect')
+    },
     async addPointOfInterest ({ state, dispatch }, feature) {
-      if (!state.map.loaded()) {
+      if (!state.isMapReady) {
         return
       }
 
@@ -150,15 +196,15 @@ export default {
       dispatch('clearHighlightLayer')
       commit('deactivateLayer', payload)
     },
-    getMapLayers ({ state, commit, dispatch }) {
+    async getMapLayers ({ state, commit, dispatch }) {
       // We only fetch maplayers if we don't have a copy cached
       if (state.mapLayers === undefined || state.mapLayers.length === 0) {
         return new Promise((resolve, reject) => {
-          console.log('Getting map layers')
           ApiService.getApi('/catalogue/all')
             .then((response) => {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
+              dispatch('initHighlightLayers')
               dispatch('loadLayers')
             })
             .catch((error) => {
@@ -224,6 +270,10 @@ export default {
         state.map.on('mouseleave', vector, commit('resetCursor'))
       }
     },
+    listenForAreaSelect ({ state, dispatch }) {
+      state.map.on('draw.create', dispatch('addActiveSelection'))
+      state.map.on('draw.update', dispatch('addActiveSelection'))
+    },
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
       rootGetters.getStreamSources.forEach((s) => {
@@ -233,7 +283,7 @@ export default {
         state.map.addLayer(l)
       })
     },
-    async initHighlightLayers ({ state }) {
+    async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {
         // initialize highlight layer
         state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
@@ -270,6 +320,9 @@ export default {
             'icon-image': 'highlight-point'
           }
         })
+
+        // End of cascade; map is now ready
+        commit('setMapReady', true)
       })
     },
     /*
@@ -384,12 +437,17 @@ export default {
     },
     resetCursor (state) {
       state.map.getCanvas().style.cursor = ''
+    },
+    setMapReady (state, payload) {
+      state.isMapReady = payload
     }
+
   },
   getters: {
     selectedMapLayerNames: state => state.selectedMapLayerNames,
     activeMapLayers: state => state.activeMapLayers,
     isMapLayerActive: state => displayDataName => !!state.activeMapLayers.find((x) => x && x.display_data_name === displayDataName),
+    isMapReady: state => state.isMapReady,
     mapLayerName: (state) => (wmsName) => {
       let layer = state.mapLayers.find(e => e.wms_name === wmsName)
       return layer ? layer.display_name : ''
