@@ -119,7 +119,7 @@ export default {
       const params = {
         point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
       }
-      ApiService.query(`/api/v1/watersheds?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features
