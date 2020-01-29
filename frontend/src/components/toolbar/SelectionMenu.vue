@@ -93,10 +93,6 @@ export default {
       {
         title: 'Assign demand at a point to nearby streams',
         route: { name: 'stream-apportionment' }
-      },
-      {
-        title: 'Isoline annual runoff analysis',
-        route: { name: 'isoline-runoff' }
       }
     ]
   }),

@@ -12,7 +12,6 @@ import CrossSection from './components/sidebar/cards/CrossSection'
 import StreamApportionment from './components/sidebar/cards/StreamApportionment'
 import UpstreamDownstream from './components/sidebar/cards/UpstreamDownstream'
 import Start from './components/sidebar/Start'
-import IsolineRunoffCard from './components/sidebar/cards/IsolineRunoffCard'
 
 Vue.use(Router)
 
@@ -123,14 +122,6 @@ const router = new Router({
       path: '/features',
       name: 'multiple-features',
       component: MultipleSelectedFeatures,
-      meta: {
-        sidebarColumns: {}
-      }
-    },
-    {
-      path: '/isoline-runoff',
-      name: 'isoline-runoff',
-      component: IsolineRunoffCard,
       meta: {
         sidebarColumns: {}
       }
