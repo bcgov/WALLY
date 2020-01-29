@@ -83,7 +83,7 @@ def upgrade():
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) SELECT
             'normal_annual_runoff_isolines',
-            'Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical',
+            'Normal Annual Runoff Isolines (1961 - 1990) - Historical',
             'id',
             'Id',
             ARRAY[

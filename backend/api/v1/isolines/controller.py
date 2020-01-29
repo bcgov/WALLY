@@ -1,9 +1,9 @@
 import logging
 from sqlalchemy.orm import Session
 from api.v1.aggregator.controller import feature_search
-from api.v1.aggregator.helpers import transform_4326_3005
 from shapely.geometry import MultiPolygon, shape
 from shapely.ops import transform
+from api.v1.aggregator.helpers import transform_4326_3005
 
 logger = logging.getLogger("isolines")
 
@@ -16,26 +16,25 @@ def calculate_runnoff_in_area(db: Session, polygon: MultiPolygon) -> float:
 
     isolines_layer = 'normal_annual_runoff_isolines'
 
-    logger.info(polygon)
-
     isoline_features = feature_search(db, [isolines_layer], polygon)[
         0].geojson.features
 
-    isoline_area = 0
-
-    polygon = transform(transform_4326_3005, polygon)
+    area_total = 0
+    runoff_total = 0
 
     for isoline in isoline_features:
+
         isoline_clipped = shape(isoline.geometry).intersection(polygon)
+        isoline_clipped = transform(transform_4326_3005, isoline_clipped)
 
         if not isoline_clipped.area:
             logger.info('isoline outside search area')
             continue
 
-        logger.info('adding %s', str(isoline_clipped.area))
+        area_total += isoline_clipped.area
+        runoff_total += isoline_clipped.area * (float(isoline["properties"]["ANNUAL_RUNOFF_IN_MM"]) / 1000)
 
-        isoline_area += isoline_clipped.area
-
-    coverage = isoline_area / polygon.area
-
-    return (isoline_area, coverage)
+    return {
+      "area": area_total,
+      "runoff": runoff_total
+    }

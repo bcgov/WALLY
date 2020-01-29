@@ -6,7 +6,6 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.isolines.controller import calculate_runnoff_in_area
-from api.v1.aggregator.helpers import transform_4326_3005
 from shapely.geometry import Polygon, MultiPolygon, shape
 from shapely.ops import transform
 from api.db.utils import get_db
@@ -34,10 +33,10 @@ def get_isoline_runoff(
     if polygon.area <= 0:
         raise HTTPException(
             status_code=400, detail="Polygon has zero area")
-    polygon = transform(transform_4326_3005, polygon)
 
-    runoff = calculate_runnoff_in_area(db, polygon)
+    result = calculate_runnoff_in_area(db, polygon)
 
     return {
-        "runoff": runoff
+      "area": result["area"],
+      "runoff": result["runoff"]
     }
