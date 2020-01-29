@@ -1,5 +1,6 @@
 <template>
   <div>
+    <div class="title my-5">Watershed Details</div>
     <SurficialGeology :watershedID="watershedID" :record="record"/>
   </div>
 </template>

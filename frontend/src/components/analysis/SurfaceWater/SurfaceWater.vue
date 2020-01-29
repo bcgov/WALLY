@@ -19,13 +19,17 @@
       <div v-if="selectedWatershed">
         <v-tabs>
           <v-tab>Watershed Details</v-tab>
+          <v-tab>Climate</v-tab>
           <v-tab>Availability</v-tab>
           <v-tab>Demand</v-tab>
           <v-tab-item>
             <WatershedDetails :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
           </v-tab-item>
           <v-tab-item>
-            <WatershedInputs :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+            <WatershedClimate :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
+          </v-tab-item>
+          <v-tab-item>
+            <WatershedAvailability :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord"/>
           </v-tab-item>
           <v-tab-item>
             <WatershedDemand :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
@@ -41,16 +45,18 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
-import WatershedInputs from './WatershedInputs'
+import WatershedClimate from './WatershedClimate'
 import WatershedDemand from './WatershedDemand'
 import WatershedDetails from './WatershedDetails'
+import WatershedAvailability from './WatershedAvailability'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
-    WatershedInputs,
+    WatershedClimate,
     WatershedDemand,
-    WatershedDetails
+    WatershedDetails,
+    WatershedAvailability
   },
   data: () => ({
     infoTabs: null,
@@ -67,7 +73,7 @@ export default {
   },
   computed: {
     selectedWatershedRecord () {
-      if (!this.selectedWatershed || this.watersheds) {
+      if (!this.selectedWatershed || !this.watersheds) {
         return null
       }
       return this.watersheds.find((ws) => ws.id === this.selectedWatershed)

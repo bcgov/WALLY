@@ -1,10 +1,12 @@
 <template>
   <div>
-    <div class="title my-5">Water Rights Licences</div>
+    <div class="title mt-5">Watershed Demand</div>
     <div v-if="licenceData">
-      <span class="font-weight-bold">Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
+      <div class="font-weight-bold my-3">Water Rights Licences</div>
+
+      <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
       <div class="my-5">
-        <div class="font-weight-bold mb-3">Annual licenced quantity by use type:</div>
+        <div class="mb-3">Annual licenced quantity by use type:</div>
         <v-data-table
           :items="licenceData.total_qty_by_purpose"
           :headers="licencePurposeHeaders"
@@ -24,7 +26,6 @@
 import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
-import centroid from '@turf/centroid'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -101,12 +102,14 @@ export default {
         popup
           .setLngLat(coordinates)
           .setHTML(`
-            <p></p>
-            <p>Licence no.: ${licenceNumber}</p>
-            <p>Primary licensee: ${licenseeName}</p>
-            <p>Source: ${sourceName}</p>
-            <p>${qty} m3/year</p>
-            <p>Purpose use: ${purpose}</p>
+            <dl>
+              <dt>Licence no.:</dt> <dd>${licenceNumber}</dd>
+              <dt>Primary licensee:</dt> <dd>${licenseeName}</dd>
+              <dt>Source:</dt> <dd>${sourceName}</dd>
+              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
+              <dt>Purpose use:</dt> <dd>${purpose}</dd>
+            </dl>
+
           `)
           .addTo(this.map)
       })

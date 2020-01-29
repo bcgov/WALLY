@@ -1,12 +1,10 @@
 <template>
   <div>
     <div v-if="watershedDetails">
+      <div class="title my-5">Climate Data</div>
       <div class="my-3"><span class="font-weight-bold">Area:</span> {{watershedDetails.watershed_area.toFixed(1) }} sq. m ({{ (watershedDetails.watershed_area / 1e6).toFixed(2)}} sq. km) </div>
       <div class="my-3">
         <span class="font-weight-bold">Glacial coverage:</span> {{ watershedDetails.glacial_area.toFixed(1) }} sq. m ({{(watershedDetails.glacial_coverage * 100).toFixed(1)}}%)
-      </div>
-      <div class="my-3" v-if="record && record.properties['ANNUAL_RUNOFF_IN_MM']">
-        <span class="font-weight-bold">Annual normalized runoff (Hydrometric watersheds only):</span> {{ record.properties['ANNUAL_RUNOFF_IN_MM'] }}
       </div>
       <div v-if="precipData">
         <div class="title mt-5">Precipitation</div>
@@ -34,7 +32,7 @@
 import ApiService from '../../../services/ApiService'
 import Chart from '../../charts/Chart'
 export default {
-  name: 'WatershedInputs',
+  name: 'WatershedClimate',
   props: ['watershedID', 'record'],
   components: {
     Chart
