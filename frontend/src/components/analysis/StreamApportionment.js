@@ -221,7 +221,11 @@ export default {
 
       this.updateHighlightFeatureCollectionData(highlightData)
     },
-    ...mapMutations('map', ['updateHighlightFeatureData', 'updateHighlightFeatureCollectionData']),
+    ...mapMutations('map', [
+      'updateHighlightFeatureData',
+      'updateHighlightFeatureCollectionData',
+      'setMode'
+    ]),
     ...mapActions('map', ['addMapLayer'])
   },
   computed: {
@@ -231,7 +235,7 @@ export default {
     isFreshwaterAtlasStreamNetworksLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive', 'isMapReady'])
   },
   watch: {
     record: {
@@ -247,15 +251,21 @@ export default {
       if (parseFloat(value) === 1 || parseFloat(value) === 2) {
         this.calculateApportionment()
       }
+    },
+    isMapReady (value) {
+      if (value) {
+        if (!this.isFreshwaterAtlasStreamNetworksLayerEnabled) {
+          this.enableFreshwaterAtlasStreamNetworksLayer()
+        }
+      }
     }
   },
   mounted () {
+    // this.setMode({ type: 'analyze', name: 'stream_apportionment' })
     this.fetchStreams()
-    if (!this.isFreshwaterAtlasStreamNetworksLayerEnabled) {
-      this.enableFreshwaterAtlasStreamNetworksLayer()
-    }
   },
   beforeDestroy () {
+    // this.setMode({ type: 'interactive', name: '' })
     this.updateHighlightFeatureData({})
   }
 }

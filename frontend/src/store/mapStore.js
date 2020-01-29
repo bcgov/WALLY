@@ -41,6 +41,10 @@ export default {
     highlightFeatureCollectionData: {},
     layerCategories: [],
     layerSelectionActive: true,
+    mode: {
+      type: 'interactive',
+      name: 'clicky'
+    },
     selectedBaseLayers: [
       'national-park',
       'landuse',
@@ -94,8 +98,6 @@ export default {
         dispatch('getMapLayers')
         dispatch('initStreamHighlights')
       })
-
-      dispatch('listenForAreaSelect')
     },
     async addPointOfInterest ({ state, dispatch }, feature) {
       if (!state.isMapReady) {
@@ -216,15 +218,18 @@ export default {
     async getMapObjects ({ commit, dispatch, state, getters }, bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
 
-      const canvas = await state.map.getCanvas()
-      const size = { x: canvas.width, y: canvas.height }
+      // Return if we're in "analyze mode"
+      if (state.mode.type === 'interactive') {
+        const canvas = await state.map.getCanvas()
+        const size = { x: canvas.width, y: canvas.height }
 
-      commit('clearDataMartFeatures', {}, { root: true })
-      dispatch('getDataMartFeatures', {
-        bounds: bounds,
-        size: size,
-        layers: state.activeMapLayers
-      }, { root: true })
+        commit('clearDataMartFeatures', {}, { root: true })
+        dispatch('getDataMartFeatures', {
+          bounds: bounds,
+          size: size,
+          layers: state.activeMapLayers
+        }, { root: true })
+      }
     },
     clearSelections ({ state, commit, dispatch }) {
       commit('replaceOldFeatures')
@@ -269,10 +274,6 @@ export default {
         state.map.on('mouseenter', vector, commit('setCursorPointer'))
         state.map.on('mouseleave', vector, commit('resetCursor'))
       }
-    },
-    listenForAreaSelect ({ state, dispatch }) {
-      state.map.on('draw.create', dispatch('addActiveSelection'))
-      state.map.on('draw.update', dispatch('addActiveSelection'))
     },
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
@@ -440,6 +441,9 @@ export default {
     },
     setMapReady (state, payload) {
       state.isMapReady = payload
+    },
+    setMode (state, payload) {
+      state.mode = payload
     }
 
   },

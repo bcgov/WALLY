@@ -136,6 +136,7 @@ export default {
         showUserLocation: false
       }), 'top-right')
       await this.$store.dispatch('map/loadMap')
+      this.listenForAreaSelect()
 
       this.lastZoom = this.map.getZoom()
 
