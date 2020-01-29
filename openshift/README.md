@@ -22,7 +22,3 @@ the `backend.build.yaml` template.
 `database.deploy.yaml` - StatefulSet deployment for Wally's Postgres database.  It uses an image that includes PostGIS
 for spatial data handling and Patroni for helping to manage the Postgres cluster's failover replicas. The resources in the
 `patroni-postgis/` folder are pre-requisite for deployment.
-
-`frontend.build.yaml` - BuildConfig and ImageStream for Wally's Vue web app and the nginx server that serves it.
-
-`frontend.deploy.yaml` - DeploymentConfig that deploys the nginx server and static files produced by the web app build.

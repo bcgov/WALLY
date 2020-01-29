@@ -19,23 +19,6 @@
             color="primary"
           ></v-progress-circular>
         </v-btn>
-        <v-btn
-          v-if="dataMartFeatures && dataMartFeatures.length"
-          dark
-          @click="createPdfFromSelection"
-          color="blue"
-          class="ml-2"
-        >
-          PDF
-          <v-icon class="ml-1" v-if="!pdfReportLoading">picture_as_pdf</v-icon>
-          <v-progress-circular
-            v-if="pdfReportLoading"
-            indeterminate
-            size=24
-            class="ml-1"
-            color="primary"
-          ></v-progress-circular>
-        </v-btn>
       </span>
       <div class="title">Selected points
       </div>
@@ -87,7 +70,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import toBbox from '@turf/bbox'
 import EventBus from '../../services/EventBus'
 export default {
   name: 'MultipleSelectedFeatures',
@@ -96,11 +78,8 @@ export default {
     pdfReportLoading: false
   }),
   computed: {
-    ...mapGetters([
-      'getMapLayer',
-      'dataMartFeatures',
-      'selectionBoundingBox'
-    ]),
+    ...mapGetters('map', ['getMapLayer']),
+    ...mapGetters(['dataMartFeatures', 'selectionBoundingBox']),
     selectedFeaturesList () {
       const selection = this.dataMartFeatures
       const filtered = selection.filter((x) => {
@@ -149,25 +128,6 @@ export default {
         EventBus.$emit('error', true)
       }).finally(() => {
         this.spreadsheetLoading = false
-      })
-    },
-    createPdfFromSelection () {
-      this.pdfReportLoading = true
-      this.$store.dispatch('downloadPDFReport',
-        {
-          bbox: toBbox(this.selectionBoundingBox),
-          polygon: JSON.stringify(this.selectionBoundingBox.geometry.coordinates || []),
-          layers: this.dataMartFeatures.map((feature) => {
-            // return the layer names from the active data mart features as a list.
-            // there is only expected to be one key, so we could use either
-            // Object.keys(feature)[0] or call flat() on the resulting nested array.
-            return Object.keys(feature)
-          }).flat()
-        }
-      ).catch((e) => {
-        EventBus.$emit('error', true)
-      }).finally(() => {
-        this.pdfReportLoading = false
       })
     }
   },

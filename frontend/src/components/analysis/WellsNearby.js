@@ -3,13 +3,12 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
-import EventBus from '../../services/EventBus'
-import Chart from '../charts/Chart'
+import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'WellsNearby',
   components: {
-    Chart
+    Plotly
   },
   props: ['record'],
   data: () => ({
@@ -34,7 +33,6 @@ export default {
     ],
     boxPlotSWLData: {
       data: [],
-      id: 1,
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -59,7 +57,6 @@ export default {
     },
     boxPlotYieldData: {
       data: [],
-      id: 2,
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -85,7 +82,6 @@ export default {
     },
     boxPlotFinishedDepthData: {
       data: [],
-      id: '3',
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -116,7 +112,7 @@ export default {
     coordinates () {
       return (this.record && this.record.geometry && this.record.geometry.coordinates) || []
     },
-    ...mapGetters(['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
     exportDrawdownAsSpreadsheet () {
@@ -145,7 +141,7 @@ export default {
       })
     },
     enableWellsLayer () {
-      this.$store.commit('addMapLayer', 'groundwater_wells')
+      this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
     },
     fetchWells () {
       this.loading = true
@@ -186,10 +182,10 @@ export default {
       shape.id = 'user_search_radius'
 
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
 
       // add the new one
-      EventBus.$emit('shapes:add', shape)
+      this.$store.commit('map/addShape', shape)
     },
     populateBoxPlotData (wells) {
       let yieldY = []
@@ -232,6 +228,6 @@ export default {
     this.fetchWells()
   },
   beforeDestroy () {
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
   }
 }

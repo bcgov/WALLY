@@ -1,7 +1,7 @@
 <template>
   <div class="home d-flex">
-        <Overlay></Overlay>
-        <Map :style="{ width: '100vw' }"></Map>
+    <Overlay/>
+    <Map :style="{ width: '100vw' }"/>
   </div>
 </template>
 
@@ -45,7 +45,7 @@ export default {
         xl: 12 - this.sidebarColumns.xl
       }
     },
-    ...mapGetters(['map'])
+    ...mapGetters('map', ['map'])
   }
 }
 </script>

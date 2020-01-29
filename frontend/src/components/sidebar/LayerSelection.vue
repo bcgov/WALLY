@@ -2,15 +2,6 @@
 <div id="layerSelectionCard">
     <v-card class="pa-5" >
       <v-row>
-        <v-col cols=2>
-          <v-btn
-            fab
-            v-if="allowDisableLayerSelection"
-            class="elevation-1"
-            small
-            @click.prevent="$emit('closeDialog')"
-          ><v-icon>arrow_back</v-icon></v-btn>
-        </v-col>
         <v-col class="title" cols=6>
           Categories
         </v-col>
@@ -56,7 +47,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import EventBus from '../../services/EventBus'
 import Dialog from '../common/Dialog'
 
 export default {
@@ -65,13 +55,8 @@ export default {
     Dialog
   },
   computed: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'isMapLayerActive',
-      'isDataMartActive',
-      'loadingFeature',
-      'featureError',
-      'dataMartFeatures',
-      'dataMartFeatureInfo',
       'allMapLayers',
       'mapLayerName',
       'getMapLayer',
@@ -81,6 +66,13 @@ export default {
       'activeMapLayers',
       'selectedBaseLayers',
       'baseMapLayers'
+    ]),
+    ...mapGetters([
+      'isDataMartActive',
+      'loadingFeature',
+      'featureError',
+      'dataMartFeatures',
+      'dataMartFeatureInfo'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
@@ -119,18 +111,18 @@ export default {
       return catMap
     },
     handleResetLayers () {
-      EventBus.$emit('draw:reset', null)
-      EventBus.$emit('highlight:clear')
-      this.$store.commit('setActiveMapLayers', [])
+      this.$store.dispatch('map/clearActiveSelection')
+      this.$store.dispatch('map/clearHighlightLayer')
+      this.$store.dispatch('map/updateActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('clearDisplayTemplates')
     },
     handleSelectLayer (selectedLayers) {
-      this.$store.commit('setActiveMapLayers', selectedLayers)
+      this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
-      this.$store.commit('setActiveBaseMapLayers', selectedBaseLayers)
+      this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)
     },
     allowDisableLayerSelection () {
       return this.featureSelectionExists

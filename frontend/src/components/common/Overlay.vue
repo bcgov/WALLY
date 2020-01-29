@@ -1,6 +1,6 @@
 <template>
   <div id="app-overlay">
-    <InfoSheetAdjustable>
+    <InfoSheetAdjustable :panelName=this.panelName>
       <router-view></router-view>
     </InfoSheetAdjustable>
   </div>
@@ -30,19 +30,22 @@ export default {
     }
   },
   computed: {
-    ...mapGetters([
+    ...mapGetters('map', [
       'isMapLayerActive',
+      'allMapLayers',
+      'mapLayerName',
+      'getMapLayer',
+      'getCategories',
+      'layerSelectionActive'
+
+    ]),
+    ...mapGetters([
       'isDataMartActive',
       'loadingFeature',
       'featureError',
       'dataMartFeatures',
       'dataMartFeatureInfo',
-      'allMapLayers',
-      'mapLayerName',
-      'getMapLayer',
       'selectionBoundingBox',
-      'getCategories',
-      'layerSelectionActive',
       'singleSelectionFeatures',
       'loadingMultipleFeatures',
       'featureSelectionExists'

@@ -36,14 +36,15 @@ export default {
   }),
   methods: {
     enableStreamsLayer () {
-      this.$store.commit('addMapLayer', 'freshwater_atlas_stream_networks')
+      this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
     disableStreamsLayer () {
-      this.$store.commit('removeMapLayer', 'freshwater_atlas_stream_networks')
+      this.$store.commit('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     }
   },
   computed: {
-    ...mapGetters(['draw', 'dataMartFeatureInfo', 'isMapLayerActive'])
+    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
     if (this.draw) {
