@@ -150,9 +150,9 @@ export default {
       dispatch('clearHighlightLayer')
       commit('deactivateLayer', payload)
     },
-    getMapLayers ({ commit, dispatch }) {
+    getMapLayers ({ state, commit, dispatch }) {
       // We only fetch maplayers if we don't have a copy cached
-      if (this.state.mapLayers === undefined) {
+      if (state.mapLayers === undefined || state.mapLayers.length === 0) {
         return new Promise((resolve, reject) => {
           console.log('Getting map layers')
           ApiService.getApi('/catalogue/all')
