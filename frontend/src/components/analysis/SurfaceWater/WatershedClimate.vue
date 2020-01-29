@@ -2,7 +2,6 @@
   <div>
     <div v-if="watershedDetails">
       <div class="title my-5">Climate Data</div>
-      <div class="my-3"><span class="font-weight-bold">Area:</span> {{watershedDetails.watershed_area.toFixed(1) }} sq. m ({{ (watershedDetails.watershed_area / 1e6).toFixed(2)}} sq. km) </div>
       <div class="my-3">
         <span class="font-weight-bold">Glacial coverage:</span> {{ watershedDetails.glacial_area.toFixed(1) }} sq. m ({{(watershedDetails.glacial_coverage * 100).toFixed(1)}}%)
       </div>
@@ -74,7 +73,7 @@ export default {
   },
   methods: {
     fetchWatershedDetails () {
-      ApiService.query(`/api/v1/aggregate/watersheds/${this.watershedID}`)
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}`)
         .then(r => {
           this.watershedDetails = r.data
         })

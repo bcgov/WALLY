@@ -120,7 +120,7 @@ export default {
       })
     },
     fetchLicenceData () {
-      ApiService.query(`/api/v1/aggregate/watersheds/${this.watershedID}/licences`)
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
         .then(r => {
           this.licenceData = r.data
           console.log('adding data to map')

@@ -71,7 +71,7 @@ export default {
       // })
     },
     fetchSurficialGeology () {
-      ApiService.query(`/api/v1/aggregate/watersheds/${this.watershedID}/surficial_geology`)
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/surficial_geology`)
         .then(r => {
           this.surficialGeologyByType = r.data.summary_by_type
           console.log('adding data to map')

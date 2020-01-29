@@ -1,6 +1,9 @@
 <template>
   <div>
     <div class="title my-5">Watershed Details</div>
+      <div class="my-3" v-if="watershedArea">
+        <span class="font-weight-bold">Area:</span>
+        {{watershedArea.toFixed(1) }} sq. m ({{ (watershedArea / 1e6).toFixed(2)}} sq. km) </div>
     <SurficialGeology :watershedID="watershedID" :record="record"/>
   </div>
 </template>
@@ -19,6 +22,13 @@ export default {
   watch: {
   },
   computed: {
+    watershedArea () {
+      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
+        return null
+      }
+
+      return Number(this.record.properties['FEATURE_AREA_SQM'])
+    }
   },
   methods: {
   },
