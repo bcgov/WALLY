@@ -48,6 +48,31 @@ export default {
   }),
   computed: {
     chartLayout () {
+      let wellAnnotations = this.wells.map((w) => {
+        return {
+          xref: 'x',
+          yref: 'y',
+          x: w.distance_from_origin,
+          y: w.ground_elevation_from_dem,
+          xanchor: 'left',
+          yanchor: 'center',
+          text: 'WTN:' + w.well_tag_number,
+          textangle: -45,
+          align: 'center',
+          font: {
+            size: 12,
+            color: 'black'
+          },
+          opacity: 0.8,
+          showarrow: true,
+          standoff: 3,
+          arrowhead: 1,
+          arrowsize: 1,
+          arrowwidth: 1,
+          ax: 8,
+          ay: -30
+        }
+      })
       const opts = {
         shapes: [],
         title: 'Groundwater Wells',
@@ -67,45 +92,49 @@ export default {
             text: 'Distance (m)'
           }
         },
-        annotations: [{
-          xref: 'paper',
-          yref: 'paper',
-          x: 0,
-          xanchor: 'right',
-          y: -0.1,
-          yanchor: 'bottom',
-          text: 'A',
-          showarrow: false,
-          font: {
-            size: 16,
-            color: '#ffffff'
+        annotations: [
+          {
+            xref: 'paper',
+            yref: 'paper',
+            x: 0,
+            xanchor: 'right',
+            y: -0.1,
+            yanchor: 'bottom',
+            text: 'A',
+            showarrow: false,
+            font: {
+              size: 16,
+              color: '#ffffff'
+            },
+            align: 'center',
+            bordercolor: '#1A5A96',
+            borderwidth: 4,
+            borderpad: 4,
+            bgcolor: '#1A5A96',
+            opacity: 0.8
+          }, 
+          {
+            xref: 'paper',
+            yref: 'paper',
+            x: 1,
+            xanchor: 'left',
+            y: -0.1,
+            yanchor: 'bottom',
+            text: 'B',
+            showarrow: false,
+            font: {
+              size: 16,
+              color: '#ffffff'
+            },
+            align: 'center',
+            bordercolor: '#1A5A96',
+            borderwidth: 4,
+            borderpad: 4,
+            bgcolor: '#1A5A96',
+            opacity: 0.8
           },
-          align: 'center',
-          bordercolor: '#1A5A96',
-          borderwidth: 4,
-          borderpad: 4,
-          bgcolor: '#1A5A96',
-          opacity: 0.8
-        }, {
-          xref: 'paper',
-          yref: 'paper',
-          x: 1,
-          xanchor: 'left',
-          y: -0.1,
-          yanchor: 'bottom',
-          text: 'B',
-          showarrow: false,
-          font: {
-            size: 16,
-            color: '#ffffff'
-          },
-          align: 'center',
-          bordercolor: '#1A5A96',
-          borderwidth: 4,
-          borderpad: 4,
-          bgcolor: '#1A5A96',
-          opacity: 0.8
-        }]
+          ...wellAnnotations
+        ]
       }
       this.wells.forEach(w => {
         const rect = {
@@ -151,23 +180,6 @@ export default {
           namelength: 0
         }
       }
-      const wellTops = {
-        x: this.wells.map(w => w.distance_from_origin),
-        y: this.wells.map(w => w.ground_elevation_from_dem),
-        text: this.wells.map(w => 'WTN:' + w.well_tag_number),
-        textposition: 'top',
-        showlegend: false,
-        name: '',
-        hovertemplate: '<b>WTN</b>: %{text}',
-        mode: 'markers+text',
-        type: 'scatter',
-        marker: {
-          color: 'rgb(252,141,98)'
-        },
-        hoverlabel: {
-          namelength: 0
-        }
-      }
       const waterDepth = {
         x: this.wells.map(w => w.distance_from_origin),
         y: this.wells.map(w =>
@@ -186,7 +198,6 @@ export default {
         hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
       }
-
       const lithology = {
         x: this.wellsLithology.map(w => w.x),
         y: this.wellsLithology.map(w => w.y0),
@@ -231,7 +242,7 @@ export default {
         },
         hoverinfo: 'none'
       }
-      return [elevProfile, wellTops, waterDepth, wells, lithology, waterLevel]
+      return [elevProfile, waterDepth, wells, lithology, waterLevel]
     },
     surfaceData () {
       let lines = this.surfacePoints
