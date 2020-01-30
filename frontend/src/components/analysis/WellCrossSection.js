@@ -1,6 +1,5 @@
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
@@ -15,6 +14,8 @@ export default {
     Plotly
   },
   mounted () {
+    this.$store.commit('map/setMode',
+      { type: 'analysis', name: 'cross_section' })
     this.fetchWellsAlongLine()
   },
   props: ['record', 'coordinates', 'panelOpen'],
@@ -154,7 +155,7 @@ export default {
       const wellTops = {
         x: this.wells.map(w => w.distance_from_origin),
         y: this.wells.map(w => w.ground_elevation_from_dem),
-        text: this.wells.map(w => "WTN:" + w.well_tag_number),
+        text: this.wells.map(w => 'WTN:' + w.well_tag_number),
         textposition: 'top',
         showlegend: false,
         name: '',
@@ -288,8 +289,9 @@ export default {
       ]
     },
     surfaceLayout () {
-      let a = this.surfacePoints[2][0]
-      let b = this.surfacePoints[2][this.surfacePoints[2].length - 1]
+      const emptyArr = ['', '', '']
+      let a = this.surfacePoints[2][0] ? this.surfacePoints[2][0] : emptyArr
+      let b = this.surfacePoints[2][0] ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
 
       return {
         title: '',
@@ -577,5 +579,6 @@ export default {
   beforeDestroy () {
     // reset shapes when closing this component
     this.$store.commit('map/removeShapes')
+    this.$store.commit('map/resetMode')
   }
 }

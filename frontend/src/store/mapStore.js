@@ -25,6 +25,11 @@ const emptyFeatureCollection = {
   features: [emptyPoint]
 }
 
+const defaultMode = {
+  type: 'interactive',
+  name: 'clicky'
+}
+
 export default {
   namespaced: true,
   state: {
@@ -41,10 +46,7 @@ export default {
     highlightFeatureCollectionData: {},
     layerCategories: [],
     layerSelectionActive: true,
-    mode: {
-      type: 'interactive',
-      name: 'clicky'
-    },
+    mode: defaultMode,
     selectedBaseLayers: [
       'national-park',
       'landuse',
@@ -444,6 +446,9 @@ export default {
     },
     setMode (state, payload) {
       state.mode = payload
+    },
+    resetMode (state, payload) {
+      state.mode = defaultMode
     }
 
   },
