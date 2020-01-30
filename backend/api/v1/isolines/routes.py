@@ -14,7 +14,7 @@ logger = getLogger("isolines")
 
 router = APIRouter()
 
-
+# returns the clipped area in meters and runoff amount in m3/year
 @router.get("/runoff")
 def get_isoline_runoff(
         db: Session = Depends(get_db),
