@@ -48,6 +48,7 @@ export default {
   }),
   computed: {
     chartLayout () {
+      // annotations used instead of label text due to textangle feature
       let wellAnnotations = this.wells.map((w) => {
         return {
           xref: 'x',
