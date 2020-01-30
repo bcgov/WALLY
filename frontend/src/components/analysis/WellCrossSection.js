@@ -448,9 +448,9 @@ export default {
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
       // add the new one
-      EventBus.$emit('shapes:add', polygon)
+      this.$store.commit('map/addShape', polygon)
     },
     initPlotly () {
       // Subscribe to plotly select and lasso tools
@@ -576,6 +576,6 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
   }
 }

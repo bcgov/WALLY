@@ -205,17 +205,7 @@ export default {
       state.dataMartFeatures.push(payload)
     },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
-    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
-    addDataMart (state, payload) {
-      state.activeDataMarts.push(payload)
-      EventBus.$emit(`dataMart:added`, payload)
-    },
-    removeDataMart (state, payload) {
-      state.activeDataMarts = state.activeDataMarts.filter(function (source) {
-        return source.displayDataName !== payload
-      })
-      EventBus.$emit(`dataMart:removed`, payload)
-    }
+    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,

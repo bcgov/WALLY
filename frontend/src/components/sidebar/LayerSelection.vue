@@ -111,7 +111,7 @@ export default {
       return catMap
     },
     handleResetLayers () {
-      this.$store.dispatch('map/clearActiveSelection')
+      this.$store.dispatch('map/clearSelections')
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.dispatch('map/updateActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
