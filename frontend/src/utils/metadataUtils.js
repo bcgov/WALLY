@@ -33,7 +33,7 @@ export const DATA_MARTS = [
   },
   {
     id: WMS_GROUND_WATER_WELLS,
-    name: 'Ground Water Wells',
+    name: 'Groundwater Wells',
     type: WMS_DATAMART,
     wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_WATER_WELLS_WRBC_SVW',
     wmsStyle: ''
@@ -96,14 +96,14 @@ export const DATA_MARTS = [
   },
   {
     id: WMS_GROUND_WATER_LICENSES,
-    name: 'Ground Water Licenses',
+    name: 'Groundwater Licenses',
     type: WMS_DATAMART,
     wmsLayer: 'WHSE_WATER_MANAGEMENT.WLS_PWD_LICENCES_SVW',
     wmsStyle: ''
   },
   {
     id: WMS_GROUND_WATER_AQUIFERS,
-    name: 'Ground Water Aquifers',
+    name: 'Groundwater Aquifers',
     type: WMS_DATAMART,
     wmsLayer: 'WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW',
     wmsStyle: ''
