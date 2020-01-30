@@ -10,8 +10,10 @@ from sqlalchemy.orm import Session
 from shapely.geometry import shape, MultiPolygon, Polygon, Point
 from shapely.ops import transform
 
+
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 
 from api.v1.aggregator.controller import (
     databc_feature_search,
@@ -89,11 +91,72 @@ def get_watersheds(
     return FeatureCollection(watershed_features)
 
 
+@router.get('/calc')
+def calculate_watershed(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")
+):
+    """ calculates watershed area upstream of a POI """
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
+
+    if point:
+        point_parsed = json.loads(point)
+        point = Point(point_parsed)
+
+    q = """
+
+    SELECT  ST_AsGeoJSON(ST_Union(geom))
+    FROM    (
+        SELECT
+            "GEOMETRY" as geom,
+            left(right(left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')), 8), 6) as fwa_minor_code
+        FROM    freshwater_atlas_watersheds
+        WHERE   "FWA_WATERSHED_CODE" ilike (
+            SELECT  left(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+            FROM    freshwater_atlas_watersheds fwa2
+            WHERE   ST_Contains(
+                "GEOMETRY",
+                ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+            )
+        )
+
+    ) combined_watersheds
+    """
+
+    # AND left(right(left(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')), 8), 6)::int > (
+    #     SELECT  left(right(left(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')), 8), 6)::int as fwa_local_code
+    #     FROM    freshwater_atlas_watersheds fwa2
+    #     WHERE   ST_Contains(
+    #         "GEOMETRY",
+    #         ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #     )
+    # )
+
+    logger.info('---------------------------------------------------')
+    logger.info(point.wkt)
+    logger.info('---------------------------------------------------')
+
+    res = db.execute(q, {"search_point": point.wkt})
+
+    fc = FeatureCollection(
+        [Feature(geometry=geojson.loads(row[0]), id="Calculated") for row in res])
+
+    logger.info(fc)
+
+    return fc
+
+
 @router.get('/{dataset_watershed_id}')
 def watershed_stats(
     db: Session = Depends(get_db),
     dataset_watershed_id: str = Path(...,
                                      title="The watershed ID prefixed by dataset name")
+
+
 ):
     """ aggregates statistics/info about a watershed """
 

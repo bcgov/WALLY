@@ -98,6 +98,7 @@ export default {
       })
     },
     addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.3) {
+      console.log(data)
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -119,7 +120,7 @@ export default {
       const params = {
         point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
       }
-      ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/watersheds/calc?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features
