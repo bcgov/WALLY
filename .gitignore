@@ -3,4 +3,5 @@
 docker-stack.yml
 .idea
 .tmp
+.env
 /venv/
