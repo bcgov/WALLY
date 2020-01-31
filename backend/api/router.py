@@ -13,6 +13,7 @@ from api.v1.stream import routes as stream
 from api.v1.firstnations import routes as firstnations
 from api.v1.wells import routes as wells
 from api.v1.config import routes as config
+from api.v1.isolines import routes as isolines
 
 api_router = APIRouter()
 
@@ -83,5 +84,12 @@ api_router.include_router(
     config.router,
     prefix="/config",
     tags=["config"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    isolines.router,
+    prefix="/isolines",
+    tags=["isolines"],
     responses={404: {"description": "Not found"}},
 )
