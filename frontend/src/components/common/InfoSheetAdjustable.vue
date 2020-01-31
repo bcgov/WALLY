@@ -11,16 +11,24 @@
       </v-sheet>
     </v-expand-x-transition>
     <v-slide-x-reverse-transition>
-      <v-btn
-        x-small
-        tile
-        color="white"
-        @click="this.togglePanel"
-        class="close"
-        v-show="infoPanelVisible"
-      >
-        <v-icon>close</v-icon>
-      </v-btn>
+      <v-tooltip right>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            x-small
+            tile
+            color="white"
+            @click="togglePanel"
+            class="close"
+            v-show="infoPanelVisible"
+            v-on="on"
+          >
+
+              <v-icon>mdi-chevron-left</v-icon>
+
+          </v-btn>
+        </template>
+        <span>Hide</span>
+      </v-tooltip>
     </v-slide-x-reverse-transition>
     <v-slide-x-transition>
       <v-btn
