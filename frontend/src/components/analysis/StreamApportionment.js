@@ -267,5 +267,6 @@ export default {
   beforeDestroy () {
     // this.setMode({ type: 'interactive', name: '' })
     this.updateHighlightFeatureData({})
+    this.$store.dispatch('map/clearSelections')
   }
 }

@@ -53,7 +53,7 @@
                 ></v-progress-circular>
               </v-card-text>
               <v-card v-else flat>
-                <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
+               <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
               </v-card>
             </v-tab-item>
           </v-tabs>

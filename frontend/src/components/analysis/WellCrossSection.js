@@ -114,7 +114,7 @@ export default {
             borderpad: 4,
             bgcolor: '#1A5A96',
             opacity: 0.8
-          }, 
+          },
           {
             xref: 'paper',
             yref: 'paper',
