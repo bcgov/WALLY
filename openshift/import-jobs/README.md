@@ -66,6 +66,8 @@ Visit http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ for the download l
 | fn_treaty_areas                          | fn_treaty_areas | `oc process -f tippecanoe.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
 | fn_treaty_lands                          | fn_treaty_lands | `oc process -f tippecanoe.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 | freshwater_atlas_glaciers                | freshwater_atlas_glaciers | `oc process -f tippecanoe.job.yaml -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
+| freshwater_atlas_glaciers                | freshwater_atlas_glaciers | `oc process -f tippecanoe.job.yaml -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
+| normal_annual_runoff_isolines            | normal_annual_runoff_isolines | `oc process -f tippecanoe.job.yaml -p JOB_NAME=isolines -p LAYER_NAME=normal_annual_runoff_isolines | oc apply -f -`
 
 ## Freshwater Atlas
 
@@ -107,7 +109,7 @@ tippecanoe -l freshwater_atlas_stream_networks  -j '
 # Uploading tiles to Mapbox
 Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbtiles` files that are associated with that source ID and upload them all together using tile-join.
 | iit-water.first-nations                   | fn_community_locations, fn_treaty_areas, fn_treaty_lands | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=first-nations -p LAYER_NAME=iit-water.first-nations | oc apply -f -`
-| iit-water.0tsq064k                   | aquifers, bc_major_watersheds, critical_habitat_species_at_risk, freshwater_atlas_glaciers, hydrologic_zone_boundaries | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=0tsq064k -p LAYER_NAME=iit-water.0tsq064k | oc apply -f -`
+| iit-water.0tsq064k                   | aquifers, bc_major_watersheds, critical_habitat_species_at_risk, freshwater_atlas_glaciers, hydrologic_zone_boundaries, normal_annual_runoff_isolines | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=0tsq064k -p LAYER_NAME=iit-water.0tsq064k | oc apply -f -`
 
 
 # Importing into the Wally database
@@ -124,4 +126,5 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | fn_community_locations                   | fn_community_locations | `oc process -f import.job.yaml -p JOB_NAME=fncommunities -p LAYER_NAME=fn_community_locations | oc apply -f -`
 | fn_treaty_areas                          | fn_treaty_areas | `oc process -f import.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
 | fn_treaty_lands                          | fn_treaty_lands | `oc process -f import.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
+| normal_annual_runoff_isolines            | normal_annual_runoff_isolines | `oc process -f import.job.yaml -p JOB_NAME=isolines -p LAYER_NAME=normal_annual_runoff_isolines | oc apply -f -`
 
