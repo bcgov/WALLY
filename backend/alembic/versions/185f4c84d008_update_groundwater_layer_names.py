@@ -1,7 +1,7 @@
 """Update groundwater layer names
 
 Revision ID: 185f4c84d008
-Revises: 9ee500c7ad08
+Revises: 8d26b7e18b0f
 Create Date: 2020-01-30 11:21:15.699842
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = '185f4c84d008'
-down_revision = '9ee500c7ad08'
+down_revision = '8d26b7e18b0f'
 branch_labels = None
 depends_on = None
 
