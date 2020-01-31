@@ -1,7 +1,7 @@
 """add mad model coefficients
 
 Revision ID: 8c0ac4dc8ac2
-Revises: 9ee500c7ad08
+Revises: 8d26b7e18b0f
 Create Date: 2020-01-30 20:28:09.565290
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy import ForeignKey
 
 # revision identifiers, used by Alembic.
 revision = '8c0ac4dc8ac2'
-down_revision = '9ee500c7ad08'
+down_revision = '8d26b7e18b0f'
 branch_labels = None
 depends_on = None
 
