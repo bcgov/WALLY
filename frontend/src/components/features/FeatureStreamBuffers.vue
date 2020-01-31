@@ -62,7 +62,7 @@ export default {
       max: value => value <= 500 || 'Buffer must be between 0 and 500 m'
     },
     layerOptions: [
-      { value: 'groundwater_wells', text: 'Ground Water Wells' },
+      { value: 'groundwater_wells', text: 'Groundwater Wells' },
       { value: 'water_rights_licences', text: 'Water Rights Licences' },
       { value: 'water_rights_applications', text: 'Water Rights Applications' },
       { value: 'ecocat_water_related_reports', text: 'Ecocat Reports' },
