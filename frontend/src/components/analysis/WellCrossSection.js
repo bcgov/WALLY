@@ -154,7 +154,7 @@ export default {
       const wellTops = {
         x: this.wells.map(w => w.distance_from_origin),
         y: this.wells.map(w => w.ground_elevation_from_dem),
-        text: this.wells.map(w => "WTN:" + w.well_tag_number),
+        text: this.wells.map(w => 'WTN:' + w.well_tag_number),
         textposition: 'top',
         showlegend: false,
         name: '',
