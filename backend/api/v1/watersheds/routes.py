@@ -112,20 +112,100 @@ def calculate_watershed(
     SELECT  ST_AsGeoJSON(ST_Union(geom))
     FROM    (
         SELECT
-            "GEOMETRY" as geom,
-            left(right(left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')), 8), 6) as fwa_minor_code
+            "GEOMETRY" as geom
         FROM    freshwater_atlas_watersheds
         WHERE   "FWA_WATERSHED_CODE" ilike (
-            SELECT  left(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+            SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
             FROM    freshwater_atlas_watersheds fwa2
             WHERE   ST_Contains(
                 "GEOMETRY",
                 ST_SetSRID(ST_GeomFromText(:search_point), 4326)
             )
         )
+        AND split_part("LOCAL_WATERSHED_CODE", '-', (
+            SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+            FROM freshwater_atlas_watersheds
+            WHERE   ST_Contains(
+                "GEOMETRY",
+                ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+            ))::int
+        )::int >= split_part((
+            SELECT "LOCAL_WATERSHED_CODE"
+            FROM freshwater_atlas_watersheds
+            WHERE   ST_Contains(
+                "GEOMETRY",
+                ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+            )
+        ), '-', (
+            SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+            FROM freshwater_atlas_watersheds
+            WHERE   ST_Contains(
+                "GEOMETRY",
+                ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+            ))::int
+        )::int
 
     ) combined_watersheds
     """
+
+    # SELECT  ST_AsGeoJSON(ST_Union(geom))
+    # FROM    (
+    #     SELECT
+    #         "GEOMETRY" as geom,
+    #         left(right(left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')), 8), 6) as fwa_minor_code
+    #     FROM    freshwater_atlas_watersheds
+    #     WHERE   "FWA_WATERSHED_CODE" ilike (
+    #         SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+    #         FROM    freshwater_atlas_watersheds fwa2
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         )
+    #     )
+    #     AND   split_part("FWA_WATERSHED_CODE", '-', (
+    #         SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+    #         FROM freshwater_atlas_watersheds
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         ))::int
+    #     )::int > split_part((
+    #         SELECT "LOCAL_WATERSHED_CODE"
+    #         FROM freshwater_atlas_watersheds
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         )
+    #     ), '-', (
+    #         SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+    #         FROM freshwater_atlas_watersheds
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         ))::int
+    #     )::int
+    #     AND split_part("LOCAL_WATERSHED_CODE", '-', (
+    #         SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+    #         FROM freshwater_atlas_watersheds
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         ))::int
+    #     )::int > split_part((
+    #         SELECT "LOCAL_WATERSHED_CODE"
+    #         FROM freshwater_atlas_watersheds
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         )
+    #     ), '-', (
+    #         SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+    #         FROM freshwater_atlas_watersheds
+    #         WHERE   ST_Contains(
+    #             "GEOMETRY",
+    #             ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+    #         ))::int
+    #     )::int
 
     # AND left(right(left(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')), 8), 6)::int > (
     #     SELECT  left(right(left(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')), 8), 6)::int as fwa_local_code
@@ -144,8 +224,6 @@ def calculate_watershed(
 
     fc = FeatureCollection(
         [Feature(geometry=geojson.loads(row[0]), id="Calculated") for row in res])
-
-    logger.info(fc)
 
     return fc
 
