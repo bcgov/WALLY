@@ -3,7 +3,7 @@ import Router from 'vue-router'
 
 import store from './store'
 
-import LayerSelection from './components/sidebar/LayerSelection'
+import LayerSelection from './components/toolbar/LayerSelection'
 import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
 import MultipleSelectedFeatures from './components/sidebar/MultipleSelectedFeatures'
 import PointOfInterest from './components/sidebar/cards/PointOfInterest'
