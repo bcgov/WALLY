@@ -153,7 +153,7 @@ export default {
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
 
-      // Show layer selection sidebar
+      // Show layer selection sidepanel
       this.$store.commit('toggleInfoPanelVisibility')
     },
     handleModeChange (e) {

@@ -4,14 +4,14 @@ import Router from 'vue-router'
 import store from './store'
 
 import LayerSelection from './components/toolbar/LayerSelection'
-import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
-import MultipleSelectedFeatures from './components/sidebar/MultipleSelectedFeatures'
-import PointOfInterest from './components/sidebar/cards/PointOfInterest'
-import PolygonTool from './components/sidebar/cards/PolygonTool'
-import CrossSection from './components/sidebar/cards/CrossSection'
-import StreamApportionment from './components/sidebar/cards/StreamApportionment'
-import UpstreamDownstream from './components/sidebar/cards/UpstreamDownstream'
-import Start from './components/sidebar/Start'
+import SingleSelectedFeature from './components/sidepanel/SingleSelectedFeature'
+import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFeatures'
+import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
+import PolygonTool from './components/sidepanel/cards/PolygonTool'
+import CrossSection from './components/sidepanel/cards/CrossSection'
+import StreamApportionment from './components/sidepanel/cards/StreamApportionment'
+import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
+import Start from './components/sidepanel/Start'
 
 Vue.use(Router)
 
