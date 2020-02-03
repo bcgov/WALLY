@@ -9,7 +9,7 @@ import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFea
 import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
 import PolygonTool from './components/sidepanel/cards/PolygonTool'
 import CrossSection from './components/sidepanel/cards/CrossSection'
-import StreamApportionment from './components/sidepanel/cards/StreamApportionment'
+import StreamApportionment from './components/analysis/stream_apportionment/StartApportionment'
 import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
 import Start from './components/sidepanel/Start'
 

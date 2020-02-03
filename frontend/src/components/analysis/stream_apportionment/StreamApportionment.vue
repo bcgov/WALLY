@@ -70,7 +70,6 @@
           <v-data-table
             :show-select="multiSelect"
             hide-default-footer
-            v-on:click:row="highlight"
             v-model="selected"
             :loading="loading"
             :headers="headers"
@@ -86,6 +85,12 @@
               <span>{{item.apportionment.toFixed(2)}}%</span>
             </template>
             <template v-slot:item.action="{ item }">
+              <v-icon
+                small
+                @click="highlight(item)"
+              >
+                mdi-eye
+              </v-icon>
               <v-icon
                 small
                 @click="deleteStream(item)"
@@ -129,7 +134,7 @@
   </v-container>
 </template>
 
-<script src="./StreamApportionment.js"></script>
+<script src="StreamApportionment.js"></script>
 
 <style>
 

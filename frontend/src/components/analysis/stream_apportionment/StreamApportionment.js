@@ -1,6 +1,6 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'querystring'
-import ApiService from '../../services/ApiService'
+import ApiService from '../../../services/ApiService'
 
 export default {
   name: 'StreamApportionment',
@@ -169,6 +169,7 @@ export default {
       this.reloadStreams()
     },
     highlightStreams () {
+      console.log('highlighting streams')
       let streamData = {
         display_data_name: 'freshwater_atlas_stream_networks',
         feature_collection: {
@@ -253,6 +254,7 @@ export default {
       }
     },
     isMapReady (value) {
+      console.log('is map ready?', value)
       if (value) {
         if (!this.isFreshwaterAtlasStreamNetworksLayerEnabled) {
           this.enableFreshwaterAtlasStreamNetworksLayer()

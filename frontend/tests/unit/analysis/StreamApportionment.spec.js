@@ -3,7 +3,7 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import StreamApportionment from '../../../src/components/analysis/StreamApportionment.vue'
+import StreamApportionment from '../../../src/components/analysis/stream_apportionment/StreamApportionment.vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)

@@ -32,7 +32,7 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import StreamApportionment from '../../analysis/StreamApportionment.vue'
+import StreamApportionment from './StreamApportionment.vue'
 
 export default {
   name: 'StreamApportionmentStart',
