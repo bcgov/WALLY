@@ -38,6 +38,9 @@ def external_search(query, feature_type, url):
     """ Makes an external search request to a specified URL.  The url will have the search
         text appended to it. Returns geojson matches with extra data for the geocoder.
     """
+
+    logger.info("using external API for feature lookup: %s", url + query)
+
     req = ExternalAPIRequest(
         url=url + query,
         layer=feature_type,
@@ -55,7 +58,6 @@ def external_search(query, feature_type, url):
         feature['center'] = (feature.geometry.coordinates[0],
                              feature.geometry.coordinates[1])
         feature['place_name'] = str(feature.properties['well_tag_number'])
-        logger.info(feature)
         geocoder_features.append(feature)
 
     return geocoder_features
@@ -67,6 +69,8 @@ def wfs_search(db, query, feature_type):
         a given feature type. Returns geojson with extra metadata used by
         the geocoder.
     """
+
+    logger.info("using WFS for feature lookup: %s", feature_type)
 
     # look up the DataBC layer ID.
     # first check in the WFS_LAYER_IDS constant defined above
