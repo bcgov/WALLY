@@ -7,7 +7,7 @@
       </div>
       <div v-if="precipData">
         <div class="title mt-5">Precipitation</div>
-        <Chart :data="precipData" :layout="precipLayout"/>
+        <Plotly :data="precipData" :layout="precipLayout"/>
         <v-row align="center">
           <v-col cols=12 md=8>
             Source: <a href="https://pacificclimate.org/analysis-tools/pcic-climate-explorer" target="_blank">Pacific Climate Impacts Consortium - Climate Explorer</a>
@@ -26,12 +26,13 @@
 
 <script>
 import ApiService from '../../../services/ApiService'
-import Chart from '../../charts/Chart'
+import { Plotly } from 'vue-plotly'
+
 export default {
   name: 'WatershedClimate',
   props: ['watershedID', 'record'],
   components: {
-    Chart
+    Plotly
   },
   data: () => ({
     watershedDetails: null,

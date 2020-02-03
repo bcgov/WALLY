@@ -11,22 +11,22 @@
             Hydrometric Watersheds (DataBC)
           </a>
         </div>
-        <Chart v-if="normalizedRunoffByMonth"
+        <Plotly v-if="normalizedRunoffByMonth"
           :layout="runoffLayout"
           :data="normalizedRunoffByMonth"
-        ></Chart>
+        ></Plotly>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Chart from '../../charts/Chart'
+import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'WatershedAvailability',
   components: {
-    Chart
+    Plotly
   },
   props: {
     watershedID: null,
