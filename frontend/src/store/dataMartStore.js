@@ -7,8 +7,6 @@ export default {
   state: {
     activeDataMarts: [],
     activeDataMartLayers: [], // comes from 'activeLayers' on Map.js;
-    // not sure if necessary (see dependencies)
-    displayTemplates: [],
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
@@ -30,20 +28,19 @@ export default {
       commit('setLoadingFeature', true)
       commit('setFeatureError', '')
       commit('setLoadingMultipleFeatures', true)
-      var layers = payload.layers.map((x) => {
+      const layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-      var width = 'width=' + payload.size.x + '&'
-      var height = 'height=' + payload.size.y
-      var params = layers.join('') + polygonQ + width + height
+      const width = 'width=' + payload.size.x + '&'
+      const height = 'height=' + payload.size.y
+      const params = layers.join('') + polygonQ + width + height
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
           // console.log('response for aggregate', response)
           let displayData = response.data.display_data
-          let displayTemplates = response.data.display_templates
           commit('setLoadingFeature', false)
 
           // end here if no layers returned any data.
@@ -83,9 +80,6 @@ export default {
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
-            // TODO currently we are not using displayTemplate information
-            // Need to clean this up or re-purpose it
-            commit('setDisplayTemplates', { displayTemplates })
             commit('setDataMartFeatureInfo', {})
             router.push({
               name: 'multiple-features'
@@ -210,13 +204,10 @@ export default {
     setDataMartFeatures: (state, payload) => {
       state.dataMartFeatures.push(payload)
     },
-    setDisplayTemplates: (state, payload) => { state.displayTemplates = payload },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
-    clearDisplayTemplates: (state) => { state.displayTemplates = [] },
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
-    displayTemplates: state => state.displayTemplates,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     loadingFeature: state => state.loadingFeature,

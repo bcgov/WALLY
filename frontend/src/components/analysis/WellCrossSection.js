@@ -1,6 +1,5 @@
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
@@ -15,6 +14,8 @@ export default {
     Plotly
   },
   mounted () {
+    this.$store.commit('map/setMode',
+      { type: 'analysis', name: 'cross_section' })
     this.fetchWellsAlongLine()
   },
   props: ['record', 'coordinates', 'panelOpen'],
@@ -48,6 +49,32 @@ export default {
   }),
   computed: {
     chartLayout () {
+      // annotations used instead of label text due to textangle feature
+      let wellAnnotations = this.wells.map((w) => {
+        return {
+          xref: 'x',
+          yref: 'y',
+          x: w.distance_from_origin,
+          y: w.ground_elevation_from_dem,
+          xanchor: 'left',
+          yanchor: 'center',
+          text: 'WTN:' + w.well_tag_number,
+          textangle: -45,
+          align: 'center',
+          font: {
+            size: 12,
+            color: 'black'
+          },
+          opacity: 0.8,
+          showarrow: true,
+          standoff: 3,
+          arrowhead: 1,
+          arrowsize: 1,
+          arrowwidth: 1,
+          ax: 8,
+          ay: -30
+        }
+      })
       const opts = {
         shapes: [],
         title: 'Groundwater Wells',
@@ -67,45 +94,49 @@ export default {
             text: 'Distance (m)'
           }
         },
-        annotations: [{
-          xref: 'paper',
-          yref: 'paper',
-          x: 0,
-          xanchor: 'right',
-          y: -0.1,
-          yanchor: 'bottom',
-          text: 'A',
-          showarrow: false,
-          font: {
-            size: 16,
-            color: '#ffffff'
+        annotations: [
+          {
+            xref: 'paper',
+            yref: 'paper',
+            x: 0,
+            xanchor: 'right',
+            y: -0.1,
+            yanchor: 'bottom',
+            text: 'A',
+            showarrow: false,
+            font: {
+              size: 16,
+              color: '#ffffff'
+            },
+            align: 'center',
+            bordercolor: '#1A5A96',
+            borderwidth: 4,
+            borderpad: 4,
+            bgcolor: '#1A5A96',
+            opacity: 0.8
           },
-          align: 'center',
-          bordercolor: '#1A5A96',
-          borderwidth: 4,
-          borderpad: 4,
-          bgcolor: '#1A5A96',
-          opacity: 0.8
-        }, {
-          xref: 'paper',
-          yref: 'paper',
-          x: 1,
-          xanchor: 'left',
-          y: -0.1,
-          yanchor: 'bottom',
-          text: 'B',
-          showarrow: false,
-          font: {
-            size: 16,
-            color: '#ffffff'
+          {
+            xref: 'paper',
+            yref: 'paper',
+            x: 1,
+            xanchor: 'left',
+            y: -0.1,
+            yanchor: 'bottom',
+            text: 'B',
+            showarrow: false,
+            font: {
+              size: 16,
+              color: '#ffffff'
+            },
+            align: 'center',
+            bordercolor: '#1A5A96',
+            borderwidth: 4,
+            borderpad: 4,
+            bgcolor: '#1A5A96',
+            opacity: 0.8
           },
-          align: 'center',
-          bordercolor: '#1A5A96',
-          borderwidth: 4,
-          borderpad: 4,
-          bgcolor: '#1A5A96',
-          opacity: 0.8
-        }]
+          ...wellAnnotations
+        ]
       }
       this.wells.forEach(w => {
         const rect = {
@@ -141,8 +172,8 @@ export default {
         showlegend: false,
         name: 'Finished well depth (reported)',
         hovertemplate:
-          '<b>Well</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
-        mode: 'markers+text',
+          '<b>WTN</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
+        mode: 'markers',
         type: 'scatter',
         marker: {
           color: 'rgb(252,141,98)'
@@ -169,7 +200,6 @@ export default {
         hovertemplate: 'Water elev.: %{y:.1f} m<br>',
         type: 'scatter'
       }
-
       const lithology = {
         x: this.wellsLithology.map(w => w.x),
         y: this.wellsLithology.map(w => w.y0),
@@ -272,8 +302,9 @@ export default {
       ]
     },
     surfaceLayout () {
-      let a = this.surfacePoints[2][0]
-      let b = this.surfacePoints[2][this.surfacePoints[2].length - 1]
+      const emptyArr = ['', '', '']
+      let a = this.surfacePoints[2][0] ? this.surfacePoints[2][0] : emptyArr
+      let b = this.surfacePoints[2][0] ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
 
       return {
         title: '',
@@ -432,9 +463,9 @@ export default {
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
       // add the new one
-      EventBus.$emit('shapes:add', polygon)
+      this.$store.commit('map/addShape', polygon)
     },
     initPlotly () {
       // Subscribe to plotly select and lasso tools
@@ -538,7 +569,7 @@ export default {
   watch: {
     panelOpen (value) {
       if (value) {
-        this.$store.commit('map/addMapLayer', 'groundwater_wells')
+        this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
         this.setAnnotationMarkers()
       } else {
         this.removeElementsByClass('annotationMarker')
@@ -560,6 +591,7 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
+    this.$store.commit('map/resetMode')
   }
 }

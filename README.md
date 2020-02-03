@@ -45,8 +45,6 @@ nginx also proxies requests to other services based on the `nginx.conf.templ` fi
 
 * `backend/` (FastAPI Python backend) - the backend folder contains the REST API backend that serves data at the `/api/v1/` path.
 
-* `reporting/` (ReactPDF report generator) - reporting contains the code and templates for generating PDF reports.  This is an independent service that produces a PDF file on demand.
-
 * PostGIS - Data used by Wally is stored in a PostGIS-enabled PostgreSQL database, which uses Patroni for managing multiple replicas.  The Dockerfile and other build resources are in `openshift/patroni-postgis`.
 
 ### Use a terminal inside a container

@@ -22,6 +22,7 @@ from api.v1.hydat.db_models import Station as StreamStation
 from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from api.layers.normal_annual_runoff_isolines import NormalAnnualRunoffIsolines
 
 logger = logging.getLogger("aggregator")
 
@@ -33,6 +34,7 @@ API_DATASOURCES = {
     "HYDAT": StreamStation,
     "hydrometric_stream_flow": StreamStation,
     "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks,
+    "normal_annual_runoff_isolines": NormalAnnualRunoffIsolines
 }
 
 # For external APIs that may require different parameters (e.g. not a WMS/GeoServer with

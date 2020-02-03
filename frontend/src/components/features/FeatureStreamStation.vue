@@ -11,7 +11,7 @@
         </v-list-item>
         <v-list-item v-if="station.flow_years && station.flow_years.length">
           <v-list-item-content class="mx-0 px-0">
-            <line-chart v-if="flowChartReady" :chartData="flowChartData" :options="flowChartOptions"></line-chart>
+            <Plotly id="flowPlot" :data="plotFlowData" :layout="plotFlowLayout" ref="flowPlot"></Plotly>
           </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
@@ -20,7 +20,7 @@
         </v-list-item>
         <v-list-item v-if="station.level_years && station.level_years.length">
           <v-list-item-content>
-            <line-chart v-if="levelChartReady" :chartData="levelChartData" :options="levelChartOptions"></line-chart>
+            <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
           </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
@@ -28,16 +28,6 @@
             Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
           </v-list-item-content>
         </v-list-item>
-        <!-- <v-list-item class="mt-3">
-          <v-list-item-content>
-            <a href="#">How is this information calculated?</a>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item>
-          <v-list-item-content>
-            <a href="#">Improve this feature</a>
-          </v-list-item-content>
-        </v-list-item> -->
       </v-list>
     </v-card-text>
   </v-card>
@@ -46,13 +36,13 @@
 <script>
 import ApiService from '../../services/ApiService'
 import EventBus from '../../services/EventBus'
-import { LineChart } from '../chartjs/Charts'
 import { SHORT_MONTHS } from '../../constants/dates'
+import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'FeatureStreamStation',
   components: {
-    LineChart
+    Plotly
   },
   props: {
     record: Object
@@ -61,6 +51,8 @@ export default {
     return {
       loading: false,
       station: {},
+      flowData: [],
+      levelData: [],
       flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
@@ -71,83 +63,141 @@ export default {
     recordEndpoint () {
       return this.record.properties.url
     },
-    flowChartData () {
-      if (!this.flowData || !this.flowChartReady) {
-        return { datasets: [] }
+    plotFlowData () {
+      const mean = {
+        x: this.flowData.map(w => w.month),
+        y: this.flowData.map(w => w.monthly_mean),
+        text: this.flowData.map(w => w.monthly_mean),
+        textposition: 'bottom',
+        name: 'Daily flow (average by month)',
+        hovertemplate:
+          '<b>Mean</b>: %{text} m3/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#1f548a'
+        }
       }
-      return {
-        datasets: [
-          {
-            label: 'Daily flow (average by month)',
-            lineTension: 0,
-            fill: false,
-            borderColor: '#1f548a',
-            data: this.flowData.map((o) => ({
-              x: o.month,
-              y: o.monthly_mean
-            }))
-          },
-          {
-            label: 'Daily flow (max recorded)',
-            lineTension: 0,
-            fill: false,
-            borderColor: '#26A69A',
-            data: this.flowData.map((o) => ({
-              x: o.month,
-              y: o.max
-            }))
-          },
-          {
-            label: 'Daily flow (min recorded)',
-            lineTension: 0,
-            fill: false,
-            borderColor: '#494949',
-            data: this.flowData.map((o) => ({
-              x: o.month,
-              y: o.min
-            }))
-          }
-        ]
+      const max = {
+        x: this.flowData.map(w => w.month),
+        y: this.flowData.map(w => w.max),
+        text: this.flowData.map(w => w.max),
+        textposition: 'bottom',
+        name: 'Daily flow (max recorded)',
+        hovertemplate:
+          '<b>Max</b>: %{text} m3/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#26A69A'
+        }
       }
+      const min = {
+        x: this.flowData.map(w => w.month),
+        y: this.flowData.map(w => w.min),
+        text: this.flowData.map(w => w.min),
+        textposition: 'bottom',
+        name: 'Daily flow (min recorded)',
+        hovertemplate:
+          '<b>Min</b>: %{text} m3/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#494949'
+        }
+      }
+      return [mean, max, min]
     },
-    levelChartData () {
-      if (!this.levelData || !this.levelChartReady) {
-        return { datasets: [] }
-      }
-      return {
-        datasets: [
-          {
-            label: 'Water level (average by month)',
-            lineTension: 0,
-            fill: false,
-            borderColor: '#1f548a',
-            data: this.levelData.map((o) => ({
-              x: o.month,
-              y: o.monthly_mean
-            }))
-          },
-          {
-            label: 'Water level (max recorded)',
-            lineTension: 0,
-            fill: false,
-            borderColor: '#26A69A',
-            data: this.levelData.map((o) => ({
-              x: o.month,
-              y: o.max
-            }))
-          },
-          {
-            label: 'Water level (min recorded)',
-            lineTension: 0,
-            fill: false,
-            borderColor: '#494949',
-            data: this.levelData.map((o) => ({
-              x: o.month,
-              y: o.min
-            }))
+    plotFlowLayout () {
+      const opts = {
+        shapes: [],
+        title: 'Daily Flow',
+        height: 500,
+        hovermode: 'closest',
+        legend: {
+          x: -0.1,
+          y: 1.3
+        },
+        yaxis: {
+          title: {
+            text: 'Flow Rate (m3/s)'
           }
-        ]
+        },
+        xaxis: {
+          title: {
+            text: 'Month'
+          }
+        }
       }
+      return opts
+    },
+    plotLevelData () {
+      const mean = {
+        x: this.levelData.map(w => w.month),
+        y: this.levelData.map(w => w.monthly_mean),
+        text: this.levelData.map(w => w.monthly_mean),
+        textposition: 'bottom',
+        name: 'Water level (average by month)',
+        hovertemplate:
+          '<b>Mean</b>: %{text} m',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#1f548a'
+        }
+      }
+      const max = {
+        x: this.levelData.map(w => w.month),
+        y: this.levelData.map(w => w.max),
+        text: this.levelData.map(w => w.max),
+        textposition: 'bottom',
+        name: 'Water level (average by max)',
+        hovertemplate:
+          '<b>Max</b>: %{text} m',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#26A69A'
+        }
+      }
+      const min = {
+        x: this.levelData.map(w => w.month),
+        y: this.levelData.map(w => w.min),
+        text: this.levelData.map(w => w.min),
+        textposition: 'bottom',
+        name: 'Water level (average by min)',
+        hovertemplate:
+          '<b>Min</b>: %{text} m',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#494949'
+        }
+      }
+      return [mean, max, min]
+    },
+    plotLevelLayout () {
+      const opts = {
+        shapes: [],
+        title: 'Water Level',
+        height: 500,
+        hovermode: 'closest',
+        legend: {
+          x: -0.1,
+          y: 1.3
+        },
+        yaxis: {
+          title: {
+            text: 'Level (m)'
+          }
+        },
+        xaxis: {
+          title: {
+            text: 'Month'
+          }
+        }
+      }
+      return opts
     }
   },
   methods: {

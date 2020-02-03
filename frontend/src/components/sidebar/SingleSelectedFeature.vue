@@ -112,7 +112,8 @@ export default {
   computed: {
     ...mapGetters('map', [
       'getMapLayer',
-      'map'
+      'map',
+      'isMapReady'
     ]),
     ...mapGetters([
       'loadingFeature',
@@ -120,6 +121,13 @@ export default {
       'singleSelectionFeatures',
       'dataMartFeatureInfo'
     ])
+  },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.loadFeature()
+      }
+    }
   },
   methods: {
     handleCloseSingleFeature () {
@@ -148,13 +156,6 @@ export default {
       }
       return {}
     },
-    whenMapReady (callback) {
-      if (this.map && this.map.loaded()) {
-        return callback()
-      } else {
-        setTimeout(this.whenMapReady, 100, callback)
-      }
-    },
     loadFeature () {
       if ((!!this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name) || !this.$route.query.location) {
         // feature already exists
@@ -180,7 +181,6 @@ export default {
     }
   },
   mounted () {
-    this.whenMapReady(this.loadFeature)
   }
 }
 </script>
