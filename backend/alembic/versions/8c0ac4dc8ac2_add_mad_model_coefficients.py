@@ -86,6 +86,7 @@ def upgrade():
     op.execute("""
         INSERT INTO model_output_type_code (
             model_output_type_code,
+            description,
             create_user, create_date, update_user, update_date, effective_date, expiry_date
         ) VALUES 
             ('MAR', 'Mean annual unit-area runoff measured in mm/year.', 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'),
