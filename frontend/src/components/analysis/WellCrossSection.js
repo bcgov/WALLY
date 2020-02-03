@@ -1,6 +1,5 @@
 import qs from 'querystring'
 import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
@@ -15,6 +14,8 @@ export default {
     Plotly
   },
   mounted () {
+    this.$store.commit('map/setMode',
+      { type: 'analysis', name: 'cross_section' })
     this.fetchWellsAlongLine()
   },
   props: ['record', 'coordinates', 'panelOpen'],
@@ -113,7 +114,7 @@ export default {
             borderpad: 4,
             bgcolor: '#1A5A96',
             opacity: 0.8
-          }, 
+          },
           {
             xref: 'paper',
             yref: 'paper',
@@ -301,8 +302,9 @@ export default {
       ]
     },
     surfaceLayout () {
-      let a = this.surfacePoints[2][0]
-      let b = this.surfacePoints[2][this.surfacePoints[2].length - 1]
+      const emptyArr = ['', '', '']
+      let a = this.surfacePoints[2][0] ? this.surfacePoints[2][0] : emptyArr
+      let b = this.surfacePoints[2][0] ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
 
       return {
         title: '',
@@ -461,9 +463,9 @@ export default {
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
       // add the new one
-      EventBus.$emit('shapes:add', polygon)
+      this.$store.commit('map/addShape', polygon)
     },
     initPlotly () {
       // Subscribe to plotly select and lasso tools
@@ -567,7 +569,7 @@ export default {
   watch: {
     panelOpen (value) {
       if (value) {
-        this.$store.commit('map/addMapLayer', 'groundwater_wells')
+        this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
         this.setAnnotationMarkers()
       } else {
         this.removeElementsByClass('annotationMarker')
@@ -589,6 +591,7 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/removeShapes')
+    this.$store.commit('map/resetMode')
   }
 }

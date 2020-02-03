@@ -28,14 +28,14 @@ export default {
       commit('setLoadingFeature', true)
       commit('setFeatureError', '')
       commit('setLoadingMultipleFeatures', true)
-      var layers = payload.layers.map((x) => {
+      const layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-      var width = 'width=' + payload.size.x + '&'
-      var height = 'height=' + payload.size.y
-      var params = layers.join('') + polygonQ + width + height
+      const width = 'width=' + payload.size.x + '&'
+      const height = 'height=' + payload.size.y
+      const params = layers.join('') + polygonQ + width + height
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
@@ -205,17 +205,7 @@ export default {
       state.dataMartFeatures.push(payload)
     },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
-    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
-    addDataMart (state, payload) {
-      state.activeDataMarts.push(payload)
-      EventBus.$emit(`dataMart:added`, payload)
-    },
-    removeDataMart (state, payload) {
-      state.activeDataMarts = state.activeDataMarts.filter(function (source) {
-        return source.displayDataName !== payload
-      })
-      EventBus.$emit(`dataMart:removed`, payload)
-    }
+    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,

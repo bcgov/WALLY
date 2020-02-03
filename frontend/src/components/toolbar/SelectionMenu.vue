@@ -109,7 +109,6 @@ export default {
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('clearDisplayTemplates')
       this.$store.commit('toggleInfoPanelVisibility', false)
 
       setTimeout(() => this.map.resize(), 0)

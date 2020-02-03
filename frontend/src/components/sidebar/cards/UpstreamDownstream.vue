@@ -39,22 +39,32 @@ export default {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
     disableStreamsLayer () {
-      this.$store.commit('map/removeMapLayer', 'freshwater_atlas_stream_networks')
+      this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     }
   },
   computed: {
-    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    isStreamsLayerEnabled () {
+      return this.isMapLayerActive('freshwater_atlas_stream_networks')
+    },
+    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
-  mounted () {
-    if (this.draw) {
-      this.draw.changeMode('simple_select')
-    }
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.draw.changeMode('simple_select')
 
-    if (!this.isStreamsLayerEnabled) {
-      this.streamsLayerAutomaticallyEnabled = true
-      this.enableStreamsLayer()
+        if (!this.isStreamsLayerEnabled) {
+          this.streamsLayerAutomaticallyEnabled = true
+          this.enableStreamsLayer()
+        }
+      }
     }
+  },
+  mounted () {
+    this.map && this.map.on('load', () => {
+
+    })
   },
   beforeDestroy () {
     if (this.streamsLayerAutomaticallyEnabled) {
