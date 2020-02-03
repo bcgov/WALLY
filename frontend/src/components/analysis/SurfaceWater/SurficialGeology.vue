@@ -1,6 +1,14 @@
 <template>
   <div>
     <div class="title my-5">Surficial Geology (Terrain Inventory Mapping)</div>
+    <div>
+      <p>
+        Note: Surficial geology data is based on
+        <a href="https://catalogue.data.gov.bc.ca/dataset/terrain-inventory-mapping-tim-detailed-polygons-with-short-attribute-table-spatial-view" target="_blank">
+          Terrain Inventory Mapping</a>.
+        Data may be incomplete in the area of interest.
+      </p>
+    </div>
     <div v-if="surficialGeologyByType">
       <div class="my-5">
         <v-data-table

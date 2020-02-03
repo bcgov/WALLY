@@ -106,21 +106,14 @@ def watershed_stats(
 
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
-    projected_geometry_area_simplified = watershed_rect.area
-
-    precip = precipitation(
-        transform(transform_3005_4326, watershed_rect))
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, transform(transform_3005_4326, watershed_rect))
 
     return WatershedDetails(
-        precipitation=precip,
         glacial_coverage=glacial_coverage,
         glacial_area=glacial_area_m,
         watershed_area=watershed_area,
         projected_geometry_area=projected_geometry_area,
-        projected_geometry_area_simplified=projected_geometry_area_simplified,
-        precip_search_area=watershed_rect.area
     )
 
 
@@ -153,8 +146,6 @@ def get_surficial_geology(
     watershed_area = watershed.properties['FEATURE_AREA_SQM']
 
     watershed_poly = shape(watershed.geometry)
-
-    logger.info(watershed_poly)
 
     projected_geometry_area = watershed_poly.area
 

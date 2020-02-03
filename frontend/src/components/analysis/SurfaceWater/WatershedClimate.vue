@@ -20,9 +20,6 @@
           </v-col>
         </v-row>
       </div>
-      <div>
-        <div class="title mt-5">Hydrometric Stations (HYDAT)</div>
-      </div>
     </div>
   </div>
 </template>
@@ -56,7 +53,7 @@ export default {
   },
   computed: {
     precipData () {
-      if (!this.watershedDetails) {
+      if (!this.watershedDetails || !this.watershedDetails.precipitation) {
         return null
       }
 

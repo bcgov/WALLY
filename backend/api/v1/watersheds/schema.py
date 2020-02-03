@@ -6,13 +6,11 @@ from geojson import Feature, FeatureCollection, Point
 
 class WatershedDetails(BaseModel):
     """ info about a watershed"""
-    precipitation: dict
+    precipitation: Optional[dict]
     glacial_coverage: float
     glacial_area: float
     watershed_area: float
-    projected_geometry_area: float
-    projected_geometry_area_simplified: float
-    precip_search_area: float
+    precip_search_area: Optional[float]
 
 
 class LicenceDetails(BaseModel):
