@@ -3,6 +3,7 @@ Functions for aggregating data from web requests and database records
 """
 import logging
 import requests
+from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from shapely.geometry import Polygon, MultiPolygon, shape, box
@@ -18,10 +19,11 @@ from api.v1.aggregator.controller import feature_search, databc_feature_search
 logger = logging.getLogger('api')
 
 
-def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> float:
+def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, float]:
     """
     Calculates percent glacial coverage using the area of `polygon` which intersects with features from
     the DataBC FWA Glaciers dataset.
+    returns a tuple of floats with the form (glacial_area, coverage).
     """
 
     glaciers_layer = 'freshwater_atlas_glaciers'
