@@ -21,8 +21,7 @@ from api.v1.aggregator.controller import (
     DATABC_GEOMETRY_FIELD,
     DATABC_LAYER_IDS)
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
-from api.templating.template_builder import build_templates
-from api.v1.aggregator.helpers import spherical_mercator_project, transform_4326_3005, transform_3005_4326
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.excel import xlsxExport
 from api.v1.watersheds.controller import (
     calculate_glacial_area,
