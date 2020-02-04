@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 import StreamApportionment from './StreamApportionment.vue'
 
@@ -62,10 +62,7 @@ export default {
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
-    exitFeature () {
-      this.$store.dispatch('map/clearSelections')
-      this.$router.push('/')
-    }
+    ...mapActions(['exitFeature'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -75,6 +72,7 @@ export default {
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
+    this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isStreamsLayerEnabled) {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()

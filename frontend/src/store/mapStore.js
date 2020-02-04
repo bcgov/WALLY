@@ -234,19 +234,19 @@ export default {
       }
     },
     clearSelections ({ state, commit, dispatch }) {
+      dispatch('clearHighlightLayer')
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('removeShapes')
       commit('resetDataMartFeatureInfo', {}, { root: true })
-      dispatch('clearHighlightLayer')
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
       dispatch('clearStreamHighlights')
+      dispatch('removeElementsByClass', 'annotationMarker')
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
-      dispatch('removeElementsByClass', 'annotationMarker')
     },
     clearStreamHighlights ({ rootGetters, state }) {
       rootGetters.getStreamSources.forEach((s) => {
@@ -359,14 +359,6 @@ export default {
         commit('resetStreamBufferData', {}, { root: true })
       }
     },
-    /*
-     Highlights a FeatureCollection dataset
-    */
-    // updateHighlightsLayerData ({ state }, data) {
-    //   if (data.display_data_name === 'stream_apportionment') {
-    //     state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
-    //   }
-    // },
     removeElementsByClass ({ state }, payload) {
       let elements = document.getElementsByClassName(payload)
       while (elements.length > 0) {

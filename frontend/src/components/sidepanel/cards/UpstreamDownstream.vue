@@ -10,6 +10,14 @@
           Find features along a stream
         </v-toolbar-title>
       </v-banner>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" v-on:click="exitFeature">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <FeatureStreamBuffer
       :record="dataMartFeatureInfo"
@@ -22,7 +30,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 import FeatureStreamBuffer from '../../features/FeatureStreamBuffers'
 
@@ -40,7 +48,8 @@ export default {
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
-    }
+    },
+    ...mapActions(['exitFeature'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -62,6 +71,7 @@ export default {
     }
   },
   mounted () {
+    this.$store.commit('setInfoPanelVisibility', true)
     this.map && this.map.on('load', () => {
 
     })

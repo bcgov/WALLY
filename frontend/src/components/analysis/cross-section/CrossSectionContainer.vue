@@ -41,7 +41,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 import WellsCrossSection from './WellsCrossSection'
 
@@ -69,10 +69,7 @@ export default {
     disableWellsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
-    exitFeature () {
-      this.$store.dispatch('map/clearSelections')
-      this.$router.push('/')
-    }
+    ...mapActions(['exitFeature'])
   },
   computed: {
     isWellsLayerEnabled () {
@@ -82,6 +79,7 @@ export default {
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
+    this.$store.commit('setInfoPanelVisibility', true)
     this.drawLine()
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
