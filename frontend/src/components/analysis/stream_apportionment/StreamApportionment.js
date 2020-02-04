@@ -243,7 +243,6 @@ export default {
     ...mapMutations('map', [
       'updateHighlightFeatureData',
       'updateHighlightFeatureCollectionData',
-
       'setMode'
     ]),
     ...mapActions('map', ['addMapLayer', 'updateMapLayerData'])
