@@ -252,8 +252,10 @@ export default {
       commit('resetStreamBufferData', {}, { root: true })
       dispatch('removeElementsByClass', 'annotationMarker')
     },
-    clearStreamHighlights ({ state }) {
-      state.map.getSource('streamApportionmentSource').setData(emptyFeatureCollection)
+    clearStreamHighlights ({ rootGetters, state }) {
+      rootGetters.getStreamSources.forEach((s) => {
+        state.map.getSource(s.name).setData(emptyFeatureCollection)
+      })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers

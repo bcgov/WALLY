@@ -10,6 +10,14 @@
           Stream apportionment
         </v-toolbar-title>
       </v-banner>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" v-on:click="exitFeature">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <div
       v-if="dataMartFeatureInfo &&
@@ -53,6 +61,10 @@ export default {
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
+    },
+    exitFeature () {
+      this.$store.dispatch('map/clearSelections')
+      this.$router.push('/')
     }
   },
   computed: {

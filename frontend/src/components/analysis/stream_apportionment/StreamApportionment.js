@@ -65,7 +65,6 @@ export default {
       let featureStream = stream.geojson
       featureStream['display_data_name'] = 'freshwater_atlas_stream_networks'
       featureStream.properties['FWA_WATERSHED_CODE'] = featureStream.properties['fwa_watershed_code']
-      this.updateHighlightFeatureData(featureStream)
 
       let featureDistanceLines = {
         'type': 'Feature',
