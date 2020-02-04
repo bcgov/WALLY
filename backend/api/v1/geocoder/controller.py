@@ -182,7 +182,7 @@ def address_lookup(query: str) -> FeatureCollection:
     search_url = "https://geocoder.api.gov.bc.ca/addresses.json?" + \
         urlencode(q)
 
-    logger.info(search_url)
+    logger.info("using DataBC geocoder for feature lookup: %s", search_url)
 
     try:
         resp = requests.get(search_url)
