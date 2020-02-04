@@ -8,8 +8,8 @@ import SingleSelectedFeature from './components/sidepanel/SingleSelectedFeature'
 import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFeatures'
 import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
 import PolygonTool from './components/sidepanel/cards/PolygonTool'
-import CrossSection from './components/analysis/cross-section/CrossSection'
-import StreamApportionment from './components/analysis/stream_apportionment/StartApportionment'
+import CrossSectionContainer from './components/analysis/cross-section/CrossSectionContainer'
+import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
 import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
 import Start from './components/sidepanel/Start'
 
@@ -85,7 +85,7 @@ const router = new Router({
     {
       path: '/section', // TODO: should refactor to be under /features/<feature_id>
       name: 'cross-section',
-      component: CrossSection,
+      component: CrossSectionContainer,
       meta: {
         sidebarColumns: {
           md: 6,
@@ -97,7 +97,7 @@ const router = new Router({
     {
       path: '/apportion-demand', // TODO: should refactor to be under /features/<feature_id>
       name: 'stream-apportionment',
-      component: StreamApportionment,
+      component: StreamApportionmentContainer,
       meta: {
         sidebarColumns: {
           md: 6,

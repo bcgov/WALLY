@@ -46,7 +46,7 @@ import { mapGetters } from 'vuex'
 import WellsCrossSection from './WellsCrossSection'
 
 export default {
-  name: 'DrawCrossSection',
+  name: 'CrossSectionContainer',
   components: {
     WellsCrossSection
   },
@@ -93,7 +93,6 @@ export default {
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }
-    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

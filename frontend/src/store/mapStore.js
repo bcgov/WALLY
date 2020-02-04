@@ -236,13 +236,9 @@ export default {
     clearSelections ({ state, commit, dispatch }) {
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
-      dispatch('removeElementsByClass', 'annotationMarker')
       commit('removeShapes')
-
-      // if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
       commit('resetDataMartFeatureInfo', {}, { root: true })
       dispatch('clearHighlightLayer')
-      // }
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)

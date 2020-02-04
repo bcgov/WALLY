@@ -591,7 +591,7 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    this.$store.commit('map/removeShapes')
     this.$store.commit('map/resetMode')
+    this.$store.dispatch('map/clearSelections')
   }
 }

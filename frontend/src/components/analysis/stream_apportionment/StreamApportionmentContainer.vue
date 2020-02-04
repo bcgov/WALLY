@@ -43,7 +43,7 @@ import { mapGetters } from 'vuex'
 import StreamApportionment from './StreamApportionment.vue'
 
 export default {
-  name: 'StreamApportionmentStart',
+  name: 'StreamApportionmentContainer',
   components: {
     StreamApportionment
   },
