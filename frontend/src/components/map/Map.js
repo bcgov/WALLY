@@ -319,9 +319,9 @@ export default {
         this.updateHighlightLayerData(value)
       }
     },
-    highlightFeatureCollectionData (value) {
-      this.updateHighlightsLayerData(value)
-    },
+    // highlightFeatureCollectionData (value) {
+    //   this.updateHighlightsLayerData(value)
+    // },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates

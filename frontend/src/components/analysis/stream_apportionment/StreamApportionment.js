@@ -41,6 +41,7 @@ export default {
     },
     fetchStreams () {
       this.loading = true
+      this.$store.dispatch('map/clearHighlightLayer')
 
       const params = {
         point: JSON.stringify(this.coordinates),
@@ -53,7 +54,7 @@ export default {
         this.show.removeOverlaps = true
         this.show.removeLowApportionment = true
 
-        this.highlightStreams()
+        this.highlightAll()
       }).catch((e) => {
         console.error(e)
       }).finally(() => {
@@ -100,9 +101,15 @@ export default {
       }
 
       // Highlight the stream
-      this.updateHighlightFeatureData(featureStream)
+      this.updateMapLayerData({
+        source: 'selectedStreamSource',
+        featureData: featureStream
+      })
       // Highlight the closest point & distance line to that stream
-      this.updateHighlightFeatureCollectionData(streamData)
+      this.updateMapLayerData({
+        source: 'streamApportionmentSource',
+        featureData: streamData.feature_collection
+      })
     },
     calculateApportionment () {
       const getInverseDistance = (distance) => {
@@ -121,8 +128,10 @@ export default {
     },
     reloadStreams () {
       this.loading = true
+      this.$store.dispatch('map/clearHighlightLayer')
       this.calculateApportionment()
-      this.highlightStreams()
+      this.highlightAll()
+      // hide selected stream
       this.loading = false
     },
     deleteStream (selectedStream) {
@@ -156,6 +165,7 @@ export default {
       this.streams = [...newStreamArr]
       this.show.removeOverlaps = false
       this.show.reloadAll = true
+
       this.reloadStreams()
     },
     removeStreamsWithLowApportionment (apportionment) {
@@ -168,8 +178,10 @@ export default {
       this.show.reloadAll = true
       this.reloadStreams()
     },
-    highlightStreams () {
-      console.log('highlighting streams')
+    toggleDistanceLines () {
+      // if(this.show)
+    },
+    highlightAll () {
       let streamData = {
         display_data_name: 'freshwater_atlas_stream_networks',
         feature_collection: {
@@ -220,14 +232,22 @@ export default {
         }
       }
 
-      this.updateHighlightFeatureCollectionData(highlightData)
+      this.updateMapLayerData({
+        source: 'selectedStreamSource',
+        featureData: streamData.feature_collection
+      })
+      this.updateMapLayerData({
+        source: 'streamApportionmentSource',
+        featureData: highlightData.feature_collection
+      })
     },
     ...mapMutations('map', [
       'updateHighlightFeatureData',
       'updateHighlightFeatureCollectionData',
+
       'setMode'
     ]),
-    ...mapActions('map', ['addMapLayer'])
+    ...mapActions('map', ['addMapLayer', 'updateMapLayerData'])
   },
   computed: {
     coordinates () {

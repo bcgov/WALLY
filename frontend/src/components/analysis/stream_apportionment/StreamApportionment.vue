@@ -85,18 +85,29 @@
               <span>{{item.apportionment.toFixed(2)}}%</span>
             </template>
             <template v-slot:item.action="{ item }">
-              <v-icon
-                small
-                @click="highlight(item)"
-              >
-                mdi-eye
-              </v-icon>
-              <v-icon
-                small
-                @click="deleteStream(item)"
-              >
-                delete
-              </v-icon>
+              <v-tooltip right>
+                <template v-slot:activator="{ on }">
+              <v-btn icon v-on="on"
+                     @mouseover="highlight(item)"
+                     @mouseout="highlightAll">
+                <v-icon small>
+                  mdi-eye
+                </v-icon>
+              </v-btn>
+                </template>
+                <span>Highlight</span>
+              </v-tooltip>
+              <v-tooltip right>
+                <template v-slot:activator="{ on }">
+                 <v-btn icon v-on="on" @click="deleteStream(item)">
+                  <v-icon small>
+                    delete
+                  </v-icon>
+                 </v-btn>
+                </template>
+                <span>Remove</span>
+              </v-tooltip>
+
             </template>
           </v-data-table>
       </v-col>
@@ -134,7 +145,7 @@
   </v-container>
 </template>
 
-<script src="StreamApportionment.js"></script>
+<script src="./StreamApportionment.js"></script>
 
 <style>
 

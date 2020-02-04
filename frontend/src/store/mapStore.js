@@ -328,6 +328,10 @@ export default {
         commit('setMapReady', true)
       })
     },
+    updateMapLayerData ({ state, commit, dispatch }, data) {
+      let { source, featureData } = data
+      state.map.getSource(source).setData(featureData)
+    },
     /*
       Highlights a single Feature dataset
      */
@@ -360,11 +364,11 @@ export default {
     /*
      Highlights a FeatureCollection dataset
     */
-    updateHighlightsLayerData ({ state }, data) {
-      if (data.display_data_name === 'stream_apportionment') {
-        state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
-      }
-    },
+    // updateHighlightsLayerData ({ state }, data) {
+    //   if (data.display_data_name === 'stream_apportionment') {
+    //     state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
+    //   }
+    // },
     removeElementsByClass ({ state }, payload) {
       let elements = document.getElementsByClassName(payload)
       while (elements.length > 0) {
