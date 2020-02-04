@@ -254,7 +254,7 @@ export default {
     isFreshwaterAtlasStreamNetworksLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['isMapLayerActive', 'isMapReady'])
+    ...mapGetters('map', ['isMapLayerActive'])
   },
   watch: {
     record: {
@@ -269,14 +269,6 @@ export default {
     weightingFactor (value) {
       if (parseFloat(value) === 1 || parseFloat(value) === 2) {
         this.calculateApportionment()
-      }
-    },
-    isMapReady (value) {
-      console.log('is map ready?', value)
-      if (value) {
-        if (!this.isFreshwaterAtlasStreamNetworksLayerEnabled) {
-          this.enableFreshwaterAtlasStreamNetworksLayer()
-        }
       }
     }
   },

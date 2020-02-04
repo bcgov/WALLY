@@ -75,8 +75,18 @@ export default {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
+  },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        if (!this.isWellsLayerEnabled) {
+          this.wellsLayerAutomaticallyEnabled = true
+          this.enableWellsLayer()
+        }
+      }
+    }
   },
   mounted () {
     this.$store.commit('setInfoPanelVisibility', true)

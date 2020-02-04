@@ -25,7 +25,8 @@ describe('Stream apportionment tests', () => {
       isMapLayerActive: state => layerId => false
     }
     actions = {
-      addMapLayer: jest.fn()
+      addMapLayer: jest.fn(),
+      clearHighlightLayer: jest.fn()
     }
     let map = {
       namespaced: true,
@@ -79,7 +80,7 @@ describe('Stream apportionment tests', () => {
       }
     ]
     wrapper.setData({ streams: data })
-    wrapper.vm.highlightStreams = jest.fn()
+    wrapper.vm.highlightAll = jest.fn()
     wrapper.vm.removeOverlaps()
     expect(wrapper.vm.streams).toEqual(result)
   })
@@ -120,7 +121,7 @@ describe('Stream apportionment tests', () => {
       }
     ]
     wrapper.setData({ streams: data })
-    wrapper.vm.highlightStreams = jest.fn()
+    wrapper.vm.highlightAll = jest.fn()
     wrapper.vm.calculateApportionment()
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)
