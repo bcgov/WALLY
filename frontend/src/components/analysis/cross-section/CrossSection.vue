@@ -43,7 +43,7 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import WellsCrossSection from '../../analysis/WellsCrossSection'
+import WellsCrossSection from './WellsCrossSection'
 
 export default {
   name: 'DrawCrossSection',
