@@ -197,7 +197,6 @@ export default {
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }
       state.featureError = ''
-      router.push('/')
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },

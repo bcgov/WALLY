@@ -72,9 +72,10 @@ export default {
   },
   mounted () {
     this.$store.commit('setInfoPanelVisibility', true)
-    this.map && this.map.on('load', () => {
-
-    })
+    if (!this.isStreamsLayerEnabled) {
+      this.streamsLayerAutomaticallyEnabled = true
+      this.enableStreamsLayer()
+    }
   },
   beforeDestroy () {
     if (this.streamsLayerAutomaticallyEnabled) {

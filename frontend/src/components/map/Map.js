@@ -152,7 +152,6 @@ export default {
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.handleModeChange)
-
     },
     handleModeChange (e) {
       if (e.mode === 'draw_polygon' || e.mode === 'draw_point' || e.mode === 'draw_line_string') {
