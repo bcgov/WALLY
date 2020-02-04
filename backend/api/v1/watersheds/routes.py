@@ -36,6 +36,8 @@ from api.v1.watersheds.schema import (
     SurficialGeologyDetails,
     SurficialGeologyTypeSummary
 )
+from api.v1.isolines.controller import calculate_runnoff_in_area
+
 
 logger = getLogger("aggregator")
 
@@ -85,6 +87,12 @@ def get_watersheds(
             properties=dict(ws.properties),
             id=ws.id
         ) for i, ws in enumerate(watersheds.features)]
+
+    for feature in watershed_features:
+        isoline_runoff = calculate_runnoff_in_area(db, shape(feature.geometry))
+        feature.properties["ISOLINE_ANNUAL_RUNOFF"] = isoline_runoff["runoff"]
+        feature.properties["ISOLINE_AREA"] = isoline_runoff["area"]
+
     return FeatureCollection(watershed_features)
 
 
