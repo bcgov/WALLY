@@ -23,6 +23,12 @@ services:
       - '8000:8000'
     depends_on: 
       - db
+  pg_tileserv:
+    image: pramsey/pg_tileserv:latest
+    env_file:
+      - env-postgres.env
+    ports:
+      - '7800:7800'
   db:
     image: mdillon/postgis:11
     env_file:
