@@ -65,7 +65,7 @@ class WMSGetFeatureQuery(BaseModel):
     srs: str = "EPSG:3005"
     version: str = "2.0"
     outputFormat: str = "json"
-    typeNames: str
+    typeName: Optional[str]
     cql_filter: Optional[str]
 
 
