@@ -94,6 +94,7 @@ export default {
             text: 'Distance (m)'
           }
         },
+        // start and end labls for the xsection chart
         annotations: [
           {
             xref: 'paper',
