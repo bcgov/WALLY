@@ -273,11 +273,11 @@ export default {
     }
   },
   mounted () {
-    // this.setMode({ type: 'analyze', name: 'stream_apportionment' })
+    this.setMode({ type: 'analyze', name: 'stream_apportionment' })
     this.fetchStreams()
   },
   beforeDestroy () {
-    // this.setMode({ type: 'interactive', name: '' })
+    this.setMode({ type: 'interactive', name: '' })
     this.updateHighlightFeatureData({})
     this.$store.dispatch('map/clearSelections')
   }

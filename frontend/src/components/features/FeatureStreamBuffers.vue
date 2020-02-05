@@ -147,26 +147,18 @@ export default {
       }
     },
     getUpstreamData () {
-      // if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
-        this.$store.commit('setUpstreamBufferData', this.buffer)
-      // }
+      this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
+      this.$store.commit('setUpstreamBufferData', this.buffer)
     },
     getDownstreamData () {
-      // if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
-        this.$store.commit('setDownstreamBufferData', this.buffer)
-      // }
+      this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
+      this.$store.commit('setDownstreamBufferData', this.buffer)
     },
     getSelectedStreamData () {
-      console.log('selected stream data')
-      // if (this.panelOpen.length > 0) {
-      //   console.log('blah blah blah')
-        this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
-        this.$store.commit('setSelectedStreamBufferData', this.buffer)
-        this.$store.commit('setStreamBufferData', this.buffer)
-        this.updateStreamBuffers()
-      // }
+      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
+      this.$store.commit('setSelectedStreamBufferData', this.buffer)
+      this.updateStreamBuffers()
+      this.$store.commit('setStreamBufferData', this.buffer)
     },
     buffer (value) {
       if (this.buffer > 0 && this.buffer < this.inputRules.max) {
