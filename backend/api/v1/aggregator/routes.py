@@ -4,18 +4,15 @@ Aggregate data from different WMS and/or API sources.
 from logging import getLogger
 from typing import List
 import json
-import pyproj
-
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
-from shapely.geometry import shape, box, MultiPolygon, Polygon
-from shapely.ops import transform
+from shapely.geometry import box, MultiPolygon, Polygon
 
 from api.db.utils import get_db
-from api.v1.hydat.db_models import Station as StreamStation
 
 from api.v1.aggregator.controller import (
     fetch_geojson_features,
+    databc_feature_search,
     get_layer_feature,
     feature_search,
     EXTERNAL_API_REQUESTS,
@@ -23,8 +20,6 @@ from api.v1.aggregator.controller import (
     DATABC_GEOMETRY_FIELD,
     DATABC_LAYER_IDS)
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
-from api.v1.aggregator.helpers import gwells_api_request
-from api.v1.aggregator.helpers import spherical_mercator_project
 from api.v1.aggregator.excel import xlsxExport
 
 logger = getLogger("aggregator")
@@ -35,7 +30,7 @@ router = APIRouter()
 @router.get("/feature")
 def get_layer_feature(layer: str, pk: str, db: Session = Depends(get_db)):
     """
-    Returns a geojson Feature object by primary key using display_data_name as the generic lookup field. 
+    Returns a geojson Feature object by primary key using display_data_name as the generic lookup field.
     relies heavily on CustomLayerBase in api.db.base_class.py but can be overridden in any custom data layer class
     """
     try:
