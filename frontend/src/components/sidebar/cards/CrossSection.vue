@@ -10,6 +10,14 @@
           Cross section
         </v-toolbar-title>
       </v-banner>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" v-on:click="exitFeature">
+          <v-icon>close</v-icon>
+        </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <div
     v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'user_defined_line'">
@@ -60,6 +68,10 @@ export default {
     },
     disableWellsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
+    },
+    exitFeature () {
+      this.$store.dispatch('map/clearSelections')
+      this.$router.push('/')
     }
   },
   computed: {
@@ -81,6 +93,7 @@ export default {
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }
+    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

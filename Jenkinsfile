@@ -134,21 +134,12 @@ pipeline {
                   "GIT_REF=${ref}"
                 )
 
-                def bcPdfTemplate = openshift.process('-f',
-                  'openshift/reporting.build.yaml',
-                  "NAME=${NAME}",
-                  "GIT_REPO=${GIT_REPO}",
-                  "GIT_REF=${ref}"
-                )
-
                 timeout(15) {
                   echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
-                  def bcPdf = openshift.apply(bcPdfTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
                   def apiBuilds = bcApi.narrow('builds')
-                  def pdfBuilds = bcPdf.narrow('builds')
 
                   sleep(5)
 
@@ -159,9 +150,6 @@ pipeline {
                   apiBuilds.untilEach(1) {
                       return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
                   }
-                  pdfBuilds.untilEach(1) {
-                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
-                   }
 
                   // the previous step waited for builds to finish (whether successful or not),
                   // so here we check for errors.
@@ -176,13 +164,6 @@ pipeline {
                     if (it.object().status.phase == "Failed") {
                       bcApi.logs()
                       error('Backend build failed')
-                    }
-                  }
-
-                  pdfBuilds.withEach {
-                    if (it.object().status.phase == "Failed") {
-                      bcPdf.logs()
-                      error('Reporting build failed')
                     }
                   }
 
@@ -252,28 +233,17 @@ pipeline {
                   "ENVIRONMENT=DEV"
                 ))
                 
-                def reporting = openshift.apply(openshift.process("-f",
-                  "openshift/reporting.deploy.yaml",
-                  "NAME=${NAME}",
-                  "HOST=${host}",
-                  "REPLICAS=1",
-                  "CPU_LIMIT=400m",
-                  "NAMESPACE=${project}"
-                ))
-
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
                 openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${DEV_PROJECT}/wally-api:${NAME}")
-                openshift.tag("${TOOLS_PROJECT}/wally-reporting:${NAME}", "${DEV_PROJECT}/wally-reporting:${NAME}")
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
-                reporting.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
@@ -448,28 +418,17 @@ pipeline {
                   "REPLICAS=2"
                 ))
                 
-                def reporting = openshift.apply(openshift.process("-f",
-                  "openshift/reporting.deploy.yaml",
-                  "NAME=${env_name}",
-                  "HOST=${host}",
-                  "NAMESPACE=${project}",
-                  "REPLICAS=2",
-                  "CPU_LIMIT=500m"
-                ))
-
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${project}/wally-web:${env_name}")
                 openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${project}/wally-api:${env_name}")
-                openshift.tag("${TOOLS_PROJECT}/wally-reporting:${NAME}", "${project}/wally-reporting:${env_name}")
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
-                reporting.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
@@ -544,28 +503,17 @@ pipeline {
                   "REPLICAS=2"
                 ))
                 
-                def reporting = openshift.apply(openshift.process("-f",
-                  "openshift/reporting.deploy.yaml",
-                  "NAME=${env_name}",
-                  "HOST=${host}",
-                  "NAMESPACE=${project}",
-                  "REPLICAS=2",
-                  "CPU_LIMIT=1"
-                ))
-
                 echo "Deploying to a dev environment"
 
                 // tag images into dev project.  This triggers re-deploy.
                 openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${project}/wally-web:${env_name}")
                 openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${project}/wally-api:${env_name}")
-                openshift.tag("${TOOLS_PROJECT}/wally-reporting:${NAME}", "${project}/wally-reporting:${env_name}")
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
-                reporting.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)

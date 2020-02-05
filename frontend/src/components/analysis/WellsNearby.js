@@ -3,12 +3,12 @@ import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
-import Chart from '../charts/Chart'
+import { Plotly } from 'vue-plotly'
 
 export default {
   name: 'WellsNearby',
   components: {
-    Chart
+    Plotly
   },
   props: ['record'],
   data: () => ({
@@ -33,7 +33,6 @@ export default {
     ],
     boxPlotSWLData: {
       data: [],
-      id: 1,
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -58,7 +57,6 @@ export default {
     },
     boxPlotYieldData: {
       data: [],
-      id: 2,
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'
@@ -84,7 +82,6 @@ export default {
     },
     boxPlotFinishedDepthData: {
       data: [],
-      id: '3',
       layout: {
         font: {
           family: 'BCSans, Noto Sans, Verdana, Arial'

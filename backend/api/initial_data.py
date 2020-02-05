@@ -22,6 +22,7 @@ from api.layers.ground_water_aquifers import GroundWaterAquifers
 from api.layers.water_allocation_restrictions import WaterAllocationRestrictions
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.layers.first_nations import CommunityLocations, TreatyAreas, TreatyLands
+from api.layers.normal_annual_runoff_isolines import NormalAnnualRunoffIsolines
 
 
 logging.basicConfig(level=logging.INFO)

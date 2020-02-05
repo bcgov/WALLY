@@ -140,8 +140,6 @@ objects:
               env:
               - name: WALLY_BACKEND_SERVICE
                 value: wally-${NAME}-api
-              - name: WALLY_REPORTING_SERVICE
-                value: wally-${NAME}-reporting
               volumeMounts:
               - name: shared-data
                 mountPath: /var/opt/rh/rh-nginx112/log/nginx/

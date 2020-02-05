@@ -1,5 +1,7 @@
 import re
 import pyproj
+import requests
+from urllib.parse import urlencode
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import select
@@ -38,6 +40,9 @@ def external_search(query, feature_type, url):
     """ Makes an external search request to a specified URL.  The url will have the search
         text appended to it. Returns geojson matches with extra data for the geocoder.
     """
+
+    logger.info("using external API for feature lookup: %s", url + query)
+
     req = ExternalAPIRequest(
         url=url + query,
         layer=feature_type,
@@ -55,7 +60,6 @@ def external_search(query, feature_type, url):
         feature['center'] = (feature.geometry.coordinates[0],
                              feature.geometry.coordinates[1])
         feature['place_name'] = str(feature.properties['well_tag_number'])
-        logger.info(feature)
         geocoder_features.append(feature)
 
     return geocoder_features
@@ -67,6 +71,8 @@ def wfs_search(db, query, feature_type):
         a given feature type. Returns geojson with extra metadata used by
         the geocoder.
     """
+
+    logger.info("using WFS for feature lookup: %s", feature_type)
 
     # look up the DataBC layer ID.
     # first check in the WFS_LAYER_IDS constant defined above
@@ -159,5 +165,47 @@ def lookup_feature(db: Session, query: str, feature_type: str) -> FeatureCollect
         geocoder_features = wfs_search(db, query, feature_type)
 
     logger.info(geocoder_features)
+
+    return FeatureCollection(geocoder_features)
+
+
+def address_lookup(query: str) -> FeatureCollection:
+    """ Looks up address using DataBC's geocoder """
+
+    q = {
+        "addressString": query,
+        "autoComplete": "true",
+        "maxResults": 5,
+        "brief": "true"
+    }
+
+    search_url = "https://geocoder.api.gov.bc.ca/addresses.json?" + \
+        urlencode(q)
+
+    logger.info("using DataBC geocoder for feature lookup: %s", search_url)
+
+    try:
+        resp = requests.get(search_url)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+    features = resp.json().get('features')
+
+    geocoder_features = []
+
+    # add metadata to features
+    for feat in features:
+        new_geom = shape(feat['geometry'])
+        new_feature = Feature(geometry=new_geom)
+
+        # add mapbox-gl-js geocoder specific data
+        # (used for populating search box)
+        new_feature['layer'] = 'street_address'
+        new_feature['center'] = new_geom.coords[0]
+        new_feature['place_name'] = feat.get(
+            'properties', {}).get('fullAddress')
+
+        geocoder_features.append(new_feature)
 
     return FeatureCollection(geocoder_features)
