@@ -167,12 +167,12 @@ export default {
             ? w.ground_elevation_from_dem - w.finished_well_depth
             : null
         ),
-        text: this.wells.map(w => w.well_tag_number),
+        text: this.wells.map(w => w.finished_well_depth),
         textposition: 'bottom',
         showlegend: false,
         name: 'Finished well depth (reported)',
         hovertemplate:
-          '<b>WTN</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
+          '<b>Finished Depth: </b> %{text:.2f} m' + '<br><b>Elevation (asl):</b> %{y:.2f} m<br>',
         mode: 'markers',
         type: 'scatter',
         marker: {
@@ -474,7 +474,7 @@ export default {
       this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
     },
     resetMarkerLabels () {
-      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
+      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return false })
       this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return true })
       PlotlyJS.Fx.hover('2dPlot', [])
       // reset all selection data so points gain back opacity
@@ -486,7 +486,7 @@ export default {
     setMarkerLabels (e) {
       if (e && e.points.length > 0) {
       // This overrides hiding the hover labels
-        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
+        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover',  () => { return true })
         this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return false })
         // hide selection box
         this.removeElementsByClass('select-outline')
