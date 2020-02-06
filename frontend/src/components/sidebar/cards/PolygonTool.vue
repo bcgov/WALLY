@@ -40,7 +40,6 @@ export default {
     this.selectPoint()
   },
   beforeDestroy () {
-    // this.setDrawMode('simple_select')
   }
 }
 </script>

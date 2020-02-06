@@ -94,7 +94,6 @@ export default {
     }
   },
   beforeDestroy () {
-    // this.setDrawMode('simple_select')
     if (this.hydatLayerAutomaticallyEnabled) {
       this.disableHydatLayer()
     }

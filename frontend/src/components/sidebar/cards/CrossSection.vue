@@ -88,7 +88,6 @@ export default {
     }
   },
   beforeDestroy () {
-    // this.setDrawMode('simple_select')
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }
