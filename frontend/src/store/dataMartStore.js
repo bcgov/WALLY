@@ -22,7 +22,7 @@ export default {
     },
     getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
-        EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
+        // no layers selected - stop here.
         return
       }
       commit('setLoadingFeature', true)
