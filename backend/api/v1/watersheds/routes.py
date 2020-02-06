@@ -114,6 +114,222 @@ def calculate_watershed(
         point_parsed = json.loads(point)
         point = Point(point_parsed)
 
+    # temporary test functions
+    functions = """
+    CREATE OR REPLACE
+    FUNCTION ST_TileEnvelope(z integer, x integer, y integer)
+    RETURNS geometry
+    AS $$
+    DECLARE
+        size float8;
+        zp integer = pow(2, z);
+        gx float8;
+        gy float8;
+    BEGIN
+        IF y >= zp OR y < 0 OR x >= zp OR x < 0 THEN
+            RAISE EXCEPTION 'invalid tile coordinate (%, %, %)', z, x, y;
+        END IF;
+        size := 40075016.6855784 / zp;
+        gx := (size * x) - (40075016.6855784/2);
+        gy := (40075016.6855784/2) - (size * y);
+        RETURN ST_SetSRID(ST_MakeEnvelope(gx, gy, gx + size, gy - size), 3857);
+    END;
+    $$
+    LANGUAGE 'plpgsql'
+    IMMUTABLE
+    STRICT
+    PARALLEL SAFE;
+
+
+
+    CREATE OR REPLACE
+    FUNCTION public.local_watershed(
+                z integer, x integer, y integer,
+                search_point text default 'POINT (-123 51)')
+    RETURNS bytea
+    AS $$
+        WITH
+        bounds AS (
+        SELECT ST_TileEnvelope(z, x, y) AS geom
+        ),
+        mvtgeom AS (
+        SELECT ST_AsMVTGeom(ST_Transform(t.geom, 3857), bounds.geom) AS geom, area
+        FROM (
+            SELECT
+                "GEOMETRY" as geom,
+                "FEATURE_AREA_SQM" as area
+            FROM    freshwater_atlas_watersheds
+            WHERE   "FWA_WATERSHED_CODE" ilike (
+                SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+                FROM    freshwater_atlas_watersheds fwa2
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                )
+            )
+            AND split_part("LOCAL_WATERSHED_CODE", '-', (
+                SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+                FROM freshwater_atlas_watersheds
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                ))::int
+            )::int >= split_part((
+                SELECT "LOCAL_WATERSHED_CODE"
+                FROM freshwater_atlas_watersheds
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                )
+            ), '-', (
+                SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+                FROM freshwater_atlas_watersheds
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                ))::int
+            )::int
+        ) t, bounds
+        WHERE ST_Intersects(t.geom, ST_Transform(bounds.geom, 4326))
+        )
+        SELECT ST_AsMVT(mvtgeom, 'public.local_watershed') FROM mvtgeom;
+    $$
+    LANGUAGE 'sql'
+    VOLATILE
+    PARALLEL SAFE;
+
+
+    CREATE OR REPLACE
+    FUNCTION public.upstream_streams(
+                z integer, x integer, y integer,
+                search_point text default 'POINT (-123 51)')
+    RETURNS bytea
+    AS $$
+        WITH
+        bounds AS (
+        SELECT ST_TileEnvelope(z, x, y) AS geom
+        ),
+        mvtgeom AS (
+        SELECT ST_AsMVTGeom(ST_Transform(t.geom, 3857), bounds.geom) AS geom
+        FROM (
+            SELECT
+                "GEOMETRY" as geom
+            FROM    freshwater_atlas_stream_networks
+            WHERE   "FWA_WATERSHED_CODE" ilike (
+                SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+                FROM    freshwater_atlas_watersheds fwa2
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                )
+            )
+            AND split_part("LOCAL_WATERSHED_CODE", '-', (
+                SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+                FROM freshwater_atlas_watersheds
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                ))::int
+            )::int >= split_part((
+                SELECT "LOCAL_WATERSHED_CODE"
+                FROM freshwater_atlas_watersheds
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                )
+            ), '-', (
+                SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+                FROM freshwater_atlas_watersheds
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                ))::int
+            )::int
+        ) t, bounds
+        WHERE ST_Intersects(t.geom, ST_Transform(bounds.geom, 4326))
+        )
+        SELECT ST_AsMVT(mvtgeom, 'public.upstream_streams') FROM mvtgeom;
+    $$
+    LANGUAGE 'sql'
+    VOLATILE
+    PARALLEL SAFE;
+
+
+    CREATE OR REPLACE
+    FUNCTION public.watershed_streams(
+                z integer, x integer, y integer,
+                search_point text default 'POINT (-123 51)')
+    RETURNS bytea
+    AS $$
+        WITH
+        bounds AS (
+        SELECT ST_TileEnvelope(z, x, y) AS geom
+        ),
+        mvtgeom AS (
+        SELECT ST_AsMVTGeom(ST_Transform(t.geom, 3857), bounds.geom) AS geom
+        FROM (
+            SELECT
+                "GEOMETRY" as geom
+            FROM    freshwater_atlas_stream_networks
+            WHERE   "FWA_WATERSHED_CODE" ilike (
+                SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+                FROM    freshwater_atlas_watersheds fwa2
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                )
+            )
+        ) t, bounds
+        WHERE ST_Intersects(t.geom, ST_Transform(bounds.geom, 4326))
+        )
+        SELECT ST_AsMVT(mvtgeom, 'public.watershed_streams') FROM mvtgeom;
+    $$
+    LANGUAGE 'sql'
+    VOLATILE
+    PARALLEL SAFE;
+
+
+    CREATE OR REPLACE
+    FUNCTION public.full_watershed(
+                z integer, x integer, y integer,
+                search_point text default 'POINT (-123 51)')
+    RETURNS bytea
+    AS $$
+        WITH
+        bounds AS (
+        SELECT ST_TileEnvelope(z, x, y) AS geom
+        ),
+        mvtgeom AS (
+        SELECT ST_AsMVTGeom(ST_Transform(t.geom, 3857), bounds.geom) AS geom
+        FROM (
+            SELECT
+                "GEOMETRY" as geom
+            FROM    freshwater_atlas_watersheds
+            WHERE   "FWA_WATERSHED_CODE" ilike (
+                SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+                FROM    freshwater_atlas_watersheds fwa2
+                WHERE   ST_Contains(
+                    "GEOMETRY",
+                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
+                )
+            )
+        ) t, bounds
+        WHERE ST_Intersects(t.geom, ST_Transform(bounds.geom, 4326))
+        )
+        SELECT ST_AsMVT(mvtgeom, 'public.full_watershed') FROM mvtgeom;
+    $$
+    LANGUAGE 'sql'
+    VOLATILE
+    PARALLEL SAFE;
+    """
+
+    points = """
+POINT (-122.96048 50.22340)
+POINT(-123.03705 50.23057)
+POINT(-122.95275 50.28409)
+POINT(-122.36066 49.92979)
+    """
+
     q = """
 
     SELECT  ST_AsGeoJSON(ST_Union(geom))
