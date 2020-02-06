@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'PlacePointOfInterest',
@@ -34,20 +34,16 @@ export default {
   }),
   methods: {
     selectPoint () {
-      if (this.draw && this.draw.changeMode) {
-        this.draw.changeMode('draw_point')
-      }
-    }
+      this.setDrawMode('draw_point')
+    },
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
-    ...mapGetters('map', ['draw']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
-    this.selectPoint()
   },
   beforeDestroy () {
-    this.draw.changeMode('simple_select')
   }
 }
 </script>

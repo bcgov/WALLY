@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 export default {
   name: 'DrawPolygon',
   data: () => ({
@@ -32,17 +32,13 @@ export default {
   }),
   methods: {
     selectPoint () {
-      this.draw.changeMode('draw_polygon')
-    }
-  },
-  computed: {
-    ...mapGetters('map', ['draw'])
+      this.setDrawMode('draw_polygon')
+    },
+    ...mapActions('map', ['setDrawMode'])
   },
   mounted () {
-    this.selectPoint()
   },
   beforeDestroy () {
-    this.draw.changeMode('simple_select')
   }
 }
 </script>
