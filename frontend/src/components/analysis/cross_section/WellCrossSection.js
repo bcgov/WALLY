@@ -1,5 +1,5 @@
 import qs from 'querystring'
-import ApiService from '../../services/ApiService'
+import ApiService from '../../../services/ApiService'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
@@ -589,7 +589,7 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    this.$store.commit('map/removeShapes')
     this.$store.commit('map/resetMode')
+    this.$store.dispatch('map/clearSelections')
   }
 }

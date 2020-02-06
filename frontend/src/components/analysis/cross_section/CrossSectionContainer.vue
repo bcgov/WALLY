@@ -43,10 +43,10 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import WellsCrossSection from '../../analysis/WellsCrossSection'
+import WellsCrossSection from './WellsCrossSection'
 
 export default {
-  name: 'DrawCrossSection',
+  name: 'CrossSectionContainer',
   components: {
     WellsCrossSection
   },
@@ -67,20 +67,28 @@ export default {
     disableWellsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
-    exitFeature () {
-      this.$store.dispatch('map/clearSelections')
-      this.$router.push('/')
-    },
+    ...mapActions(['exitFeature']),
     ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
-    ...mapGetters('map', ['isMapLayerActive']),
+    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        if (!this.isWellsLayerEnabled) {
+          this.wellsLayerAutomaticallyEnabled = true
+          this.enableWellsLayer()
+        }
+      }
+    }
+  },
   mounted () {
+    this.$store.commit('setInfoPanelVisibility', true)
     this.drawLine()
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
@@ -91,7 +99,6 @@ export default {
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }
-    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

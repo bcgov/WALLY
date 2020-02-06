@@ -10,9 +10,18 @@ export default {
     },
     streamSources: config.sources,
     streamLayers: config.layers,
-    upstreamData: {},
-    downstreamData: {},
-    selectedStreamData: {},
+    upstreamData: {
+      'type': 'FeatureCollection',
+      'features': []
+    },
+    downstreamData: {
+      'type': 'FeatureCollection',
+      'features': []
+    },
+    selectedStreamData: {
+      'type': 'FeatureCollection',
+      'features': []
+    },
     upstreamBufferData: {},
     downstreamBufferData: {},
     selectedStreamBufferData: {}

@@ -69,7 +69,6 @@ export default {
   },
   methods: {
     async initMap () {
-
       await this.$store.dispatch('map/initMapAndDraw')
 
       this.setGeocoder(new MapboxGeocoder({
@@ -213,6 +212,19 @@ export default {
 
       this.map.addLayer(newLayer, 'groundwater_wells')
     },
+    loadLayers (layers) {
+      // load each layer, but default to no visibility.
+      // the user can toggle layers on and off with the layer controls.
+      for (let i = 0; i < layers.length; i++) {
+        const layer = layers[i]
+
+        // All layers are now vector based sourced from mapbox
+        // so we don't need to check for layer type anymore
+        const layerName = layer['display_data_name']
+        this.map.on('mouseenter', layerName, this.setCursorPointer)
+        this.map.on('mouseleave', layerName, this.resetCursor)
+      }
+    },
     listenForAreaSelect () {
       this.map.on('draw.create', this.addActiveSelection)
       this.map.on('draw.update', this.addActiveSelection)
@@ -277,9 +289,9 @@ export default {
         this.updateHighlightLayerData(value)
       }
     },
-    highlightFeatureCollectionData (value) {
-      this.updateHighlightsLayerData(value)
-    },
+    // highlightFeatureCollectionData (value) {
+    //   this.updateHighlightsLayerData(value)
+    // },
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
         let coordinates = value.geometry.coordinates
@@ -298,6 +310,14 @@ export default {
         // })
         this.updateHighlightLayerData(value)
       }
+    },
+    allMapLayers (value) {
+      if (value) {
+        this.loadLayers(value)
+      }
+    },
+    dataMartFeaturesInfo (value) {
+
     },
     getSelectedStreamData (value) {
       this.map.getSource(streamConfig.sources[0].name).setData(value)
