@@ -36,7 +36,15 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('map', ['draw'])
+    ...mapGetters('map', ['draw']),
+    ...mapGetters(['dataMartFeatures'])
+  },
+  watch: {
+    dataMartFeatures (value) {
+      if (value && value.length > 0) {
+        this.$router.push({ name: 'multiple-features' })
+      }
+    }
   },
   mounted () {
     this.selectPoint()

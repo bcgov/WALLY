@@ -131,6 +131,7 @@ export default {
     //   }
     //   return counts
     // },
+    ...mapGetters('map', ['isMapReady']),
     ...mapGetters([
       'getUpstreamData',
       'getDownstreamData',
@@ -138,13 +139,19 @@ export default {
     ])
   },
   watch: {
-    panelOpen () {
-      if (this.panelOpen.length > 0) {
-        this.$store.commit('setStreamAnalysisPanel', true)
+    // panelOpen () {
+    //   if (this.panelOpen.length > 0) {
+    //     this.$store.commit('setStreamAnalysisPanel', true)
+    //     this.$store.commit('setStreamBufferData', this.buffer)
+    //   } else {
+    //     this.$store.commit('setStreamAnalysisPanel', false)
+    //     this.$store.commit('resetStreamBufferData')
+    //   }
+    // },
+    isMapReady (value) {
+      if (value) {
+        this.updateStreamBuffers()
         this.$store.commit('setStreamBufferData', this.buffer)
-      } else {
-        this.$store.commit('setStreamAnalysisPanel', false)
-        this.$store.commit('resetStreamBufferData')
       }
     },
     getUpstreamData () {
@@ -170,8 +177,10 @@ export default {
     }
   },
   mounted () {
-    this.updateStreamBuffers()
-    // this.setMode({ type: 'analyze', name: 'upstream_downstream' })
+    if (this.isMapReady) {
+      this.updateStreamBuffers()
+      this.$store.commit('setStreamBufferData', this.buffer)
+    }
   },
   destroy () {
     // this.setMode({ type: 'interactive', name: 'upstream_downstream' })

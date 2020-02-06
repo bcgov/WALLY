@@ -26,7 +26,7 @@ export default {
     return {
       lastZoom: 6,
       activeLayers: {},
-      isDrawingToolActive: false
+      // isDrawingToolActive: false
     }
   },
   computed: {
@@ -52,7 +52,8 @@ export default {
       'highlightFeatureCollectionData',
       'map',
       'draw',
-      'geocoder'
+      'geocoder',
+      'isDrawingToolActive'
     ]),
     ...mapGetters([
       'activeDataMarts',

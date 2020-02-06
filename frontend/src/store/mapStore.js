@@ -47,6 +47,7 @@ export default {
     layerCategories: [],
     layerSelectionActive: true,
     mode: defaultMode,
+    isDrawingToolActive: false,
     selectedBaseLayers: [
       'national-park',
       'landuse',
@@ -117,6 +118,10 @@ export default {
       // several before being "bumped" to the selected features list.
       //
       // example: this.addActiveSelection(feature, { showFeatureList: false })
+      console.log('active selection - - ', state.isDrawingToolActive)
+      if (state.isDrawingToolActive) {
+        return false
+      }
 
       const defaultOptions = {
         showFeatureList: true
