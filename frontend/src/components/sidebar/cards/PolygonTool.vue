@@ -37,7 +37,6 @@ export default {
     ...mapActions('map', ['setDrawMode'])
   },
   mounted () {
-    this.selectPoint()
   },
   beforeDestroy () {
   }

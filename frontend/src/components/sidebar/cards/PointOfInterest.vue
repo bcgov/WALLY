@@ -42,7 +42,6 @@ export default {
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
-    this.selectPoint()
   },
   beforeDestroy () {
   }

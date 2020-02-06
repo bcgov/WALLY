@@ -66,10 +66,6 @@ export default {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()
     }
-
-    if (!this.dataMartFeatureInfo || this.dataMartFeatureInfo.display_data_name !== 'point_of_interest') {
-      this.selectPoint()
-    }
   },
   beforeDestroy () {
     if (this.streamsLayerAutomaticallyEnabled) {

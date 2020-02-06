@@ -79,7 +79,6 @@ export default {
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
-    this.selectPoint()
     if (!this.isHydatLayerEnabled) {
       this.hydatLayerAutomaticallyEnabled = true
       this.enableHydatLayer()
