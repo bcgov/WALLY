@@ -18,7 +18,7 @@ describe('Stream apportionment tests', () => {
   let wrapper
   let store
   let getters
-  let actions
+  let actions, mutations
 
   beforeEach(() => {
     getters = {
@@ -26,12 +26,17 @@ describe('Stream apportionment tests', () => {
     }
     actions = {
       addMapLayer: jest.fn(),
-      clearHighlightLayer: jest.fn()
+      clearHighlightLayer: jest.fn(),
+      setMode: jest.fn()
+    }
+    mutations = {
+      setMode: jest.fn()
     }
     let map = {
       namespaced: true,
       getters,
-      actions
+      actions,
+      mutations
     }
     let methods = {
       fetchStreams: jest.fn()
