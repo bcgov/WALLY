@@ -61,7 +61,6 @@ export default {
   },
   watch: {
     isMapReady (value) {
-      console.log('ud ismapready', value)
       if (value) {
         this.draw.changeMode('simple_select')
 

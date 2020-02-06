@@ -176,7 +176,6 @@ export default {
       if (this.$route.query.layer === 'point_of_interest') {
         this.$store.dispatch('map/addPointOfInterest', point)
       } else {
-        console.log('ssf')
         this.$router.push('/')
       }
     }

@@ -133,7 +133,6 @@ export default {
   },
   mounted () {
     if (!this.dataMartFeatures || !this.dataMartFeatures.length) {
-      console.log('msf')
       this.$router.push('/')
     }
   }
