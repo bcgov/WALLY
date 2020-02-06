@@ -67,7 +67,8 @@ export default {
     disableWellsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
-    ...mapActions(['exitFeature'])
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isWellsLayerEnabled () {

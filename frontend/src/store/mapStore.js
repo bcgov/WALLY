@@ -125,9 +125,9 @@ export default {
       //
       // example: this.addActiveSelection(feature, { showFeatureList: false })
       console.log('active selection - - ', state.isDrawingToolActive)
-      if (state.isDrawingToolActive) {
-        return false
-      }
+      // if (state.isDrawingToolActive) {
+      //   return false
+      // }
 
       const defaultOptions = {
         showFeatureList: true
