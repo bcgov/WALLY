@@ -48,7 +48,6 @@ export default {
     layerSelectionActive: true,
     isDrawingToolActive: false,
     mode: defaultMode,
-    isDrawingToolActive: false,
     selectedBaseLayers: [
       'national-park',
       'landuse',
@@ -104,7 +103,7 @@ export default {
       })
     },
     setDrawMode ({ state }, drawMode) {
-      if(state.draw && state.draw.changeMode) {
+      if (state.draw && state.draw.changeMode) {
         state.isDrawingToolActive = drawMode !== 'simple_select'
         state.draw.changeMode(drawMode)
       }
