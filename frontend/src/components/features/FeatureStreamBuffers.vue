@@ -82,7 +82,7 @@ export default {
       this.$store.dispatch('map/addMapLayer', this.selectedLayer)
     },
     fetchStreamBufferInformation (streams, type) {
-      if (buffer <= 0 || !this.selectedLayer) {
+      if (this.buffer <= 0 || !this.selectedLayer) {
         return
       }
 
@@ -157,8 +157,6 @@ export default {
     getSelectedStreamData () {
       this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
       this.$store.commit('setSelectedStreamBufferData', this.buffer)
-      this.updateStreamBuffers()
-      this.$store.commit('setStreamBufferData', this.buffer)
     },
     buffer (value) {
       if (this.buffer > 0 && this.buffer < this.inputRules.max) {
@@ -169,6 +167,10 @@ export default {
     selectedLayer () {
       this.updateStreamBuffers()
     }
+  },
+  mounted () {
+    this.updateStreamBuffers()
+    this.$store.commit('setStreamBufferData', this.buffer)
   }
 }
 </script>
