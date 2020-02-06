@@ -150,7 +150,7 @@ SELECT ST_AsText(ST_OrientedEnvelope(geom)) FROM calculate_local_watershed(searc
 
 $$
 LANGUAGE 'sql'
-VOLATILE;
+STABLE;
 
 
 CREATE OR REPLACE
@@ -162,7 +162,7 @@ SELECT Sum(ST_area(ST_Transform(geom, 3005))) FROM calculate_local_watershed(sea
 
 $$
 LANGUAGE 'sql'
-VOLATILE;
+STABLE;
 
 
 CREATE OR REPLACE
@@ -208,7 +208,7 @@ AS $$
     )::int
 $$
 LANGUAGE 'sql'
-VOLATILE
+STABLE
 ;
 
 
