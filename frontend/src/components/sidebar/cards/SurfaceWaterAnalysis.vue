@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import SurfaceWater from '../../analysis/SurfaceWater/SurfaceWater'
 
 export default {
@@ -43,9 +43,7 @@ export default {
   }),
   methods: {
     selectPoint () {
-      if (this.draw && this.draw.changeMode) {
-        this.draw.changeMode('draw_point')
-      }
+      this.setDrawMode('draw_point')
     },
     enableApplicationsLayer () {
       this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
@@ -64,7 +62,8 @@ export default {
     },
     disableHydatLayer () {
       this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
-    }
+    },
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isLicencesLayerEnabled () {
@@ -76,7 +75,7 @@ export default {
     isHydatLayerEnabled () {
       return this.isMapLayerActive('hydrometric_stream_flow')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters('map', ['isMapLayerActive']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
@@ -95,7 +94,7 @@ export default {
     }
   },
   beforeDestroy () {
-    this.draw.changeMode('simple_select')
+    // this.setDrawMode('simple_select')
     if (this.hydatLayerAutomaticallyEnabled) {
       this.disableHydatLayer()
     }

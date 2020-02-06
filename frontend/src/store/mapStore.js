@@ -46,6 +46,7 @@ export default {
     highlightFeatureCollectionData: {},
     layerCategories: [],
     layerSelectionActive: true,
+    isDrawingToolActive: false,
     mode: defaultMode,
     selectedBaseLayers: [
       'national-park',
@@ -100,6 +101,12 @@ export default {
         dispatch('getMapLayers')
         dispatch('initStreamHighlights')
       })
+    },
+    setDrawMode ({ state }, drawMode) {
+      if(state.draw && state.draw.changeMode) {
+        state.isDrawingToolActive = drawMode !== 'simple_select'
+        state.draw.changeMode(drawMode)
+      }
     },
     async addPointOfInterest ({ state, dispatch }, feature) {
       if (!state.isMapReady) {
@@ -388,6 +395,11 @@ export default {
     removeLayer (state, layerId) {
       state.map.removeLayer(layerId)
     },
+    setDrawToolInActive (state) {
+      setTimeout(() => { // delay to let other draw actions finish
+        state.isDrawingToolActive = false
+      }, 500)
+    },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map
       state.map.getSource('customShapeData').setData(shape)
@@ -450,13 +462,13 @@ export default {
     resetMode (state, payload) {
       state.mode = defaultMode
     }
-
   },
   getters: {
     selectedMapLayerNames: state => state.selectedMapLayerNames,
     activeMapLayers: state => state.activeMapLayers,
     isMapLayerActive: state => displayDataName => !!state.activeMapLayers.find((x) => x && x.display_data_name === displayDataName),
     isMapReady: state => state.isMapReady,
+    isDrawingToolActive: state => state.isDrawingToolActive,
     mapLayerName: (state) => (wmsName) => {
       let layer = state.mapLayers.find(e => e.wms_name === wmsName)
       return layer ? layer.display_name : ''

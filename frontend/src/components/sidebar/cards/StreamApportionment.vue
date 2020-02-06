@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 import StreamApportionment from '../../analysis/StreamApportionment.vue'
 
@@ -44,22 +44,21 @@ export default {
   }),
   methods: {
     selectPoint () {
-      if (this.draw && this.draw.changeMode) {
-        this.draw.changeMode('draw_point')
-      }
+      this.setDrawMode('draw_point')
     },
     enableStreamsLayer () {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
-    }
+    },
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters('map', ['isMapLayerActive']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
   mounted () {
