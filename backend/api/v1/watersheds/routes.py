@@ -141,6 +141,76 @@ def calculate_watershed(
     PARALLEL SAFE;
 
 
+CREATE OR REPLACE
+FUNCTION public.local_watershed_rectangle(search_point text default 'POINT (-123 51)')
+RETURNS text
+AS $$
+
+SELECT ST_AsText(ST_OrientedEnvelope(geom)) FROM calculate_local_watershed(search_point)
+
+$$
+LANGUAGE 'sql'
+VOLATILE;
+
+
+CREATE OR REPLACE
+FUNCTION public.calculate_local_watershed_area(search_point text default 'POINT (-123 51)')
+RETURNS float
+AS $$
+
+SELECT Sum(ST_area(ST_Transform(geom, 3005))) FROM calculate_local_watershed(search_point)
+
+$$
+LANGUAGE 'sql'
+VOLATILE;
+
+
+CREATE OR REPLACE
+FUNCTION public.calculate_local_watershed(search_point text default 'POINT (-123 51)')
+RETURNS TABLE(
+    geom Geometry(Polygon, 4326),
+    area float
+)
+AS $$
+    SELECT
+        "GEOMETRY" as geom,
+        "FEATURE_AREA_SQM" as area
+    FROM    freshwater_atlas_watersheds
+    WHERE   "FWA_WATERSHED_CODE" ilike (
+        SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
+        FROM    freshwater_atlas_watersheds fwa2
+        WHERE   ST_Contains(
+            "GEOMETRY",
+            ST_SetSRID(ST_GeomFromText(search_point), 4326)
+        )
+    )
+    AND split_part("LOCAL_WATERSHED_CODE", '-', (
+        SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+        FROM freshwater_atlas_watersheds
+        WHERE   ST_Contains(
+            "GEOMETRY",
+            ST_SetSRID(ST_GeomFromText(search_point), 4326)
+        ))::int
+    )::int >= split_part((
+        SELECT "LOCAL_WATERSHED_CODE"
+        FROM freshwater_atlas_watersheds
+        WHERE   ST_Contains(
+            "GEOMETRY",
+            ST_SetSRID(ST_GeomFromText(search_point), 4326)
+        )
+    ), '-', (
+        SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
+        FROM freshwater_atlas_watersheds
+        WHERE   ST_Contains(
+            "GEOMETRY",
+            ST_SetSRID(ST_GeomFromText(search_point), 4326)
+        ))::int
+    )::int
+$$
+LANGUAGE 'sql'
+VOLATILE
+;
+
 
     CREATE OR REPLACE
     FUNCTION public.local_watershed(
@@ -154,42 +224,7 @@ def calculate_watershed(
         ),
         mvtgeom AS (
         SELECT ST_AsMVTGeom(ST_Transform(t.geom, 3857), bounds.geom) AS geom, area
-        FROM (
-            SELECT
-                "GEOMETRY" as geom,
-                "FEATURE_AREA_SQM" as area
-            FROM    freshwater_atlas_watersheds
-            WHERE   "FWA_WATERSHED_CODE" ilike (
-                SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
-                FROM    freshwater_atlas_watersheds fwa2
-                WHERE   ST_Contains(
-                    "GEOMETRY",
-                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
-                )
-            )
-            AND split_part("LOCAL_WATERSHED_CODE", '-', (
-                SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
-                FROM freshwater_atlas_watersheds
-                WHERE   ST_Contains(
-                    "GEOMETRY",
-                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
-                ))::int
-            )::int >= split_part((
-                SELECT "LOCAL_WATERSHED_CODE"
-                FROM freshwater_atlas_watersheds
-                WHERE   ST_Contains(
-                    "GEOMETRY",
-                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
-                )
-            ), '-', (
-                SELECT FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1
-                FROM freshwater_atlas_watersheds
-                WHERE   ST_Contains(
-                    "GEOMETRY",
-                    ST_SetSRID(ST_GeomFromText(search_point), 4326)
-                ))::int
-            )::int
-        ) t, bounds
+        FROM calculate_local_watershed(search_point) t, bounds
         WHERE ST_Intersects(t.geom, ST_Transform(bounds.geom, 4326))
         )
         SELECT ST_AsMVT(mvtgeom, 'public.local_watershed') FROM mvtgeom;
