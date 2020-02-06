@@ -103,7 +103,7 @@ export default {
       })
     },
     setDrawMode ({ state }, drawMode) {
-      if(state.draw && state.draw.changeMode) {
+      if (state.draw && state.draw.changeMode) {
         state.isDrawingToolActive = drawMode !== 'simple_select'
         state.draw.changeMode(drawMode)
       }

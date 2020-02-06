@@ -69,7 +69,6 @@ export default {
   },
   methods: {
     async initMap () {
-
       await this.$store.dispatch('map/initMapAndDraw')
 
       this.setGeocoder(new MapboxGeocoder({
