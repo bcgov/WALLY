@@ -1,5 +1,5 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
-import SingleSelectedFeature from '../../../src/components/sidebar/SingleSelectedFeature.vue'
+import SingleSelectedFeature from '../../../src/components/sidepanel/SingleSelectedFeature.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
@@ -24,6 +24,7 @@ describe('SingleSelectedFeature', () => {
     }
     let mapGetters = {
       isMapLayerActive: state => layerId => false,
+      isMapReady: () => true,
       allMapLayers: () => testLayers.layers,
       getCategories: () => testLayers.categories,
       getMapLayer: () => () => ({

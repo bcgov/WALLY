@@ -31,6 +31,9 @@ export default {
         return x.toFixed(5)
       }).join(', ')
     }
+  },
+  beforeDestroy () {
+    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

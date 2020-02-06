@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../services/ApiService'
 import SteamBufferData from '../analysis/StreamBufferData'
 import buffer from '@turf/buffer'
@@ -115,7 +115,8 @@ export default {
         .catch((error) => {
           console.log(error)
         })
-    }
+    },
+    ...mapMutations('map', ['setMode'])
   },
   computed: {
     streamName () {
@@ -130,6 +131,7 @@ export default {
     //   }
     //   return counts
     // },
+    ...mapGetters('map', ['isMapReady']),
     ...mapGetters([
       'getUpstreamData',
       'getDownstreamData',
@@ -137,32 +139,32 @@ export default {
     ])
   },
   watch: {
-    panelOpen () {
-      if (this.panelOpen.length > 0) {
-        this.$store.commit('setStreamAnalysisPanel', true)
+    // panelOpen () {
+    //   if (this.panelOpen.length > 0) {
+    //     this.$store.commit('setStreamAnalysisPanel', true)
+    //     this.$store.commit('setStreamBufferData', this.buffer)
+    //   } else {
+    //     this.$store.commit('setStreamAnalysisPanel', false)
+    //     this.$store.commit('resetStreamBufferData')
+    //   }
+    // },
+    isMapReady (value) {
+      if (value) {
+        this.updateStreamBuffers()
         this.$store.commit('setStreamBufferData', this.buffer)
-      } else {
-        this.$store.commit('setStreamAnalysisPanel', false)
-        this.$store.commit('resetStreamBufferData')
       }
     },
     getUpstreamData () {
-      if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
-        this.$store.commit('setUpstreamBufferData', this.buffer)
-      }
+      this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
+      this.$store.commit('setUpstreamBufferData', this.buffer)
     },
     getDownstreamData () {
-      if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
-        this.$store.commit('setDownstreamBufferData', this.buffer)
-      }
+      this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
+      this.$store.commit('setDownstreamBufferData', this.buffer)
     },
     getSelectedStreamData () {
-      if (this.panelOpen.length > 0) {
-        this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
-        this.$store.commit('setSelectedStreamBufferData', this.buffer)
-      }
+      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
+      this.$store.commit('setSelectedStreamBufferData', this.buffer)
     },
     buffer (value) {
       if (this.buffer > 0 && this.buffer < this.inputRules.max) {
@@ -173,6 +175,15 @@ export default {
     selectedLayer () {
       this.updateStreamBuffers()
     }
+  },
+  mounted () {
+    if (this.isMapReady) {
+      this.updateStreamBuffers()
+      this.$store.commit('setStreamBufferData', this.buffer)
+    }
+  },
+  destroy () {
+    // this.setMode({ type: 'interactive', name: 'upstream_downstream' })
   }
 }
 </script>

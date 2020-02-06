@@ -23,7 +23,7 @@
             v-on="on"
           >
 
-              <v-icon>mdi-chevron-left</v-icon>
+              <v-icon>mdi-chevron-double-left</v-icon>
 
           </v-btn>
         </template>
@@ -37,8 +37,8 @@
         large
         tile
       >
-        <v-icon>mdi-arrow-expand-right</v-icon>
         {{this.panelName}}
+        <v-icon>mdi-chevron-double-right</v-icon>
       </v-btn>
     </v-slide-x-transition>
     <div class="draggableBorder" v-show="infoPanelVisible"></div>

@@ -124,6 +124,10 @@ export default {
       // several before being "bumped" to the selected features list.
       //
       // example: this.addActiveSelection(feature, { showFeatureList: false })
+      console.log('active selection - - ', state.isDrawingToolActive)
+      // if (state.isDrawingToolActive) {
+      //   return false
+      // }
 
       const defaultOptions = {
         showFeatureList: true
@@ -216,7 +220,6 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
-              dispatch('loadLayers')
             })
             .catch((error) => {
               reject(error)
@@ -227,6 +230,11 @@ export default {
     async getMapObjects ({ commit, dispatch, state, getters }, bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
 
+      console.log('map click')
+      // const popup = new mapboxgl.Popup({
+      //   closeButton: false,
+      //   closeOnClick: false
+      // })
       // Return if we're in "analyze mode"
       if (state.mode.type === 'interactive') {
         const canvas = await state.map.getCanvas()
@@ -241,48 +249,30 @@ export default {
       }
     },
     clearSelections ({ state, commit, dispatch }) {
+      dispatch('clearHighlightLayer')
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
-      dispatch('removeElementsByClass', 'annotationMarker')
       commit('removeShapes')
-
-      // if (this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'point_of_interest') {
       commit('resetDataMartFeatureInfo', {}, { root: true })
-      dispatch('clearHighlightLayer')
-      // }
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
       state.map.getSource('highlightPointData').setData(emptyPoint)
       state.map.getSource('highlightLayerData').setData(emptyPolygon)
       dispatch('clearStreamHighlights')
+      dispatch('removeElementsByClass', 'annotationMarker')
       commit('resetStreamData', {}, { root: true })
       commit('resetStreamBufferData', {}, { root: true })
-      dispatch('removeElementsByClass', 'annotationMarker')
     },
-    clearStreamHighlights ({ state }) {
-      state.map.getSource('streamApportionmentSource').setData(emptyFeatureCollection)
+    clearStreamHighlights ({ rootGetters, state }) {
+      rootGetters.getStreamSources.forEach((s) => {
+        state.map.getSource(s.name).setData(emptyFeatureCollection)
+      })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
-    },
-    loadLayers ({ state, commit }) {
-      const layers = state.mapLayers
-
-      // load each layer, but default to no visibility.
-      // the user can toggle layers on and off with the layer controls.
-      for (let i = 0; i < layers.length; i++) {
-        const layer = layers[i]
-
-        // All layers are now vector based sourced from mapbox
-        // so we don't need to check for layer type anymore
-        const vector = layer['display_data_name']
-        // state.map.on('click', vector, this.setSingleFeature)
-        state.map.on('mouseenter', vector, commit('setCursorPointer'))
-        state.map.on('mouseleave', vector, commit('resetCursor'))
-      }
     },
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
@@ -331,9 +321,14 @@ export default {
           }
         })
 
+        console.log('map is now ready')
         // End of cascade; map is now ready
         commit('setMapReady', true)
       })
+    },
+    updateMapLayerData ({ state, commit, dispatch }, data) {
+      let { source, featureData } = data
+      state.map.getSource(source).setData(featureData)
     },
     /*
       Highlights a single Feature dataset
@@ -362,14 +357,6 @@ export default {
         state.map.getSource('highlightLayerData').setData(data)
         commit('resetStreamData', {}, { root: true })
         commit('resetStreamBufferData', {}, { root: true })
-      }
-    },
-    /*
-     Highlights a FeatureCollection dataset
-    */
-    updateHighlightsLayerData ({ state }, data) {
-      if (data.display_data_name === 'stream_apportionment') {
-        state.map.getSource('streamApportionmentSource').setData(data.feature_collection)
       }
     },
     removeElementsByClass ({ state }, payload) {

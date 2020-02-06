@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'DrawPolygon',
   data: () => ({
@@ -35,6 +35,17 @@ export default {
       this.setDrawMode('draw_polygon')
     },
     ...mapActions('map', ['setDrawMode'])
+  },
+  computed: {
+    ...mapGetters('map', ['draw']),
+    ...mapGetters(['dataMartFeatures'])
+  },
+  watch: {
+    dataMartFeatures (value) {
+      if (value && value.length > 0) {
+        this.$router.push({ name: 'multiple-features' })
+      }
+    }
   },
   mounted () {
   },
