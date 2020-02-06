@@ -3,9 +3,9 @@
 
         <!-- Single point analysis options -->
         <template v-if="record && record.geometry && record.geometry.type === 'Point'">
-          <v-expansion-panel>
+          <v-expansion-panel v-model="panels">
             <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Find wells near this point</v-expansion-panel-header>
-            <v-expansion-panel-content>
+            <v-expansion-panel-content @click="this.clearMap">
               <WellsNearby :record="record"></WellsNearby>
             </v-expansion-panel-content>
           </v-expansion-panel>
@@ -51,7 +51,14 @@ export default {
   },
   props: ['record'],
   data: () => ({
-  })
+    panels: {}
+  }),
+  methods: {
+    clearMap: () => {
+      console.log('clear selections')
+      this.$store.commit('map/clearSelections')
+    }
+  }
 }
 </script>
 

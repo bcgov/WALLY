@@ -10,7 +10,7 @@ export default {
   components: {
     Plotly
   },
-  props: ['record'],
+  props: ['record', 'isActive'],
   data: () => ({
     spreadsheetLoading: false,
     inputRules: {
@@ -229,5 +229,6 @@ export default {
   },
   beforeDestroy () {
     this.$store.commit('map/removeShapes')
+    this.$store.commit('map/clearSelections')
   }
 }

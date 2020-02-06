@@ -74,6 +74,8 @@ export default {
             })
           }
 
+          console.log('found feature(s) on map', featureCount)
+
           // Check whether there is a single feature being returned in the click area
           if (featureCount > 1) {
             // Multiple features returned
@@ -171,6 +173,8 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
 
+      console.log('payload display name', payload.display_data_name)
+      console.log('route?', router.currentRoute.name)
       // check if feature info is being reset. If so, stop here and don't alter route.
       if (!payload || payload === {} || !payload.geometry || !payload.display_data_name) {
         return
@@ -197,6 +201,7 @@ export default {
           }
         })
       }
+      console.log('i got this far')
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }

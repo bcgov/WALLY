@@ -48,6 +48,7 @@ export default {
   },
   beforeDestroy () {
     this.draw.changeMode('simple_select')
+    // this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

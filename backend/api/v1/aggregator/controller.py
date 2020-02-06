@@ -5,11 +5,12 @@ import logging
 import asyncio
 import json
 import logging
-
+import requests
 from typing import List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from aiohttp import ClientSession, ClientResponse
+from shapely.geometry import Polygon, MultiPolygon, shape, box
 from shapely.ops import transform
 from sqlalchemy.orm import Session
 from typing import List
@@ -18,7 +19,7 @@ from fastapi import HTTPException
 
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.hydat.db_models import Station as StreamStation
-from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005
+from api.v1.aggregator.helpers import gwells_api_request, transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse, WMSGetFeatureQuery
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.layers.normal_annual_runoff_isolines import NormalAnnualRunoffIsolines
@@ -58,7 +59,9 @@ DATABC_LAYER_IDS = {
     "fn_treaty_areas": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_AREA_SP",
     "fn_community_locations": "WHSE_HUMAN_CULTURAL_ECONOMIC.FN_COMMUNITY_LOCATIONS_SP",
     "fn_treaty_lands": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_LAND_SP",
-    "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS"
+    "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS",
+    "freshwater_atlas_glaciers": "WHSE_BASEMAPPING.FWA_GLACIERS_POLY",
+    "runoff_isolines": "WHSE_WATER_MANAGEMENT.HYDZ_ANNUAL_RUNOFF_LINE"
 }
 
 
@@ -120,7 +123,8 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
         data.get("type") == "FeatureCollection" and
             "features" in data):
         for feat in data["features"]:
-            features.append(Feature(**feat))
+            features.append(Feature(id=feat.pop('id', None), geometry=feat.pop(
+                'geometry'), properties=feat.pop('properties', {})))
 
     # if we didn't recognize a geojson response, check if a formatter was supplied to create geojson.
     elif res.status == 200 and req.formatter and len(data) > 0:
@@ -292,10 +296,11 @@ def feature_search(db: Session, layers, search_area):
         # if we don't have a direct API to access, fall back on WMS.
         if item.display_data_name in DATABC_LAYER_IDS or item.wms_catalogue_id is not None:
             query = WMSGetFeatureQuery(
-                typeNames=DATABC_LAYER_IDS.get(
+                typeName=DATABC_LAYER_IDS.get(
                     item.display_data_name, None) or item.wms_catalogue.wms_name,
                 cql_filter=f"""
-                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {albers_search_area.wkt})
+                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {
+                               albers_search_area.wkt})
                 """
             )
             req = ExternalAPIRequest(
@@ -333,3 +338,42 @@ def feature_search(db: Session, layers, search_area):
         feature_list.append(feat_layer)
 
     return feature_list
+
+
+def databc_feature_search(layer, search_area=None, cql_filter=None) -> FeatureCollection:
+    """ looks up features from `layer` in `search_area`.
+        Layer should be in DATABC_LAYER_IDS.
+        Search area should be SRID 4326.
+    """
+    if not search_area and not cql_filter:
+        raise HTTPException(
+            status_code=400, detail="Must provide either search_area or cql_filter")
+
+    if search_area and cql_filter:
+        raise HTTPException(
+            status_code=400, detail="Must provide either search_area or cql_filter, not both")
+
+    if search_area:
+        search_area = transform(transform_4326_3005, search_area)
+        cql_filter = f"""
+                INTERSECTS({DATABC_GEOMETRY_FIELD.get(
+                    layer, 'GEOMETRY')}, {search_area.wkt})
+            """
+
+    query = WMSGetFeatureQuery(
+        typeName=DATABC_LAYER_IDS.get(
+            layer, layer),
+        cql_filter=cql_filter
+    )
+
+    req = ExternalAPIRequest(
+        url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
+        layer=layer,
+        q=query
+    )
+    feature_list = fetch_geojson_features([req])
+
+    if not len(feature_list):
+        raise HTTPException(status_code=404, detail="Dataset not found")
+
+    return feature_list[0].geojson

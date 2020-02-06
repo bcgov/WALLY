@@ -224,6 +224,11 @@ export default {
     async getMapObjects ({ commit, dispatch, state, getters }, bounds) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
 
+      console.log('map click')
+      // const popup = new mapboxgl.Popup({
+      //   closeButton: false,
+      //   closeOnClick: false
+      // })
       // Return if we're in "analyze mode"
       if (state.mode.type === 'interactive') {
         const canvas = await state.map.getCanvas()
@@ -310,6 +315,7 @@ export default {
           }
         })
 
+        console.log('map is now ready')
         // End of cascade; map is now ready
         commit('setMapReady', true)
       })

@@ -11,6 +11,7 @@ import PolygonTool from './components/sidepanel/cards/PolygonTool'
 import CrossSectionContainer from './components/analysis/cross-section/CrossSectionContainer'
 import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
 import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
+import SurfaceWaterAnalysis from './components/sidebar/cards/SurfaceWaterAnalysis'
 import Start from './components/sidepanel/Start'
 
 Vue.use(Router)
@@ -122,6 +123,14 @@ const router = new Router({
       path: '/features',
       name: 'multiple-features',
       component: MultipleSelectedFeatures,
+      meta: {
+        sidebarColumns: {}
+      }
+    },
+    {
+      path: '/surface-water',
+      name: 'surface-water',
+      component: SurfaceWaterAnalysis,
       meta: {
         sidebarColumns: {}
       }

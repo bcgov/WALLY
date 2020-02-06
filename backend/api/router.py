@@ -12,6 +12,7 @@ from api.v1.streams import routes as streams
 from api.v1.stream import routes as stream
 from api.v1.firstnations import routes as firstnations
 from api.v1.wells import routes as wells
+from api.v1.watersheds import routes as watersheds
 from api.v1.config import routes as config
 from api.v1.isolines import routes as isolines
 
@@ -84,6 +85,13 @@ api_router.include_router(
     config.router,
     prefix="/config",
     tags=["config"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    watersheds.router,
+    prefix="/watersheds",
+    tags=["watersheds"],
     responses={404: {"description": "Not found"}},
 )
 
