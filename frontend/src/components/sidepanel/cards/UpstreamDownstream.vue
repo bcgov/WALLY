@@ -50,19 +50,20 @@ export default {
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
-    ...mapActions(['exitFeature'])
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
+    ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
   watch: {
     isMapReady (value) {
       if (value) {
-        this.draw.changeMode('simple_select')
+        this.setDrawMode('simple_select')
 
         if (!this.isStreamsLayerEnabled) {
           this.streamsLayerAutomaticallyEnabled = true

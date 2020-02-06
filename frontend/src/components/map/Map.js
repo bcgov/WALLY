@@ -25,8 +25,7 @@ export default {
   data () {
     return {
       lastZoom: 6,
-      activeLayers: {},
-      // isDrawingToolActive: false
+      activeLayers: {}
     }
   },
   computed: {
@@ -70,42 +69,8 @@ export default {
   },
   methods: {
     async initMap () {
-      // temporary public token with limited scope (reading layers) just for testing.
 
-      // const mapConfig = await ApiService.get('api/v1/config/map')
-      // mapboxgl.accessToken = mapConfig.data.mapbox_token
-
-      // const zoomConfig = {
-      //   center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
-      //   zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
-      // }
       await this.$store.dispatch('map/initMapAndDraw')
-
-      // this.setMap(new mapboxgl.Map({
-      //   container: 'map', // container id
-      //   style: mapConfig.data.mapbox_style, // dev or prod map style
-      //   center: zoomConfig.center, // starting position
-      //   zoom: zoomConfig.zoomLevel, // starting zoom
-      //   attributionControl: false, // hide default and re-add to the top left
-      //   preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
-      // }))
-      //
-      // const modes = MapboxDraw.modes
-      // modes.simple_select.onTrash = this.clearSelections
-      // modes.draw_polygon.onTrash = this.clearSelections
-      // modes.draw_point.onTrash = this.clearSelections
-      // modes.direct_select.onTrash = this.clearSelections
-      //
-      // this.setDraw(new MapboxDraw({
-      //   modes: modes,
-      //   displayControlsDefault: false,
-      //   controls: {
-      //     // polygon: true,
-      //     // point: true,
-      //     // line_string: true,
-      //     trash: true
-      //   }
-      // }))
 
       this.setGeocoder(new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
@@ -152,17 +117,10 @@ export default {
       // this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
 
       // Subscribe to mode change event to toggle drawing state
-      this.map.on('draw.modechange', this.handleModeChange)
-    },
-    handleModeChange (e) {
-      if (e.mode === 'draw_polygon' || e.mode === 'draw_point' || e.mode === 'draw_line_string') {
-        this.isDrawingToolActive = true
-        this.polygonToolHelp()
-      } else if (e.mode === 'simple_select') {
-        setTimeout(() => {
-          this.isDrawingToolActive = false
-        }, 500)
-      }
+      this.map.on('draw.modechange', this.setDrawToolInActive)
+
+      // Show layer selection sidebar
+      this.$store.commit('toggleInfoPanelVisibility')
     },
     polygonToolHelp () {
       const disableKey = 'disablePolygonToolHelp'
@@ -176,7 +134,7 @@ export default {
       }
     },
     async updateBySearchResult (data) {
-      this.draw.changeMode('simple_select')
+      this.setDrawMode('simple_select')
       await this.$router.push({ name: 'single-feature' })
       console.log('route changed')
       let lat = data.result.center[1]
@@ -305,7 +263,8 @@ export default {
       'replaceOldFeatures',
       'activateLayer',
       'setCursorPointer',
-      'resetCursor'
+      'resetCursor',
+      'setDrawToolInActive'
     ]),
     ...mapActions('map', [
       'clearHighlightLayer',
@@ -317,7 +276,8 @@ export default {
       'initStreamHighlights',
       'initHighlightLayers',
       'updateHighlightLayerData',
-      'updateHighlightsLayerData'
+      'updateHighlightsLayerData',
+      'setDrawMode'
     ])
   },
   watch: {

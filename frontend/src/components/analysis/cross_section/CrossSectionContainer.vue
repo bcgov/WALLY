@@ -56,12 +56,10 @@ export default {
   methods: {
     drawLine (options = {}) {
       const newLine = options.newLine || false
-      if (!this.draw ||
-        !this.draw.changeMode ||
-        (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line')) {
+      if (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line') {
         return
       }
-      this.draw.changeMode('draw_line_string')
+      this.setDrawMode('draw_line_string')
     },
     enableWellsLayer () {
       this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
@@ -97,7 +95,6 @@ export default {
     }
   },
   beforeDestroy () {
-    this.draw.changeMode('simple_select')
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }

@@ -52,9 +52,7 @@ export default {
   }),
   methods: {
     selectPoint () {
-      if (this.draw && this.draw.changeMode) {
-        this.draw.changeMode('draw_point')
-      }
+      this.setDrawMode('draw_point')
     },
     enableStreamsLayer () {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
@@ -62,7 +60,8 @@ export default {
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
-    ...mapActions(['exitFeature'])
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -85,10 +84,6 @@ export default {
     if (!this.isStreamsLayerEnabled) {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()
-    }
-
-    if (!this.dataMartFeatureInfo || this.dataMartFeatureInfo.display_data_name !== 'point_of_interest') {
-      this.selectPoint()
     }
   },
   beforeDestroy () {

@@ -362,7 +362,6 @@ export default {
       if (!this.radiusIsValid(this.radius)) {
         return
       }
-
       this.loading = true
       const params = {
         radius: parseFloat(this.radius),
@@ -370,7 +369,6 @@ export default {
       }
       ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
         .then(r => {
-          console.log(r.data)
           this.wells = r.data.wells
           this.elevations = r.data.elevation_profile
           this.surfacePoints = r.data.surface
@@ -427,7 +425,6 @@ export default {
     },
     fetchWellsLithology (ids) {
       ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
-        console.log(r.data.results)
         let results = r.data.results
         let lithologyList = []
         for (let index = 0; index < results.length; index++) {
@@ -487,7 +484,7 @@ export default {
     setMarkerLabels (e) {
       if (e && e.points.length > 0) {
       // This overrides hiding the hover labels
-        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover',  () => { return true })
+        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return true })
         this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return false })
         // hide selection box
         this.removeElementsByClass('select-outline')
