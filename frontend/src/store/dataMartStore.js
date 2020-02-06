@@ -81,9 +81,13 @@ export default {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
             commit('setDataMartFeatureInfo', {})
-            router.push({
-              name: 'multiple-features'
-            })
+            if (router.currentRoute.name === 'home' ||
+              router.currentRoute.name === 'place-poi' ||
+              router.currentRoute.name === 'multiple-features') {
+              router.push({
+                name: 'multiple-features'
+              })
+            }
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',

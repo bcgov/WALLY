@@ -37,7 +37,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../services/ApiService'
 import SteamBufferData from '../analysis/StreamBufferData'
 import buffer from '@turf/buffer'
@@ -82,7 +82,7 @@ export default {
       this.$store.dispatch('map/addMapLayer', this.selectedLayer)
     },
     fetchStreamBufferInformation (streams, type) {
-      if (this.buffer <= 0 || !this.selectedLayer) {
+      if (buffer <= 0 || !this.selectedLayer) {
         return
       }
 
@@ -115,7 +115,8 @@ export default {
         .catch((error) => {
           console.log(error)
         })
-    }
+    },
+    ...mapMutations('map', ['setMode'])
   },
   computed: {
     streamName () {
@@ -170,7 +171,10 @@ export default {
   },
   mounted () {
     this.updateStreamBuffers()
-    this.$store.commit('setStreamBufferData', this.buffer)
+    // this.setMode({ type: 'analyze', name: 'upstream_downstream' })
+  },
+  destroy () {
+    // this.setMode({ type: 'interactive', name: 'upstream_downstream' })
   }
 }
 </script>

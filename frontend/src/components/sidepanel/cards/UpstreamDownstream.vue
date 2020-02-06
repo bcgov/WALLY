@@ -20,9 +20,9 @@
       </v-tooltip>
     </v-toolbar>
     <FeatureStreamBuffer
-      :record="dataMartFeatureInfo"
-      :coordinates="dataMartFeatureInfo.geometry.coordinates"
-      v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'freshwater_atlas_stream_networks'"/>
+      :record="selectedStream"
+      :coordinates="selectedStream.geometry.coordinates"
+      v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
     <div class="pa-5" v-else>
       <p>Select a point on a stream to view water data upstream and downstream.</p>
     </div>
@@ -40,7 +40,8 @@ export default {
     FeatureStreamBuffer
   },
   data: () => ({
-    streamsLayerAutomaticallyEnabled: false
+    streamsLayerAutomaticallyEnabled: false,
+    selectedStream: { geometry: null }
   }),
   methods: {
     enableStreamsLayer () {
@@ -67,6 +68,14 @@ export default {
           this.streamsLayerAutomaticallyEnabled = true
           this.enableStreamsLayer()
         }
+      }
+    },
+    dataMartFeatureInfo (value) {
+      if (value && value.display_data_name === 'freshwater_atlas_stream_networks') {
+        this.selectedStream = value
+      } else {
+        // Reset the dataMartFeatureInfo to the current selected stream
+        this.$store.commit('setDataMartFeatureInfo', this.selectedStream)
       }
     }
   },
