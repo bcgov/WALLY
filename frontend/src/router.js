@@ -11,7 +11,7 @@ import PolygonTool from './components/sidepanel/cards/PolygonTool'
 import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
 import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
 import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
-import SurfaceWaterAnalysis from './components/sidebar/cards/SurfaceWaterAnalysis'
+import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
 import Start from './components/sidepanel/Start'
 
 Vue.use(Router)
