@@ -89,7 +89,6 @@ export default {
   },
   mounted () {
     this.$store.commit('setInfoPanelVisibility', true)
-    this.drawLine()
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
       this.enableWellsLayer()
