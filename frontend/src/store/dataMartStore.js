@@ -201,7 +201,6 @@ export default {
           }
         })
       }
-      console.log('i got this far')
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }
