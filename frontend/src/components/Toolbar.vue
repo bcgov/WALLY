@@ -44,7 +44,7 @@
 import { mapGetters } from 'vuex'
 import GeocoderSearch from './toolbar/GeocoderSearch'
 import SelectionMenu from './toolbar/SelectionMenu'
-import LayerSelection from './sidebar/LayerSelection'
+import LayerSelection from './toolbar/LayerSelection'
 import Screenshot from './toolbar/Screenshot'
 
 export default {

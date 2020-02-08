@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import WellsCrossSection from '../analysis/WellsCrossSection'
+import WellsCrossSection from '../analysis/cross_section/WellsCrossSection'
 export default {
   name: 'FeatureUserDefinedLine',
   components: {

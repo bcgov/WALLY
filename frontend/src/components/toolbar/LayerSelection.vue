@@ -136,6 +136,6 @@ export default {
   }
   #layerSelectionCard {
     z-index: 999!important;
-    max-height: 60vh;
+    max-height: calc(100vh - 150px);
   }
 </style>

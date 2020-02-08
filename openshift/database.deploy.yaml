@@ -199,6 +199,17 @@ objects:
         securityContext: {}
         serviceAccountName: ${NAME}${SUFFIX}
         terminationGracePeriodSeconds: 0
+    triggers:
+      - type: ConfigChange
+      - imageChangeParams:
+          automatic: true
+          containerNames:
+          - ${NAME}${SUFFIX}
+          from:
+            kind: ImageStreamTag
+            name: ${NAME}${SUFFIX}
+            namespace: ${IMAGE_STREAM_NAMESPACE}
+        type: ImageChange
     updateStrategy:
       type: RollingUpdate
     volumeClaimTemplates:

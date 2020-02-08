@@ -135,6 +135,9 @@ export default {
     if (!this.dataMartFeatures || !this.dataMartFeatures.length) {
       this.$router.push('/')
     }
+  },
+  beforeDestroy () {
+    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

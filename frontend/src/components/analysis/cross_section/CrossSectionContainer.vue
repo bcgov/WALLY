@@ -41,12 +41,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
-import WellsCrossSection from '../../analysis/WellsCrossSection'
+import WellsCrossSection from './WellsCrossSection'
 
 export default {
-  name: 'DrawCrossSection',
+  name: 'CrossSectionContainer',
   components: {
     WellsCrossSection
   },
@@ -56,12 +56,10 @@ export default {
   methods: {
     drawLine (options = {}) {
       const newLine = options.newLine || false
-      if (!this.draw ||
-        !this.draw.changeMode ||
-        (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line')) {
+      if (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line') {
         return
       }
-      this.draw.changeMode('draw_line_string')
+      this.setDrawMode('draw_line_string')
     },
     enableWellsLayer () {
       this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
@@ -69,31 +67,37 @@ export default {
     disableWellsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
-    exitFeature () {
-      this.$store.dispatch('map/clearSelections')
-      this.$router.push('/')
-    }
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        if (!this.isWellsLayerEnabled) {
+          this.wellsLayerAutomaticallyEnabled = true
+          this.enableWellsLayer()
+        }
+      }
+    }
+  },
   mounted () {
-    this.drawLine()
+    this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
       this.enableWellsLayer()
     }
   },
   beforeDestroy () {
-    this.draw.changeMode('simple_select')
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }
-    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>

@@ -39,7 +39,7 @@
 import WellsNearby from '../analysis/WellsNearby.vue'
 import WaterRightsLicencesNearby from '../analysis/WaterRightsLicencesNearby'
 import FirstNationsAreasNearby from '../analysis/FirstNationsAreasNearby'
-import StreamApportionment from './StreamApportionment.vue'
+import StreamApportionment from './stream_apportionment/StreamApportionment.vue'
 
 export default {
   name: 'FeatureAnalysis',

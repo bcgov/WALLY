@@ -10,6 +10,14 @@
           Stream apportionment
         </v-toolbar-title>
       </v-banner>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" v-on:click="exitFeature">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <div
       v-if="dataMartFeatureInfo &&
@@ -30,12 +38,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
-import StreamApportionment from '../../analysis/StreamApportionment.vue'
+import StreamApportionment from './StreamApportionment.vue'
 
 export default {
-  name: 'StreamApportionmentStart',
+  name: 'StreamApportionmentContainer',
   components: {
     StreamApportionment
   },
@@ -44,32 +52,38 @@ export default {
   }),
   methods: {
     selectPoint () {
-      if (this.draw && this.draw.changeMode) {
-        this.draw.changeMode('draw_point')
-      }
+      this.setDrawMode('draw_point')
     },
     enableStreamsLayer () {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
-    }
+    },
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode'])
   },
   computed: {
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive']),
+    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        if (!this.isStreamsLayerEnabled) {
+          this.enableStreamsLayer()
+        }
+      }
+    }
+  },
   mounted () {
+    this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isStreamsLayerEnabled) {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()
-    }
-
-    if (!this.dataMartFeatureInfo || this.dataMartFeatureInfo.display_data_name !== 'point_of_interest') {
-      this.selectPoint()
     }
   },
   beforeDestroy () {

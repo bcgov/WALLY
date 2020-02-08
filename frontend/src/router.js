@@ -3,16 +3,16 @@ import Router from 'vue-router'
 
 import store from './store'
 
-import LayerSelection from './components/sidebar/LayerSelection'
-import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
-import MultipleSelectedFeatures from './components/sidebar/MultipleSelectedFeatures'
-import PointOfInterest from './components/sidebar/cards/PointOfInterest'
-import PolygonTool from './components/sidebar/cards/PolygonTool'
-import CrossSection from './components/sidebar/cards/CrossSection'
-import StreamApportionment from './components/sidebar/cards/StreamApportionment'
-import UpstreamDownstream from './components/sidebar/cards/UpstreamDownstream'
-import SurfaceWaterAnalysis from './components/sidebar/cards/SurfaceWaterAnalysis'
-import Start from './components/sidebar/Start'
+import LayerSelection from './components/toolbar/LayerSelection'
+import SingleSelectedFeature from './components/sidepanel/SingleSelectedFeature'
+import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFeatures'
+import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
+import PolygonTool from './components/sidepanel/cards/PolygonTool'
+import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
+import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
+import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
+import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
+import Start from './components/sidepanel/Start'
 
 Vue.use(Router)
 
@@ -86,7 +86,7 @@ const router = new Router({
     {
       path: '/section', // TODO: should refactor to be under /features/<feature_id>
       name: 'cross-section',
-      component: CrossSection,
+      component: CrossSectionContainer,
       meta: {
         sidebarColumns: {
           md: 6,
@@ -98,7 +98,7 @@ const router = new Router({
     {
       path: '/apportion-demand', // TODO: should refactor to be under /features/<feature_id>
       name: 'stream-apportionment',
-      component: StreamApportionment,
+      component: StreamApportionmentContainer,
       meta: {
         sidebarColumns: {
           md: 6,
