@@ -477,12 +477,13 @@ POINT(-122.86228 50.26308)
     logger.info(point.wkt)
     logger.info('---------------------------------------------------')
 
-    q = "select ST_Union(geom) as geom from local_watershed(:search_point) "
+    q = "select ST_AsGeojson(ST_Union(geom)) as geom from calculate_local_watershed(:search_point) "
 
     res = db.execute(q, {"search_point": point.wkt})
 
-    fc = FeatureCollection(
-        [Feature(geometry=geojson.loads(row[0]), id="Calculated") for row in res])
+    features = [Feature(geometry=shape(geojson.loads(row[0])), id="Calculated") for row in res]
+
+    fc = FeatureCollection(features)
 
     return fc
 
