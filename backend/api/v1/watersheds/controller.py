@@ -3,6 +3,7 @@ Functions for aggregating data from web requests and database records
 """
 import logging
 import requests
+import geojson
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -148,6 +149,31 @@ def surface_water_rights_licences(polygon: Polygon):
         total_qty_by_purpose=licence_purpose_type_list,
         projected_geometry_area=polygon.area,
         projected_geometry_area_simplified=polygon_rect.area
+    )
+
+
+def get_upstream_catchment_area(db: Session, watershed_feature_id: int):
+    """ returns the union of all FWA watershed polygons upstream from
+        the watershed polygon with WATERSHED_FEATURE_ID as a Feature
+    """
+
+    q = "select ST_AsGeojson(ST_Union(geom)) as geom from calculate_upstream_catchment(:watershed_feature_id)"
+
+    logger.info(watershed_feature_id)
+
+    res = db.execute(q, {"watershed_feature_id": watershed_feature_id})
+
+    one = res.fetchone()
+
+    logger.info(one)
+    return Feature(
+        geometry=shape(
+            geojson.loads(one[0])
+        ),
+        id=watershed_feature_id,
+        properties={
+            "name": "Estimated catchment area (Freshwater Atlas)"
+        }
     )
 
 

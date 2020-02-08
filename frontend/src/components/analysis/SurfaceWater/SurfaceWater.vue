@@ -1,7 +1,17 @@
 <template>
   <v-container class="pa-3 mt-3">
+    <v-row v-if="watershedLoading">
+      <v-col>
+        <v-progress-linear show indeterminate></v-progress-linear>
+      </v-col>
+    </v-row>
     <template v-if="watersheds && watersheds.length">
-      <div class="title mb-3">Watersheds</div>
+      <v-row>
+        <v-col cols=12 md=8><div class="title mb-3">Watersheds</div></v-col>
+        <v-col cols=12 md=4 class="text-right">
+          <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
+        </v-col>
+      </v-row>
       <v-row align="center">
         <v-col cols=12 md=6>Select watershed:</v-col>
         <v-col cols=12 md=6>
@@ -60,6 +70,7 @@ export default {
   },
   data: () => ({
     infoTabs: null,
+    watershedLoading: false,
     selectedWatershed: null,
     assessmentWatershed: null,
     hydrometricWatershed: null,
@@ -80,7 +91,7 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || `Watershed ${i + 1}`,
+        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`,
         value: w.id
       }))
     },
@@ -88,6 +99,12 @@ export default {
     ...mapGetters('map', ['map'])
   },
   methods: {
+    resetWatershed () {
+      this.$store.commit('map/replaceOldFeatures', null)
+      this.$store.dispatch('map/clearHighlightLayer')
+      this.$store.commit('resetDataMartFeatureInfo')
+      this.$store.commit('clearDataMartFeatures')
+    },
     filterWatershed (id) {
       this.geojsonLayersAdded.forEach((layerID) => {
         this.map.setLayoutProperty(
@@ -117,6 +134,7 @@ export default {
       }, 'water_rights_licences')
     },
     fetchWatersheds () {
+      this.watershedLoading = true
       const params = {
         point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
       }
@@ -128,9 +146,11 @@ export default {
             this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
             this.geojsonLayersAdded.push(`ws-${ws.id}`)
           })
+          this.watershedLoading = false
         })
         .catch(e => {
           console.error(e)
+          this.watershedLoading = false
         })
     },
     resetGeoJSONLayers () {
