@@ -155,6 +155,24 @@ def surface_water_rights_licences(polygon: Polygon):
 def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
     """ returns the union of all FWA watershed polygons upstream from
         the watershed polygon with WATERSHED_FEATURE_ID as a Feature
+
+        Two methods are used:
+
+        1. calculate_upstream_catchment_starting_upstream
+        This method includes only polygons that start upstream from the base polygon indicated
+        by `watershed_feature_id`. This prevents collecting too many polygons around the starting
+        point and traveling up the next downstream tributary. However, this has the effect
+        of not including the "starting" polygon, and may not work near the headwater of streams.
+
+        The first method (marked with "starting_upstream") can optionally include a polygon by its
+        WATERSHED_FEATURE_ID. This is used to include the starting polygon in the collection, without
+        collecting additional polygons that feed into it.
+
+        2. If no records are returned, the second method, which collects all polygons upstream from
+        the closest downstream tributary, is used.
+
+        See https://www2.gov.bc.ca/assets/gov/data/geographic/topography/fwa/fwa_user_guide.pdf
+        for more info.
     """
 
     q = """
@@ -170,12 +188,11 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
                          "include": watershed_feature_id if include_self else None})
 
-    one = res.fetchone()
+    record = res.fetchone()
 
-    logger.info(one)
     return Feature(
         geometry=shape(
-            geojson.loads(one[0])
+            geojson.loads(record[0])
         ),
         id=watershed_feature_id,
         properties={

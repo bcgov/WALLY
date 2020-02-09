@@ -138,6 +138,9 @@ def calculate_watershed(
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
 
+    feature.properties['area'] = transform(
+        transform_4326_3005, shape(feature.geometry)).area
+
     return FeatureCollection([feature])
 
 
