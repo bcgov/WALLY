@@ -1,9 +1,12 @@
 <template>
   <div>
-    <div v-if="watershedDetails">
-      <div class="title my-5">Climate Data</div>
+    <div class="title my-5">Climate Data</div>
+    <div v-if="climateDataLoading">
+      <v-progress-linear show indeterminate></v-progress-linear>
+    </div>
+    <div v-if="climateData">
       <div class="my-3">
-        <span class="font-weight-bold">Glacial coverage:</span> {{ watershedDetails.glacial_area.toFixed(1) }} sq. m ({{(watershedDetails.glacial_coverage * 100).toFixed(1)}}%)
+        <span class="font-weight-bold">Glacial coverage:</span> {{ climateData.glacial_area.toFixed(1) }} sq. m ({{(climateData.glacial_coverage * 100).toFixed(1)}}%)
       </div>
       <div v-if="precipData">
         <div class="title mt-5">Precipitation</div>
@@ -16,7 +19,7 @@
         </v-row>
         <v-row>
           <v-col>
-            Note: precipitation search area is {{ (watershedDetails.precip_search_area / watershedDetails.projected_geometry_area * 100).toFixed(1) }}% of the watershed area.
+            Note: precipitation search area is {{ (climateData.precip_search_area / climateData.projected_geometry_area * 100).toFixed(1) }}% of the watershed area.
           </v-col>
         </v-row>
       </div>
@@ -35,7 +38,8 @@ export default {
     Plotly
   },
   data: () => ({
-    watershedDetails: null,
+    climateData: null,
+    climateDataLoading: false,
     precipLayout: {
       title: 'Precipitation (1981-2010)',
       xaxis: {
@@ -48,13 +52,13 @@ export default {
   }),
   watch: {
     watershedID () {
-      this.watershedDetails = null
-      this.fetchWatershedDetails()
+      this.climateData = null
+      this.fetchClimateData()
     }
   },
   computed: {
     precipData () {
-      if (!this.watershedDetails || !this.watershedDetails.precipitation) {
+      if (!this.climateData || !this.climateData.precipitation) {
         return null
       }
 
@@ -62,26 +66,29 @@ export default {
         type: 'scatter',
         mode: 'lines',
         name: 'Precipitation (1981-2010)',
-        y: Object.values(this.watershedDetails.precipitation.data),
-        x: Object.keys(this.watershedDetails.precipitation.data),
+        y: Object.values(this.climateData.precipitation.data),
+        x: Object.keys(this.climateData.precipitation.data),
         line: { color: '#17BECF' }
       }
       return [plotData]
     }
   },
   methods: {
-    fetchWatershedDetails () {
+    fetchClimateData () {
+      this.climateDataLoading = true
       ApiService.query(`/api/v1/watersheds/${this.watershedID}`)
         .then(r => {
-          this.watershedDetails = r.data
+          this.climateData = r.data
+          this.climateDataLoading = false
         })
         .catch(e => {
+          this.climateDataLoading = false
           console.error(e)
         })
     }
   },
   mounted () {
-    this.fetchWatershedDetails()
+    this.fetchClimateData()
   }
 }
 </script>

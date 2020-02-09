@@ -1,6 +1,9 @@
 <template>
   <div>
-    <div class="title mt-5">Watershed Demand</div>
+    <div class="title my-5">Watershed Demand</div>
+    <div v-if="licencesLoading">
+      <v-progress-linear show indeterminate></v-progress-linear>
+    </div>
     <div v-if="licenceData">
       <div class="font-weight-bold my-3">Water Rights Licences</div>
 
@@ -38,6 +41,7 @@ export default {
   },
   props: ['watershedID', 'record'],
   data: () => ({
+    licencesLoading: false,
     licenceData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
@@ -120,14 +124,17 @@ export default {
       })
     },
     fetchLicenceData () {
+      this.licencesLoading = true
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
         .then(r => {
           this.licenceData = r.data
           console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           this.addLicencesLayer('waterLicences', r.data.licences, '#00e676', 0.5, max)
+          this.licencesLoading = false
         })
         .catch(e => {
+          this.licencesLoading = false
           console.error(e)
         })
     }

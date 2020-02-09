@@ -172,16 +172,13 @@ export default {
       this.watersheds = []
       this.geojsonLayersAdded = []
     },
-    createWatersheds () {
-      this.fetchWatersheds()
-    },
     recalculateWatershed () {
       this.resetGeoJSONLayers()
       this.fetchWatersheds()
     }
   },
   mounted () {
-    this.createWatersheds()
+    this.fetchWatersheds()
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()
