@@ -26,6 +26,11 @@
           ></v-select>
         </v-col>
       </v-row>
+      <v-row no-gutters class="pa-0 ma-0">
+        <v-col>
+          <v-checkbox v-model="includePOIPolygon" label="Include area around point"></v-checkbox>
+        </v-col>
+      </v-row>
       <div v-if="selectedWatershed">
         <v-tabs>
           <v-tab>Watershed Details</v-tab>
@@ -75,11 +80,15 @@ export default {
     assessmentWatershed: null,
     hydrometricWatershed: null,
     watersheds: [],
-    geojsonLayersAdded: []
+    geojsonLayersAdded: [],
+    includePOIPolygon: false
   }),
   watch: {
     selectedWatershed (v) {
       this.filterWatershed(v)
+    },
+    includePOIPolygon () {
+      this.recalculateWatershed()
     }
   },
   computed: {
@@ -136,13 +145,15 @@ export default {
     fetchWatersheds () {
       this.watershedLoading = true
       const params = {
-        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
+        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates),
+        include_self: this.includePOIPolygon
       }
       ApiService.query(`/api/v1/watersheds/calc?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features
           this.watersheds.forEach((ws, i) => {
+            if (i === 0) this.selectedWatershed = ws.id
             this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
             this.geojsonLayersAdded.push(`ws-${ws.id}`)
           })
@@ -162,6 +173,10 @@ export default {
       this.geojsonLayersAdded = []
     },
     createWatersheds () {
+      this.fetchWatersheds()
+    },
+    recalculateWatershed () {
+      this.resetGeoJSONLayers()
       this.fetchWatersheds()
     }
   },

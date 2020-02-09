@@ -63,7 +63,7 @@ def upgrade():
     ;
 
     CREATE OR REPLACE
-    FUNCTION public.calculate_upstream_catchment_exclude_self(upstream_from INTEGER default NULL)
+    FUNCTION public.calculate_upstream_catchment_starting_upstream(upstream_from INTEGER default NULL, include INTEGER default NULL)
     RETURNS TABLE(
         geom Geometry(Polygon, 4326),
         area float
@@ -93,6 +93,7 @@ def upgrade():
                 WHERE "WATERSHED_FEATURE_ID" = upstream_from
             )::int
         )::int
+        OR "WATERSHED_FEATURE_ID" = include
     $$
     LANGUAGE 'sql'
     STABLE

@@ -105,7 +105,11 @@ def calculate_watershed(
     db: Session = Depends(get_db),
     point: str = Query(
         "", title="Search point",
-        description="Point to search within")
+        description="Point to search within"),
+    include_self: bool = Query(
+        False, title="Include polygon at POI",
+        description="Indicates whether or not to include the polygon containing the point of interest in the estimation."
+    )
 ):
     """ calculates watershed area upstream of a POI """
     if not point:
@@ -131,7 +135,8 @@ def calculate_watershed(
 
     watershed_id = q.first()
 
-    feature = get_upstream_catchment_area(db, watershed_id)
+    feature = get_upstream_catchment_area(
+        db, watershed_id, include_self=include_self)
 
     return FeatureCollection([feature])
 

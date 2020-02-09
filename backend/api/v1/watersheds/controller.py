@@ -152,16 +152,23 @@ def surface_water_rights_licences(polygon: Polygon):
     )
 
 
-def get_upstream_catchment_area(db: Session, watershed_feature_id: int):
+def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
     """ returns the union of all FWA watershed polygons upstream from
         the watershed polygon with WATERSHED_FEATURE_ID as a Feature
     """
 
-    q = "select ST_AsGeojson(ST_Union(geom)) as geom from calculate_upstream_catchment(:watershed_feature_id)"
+    q = """
+        select ST_AsGeojson(
+            coalesce(
+                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
+                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
+            )
+        ) as geom """
 
     logger.info(watershed_feature_id)
 
-    res = db.execute(q, {"watershed_feature_id": watershed_feature_id})
+    res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
+                         "include": watershed_feature_id if include_self else None})
 
     one = res.fetchone()
 
