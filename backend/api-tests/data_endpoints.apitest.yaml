@@ -286,13 +286,13 @@ requests:
     method: get
     expect:
       status: 200
-  - name: Watershed licences
-    url: "{{host}}/api/v1/watersheds/366533/licences"
-    method: get
-    expect:
-      status: 200
-  - name: Watershed details
-    url: "{{host}}/api/v1/watersheds/366533"
-    method: get
-    expect:
-      status: 200
+  # - name: Watershed licences
+  #   url: "{{host}}/api/v1/watersheds/366533/licences"
+  #   method: get
+  #   expect:
+  #     status: 200
+  # - name: Watershed details
+  #   url: "{{host}}/api/v1/watersheds/366533"
+  #   method: get
+  #   expect:
+  #     status: 200
