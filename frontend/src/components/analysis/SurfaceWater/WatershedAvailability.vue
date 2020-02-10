@@ -17,8 +17,8 @@
         ></Plotly>
       </div>
       <div v-if="annualIsolineRunoff">
-        <div>Isoline annual runoff: {{ annualIsolineRunoff }} m3</div>
-        <div>Watershed area: {{ record.properties['ISOLINE_AREA'].toFixed(2) }} sq. m</div>
+        <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
+        <div>Watershed area: {{ record.properties['area'].toFixed(2) }} sq. m</div>
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical" target="_blank">
@@ -31,6 +31,7 @@
         ></Plotly>
       </div>
     </div>
+    <div v-if="!annualIsolineRunoff && !annualNormalizedRunoff">No availability models available at this location.</div>
   </div>
 </template>
 
@@ -51,23 +52,23 @@ export default {
     }
   },
   data: () => ({
-    monthlyRunoffCoefficients: [1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12, 1 / 12],
+    monthlyRunoffCoefficients: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     runoffLayout: {
       title: 'Runoff (Normalized annual runoff * area)',
       xaxis: {
         tickformat: '%B'
       },
       yaxis: {
-        title: 'm3/month'
+        title: 'm3/s'
       }
     },
     isolineRunoffLayout: {
-      title: 'Isoline Monthly Runoff',
+      title: 'Monthly discharge (using 1961 - 1990 runoff isolines) (m3/s)',
       xaxis: {
         tickformat: '%B'
       },
       yaxis: {
-        title: 'm3/month'
+        title: 'm3/s'
       }
     }
   }),
@@ -75,10 +76,10 @@ export default {
   },
   computed: {
     watershedArea () {
-      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
+      if (!this.record || !this.record.properties['area']) {
         return null
       }
-      return Number(this.record.properties['FEATURE_AREA_SQM'])
+      return Number(this.record.properties['area'])
     },
     normalizedRunoffByMonth () {
       if (!this.annualNormalizedRunoff || !this.watershedArea) {
@@ -88,7 +89,7 @@ export default {
       const plotData = {
         type: 'bar',
         name: 'Runoff (Normalized Hydrometric)',
-        y: this.monthlyRunoffCoefficients.map((x) => x * this.annualNormalizedRunoff * this.watershedArea / 1000),
+        y: this.monthlyRunoffCoefficients.map((x) => x * this.annualNormalizedRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60),
         x: [
           '2020-01-01',
           '2020-02-01',
@@ -124,10 +125,10 @@ export default {
       return null
     },
     annualIsolineRunoff () {
-      if (!this.record || !this.record.properties['ISOLINE_ANNUAL_RUNOFF']) {
+      if (!this.record || !this.record.properties['runoff_isoline_avg']) {
         return null
       }
-      return (Number(this.record.properties['ISOLINE_ANNUAL_RUNOFF'])).toFixed(2)
+      return (Number(this.record.properties['runoff_isoline_avg'])).toFixed(2)
     },
     isolineRunoffByMonth () {
       if (!this.annualIsolineRunoff) {
@@ -135,8 +136,8 @@ export default {
       }
       const plotData = {
         type: 'bar',
-        name: 'Monthly Isoline Runoff',
-        y: this.monthlyRunoffCoefficients.map((x) => x * this.annualIsolineRunoff),
+        name: 'Estimated runoff (using 1961 - 1990 runoff isolines)',
+        y: this.monthlyRunoffCoefficients.map((x) => x * this.annualIsolineRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60),
         x: [
           '2020-01-01',
           '2020-02-01',

@@ -11,6 +11,7 @@ class WatershedDetails(BaseModel):
     glacial_area: float
     watershed_area: float
     precip_search_area: Optional[float]
+    runoff_isoline_avg: Optional[float]
 
 
 class LicenceDetails(BaseModel):

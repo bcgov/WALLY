@@ -40,7 +40,7 @@ from api.v1.watersheds.schema import (
     SurficialGeologyDetails,
     SurficialGeologyTypeSummary
 )
-from api.v1.isolines.controller import calculate_runnoff_in_area
+from api.v1.isolines.controller import calculate_runoff_in_area
 
 
 logger = getLogger("aggregator")
@@ -93,7 +93,7 @@ def get_watersheds(
         ) for i, ws in enumerate(watersheds.features)]
 
     for feature in watershed_features:
-        isoline_runoff = calculate_runnoff_in_area(db, shape(feature.geometry))
+        isoline_runoff = calculate_runoff_in_area(db, shape(feature.geometry))
         feature.properties["ISOLINE_ANNUAL_RUNOFF"] = isoline_runoff["runoff"]
         feature.properties["ISOLINE_AREA"] = isoline_runoff["area"]
 
@@ -141,6 +141,11 @@ def calculate_watershed(
     feature.properties['area'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
+    isoline_runoff = calculate_runoff_in_area(db, shape(feature.geometry))
+
+    feature.properties['runoff_isoline_avg'] = (isoline_runoff['runoff'] /
+                                                isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
+
     return FeatureCollection([feature])
 
 
@@ -164,10 +169,14 @@ def watershed_stats(
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
 
+    isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
+
     return WatershedDetails(
         glacial_coverage=glacial_coverage,
         glacial_area=glacial_area_m,
         watershed_area=watershed_area,
+        runoff_isoline_avg=(isoline_runoff['runoff'] /
+                            isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
     )
 
 
@@ -176,6 +185,8 @@ def get_watershed_demand(
     db: Session = Depends(get_db),
     watershed_feature_id: int = Path(...,
                                      title="The watershed feature ID at the point of interest")
+
+
 ):
     """ returns data about watershed demand by querying DataBC """
 
