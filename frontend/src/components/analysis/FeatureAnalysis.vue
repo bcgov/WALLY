@@ -94,7 +94,7 @@
 <script>
 import WellsNearby from './wells_nearby/WellsNearby.vue'
 import WaterRightsLicencesNearby from './water_rights_licences_nearby/WaterRightsLicencesNearby'
-import FirstNationsAreasNearby from '../analysis/FirstNationsAreasNearby'
+import FirstNationsAreasNearby from './first_nations_areas_nearby/FirstNationsAreasNearby'
 import StreamApportionment from './stream_apportionment/StreamApportionment.vue'
 
 export default {

@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import ApiService from '../../services/ApiService'
+import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import bbox from '@turf/bbox'
 import bboxPolygon from '@turf/bbox-polygon'
