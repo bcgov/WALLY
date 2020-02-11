@@ -234,6 +234,7 @@ export default {
   },
   beforeDestroy () {
     this.$store.commit('map/removeShapes')
+    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>
