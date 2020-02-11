@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pa-0 ma-0">
+  <v-container>
     <v-row no-gutters>
       <v-col cols="12" md="4" align-self="center">
         <v-text-field
@@ -91,7 +91,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import qs from 'querystring'
-import ApiService from '../../services/ApiService'
+import ApiService from '../../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
 

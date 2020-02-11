@@ -14,6 +14,8 @@ import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
 import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
 import Start from './components/sidepanel/Start'
 import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
+import WaterRightsLicencesNearbyContainer
+  from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
 
 Vue.use(Router)
 
@@ -73,9 +75,11 @@ const router = new Router({
       }
     },
     {
-      path: '/test', // TODO: should refactor to be under /features/<feature_id>
-      name: 'test',
-      component: PolygonTool,
+      path: '/water-rights-licences-nearby', // TODO: should refactor to be
+      // under
+      // /features/<feature_id>
+      name: 'water-rights-licences-nearby',
+      component: WaterRightsLicencesNearbyContainer,
       meta: {
         sidebarColumns: {
           md: 6,

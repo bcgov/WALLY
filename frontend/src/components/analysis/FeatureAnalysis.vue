@@ -27,6 +27,7 @@
                 text
                 color="deep-purple accent-4"
                 class="analysisButton"
+                :to="{ path: 'water-rights-licences-nearby', query: { coordinates: record.geometry.coordinates }}"
               >
                 Find Water rights licences
                 <v-icon>mdi-chevron-right</v-icon>
@@ -37,7 +38,9 @@
                 block
                 text
                 color="deep-purple accent-4"
-                class="analysisButton">
+                class="analysisButton"
+                :to="{ path: 'first-nations-areas-nearby', query: { coordinates: record.geometry.coordinates }}"
+              >
                 Find First Nations communities, treaty areas, lands
                 <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
@@ -90,7 +93,7 @@
 
 <script>
 import WellsNearby from './wells_nearby/WellsNearby.vue'
-import WaterRightsLicencesNearby from '../analysis/WaterRightsLicencesNearby'
+import WaterRightsLicencesNearby from './water_rights_licences_nearby/WaterRightsLicencesNearby'
 import FirstNationsAreasNearby from '../analysis/FirstNationsAreasNearby'
 import StreamApportionment from './stream_apportionment/StreamApportionment.vue'
 
