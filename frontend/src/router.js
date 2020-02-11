@@ -13,6 +13,7 @@ import StreamApportionmentContainer from './components/analysis/stream_apportion
 import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
 import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
 import Start from './components/sidepanel/Start'
+import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
 
 Vue.use(Router)
 
@@ -26,7 +27,6 @@ const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
-
     {
       path: '/',
       name: 'home',
@@ -60,9 +60,34 @@ const router = new Router({
       }
     },
     {
-      path: '/poi', // TODO: should refactor to be under /features/<feature_id>
-      name: 'place-poi',
+      path: '/point-of-interest', // TODO: should refactor to be under
+      // /features/<feature_id>
+      name: 'point-of-interest',
       component: PointOfInterest,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/test', // TODO: should refactor to be under /features/<feature_id>
+      name: 'test',
+      component: PolygonTool,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/wells-nearby',
+      name: 'wells-nearby',
+      component: WellsNearbyContainer,
       meta: {
         sidebarColumns: {
           md: 6,

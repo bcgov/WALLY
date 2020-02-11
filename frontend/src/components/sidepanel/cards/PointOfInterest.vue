@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-5">
+  <v-container>
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-map-marker"
@@ -9,9 +9,10 @@
         <v-toolbar-title>
           Point of interest
         </v-toolbar-title>
+        {{coordinates}}
       </v-banner>
     </v-toolbar>
-    <v-row class="pa-5">
+    <v-row class="pa-5" v-if="!this.pointSelected">
       <v-col cols=12 lg=8>
         <p>Select a point on the map.</p>
       </v-col>
@@ -19,29 +20,79 @@
         <v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn>
       </v-col>
     </v-row>
+
+    <FeatureAnalysis
+      v-if="this.pointSelected && dataMartFeatureInfo"
+      :record="dataMartFeatureInfo"/>
+
   </v-container>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import FeatureAnalysis from '../../analysis/FeatureAnalysis'
 
 export default {
-  name: 'PlacePointOfInterest',
+  name: 'PointOfInterest',
   components: {
+    FeatureAnalysis
   },
-  data: () => ({
-
-  }),
+  data () {
+    return {
+      pointSelected: false
+    }
+  },
+  watch: {
+    dataMartFeatureInfo (value) {
+      if (value && value.geometry) {
+        this.pointSelected = true
+        // Update router
+        console.log('updating POI route')
+        this.$router.push({
+          path: '/point-of-interest',
+          query: { coordinates: value.geometry.coordinates }
+        })
+      }
+    },
+    isMapReady (value) {
+      if (value) {
+        this.loadFeature()
+      }
+    }
+  },
   methods: {
     selectPoint () {
       this.setDrawMode('draw_point')
     },
+    loadFeature () {
+      // Load Point of Interest feature from query
+      if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
+        // load feature from coordinates
+        const coordinates = this.$route.query.coordinates.map((x) => Number(x))
+
+        let data = {
+          coordinates: coordinates,
+          layerName: 'point-of-interest'
+        }
+
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
+      }
+    },
     ...mapActions('map', ['setDrawMode'])
   },
   computed: {
-    ...mapGetters(['dataMartFeatureInfo'])
+    coordinates () {
+      return this.dataMartFeatureInfo && this.dataMartFeatureInfo.geometry && this.dataMartFeatureInfo.geometry.coordinates.map((x) => {
+        return Number(x).toFixed(5)
+      }).join(', ')
+    },
+    ...mapGetters(['dataMartFeatureInfo']),
+    ...mapGetters('map', ['isMapReady'])
   },
   mounted () {
+    if (this.isMapReady) {
+      this.loadFeature()
+    }
   },
   beforeDestroy () {
   }
