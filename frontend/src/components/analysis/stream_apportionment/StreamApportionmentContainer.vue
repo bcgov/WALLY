@@ -75,22 +75,24 @@ export default {
       this.loadFeature()
     },
     setBreadcrumbs () {
-      this.breadcrumbs = [{
-        text: 'Home',
-        disabled: false,
-        to: { path: '/' }
-      },
-      {
-        text: 'Point of Interest',
-        disabled: false,
-        to: {
-          path: '/point-of-interest',
-          query: { coordinates: this.$route.query.coordinates.map((x) => x) }
-        }
-      }, {
-        text: 'Stream apportionment',
-        disabled: true
-      }]
+      if (this.$route.query.coordinates) {
+        this.breadcrumbs = [{
+          text: 'Home',
+          disabled: false,
+          to: { path: '/' }
+        },
+        {
+          text: 'Point of Interest',
+          disabled: false,
+          to: {
+            path: '/point-of-interest',
+            query: { coordinates: this.$route.query.coordinates.map((x) => x) }
+          }
+        }, {
+          text: 'Stream apportionment',
+          disabled: true
+        }]
+      }
     },
     loadFeature () {
       if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
