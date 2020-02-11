@@ -12,7 +12,7 @@
         {{coordinates}}
       </v-banner>
     </v-toolbar>
-    <v-row class="pa-5" v-if="!this.pointSelected">
+    <v-row class="pa-5" v-if="!this.isPointSelected">
       <v-col cols=12 lg=8>
         <p>Select a point on the map.</p>
       </v-col>
@@ -22,7 +22,7 @@
     </v-row>
 
     <FeatureAnalysis
-      v-if="this.pointSelected && dataMartFeatureInfo"
+      v-if="this.isPointSelected && dataMartFeatureInfo"
       :record="dataMartFeatureInfo"/>
 
   </v-container>
@@ -39,13 +39,11 @@ export default {
   },
   data () {
     return {
-      pointSelected: false
     }
   },
   watch: {
     dataMartFeatureInfo (value) {
       if (value && value.geometry) {
-        this.pointSelected = true
         // Update router
         console.log('updating POI route')
         this.$router.push({
@@ -81,6 +79,9 @@ export default {
     ...mapActions('map', ['setDrawMode'])
   },
   computed: {
+    isPointSelected () {
+      return this.dataMartFeatureInfo && this.dataMartFeatureInfo.geometry
+    },
     coordinates () {
       return this.dataMartFeatureInfo && this.dataMartFeatureInfo.geometry && this.dataMartFeatureInfo.geometry.coordinates.map((x) => {
         return Number(x).toFixed(5)

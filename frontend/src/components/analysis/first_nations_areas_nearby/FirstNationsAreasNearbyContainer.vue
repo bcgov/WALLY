@@ -35,7 +35,7 @@
       />
     </div>
     <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=8><p>Select a point of interest to find nearby First Nations Areas, Communities and Treaty Lands.</p></v-col>
+      <v-col cols=12 lg=8><p>Select a point of interest to find nearby First Nations Communities, Treaty Areas and Lands.</p></v-col>
       <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
     </v-row>
   </v-container>
