@@ -1,5 +1,10 @@
 <template>
-  <v-container class="pt-5">
+  <v-container>
+    <v-breadcrumbs :items="breadcrumbs">
+      <template v-slot:divider>
+        <v-icon>mdi-chevron-right</v-icon>
+      </template>
+    </v-breadcrumbs>
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-axis-arrow"
@@ -48,7 +53,8 @@ export default {
     StreamApportionment
   },
   data: () => ({
-    streamsLayerAutomaticallyEnabled: false
+    streamsLayerAutomaticallyEnabled: false,
+    breadcrumbs: []
   }),
   methods: {
     selectPoint () {
@@ -59,6 +65,45 @@ export default {
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
+    },
+    loadApportionment () {
+      if (!this.isStreamsLayerEnabled) {
+        this.streamsLayerAutomaticallyEnabled = true
+        this.enableStreamsLayer()
+      }
+      this.setBreadcrumbs()
+      this.loadFeature()
+    },
+    setBreadcrumbs () {
+      this.breadcrumbs = [{
+        text: 'Home',
+        disabled: false,
+        to: { path: '/' }
+      },
+      {
+        text: 'Point of Interest',
+        disabled: false,
+        to: {
+          path: '/point-of-interest',
+          query: { coordinates: this.$route.query.coordinates.map((x) => x) }
+        }
+      }, {
+        text: 'Stream apportionment',
+        disabled: true
+      }]
+    },
+    loadFeature () {
+      if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
+        // load feature from coordinates
+        const coordinates = this.$route.query.coordinates.map((x) => Number(x))
+
+        let data = {
+          coordinates: coordinates,
+          layerName: 'point-of-interest'
+        }
+
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
+      }
     },
     ...mapActions(['exitFeature']),
     ...mapActions('map', ['setDrawMode'])
@@ -73,18 +118,13 @@ export default {
   watch: {
     isMapReady (value) {
       if (value) {
-        if (!this.isStreamsLayerEnabled) {
-          this.enableStreamsLayer()
-        }
+        this.loadApportionment()
       }
     }
   },
   mounted () {
     this.$store.commit('setInfoPanelVisibility', true)
-    if (!this.isStreamsLayerEnabled) {
-      this.streamsLayerAutomaticallyEnabled = true
-      this.enableStreamsLayer()
-    }
+    this.loadApportionment()
   },
   beforeDestroy () {
     if (this.streamsLayerAutomaticallyEnabled) {

@@ -119,7 +119,7 @@ export default {
       this.map.on('draw.modechange', this.setDrawToolInActive)
 
       // Show layer selection sidebar
-      this.$store.commit('toggleInfoPanelVisibility')
+      // this.$store.commit('toggleInfoPanelVisibility')
     },
     polygonToolHelp () {
       const disableKey = 'disablePolygonToolHelp'
