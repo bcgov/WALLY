@@ -92,7 +92,6 @@ def get_watersheds(
         isoline_runoff = calculate_runnoff_in_area(db, shape(feature.geometry))
         feature.properties["ISOLINE_ANNUAL_RUNOFF"] = isoline_runoff["runoff"]
         feature.properties["ISOLINE_AREA"] = isoline_runoff["area"]
-        # feature.properties["HYDROLOGICZONE_NO"] = hydrologic_zone
 
     return FeatureCollection(watershed_features)
 
