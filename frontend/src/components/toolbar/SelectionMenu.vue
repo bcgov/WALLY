@@ -71,7 +71,7 @@ export default {
     selectionOptions: [
       {
         title: 'Place a point of interest',
-        route: { name: 'place-poi' },
+        route: { name: 'point-of-interest' },
         icon: 'mdi-map-marker'
       },
       {
@@ -113,7 +113,7 @@ export default {
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('toggleInfoPanelVisibility', false)
+      this.$store.commit('setInfoPanelVisibility', false)
 
       setTimeout(() => this.map.resize(), 0)
     },
