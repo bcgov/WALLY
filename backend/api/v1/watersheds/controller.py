@@ -7,7 +7,7 @@ import geojson
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
-from shapely.geometry import Polygon, MultiPolygon, shape, box
+from shapely.geometry import Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
@@ -194,14 +194,14 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         geometry=shape(
             geojson.loads(record[0])
         ),
-        id=watershed_feature_id,
+        id=f"generated.{watershed_feature_id}",
         properties={
             "name": "Estimated catchment area (Freshwater Atlas)"
         }
     )
 
 
-def get_watershed(watershed_id: str):
+def get_databc_watershed(watershed_id: str):
     """ finds a watershed in DataBC watershed layers
 
     """
@@ -303,3 +303,26 @@ def surficial_geology(polygon: Polygon):
         summary_by_type=surf_geol_list,
         coverage_area=coverage_area,
     )
+
+
+def get_watershed(watershed_feature: str):
+    """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
+    watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
+    watershed_feature_id = watershed_feature.split('.')[-1:]
+    watershed = None
+
+    logger.info(watershed_feature_id)
+
+    # if we generated this watershed, use the catchment area
+    # generation function to get the shape.
+    if watershed_layer == 'generated':
+        watershed = get_upstream_catchment_area(db, watershed_feature_id[0])
+
+    # otherwise, fetch the watershed from DataBC. The layer is encoded in the
+    # feature id.
+    else:
+        watershed = get_databc_watershed(watershed_feature)
+        watershed_poly = transform(transform_3005_4326, shape(watershed.geometry))
+        watershed.geometry = mapping(watershed_poly)
+
+    return watershed

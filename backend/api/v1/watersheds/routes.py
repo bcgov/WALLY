@@ -135,6 +135,10 @@ def calculate_watershed(
 
     watershed_id = q.first()
 
+    if not watershed_id:
+        return FeatureCollection([])
+    watershed_id = watershed_id[0]
+
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
 
@@ -149,19 +153,19 @@ def calculate_watershed(
     return FeatureCollection([feature])
 
 
-@router.get('/{watershed_feature_id}')
+@router.get('/{watershed_feature}')
 def watershed_stats(
     db: Session = Depends(get_db),
-    watershed_feature_id: int = Path(...,
-                                     title="The watershed feature ID at the point of interest")
+    watershed_feature: str = Path(...,
+                                  title="The watershed feature ID at the point of interest")
 
 
 ):
     """ aggregates statistics/info about a watershed """
 
-    watershed = get_upstream_catchment_area(db, watershed_feature_id)
-
+    watershed = get_watershed(watershed_feature)
     watershed_poly = shape(watershed.geometry)
+
     watershed_area = transform(transform_4326_3005, watershed_poly).area
 
     watershed_rect = watershed_poly.minimum_rotated_rectangle
