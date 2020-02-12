@@ -4,6 +4,7 @@ Functions for aggregating data from web requests and database records
 import logging
 import requests
 import geojson
+import math
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -303,3 +304,55 @@ def surficial_geology(polygon: Polygon):
         summary_by_type=surf_geol_list,
         coverage_area=coverage_area,
     )
+
+
+def calculate_potential_evapotranspiration_hamon(poly: Polygon):
+    """
+    calculates potential evapotranspiration using the Hamon equation
+    http://data.snap.uaf.edu/data/Base/AK_2km/PET/Hamon_PET_equations.pdf
+    """
+
+    cent = poly.centroid
+    logger.info(cent)
+    xy = cent.coords.xy
+    logger.info(xy)
+    _, latitude = xy
+    latitude_r = latitude[0] * math.pi / 180
+
+    logger.info(latitude_r / math.pi)
+
+    day = 1
+    k = 1
+    temp = 5.9
+
+    daily_sunlight_values = [hamon_daylight_hours(
+        n, latitude_r) for n in range(1, 365 + 1)]
+
+    avg_daily_sunlight_hours = sum(daily_sunlight_values) / \
+        len(daily_sunlight_values)
+
+    logger.info("----avg sunlight hours")
+    logger.info(avg_daily_sunlight_hours)
+
+    saturation_vapour_pressure = 6.108 * \
+        (math.e ** (17.27 * temp / (temp + 237.3)))
+
+    pet = k * 0.165 * 216.7 * avg_daily_sunlight_hours / 12 * \
+        (saturation_vapour_pressure / (temp + 273.3))
+
+    return pet * 365
+
+
+def hamon_daylight_hours(day: int, latitude_r: float):
+    """ calculates daily radiation for a given day and latitude (latitude in radians)
+        https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
+    """
+
+    declination = 0.4093 * math.sin((2 * math.pi * day / 365) - 1.405)
+
+    acos_input = -1 * math.tan(declination) * math.tan(latitude_r)
+
+    sunset_angle = math.acos(acos_input)
+
+    daylight_hours = (24 / math.pi) * sunset_angle
+    return daylight_hours

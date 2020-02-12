@@ -33,6 +33,7 @@ from api.v1.watersheds.controller import (
     get_watershed,
     get_upstream_catchment_area,
     surficial_geology,
+    calculate_potential_evapotranspiration_hamon
 )
 from api.v1.watersheds.schema import (
     WatershedDetails,
@@ -138,13 +139,20 @@ def calculate_watershed(
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
 
-    feature.properties['area'] = transform(
-        transform_4326_3005, shape(feature.geometry)).area
+    geom = shape(feature.geometry)
 
-    isoline_runoff = calculate_runoff_in_area(db, shape(feature.geometry))
+    feature.properties['area'] = transform(
+        transform_4326_3005, geom).area
+
+    isoline_runoff = calculate_runoff_in_area(db, geom)
 
     feature.properties['runoff_isoline_avg'] = (isoline_runoff['runoff'] /
                                                 isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
+
+    potential_evapotranspiration = calculate_potential_evapotranspiration_hamon(
+        geom)
+
+    feature.properties['pet_hamon'] = potential_evapotranspiration
 
     return FeatureCollection([feature])
 
