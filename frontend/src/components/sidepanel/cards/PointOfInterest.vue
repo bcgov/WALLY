@@ -1,6 +1,7 @@
 <template>
   <v-container>
     <v-toolbar flat>
+      <v-hover v-slot:default="{ hover }">
       <v-banner color="indigo"
                 icon="mdi-map-marker"
                 icon-color="white"
@@ -9,15 +10,33 @@
         <v-toolbar-title>
           Point of interest
         </v-toolbar-title>
-        {{coordinates}}
-      </v-banner>
+        <span class="subtitle-1 mr-2">{{coordinates}}</span>
+        <v-tooltip bottom >
+            <template v-slot:activator="{ on }" >
+              <v-btn x-small v-on="on" v-on:click="clearSelections" v-show="isPointSelected && hover"
+              color="red darken-4" outlined>
+                <v-icon small light>mdi-trash-can-outline</v-icon> Clear
+              </v-btn>
+            </template>
+            <span>Clear Point of Interest</span>
+          </v-tooltip>
+        </v-banner>
+      </v-hover>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" v-on:click="exitFeature">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <v-row class="pa-5" v-if="!this.isPointSelected">
       <v-col cols=12 lg=8>
         <p>Select a point on the map.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn>
+        <v-btn @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Draw point</v-btn>
       </v-col>
     </v-row>
 
@@ -39,6 +58,8 @@ export default {
   },
   data () {
     return {
+      hover: false,
+      buttonClicked: false
     }
   },
   watch: {
@@ -60,6 +81,7 @@ export default {
   },
   methods: {
     selectPoint () {
+      this.buttonClicked = true
       this.setDrawMode('draw_point')
     },
     loadFeature () {
@@ -76,7 +98,8 @@ export default {
         this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
       }
     },
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode', 'clearSelections'])
   },
   computed: {
     isPointSelected () {
@@ -88,9 +111,10 @@ export default {
       }).join(', ')
     },
     ...mapGetters(['dataMartFeatureInfo']),
-    ...mapGetters('map', ['isMapReady'])
+    ...mapGetters('map', ['isMapReady', 'draw', 'isDrawingToolActive'])
   },
   mounted () {
+    console.log('is map ready?', this.isMapReady)
     if (this.isMapReady) {
       this.loadFeature()
     }
