@@ -16,7 +16,7 @@
           <span>Hamon equation:</span> {{ potentialEvapotranspiration.hamon.toFixed(1) }} mm/yr
         </div>
         <div>
-          <span>Thornthwaite equation:</span> {{ potentialEvapotranspiration.thornthwaite.toFixed(1) }} mm/yr
+          <span>Thornthwaite method:</span> {{ potentialEvapotranspiration.thornthwaite.toFixed(1) }} mm/yr
         </div>
       </div>
       <div v-if="precipData">
