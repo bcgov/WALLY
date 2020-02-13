@@ -1,7 +1,7 @@
 import random
 import pytest
 import math
-from api.v1.watersheds.controller import hamon_daylight_hours
+from api.v1.watersheds.controller import calculate_daylight_hours_usgs
 import logging
 
 logger = logging.getLogger('test')
@@ -17,7 +17,7 @@ class TestHamonEquation:
         day = 105
         latitude = 30
 
-        daylight = hamon_daylight_hours(day, latitude * math.pi / 180)
+        daylight = calculate_daylight_hours_usgs(day, latitude * math.pi / 180)
 
         # page 60 of the above referenced publication gives 12.7 as the daylight hours
         # for latitude 30 degrees north on day 105. Check that the returned value is

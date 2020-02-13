@@ -14,7 +14,7 @@ from shapely.geometry import Polygon, MultiPolygon, shape, box
 from shapely.ops import transform
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-
+from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 
@@ -336,25 +336,35 @@ def get_temperature(poly: Polygon):
     return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
 
 
-def calculate_potential_evapotranspiration_hamon(poly: Polygon):
+def calculate_daylight_hours_usgs(day: int, latitude_r: float):
+    """ calculates daily radiation for a given day and latitude (latitude in radians)
+        https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
+    """
+
+    declination = 0.4093 * math.sin((2 * math.pi * day / 365) - 1.405)
+    acos_input = -1 * math.tan(declination) * math.tan(latitude_r)
+    sunset_angle = math.acos(acos_input)
+
+    return (24 / math.pi) * sunset_angle
+
+
+def calculate_potential_evapotranspiration_hamon(poly: Polygon, temp_data):
     """
     calculates potential evapotranspiration using the Hamon equation
     http://data.snap.uaf.edu/data/Base/AK_2km/PET/Hamon_PET_equations.pdf
     """
-
-    temp_data = get_temperature(poly)
 
     average_annual_temp = sum([x[2] for x in temp_data])/12
 
     cent = poly.centroid
     xy = cent.coords.xy
     _, latitude = xy
-    latitude_r = latitude[0] * math.pi / 180
+    latitude_r = latitude[0] * (math.pi / 180)
 
     day = 1
     k = 1
 
-    daily_sunlight_values = [hamon_daylight_hours(
+    daily_sunlight_values = [calculate_daylight_hours_usgs(
         n, latitude_r) for n in range(1, 365 + 1)]
 
     avg_daily_sunlight_hours = sum(daily_sunlight_values) / \
@@ -369,13 +379,18 @@ def calculate_potential_evapotranspiration_hamon(poly: Polygon):
     return pet * 365
 
 
-def hamon_daylight_hours(day: int, latitude_r: float):
-    """ calculates daily radiation for a given day and latitude (latitude in radians)
-        https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
-    """
+def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data):
+    """ calculates potential evapotranspiration (mm/yr) using the
+    Thornwaite method. temp_data is in the format returned by the function `get_temperature`"""
 
-    declination = 0.4093 * math.sin((2 * math.pi * day / 365) - 1.405)
-    acos_input = -1 * math.tan(declination) * math.tan(latitude_r)
-    sunset_angle = math.acos(acos_input)
+    monthly_t = [x[2] for x in temp_data]
+    cent = poly.centroid
+    xy = cent.coords.xy
+    _, latitude = xy
+    latitude_r = latitude[0] * (math.pi / 180)
 
-    return (24 / math.pi) * sunset_angle
+    mmdlh = monthly_mean_daylight_hours(latitude_r)
+
+    pet_mm_month = thornthwaite(monthly_t, mmdlh)
+
+    return sum(pet_mm_month)

@@ -33,6 +33,8 @@ from api.v1.watersheds.controller import (
     get_watershed,
     get_upstream_catchment_area,
     surficial_geology,
+    get_temperature,
+    calculate_potential_evapotranspiration_thornthwaite,
     calculate_potential_evapotranspiration_hamon
 )
 from api.v1.watersheds.schema import (
@@ -174,14 +176,21 @@ def watershed_stats(
 
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
 
+    temp_data = get_temperature(watershed_poly)
+
     potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-        watershed_poly)
+        watershed_poly, temp_data)
+
+    potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+        watershed_poly, temp_data
+    )
 
     return WatershedDetails(
         glacial_coverage=glacial_coverage,
         glacial_area=glacial_area_m,
         watershed_area=watershed_area,
         potential_evapotranspiration_hamon=potential_evapotranspiration_hamon,
+        potential_evapotranspiration_thornthwaite=potential_evapotranspiration_thornthwaite,
         runoff_isoline_avg=(isoline_runoff['runoff'] /
                             isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
     )
