@@ -9,7 +9,7 @@
         <span class="font-weight-bold">Glacial coverage:</span> {{ climateData.glacial_area.toFixed(1) }} sq. m ({{(climateData.glacial_coverage * 100).toFixed(1)}}%)
       </div>
       <div class="my-3" v-if="potentialEvapotranspiration">
-        <span class="font-weight-bold">Potential evapotranspiration (Hamon equation):</span> {{ potentialEvapotranspiration.toString(1) }} mm/yr
+        <span class="font-weight-bold">Potential evapotranspiration (Hamon equation):</span> {{ potentialEvapotranspiration.toFixed(1) }} mm/yr
       </div>
       <div v-if="precipData">
         <div class="title mt-5">Precipitation</div>
@@ -61,10 +61,10 @@ export default {
   },
   computed: {
     potentialEvapotranspiration () {
-      if (!this.record || !this.record.properties['pet_hamon']) {
+      if (!this.climateData || !this.climateData.potential_evapotranspiration_hamon) {
         return null
       }
-      return this.record.properties['pet_hamon']
+      return this.climateData.potential_evapotranspiration_hamon
     },
     precipData () {
       if (!this.climateData || !this.climateData.precipitation) {

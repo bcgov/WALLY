@@ -28,7 +28,7 @@ from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.excel import xlsxExport
 from api.v1.watersheds.controller import (
     calculate_glacial_area,
-    precipitation,
+    pcic_data_request,
     surface_water_rights_licences,
     get_watershed,
     get_upstream_catchment_area,
@@ -149,11 +149,6 @@ def calculate_watershed(
     feature.properties['runoff_isoline_avg'] = (isoline_runoff['runoff'] /
                                                 isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
 
-    potential_evapotranspiration = calculate_potential_evapotranspiration_hamon(
-        geom)
-
-    feature.properties['pet_hamon'] = potential_evapotranspiration
-
     return FeatureCollection([feature])
 
 
@@ -179,10 +174,14 @@ def watershed_stats(
 
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
 
+    potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+        watershed_poly)
+
     return WatershedDetails(
         glacial_coverage=glacial_coverage,
         glacial_area=glacial_area_m,
         watershed_area=watershed_area,
+        potential_evapotranspiration_hamon=potential_evapotranspiration_hamon,
         runoff_isoline_avg=(isoline_runoff['runoff'] /
                             isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
     )

@@ -4,6 +4,8 @@ Functions for aggregating data from web requests and database records
 import logging
 import requests
 import geojson
+import json
+
 import math
 from typing import Tuple
 from urllib.parse import urlencode
@@ -50,18 +52,21 @@ def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, f
     return (glacial_area, coverage)
 
 
-def precipitation(
+def pcic_data_request(
         polygon: Polygon,
         output_variable: str = 'pr',
-        dataset: str = 'pr_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada'):
+        dataset=None):
     """ Returns an average precipitation from the pacificclimate.org climate explorer service """
 
     pcic_url = "https://services.pacificclimate.org/pcex/api/timeseries?"
 
+    if not dataset:
+        dataset = f"{output_variable}_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada"
+
     params = {
         "id_": dataset,
         "variable": output_variable,
-        "area": polygon.wkt
+        "area": polygon.minimum_rotated_rectangle.wkt
     }
 
     req_url = pcic_url + urlencode(params)
@@ -306,24 +311,48 @@ def surficial_geology(polygon: Polygon):
     )
 
 
+def parse_pcic_temp(min_temp, max_temp):
+    """ parses monthly temperatures from pcic to return an array of min,max,avg """
+
+    temp_by_month = []
+
+    for k, v in sorted(min_temp.items(), key=lambda x: x[0]):
+        min_t = v
+        max_t = max_temp[k]
+        avg_t = (min_t + max_t) / 2
+        temp_by_month.append((min_t, max_t, avg_t))
+
+    return temp_by_month
+
+
+def get_temperature(poly: Polygon):
+    """
+    gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
+    """
+
+    min_temp = pcic_data_request(poly, 'tasmin')
+    max_temp = pcic_data_request(poly, 'tasmax')
+
+    return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
+
+
 def calculate_potential_evapotranspiration_hamon(poly: Polygon):
     """
     calculates potential evapotranspiration using the Hamon equation
     http://data.snap.uaf.edu/data/Base/AK_2km/PET/Hamon_PET_equations.pdf
     """
 
+    temp_data = get_temperature(poly)
+
+    average_annual_temp = sum([x[2] for x in temp_data])/12
+
     cent = poly.centroid
-    logger.info(cent)
     xy = cent.coords.xy
-    logger.info(xy)
     _, latitude = xy
     latitude_r = latitude[0] * math.pi / 180
 
-    logger.info(latitude_r / math.pi)
-
     day = 1
     k = 1
-    temp = 5.9
 
     daily_sunlight_values = [hamon_daylight_hours(
         n, latitude_r) for n in range(1, 365 + 1)]
@@ -331,14 +360,11 @@ def calculate_potential_evapotranspiration_hamon(poly: Polygon):
     avg_daily_sunlight_hours = sum(daily_sunlight_values) / \
         len(daily_sunlight_values)
 
-    logger.info("----avg sunlight hours")
-    logger.info(avg_daily_sunlight_hours)
-
     saturation_vapour_pressure = 6.108 * \
-        (math.e ** (17.27 * temp / (temp + 237.3)))
+        (math.e ** (17.27 * average_annual_temp / (average_annual_temp + 237.3)))
 
     pet = k * 0.165 * 216.7 * avg_daily_sunlight_hours / 12 * \
-        (saturation_vapour_pressure / (temp + 273.3))
+        (saturation_vapour_pressure / (average_annual_temp + 273.3))
 
     return pet * 365
 
@@ -349,10 +375,7 @@ def hamon_daylight_hours(day: int, latitude_r: float):
     """
 
     declination = 0.4093 * math.sin((2 * math.pi * day / 365) - 1.405)
-
     acos_input = -1 * math.tan(declination) * math.tan(latitude_r)
-
     sunset_angle = math.acos(acos_input)
 
-    daylight_hours = (24 / math.pi) * sunset_angle
-    return daylight_hours
+    return (24 / math.pi) * sunset_angle
