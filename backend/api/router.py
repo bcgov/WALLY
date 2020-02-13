@@ -15,6 +15,7 @@ from api.v1.wells import routes as wells
 from api.v1.watersheds import routes as watersheds
 from api.v1.config import routes as config
 from api.v1.isolines import routes as isolines
+from api.v1.marmodel import routes as marmodel
 
 api_router = APIRouter()
 
@@ -99,5 +100,12 @@ api_router.include_router(
     isolines.router,
     prefix="/isolines",
     tags=["isolines"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    marmodel.router,
+    prefix="/marmodel",
+    tags=["marmodel"],
     responses={404: {"description": "Not found"}},
 )

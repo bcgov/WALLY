@@ -48,7 +48,7 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 
 export default {
-  name: 'MeanAnnualDischarge',
+  name: 'MeanAnnualRunoff',
   components: {
   },
   props: ['watershedID', 'record'],
