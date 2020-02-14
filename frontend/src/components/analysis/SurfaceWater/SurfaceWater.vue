@@ -32,24 +32,7 @@
         </v-col>
       </v-row>
       <div v-if="selectedWatershed">
-        <v-tabs>
-          <v-tab>Watershed Details</v-tab>
-          <v-tab>Climate</v-tab>
-          <v-tab>Availability</v-tab>
-          <v-tab>Demand</v-tab>
-          <v-tab-item>
-            <WatershedDetails :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
-          </v-tab-item>
-          <v-tab-item>
-            <WatershedClimate :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
-          </v-tab-item>
-          <v-tab-item>
-            <WatershedAvailability :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord"/>
-          </v-tab-item>
-          <v-tab-item>
-            <WatershedDemand :watershedID="selectedWatershed" :record="selectedWatershedRecord"/>
-          </v-tab-item>
-        </v-tabs>
+        <WatershedDetails :record="selectedWatershedRecord" :watersheds="watersheds" :watershedID="selectedWatershed" ></WatershedDetails>
       </div>
     </template>
   </v-container>
@@ -60,18 +43,12 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
-import WatershedClimate from './WatershedClimate'
-import WatershedDemand from './WatershedDemand'
 import WatershedDetails from './WatershedDetails'
-import WatershedAvailability from './WatershedAvailability'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
-    WatershedClimate,
-    WatershedDemand,
-    WatershedDetails,
-    WatershedAvailability
+    WatershedDetails
   },
   data: () => ({
     infoTabs: null,
@@ -148,7 +125,7 @@ export default {
         point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates),
         include_self: this.includePOIPolygon
       }
-      ApiService.query(`/api/v1/watersheds/calc?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features

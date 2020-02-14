@@ -7,12 +7,16 @@ import geojson
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
-from shapely.geometry import Polygon, MultiPolygon, shape, box, mapping
+from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from fastapi import HTTPException
 
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.isolines.controller import calculate_runoff_in_area
+
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
@@ -201,6 +205,37 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     )
 
 
+def calculate_watershed(
+    db: Session,
+    point: Point,
+    include_self: bool
+):
+    """ calculates watershed area upstream of a POI """
+
+    q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
+        func.ST_Contains(
+            FreshwaterAtlasWatersheds.GEOMETRY,
+            func.ST_GeomFromText(point.wkt, 4326)
+        )
+    )
+
+    logger.info(q)
+
+    watershed_id = q.first()
+
+    if not watershed_id:
+        return None
+    watershed_id = watershed_id[0]
+
+    feature = get_upstream_catchment_area(
+        db, watershed_id, include_self=include_self)
+
+    feature.properties['FEATURE_AREA_SQM'] = transform(
+        transform_4326_3005, shape(feature.geometry)).area
+
+    return feature
+
+
 def get_databc_watershed(watershed_id: str):
     """ finds a watershed in DataBC watershed layers
 
@@ -305,7 +340,7 @@ def surficial_geology(polygon: Polygon):
     )
 
 
-def get_watershed(watershed_feature: str):
+def get_watershed(db: Session, watershed_feature: str):
     """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
