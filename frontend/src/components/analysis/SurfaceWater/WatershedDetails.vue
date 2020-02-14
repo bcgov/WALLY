@@ -23,11 +23,11 @@ export default {
   },
   computed: {
     watershedArea () {
-      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
+      if (!this.record || !this.record.properties['area']) {
         return null
       }
 
-      return Number(this.record.properties['FEATURE_AREA_SQM'])
+      return Number(this.record.properties['area'])
     }
   },
   methods: {
