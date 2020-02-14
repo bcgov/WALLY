@@ -15,8 +15,8 @@
     <v-toolbar-title class="bcgov-title">Water Allocation
 
       </v-toolbar-title>
-      <span aria-label="This application is currently in Alpha phase" class="beta-banner">
-          Alpha
+      <span aria-label="This application is currently in Beta phase" class="beta-banner">
+        Beta
       </span>
       <div class="flex-grow-1"></div>
       <div class="my-2 mr-3">
