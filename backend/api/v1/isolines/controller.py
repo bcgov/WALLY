@@ -23,6 +23,7 @@ def calculate_runnoff_in_area(db: Session, polygon: MultiPolygon):
       isoline_features = []
 
     area_total = 0
+    avg_mm = 0
     runoff_total = 0
 
     for isoline in isoline_features:
@@ -35,9 +36,14 @@ def calculate_runnoff_in_area(db: Session, polygon: MultiPolygon):
             continue
 
         area_total += isoline_clipped.area
+        avg_mm += float(isoline["properties"]["ANNUAL_RUNOFF_IN_MM"])
         runoff_total += isoline_clipped.area * (float(isoline["properties"]["ANNUAL_RUNOFF_IN_MM"]) / 1000)
+
+    if isoline_features:
+        avg_mm = avg_mm / len(isoline_features)
 
     return {
       "area": area_total,
-      "runoff": runoff_total
+      "runoff": runoff_total,
+      "avg_mm": avg_mm
     }

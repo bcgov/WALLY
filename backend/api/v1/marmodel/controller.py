@@ -3,14 +3,18 @@ Functions for aggregating data from web requests and database records
 """
 import logging
 import math
+from decimal import Decimal
 import requests
 from geojson import FeatureCollection, Feature
 from shapely.geometry import MultiPolygon
+from shapely.ops import transform
 from shapely import geometry
+from api.v1.aggregator.helpers import transform_4326_3005
 from fastapi import Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from api.v1.watersheds.controller import calculate_glacial_area, precipitation
 from api.v1.aggregator.controller import feature_search, databc_feature_search
+from api.v1.isolines.controller import calculate_runnoff_in_area
 
 logger = logging.getLogger('api')
 
@@ -30,22 +34,30 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     glacier_result = calculate_glacial_area(db, polygon)
     sea_result = get_slope_elevation_aspect(polygon)
     logger.warning(sea_result)
-    precipitation_result = precipitation(polygon)
+    precipitation_result = calculate_runnoff_in_area(db, polygon)#precipitation(polygon)
 
     # set input variables
     # * TODO * ask sea folks to include median elevation in result
-    median_elevation = sea_result["averageElevation"] # api doesn't return median elevation
-    average_slope = sea_result["slope"]
-    solar_exposure = hillshade(sea_result["slope"], sea_result["aspect"])
-    drainage_area = polygon.area
-    glacial_coverage = glacier_result.coverage
-    annual_precipitation = precipitation_result
+    median_elevation = Decimal(sea_result["averageElevation"]) # api doesn't return median elevation
+    average_slope = Decimal(sea_result["slope"])
+    solar_exposure = Decimal(hillshade(sea_result["slope"], sea_result["aspect"]))
+    drainage_area = Decimal(transform(transform_4326_3005, polygon).area) / 1000
+    glacial_coverage = Decimal(glacier_result[1])
+    annual_precipitation = Decimal(precipitation_result["avg_mm"])
+    
+    logger.warning("**** CALCULATED VALUES ****")
+    logger.warning("med.elev.: " + str(median_elevation) + " m")
+    logger.warning("avg slope: " + str(average_slope))
+    logger.warning("sol.exp.: " + str(solar_exposure))
+    logger.warning("dra.area:" + str(drainage_area) + " km2")
+    logger.warning("gla.cov.: " + str(glacial_coverage))
+    logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
 
     evapo_transpiration = 650 # temporary default
 
     # query the co-efficient table for this hydrological zone
     query = """
-        select * from mad_model_coefficients where hydrologic_zone_id = :hydro_zone_id
+        select * from modeling.mad_model_coefficients where hydrologic_zone_id = :hydro_zone_id
     """
     models = db.execute(query, {"hydro_zone_id": hydrological_zone})
 
@@ -74,6 +86,17 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
             "adjusted_r2": model.adjusted_r2,
             "steyx": model.steyx
         })
+        # this is a helper ouput that calculates MAD from MAR
+        if model.model_output_type == 'MAR':
+            model_output.append({
+                "output_type": 'MAD',
+                "model_result": model_result / 1000 * drainage_area,
+                "month": 0,
+                "r2": 0,
+                "adjusted_r2": 0,
+                "steyx": 0
+            })
+
 
     if not model_output:
         raise HTTPException(204, "No model output calculated.")
@@ -154,9 +177,9 @@ def hillshade(slope: float, aspect: float):
         + math.cos(altitude_rad) * math.cos(slope) \
         * math.cos((azimuth_rad - math.pi / 2.) - aspect)
 
-    logger.warning(shade_value)
+    # logger.warning(shade_value)
 
-    return 255 * (shade_value + 1) / 2
+    return abs(shade_value) # 255 * (shade_value + 1) / 2
 
 
 def extract_poly_coords(geom):
