@@ -7,12 +7,12 @@
     </v-breadcrumbs>
     <v-toolbar flat>
       <v-banner color="indigo"
-                icon="mdi-axis-arrow"
+                icon="mdi-map-marker"
                 icon-color="white"
                 width="100%"
       >
         <v-toolbar-title>
-          Stream apportionment
+         First Nations Areas Nearby
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -30,13 +30,12 @@
       <div class="pa-3 mt-3">
         Point at {{ dataMartFeatureInfo.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
       </div>
-      <StreamApportionment
+      <FirstNationsAreasNearby
         :record="dataMartFeatureInfo"
-        />
+      />
     </div>
-
     <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=8><p>Select a point of interest (e.g. a proposed well site) to apportion demand to nearby streams.</p></v-col>
+      <v-col cols=12 lg=8><p>Select a point of interest to find nearby First Nations Communities, Treaty Areas and Lands.</p></v-col>
       <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
     </v-row>
   </v-container>
@@ -45,54 +44,41 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import StreamApportionment from './StreamApportionment.vue'
+import FirstNationsAreasNearby from './FirstNationsAreasNearby.vue'
 
 export default {
-  name: 'StreamApportionmentContainer',
+  name: 'FirstNationsAreasNearbyContainer',
   components: {
-    StreamApportionment
+    FirstNationsAreasNearby
   },
   data: () => ({
-    streamsLayerAutomaticallyEnabled: false,
     breadcrumbs: []
   }),
   methods: {
     selectPoint () {
       this.setDrawMode('draw_point')
     },
-    enableStreamsLayer () {
-      this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
-    },
-    disableStreamsLayer () {
-      this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
-    },
-    loadApportionment () {
-      if (!this.isStreamsLayerEnabled) {
-        this.streamsLayerAutomaticallyEnabled = true
-        this.enableStreamsLayer()
-      }
+    loadFirstNationsAreasNearby () {
       this.setBreadcrumbs()
       this.loadFeature()
     },
     setBreadcrumbs () {
-      if (this.$route.query.coordinates) {
-        this.breadcrumbs = [{
-          text: 'Home',
-          disabled: false,
-          to: { path: '/' }
-        },
-        {
-          text: 'Point of Interest',
-          disabled: false,
-          to: {
-            path: '/point-of-interest',
-            query: { coordinates: this.$route.query.coordinates.map((x) => x) }
-          }
-        }, {
-          text: 'Stream apportionment',
-          disabled: true
-        }]
-      }
+      this.breadcrumbs = [{
+        text: 'Home',
+        disabled: false,
+        to: { path: '/' }
+      },
+      {
+        text: 'Point of Interest',
+        disabled: false,
+        to: {
+          path: '/point-of-interest',
+          query: { coordinates: this.$route.query.coordinates.map((x) => x) }
+        }
+      }, {
+        text: 'First Nations Areas Nearby',
+        disabled: true
+      }]
     },
     loadFeature () {
       if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
@@ -111,27 +97,21 @@ export default {
     ...mapActions('map', ['setDrawMode'])
   },
   computed: {
-    isStreamsLayerEnabled () {
-      return this.isMapLayerActive('freshwater_atlas_stream_networks')
-    },
     ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['dataMartFeatureInfo'])
   },
   watch: {
     isMapReady (value) {
       if (value) {
-        this.loadApportionment()
+        this.loadFirstNationsAreasNearby()
       }
     }
   },
   mounted () {
     this.$store.commit('setInfoPanelVisibility', true)
-    this.loadApportionment()
+    this.loadFirstNationsAreasNearby()
   },
   beforeDestroy () {
-    if (this.streamsLayerAutomaticallyEnabled) {
-      this.disableStreamsLayer()
-    }
   }
 }
 </script>

@@ -22,7 +22,7 @@ export default {
     },
     getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
-        EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
+        // no layers selected - stop here.
         return
       }
       commit('setLoadingFeature', true)
@@ -191,7 +191,8 @@ export default {
       }
 
       // todo: replace with route.meta option (e.g. "allowRedirect") to control automatically redirecting to feature cards.
-      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'place-poi' || router.currentRoute.name === 'multiple-features') {
+      // if (router.currentRoute.name === 'home' || router.currentRoute.name === 'point-of-interest' || router.currentRoute.name === 'multiple-features') {
+      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'multiple-features') {
         router.push({
           name: 'single-feature',
           query: {
@@ -201,7 +202,6 @@ export default {
           }
         })
       }
-      console.log('i got this far')
     },
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }

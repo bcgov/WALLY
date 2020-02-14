@@ -3,6 +3,10 @@ Functions for aggregating data from web requests and database records
 """
 import logging
 import requests
+import geojson
+import json
+
+import math
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -10,7 +14,7 @@ from shapely.geometry import Polygon, MultiPolygon, shape, box
 from shapely.ops import transform
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
-
+from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 
@@ -48,18 +52,21 @@ def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, f
     return (glacial_area, coverage)
 
 
-def precipitation(
+def pcic_data_request(
         polygon: Polygon,
         output_variable: str = 'pr',
-        dataset: str = 'pr_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada'):
+        dataset=None):
     """ Returns an average precipitation from the pacificclimate.org climate explorer service """
 
     pcic_url = "https://services.pacificclimate.org/pcex/api/timeseries?"
 
+    if not dataset:
+        dataset = f"{output_variable}_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada"
+
     params = {
         "id_": dataset,
         "variable": output_variable,
-        "area": polygon.wkt
+        "area": polygon.minimum_rotated_rectangle.wkt
     }
 
     req_url = pcic_url + urlencode(params)
@@ -148,6 +155,55 @@ def surface_water_rights_licences(polygon: Polygon):
         total_qty_by_purpose=licence_purpose_type_list,
         projected_geometry_area=polygon.area,
         projected_geometry_area_simplified=polygon_rect.area
+    )
+
+
+def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
+    """ returns the union of all FWA watershed polygons upstream from
+        the watershed polygon with WATERSHED_FEATURE_ID as a Feature
+
+        Two methods are used:
+
+        1. calculate_upstream_catchment_starting_upstream
+        This method includes only polygons that start upstream from the base polygon indicated
+        by `watershed_feature_id`. This prevents collecting too many polygons around the starting
+        point and traveling up the next downstream tributary. However, this has the effect
+        of not including the "starting" polygon, and may not work near the headwater of streams.
+
+        The first method (marked with "starting_upstream") can optionally include a polygon by its
+        WATERSHED_FEATURE_ID. This is used to include the starting polygon in the collection, without
+        collecting additional polygons that feed into it.
+
+        2. If no records are returned, the second method, which collects all polygons upstream from
+        the closest downstream tributary, is used.
+
+        See https://www2.gov.bc.ca/assets/gov/data/geographic/topography/fwa/fwa_user_guide.pdf
+        for more info.
+    """
+
+    q = """
+        select ST_AsGeojson(
+            coalesce(
+                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
+                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
+            )
+        ) as geom """
+
+    logger.info(watershed_feature_id)
+
+    res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
+                         "include": watershed_feature_id if include_self else None})
+
+    record = res.fetchone()
+
+    return Feature(
+        geometry=shape(
+            geojson.loads(record[0])
+        ),
+        id=watershed_feature_id,
+        properties={
+            "name": "Estimated catchment area (Freshwater Atlas)"
+        }
     )
 
 
@@ -253,3 +309,88 @@ def surficial_geology(polygon: Polygon):
         summary_by_type=surf_geol_list,
         coverage_area=coverage_area,
     )
+
+
+def parse_pcic_temp(min_temp, max_temp):
+    """ parses monthly temperatures from pcic to return an array of min,max,avg """
+
+    temp_by_month = []
+
+    for k, v in sorted(min_temp.items(), key=lambda x: x[0]):
+        min_t = v
+        max_t = max_temp[k]
+        avg_t = (min_t + max_t) / 2
+        temp_by_month.append((min_t, max_t, avg_t))
+
+    return temp_by_month
+
+
+def get_temperature(poly: Polygon):
+    """
+    gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
+    """
+
+    min_temp = pcic_data_request(poly, 'tasmin')
+    max_temp = pcic_data_request(poly, 'tasmax')
+
+    return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
+
+
+def calculate_daylight_hours_usgs(day: int, latitude_r: float):
+    """ calculates daily radiation for a given day and latitude (latitude in radians)
+        https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
+    """
+
+    declination = 0.4093 * math.sin((2 * math.pi * day / 365) - 1.405)
+    acos_input = -1 * math.tan(declination) * math.tan(latitude_r)
+    sunset_angle = math.acos(acos_input)
+
+    return (24 / math.pi) * sunset_angle
+
+
+def calculate_potential_evapotranspiration_hamon(poly: Polygon, temp_data):
+    """
+    calculates potential evapotranspiration using the Hamon equation
+    http://data.snap.uaf.edu/data/Base/AK_2km/PET/Hamon_PET_equations.pdf
+    """
+
+    average_annual_temp = sum([x[2] for x in temp_data])/12
+
+    cent = poly.centroid
+    xy = cent.coords.xy
+    _, latitude = xy
+    latitude_r = latitude[0] * (math.pi / 180)
+
+    day = 1
+    k = 1
+
+    daily_sunlight_values = [calculate_daylight_hours_usgs(
+        n, latitude_r) for n in range(1, 365 + 1)]
+
+    avg_daily_sunlight_hours = sum(daily_sunlight_values) / \
+        len(daily_sunlight_values)
+
+    saturation_vapour_pressure = 6.108 * \
+        (math.e ** (17.27 * average_annual_temp / (average_annual_temp + 237.3)))
+
+    pet = k * 0.165 * 216.7 * avg_daily_sunlight_hours / 12 * \
+        (saturation_vapour_pressure / (average_annual_temp + 273.3))
+
+    return pet * 365
+
+
+def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data):
+    """ calculates potential evapotranspiration (mm/yr) using the
+    Thornwaite method. temp_data is in the format returned by the function `get_temperature`"""
+
+    monthly_t = [x[2] for x in temp_data]
+    cent = poly.centroid
+    xy = cent.coords.xy
+    _, latitude = xy
+    latitude_r = latitude[0] * (math.pi / 180)
+
+    mmdlh = monthly_mean_daylight_hours(latitude_r)
+
+    pet_mm_month = thornthwaite(monthly_t, mmdlh)
+
+    return sum(pet_mm_month)

@@ -9,6 +9,9 @@
         Data may be incomplete in the area of interest.
       </p>
     </div>
+    <div v-if="surficialGeologyLoading">
+      <v-progress-linear show indeterminate></v-progress-linear>
+    </div>
     <div v-if="surficialGeologyByType">
       <div class="my-5">
         <v-data-table
@@ -33,6 +36,7 @@ export default {
   name: 'SurficialGeology',
   props: ['watershedID', 'record'],
   data: () => ({
+    surficialGeologyLoading: false,
     surficialGeologyByType: [],
     materialHeaders: [
       { text: 'Material', value: 'soil_type', sortable: true },
@@ -79,6 +83,7 @@ export default {
       // })
     },
     fetchSurficialGeology () {
+      this.surficialGeologyLoading = true
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/surficial_geology`)
         .then(r => {
           this.surficialGeologyByType = r.data.summary_by_type
@@ -87,8 +92,10 @@ export default {
           this.surficialGeologyByType.forEach((layer, i) => {
             this.addSurfGeologyLayer(`surficialGeology${i}`, this.surficialGeologyByType[i].geojson, '#000')
           })
+          this.surficialGeologyLoading = false
         })
         .catch(e => {
+          this.surficialGeologyLoading = false
           console.error(e)
         })
     }

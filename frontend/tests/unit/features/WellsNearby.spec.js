@@ -4,7 +4,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import circle from '@turf/circle'
 
-import WellsNearby from '@/components/analysis/WellsNearby.vue'
+import WellsNearby from '@/components/analysis/wells_nearby/WellsNearby.vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -28,7 +28,8 @@ describe('Wells Nearby', () => {
       dataMartFeatures: () => [],
       allMapLayers: () => [],
       getCategories: () => [],
-      featureSelectionExists: () => null
+      featureSelectionExists: () => null,
+      isMapReady: jest.fn()
     }
     let map = {
       namespaced: true,

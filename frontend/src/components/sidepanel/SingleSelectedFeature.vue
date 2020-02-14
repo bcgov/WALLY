@@ -161,20 +161,15 @@ export default {
         // feature already exists
         return
       }
-      const point = {
-        type: 'Feature',
-        id: 'point_of_interest',
-        geometry: {
-          display_data_name: this.$route.query.layer,
-          type: 'Point',
-          coordinates: this.$route.query.location.split(',').map((x) => Number(x))
-        },
-        properties: {
-        }
+
+      const coordinates = this.$route.query.location.split(',').map((x) => Number(x))
+      let data = {
+        coordinates: coordinates,
+        layerName: this.$route.query.layer
       }
 
       if (this.$route.query.layer === 'point_of_interest') {
-        this.$store.dispatch('map/addPointOfInterest', point)
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
       } else {
         this.$router.push('/')
       }

@@ -1,7 +1,17 @@
 <template>
   <v-container class="pa-3 mt-3">
+    <v-row v-if="watershedLoading">
+      <v-col>
+        <v-progress-linear show indeterminate></v-progress-linear>
+      </v-col>
+    </v-row>
     <template v-if="watersheds && watersheds.length">
-      <div class="title mb-3">Watersheds</div>
+      <v-row>
+        <v-col cols=12 md=8><div class="title mb-3">Watersheds</div></v-col>
+        <v-col cols=12 md=4 class="text-right">
+          <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
+        </v-col>
+      </v-row>
       <v-row align="center">
         <v-col cols=12 md=6>Select watershed:</v-col>
         <v-col cols=12 md=6>
@@ -14,6 +24,11 @@
             item-value="value"
             hint="Available watersheds at this location"
           ></v-select>
+        </v-col>
+      </v-row>
+      <v-row no-gutters class="pa-0 ma-0">
+        <v-col>
+          <v-checkbox v-model="includePOIPolygon" label="Include area around point"></v-checkbox>
         </v-col>
       </v-row>
       <div v-if="selectedWatershed">
@@ -60,15 +75,20 @@ export default {
   },
   data: () => ({
     infoTabs: null,
+    watershedLoading: false,
     selectedWatershed: null,
     assessmentWatershed: null,
     hydrometricWatershed: null,
     watersheds: [],
-    geojsonLayersAdded: []
+    geojsonLayersAdded: [],
+    includePOIPolygon: false
   }),
   watch: {
     selectedWatershed (v) {
       this.filterWatershed(v)
+    },
+    includePOIPolygon () {
+      this.recalculateWatershed()
     }
   },
   computed: {
@@ -80,7 +100,7 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || `Watershed ${i + 1}`,
+        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`,
         value: w.id
       }))
     },
@@ -88,6 +108,12 @@ export default {
     ...mapGetters('map', ['map'])
   },
   methods: {
+    resetWatershed () {
+      this.$store.commit('map/replaceOldFeatures', null)
+      this.$store.dispatch('map/clearHighlightLayer')
+      this.$store.commit('resetDataMartFeatureInfo')
+      this.$store.commit('clearDataMartFeatures')
+    },
     filterWatershed (id) {
       this.geojsonLayersAdded.forEach((layerID) => {
         this.map.setLayoutProperty(
@@ -98,6 +124,7 @@ export default {
       })
     },
     addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.3) {
+      console.log(data)
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -116,20 +143,25 @@ export default {
       }, 'water_rights_licences')
     },
     fetchWatersheds () {
+      this.watershedLoading = true
       const params = {
-        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates)
+        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates),
+        include_self: this.includePOIPolygon
       }
-      ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/watersheds/calc?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features
           this.watersheds.forEach((ws, i) => {
+            if (i === 0) this.selectedWatershed = ws.id
             this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
             this.geojsonLayersAdded.push(`ws-${ws.id}`)
           })
+          this.watershedLoading = false
         })
         .catch(e => {
           console.error(e)
+          this.watershedLoading = false
         })
     },
     resetGeoJSONLayers () {
@@ -140,12 +172,13 @@ export default {
       this.watersheds = []
       this.geojsonLayersAdded = []
     },
-    createWatersheds () {
+    recalculateWatershed () {
+      this.resetGeoJSONLayers()
       this.fetchWatersheds()
     }
   },
   mounted () {
-    this.createWatersheds()
+    this.fetchWatersheds()
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()
