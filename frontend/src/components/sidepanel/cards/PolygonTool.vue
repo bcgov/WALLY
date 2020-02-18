@@ -17,7 +17,7 @@
         <p>Click on any point a second time to complete the polygon.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Draw polygon</v-btn>
+        <v-btn @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Draw polygon</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -28,11 +28,12 @@ import { mapActions, mapGetters } from 'vuex'
 export default {
   name: 'DrawPolygon',
   data: () => ({
-
+    buttonClicked: false
   }),
   methods: {
     selectPoint () {
       this.setDrawMode('draw_polygon')
+      this.buttonClicked = true
     },
     ...mapActions('map', ['setDrawMode'])
   },
