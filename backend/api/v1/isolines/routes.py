@@ -36,8 +36,4 @@ def get_isoline_runoff(
 
     result = calculate_runoff_in_area(db, polygon)
 
-    return {
-        "area": result["area"],
-        "runoff": result["runoff"],
-        "avg_mm": result["avg_mm"]
-    }
+    return result
