@@ -61,7 +61,7 @@ export default {
     }]
   },
   actions: {
-    async initMapAndDraw ({ commit }) {
+    async initMapAndDraw ({ commit, state }) {
       const mapConfig = await ApiService.get('api/v1/config/map')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
@@ -76,7 +76,9 @@ export default {
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
         attributionControl: false, // hide default and re-add to the top left
-        preserveDrawingBuffer: true // allows image export of the map at the cost of some performance
+        preserveDrawingBuffer: true, // allows image export of the map at
+        // the cost of some performance
+        trackResize: true
       }))
 
       const modes = MapboxDraw.modes
@@ -95,6 +97,27 @@ export default {
           // trash: true
         }
       }))
+
+      // Fix for the map not expanding to full size when you resize the
+      // browser window
+      window.addEventListener('resize', () => {
+        // MapboxGL's resize function gets the canvas container div's dimensions
+        // and repaints the canvas accordingly.
+        // https://github.com/mapbox/mapbox-gl-js/blob/0412fdb247f0f0c0bdb46d1e1465a848e1eea7dc/src/ui/map.js#L558
+
+        // Get the map's parent node height and set the canvas container to
+        // the same height
+        let mapboxglCanvasContainer = document.getElementsByClassName('mapboxgl-canvas-container')[0]
+        let map = document.getElementById('map')
+        mapboxglCanvasContainer.style.height = getComputedStyle(map.parentNode).height
+
+        // Mapbox resize takes some time to get the updated height, so it
+        // only works when you wait a bit.
+        // TODO: reconsider this setTimeout
+        setTimeout(() => {
+          state.map.resize()
+        }, 300)
+      })
     },
     loadMap ({ state, dispatch }) {
       state.map.on('style.load', () => {
