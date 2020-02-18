@@ -12,9 +12,9 @@ from shapely import geometry
 from api.v1.aggregator.helpers import transform_4326_3005
 from fastapi import Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
-from api.v1.watersheds.controller import calculate_glacial_area, precipitation
+from api.v1.watersheds.controller import calculate_glacial_area, pcic_data_request
 from api.v1.aggregator.controller import feature_search, databc_feature_search
-from api.v1.isolines.controller import calculate_runnoff_in_area
+from api.v1.isolines.controller import calculate_runoff_in_area
 
 logger = logging.getLogger('api')
 
@@ -30,11 +30,18 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
         raise HTTPException(
             status_code=400, detail="Missing search polygon, or hydrological zone.")
     
+    # query the co-efficient table for this hydrological zone
+    query = """
+        select * from modeling.mad_model_coefficients where hydrologic_zone_id = :hydro_zone_id
+    """
+    models = db.execute(query, {"hydro_zone_id": hydrological_zone})
+    if not models:
+        raise HTTPException(204, "Selection point not within supported hydrological zone.")
+
     # async data lookups
     glacier_result = calculate_glacial_area(db, polygon)
-    sea_result = get_slope_elevation_aspect(polygon)
-    logger.warning(sea_result)
-    precipitation_result = calculate_runnoff_in_area(db, polygon)#precipitation(polygon)
+    sea_result = {"averageElevation": 800 ,"slope": 31, "aspect": 0.45 } # get_slope_elevation_aspect(polygon)
+    precipitation_result = calculate_runoff_in_area(db, polygon) # pcic_data_request(polygon)
 
     # set input variables
     # * TODO * ask sea folks to include median elevation in result
@@ -44,6 +51,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     drainage_area = Decimal(transform(transform_4326_3005, polygon).area) / 1000
     glacial_coverage = Decimal(glacier_result[1])
     annual_precipitation = Decimal(precipitation_result["avg_mm"])
+    evapo_transpiration = 650 # temporary default
     
     logger.warning("**** CALCULATED VALUES ****")
     logger.warning("med.elev.: " + str(median_elevation) + " m")
@@ -53,19 +61,17 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     logger.warning("gla.cov.: " + str(glacial_coverage))
     logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
 
-    evapo_transpiration = 650 # temporary default
-
-    # query the co-efficient table for this hydrological zone
-    query = """
-        select * from modeling.mad_model_coefficients where hydrologic_zone_id = :hydro_zone_id
-    """
-    models = db.execute(query, {"hydro_zone_id": hydrological_zone})
-
-    if not models:
-        raise HTTPException(204, "Selection point not within supported hydrological zone.")
-
+    model_input = {
+      "median_elevation": median_elevation,
+      "average_slope": average_slope,
+      "solar_exposure": solar_exposure,
+      "drainage_area": drainage_area,
+      "glacial_coverage": glacial_coverage,
+      "annual_precipitation": annual_precipitation,
+      "evapo_transpiration": evapo_transpiration
+    }
+    
     model_output = []
-
     # calculate model outputs for gathered inputs,
     # model output types, MAR, MD(x12months), 7Q2, S-7Q10
     for model in models:
@@ -97,11 +103,13 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
                 "steyx": 0
             })
 
-
     if not model_output:
         raise HTTPException(204, "No model output calculated.")
 
-    return model_output
+    return {
+        "model_input": model_input,
+        "model_output": model_output
+    }
 
 
 def get_hydrological_zone(point: str = Query("", title="Search point",

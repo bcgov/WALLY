@@ -43,6 +43,6 @@ def get_mean_annual_runoff(
         raise HTTPException(
             status_code=400, detail="Polygon has zero area")
     
-    model_outputs = calculate_mean_annual_runoff(db, polygon, zone)
+    model_results = calculate_mean_annual_runoff(db, polygon, zone)
 
-    return model_outputs
+    return model_results
