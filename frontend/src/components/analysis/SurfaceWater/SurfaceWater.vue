@@ -148,6 +148,7 @@ export default {
       })
       this.watersheds = []
       this.geojsonLayersAdded = []
+      this.selectedWatershed = null
     },
     recalculateWatershed () {
       this.resetGeoJSONLayers()
