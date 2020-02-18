@@ -92,7 +92,7 @@ export default {
           // polygon: true,
           // point: true,
           // line_string: true,
-          trash: true
+          // trash: true
         }
       }))
     },
