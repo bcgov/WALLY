@@ -51,6 +51,16 @@ logger = getLogger("aggregator")
 
 router = APIRouter()
 
+watershed_feature_description = """
+    Watershed features follow the format <dataset>.<id>. Dataset is either
+    the DataBC dataset code or 'calculated' for Wally generated watersheds.
+    If using a calculated watershed, `id` is the FWA Watershed feature ID
+    to start calculating a watershed from.
+    Example:
+    'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY.1111111'
+    'calculated.1111111'.
+    """
+
 
 @router.get('/')
 def get_watersheds(
@@ -109,7 +119,8 @@ def get_watersheds(
 def watershed_stats(
     db: Session = Depends(get_db),
     watershed_feature: str = Path(...,
-                                  title="The watershed feature ID at the point of interest")
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
 
 
 ):
@@ -151,7 +162,8 @@ def watershed_stats(
 def get_watershed_demand(
     db: Session = Depends(get_db),
     watershed_feature: str = Path(...,
-                                  title="The watershed feature ID at the point of interest")
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
 
 
 ):
@@ -166,7 +178,8 @@ def get_watershed_demand(
 def get_surficial_geology(
     db: Session = Depends(get_db),
     watershed_feature: str = Path(...,
-                                  title="The watershed feature ID at the point of interest")
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
 ):
     """ returns data about watershed demand by querying DataBC """
 
