@@ -1,7 +1,7 @@
 """add watershed function
 
 Revision ID: f2b445f6650c
-Revises: 6eccf085d7c7
+Revises: 5dd642b61ff0
 Create Date: 2020-02-08 00:06:44.544948
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'f2b445f6650c'
-down_revision = '6eccf085d7c7'
+down_revision = '5dd642b61ff0'
 branch_labels = None
 depends_on = None
 

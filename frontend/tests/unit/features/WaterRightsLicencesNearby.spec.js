@@ -3,7 +3,7 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import WaterRightsLicencesNearby from '@/components/analysis/WaterRightsLicencesNearby.vue'
+import WaterRightsLicencesNearby from '@/components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearby.vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)

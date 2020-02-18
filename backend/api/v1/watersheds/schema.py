@@ -6,6 +6,8 @@ from geojson import Feature, FeatureCollection, Point
 
 class WatershedDetails(BaseModel):
     """ info about a watershed"""
+    potential_evapotranspiration_hamon: Optional[float]
+    potential_evapotranspiration_thornthwaite: Optional[float]
     precipitation: Optional[dict]
     glacial_coverage: float
     glacial_area: float

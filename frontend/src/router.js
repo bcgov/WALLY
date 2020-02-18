@@ -13,6 +13,11 @@ import StreamApportionmentContainer from './components/analysis/stream_apportion
 import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
 import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
 import Start from './components/sidepanel/Start'
+import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
+import WaterRightsLicencesNearbyContainer
+  from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
+import FirstNationsAreasNearbyContainer
+  from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
 
 Vue.use(Router)
 
@@ -26,7 +31,6 @@ const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
-
     {
       path: '/',
       name: 'home',
@@ -60,9 +64,48 @@ const router = new Router({
       }
     },
     {
-      path: '/poi', // TODO: should refactor to be under /features/<feature_id>
-      name: 'place-poi',
+      path: '/point-of-interest', // TODO: should refactor to be under
+      // /features/<feature_id>
+      name: 'point-of-interest',
       component: PointOfInterest,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/water-rights-licences-nearby', // TODO: should refactor to be
+      // under
+      // /features/<feature_id>
+      name: 'water-rights-licences-nearby',
+      component: WaterRightsLicencesNearbyContainer,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/wells-nearby',
+      name: 'wells-nearby',
+      component: WellsNearbyContainer,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/first-nations-areas-nearby',
+      name: 'first-nations-areas-nearby',
+      component: FirstNationsAreasNearbyContainer,
       meta: {
         sidebarColumns: {
           md: 6,

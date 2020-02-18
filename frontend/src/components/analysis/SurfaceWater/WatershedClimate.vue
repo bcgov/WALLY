@@ -5,8 +5,19 @@
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
     <div v-if="climateData">
-      <div class="my-3">
+      <div class="mt-3">
         <span class="font-weight-bold">Glacial coverage:</span> {{ climateData.glacial_area.toFixed(1) }} sq. m ({{(climateData.glacial_coverage * 100).toFixed(1)}}%)
+      </div>
+      <div class="my-3" v-if="potentialEvapotranspiration">
+        <div>
+          <span class="font-weight-bold">Potential evapotranspiration</span>
+        </div>
+        <div>
+          <span>Hamon equation:</span> {{ potentialEvapotranspiration.hamon.toFixed(1) }} mm/yr
+        </div>
+        <div>
+          <span>Thornthwaite method:</span> {{ potentialEvapotranspiration.thornthwaite.toFixed(1) }} mm/yr
+        </div>
       </div>
       <div v-if="precipData">
         <div class="title mt-5">Precipitation</div>
@@ -57,6 +68,12 @@ export default {
     }
   },
   computed: {
+    potentialEvapotranspiration () {
+      return {
+        hamon: this.climateData.potential_evapotranspiration_hamon,
+        thornthwaite: this.climateData.potential_evapotranspiration_thornthwaite
+      }
+    },
     precipData () {
       if (!this.climateData || !this.climateData.precipitation) {
         return null

@@ -41,6 +41,21 @@
 <script>
 import { Plotly } from 'vue-plotly'
 
+const months = [
+  '2020-01-01',
+  '2020-02-01',
+  '2020-03-01',
+  '2020-04-01',
+  '2020-05-01',
+  '2020-06-01',
+  '2020-07-01',
+  '2020-08-01',
+  '2020-09-01',
+  '2020-10-01',
+  '2020-11-01',
+  '2020-12-01'
+]
+
 export default {
   name: 'WatershedAvailability',
   components: {
@@ -89,28 +104,32 @@ export default {
       if (!this.annualNormalizedRunoff || !this.watershedArea) {
         return null
       }
-
+      const meanAnnualDischarge = this.annualNormalizedRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60
       const plotData = {
         type: 'bar',
         name: 'Runoff (Normalized Hydrometric)',
-        y: this.monthlyRunoffCoefficients.map((x) => x * this.annualNormalizedRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60),
-        x: [
-          '2020-01-01',
-          '2020-02-01',
-          '2020-03-01',
-          '2020-04-01',
-          '2020-05-01',
-          '2020-06-01',
-          '2020-07-01',
-          '2020-08-01',
-          '2020-09-01',
-          '2020-10-01',
-          '2020-11-01',
-          '2020-12-01'
-        ],
+        y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
+        x: months,
         line: { color: '#17BECF' }
       }
-      return [plotData]
+
+      const mad20 = {
+        type: 'line',
+        name: '20% mean annual discharge',
+        y: Array(12).fill(0.2 * meanAnnualDischarge),
+        x: months,
+        line: { color: '#17BECF' }
+      }
+
+      const mad10 = {
+        type: 'line',
+        name: '10% mean annual discharge',
+        y: Array(12).fill(0.1 * meanAnnualDischarge),
+        x: months,
+        line: { color: '#17BECF' }
+      }
+
+      return [plotData, mad20, mad10]
     },
 
     annualNormalizedRunoffSource () {
@@ -149,27 +168,34 @@ export default {
       if (!this.annualIsolineRunoff) {
         return null
       }
+
+      const meanAnnualDischarge = this.annualIsolineRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60
+
       const plotData = {
         type: 'bar',
         name: 'Estimated runoff (using 1961 - 1990 runoff isolines)',
-        y: this.monthlyRunoffCoefficients.map((x) => x * this.annualIsolineRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60),
-        x: [
-          '2020-01-01',
-          '2020-02-01',
-          '2020-03-01',
-          '2020-04-01',
-          '2020-05-01',
-          '2020-06-01',
-          '2020-07-01',
-          '2020-08-01',
-          '2020-09-01',
-          '2020-10-01',
-          '2020-11-01',
-          '2020-12-01'
-        ],
+        y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
+        x: months,
         line: { color: '#17BECF' }
       }
-      return [plotData]
+
+      const mad20 = {
+        type: 'line',
+        name: '20% mean annual discharge',
+        y: Array(12).fill(0.2 * meanAnnualDischarge),
+        x: months,
+        line: { color: '#17BECF' }
+      }
+
+      const mad10 = {
+        type: 'line',
+        name: '10% mean annual discharge',
+        y: Array(12).fill(0.1 * meanAnnualDischarge),
+        x: months,
+        line: { color: '#17BECF' }
+      }
+
+      return [plotData, mad20, mad10]
     }
   },
   methods: {

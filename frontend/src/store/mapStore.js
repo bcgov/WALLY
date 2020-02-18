@@ -108,6 +108,21 @@ export default {
         state.draw.changeMode(drawMode)
       }
     },
+    addFeaturePOIFromCoordinates ({ state, dispatch }, data) {
+      const point = {
+        type: 'Feature',
+        id: 'point_of_interest',
+        geometry: {
+          display_data_name: data.layerName,
+          type: 'Point',
+          coordinates: data.coordinates
+        },
+        display_data_name: data.layerName,
+        properties: {
+        }
+      }
+      dispatch('addPointOfInterest', point)
+    },
     async addPointOfInterest ({ state, dispatch }, feature) {
       if (!state.isMapReady) {
         return
@@ -323,6 +338,7 @@ export default {
 
         console.log('map is now ready')
         // End of cascade; map is now ready
+        commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
       })
     },

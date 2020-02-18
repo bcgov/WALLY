@@ -1,6 +1,6 @@
 import { mapGetters } from 'vuex'
 import qs from 'querystring'
-import ApiService from '../../services/ApiService'
+import ApiService from '../../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
 import { Plotly } from 'vue-plotly'
@@ -112,7 +112,7 @@ export default {
     coordinates () {
       return (this.record && this.record.geometry && this.record.geometry.coordinates) || []
     },
-    ...mapGetters('map', ['isMapLayerActive'])
+    ...mapGetters('map', ['isMapLayerActive', 'isMapReady'])
   },
   methods: {
     exportDrawdownAsSpreadsheet () {
@@ -211,6 +211,20 @@ export default {
         type: 'box',
         name: 'Static Water Level Depth (ft)'
       })
+    },
+    loadFeature () {
+      console.log('load feature')
+      // Load Point of Interest feature from query
+      if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
+        const coordinates = this.$route.query.coordinates.map((x) => Number(x))
+
+        let data = {
+          coordinates: coordinates,
+          layerName: 'point-of-interest'
+        }
+
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
+      }
     }
   },
   watch: {
@@ -222,9 +236,17 @@ export default {
     },
     radius (value) {
       this.fetchWells()
+    },
+    isMapReady (value) {
+      if (value) {
+        this.loadFeature()
+      }
     }
   },
   mounted () {
+    if (this.isMapReady) {
+      this.loadFeature()
+    }
     this.fetchWells()
   },
   beforeDestroy () {
