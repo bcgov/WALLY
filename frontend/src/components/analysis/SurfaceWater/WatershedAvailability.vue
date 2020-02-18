@@ -18,7 +18,7 @@
       </div>
       <div v-if="annualIsolineRunoff">
         <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
-        <div>Watershed area: {{ record.properties['area'].toFixed(2) }} sq. m</div>
+        <div>Watershed area: {{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</div>
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical" target="_blank">
