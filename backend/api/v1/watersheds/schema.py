@@ -14,6 +14,7 @@ class WatershedDetails(BaseModel):
     watershed_area: float
     precip_search_area: Optional[float]
     runoff_isoline_avg: Optional[float]
+    hydrological_zone: Optional[str]
 
 
 class LicenceDetails(BaseModel):

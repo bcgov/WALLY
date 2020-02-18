@@ -1,6 +1,5 @@
 <template>
   <v-container class="pt-5">
-    <MeanAnnualRunoff />
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-vector-line"
@@ -31,13 +30,11 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import SurfaceWater from '../../analysis/SurfaceWater/SurfaceWater'
-import MeanAnnualRunoff from '../../analysis/SurfaceWater/MeanAnnualRunoff'
 
 export default {
   name: 'SurfaceWaterAnalysis',
   components: {
-    SurfaceWater,
-    MeanAnnualRunoff
+    SurfaceWater
   },
   data: () => ({
     licencesLayerAutomaticallyEnabled: false,

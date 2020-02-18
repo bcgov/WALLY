@@ -1,210 +1,244 @@
 <template>
   <div>
-    <v-row class="borderSub">
-      <v-col cols=6>
-        <div class="titleBlock">Watershed Details</div>
-        <v-row class="borderBlock">
-          <v-col>
-            <div class="titleBlock">Drainage Area</div>
-            <div class="infoBlock">
-              {{ modelInputs.drainage_area.toFixed(2) }} 
-            </div>
-            <div class="unitBlock">
-              km^2
-            </div>
-          </v-col>
-        </v-row>
-      </v-col>
-      <v-col cols=6>
-        <div class="titleExp">Watershed Name</div>
-        <div class="unitExp">{{this.record ? this.record.name : ''}}</div>
-        <!-- <div class="titleExp">Average Slope</div>
-        <div class="unitExp">{{modelInputs.average_slope}}</div>
-        <div class="titleExp">Solar Exposure</div>
-        <div class="unitExp">{{modelInputs.solar_exposure}}</div>
-        <div class="titleExp">Evapo-Transpiration</div>
-        <div class="unitExp">{{modelInputs.evapo_transpiration}}</div> -->
+    <v-btn small v-on:click="downloadWatershedInfo()" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+      <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Watershed Info</span>
+    </v-btn>
+  <div id="watershedInfo">
+
+    <v-row v-if="watershedLoading">
+      <v-col>
+        <div class="headerPad titleSub">Calculating Watershed Details</div>
+        <v-progress-linear show indeterminate></v-progress-linear>
       </v-col>
     </v-row>
-
-    <v-row class="borderSub">
-      <v-col cols=4 class="colSub">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-icon size="28" class="float-right" v-on="on">
-                mdi-information-outline
-              </v-icon>
-            </template>
-            <span>Average annual precipitation in mm.</span>
-          </v-tooltip>
-          <div class="titleSub">Annual Precipitation</div>
-        <div class="infoSub">
-          {{ modelInputs.annual_precipitation.toFixed(2) }} 
-        </div>
-        <div class="unitSub">
-          mm
-        </div>
-      </v-col>
-      <v-col cols=4 class="colSub colSubInner">
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-icon size="28" class="float-right" v-on="on">
-              mdi-information-outline
-            </v-icon>
-          </template>
-          <span>Percentage glacial coverage over the selected watershed area.</span>
-        </v-tooltip>
-        <div class="titleSub">Glacial Coverage</div>
-        <div class="infoSub">
-          {{ modelInputs.glacial_coverage.toFixed(2) }} 
-        </div>
-        <div class="unitSub">
-          %
-        </div>
-      </v-col>
-      <v-col cols=4 class="colSub colSubInner">
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-icon size="28" class="float-right" v-on="on">
-              mdi-information-outline
-            </v-icon>
-          </template>
-          <span>Median elevation over the area of the watershed.</span>
-        </v-tooltip>
-        <div class="titleSub">Median Elevation</div>
-        <div class="infoSub">
-          {{ modelInputs.median_elevation.toFixed(2) }} 
-        </div>
-        <div class="unitSub">
-          mASL
-        </div>
-      </v-col>
-    </v-row>
-    
-    <v-row class="borderBlock">
-      <v-col cols=6>
-        <div class="titleBlock">Mean Annual Discharge</div>
-        <div class="infoBlock">
-          {{ modelOutputs.mad.model_result.toFixed(2) }} 
-        </div>
-        <div class="unitBlock">
-          m^3
-        </div>
-      </v-col>
-      <v-col cols=6>
-        <div class="titleExp">Source</div>
-        <div class="unitExp">
-          The CDEM stems from the existing Canadian Digital Elevation Data (CDED). The latter were extracted
-          from the hypsograph
-        </div>
-        <div class="titleExp">Model</div>
-        <div class="unitExp">
-          We used a model based upon South Coast Stewardship Baseline (Brem, Fraser Valley South, Toba, Upper Lillooet) <a
-          href="https://apps.nrs.gov.bc.ca/gwells/"
-          target="_blank"
-          >Source Paper</a>.
-        </div>
-      </v-col>
-    </v-row>
-
-    <v-row class="borderSub">
-      <v-col cols=4 class="colSub">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-icon size="28" class="float-right" v-on="on">
-                mdi-information-outline
-              </v-icon>
-            </template>
-            <span>This the area unit value describing annual runoff.</span>
-          </v-tooltip>
-          <div class="titleSub">Mean Annual Runoff</div>
-        <div class="infoSub">
-          {{ modelOutputs.mar.model_result.toFixed(2) }} 
-        </div>
-        <div class="unitSub">
-          l/s/km^2
-        </div>
-      </v-col>
-      <v-col cols=4 class="colSub colSubInner">
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-icon size="28" class="float-right" v-on="on">
-              mdi-information-outline
-            </v-icon>
-          </template>
-          <span>2-year annual 7-day low flow.</span>
-        </v-tooltip>
-        <div class="titleSub">Low7Q2</div>
-        <div class="infoSub">
-          {{ modelOutputs.low7q2.model_result.toFixed(2) }} 
-        </div>
-        <div class="unitSub">
-          m^3
-        </div>
-      </v-col>
-      <v-col cols=4 class="colSub colSubInner">
-        <v-tooltip top>
-          <template v-slot:activator="{ on }">
-            <v-icon size="28" class="float-right" v-on="on">
-              mdi-information-outline
-            </v-icon>
-          </template>
-          <span>10-year dry return period 7-day late summer (Jun-Sep) low flow.</span>
-        </v-tooltip>
-        <div class="titleSub">Dry7Q10</div>
-        <div class="infoSub">
-          {{ modelOutputs.dry7q10.model_result.toFixed(2) }} 
-        </div>
-        <div class="unitSub">
-          m^3
-        </div>
-      </v-col>
-    </v-row>
-
-
-      <div class="borderBlock">
-        <div class="titleSub">Monthly Discharge</div>
-        <div class="unitSub">
-          m^3
-        </div>
-        <v-data-table
-          :items="getReverseMontlyDischargeItems"
-          :headers="monthHeaders"
-          :hide-default-footer="true"
-        />
-        <!-- <v-data-table
-          :items="getMonthlyDischargeItems"
-          :headers="monthlyDischargeHeaders"
-          :hide-default-footer="true"
-        /> -->
-        <Plotly v-if="monthlyDischargeData"
-          :layout="monthlyDischargeLayout"
-          :data="monthlyDischargeData"
-        ></Plotly>
-      </div>
-
-      <div class="borderBlock">
-        <div class="titleSub">Monthly Distribution</div>
-        <div class="unitSub">
-          Annual %
-        </div>
-        <v-data-table
-          :items="getMonthlyDistributionItems"
-          :headers="monthlydistributionHeaders"
-          :hide-default-footer="true"
-        >
-          <!-- <template v-slot:item="{ item }">
-            {{ (item.model_result.toFixed(4) * 100) + '%' }}
-          </template> -->
-        </v-data-table>
-        <Plotly v-if="monthlyDistributionsData"
-          :layout="monthlyDistributionsLayout"
-          :data="monthlyDistributionsData"
-        ></Plotly>
-      </div>
-
-    
+    <div v-else-if="error">
+      <v-row class="borderBlock">
+        <v-col>
+          <div class="titleSub">Error Calculating Watershed</div>
+          <div class="infoSub">
+            {{error}}
+          </div>
+        </v-col>
+      </v-row>
     </div>
+    <div v-else>
+      <v-row>
+        <v-col cols=7>
+          <!-- <div class="titleBlock">Watershed Details</div> -->
+          <v-row class="borderBlock">
+            <v-col>
+              <div class="titleBlock">Watershed</div>
+              <div class="infoBlock">
+                {{watershedName}}
+              </div>
+            </v-col>
+          </v-row>
+        </v-col>
+
+        <v-col cols=5>
+          <v-row class="borderBlock">
+            <v-col>
+              <div class="titleBlock">Drainage Area</div>
+              <div class="infoBlock">
+                {{ modelInputs.drainage_area.toFixed(2) }} 
+              </div>
+              <div class="unitBlock">
+                km^2
+              </div>
+            </v-col>
+          </v-row>
+        </v-col>
+        <!-- <v-col cols=6>
+          <div class="titleExp">Watershed Name</div>
+          <div class="unitExp">{{this.record ? this.record.properties.GNIS_NAME_1 : ''}}</div>
+          <div class="titleExp">Average Slope</div>
+          <div class="unitExp">{{modelInputs.average_slope}}</div>
+          <div class="titleExp">Solar Exposure</div>
+          <div class="unitExp">{{modelInputs.solar_exposure}}</div>
+          <div class="titleExp">Evapo-Transpiration</div>
+          <div class="unitExp">{{modelInputs.evapo_transpiration}}</div>
+        </v-col> -->
+      </v-row>
+
+      <v-row class="borderSub">
+        <v-col cols=4 class="colSub">
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-icon size="28" class="float-right" v-on="on">
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              <span>Average annual precipitation in mm.</span>
+            </v-tooltip>
+            <div class="titleSub">Annual Precipitation</div>
+          <div class="infoSub">
+            {{ modelInputs.annual_precipitation.toFixed(2) }} 
+          </div>
+          <div class="unitSub">
+            mm
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSub colSubInner">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-icon size="28" class="float-right" v-on="on">
+                mdi-information-outline
+              </v-icon>
+            </template>
+            <span>Percentage glacial coverage over the selected watershed area.</span>
+          </v-tooltip>
+          <div class="titleSub">Glacial Coverage</div>
+          <div class="infoSub">
+            {{ modelInputs.glacial_coverage.toFixed(2) }} 
+          </div>
+          <div class="unitSub">
+            %
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSub colSubInner">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-icon size="28" class="float-right" v-on="on">
+                mdi-information-outline
+              </v-icon>
+            </template>
+            <span>Median elevation over the area of the watershed.</span>
+          </v-tooltip>
+          <div class="titleSub">Median Elevation</div>
+          <div class="infoSub">
+            {{ modelInputs.median_elevation.toFixed(2) }} 
+          </div>
+          <div class="unitSub">
+            mASL
+          </div>
+        </v-col>
+      </v-row>
+      
+      <v-row class="borderBlock">
+        <v-col cols=6>
+          <div class="titleBlock">Mean Annual Discharge</div>
+          <div class="infoBlock">
+            {{ modelOutputs.mad.model_result.toFixed(2) }} 
+          </div>
+          <div class="unitBlock">
+            m^3
+          </div>
+        </v-col>
+        <v-col cols=6>
+          <div class="titleExp">Source</div>
+          <div class="unitExp">
+            The CDEM stems from the existing Canadian Digital Elevation Data (CDED). The latter were extracted
+            from the hypsograph
+          </div>
+          <div class="titleExp">Model</div>
+          <div class="unitExp">
+            We used a model based upon South Coast Stewardship Baseline (Brem, Fraser Valley South, Toba, Upper Lillooet) <a
+            href="https://apps.nrs.gov.bc.ca/gwells/"
+            target="_blank"
+            >Source Paper</a>.
+          </div>
+        </v-col>
+      </v-row>
+
+      <v-row class="borderSub">
+        <v-col cols=4 class="colSub">
+            <v-tooltip top>
+              <template v-slot:activator="{ on }">
+                <v-icon size="28" class="float-right" v-on="on">
+                  mdi-information-outline
+                </v-icon>
+              </template>
+              <span>This the area unit value describing annual runoff.</span>
+            </v-tooltip>
+            <div class="titleSub">Mean Annual Runoff</div>
+          <div class="infoSub">
+            {{ modelOutputs.mar.model_result.toFixed(2) }} 
+          </div>
+          <div class="unitSub">
+            l/s/km^2
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSub colSubInner">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-icon size="28" class="float-right" v-on="on">
+                mdi-information-outline
+              </v-icon>
+            </template>
+            <span>2-year annual 7-day low flow.</span>
+          </v-tooltip>
+          <div class="titleSub">Low7Q2</div>
+          <div class="infoSub">
+            {{ modelOutputs.low7q2.model_result.toFixed(2) }} 
+          </div>
+          <div class="unitSub">
+            m^3
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSub colSubInner">
+          <v-tooltip top>
+            <template v-slot:activator="{ on }">
+              <v-icon size="28" class="float-right" v-on="on">
+                mdi-information-outline
+              </v-icon>
+            </template>
+            <span>10-year dry return period 7-day late summer (Jun-Sep) low flow.</span>
+          </v-tooltip>
+          <div class="titleSub">Dry7Q10</div>
+          <div class="infoSub">
+            {{ modelOutputs.dry7q10.model_result.toFixed(2) }} 
+          </div>
+          <div class="unitSub">
+            m^3
+          </div>
+        </v-col>
+      </v-row>
+
+
+        <div class="borderBlock">
+          <div class="titleSub">Monthly Discharge</div>
+          <div class="unitSub">
+            m^3
+          </div>
+          <v-data-table
+            :items="getReverseMontlyDischargeItems"
+            :headers="monthHeaders"
+            :hide-default-footer="true"
+          />
+          <!-- <v-data-table
+            :items="getMonthlyDischargeItems"
+            :headers="monthlyDischargeHeaders"
+            :hide-default-footer="true"
+          /> -->
+          <Plotly v-if="monthlyDischargeData"
+            :layout="monthlyDischargeLayout"
+            :data="monthlyDischargeData"
+          ></Plotly>
+        </div>
+
+        <div class="borderBlock">
+          <div class="titleSub">Monthly Distribution</div>
+          <div class="unitSub">
+            Annual %
+          </div>
+          <v-data-table
+            :items="getMonthlyDistributionItems"
+            :headers="monthlydistributionHeaders"
+            :hide-default-footer="true"
+          >
+            <!-- <template v-slot:item="{ item }">
+              {{ (item.model_result.toFixed(4) * 100) + '%' }}
+            </template> -->
+          </v-data-table>
+          <Plotly v-if="monthlyDistributionsData"
+            :layout="monthlyDistributionsLayout"
+            :data="monthlyDistributionsData"
+          ></Plotly>
+        </div>
+
+      </div>
+      </div>
+      </div>
 </template>
 
 <script>
@@ -212,6 +246,8 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import { Plotly } from 'vue-plotly'
 import moment from 'moment'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 
 export default {
   name: 'MeanAnnualRunoff',
@@ -220,6 +256,8 @@ export default {
   },
   props: ['watershedID', 'record'],
   data: () => ({
+    watershedLoading: false,
+    error: null,
     modelInputs: {
       median_elevation: 0,
       average_slope: 0,
@@ -265,6 +303,19 @@ export default {
   }),
   computed: {
     ...mapGetters('map', ['map']),
+    watershedName () {
+      if(!this.record) {
+        return ''
+      }
+      let name = ''
+      let props = this.record.properties
+      name = props.GNIS_NAME_1 ? props.GNIS_NAME_1 : 
+        props.SOURCE_NAME ? props.SOURCE_NAME : 
+        props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID : 
+        props.OBJECTID
+      
+      return name
+    },
     monthlyDistributionsData () {
       if (!this.modelOutputs.monthlyDistributions) {
         return null
@@ -320,7 +371,10 @@ export default {
   },
   methods: {
     fetchModelData () {
-      ApiService.query(`/api/v1/marmodel?zone=25&polygon=[[[-123.02201370854334,50.12217755683673],[-122.9494857102976,50.11744970738056],[-122.96039700206931,50.13985145871305],[-123.02201370854334,50.12217755683673]]]`)
+      this.watershedLoading = true
+      this.error = null
+      // ApiService.query(`/api/v1/marmodel?zone=25&polygon=[[[-123.02201370854334,50.12217755683673],[-122.9494857102976,50.11744970738056],[-122.96039700206931,50.13985145871305],[-123.02201370854334,50.12217755683673]]]`)
+      ApiService.query(`/api/v1/marmodel/${this.watershedID}`)
         .then(r => {
           if (r.data && r.data.model_outputs && r.data.model_inputs) {
             let outputs = r.data.model_outputs
@@ -339,9 +393,12 @@ export default {
             }
             this.modelInputs = r.data.model_inputs
           }
+          this.watershedLoading = false
         })
         .catch(e => {
           console.error(e)
+          this.error = e
+          this.watershedLoading = false
         })
     },
     monthlyDistributionsLayout () {
@@ -372,7 +429,34 @@ export default {
           }
         }
       }
-    }
+    },
+    downloadWatershedInfo (plotType) {
+      var elementHandler = {
+        '#ignorePDF': function (element, renderer) {
+          return true;
+        }
+      }
+
+      let doc = jsPDF('p', 'in', [230, 900])
+      let width = doc.internal.pageSize.getWidth()
+      let height = doc.internal.pageSize.getHeight()
+      let filename = 'watershed--'.concat(this.watershedName) + '--'.concat(new Date().toISOString()) + '.pdf'
+      // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
+      // doc.save(filename)
+      html2canvas(document.getElementById("watershedInfo")).then(canvas => {
+        let img = canvas.toDataURL('image/png')
+        const imgProps = doc.getImageProperties(img)
+        let size = this.scaleImageToFit(width, height, imgProps.width, imgProps.height)
+        doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
+        doc.save(filename)
+      })
+    },
+    scaleImageToFit (ws, hs, wi, hi) {
+      let ri = wi / hi
+      let rs = ws / hs
+      let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
+      return size
+    },
 
   },
   mounted () {
@@ -449,5 +533,8 @@ export default {
   font-weight: 600;
   font-size: 18px;
   border-bottom: 1px solid #dadce0;
+}
+.headerPad {
+  padding: 36px 54px 38px 50px;
 }
 </style>

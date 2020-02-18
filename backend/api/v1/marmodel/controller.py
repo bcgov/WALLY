@@ -53,7 +53,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     median_elevation = Decimal(sea_result["averageElevation"]) # api doesn't return median elevation
     average_slope = Decimal(sea_result["slope"])
     solar_exposure = Decimal(hillshade(sea_result["slope"], sea_result["aspect"]))
-    drainage_area = Decimal(transform(transform_4326_3005, polygon).area) / 1000
+    drainage_area = Decimal(transform(transform_4326_3005, polygon).area) / Decimal(1e6)
     glacial_coverage = Decimal(glacier_result[1])
     annual_precipitation = Decimal(precipitation_result["avg_mm"])
     evapo_transpiration = Decimal(potential_evapotranspiration) # 650 # temporary default
@@ -117,14 +117,15 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     }
 
 
-def get_hydrological_zone(point: str = Query("", title="Search point",
-                                             description="Point to search within")):
+def get_hydrological_zone(point=None):
     """
     Lookup which hydrological zone a point falls within
     """
+    if not point:
+        return None
+
     hydrologic_zones = databc_feature_search('WHSE_WATER_MANAGEMENT.HYDZ_HYDROLOGICZONE_SP',
                                              search_area=point)
-
     if hydrologic_zones.features:
         hydrologic_zone_number = hydrologic_zones.features[0].properties["HYDROLOGICZONE_NO"]
     else:
@@ -151,7 +152,6 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     payload = "format=json&aoi={\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"MultiPolygon\", \"coordinates\":" \
         + str(coordinates) + \
         "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
-    logger.warning(payload)
 
     try:
         response = requests.post(sea_url, headers=headers, data=payload)
@@ -160,10 +160,11 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         raise HTTPException(status_code=error.response.status_code, detail=str(error))
     
     result = response.json()
+    logger.warning("sea result")
     logger.warning(result)
 
     if result["status"] != "SUCCESS":
-        raise HTTPException(500, detail=result["message"])
+        raise HTTPException(204, detail=result["message"])
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
