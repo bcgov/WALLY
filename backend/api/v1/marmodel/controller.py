@@ -40,8 +40,9 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
 
     # async data lookups
     glacier_result = calculate_glacial_area(db, polygon)
-    sea_result = {"averageElevation": 800 ,"slope": 31, "aspect": 0.45 } # get_slope_elevation_aspect(polygon)
-    precipitation_result = calculate_runoff_in_area(db, polygon) # pcic_data_request(polygon)
+    sea_result = get_slope_elevation_aspect(polygon) # {"averageElevation": 800 ,"slope": 31, "aspect": 0.45 }
+    precipitation_result = calculate_runoff_in_area(db, polygon) #  pcic_data_request(polygon) #
+    # logger.warning(precipitation_result)
     temp_data = get_temperature(polygon)
     potential_evapotranspiration = calculate_potential_evapotranspiration_thornthwaite(
         polygon, temp_data
@@ -55,8 +56,8 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     drainage_area = Decimal(transform(transform_4326_3005, polygon).area) / 1000
     glacial_coverage = Decimal(glacier_result[1])
     annual_precipitation = Decimal(precipitation_result["avg_mm"])
-    evapo_transpiration = potential_evapotranspiration # 650 # temporary default
-    
+    evapo_transpiration = Decimal(potential_evapotranspiration) # 650 # temporary default
+
     logger.warning("**** CALCULATED VALUES ****")
     logger.warning("med.elev.: " + str(median_elevation) + " m")
     logger.warning("avg slope: " + str(average_slope))
@@ -66,13 +67,13 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
 
     model_inputs = {
-      "median_elevation": median_elevation,
-      "average_slope": average_slope,
-      "solar_exposure": solar_exposure,
-      "drainage_area": drainage_area,
-      "glacial_coverage": glacial_coverage,
-      "annual_precipitation": annual_precipitation,
-      "evapo_transpiration": evapo_transpiration
+        "median_elevation": median_elevation,
+        "average_slope": average_slope,
+        "solar_exposure": solar_exposure,
+        "drainage_area": drainage_area,
+        "glacial_coverage": glacial_coverage,
+        "annual_precipitation": annual_precipitation,
+        "evapo_transpiration": evapo_transpiration
     }
     
     model_outputs = []
