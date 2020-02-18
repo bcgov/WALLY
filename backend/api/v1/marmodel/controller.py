@@ -12,7 +12,7 @@ from shapely import geometry
 from api.v1.aggregator.helpers import transform_4326_3005
 from fastapi import Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
-from api.v1.watersheds.controller import calculate_glacial_area, pcic_data_request
+from api.v1.watersheds.controller import calculate_glacial_area, pcic_data_request, get_temperature, calculate_potential_evapotranspiration_thornthwaite
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 from api.v1.isolines.controller import calculate_runoff_in_area
 
@@ -42,6 +42,10 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     glacier_result = calculate_glacial_area(db, polygon)
     sea_result = {"averageElevation": 800 ,"slope": 31, "aspect": 0.45 } # get_slope_elevation_aspect(polygon)
     precipitation_result = calculate_runoff_in_area(db, polygon) # pcic_data_request(polygon)
+    temp_data = get_temperature(polygon)
+    potential_evapotranspiration = calculate_potential_evapotranspiration_thornthwaite(
+        polygon, temp_data
+    )
 
     # set input variables
     # * TODO * ask sea folks to include median elevation in result
@@ -51,7 +55,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     drainage_area = Decimal(transform(transform_4326_3005, polygon).area) / 1000
     glacial_coverage = Decimal(glacier_result[1])
     annual_precipitation = Decimal(precipitation_result["avg_mm"])
-    evapo_transpiration = 650 # temporary default
+    evapo_transpiration = potential_evapotranspiration # 650 # temporary default
     
     logger.warning("**** CALCULATED VALUES ****")
     logger.warning("med.elev.: " + str(median_elevation) + " m")
@@ -61,7 +65,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     logger.warning("gla.cov.: " + str(glacial_coverage))
     logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
 
-    model_input = {
+    model_inputs = {
       "median_elevation": median_elevation,
       "average_slope": average_slope,
       "solar_exposure": solar_exposure,
@@ -71,7 +75,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
       "evapo_transpiration": evapo_transpiration
     }
     
-    model_output = []
+    model_outputs = []
     # calculate model outputs for gathered inputs,
     # model output types, MAR, MD(x12months), 7Q2, S-7Q10
     for model in models:
@@ -84,7 +88,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
                     model.average_slope_co * average_slope + \
                       model.intercept_co
 
-        model_output.append({
+        model_outputs.append({
             "output_type": model.model_output_type,
             "model_result": model_result,
             "month": model.month,
@@ -94,7 +98,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
         })
         # this is a helper ouput that calculates MAD from MAR
         if model.model_output_type == 'MAR':
-            model_output.append({
+            model_outputs.append({
                 "output_type": 'MAD',
                 "model_result": model_result / 1000 * drainage_area,
                 "month": 0,
@@ -103,12 +107,12 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
                 "steyx": 0
             })
 
-    if not model_output:
+    if not model_outputs:
         raise HTTPException(204, "No model output calculated.")
 
     return {
-        "model_input": model_input,
-        "model_output": model_output
+        "model_inputs": model_inputs,
+        "model_outputs": model_outputs
     }
 
 
