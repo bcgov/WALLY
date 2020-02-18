@@ -61,6 +61,7 @@ export default {
   props: {
     watershedID: null,
     record: null,
+    details: null,
     allWatersheds: {
       type: Array,
       default: () => ([])
@@ -91,10 +92,10 @@ export default {
   },
   computed: {
     watershedArea () {
-      if (!this.record || !this.record.properties['area']) {
+      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
         return null
       }
-      return Number(this.record.properties['area'])
+      return Number(this.record.properties['FEATURE_AREA_SQM'])
     },
     normalizedRunoffByMonth () {
       if (!this.annualNormalizedRunoff || !this.watershedArea) {
@@ -144,10 +145,10 @@ export default {
       return null
     },
     annualIsolineRunoff () {
-      if (!this.record || !this.record.properties['runoff_isoline_avg']) {
+      if (!this.details || !this.details.runoff_isoline_avg) {
         return null
       }
-      return (Number(this.record.properties['runoff_isoline_avg'])).toFixed(2)
+      return (Number(this.details.runoff_isoline_avg)).toFixed(2)
     },
     isolineRunoffByMonth () {
       if (!this.annualIsolineRunoff) {
