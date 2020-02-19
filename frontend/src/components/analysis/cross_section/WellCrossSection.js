@@ -504,10 +504,7 @@ export default {
       })
     },
     downloadMergedImage (plotType) {
-      let doc = jsPDF({
-        unit: 'in',
-        format: [4, 8]
-      })
+      let doc = jsPDF()
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
       let filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'

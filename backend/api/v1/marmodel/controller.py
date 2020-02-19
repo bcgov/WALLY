@@ -58,13 +58,13 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
     annual_precipitation = Decimal(precipitation_result["avg_mm"])
     evapo_transpiration = Decimal(potential_evapotranspiration) # 650 # temporary default
 
-    logger.warning("**** CALCULATED VALUES ****")
-    logger.warning("med.elev.: " + str(median_elevation) + " m")
-    logger.warning("avg slope: " + str(average_slope))
-    logger.warning("sol.exp.: " + str(solar_exposure))
-    logger.warning("dra.area:" + str(drainage_area) + " km2")
-    logger.warning("gla.cov.: " + str(glacial_coverage))
-    logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
+    # logger.warning("**** CALCULATED VALUES ****")
+    # logger.warning("med.elev.: " + str(median_elevation) + " m")
+    # logger.warning("avg slope: " + str(average_slope))
+    # logger.warning("sol.exp.: " + str(solar_exposure))
+    # logger.warning("dra.area:" + str(drainage_area) + " km2")
+    # logger.warning("gla.cov.: " + str(glacial_coverage))
+    # logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
 
     model_inputs = {
         "median_elevation": median_elevation,
