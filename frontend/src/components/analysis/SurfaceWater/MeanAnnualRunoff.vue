@@ -21,7 +21,7 @@
         </v-col>
       </v-row>
     </div>
-    <div v-else>
+    <div v-else-if="record && modelInputs && modelOutputs">
       <v-row>
         <v-col cols=7>
           <!-- <div class="titleBlock">Watershed Details</div> -->

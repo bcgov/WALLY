@@ -149,8 +149,6 @@ def watershed_stats(
     )
 
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-    logger.warning("hydrological_zone")
-    logger.warning(hydrological_zone)
 
     return WatershedDetails(
         glacial_coverage=glacial_coverage,
