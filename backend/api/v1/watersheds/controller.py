@@ -193,12 +193,14 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
             )
         ) as geom """
 
-    logger.info(watershed_feature_id)
-
     res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
                          "include": watershed_feature_id if include_self else None})
 
     record = res.fetchone()
+
+    if not record or not record[0]:
+        logger.warn('unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        return None
 
     return Feature(
         geometry=shape(
@@ -224,8 +226,6 @@ def calculate_watershed(
             func.ST_GeomFromText(point.wkt, 4326)
         )
     )
-
-    logger.info(q)
 
     watershed_id = q.first()
 
