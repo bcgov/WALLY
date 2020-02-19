@@ -40,7 +40,7 @@
             <v-col>
               <div class="titleBlock">Drainage Area</div>
               <div class="infoBlock">
-                {{ modelInputs.drainage_area.toFixed(2) }} 
+                {{ modelInputs.drainage_area.toFixed(2) }}
               </div>
               <div class="unitBlock">
                 km^2
@@ -72,7 +72,7 @@
             </v-tooltip>
             <div class="titleSub">Annual Precipitation</div>
           <div class="infoSub">
-            {{ modelInputs.annual_precipitation.toFixed(2) }} 
+            {{ modelInputs.annual_precipitation.toFixed(2) }}
           </div>
           <div class="unitSub">
             mm
@@ -89,7 +89,7 @@
           </v-tooltip>
           <div class="titleSub">Glacial Coverage</div>
           <div class="infoSub">
-            {{ modelInputs.glacial_coverage.toFixed(2) }} 
+            {{ modelInputs.glacial_coverage.toFixed(2) }}
           </div>
           <div class="unitSub">
             %
@@ -106,19 +106,19 @@
           </v-tooltip>
           <div class="titleSub">Median Elevation</div>
           <div class="infoSub">
-            {{ modelInputs.median_elevation.toFixed(2) }} 
+            {{ modelInputs.median_elevation.toFixed(2) }}
           </div>
           <div class="unitSub">
             mASL
           </div>
         </v-col>
       </v-row>
-      
+
       <v-row class="borderBlock">
         <v-col cols=6>
           <div class="titleBlock">Mean Annual Discharge</div>
           <div class="infoBlock">
-            {{ modelOutputs.mad.model_result.toFixed(2) }} 
+            {{ modelOutputs.mad.model_result.toFixed(2) }}
           </div>
           <div class="unitBlock">
             m^3
@@ -152,7 +152,7 @@
             </v-tooltip>
             <div class="titleSub">Mean Annual Runoff</div>
           <div class="infoSub">
-            {{ modelOutputs.mar.model_result.toFixed(2) }} 
+            {{ modelOutputs.mar.model_result.toFixed(2) }}
           </div>
           <div class="unitSub">
             l/s/km^2
@@ -169,7 +169,7 @@
           </v-tooltip>
           <div class="titleSub">Low7Q2</div>
           <div class="infoSub">
-            {{ modelOutputs.low7q2.model_result.toFixed(2) }} 
+            {{ modelOutputs.low7q2.model_result.toFixed(2) }}
           </div>
           <div class="unitSub">
             m^3
@@ -186,14 +186,13 @@
           </v-tooltip>
           <div class="titleSub">Dry7Q10</div>
           <div class="infoSub">
-            {{ modelOutputs.dry7q10.model_result.toFixed(2) }} 
+            {{ modelOutputs.dry7q10.model_result.toFixed(2) }}
           </div>
           <div class="unitSub">
             m^3
           </div>
         </v-col>
       </v-row>
-
 
         <div class="borderBlock">
           <div class="titleSub">Monthly Discharge</div>
@@ -280,11 +279,11 @@ export default {
       { text: 'MD(%)', value: 'model_result' },
       { text: 'R2', value: 'r2' },
       { text: 'Adjusted R2', value: 'adjusted_r2' },
-      { text: 'Steyx', value: 'steyx' },
+      { text: 'Steyx', value: 'steyx' }
     ],
     monthlyDischargeHeaders: [
       { text: 'Month', value: 'month' },
-      { text: 'Monthly Discharge m^3', value: 'model_result' },
+      { text: 'Monthly Discharge m^3', value: 'model_result' }
     ],
     monthHeaders: [
       { text: 'Jan', value: 'm1' },
@@ -304,16 +303,16 @@ export default {
   computed: {
     ...mapGetters('map', ['map']),
     watershedName () {
-      if(!this.record) {
+      if (!this.record) {
         return ''
       }
       let name = ''
       let props = this.record.properties
-      name = props.GNIS_NAME_1 ? props.GNIS_NAME_1 : 
-        props.SOURCE_NAME ? props.SOURCE_NAME : 
-        props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID : 
-        props.OBJECTID
-      
+      name = props.GNIS_NAME_1 ? props.GNIS_NAME_1
+        : props.SOURCE_NAME ? props.SOURCE_NAME
+          : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
+            : props.OBJECTID
+
       return name
     },
     monthlyDistributionsData () {
@@ -343,22 +342,24 @@ export default {
       return [plotData]
     },
     getMonthlyDistributionItems () {
-      return this.modelOutputs.monthlyDistributions.map(m => { return { 
-        month: moment.months(m.month - 1), 
-        model_result: (m.model_result * 100).toFixed(2),
-        r2: m.r2,
-        adjusted_r2: m.adjusted_r2,
-        steyx: m.steyx
-      }})
+      return this.modelOutputs.monthlyDistributions.map(m => {
+        return {
+          month: moment.months(m.month - 1),
+          model_result: (m.model_result * 100).toFixed(2),
+          r2: m.r2,
+          adjusted_r2: m.adjusted_r2,
+          steyx: m.steyx
+        }
+      })
     },
     getMonthlyDischargeItems () {
-      return this.modelOutputs.monthlyDistributions.map(m => { return { month: moment.months(m.month - 1), model_result: (m.model_result * this.modelOutputs.mad.model_result).toFixed(4) }})
+      return this.modelOutputs.monthlyDistributions.map(m => { return { month: moment.months(m.month - 1), model_result: (m.model_result * this.modelOutputs.mad.model_result).toFixed(4) } })
     },
     getReverseMontlyDischargeItems () {
       let mds = this.modelOutputs.monthlyDistributions
       let obj = {}
       for (let i = 0; i < mds.length; i++) {
-        obj['m'+(i+1)] = (mds[i].model_result * this.modelOutputs.mad.model_result).toFixed(2)
+        obj['m' + (i + 1)] = (mds[i].model_result * this.modelOutputs.mad.model_result).toFixed(2)
       }
       console.log(obj)
       return [obj]
@@ -418,32 +419,31 @@ export default {
         xaxis: {
           tickformat: '%B',
           title: {
-            text: "Month",
+            text: 'Month',
             standoff: 20
           }
         },
         yaxis: {
           title: {
-            text: "m^3/s",
+            text: 'm^3/s',
             standoff: 20
           }
         }
       }
     },
     downloadWatershedInfo (plotType) {
-      var elementHandler = {
-        '#ignorePDF': function (element, renderer) {
-          return true;
-        }
-      }
-
+      // var elementHandler = {
+      //   '#ignorePDF': function (element, renderer) {
+      //     return true
+      //   }
+      // }
       let doc = jsPDF('p', 'in', [230, 900])
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
       let filename = 'watershed--'.concat(this.watershedName) + '--'.concat(new Date().toISOString()) + '.pdf'
       // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
       // doc.save(filename)
-      html2canvas(document.getElementById("watershedInfo")).then(canvas => {
+      html2canvas(document.getElementById('watershedInfo')).then(canvas => {
         let img = canvas.toDataURL('image/png')
         const imgProps = doc.getImageProperties(img)
         let size = this.scaleImageToFit(width, height, imgProps.width, imgProps.height)
@@ -456,7 +456,7 @@ export default {
       let rs = ws / hs
       let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
       return size
-    },
+    }
 
   },
   mounted () {
