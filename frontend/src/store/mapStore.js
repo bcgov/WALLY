@@ -54,6 +54,99 @@ export default {
     }]
   },
   actions: {
+    async initMapAndDraw ({ commit, dispatch }) {
+      const mapConfig = await ApiService.get('api/v1/config/map')
+      mapboxgl.accessToken = mapConfig.data.mapbox_token
+
+      const zoomConfig = {
+        center: process.env.VUE_APP_MAP_CENTER ? JSON.parse(process.env.VUE_APP_MAP_CENTER) : [-124, 54.5],
+        zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
+      }
+
+      commit('setMap', new mapboxgl.Map({
+        container: 'map', // container id
+        style: mapConfig.data.mapbox_style, // dev or prod map style
+        center: zoomConfig.center, // starting position
+        zoom: zoomConfig.zoomLevel, // starting zoom
+        attributionControl: false, // hide default and re-add to the top left
+        preserveDrawingBuffer: true, // allows image export of the map at
+        // the cost of some performance
+        trackResize: true
+      }))
+
+      const modes = MapboxDraw.modes
+      modes.simple_select.onTrash = this.clearSelections
+      modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_point.onTrash = this.clearSelections
+      modes.direct_select.onTrash = this.clearSelections
+
+      commit('setDraw', new MapboxDraw({
+        modes: modes,
+        displayControlsDefault: false,
+        controls: {
+          // polygon: true,
+          // point: true,
+          // line_string: true,
+          // trash: true
+        }
+      }))
+
+      // Fix for the map not expanding to full size when you resize the
+      // browser window
+      window.addEventListener('resize', () => {
+        dispatch('resizeMap')
+      })
+    },
+    resizeMap ({ state }) {
+      // MapboxGL's resize function gets the canvas container div's dimensions
+      // and repaints the canvas accordingly.
+      // https://github.com/mapbox/mapbox-gl-js/blob/0412fdb247f0f0c0bdb46d1e1465a848e1eea7dc/src/ui/map.js#L558
+
+      // Get the map's parent node height and set the canvas container to
+      // the same height
+      const mapboxglCanvasContainer = document.getElementsByClassName('mapboxgl-canvas-container')[0]
+      const map = document.getElementById('map')
+      mapboxglCanvasContainer.style.height = getComputedStyle(map.parentNode).height
+
+      const infoSheetWidth = document.getElementById('info-sheet')
+        ? getComputedStyle(document.getElementById('info-sheet')).width
+        : 0
+      mapboxglCanvasContainer.style.width = window.innerWidth - infoSheetWidth
+
+      // Mapbox resize takes some time to get the updated height, so it
+      // only works when you wait a bit.
+      // TODO: reconsider this setTimeout
+      setTimeout(() => {
+        state.map.resize()
+      }, 300)
+    },
+    loadMap ({ state, dispatch }) {
+      state.map.on('style.load', () => {
+        dispatch('getMapLayers')
+        dispatch('initStreamHighlights')
+      })
+    },
+    setDrawMode ({ state }, drawMode) {
+      if (state.draw && state.draw.changeMode) {
+        state.isDrawingToolActive = drawMode !== 'simple_select'
+        state.draw.changeMode(drawMode)
+      }
+    },
+    addFeaturePOIFromCoordinates ({ state, dispatch }, data) {
+      const point = {
+        type: 'Feature',
+        id: 'point_of_interest',
+        geometry: {
+          display_data_name: data.layerName,
+          type: 'Point',
+          coordinates: data.coordinates
+        },
+        display_data_name: data.layerName,
+        properties: {
+        }
+      }
+      dispatch('addPointOfInterest', point)
+    },
     async addPointOfInterest ({ state, dispatch }, feature) {
       if (!state.map.loaded()) {
         return

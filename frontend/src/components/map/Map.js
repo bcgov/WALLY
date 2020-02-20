@@ -65,7 +65,8 @@ export default {
       'getStreamLayers',
       'getSelectedStreamBufferData',
       'getUpstreamBufferData',
-      'getDownstreamBufferData'
+      'getDownstreamBufferData',
+      'infoPanelVisible'
     ])
   },
   methods: {
@@ -315,6 +316,10 @@ export default {
     ])
   },
   watch: {
+    infoPanelVisible (value) {
+      // Resize/redraw map in here
+      this.$store.dispatch('map/resizeMap')
+    },
     highlightFeatureData (value) {
       if (value && value.geometry) {
         if (value.geometry.type === 'Point') {
