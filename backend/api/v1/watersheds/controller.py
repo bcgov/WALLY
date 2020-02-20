@@ -18,7 +18,7 @@ from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.isolines.controller import calculate_runoff_in_area
+from api.v1.models.isolines.controller import calculate_runoff_in_area
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 

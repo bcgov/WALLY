@@ -14,7 +14,7 @@ from fastapi import Depends, HTTPException, Query, Path
 from sqlalchemy.orm import Session
 from api.v1.watersheds.controller import calculate_glacial_area, pcic_data_request, get_temperature, calculate_potential_evapotranspiration_thornthwaite
 from api.v1.aggregator.controller import feature_search, databc_feature_search
-from api.v1.isolines.controller import calculate_runoff_in_area
+from api.v1.models.isolines.controller import calculate_runoff_in_area
 
 logger = logging.getLogger('api')
 
