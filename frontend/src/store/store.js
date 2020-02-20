@@ -1,3 +1,4 @@
+import router from '../router.js'
 export default {
   state: {
     infoPanelVisible: true
@@ -10,6 +11,9 @@ export default {
     }
   },
   mutations: {
+    setInfoPanelVisibility (state, payload) {
+      state.infoPanelVisible = payload
+    },
     toggleInfoPanelVisibility (state, payload) {
       state.infoPanelVisible = payload !== undefined ? payload : !state.infoPanelVisible
     }

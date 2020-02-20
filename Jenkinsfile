@@ -394,9 +394,9 @@ pipeline {
                   "SUFFIX=-${env_name}",
                   "PVC_SIZE=30Gi",
                   "CPU_REQUEST=200m",
-                  "CPU_LIMIT=500m",
+                  "CPU_LIMIT=2",
                   "MEMORY_REQUEST=1Gi",
-                  "MEMORY_LIMIT=2Gi",
+                  "MEMORY_LIMIT=3Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"
                 ))
 
@@ -479,7 +479,7 @@ pipeline {
                   "SUFFIX=-${env_name}",
                   "PVC_SIZE=40Gi",
                   "CPU_REQUEST=500m",
-                  "CPU_LIMIT='1'",
+                  "CPU_LIMIT='3'",
                   "MEMORY_REQUEST=1Gi",
                   "MEMORY_LIMIT=4Gi",
                   "IMAGE_STREAM_NAMESPACE=${project}"

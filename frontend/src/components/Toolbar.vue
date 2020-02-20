@@ -30,11 +30,12 @@
           :outlined="$route.name !== 'layer-selection'"
           width=128
         ><v-icon>layers</v-icon> Layers</v-btn> -->
-        <SelectionMenu></SelectionMenu>
+        <SelectionMenu/>
       </v-toolbar-items>
 
       <div class="flex-grow-1"></div>
       <GeocoderSearch/>
+      <Screenshot/>
     </v-toolbar>
   </div>
 </template>
@@ -43,13 +44,16 @@
 import { mapGetters } from 'vuex'
 import GeocoderSearch from './toolbar/GeocoderSearch'
 import SelectionMenu from './toolbar/SelectionMenu'
-import LayerSelection from './sidebar/LayerSelection'
+import LayerSelection from './toolbar/LayerSelection'
+import Screenshot from './toolbar/Screenshot'
+
 export default {
   name: 'Toolbar',
   components: {
     GeocoderSearch,
     SelectionMenu,
-    LayerSelection
+    LayerSelection,
+    Screenshot
   },
   data: () => ({
     layerSelection: false

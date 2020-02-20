@@ -3,7 +3,7 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import StreamApportionment from '../../../src/components/analysis/StreamApportionment.vue'
+import StreamApportionment from '../../../src/components/analysis/stream_apportionment/StreamApportionment.vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -18,19 +18,25 @@ describe('Stream apportionment tests', () => {
   let wrapper
   let store
   let getters
-  let actions
+  let actions, mutations
 
   beforeEach(() => {
     getters = {
       isMapLayerActive: state => layerId => false
     }
     actions = {
-      addMapLayer: jest.fn()
+      addMapLayer: jest.fn(),
+      clearHighlightLayer: jest.fn(),
+      setMode: jest.fn()
+    }
+    mutations = {
+      setMode: jest.fn()
     }
     let map = {
       namespaced: true,
       getters,
-      actions
+      actions,
+      mutations
     }
     let methods = {
       fetchStreams: jest.fn()
@@ -79,7 +85,7 @@ describe('Stream apportionment tests', () => {
       }
     ]
     wrapper.setData({ streams: data })
-    wrapper.vm.highlightStreams = jest.fn()
+    wrapper.vm.highlightAll = jest.fn()
     wrapper.vm.removeOverlaps()
     expect(wrapper.vm.streams).toEqual(result)
   })
@@ -120,7 +126,7 @@ describe('Stream apportionment tests', () => {
       }
     ]
     wrapper.setData({ streams: data })
-    wrapper.vm.highlightStreams = jest.fn()
+    wrapper.vm.highlightAll = jest.fn()
     wrapper.vm.calculateApportionment()
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)

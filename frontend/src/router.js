@@ -3,15 +3,21 @@ import Router from 'vue-router'
 
 import store from './store'
 
-import LayerSelection from './components/sidebar/LayerSelection'
-import SingleSelectedFeature from './components/sidebar/SingleSelectedFeature'
-import MultipleSelectedFeatures from './components/sidebar/MultipleSelectedFeatures'
-import PointOfInterest from './components/sidebar/cards/PointOfInterest'
-import PolygonTool from './components/sidebar/cards/PolygonTool'
-import CrossSection from './components/sidebar/cards/CrossSection'
-import StreamApportionment from './components/sidebar/cards/StreamApportionment'
-import UpstreamDownstream from './components/sidebar/cards/UpstreamDownstream'
-import Start from './components/sidebar/Start'
+import LayerSelection from './components/toolbar/LayerSelection'
+import SingleSelectedFeature from './components/sidepanel/SingleSelectedFeature'
+import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFeatures'
+import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
+import PolygonTool from './components/sidepanel/cards/PolygonTool'
+import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
+import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
+import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
+import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
+import Start from './components/sidepanel/Start'
+import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
+import WaterRightsLicencesNearbyContainer
+  from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
+import FirstNationsAreasNearbyContainer
+  from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
 
 Vue.use(Router)
 
@@ -25,7 +31,6 @@ const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
-
     {
       path: '/',
       name: 'home',
@@ -59,9 +64,48 @@ const router = new Router({
       }
     },
     {
-      path: '/poi', // TODO: should refactor to be under /features/<feature_id>
-      name: 'place-poi',
+      path: '/point-of-interest', // TODO: should refactor to be under
+      // /features/<feature_id>
+      name: 'point-of-interest',
       component: PointOfInterest,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/water-rights-licences-nearby', // TODO: should refactor to be
+      // under
+      // /features/<feature_id>
+      name: 'water-rights-licences-nearby',
+      component: WaterRightsLicencesNearbyContainer,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/wells-nearby',
+      name: 'wells-nearby',
+      component: WellsNearbyContainer,
+      meta: {
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/first-nations-areas-nearby',
+      name: 'first-nations-areas-nearby',
+      component: FirstNationsAreasNearbyContainer,
       meta: {
         sidebarColumns: {
           md: 6,
@@ -85,7 +129,7 @@ const router = new Router({
     {
       path: '/section', // TODO: should refactor to be under /features/<feature_id>
       name: 'cross-section',
-      component: CrossSection,
+      component: CrossSectionContainer,
       meta: {
         sidebarColumns: {
           md: 6,
@@ -97,7 +141,7 @@ const router = new Router({
     {
       path: '/apportion-demand', // TODO: should refactor to be under /features/<feature_id>
       name: 'stream-apportionment',
-      component: StreamApportionment,
+      component: StreamApportionmentContainer,
       meta: {
         sidebarColumns: {
           md: 6,
@@ -122,6 +166,14 @@ const router = new Router({
       path: '/features',
       name: 'multiple-features',
       component: MultipleSelectedFeatures,
+      meta: {
+        sidebarColumns: {}
+      }
+    },
+    {
+      path: '/surface-water',
+      name: 'surface-water',
+      component: SurfaceWaterAnalysis,
       meta: {
         sidebarColumns: {}
       }

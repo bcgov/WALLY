@@ -8,7 +8,7 @@ from api.v1.aggregator.helpers import transform_4326_3005
 logger = logging.getLogger("isolines")
 
 
-def calculate_runnoff_in_area(db: Session, polygon: MultiPolygon):
+def calculate_runoff_in_area(db: Session, polygon: MultiPolygon):
     """
     Calculates the precipitation runoff using the area of `polygon` which intersects with features from
     the normal annual runoff isolines layer.
@@ -18,9 +18,9 @@ def calculate_runnoff_in_area(db: Session, polygon: MultiPolygon):
 
     features = feature_search(db, [isolines_layer], polygon)
     if features:
-      isoline_features = features[0].geojson.features
-    else: 
-      isoline_features = []
+        isoline_features = features[0].geojson.features
+    else:
+        isoline_features = []
 
     area_total = 0
     runoff_total = 0
@@ -35,9 +35,10 @@ def calculate_runnoff_in_area(db: Session, polygon: MultiPolygon):
             continue
 
         area_total += isoline_clipped.area
-        runoff_total += isoline_clipped.area * (float(isoline["properties"]["ANNUAL_RUNOFF_IN_MM"]) / 1000)
+        runoff_total += isoline_clipped.area * \
+            (float(isoline["properties"]["ANNUAL_RUNOFF_IN_MM"]) / 1000)
 
     return {
-      "area": area_total,
-      "runoff": runoff_total
+        "area": area_total,
+        "runoff": runoff_total
     }

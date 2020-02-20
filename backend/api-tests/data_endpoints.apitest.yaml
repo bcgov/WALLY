@@ -281,3 +281,18 @@ requests:
       layer: water_rights_licences
     expect:
       status: 200
+  - name: Watersheds available at point
+    url: "{{host}}/api/v1/watersheds/?point=%5B-122.99920612772564%2C50.09566411230176%5D"
+    method: get
+    expect:
+      status: 200
+  # - name: Watershed licences
+  #   url: "{{host}}/api/v1/watersheds/366533/licences"
+  #   method: get
+  #   expect:
+  #     status: 200
+  # - name: Watershed details
+  #   url: "{{host}}/api/v1/watersheds/366533"
+  #   method: get
+  #   expect:
+  #     status: 200

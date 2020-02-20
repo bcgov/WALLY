@@ -81,7 +81,8 @@ def load_dev_data():
 
                     db_session.add_all(instances)
                 else:
-                    logger.info(f"Skipping Subset: {filename} data already exists")
+                    logger.info(
+                        f"Skipping Subset: {filename} data already exists")
 
     logger.info("Subset Data Load - Complete")
     db_session.commit()
@@ -106,7 +107,6 @@ def main():
 
     logger.info(
         "refreshing materialized views (cached list of features and locations)")
-    refresh_geocoder_view()
 
 
 if __name__ == "__main__":

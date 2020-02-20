@@ -112,7 +112,8 @@ export default {
   computed: {
     ...mapGetters('map', [
       'getMapLayer',
-      'map'
+      'map',
+      'isMapReady'
     ]),
     ...mapGetters([
       'loadingFeature',
@@ -120,6 +121,13 @@ export default {
       'singleSelectionFeatures',
       'dataMartFeatureInfo'
     ])
+  },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.loadFeature()
+      }
+    }
   },
   methods: {
     handleCloseSingleFeature () {
@@ -148,39 +156,26 @@ export default {
       }
       return {}
     },
-    whenMapReady (callback) {
-      if (this.map && this.map.loaded()) {
-        return callback()
-      } else {
-        setTimeout(this.whenMapReady, 100, callback)
-      }
-    },
     loadFeature () {
       if ((!!this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name) || !this.$route.query.location) {
         // feature already exists
         return
       }
-      const point = {
-        type: 'Feature',
-        id: 'point_of_interest',
-        geometry: {
-          display_data_name: this.$route.query.layer,
-          type: 'Point',
-          coordinates: this.$route.query.location.split(',').map((x) => Number(x))
-        },
-        properties: {
-        }
+
+      const coordinates = this.$route.query.location.split(',').map((x) => Number(x))
+      let data = {
+        coordinates: coordinates,
+        layerName: this.$route.query.layer
       }
 
       if (this.$route.query.layer === 'point_of_interest') {
-        this.$store.dispatch('map/addPointOfInterest', point)
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
       } else {
         this.$router.push('/')
       }
     }
   },
   mounted () {
-    this.whenMapReady(this.loadFeature)
   }
 }
 </script>

@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 export default {
   name: 'Start',
   data: () => ({
@@ -17,11 +17,9 @@ export default {
   }),
   methods: {
     selectPoint () {
-      this.draw.changeMode('draw_point')
-    }
-  },
-  computed: {
-    ...mapGetters('map', ['draw'])
+      this.setDrawMode('draw_point')
+    },
+    ...mapActions('map', ['setDrawMode'])
   }
 }
 </script>

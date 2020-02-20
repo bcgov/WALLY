@@ -17,7 +17,7 @@
             v-for="(item, index) in selectionOptions"
             :key="index"
             active-class="font-weight-bold"
-            @click="toggleInfoPanelIfClosed"
+            @click="openInfoPanelIfClosed"
             :to="item.route"
           >
             <v-list-item-icon><v-icon v-if="item.icon">{{item.icon}}</v-icon></v-list-item-icon>
@@ -55,7 +55,6 @@
             :key="index"
             :to="item.route"
             active-class="font-weight-bold"
-            @click="toggleInfoPanelIfClosed"
           >
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
@@ -72,7 +71,7 @@ export default {
     selectionOptions: [
       {
         title: 'Place a point of interest',
-        route: { name: 'place-poi' },
+        route: { name: 'point-of-interest' },
         icon: 'mdi-map-marker'
       },
       {
@@ -93,7 +92,12 @@ export default {
       {
         title: 'Assign demand at a point to nearby streams',
         route: { name: 'stream-apportionment' }
+      },
+      {
+        title: 'Surface water analysis',
+        route: { name: 'surface-water' }
       }
+
     ]
   }),
   computed: {
@@ -109,15 +113,14 @@ export default {
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('clearDisplayTemplates')
-      this.$store.commit('toggleInfoPanelVisibility', false)
+      this.$store.commit('setInfoPanelVisibility', false)
 
       setTimeout(() => this.map.resize(), 0)
     },
-    toggleInfoPanelIfClosed () {
+    openInfoPanelIfClosed () {
       setTimeout(() => {
         if (!this.infoPanelVisible) {
-          this.$store.commit('toggleInfoPanelVisibility', true)
+          this.$store.commit('setInfoPanelVisibility', true)
         }
       }, 0)
     }

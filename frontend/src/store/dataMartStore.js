@@ -22,20 +22,20 @@ export default {
     },
     getDataMartFeatures ({ commit, state }, payload) {
       if (!payload.layers || !payload.layers.length) {
-        EventBus.$emit('info', 'No layers selected. Choose one or more layers and make another selection.')
+        // no layers selected - stop here.
         return
       }
       commit('setLoadingFeature', true)
       commit('setFeatureError', '')
       commit('setLoadingMultipleFeatures', true)
-      var layers = payload.layers.map((x) => {
+      const layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
-      var width = 'width=' + payload.size.x + '&'
-      var height = 'height=' + payload.size.y
-      var params = layers.join('') + polygonQ + width + height
+      const width = 'width=' + payload.size.x + '&'
+      const height = 'height=' + payload.size.y
+      const params = layers.join('') + polygonQ + width + height
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
@@ -74,6 +74,8 @@ export default {
             })
           }
 
+          console.log('found feature(s) on map', featureCount)
+
           // Check whether there is a single feature being returned in the click area
           if (featureCount > 1) {
             // Multiple features returned
@@ -81,9 +83,13 @@ export default {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
             commit('setDataMartFeatureInfo', {})
-            router.push({
-              name: 'multiple-features'
-            })
+            if (router.currentRoute.name === 'home' ||
+              router.currentRoute.name === 'place-poi' ||
+              router.currentRoute.name === 'multiple-features') {
+              router.push({
+                name: 'multiple-features'
+              })
+            }
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
@@ -167,6 +173,8 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
 
+      console.log('payload display name', payload.display_data_name)
+      console.log('route?', router.currentRoute.name)
       // check if feature info is being reset. If so, stop here and don't alter route.
       if (!payload || payload === {} || !payload.geometry || !payload.display_data_name) {
         return
@@ -183,7 +191,8 @@ export default {
       }
 
       // todo: replace with route.meta option (e.g. "allowRedirect") to control automatically redirecting to feature cards.
-      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'place-poi' || router.currentRoute.name === 'multiple-features') {
+      // if (router.currentRoute.name === 'home' || router.currentRoute.name === 'point-of-interest' || router.currentRoute.name === 'multiple-features') {
+      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'multiple-features') {
         router.push({
           name: 'single-feature',
           query: {
@@ -197,7 +206,6 @@ export default {
     resetDataMartFeatureInfo: (state) => {
       state.dataMartFeatureInfo = { content: { properties: {} } }
       state.featureError = ''
-      router.push('/')
     },
     setLoadingFeature: (state, payload) => { state.loadingFeature = payload },
     setFeatureError: (state, payload) => { state.featureError = payload },
@@ -205,17 +213,7 @@ export default {
       state.dataMartFeatures.push(payload)
     },
     clearDataMartFeatures: (state) => { state.dataMartFeatures = [] },
-    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload },
-    addDataMart (state, payload) {
-      state.activeDataMarts.push(payload)
-      EventBus.$emit(`dataMart:added`, payload)
-    },
-    removeDataMart (state, payload) {
-      state.activeDataMarts = state.activeDataMarts.filter(function (source) {
-        return source.displayDataName !== payload
-      })
-      EventBus.$emit(`dataMart:removed`, payload)
-    }
+    setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,

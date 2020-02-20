@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from geojson import FeatureCollection
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.v1.geocoder.controller import lookup_feature
+from api.v1.geocoder.controller import lookup_feature, address_lookup
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -35,5 +35,8 @@ def geocode_lookup(
     # coordinates, stop the request here and return an empty collection.
     if feature_type == 'coordinates':
         return FeatureCollection(features=[])
+
+    if feature_type == 'street_address':
+        return address_lookup(query)
 
     return lookup_feature(db, query, feature_type)

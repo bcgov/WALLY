@@ -1,6 +1,5 @@
 import qs from 'querystring'
-import ApiService from '../../services/ApiService'
-import EventBus from '../../services/EventBus'
+import ApiService from '../../../services/ApiService'
 import { Plotly } from 'vue-plotly'
 import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
@@ -15,6 +14,8 @@ export default {
     Plotly
   },
   mounted () {
+    this.$store.commit('map/setMode',
+      { type: 'analysis', name: 'cross_section' })
     this.fetchWellsAlongLine()
   },
   props: ['record', 'coordinates', 'panelOpen'],
@@ -93,6 +94,7 @@ export default {
             text: 'Distance (m)'
           }
         },
+        // start and end labls for the xsection chart
         annotations: [
           {
             xref: 'paper',
@@ -113,7 +115,7 @@ export default {
             borderpad: 4,
             bgcolor: '#1A5A96',
             opacity: 0.8
-          }, 
+          },
           {
             xref: 'paper',
             yref: 'paper',
@@ -166,12 +168,12 @@ export default {
             ? w.ground_elevation_from_dem - w.finished_well_depth
             : null
         ),
-        text: this.wells.map(w => w.well_tag_number),
+        text: this.wells.map(w => w.finished_well_depth),
         textposition: 'bottom',
         showlegend: false,
         name: 'Finished well depth (reported)',
         hovertemplate:
-          '<b>WTN</b>: %{text}' + '<br>Bottom elev.: %{y:.1f} m<br>',
+          '<b>Finished Depth: </b> %{text:.2f} m' + '<br><b>Elevation (asl):</b> %{y:.2f} m<br>',
         mode: 'markers',
         type: 'scatter',
         marker: {
@@ -301,8 +303,9 @@ export default {
       ]
     },
     surfaceLayout () {
-      let a = this.surfacePoints[2][0]
-      let b = this.surfacePoints[2][this.surfacePoints[2].length - 1]
+      const emptyArr = ['', '', '']
+      let a = this.surfacePoints[2][0] ? this.surfacePoints[2][0] : emptyArr
+      let b = this.surfacePoints[2][0] ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
 
       return {
         title: '',
@@ -359,7 +362,6 @@ export default {
       if (!this.radiusIsValid(this.radius)) {
         return
       }
-
       this.loading = true
       const params = {
         radius: parseFloat(this.radius),
@@ -367,7 +369,6 @@ export default {
       }
       ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
         .then(r => {
-          console.log(r.data)
           this.wells = r.data.wells
           this.elevations = r.data.elevation_profile
           this.surfacePoints = r.data.surface
@@ -424,7 +425,6 @@ export default {
     },
     fetchWellsLithology (ids) {
       ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
-        console.log(r.data.results)
         let results = r.data.results
         let lithologyList = []
         for (let index = 0; index < results.length; index++) {
@@ -461,9 +461,9 @@ export default {
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'
       // remove old shapes
-      EventBus.$emit('shapes:reset')
+      this.$store.commit('map/removeShapes')
       // add the new one
-      EventBus.$emit('shapes:add', polygon)
+      this.$store.commit('map/addShape', polygon)
     },
     initPlotly () {
       // Subscribe to plotly select and lasso tools
@@ -472,7 +472,7 @@ export default {
       this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
     },
     resetMarkerLabels () {
-      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
+      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return false })
       this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return true })
       PlotlyJS.Fx.hover('2dPlot', [])
       // reset all selection data so points gain back opacity
@@ -484,7 +484,7 @@ export default {
     setMarkerLabels (e) {
       if (e && e.points.length > 0) {
       // This overrides hiding the hover labels
-        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover')
+        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return true })
         this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return false })
         // hide selection box
         this.removeElementsByClass('select-outline')
@@ -567,7 +567,7 @@ export default {
   watch: {
     panelOpen (value) {
       if (value) {
-        this.$store.commit('map/addMapLayer', 'groundwater_wells')
+        this.$store.dispatch('map/addMapLayer', 'groundwater_wells')
         this.setAnnotationMarkers()
       } else {
         this.removeElementsByClass('annotationMarker')
@@ -589,6 +589,7 @@ export default {
   },
   beforeDestroy () {
     // reset shapes when closing this component
-    EventBus.$emit('shapes:reset')
+    this.$store.commit('map/resetMode')
+    this.$store.dispatch('map/clearSelections')
   }
 }

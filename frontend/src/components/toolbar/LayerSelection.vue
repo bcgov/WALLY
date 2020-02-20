@@ -111,12 +111,11 @@ export default {
       return catMap
     },
     handleResetLayers () {
-      this.$store.dispatch('map/clearActiveSelection')
+      this.$store.dispatch('map/clearSelections')
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.dispatch('map/updateActiveMapLayers', [])
       this.$store.commit('resetDataMartFeatureInfo')
       this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('clearDisplayTemplates')
     },
     handleSelectLayer (selectedLayers) {
       this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
@@ -137,6 +136,6 @@ export default {
   }
   #layerSelectionCard {
     z-index: 999!important;
-    max-height: 60vh;
+    max-height: calc(100vh - 150px);
   }
 </style>

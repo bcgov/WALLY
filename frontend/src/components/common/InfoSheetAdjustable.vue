@@ -5,6 +5,7 @@
         elevation="5"
         class="float-left feature-info-sheet"
         v-show="infoPanelVisible"
+        tile
       >
         <slot/>
       </v-sheet>
@@ -37,8 +38,8 @@
         large
         tile
       >
-        <v-icon>mdi-arrow-expand-right</v-icon>
         {{this.panelName}}
+        <v-icon>mdi-chevron-double-right</v-icon>
       </v-btn>
     </v-slide-x-transition>
   </div>
@@ -64,7 +65,7 @@
 
   #info-sheet > .v-sheet {
     z-index: 5;
-    padding: 10px;
+    /*padding: 10px;*/
     height: 100%;
     overflow: scroll;
     width: 50vw;

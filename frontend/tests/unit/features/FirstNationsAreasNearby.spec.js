@@ -3,7 +3,7 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import FirstNationsAreasNearby from '@/components/analysis/FirstNationsAreasNearby.vue'
+import FirstNationsAreasNearby from '@/components/analysis/first_nations_areas_nearby/FirstNationsAreasNearby.vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
