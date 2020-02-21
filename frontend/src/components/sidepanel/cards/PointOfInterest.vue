@@ -41,8 +41,10 @@
     </v-row>
 
     <FeatureAnalysis
-      v-if="this.isPointSelected && dataMartFeatureInfo"
-      :record="dataMartFeatureInfo"/>
+      v-if="this.isPointSelected && pointOfInterest"
+      :record="pointOfInterest"/>
+
+    <router-view></router-view>
 
   </v-container>
 </template>
@@ -63,7 +65,7 @@ export default {
     }
   },
   watch: {
-    dataMartFeatureInfo (value) {
+    pointOfInterest (value) {
       if (value && value.geometry) {
         // Update router
         console.log('updating POI route')
@@ -86,7 +88,7 @@ export default {
     },
     loadFeature () {
       // Load Point of Interest feature from query
-      if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
+      if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
         // load feature from coordinates
         const coordinates = this.$route.query.coordinates.map((x) => Number(x))
 
@@ -103,14 +105,14 @@ export default {
   },
   computed: {
     isPointSelected () {
-      return this.dataMartFeatureInfo && this.dataMartFeatureInfo.geometry
+      return this.pointOfInterest && this.pointOfInterest.geometry
     },
     coordinates () {
-      return this.dataMartFeatureInfo && this.dataMartFeatureInfo.geometry && this.dataMartFeatureInfo.geometry.coordinates.map((x) => {
+      return this.pointOfInterest && this.pointOfInterest.geometry && this.pointOfInterest.geometry.coordinates.map((x) => {
         return Number(x).toFixed(5)
       }).join(', ')
     },
-    ...mapGetters(['dataMartFeatureInfo']),
+    ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['isMapReady', 'draw', 'isDrawingToolActive'])
   },
   mounted () {

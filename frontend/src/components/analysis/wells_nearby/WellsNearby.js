@@ -215,7 +215,7 @@ export default {
     loadFeature () {
       console.log('load feature')
       // Load Point of Interest feature from query
-      if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
+      if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
         const coordinates = this.$route.query.coordinates.map((x) => Number(x))
 
         let data = {

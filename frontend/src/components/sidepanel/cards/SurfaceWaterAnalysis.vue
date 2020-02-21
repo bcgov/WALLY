@@ -12,7 +12,7 @@
       </v-banner>
     </v-toolbar>
     <div
-    v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'point_of_interest'">
+    v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWater></SurfaceWater>
     </div>
 
@@ -76,7 +76,7 @@ export default {
       return this.isMapLayerActive('hydrometric_stream_flow')
     },
     ...mapGetters('map', ['isMapLayerActive']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    ...mapGetters(['pointOfInterest'])
   },
   mounted () {
     if (!this.isHydatLayerEnabled) {

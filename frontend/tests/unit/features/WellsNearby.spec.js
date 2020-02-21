@@ -23,7 +23,7 @@ describe('Wells Nearby', () => {
     getters = {
       isMapLayerActive: state => layerId => false,
       activeMapLayers: () => ([]),
-      dataMartFeatureInfo: () => {
+      pointOfInterest: () => {
       },
       dataMartFeatures: () => [],
       allMapLayers: () => [],

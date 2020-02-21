@@ -22,7 +22,7 @@ describe('FirstNationsAreasNearby.vue', () => {
     getters = {
       isMapLayerActive: state => layerId => false,
       activeMapLayers: () => ([]),
-      dataMartFeatureInfo: () => {
+      pointOfInterest: () => {
       },
       dataMartFeatures: () => [],
       allMapLayers: () => [],

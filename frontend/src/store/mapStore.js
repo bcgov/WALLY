@@ -185,7 +185,7 @@ export default {
       // Active selection is a Point
       if (newFeature.geometry.type === 'Point') {
         newFeature.display_data_name = 'point_of_interest'
-        commit('setDataMartFeatureInfo', newFeature, { root: true })
+        commit('setPointOfInterest', newFeature, { root: true })
         return
       }
 
@@ -291,6 +291,7 @@ export default {
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('removeShapes')
+      commit('resetPointOfInterest', {}, { root: true })
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
     clearHighlightLayer ({ commit, state, dispatch }) {

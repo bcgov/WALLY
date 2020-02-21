@@ -81,7 +81,7 @@ export default {
         value: w.id
       }))
     },
-    ...mapGetters(['dataMartFeatureInfo']),
+    ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['map'])
   },
   methods: {
@@ -119,7 +119,7 @@ export default {
     fetchWatersheds () {
       this.watershedLoading = true
       const params = {
-        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates),
+        point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
         include_self: this.includePOIPolygon
       }
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)

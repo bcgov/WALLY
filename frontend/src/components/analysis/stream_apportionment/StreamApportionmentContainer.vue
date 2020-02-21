@@ -25,13 +25,13 @@
       </v-tooltip>
     </v-toolbar>
     <div
-      v-if="dataMartFeatureInfo &&
-            dataMartFeatureInfo.display_data_name === 'point_of_interest'">
+      v-if="pointOfInterest &&
+            pointOfInterest.display_data_name === 'point_of_interest'">
       <div class="pa-3 mt-3">
-        Point at {{ dataMartFeatureInfo.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
+        Point at {{ pointOfInterest.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
       </div>
       <StreamApportionment
-        :record="dataMartFeatureInfo"
+        :record="pointOfInterest"
         />
     </div>
 
@@ -95,7 +95,7 @@ export default {
       }
     },
     loadFeature () {
-      if ((!this.dataMartFeatureInfo || !this.dataMartFeatureInfo.geometry) && this.$route.query.coordinates) {
+      if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
         // load feature from coordinates
         const coordinates = this.$route.query.coordinates.map((x) => Number(x))
 
@@ -115,7 +115,7 @@ export default {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
     ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    ...mapGetters(['pointOfInterest'])
   },
   watch: {
     isMapReady (value) {
