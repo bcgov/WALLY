@@ -9,6 +9,7 @@ export default {
     activeDataMartLayers: [], // comes from 'activeLayers' on Map.js;
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
+    pointOfInterest: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
     singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
     loadingFeature: false,
@@ -170,6 +171,12 @@ export default {
       // since features may be stacked and/or adjacent, one click will often return several results.
       state.singleSelectionFeatures = payload
     },
+    setPointOfInterest: (state, payload) => {
+      state.pointOfInterest = payload
+    },
+    resetPointOfInterest: (state) => {
+      state.pointOfInterest = { content: { properties: {} } }
+    },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
 
@@ -216,6 +223,7 @@ export default {
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
+    pointOfInterest: state => state.pointOfInterest,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     loadingFeature: state => state.loadingFeature,
