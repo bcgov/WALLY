@@ -98,6 +98,7 @@ def calculate_mean_annual_runoff(db: Session, polygon: MultiPolygon, hydrologica
             "adjusted_r2": model.adjusted_r2,
             "steyx": model.steyx
         })
+        
         # this is a helper ouput that calculates MAD from MAR
         if model.model_output_type == 'MAR':
             model_outputs.append({

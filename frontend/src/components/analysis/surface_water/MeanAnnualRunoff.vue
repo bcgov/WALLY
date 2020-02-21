@@ -320,7 +320,7 @@ export default {
         return null
       }
       const plotData = {
-        type: 'scatter',
+        type: 'bar',
         name: 'Monthly Distributions',
         y: this.modelOutputs.monthlyDistributions.map(m => { return m.model_result }),
         x: this.monthHeaders.map((h) => h.text),
@@ -333,7 +333,7 @@ export default {
         return null
       }
       const plotData = {
-        type: 'scatter',
+        type: 'bar',
         name: 'Monthly Discharge',
         y: this.modelOutputs.monthlyDistributions.map(m => { return m.model_result * this.modelOutputs.mad.model_result }),
         x: this.monthHeaders.map((h) => h.text),
