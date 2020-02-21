@@ -1,6 +1,9 @@
 <template>
   <div>
-    <v-tabs>
+    <div v-if="watershedDetailsLoading">
+      <v-progress-linear indeterminate show></v-progress-linear>
+    </div>
+    <v-tabs v-else>
       <v-tab>Watershed Details</v-tab>
       <v-tab>Climate</v-tab>
       <v-tab>Availability</v-tab>
@@ -47,7 +50,8 @@ export default {
     MeanAnnualRunoff
   },
   data: () => ({
-    watershedDetails: null
+    watershedDetails: null,
+    watershedDetailsLoading: false
   }),
   watch: {
   },
