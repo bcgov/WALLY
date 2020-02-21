@@ -15,7 +15,7 @@ from api.v1.wells import routes as wells
 from api.v1.watersheds import routes as watersheds
 from api.v1.config import routes as config
 from api.v1.models.isolines import routes as isolines
-from api.v1.models.mar import routes as mar
+from api.v1.models.scsb2016 import routes as scsb2016
 
 api_router = APIRouter()
 
@@ -104,8 +104,8 @@ api_router.include_router(
 )
 
 api_router.include_router(
-    mar.router,
-    prefix="/mar",
-    tags=["mar"],
+    scsb2016.router,
+    prefix="/scsb2016",
+    tags=["scsb2016"],
     responses={404: {"description": "Not found"}},
 )

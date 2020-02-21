@@ -45,7 +45,7 @@ from api.v1.watersheds.schema import (
     SurficialGeologyTypeSummary
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
-from api.v1.models.mar.controller import get_hydrological_zone
+from api.v1.models.scsb2016.controller import get_hydrological_zone
 
 logger = getLogger("aggregator")
 

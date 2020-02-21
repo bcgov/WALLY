@@ -10,13 +10,14 @@ from sqlalchemy.orm import Session
 from shapely.geometry import shape, MultiPolygon, Polygon, Point
 from shapely.ops import transform
 from api.db.utils import get_db
-from api.v1.models.mar.controller import calculate_mean_annual_runoff, get_hydrological_zone
+from api.v1.models.scsb2016.controller import calculate_mean_annual_runoff, get_hydrological_zone
 from api.v1.watersheds.controller import get_watershed
 
 logger = getLogger("mar_model")
 
 router = APIRouter()
 
+# South Coast Stewardship Baseline MAR model routes
 
 @router.get('/{watershed_feature}')
 def get_mean_annual_runoff(

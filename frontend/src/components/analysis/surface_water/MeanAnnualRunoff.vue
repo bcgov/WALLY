@@ -374,8 +374,8 @@ export default {
     fetchModelData () {
       this.watershedLoading = true
       this.error = null
-      // ApiService.query(`/api/v1/mar?zone=25&polygon=[[[-123.02201370854334,50.12217755683673],[-122.9494857102976,50.11744970738056],[-122.96039700206931,50.13985145871305],[-123.02201370854334,50.12217755683673]]]`)
-      ApiService.query(`/api/v1/mar/${this.watershedID}`)
+      // ApiService.query(`/api/v1/scsb2016?zone=25&polygon=[[[-123.02201370854334,50.12217755683673],[-122.9494857102976,50.11744970738056],[-122.96039700206931,50.13985145871305],[-123.02201370854334,50.12217755683673]]]`)
+      ApiService.query(`/api/v1/scsb2016/${this.watershedID}`)
         .then(r => {
           if (r.data && r.data.model_outputs && r.data.model_inputs) {
             let outputs = r.data.model_outputs
