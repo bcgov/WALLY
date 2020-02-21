@@ -29,7 +29,6 @@ export default {
   watch: {
     $route (to, from) {
       this.$store.dispatch('map/resizeMap')
-      console.log('route change', to, from )
     }
   },
   computed: {

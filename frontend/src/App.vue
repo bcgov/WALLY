@@ -18,7 +18,7 @@
 <script>
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
-import Home from './components/Home'
+// import Home from './components/Home'
 import HomeSplit from './components/HomeSplit'
 import Notifications from './components/Notifications'
 import '@bcgov/bc-sans/css/BCSans.css'
@@ -29,7 +29,7 @@ export default {
     Header,
     Toolbar,
     Notifications,
-    Home,
+    // Home,
     HomeSplit
   },
   data: () => ({
