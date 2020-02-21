@@ -9,7 +9,12 @@
 
       <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
       <div class="my-5">
-        <div class="mb-3">Annual licenced quantity by use type:</div>
+        <div class="mb-3">
+          Annual licenced quantity by use type:
+          <v-btn  icon @click="licencesInfo = true">
+            <v-icon>info</v-icon>
+          </v-btn>
+        </div>
         <v-data-table
           :items="licenceData.total_qty_by_purpose"
           :headers="licencePurposeHeaders"
@@ -21,6 +26,38 @@
           </template>
         </v-data-table>
       </div>
+      <v-dialog v-model="licencesInfo" max-width="400">
+        <v-card>
+          <v-card-title class="headline">
+            Annual licenced quantity
+          </v-card-title>
+          <v-card-text>
+            Morbi eros orci, euismod id dignissim sodales, consequat quis ipsum. Nam a eleifend tellus. Morbi faucibus varius vestibulum. Vestibulum non molestie odio. Pellentesque eget sollicitudin est. Morbi ac mollis enim. Nulla facilisi.
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="green darken-1" text @click="editingAllocationValues = true; licencesInfo = false">
+              <v-icon small>
+                mdi-tune
+              </v-icon>
+              Allocation values
+            </v-btn>
+            <v-btn text @click="licencesInfo = false">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog v-model="editingAllocationValues" persistent>
+        <v-card>
+          <v-card-title class="headline">
+            Edit monthly allocation values
+          </v-card-title>
+          <v-card-text>Test</v-card-text>
+          <MonthlyAllocationTable></MonthlyAllocationTable>
+          <v-card-actions>
+            <v-btn color="green darken-1" text @click="editingAllocationValues =  licencesInfo = false">Apply</v-btn>
+            <v-btn color="green darken-1" text @click="editingAllocationValues = licencesInfo = false">Cancel</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </div>
   </div>
 </template>
@@ -30,6 +67,8 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 
+import MonthlyAllocationTable from './watershed_demand/MonthlyAllocationTable'
+
 const popup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false
@@ -38,6 +77,7 @@ const popup = new mapboxgl.Popup({
 export default {
   name: 'SurfaceWaterDemand',
   components: {
+    MonthlyAllocationTable
   },
   props: ['watershedID', 'record'],
   data: () => ({
@@ -45,8 +85,11 @@ export default {
     licenceData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty' }
-    ]
+      { text: 'Quantity (m3/year)', value: 'qty' },
+      { text: '', value: 'action', sortable: false }
+    ],
+    editingAllocationValues: false,
+    licencesInfo: false
   }),
   computed: {
     ...mapGetters('map', ['map'])
