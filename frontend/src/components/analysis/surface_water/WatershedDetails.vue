@@ -11,7 +11,7 @@
       <v-tab-item>
         <!-- <WatershedDetails :watershedID="watershedID" :record="record" :details="watershedDetails"/> -->
         <div>
-          <MeanAnnualRunoff :watershedID="watershedID" :record="record"/>
+          <MeanAnnualRunoff :watershedID="watershedID" :record="record" :details="watershedDetails"/>
           <!-- <div class="my-3" v-if="watershedArea">
             <span class="font-weight-bold">Area:</span>
             {{watershedArea.toFixed(1) }} sq. m ({{ (watershedArea / 1e6).toFixed(2)}} sq. km)
@@ -79,6 +79,7 @@ export default {
     }
   },
   mounted () {
+    console.log(this.record)
     this.fetchWatershedDetails()
   }
 }
