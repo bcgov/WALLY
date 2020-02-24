@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="edit" persistent>
+  <v-dialog v-model="showEditDialog" persistent>
     <v-card>
       <v-card-title class="headline">
         Edit monthly allocation values
@@ -25,7 +25,7 @@
         </template>
       </v-simple-table>
       <v-card-actions>
-        <v-btn color="green darken-1" text @click="edit = false">Apply</v-btn>
+        <v-btn color="green darken-1" text @click="showEditDialog = false">Apply</v-btn>
         <v-btn color="green darken-1" text @click="exit">Cancel</v-btn>
       </v-card-actions>
     </v-card>
@@ -43,16 +43,21 @@ export default {
   data: () => ({
     items: [],
     months: moment.months(),
-    edit: this.props.edit,
-    testRows: [1, 2, 3, 4, 5, 6, 7]
+    testRows: [1, 2, 3, 4, 5, 6, 7],
+    showEditDialog: false
   }),
   methods: {
     exit () {
-      this.edit = false
       this.$emit('close', false)
     }
   },
+  watch: {
+    edit (value) {
+      this.showEditDialog = value
+    }
+  },
   mounted () {
+    console.log('edit', this.edit)
   }
 }
 </script>
