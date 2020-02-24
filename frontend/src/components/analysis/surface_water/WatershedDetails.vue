@@ -1,6 +1,9 @@
 <template>
   <div>
-    <v-tabs>
+    <div v-if="watershedDetailsLoading">
+      <v-progress-linear indeterminate show></v-progress-linear>
+    </div>
+    <v-tabs v-else>
       <v-tab>Watershed Details</v-tab>
       <v-tab>Climate</v-tab>
       <v-tab>Availability</v-tab>
@@ -8,7 +11,7 @@
       <v-tab-item>
         <!-- <WatershedDetails :watershedID="watershedID" :record="record" :details="watershedDetails"/> -->
         <div>
-          <MeanAnnualRunoff :watershedID="watershedID" :record="record"/>
+          <MeanAnnualRunoff :watershedID="watershedID" :record="record" :details="watershedDetails"/>
           <!-- <div class="my-3" v-if="watershedArea">
             <span class="font-weight-bold">Area:</span>
             {{watershedArea.toFixed(1) }} sq. m ({{ (watershedArea / 1e6).toFixed(2)}} sq. km)
@@ -47,7 +50,8 @@ export default {
     MeanAnnualRunoff
   },
   data: () => ({
-    watershedDetails: null
+    watershedDetails: null,
+    watershedDetailsLoading: false
   }),
   watch: {
   },
@@ -75,6 +79,7 @@ export default {
     }
   },
   mounted () {
+    console.log(this.record)
     this.fetchWatershedDetails()
   }
 }

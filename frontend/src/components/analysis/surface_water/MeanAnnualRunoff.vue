@@ -5,13 +5,13 @@
     </v-btn>
   <div id="watershedInfo">
 
-    <v-row v-if="watershedLoading">
+    <!-- <v-row v-if="watershedLoading">
       <v-col>
         <div class="headerPad titleSub">Calculating Watershed Details</div>
         <v-progress-linear show indeterminate></v-progress-linear>
       </v-col>
-    </v-row>
-    <div v-else-if="error">
+    </v-row> -->
+    <div v-if="error">
       <v-row class="borderBlock">
         <v-col>
           <div class="titleSub">Error Calculating Watershed</div>
@@ -21,7 +21,7 @@
         </v-col>
       </v-row>
     </div>
-    <div v-else-if="record && modelInputs && modelOutputs">
+    <div v-else-if="details">
       <v-row>
         <v-col cols=7>
           <!-- <div class="titleBlock">Watershed Details</div> -->
@@ -40,7 +40,7 @@
             <v-col>
               <div class="titleBlock">Drainage Area</div>
               <div class="infoBlock">
-                {{ modelInputs.drainage_area.toFixed(2) }}
+                {{ details.drainage_area.toFixed(2) }}
               </div>
               <div class="unitBlock">
                 km^2
@@ -72,7 +72,7 @@
             </v-tooltip>
             <div class="titleSub">Annual Precipitation</div>
           <div class="infoSub">
-            {{ modelInputs.annual_precipitation.toFixed(2) }}
+            {{ details.annual_precipitation.toFixed(0) }}
           </div>
           <div class="unitSub">
             mm
@@ -89,7 +89,7 @@
           </v-tooltip>
           <div class="titleSub">Glacial Coverage</div>
           <div class="infoSub">
-            {{ modelInputs.glacial_coverage.toFixed(2) }}
+            {{ details.glacial_coverage.toFixed(2) }}
           </div>
           <div class="unitSub">
             %
@@ -106,7 +106,7 @@
           </v-tooltip>
           <div class="titleSub">Median Elevation</div>
           <div class="infoSub">
-            {{ modelInputs.median_elevation.toFixed(2) }}
+            {{ details.median_elevation.toFixed(2) }}
           </div>
           <div class="unitSub">
             mASL
@@ -253,7 +253,7 @@ export default {
   components: {
     Plotly
   },
-  props: ['watershedID', 'record'],
+  props: ['watershedID', 'record', 'details'],
   data: () => ({
     watershedLoading: false,
     error: null,
@@ -320,7 +320,7 @@ export default {
         return null
       }
       const plotData = {
-        type: 'scatter',
+        type: 'bar',
         name: 'Monthly Distributions',
         y: this.modelOutputs.monthlyDistributions.map(m => { return m.model_result }),
         x: this.monthHeaders.map((h) => h.text),
@@ -333,7 +333,7 @@ export default {
         return null
       }
       const plotData = {
-        type: 'scatter',
+        type: 'bar',
         name: 'Monthly Discharge',
         y: this.modelOutputs.monthlyDistributions.map(m => { return m.model_result * this.modelOutputs.mad.model_result }),
         x: this.monthHeaders.map((h) => h.text),
@@ -367,40 +367,28 @@ export default {
   },
   watch: {
     watershedID () {
-      this.fetchModelData()
+      // this.fetchModelData()
     }
   },
   methods: {
-    fetchModelData () {
-      this.watershedLoading = true
-      this.error = null
-      // ApiService.query(`/api/v1/mar?zone=25&polygon=[[[-123.02201370854334,50.12217755683673],[-122.9494857102976,50.11744970738056],[-122.96039700206931,50.13985145871305],[-123.02201370854334,50.12217755683673]]]`)
-      ApiService.query(`/api/v1/mar/${this.watershedID}`)
-        .then(r => {
-          if (r.data && r.data.model_outputs && r.data.model_inputs) {
-            let outputs = r.data.model_outputs
-            let mar = outputs.find((x) => x.output_type === 'MAR')
-            let mad = outputs.find((x) => x.output_type === 'MAD')
-            let low7q2 = outputs.find((x) => x.output_type === '7Q2')
-            let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
-            let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
+    updateModelData () {
+        // let outputs = r.data.model_outputs
+        // let mar = outputs.find((x) => x.output_type === 'MAR')
+        // let mad = outputs.find((x) => x.output_type === 'MAD')
+        // let low7q2 = outputs.find((x) => x.output_type === '7Q2')
+        // let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
+        // let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
 
-            this.modelOutputs = {
-              mar: mar,
-              mad: mad,
-              low7q2: low7q2,
-              dry7q10: dry7q10,
-              monthlyDistributions: monthlyDistributions
-            }
-            this.modelInputs = r.data.model_inputs
-          }
-          this.watershedLoading = false
-        })
-        .catch(e => {
-          console.error(e)
-          this.error = e
-          this.watershedLoading = false
-        })
+        // this.modelOutputs = {
+        //   mar: mar,
+        //   mad: mad,
+        //   low7q2: low7q2,
+        //   dry7q10: dry7q10,
+        //   monthlyDistributions: monthlyDistributions,
+        //   madMonthlys: 
+        // }
+        // this.modelInputs = r.data.model_inputs
+       
     },
     monthlyDistributionsLayout () {
       return {
@@ -460,7 +448,7 @@ export default {
 
   },
   mounted () {
-    this.fetchModelData()
+    // this.fetchModelData()
   },
   beforeDestroy () {
   }
