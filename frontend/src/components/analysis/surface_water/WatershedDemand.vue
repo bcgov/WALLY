@@ -11,7 +11,7 @@
       <div class="my-5">
         <div class="mb-3">
           Annual licenced quantity by use type:
-          <v-btn  icon @click="licencesInfo = true">
+          <v-btn  icon @click="show.licencesInfo = true">
             <v-icon>info</v-icon>
           </v-btn>
         </div>
@@ -26,7 +26,7 @@
           </template>
         </v-data-table>
       </div>
-      <v-dialog v-model="licencesInfo" max-width="400">
+      <v-dialog v-model="show.licencesInfo" max-width="400">
         <v-card>
           <v-card-title class="headline">
             Annual licenced quantity
@@ -35,29 +35,17 @@
             Morbi eros orci, euismod id dignissim sodales, consequat quis ipsum. Nam a eleifend tellus. Morbi faucibus varius vestibulum. Vestibulum non molestie odio. Pellentesque eget sollicitudin est. Morbi ac mollis enim. Nulla facilisi.
           </v-card-text>
           <v-card-actions>
-            <v-btn color="green darken-1" text @click="editingAllocationValues = true; licencesInfo = false">
+            <v-btn color="green darken-1" text @click="openEditAllocationTableDialog">
               <v-icon small>
                 mdi-tune
               </v-icon>
               Allocation values
             </v-btn>
-            <v-btn text @click="licencesInfo = false">Cancel</v-btn>
+            <v-btn text @click="show.licencesInfo = false">Cancel</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="editingAllocationValues" persistent>
-        <v-card>
-          <v-card-title class="headline">
-            Edit monthly allocation values
-          </v-card-title>
-          <v-card-text>Test</v-card-text>
-          <MonthlyAllocationTable></MonthlyAllocationTable>
-          <v-card-actions>
-            <v-btn color="green darken-1" text @click="editingAllocationValues =  licencesInfo = false">Apply</v-btn>
-            <v-btn color="green darken-1" text @click="editingAllocationValues = licencesInfo = false">Cancel</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
+      <MonthlyAllocationTable :edit="show.editingAllocationValues" @close="closeEditAllocationTableDialog"></MonthlyAllocationTable>
     </div>
   </div>
 </template>
@@ -88,8 +76,10 @@ export default {
       { text: 'Quantity (m3/year)', value: 'qty' },
       { text: '', value: 'action', sortable: false }
     ],
-    editingAllocationValues: false,
-    licencesInfo: false
+    show: {
+      editingAllocationValues: false,
+      licencesInfo: false
+    }
   }),
   computed: {
     ...mapGetters('map', ['map'])
@@ -165,6 +155,13 @@ export default {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
+    },
+    openEditAllocationTableDialog () {
+      this.show.editingAllocationValues = true
+      this.show.licencesInfo = false
+    },
+    closeEditAllocationTableDialog () {
+      this.show.editingAllocationValues = false
     },
     fetchLicenceData () {
       this.licencesLoading = true
