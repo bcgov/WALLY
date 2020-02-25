@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
@@ -150,13 +150,18 @@ export default {
     recalculateWatershed () {
       this.resetGeoJSONLayers()
       this.fetchWatersheds()
-    }
+    },
+    ...mapMutations('map', [
+      'setMode'
+    ])
   },
   mounted () {
+    this.setMode({ type: 'analyze', name: 'surface_water' })
     this.fetchWatersheds()
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()
+    this.setMode({ type: 'interactive', name: '' })
   }
 }
 </script>
