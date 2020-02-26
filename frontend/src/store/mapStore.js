@@ -308,8 +308,16 @@ export default {
     clearHighlightLayer ({ commit, state, dispatch }) {
       console.log('clearing highlight layer')
 
-      state.map.getSource('highlightPointData').setData(emptyPoint)
-      state.map.getSource('highlightLayerData').setData(emptyPolygon)
+      const highlightPoints = state.map.getSource('highlightPointData')
+      const highlightLayers = state.map.getSource('highlightLayerData')
+
+      if (highlightPoints) {
+        highlightPoints.setData(emptyPoint)
+      }
+
+      if (highlightLayers) {
+        highlightLayers.setData(emptyPolygon)
+      }
       dispatch('clearStreamHighlights')
       dispatch('removeElementsByClass', 'annotationMarker')
       commit('resetStreamData', {}, { root: true })
