@@ -42,8 +42,6 @@
 
           <WatershedClimate ref="anchor-climate" :watershedID="watershedID" :record="record" :details="watershedDetails"/>
 
-          <!-- <WatershedDemand ref="anchor-demand" :watershedID="watershedID" :record="record" :details="watershedDetails"/> -->
-
           <!-- <div class="my-3" v-if="watershedArea">
             <span class="font-weight-bold">Area:</span>
             {{watershedArea.toFixed(1) }} sq. m ({{ (watershedArea / 1e6).toFixed(2)}} sq. km)
@@ -56,7 +54,6 @@
       <!-- <v-tab-item>
         <WatershedAvailability :watershedID="watershedID" :allWatersheds="watersheds" :record="record" :details="watershedDetails"/>
       </v-tab-item>
-      <v-tab-item>
         <WatershedDemand :watershedID="watershedID" :record="record" :details="watershedDetails"/>
       </v-tab-item> -->
     </v-tabs>
@@ -69,7 +66,6 @@
 import ApiService from '../../../services/ApiService'
 
 import WatershedClimate from './WatershedClimate'
-import WatershedDemand from './WatershedDemand'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
 export default {
@@ -77,7 +73,6 @@ export default {
   props: ['watershedID', 'record', 'watersheds'],
   components: {
     WatershedClimate,
-    WatershedDemand,
     WatershedAvailability,
     MeanAnnualRunoff
   },
@@ -101,11 +96,11 @@ export default {
       {
         title: 'Demand',
         anchor: 'anchor-demand'
-      },
+      }
     ]
   }),
   watch: {
-    watershedID(val) {
+    watershedID (val) {
       this.fetchWatershedDetails()
     }
   },
@@ -132,11 +127,11 @@ export default {
           console.error(e)
         })
     },
-    scrollMeTo(refName) {
-      var element = this.$refs[refName];
-      var top = element.offsetTop;
+    scrollMeTo (refName) {
+      var element = this.$refs[refName]
+      var top = element.offsetTop
 
-      window.scrollTo(0, top);
+      window.scrollTo(0, top)
     }
   },
   mounted () {

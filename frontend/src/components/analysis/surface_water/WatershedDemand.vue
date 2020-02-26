@@ -55,7 +55,7 @@ export default {
       { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Quantity (m3/year)', value: 'qty' }
     ],
-    months: {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31},
+    months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     monthHeaders: [
       { text: 'Jan', value: 'm1' },
       { text: 'Feb', value: 'm2' },
@@ -80,14 +80,14 @@ export default {
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
-        y: this.availability.map((val) => { return val - (this.licenceData.total_qty / 12)}),
+        y: this.availability.map((val) => { return val - (this.licenceData.total_qty / 12) }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m^3'
       }
       const licencePlotData = {
         type: 'bar',
         name: 'Monthly Demand',
-        y: Array(12).fill(this.licenceData.total_qty/12),
+        y: Array(12).fill(this.licenceData.total_qty / 12),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m^3'
       }

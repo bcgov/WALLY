@@ -245,7 +245,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import ApiService from '../../../services/ApiService'
 import { Plotly } from 'vue-plotly'
 import moment from 'moment'
 import jsPDF from 'jspdf'
@@ -291,7 +290,7 @@ export default {
       { text: 'Month', value: 'month' },
       { text: 'Monthly Discharge m^3', value: 'model_result' }
     ],
-    months: {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31},
+    months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     secondsInMonth: 86400,
     monthHeaders: [
       { text: 'Type', value: 'type' },
@@ -367,18 +366,18 @@ export default {
     // },
     getReverseMontlyDischargeItems () {
       let mds = this.modelOutputs.monthlyDischarges
-      let rate = {"type": "Rate", "unit": "m^3/s"}
-      let volume = {"type": "Volume", "unit": "m^3"}
+      let rate = { 'type': 'Rate', 'unit': 'm^3/s' }
+      let volume = { 'type': 'Volume', 'unit': 'm^3' }
       for (let i = 0; i < mds.length; i++) {
         rate['m' + (i + 1)] = (mds[i].model_result).toFixed(2)
-        volume['m' + (i + 1)] = (mds[i].model_result * this.months[i+1] * this.secondsInMonth).toFixed(0)
+        volume['m' + (i + 1)] = (mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0)
       }
       return [rate, volume]
     }
   },
   watch: {
     details: {
-      immediate: true, 
+      immediate: true,
       handler (val, oldVal) {
         console.log(val)
         this.updateModelData(val)
@@ -387,32 +386,32 @@ export default {
   },
   methods: {
     updateModelData (details) {
-        let outputs = details.scsb2016_model
-        let mar = outputs.find((x) => x.output_type === 'MAR')
-        let mad = outputs.find((x) => x.output_type === 'MAD' && x.month == 0)
-        let low7q2 = outputs.find((x) => x.output_type === '7Q2')
-        let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
-        let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
-        let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month != 0)
+      let outputs = details.scsb2016_model
+      let mar = outputs.find((x) => x.output_type === 'MAR')
+      let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
+      let low7q2 = outputs.find((x) => x.output_type === '7Q2')
+      let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
+      let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
+      let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
 
-        this.modelOutputs = {
-          mar: mar.model_result.toFixed(2),
-          mad: mad.model_result.toFixed(2),
-          low7q2: low7q2.model_result.toFixed(2),
-          dry7q10: dry7q10.model_result.toFixed(2),
-          monthlyDistributions: monthlyDistributions,
-          monthlyDischarges: monthlyDischarges
-        }
-        this.watershedDetails = {
-          median_elevation: details.median_elevation.toFixed(2),
-          average_slope: details.average_slope,
-          solar_exposure: details.solar_exposure,
-          drainage_area: details.drainage_area.toFixed(2),
-          glacial_coverage: details.glacial_coverage.toFixed(2),
-          annual_precipitation: details.annual_precipitation.toFixed(0),
-          evapo_transpiration: details.potential_evapotranspiration_thornthwaite
-        }
-        this.availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+      this.modelOutputs = {
+        mar: mar.model_result.toFixed(2),
+        mad: mad.model_result.toFixed(2),
+        low7q2: low7q2.model_result.toFixed(2),
+        dry7q10: dry7q10.model_result.toFixed(2),
+        monthlyDistributions: monthlyDistributions,
+        monthlyDischarges: monthlyDischarges
+      }
+      this.watershedDetails = {
+        median_elevation: details.median_elevation.toFixed(2),
+        average_slope: details.average_slope,
+        solar_exposure: details.solar_exposure,
+        drainage_area: details.drainage_area.toFixed(2),
+        glacial_coverage: details.glacial_coverage.toFixed(2),
+        annual_precipitation: details.annual_precipitation.toFixed(0),
+        evapo_transpiration: details.potential_evapotranspiration_thornthwaite
+      }
+      this.availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
     },
     monthlyDistributionsLayout () {
       return {
