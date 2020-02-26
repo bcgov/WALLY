@@ -192,7 +192,7 @@ export default {
       // Active selection is a LineString
       if (newFeature.geometry.type === 'LineString') {
         newFeature.display_data_name = 'user_defined_line'
-        commit('setDataMartFeatureInfo', newFeature, { root: true })
+        commit('setSectionLine', newFeature, { root: true })
         return
       }
 

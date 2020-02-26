@@ -149,7 +149,7 @@ export default {
           x1: w.distance_from_origin,
           y1: w.finished_well_depth
             ? w.ground_elevation_from_dem - w.finished_well_depth
-            : null,
+            : w.ground_elevation_from_dem,
           opacity: 0.5,
           line: {
             color: 'blue',
@@ -166,7 +166,7 @@ export default {
         y: this.wells.map(w =>
           w.finished_well_depth
             ? w.ground_elevation_from_dem - w.finished_well_depth
-            : null
+            : w.ground_elevation_from_dem
         ),
         text: this.wells.map(w => w.finished_well_depth),
         textposition: 'bottom',

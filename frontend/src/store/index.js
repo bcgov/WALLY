@@ -6,6 +6,7 @@ import report from './reportStore'
 import dataMart from './dataMartStore'
 import stream from './streamStore'
 import feature from './featureStore'
+import crossSection from './crossSection'
 
 Vue.use(Vuex)
 
@@ -16,6 +17,7 @@ export default new Vuex.Store({
     dataMart,
     report,
     stream,
-    feature
+    feature,
+    crossSection
   }
 })
