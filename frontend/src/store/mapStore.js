@@ -155,6 +155,18 @@ export default {
       dispatch('addActiveSelection', { featureCollection: { features: [feature] } })
     },
     addActiveSelection ({ commit, dispatch, state }, { featureCollection, options = {} }) {
+      // options:
+      // alwaysReplaceFeatures: indicates that features should always be cleared (even if
+      // there are no new features to replace them).  Toggling this is useful for
+      // changing the behavior of mouse clicks (which probably should not clear
+      // features without warning) vs explicitly searching for features in an area.
+      // (which would be expected to clear features from a previous search area).
+      //
+      // showFeatureList: (deprecated) indicates whether to switch the screen to the feature
+      // list. Setting to false is for preventing switching screens while doing other tasks e.g.
+      // changing layers (which triggers a new search with the new layer included). Made
+      // redundant by separating the layer select screen and feature views.
+
       console.log('active selection - - ', state.isDrawingToolActive)
       // if (state.isDrawingToolActive) {
       //   return false
@@ -162,7 +174,7 @@ export default {
 
       const defaultOptions = {
         showFeatureList: true,
-        replaceFeatures: false
+        alwaysReplaceFeatures: false
       }
 
       options = Object.assign({}, defaultOptions, options)
@@ -197,7 +209,7 @@ export default {
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
-      dispatch('getMapObjects', { bounds: newFeature, options: { replaceFeatures: options.replaceFeatures } })
+      dispatch('getMapObjects', { bounds: newFeature, options: { alwaysReplaceFeatures: options.alwaysReplaceFeatures } })
       commit('setSelectionBoundingBox', newFeature, { root: true })
     },
     updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
@@ -265,9 +277,15 @@ export default {
     },
     async getMapObjects ({ commit, dispatch, state, getters }, { bounds, options = {} }) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
+      // options:
+      // alwaysReplaceFeatures: indicates that features should always be cleared (even if
+      // there are no new features to replace them).  Toggling this is useful for
+      // changing the behavior of mouse clicks (which probably should not clear
+      // features without warning) vs explicitly searching for features in an area.
+      // (which would be expected to clear features from a previous search area).
 
       const defaultOptions = {
-        replaceFeatures: false
+        alwaysReplaceFeatures: false
       }
 
       options = Object.assign({}, defaultOptions, options)
@@ -282,9 +300,9 @@ export default {
         const canvas = await state.map.getCanvas()
         const size = { x: canvas.width, y: canvas.height }
 
-        console.log('discard features before querying: ', options.replaceFeatures)
+        console.log('discard features before querying: ', options.alwaysReplaceFeatures)
 
-        if (options.replaceFeatures) {
+        if (options.alwaysReplaceFeatures) {
           commit('clearDataMartFeatures', {}, { root: true })
         }
 

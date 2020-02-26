@@ -52,6 +52,10 @@ export default {
             return
           }
 
+          // new features were found; the old features can be deleted.
+          commit('resetDataMartFeatureInfo')
+          commit('clearDataMartFeatures')
+
           let feature = {}
           let displayDataName = ''
           let featureCount = 0
@@ -84,7 +88,6 @@ export default {
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
-            commit('setDataMartFeatureInfo', {})
 
             router.push({
               name: 'multiple-features'

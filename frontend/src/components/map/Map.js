@@ -226,8 +226,8 @@ export default {
       }
     },
     listenForAreaSelect () {
-      this.map.on('draw.create', (fc) => this.addActiveSelection({ featureCollection: fc, options: { replaceFeatures: true } }))
-      this.map.on('draw.update', (fc) => this.addActiveSelection({ featureCollection: fc, options: { replaceFeatures: true } }))
+      this.map.on('draw.create', (fc) => this.addActiveSelection({ featureCollection: fc, options: { alwaysReplaceFeatures: true } }))
+      this.map.on('draw.update', (fc) => this.addActiveSelection({ featureCollection: fc, options: { alwaysReplaceFeatures: true } }))
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
