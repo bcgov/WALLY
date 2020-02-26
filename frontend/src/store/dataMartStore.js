@@ -84,13 +84,10 @@ export default {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
             commit('setDataMartFeatureInfo', {})
-            if (router.currentRoute.name === 'home' ||
-              router.currentRoute.name === 'place-poi' ||
-              router.currentRoute.name === 'multiple-features') {
-              router.push({
-                name: 'multiple-features'
-              })
-            }
+
+            router.push({
+              name: 'multiple-features'
+            })
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
@@ -100,8 +97,11 @@ export default {
                 geometry: feature.geometry,
                 properties: feature.properties
               })
-
-            commit('setDataMartFeatures', {})
+            // create a list containing only the single feature returned.
+            // this allows the multiple features card to display something,
+            // and enables easy exporting the single feature as an xlsx
+            // using the same menu as when exporting multiple features.
+            commit('setDataMartFeatures', { [displayDataName]: [feature] })
           }
           commit('setLoadingFeature', false)
         }).catch((error) => {

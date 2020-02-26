@@ -137,7 +137,6 @@ export default {
     }
   },
   beforeDestroy () {
-    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>
