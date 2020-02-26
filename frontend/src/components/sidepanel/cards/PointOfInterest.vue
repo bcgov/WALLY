@@ -36,7 +36,7 @@
         <p>Select a point on the map.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Draw point</v-btn>
+        <v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn>
       </v-col>
     </v-row>
 
@@ -58,8 +58,7 @@ export default {
   },
   data () {
     return {
-      hover: false,
-      buttonClicked: false
+      hover: false
     }
   },
   watch: {
@@ -81,7 +80,6 @@ export default {
   },
   methods: {
     selectPoint () {
-      this.buttonClicked = true
       this.setDrawMode('draw_point')
     },
     loadFeature () {
