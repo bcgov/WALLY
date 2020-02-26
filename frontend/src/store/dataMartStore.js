@@ -48,6 +48,7 @@ export default {
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length
           })) {
+            console.log('no features found - skipping setting datamart features')
             return
           }
 
