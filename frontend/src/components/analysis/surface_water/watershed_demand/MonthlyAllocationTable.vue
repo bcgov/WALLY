@@ -9,14 +9,16 @@
         <template v-slot:default>
           <thead>
           <tr>
+            <th width="300">Purpose Type</th>
             <th scope="col" class="text-left" v-for="month in months" :key="month">{{month}}</th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="row in [1,2,3,4,5]" :key="row">
-            <td v-for="month in months" :key="month">
+          <tr v-for="(purposeType, i) in purposeTypes" :key="purposeType">
+            <td>{{purposeType}}</td>
+            <td v-for="(month, j) in months" :key="month">
               <v-text-field
-                v-model="testRows[row]"
+                v-model="purposeTypeAllocationValues[i][j]"
               >
               </v-text-field>
             </td>
@@ -39,25 +41,44 @@ export default {
   name: 'MonthlyAllocationTable',
   components: {
   },
-  props: ['edit'],
+  props: ['edit', 'qtyByPurpose'],
   data: () => ({
     items: [],
-    months: moment.months(),
+    months: moment.monthsShort(),
     testRows: [1, 2, 3, 4, 5, 6, 7],
-    showEditDialog: false
+    showEditDialog: false,
+    purposeTypes: [],
+    purposeTypeQty: [],
+    purposeTypeAllocationValues: []
   }),
   methods: {
     exit () {
       this.$emit('close', false)
+    },
+    populateTable () {
+      this.purposeTypes = []
+      this.purposeTypeQty = []
+      console.log(this.qtyByPurpose)
+      this.qtyByPurpose.forEach(item => {
+        this.purposeTypes.push(item.purpose)
+        this.purposeTypeQty.push(item.qty)
+        let allocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        this.purposeTypeAllocationValues.push(allocValues)
+      })
+      console.log(this.purposeTypes, this.purposeTypeQty, this.purposeTypeAllocationValues)
     }
   },
   watch: {
     edit (value) {
       this.showEditDialog = value
+    },
+    qtyByPurpose (value) {
+      this.populateTable(value)
     }
   },
   mounted () {
     console.log('edit', this.edit)
+    this.populateTable()
   }
 }
 </script>

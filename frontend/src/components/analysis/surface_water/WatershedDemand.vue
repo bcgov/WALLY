@@ -45,7 +45,10 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <MonthlyAllocationTable :edit="show.editingAllocationValues" @close="closeEditAllocationTableDialog"></MonthlyAllocationTable>
+      <MonthlyAllocationTable
+        :edit="show.editingAllocationValues"
+        :qtyByPurpose="licenceData.total_qty_by_purpose"
+        @close="closeEditAllocationTableDialog"/>
     </div>
   </div>
 </template>
@@ -79,7 +82,8 @@ export default {
     show: {
       editingAllocationValues: false,
       licencesInfo: false
-    }
+    },
+    purposeTypes: []
   }),
   computed: {
     ...mapGetters('map', ['map'])
@@ -171,12 +175,38 @@ export default {
           console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           this.addLicencesLayer('waterLicences', r.data.licences, '#00e676', 0.5, max)
+          this.setPurposeTypes()
           this.licencesLoading = false
         })
         .catch(e => {
           this.licencesLoading = false
           console.error(e)
         })
+    },
+    setPurposeTypes () {
+      // console.log(this.licenceData.total_qty_by_purpose)
+      this.purposeTypes = []
+      this.licenceData.total_qty_by_purpose.forEach(item => {
+        console.log(item)
+        this.purposeTypes.push(item.purpose)
+      })
+      console.log(this.purposeTypes)
+    },
+    computeQuantityPerMonth (qtyPerYear, allocValues) {
+      // alloc values must be empty or length 12
+      let defaultAllocValue = 1
+      let monthlyQty = []
+      let allocFraction
+
+      for (let i = 0; i < 12; i++) {
+        if (allocValues.length === 0) {
+          allocFraction = defaultAllocValue
+        } else {
+          allocFraction = allocValues[i]
+        }
+        monthlyQty.push(qtyPerYear * (allocFraction / 12))
+      }
+      return monthlyQty
     }
   },
   mounted () {
