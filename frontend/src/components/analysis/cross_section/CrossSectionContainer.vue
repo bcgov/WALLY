@@ -20,12 +20,13 @@
       </v-tooltip>
     </v-toolbar>
     <div
-    v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'user_defined_line'">
+    v-if="sectionLine && sectionLine.display_data_name === 'user_defined_line'">
       <WellsCrossSection
-      :record="dataMartFeatureInfo"
-      :coordinates="dataMartFeatureInfo.geometry.coordinates"
+      :record="sectionLine"
+      :coordinates="sectionLine.geometry.coordinates"
+      @crossSection:redraw="() => drawLine({ newLine: true })"
       />
-      <v-btn @click="() => drawLine({ newLine: true })" color="primary" outlined class="mt-5">Draw new line</v-btn>
+
     </div>
 
     <v-row class="pa-5" v-else>
@@ -56,7 +57,7 @@ export default {
   methods: {
     drawLine (options = {}) {
       const newLine = options.newLine || false
-      if (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line') {
+      if (!newLine && this.sectionLine && this.sectionLine.display_data_name === 'user_defined_line') {
         return
       }
       this.setDrawMode('draw_line_string')
@@ -75,7 +76,7 @@ export default {
       return this.isMapLayerActive('groundwater_wells')
     },
     ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    ...mapGetters(['sectionLine'])
   },
   watch: {
     isMapReady (value) {

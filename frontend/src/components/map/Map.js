@@ -226,8 +226,8 @@ export default {
       }
     },
     listenForAreaSelect () {
-      this.map.on('draw.create', this.addActiveSelection)
-      this.map.on('draw.update', this.addActiveSelection)
+      this.map.on('draw.create', (fc) => this.addActiveSelection({ featureCollection: fc, options: { alwaysReplaceFeatures: true } }))
+      this.map.on('draw.update', (fc) => this.addActiveSelection({ featureCollection: fc, options: { alwaysReplaceFeatures: true } }))
     },
     setSingleFeature (e) {
       if (!this.isDrawingToolActive) {
@@ -235,8 +235,9 @@ export default {
         const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }
         const bounds = circle([e.lngLat['lng'], e.lngLat['lat']], radius, options)
+
         // this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
-        this.getMapObjects(bounds)
+        this.getMapObjects({ bounds })
       }
     },
     getPolygonCenter (arr) {

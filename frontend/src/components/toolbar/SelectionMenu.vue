@@ -112,6 +112,7 @@ export default {
       this.$store.commit('map/replaceOldFeatures', null)
       this.$store.dispatch('map/clearHighlightLayer')
       this.$store.commit('resetDataMartFeatureInfo')
+      this.$store.commit('resetPointOfInterest')
       this.$store.commit('clearDataMartFeatures')
       this.$store.commit('setInfoPanelVisibility', false)
 

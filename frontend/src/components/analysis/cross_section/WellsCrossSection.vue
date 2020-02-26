@@ -1,64 +1,63 @@
 <template>
   <v-container>
-    <v-row no-gutters>
-        <v-row>
-          <v-row no-gutters>
-            <v-col cols="12" md="4" align-self="center">
-              <v-text-field
-                label="Buffer Radius (m)"
-                placeholder="200"
-                :rules="[inputRules.number, inputRules.max, inputRules.required]"
-                v-model="radius"
-              ></v-text-field>
-            </v-col>
-          </v-row>
-          <v-tabs>
-            <v-tabs-slider></v-tabs-slider>
-            <v-tab>2D Cross Section</v-tab>
-            <v-tab>3D Surface Section</v-tab>
-            <v-tab-item>
-              <v-row class="mb-3">
-                <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
-                </v-btn>
-                <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>
-                </v-btn>
-                <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Plot</span>
-                </v-btn>
-              </v-row>
-              <v-card-text v-if="loading" class="text-center">
-                <v-progress-circular
-                  indeterminate
-                  class="my-5"
-                  color="grey"
-                ></v-progress-circular>
-              </v-card-text>
-              <v-card v-else flat>
-                <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
-              </v-card>
-            </v-tab-item>
-            <v-tab-item>
-              <v-row>
-                <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
-                  <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
-                </v-btn>
-              </v-row>
-              <v-card-text v-if="loading" class="text-center">
-                <v-progress-circular
-                  indeterminate
-                  class="my-5"
-                  color="grey"
-                ></v-progress-circular>
-              </v-card-text>
-              <v-card v-else flat>
-               <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
-              </v-card>
-            </v-tab-item>
-          </v-tabs>
-        </v-row>
+    <v-row>
+      <v-col cols="12" md="6" align-self="center">
+        <v-text-field
+          label="Buffer radius (m)"
+          placeholder="200"
+          :rules="[inputRules.number, inputRules.max, inputRules.required]"
+          v-model="radius"
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" md="6" class="text-right">
+        <v-btn @click="handleRedraw" color="primary" outlined class="mt-5">Draw new line</v-btn>
+      </v-col>
     </v-row>
+    <v-tabs>
+      <v-tabs-slider></v-tabs-slider>
+      <v-tab>2D Cross Section</v-tab>
+      <v-tab>3D Surface Section</v-tab>
+      <v-tab-item>
+        <v-row class="mb-3">
+          <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
+          </v-btn>
+          <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>
+          </v-btn>
+          <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
+            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Plot</span>
+          </v-btn>
+        </v-row>
+        <v-card-text v-if="loading" class="text-center">
+          <v-progress-circular
+            indeterminate
+            class="my-5"
+            color="grey"
+          ></v-progress-circular>
+        </v-card-text>
+        <v-card v-else flat>
+          <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
+        </v-card>
+      </v-tab-item>
+      <v-tab-item>
+        <v-row>
+          <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
+            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
+          </v-btn>
+        </v-row>
+        <v-card-text v-if="loading" class="text-center">
+          <v-progress-circular
+            indeterminate
+            class="my-5"
+            color="grey"
+          ></v-progress-circular>
+        </v-card-text>
+        <v-card v-else flat>
+          <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
+        </v-card>
+      </v-tab-item>
+    </v-tabs>
     <v-row no-gutters>
       <v-flex>
         <v-data-table

@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
@@ -81,7 +81,7 @@ export default {
         value: w.id
       }))
     },
-    ...mapGetters(['dataMartFeatureInfo']),
+    ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['map'])
   },
   methods: {
@@ -118,7 +118,7 @@ export default {
     fetchWatersheds () {
       this.watershedLoading = true
       const params = {
-        point: JSON.stringify(this.dataMartFeatureInfo.geometry.coordinates),
+        point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
         include_self: this.includePOIPolygon
       }
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
@@ -149,13 +149,18 @@ export default {
     recalculateWatershed () {
       this.resetGeoJSONLayers()
       this.fetchWatersheds()
-    }
+    },
+    ...mapMutations('map', [
+      'setMode'
+    ])
   },
   mounted () {
+    this.setMode({ type: 'analyze', name: 'surface_water' })
     this.fetchWatersheds()
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()
+    this.setMode({ type: 'interactive', name: '' })
   }
 }
 </script>

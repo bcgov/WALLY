@@ -149,7 +149,7 @@ export default {
           x1: w.distance_from_origin,
           y1: w.finished_well_depth
             ? w.ground_elevation_from_dem - w.finished_well_depth
-            : null,
+            : w.ground_elevation_from_dem,
           opacity: 0.5,
           line: {
             color: 'blue',
@@ -166,7 +166,7 @@ export default {
         y: this.wells.map(w =>
           w.finished_well_depth
             ? w.ground_elevation_from_dem - w.finished_well_depth
-            : null
+            : w.ground_elevation_from_dem
         ),
         text: this.wells.map(w => w.finished_well_depth),
         textposition: 'bottom',
@@ -358,6 +358,9 @@ export default {
     ...mapActions('map', [
       'removeElementsByClass'
     ]),
+    handleRedraw () {
+      this.$emit('crossSection:redraw')
+    },
     fetchWellsAlongLine () {
       if (!this.radiusIsValid(this.radius)) {
         return
@@ -591,5 +594,6 @@ export default {
     // reset shapes when closing this component
     this.$store.commit('map/resetMode')
     this.$store.dispatch('map/clearSelections')
+    this.$store.commit('resetSectionLine')
   }
 }

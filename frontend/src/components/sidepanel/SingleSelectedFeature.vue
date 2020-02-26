@@ -57,8 +57,8 @@
       </v-card-text>
     </v-card>
     <FeatureAnalysis
-      v-if="dataMartFeatureInfo"
-      :record="dataMartFeatureInfo"></FeatureAnalysis>
+      v-if="pointOfInterest"
+      :record="pointOfInterest"></FeatureAnalysis>
     </div>
   </v-container>
 </template>
@@ -119,7 +119,8 @@ export default {
       'loadingFeature',
       'featureError',
       'singleSelectionFeatures',
-      'dataMartFeatureInfo'
+      'dataMartFeatureInfo',
+      'pointOfInterest'
     ])
   },
   watch: {
