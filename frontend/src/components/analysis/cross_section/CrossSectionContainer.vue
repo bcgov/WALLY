@@ -24,8 +24,9 @@
       <WellsCrossSection
       :record="sectionLine"
       :coordinates="sectionLine.geometry.coordinates"
+      @crossSection:redraw="() => drawLine({ newLine: true })"
       />
-      <v-btn @click="() => drawLine({ newLine: true })" color="primary" outlined class="mt-5">Draw new line</v-btn>
+
     </div>
 
     <v-row class="pa-5" v-else>

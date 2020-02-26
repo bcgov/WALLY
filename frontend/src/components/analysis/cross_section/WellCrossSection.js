@@ -358,6 +358,9 @@ export default {
     ...mapActions('map', [
       'removeElementsByClass'
     ]),
+    handleRedraw () {
+      this.$emit('crossSection:redraw')
+    },
     fetchWellsAlongLine () {
       if (!this.radiusIsValid(this.radius)) {
         return
@@ -591,5 +594,6 @@ export default {
     // reset shapes when closing this component
     this.$store.commit('map/resetMode')
     this.$store.dispatch('map/clearSelections')
+    this.$store.commit('resetSectionLine')
   }
 }
