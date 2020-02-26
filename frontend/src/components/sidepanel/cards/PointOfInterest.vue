@@ -44,8 +44,6 @@
       v-if="this.isPointSelected && pointOfInterest"
       :record="pointOfInterest"/>
 
-    <router-view></router-view>
-
   </v-container>
 </template>
 

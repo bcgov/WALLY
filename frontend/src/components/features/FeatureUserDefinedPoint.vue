@@ -12,7 +12,6 @@
         {{coordinates}}
       </v-banner>
     </v-toolbar>
-    <router-view></router-view>
   </v-sheet>
 </template>
 
