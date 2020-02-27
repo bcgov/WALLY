@@ -293,32 +293,23 @@ export default {
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
-      state.map.getSource('highlightPointData').setData(emptyPoint)
-      state.map.getSource('highlightLayerData').setData(emptyPolygon)
-      dispatch('clearStreamHighlights')
+      const pointData = state.map.getSource('highlightPointData')
+      const layerData = state.map.getSource('highlightLayerData')
+
+      if (pointData) {
+        pointData.setData(emptyPoint)
+      }
+
+      if (layerData) {
+        layerData.setData(emptyPolygon)
+      }
       dispatch('removeElementsByClass', 'annotationMarker')
-      commit('resetStreamData', {}, { root: true })
-      commit('resetStreamBufferData', {}, { root: true })
-    },
-    clearStreamHighlights ({ rootGetters, state }) {
-      rootGetters.getStreamSources.forEach((s) => {
-        state.map.getSource(s.name).setData(emptyFeatureCollection)
-      })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
-    },
-    initStreamHighlights ({ state, rootGetters }) {
-      // Import sources and layers for stream segment highlighting
-      rootGetters.getStreamSources.forEach((s) => {
-        state.map.addSource(s.name, { type: 'geojson', data: s.options })
-      })
-      rootGetters.getStreamLayers.forEach((l) => {
-        state.map.addLayer(l)
-      })
     },
     async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {

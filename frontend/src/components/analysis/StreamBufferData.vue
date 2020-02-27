@@ -5,6 +5,7 @@
         </div>
         <v-card-text>
           <v-data-table
+            :loading="loading"
             :items="parsedData"
             :headers="headers"
             :items-per-page="5"
@@ -19,6 +20,7 @@ import { streamDataHeaders } from '../../utils/streamDataHeaders'
 export default {
   name: 'StreamBufferData',
   props: [
+    'loading',
     'bufferData',
     'segmentType',
     'layerId'

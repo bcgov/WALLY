@@ -29,7 +29,7 @@
       </v-row>
 
       <v-row no-gutters>
-        <StreamBufferData :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+        <StreamBufferData :loading="loading" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
       </v-row>
   </v-sheet>
 </template>
@@ -39,6 +39,7 @@ import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../services/ApiService'
 import StreamBufferData from '../analysis/StreamBufferData'
 import buffer from '@turf/buffer'
+import debounce from 'lodash.debounce'
 
 export default {
   name: 'StreamBufferIntersections',
@@ -48,7 +49,8 @@ export default {
   props: ['record'],
   data: () => ({
     buffer: 50,
-    loading: false,
+    loadingData: false,
+    loadingMapFeatures: false,
     panelOpen: [],
     streamNetworkMapFeature: null,
     streamData: null,
@@ -73,6 +75,13 @@ export default {
     updateStreamBuffers () {
       this.fetchStreamBufferInformation()
     },
+    resetGeoJSONLayers () {
+      if (this.streamNetworkMapFeature) {
+        this.map.removeLayer(this.streamNetworkMapFeature)
+        this.map.removeSource(this.streamNetworkMapFeature)
+        this.streamNetworkMapFeature = null
+      }
+    },
     enableMapLayer () {
       this.$store.dispatch('map/addMapLayer', this.selectedLayer)
     },
@@ -81,11 +90,10 @@ export default {
         return
       }
 
-      if (this.streamNetworkMapFeature) {
-        this.map.removeLayer(this.streamNetworkMapFeature)
-        this.map.removeSource(this.streamNetworkMapFeature)
-        this.streamNetworkMapFeature = null
-      }
+      this.resetGeoJSONLayers()
+
+      this.loadingMapFeatures = true
+
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
       const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
 
@@ -97,7 +105,7 @@ export default {
 
           this.map.addLayer({
             id: 'selectedStreamNetwork',
-            type: 'line',
+            type: 'fill',
             source: {
               type: 'geojson',
               data: data
@@ -106,36 +114,44 @@ export default {
               visibility: 'visible'
             },
             paint: {
-              'line-color': '#000',
-              'line-width': 2
+              'fill-color': '#0d47a1',
+              'fill-outline-color': '#002171',
+              'fill-opacity': 0.3
             }
           }, 'water_rights_licences')
+          this.loadingMapFeatures = false
+        }).catch(() => {
+          this.loadingMapFeatures = false
         })
     },
     fetchStreamBufferInformation () {
       if (buffer <= 0 || !this.selectedLayer) {
         return
       }
+      this.loadingData = true
+
       this.resetStreamData()
 
       const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
+      const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
 
       console.log(fwaCode)
 
       const params = {
         buffer: parseFloat(this.buffer),
         code: fwaCode,
+        linear_feature_id: linearFeatID,
         layer: this.selectedLayer
       }
-      this.loading = true
       ApiService.query('/api/v1/stream/features', params)
         .then((response) => {
           let data = response.data
           this.streamData = data
-          this.loading = false
+          this.loadingData = false
         })
         .catch((error) => {
           console.log(error)
+          this.loadingData = false
         })
     },
     resetStreamData () {
@@ -144,6 +160,9 @@ export default {
     ...mapMutations('map', ['map', 'setMode'])
   },
   computed: {
+    loading () {
+      return this.loadingData || this.loadingMapFeatures
+    },
     streamName () {
       let gnis = this.record.properties.GNIS_NAME
       return gnis !== 'None' ? gnis : this.record.properties.FEATURE_CODE
@@ -175,13 +194,17 @@ export default {
     },
     buffer (value) {
       if (this.buffer > 0 && this.buffer < this.inputRules.max) {
-        this.updateStreamBuffers()
+        debounce(function () {
+          this.drawStreamNetwork()
+          this.updateStreamBuffers()
+        }, 250)()
       }
     },
     selectedLayer () {
       this.updateStreamBuffers()
     },
     record () {
+      console.log('record changed')
       this.drawStreamNetwork()
       this.updateStreamBuffers()
     }
@@ -192,8 +215,9 @@ export default {
       this.updateStreamBuffers()
     }
   },
-  destroy () {
-    // this.setMode({ type: 'interactive', name: 'upstream_downstream' })
+  beforeDestroy () {
+    this.setMode({ type: 'interactive', name: 'upstream_downstream' })
+    this.resetGeoJSONLayers()
   }
 }
 </script>

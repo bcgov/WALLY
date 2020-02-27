@@ -28,17 +28,20 @@ router = APIRouter()
 def get_streams_by_watershed_code(
     linear_feature_id: int,
     code: str,
-    buffer: int = Query(
+    buffer: float = Query(
         100,
         title="Buffer radius (m)",
-        description="Distance (in metres) from the stream to search within"),
+        description="Distance (in metres) from the stream to search within",
+        lte=500,
+        gte=0),
     layer: str = Query(
         None,
         title="Layer to search",
         description="The name of the layer to search. Points that are within `buffer` metres of the specified stream will be returned."),
     db: Session = Depends(get_db)
 ):
-    """ generates a stream network based on a watershed code, and finds features from a given `layer`. """
+    """ generates a stream network based on a FWA_WATERSHED_CODE and
+    LINEAR_FEATURE_ID, and finds features from a given `layer`. """
 
     # Remove trailing 000000 codes (zero codes). This allows us to look up streams
     # that branch off the subject stream (if they are tributaries of
@@ -50,38 +53,66 @@ def get_streams_by_watershed_code(
     code_parsed.append('%')
     code_parsed = '-'.join(code_parsed)
 
-    # with start_elev as (
-    #     select  st_zmax("GEOMETRY") as zmax, "LOCAL_WATERSHED_CODE" as loc_code
-    #     from    freshwater_atlas_stream_networks
-    #     where   "LINEAR_FEATURE_ID" = :linear_feature_id
-    # )
-    # select  "GEOMETRY"
-    # from    freshwater_atlas_stream_networks, start_elev
-    # where   "FWA_WATERSHED_CODE" ilike :code_parsed
-    # and     ST_ZMax("GEOMETRY") > start_elev.zmax
-    # union all
-
+    # Gather up the selected stream segments (from the stream's own headwaters
+    # down to the mouth of the stream where it drains into the next river),
+    # as well as all *upstream* tributary networks from the selected reach.
+    # This represents the entire drainage network upstream of the selected
+    # reach, combined with just the stream's own geometry downstream (no
+    # tributaries downstream of the selected reach are included).
+    #
+    # this query works by inspecting the last non-zero code of the local
+    # watershed code, which roughly represents the percent distance along the
+    # stream of each segment of the stream.
     q = """
-    
-
-    select  ST_AsGeoJSON(ST_Union("GEOMETRY"))
-    from    freshwater_atlas_stream_networks
-    where "FWA_WATERSHED_CODE" = :code
-    
+    with watershed_code_stats as (
+        SELECT
+            "LOCAL_WATERSHED_CODE" as loc_code,
+            (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
+                as loc_code_last_nonzero_code
+        FROM freshwater_atlas_stream_networks
+        WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
+    )
+    select
+        ST_AsGeoJSON(
+            ST_Transform(
+                ST_Buffer(
+                    ST_Transform(ST_Union("GEOMETRY"), 3005),
+                    :buffer, 'endcap=round join=round'
+                ),
+                4326
+            )
+        )
+    from    (
+        select  "GEOMETRY" from freshwater_atlas_stream_networks
+        where   "FWA_WATERSHED_CODE" = :code
+        union all
+        select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
+        where   "FWA_WATERSHED_CODE" ilike :code_parsed
+        AND     split_part(
+                    "FWA_WATERSHED_CODE", '-',
+                    watershed_code_stats.loc_code_last_nonzero_code
+                )::int > split_part(
+                    watershed_code_stats.loc_code, '-',
+                    watershed_code_stats.loc_code_last_nonzero_code
+                )::int
+    ) subq
     """
 
-    # q = db \
-    #     .query(func.ST_AsGeoJSON(func.ST_Union(FreshwaterAtlasStreamNetworks.GEOMETRY))
-    #            .label('geom')) \
-    #     .filter(FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.ilike(f"{code_parsed}%"))
-
-    geom = db.execute(q, {"code": code, "code_parsed": code_parsed, "linear_feature_id": linear_feature_id}).fetchone()
+    geom = db.execute(
+        q,
+        {
+            "code": code,
+            "code_parsed": code_parsed,
+            "linear_feature_id": linear_feature_id,
+            "buffer": buffer
+        }).fetchone()
 
     if not geom:
         return None
 
     geom_geojson = geojson.loads(geom[0])
 
+    # if a layer was not specified, return the unioned stream network that we generated.
     if not layer:
         return geom_geojson
 
