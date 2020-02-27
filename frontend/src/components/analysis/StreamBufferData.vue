@@ -5,7 +5,7 @@
         </div>
         <v-card-text>
           <v-data-table
-            :items="bufferData"
+            :items="parsedData"
             :headers="headers"
             :items-per-page="5"
           />
@@ -25,9 +25,7 @@ export default {
   ],
   data: () => ({
     titleLookup: {
-      upstream: 'Upstream Features',
-      downstream: 'Downstream Features',
-      selectedStream: 'Selected Stream Segment Features'
+      selectedStream: 'Selected stream network features'
     }
   }),
   computed: {
@@ -36,6 +34,14 @@ export default {
     },
     headers () {
       return streamDataHeaders[this.layerId]
+    },
+    parsedData () {
+      if (!this.bufferData || !this.bufferData.features.length) {
+        return []
+      }
+      return this.bufferData.features.map((x) => {
+        return x.properties
+      })
     }
   }
 }

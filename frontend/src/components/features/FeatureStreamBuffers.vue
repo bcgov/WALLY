@@ -29,9 +29,7 @@
       </v-row>
 
       <v-row no-gutters>
-        <SteamBufferData :bufferData="upstreamData" :segmentType="'upstream'" :layerId="selectedLayer" />
-        <SteamBufferData :bufferData="selectedStreamData" :segmentType="'selectedStream'" :layerId="selectedLayer" />
-        <SteamBufferData :bufferData="downstreamData" :segmentType="'downstream'" :layerId="selectedLayer" />
+        <StreamBufferData :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
       </v-row>
   </v-sheet>
 </template>
@@ -39,22 +37,21 @@
 <script>
 import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../services/ApiService'
-import SteamBufferData from '../analysis/StreamBufferData'
+import StreamBufferData from '../analysis/StreamBufferData'
 import buffer from '@turf/buffer'
 
 export default {
   name: 'StreamBufferIntersections',
   components: {
-    SteamBufferData
+    StreamBufferData
   },
   props: ['record'],
   data: () => ({
     buffer: 50,
     loading: false,
     panelOpen: [],
-    upstreamData: [],
-    selectedStreamData: [],
-    downstreamData: [],
+    streamNetworkMapFeature: null,
+    streamData: null,
     selectedLayer: '',
     inputRules: {
       required: value => !!value || 'Required',
@@ -74,49 +71,77 @@ export default {
   }),
   methods: {
     updateStreamBuffers () {
-      this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
-      this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
-      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
+      this.fetchStreamBufferInformation()
     },
     enableMapLayer () {
       this.$store.dispatch('map/addMapLayer', this.selectedLayer)
     },
-    fetchStreamBufferInformation (streams, type) {
-      if (buffer <= 0 || !this.selectedLayer) {
+    drawStreamNetwork () {
+      if (!this.record) {
         return
       }
 
-      let lineStrings = streams.features.map((stream) => {
-        if (stream.geometry.type === 'LineString') {
-          return stream.geometry
-        }
-      })
-      if (lineStrings.length <= 0) {
+      if (this.streamNetworkMapFeature) {
+        this.map.removeLayer(this.streamNetworkMapFeature)
+        this.map.removeSource(this.streamNetworkMapFeature)
+        this.streamNetworkMapFeature = null
+      }
+      const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
+      const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
+
+      ApiService.query('/api/v1/stream/features', { code: fwaCode, linear_feature_id: linearFeatID })
+        .then((r) => {
+          const data = r.data
+
+          this.streamNetworkMapFeature = 'selectedStreamNetwork'
+
+          this.map.addLayer({
+            id: 'selectedStreamNetwork',
+            type: 'line',
+            source: {
+              type: 'geojson',
+              data: data
+            },
+            layout: {
+              visibility: 'visible'
+            },
+            paint: {
+              'line-color': '#000',
+              'line-width': 2
+            }
+          }, 'water_rights_licences')
+        })
+    },
+    fetchStreamBufferInformation () {
+      if (buffer <= 0 || !this.selectedLayer) {
         return
       }
+      this.resetStreamData()
+
+      const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
+
+      console.log(fwaCode)
+
       const params = {
         buffer: parseFloat(this.buffer),
-        geometry: JSON.stringify(lineStrings),
+        code: fwaCode,
         layer: this.selectedLayer
       }
       this.loading = true
-      ApiService.post('/api/v1/stream/features', params)
+      ApiService.query('/api/v1/stream/features', params)
         .then((response) => {
           let data = response.data
-          if (type === 'upstream') {
-            this.upstreamData = data
-          } else if (type === 'downstream') {
-            this.downstreamData = data
-          } else if (type === 'selectedStream') {
-            this.selectedStreamData = data
-          }
+          this.streamData = data
           this.loading = false
         })
         .catch((error) => {
           console.log(error)
         })
     },
-    ...mapMutations('map', ['setMode'])
+    resetStreamData () {
+      this.streamData = null
+    },
+    ...mapMutations('map', ['map', 'setMode'])
   },
   computed: {
     streamName () {
@@ -131,12 +156,7 @@ export default {
     //   }
     //   return counts
     // },
-    ...mapGetters('map', ['isMapReady']),
-    ...mapGetters([
-      'getUpstreamData',
-      'getDownstreamData',
-      'getSelectedStreamData'
-    ])
+    ...mapGetters('map', ['isMapReady', 'map'])
   },
   watch: {
     // panelOpen () {
@@ -151,35 +171,25 @@ export default {
     isMapReady (value) {
       if (value) {
         this.updateStreamBuffers()
-        this.$store.commit('setStreamBufferData', this.buffer)
       }
-    },
-    getUpstreamData () {
-      this.fetchStreamBufferInformation(this.getUpstreamData, 'upstream')
-      this.$store.commit('setUpstreamBufferData', this.buffer)
-    },
-    getDownstreamData () {
-      this.fetchStreamBufferInformation(this.getDownstreamData, 'downstream')
-      this.$store.commit('setDownstreamBufferData', this.buffer)
-    },
-    getSelectedStreamData () {
-      this.fetchStreamBufferInformation(this.getSelectedStreamData, 'selectedStream')
-      this.$store.commit('setSelectedStreamBufferData', this.buffer)
     },
     buffer (value) {
       if (this.buffer > 0 && this.buffer < this.inputRules.max) {
         this.updateStreamBuffers()
-        this.$store.commit('setStreamBufferData', value)
       }
     },
     selectedLayer () {
+      this.updateStreamBuffers()
+    },
+    record () {
+      this.drawStreamNetwork()
       this.updateStreamBuffers()
     }
   },
   mounted () {
     if (this.isMapReady) {
+      this.drawStreamNetwork()
       this.updateStreamBuffers()
-      this.$store.commit('setStreamBufferData', this.buffer)
     }
   },
   destroy () {

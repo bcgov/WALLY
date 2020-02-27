@@ -122,7 +122,6 @@ export default {
     loadMap ({ state, dispatch }) {
       state.map.on('style.load', () => {
         dispatch('getMapLayers')
-        dispatch('initStreamHighlights')
       })
     },
     setDrawMode ({ state }, drawMode) {
@@ -378,24 +377,15 @@ export default {
         state.map.getSource('highlightPointData').setData(emptyPoint)
         state.map.getSource('highlightLayerData').setData(emptyPolygon)
         // For local rendered streams only calculation
-        commit('resetStreamData', {}, { root: true })
-
-        // Update stream layer
-        let layer = state.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
-        dispatch('calculateStreamHighlights', { stream: data, streams: layer }, { root: true })
 
         // Backend query for all connected streams
         // this.$store.dispatch('fetchConnectedStreams', { stream: data })
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         state.map.getSource('highlightPointData').setData(data)
         state.map.getSource('highlightLayerData').setData(emptyPolygon)
-        commit('resetStreamData', {}, { root: true })
-        commit('resetStreamBufferData', {}, { root: true })
       } else {
         state.map.getSource('highlightPointData').setData(emptyPoint)
         state.map.getSource('highlightLayerData').setData(data)
-        commit('resetStreamData', {}, { root: true })
-        commit('resetStreamBufferData', {}, { root: true })
       }
     },
     removeElementsByClass ({ state }, payload) {

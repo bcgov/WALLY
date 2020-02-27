@@ -1,11 +1,11 @@
 export const streamDataHeaders = {
   groundwater_wells: [
-    { text: 'Well Tag No.', value: 'WELL_TAG_NUMBER' },
-    { text: 'Plate number', value: 'WELL_IDENTIFICATION_PLATE_NO' },
+    { text: 'Well Tag No.', value: 'well_tag_number' },
+    { text: 'Plate number', value: 'identification_plate_number' },
     { text: 'Well use', value: 'WELL_USE_NAME' },
-    { text: 'Depth drilled', value: 'DEPTH_WELL_DRILLED' },
-    { text: 'Yield', value: 'YIELD_VALUE' },
-    { text: 'Yield Units', value: 'YIELD_UNIT_DESCRIPTION' }
+    { text: 'Depth drilled', value: 'finished_well_depth' },
+    { text: 'Yield', value: 'well_yield' },
+    { text: 'Yield Units', value: 'well_yield_units' }
   ],
   water_rights_licences: [
     { text: 'Licence number', value: 'LICENCE_NUMBER' },
