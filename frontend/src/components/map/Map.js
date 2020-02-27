@@ -7,7 +7,6 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
 import coordinatesGeocoder from './localGeocoder'
-import * as streamConfig from '../../utils/streamHighlights.config'
 
 import { getArrayDepth } from '../../helpers'
 
