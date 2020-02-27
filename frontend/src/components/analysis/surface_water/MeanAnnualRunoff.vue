@@ -40,7 +40,7 @@
             <v-col>
               <div class="titleBlock">Drainage Area</div>
               <div class="infoBlock">
-                {{ watershedDetails.drainage_area }}
+                {{ watershedDetails.drainage_area ? watershedDetails.drainage_area : 'N/A' }}
               </div>
               <div class="unitBlock">
                 km^2
@@ -72,7 +72,7 @@
             </v-tooltip>
             <div class="titleSub">Annual Precipitation</div>
           <div class="infoSub">
-            {{ watershedDetails.annual_precipitation }}
+            {{ watershedDetails.annual_precipitation ? watershedDetails.annual_precipitation : 'N/A' }}
           </div>
           <div class="unitSub">
             mm
@@ -89,7 +89,7 @@
           </v-tooltip>
           <div class="titleSub">Glacial Coverage</div>
           <div class="infoSub">
-            {{ watershedDetails.glacial_coverage }}
+            {{ watershedDetails.glacial_coverage ? watershedDetails.glacial_coverage : 'N/A' }}
           </div>
           <div class="unitSub">
             %
@@ -106,7 +106,7 @@
           </v-tooltip>
           <div class="titleSub">Median Elevation</div>
           <div class="infoSub">
-            {{ watershedDetails.median_elevation }}
+            {{ watershedDetails.median_elevation ? watershedDetails.median_elevation : 'N/A' }}
           </div>
           <div class="unitSub">
             mASL
@@ -169,7 +169,7 @@
           </v-tooltip>
           <div class="titleSub">Low7Q2</div>
           <div class="infoSub">
-            {{ modelOutputs.low7q2 }}
+            {{ modelOutputs.low7q2 ? modelOutputs.low7q2 : 'N/A' }}
           </div>
           <div class="unitSub">
             m^3
@@ -186,7 +186,7 @@
           </v-tooltip>
           <div class="titleSub">Dry7Q10</div>
           <div class="infoSub">
-            {{ modelOutputs.dry7q10 }}
+            {{ modelOutputs.dry7q10 ? modelOutputs.dry7q10 : 'N/A' }}
           </div>
           <div class="unitSub">
             m^3/s
@@ -257,7 +257,7 @@ export default {
     Plotly,
     WatershedDemand
   },
-  props: ['watershedID', 'record', 'details'],
+  props: ['watershedID', 'record', 'details', 'allWatersheds'],
   data: () => ({
     watershedLoading: false,
     error: null,
@@ -292,8 +292,8 @@ export default {
     ],
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     secondsInMonth: 86400,
+    secondsInYear: 31536000,
     monthHeaders: [
-      { text: 'Type', value: 'type' },
       { text: 'Unit', value: 'unit' },
       { text: 'Jan', value: 'm1' },
       { text: 'Feb', value: 'm2' },
@@ -366,52 +366,111 @@ export default {
     // },
     getReverseMontlyDischargeItems () {
       let mds = this.modelOutputs.monthlyDischarges
-      let rate = { 'type': 'Rate', 'unit': 'm^3/s' }
-      let volume = { 'type': 'Volume', 'unit': 'm^3' }
+      let rate = { 'unit': 'm^3/s' }
+      let volume = { 'unit': 'm^3' }
+      let percent = { 'unit': '%MAD' }
       for (let i = 0; i < mds.length; i++) {
         rate['m' + (i + 1)] = (mds[i].model_result).toFixed(2)
         volume['m' + (i + 1)] = (mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0)
+        percent['m' + (i + 1)] = (mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(3)
       }
-      return [rate, volume]
-    }
+      return [rate, volume, percent]
+    },
+    watershedArea () {
+      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
+        return null
+      }
+      return Number(this.record.properties['FEATURE_AREA_SQM']) / 1e6
+    },
+    annualNormalizedRunoff () {
+      const hydroWatershed = this.allWatersheds.find((ws) => {
+        return ws.properties['ANNUAL_RUNOFF_IN_MM']
+      })
+      if (hydroWatershed) {
+        return Number(hydroWatershed.properties['ANNUAL_RUNOFF_IN_MM'])
+      }
+      return null
+    },
   },
   watch: {
     details: {
       immediate: true,
       handler (val, oldVal) {
-        console.log(val)
         this.updateModelData(val)
       }
     }
   },
   methods: {
     updateModelData (details) {
-      let outputs = details.scsb2016_model
-      let mar = outputs.find((x) => x.output_type === 'MAR')
-      let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
-      let low7q2 = outputs.find((x) => x.output_type === '7Q2')
-      let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
-      let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
-      let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
-
-      this.modelOutputs = {
-        mar: mar.model_result.toFixed(2),
-        mad: mad.model_result.toFixed(2),
-        low7q2: low7q2.model_result.toFixed(2),
-        dry7q10: dry7q10.model_result.toFixed(2),
-        monthlyDistributions: monthlyDistributions,
-        monthlyDischarges: monthlyDischarges
+      // MAD Model Calculations
+      if(details && details.scsb2016_model) {
+        let outputs = details.scsb2016_model
+        let mar = outputs.find((x) => x.output_type === 'MAR')
+        let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
+        let low7q2 = outputs.find((x) => x.output_type === '7Q2')
+        let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
+        let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
+        let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
+        this.modelOutputs = {
+          mar: mar.model_result.toFixed(2),
+          mad: mad.model_result.toFixed(2),
+          low7q2: low7q2.model_result.toFixed(2),
+          dry7q10: dry7q10.model_result.toFixed(2),
+          monthlyDistributions: monthlyDistributions,
+          monthlyDischarges: monthlyDischarges
+        }
+        this.watershedDetails = {
+          median_elevation: details.median_elevation.toFixed(2),
+          average_slope: details.average_slope,
+          solar_exposure: details.solar_exposure,
+          drainage_area: details.drainage_area.toFixed(2),
+          glacial_coverage: details.glacial_coverage.toFixed(2),
+          annual_precipitation: details.annual_precipitation.toFixed(0),
+          evapo_transpiration: details.potential_evapotranspiration_thornthwaite
+        }
+        this.availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+        return
       }
-      this.watershedDetails = {
-        median_elevation: details.median_elevation.toFixed(2),
-        average_slope: details.average_slope,
-        solar_exposure: details.solar_exposure,
-        drainage_area: details.drainage_area.toFixed(2),
-        glacial_coverage: details.glacial_coverage.toFixed(2),
-        annual_precipitation: details.annual_precipitation.toFixed(0),
-        evapo_transpiration: details.potential_evapotranspiration_thornthwaite
+      // ISOLine Model Calculations as backup if Stewardship model doesn't exist
+      if (this.annualNormalizedRunoff && this.watershedArea) {
+        const meanAnnualDischarge = this.annualNormalizedRunoff * (this.watershedArea * 1e6) / this.secondsInYear / 1000
+        var discharges = []
+        var distributions = []
+        for (let i = 1; i < 13; i++) {
+          distributions.push({
+            month: i,
+            model_result: 1 / 12,
+            r2: 0,
+            adjusted_r2: 0,
+            steyx: 0
+          })
+          discharges.push({
+            month: i,
+            model_result: meanAnnualDischarge / 12,
+            r2: 0,
+            adjusted_r2: 0,
+            steyx: 0
+          })
+        }
+        this.modelOutputs = {
+          mar: (meanAnnualDischarge * 1000 / this.watershedArea).toFixed(2),
+          mad: meanAnnualDischarge.toFixed(2),
+          low7q2: null,
+          dry7q10: null,
+          monthlyDistributions: distributions,
+          monthlyDischarges: discharges
+        }
+        this.watershedDetails = {
+          median_elevation: null,
+          average_slope: null,
+          solar_exposure: null,
+          drainage_area: this.watershedArea.toFixed(2),
+          glacial_coverage: null,
+          annual_precipitation: this.annualNormalizedRunoff,
+          evapo_transpiration: null
+        }
+        this.availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
       }
-      this.availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
     },
     monthlyDistributionsLayout () {
       return {

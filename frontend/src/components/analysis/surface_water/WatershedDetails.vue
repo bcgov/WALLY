@@ -36,7 +36,7 @@
         </v-list>
       </v-menu>
         <div>
-          <MeanAnnualRunoff ref="anchor-mar" :watershedID="watershedID" :record="record" :details="watershedDetails"/>
+          <MeanAnnualRunoff ref="anchor-mar" :watershedID="watershedID" :record="record" :allWatersheds="watersheds" :details="watershedDetails"/>
 
           <WatershedAvailability ref="anchor-availability" :watershedID="watershedID" :allWatersheds="watersheds" :record="record" :details="watershedDetails"/>
 
@@ -116,11 +116,14 @@ export default {
   methods: {
     fetchWatershedDetails () {
       this.watershedDetailsLoading = true
+      this.watershedDetails = null
       ApiService.query(`/api/v1/watersheds/${this.watershedID}`)
         .then(r => {
-          this.watershedDetails = r.data
-          console.log(this.watershedDetails)
           this.watershedDetailsLoading = false
+          if(!r.data) {
+            return
+          }
+          this.watershedDetails = r.data
         })
         .catch(e => {
           this.watershedDetailsLoading = false
