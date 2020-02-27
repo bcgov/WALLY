@@ -10,9 +10,17 @@
           Surface water
         </v-toolbar-title>
       </v-banner>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" v-on:click="exitFeature">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <div
-    v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'point_of_interest'">
+    v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWater></SurfaceWater>
     </div>
 
@@ -63,7 +71,8 @@ export default {
     disableHydatLayer () {
       this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
     },
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode']),
+    ...mapActions(['exitFeature'])
   },
   computed: {
     isLicencesLayerEnabled () {
@@ -76,7 +85,7 @@ export default {
       return this.isMapLayerActive('hydrometric_stream_flow')
     },
     ...mapGetters('map', ['isMapLayerActive']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    ...mapGetters(['pointOfInterest'])
   },
   mounted () {
     if (!this.isHydatLayerEnabled) {

@@ -22,47 +22,50 @@
       </span>
       <div class="title">Selected points
       </div>
-    <v-list class="mt-5">
-      <div v-for="(dataMartFeature, index) in selectedFeaturesList" :key="`objs-${index}`">
+      <v-list class="mt-5">
+        <div v-for="(dataMartFeature, index) in selectedFeaturesList" :key="`objs-${index}`">
 
-        <!--
-        Using value=0 in v-list-group defaults the collapsable list item to "closed".
-        In this case, keep the list items collapsed unless there is only one to display.
-          -->
-        <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
-          <template v-slot:activator>
-            <v-list-item-content>
-              <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
-            </v-list-item-content>
-          </template>
-            <v-list-item>
+          <!--
+          Using value=0 in v-list-group defaults the collapsable list item to "closed".
+          In this case, keep the list items collapsed unless there is only one to display.
+            -->
+          <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
+            <template v-slot:activator>
               <v-list-item-content>
-                  <v-data-table
-                    dense
-                    :headers="[{ text: getMapLayer(name).label, value: 'col1' }]"
-                    :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
-                    :items-per-page="10"
-                    :hide-default-footer="value.length < 10"
-                  >
-                    <template v-slot:item="{ item }">
-                      <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
-                        <v-card
-                          class="px-2 py-3 mx-1 my-2"
-                          :elevation="hover ? 2 : 0"
-                          @mousedown="setSingleListFeature(value[item.id], name)"
-                          @mouseenter="onMouseEnterListItem(value[item.id], name)"
-                        >
-                          <span>{{ item.col1 }}</span>
-                        </v-card>
-                      </v-hover>
-                      <v-divider :key="`divider-${item.id}`"></v-divider>
-                    </template>
-                  </v-data-table>
+                <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
               </v-list-item-content>
-            </v-list-item>
-        </v-list-group>
+            </template>
+              <v-list-item>
+                <v-list-item-content>
+                    <v-data-table
+                      dense
+                      :headers="[{ text: getMapLayer(name).label, value: 'col1' }]"
+                      :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
+                      :items-per-page="10"
+                      :hide-default-footer="value.length < 10"
+                    >
+                      <template v-slot:item="{ item }">
+                        <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
+                          <v-card
+                            class="px-2 py-3 mx-1 my-2"
+                            :elevation="hover ? 2 : 0"
+                            @mousedown="setSingleListFeature(value[item.id], name)"
+                            @mouseenter="onMouseEnterListItem(value[item.id], name)"
+                          >
+                            <span>{{ item.col1 }}</span>
+                          </v-card>
+                        </v-hover>
+                        <v-divider :key="`divider-${item.id}`"></v-divider>
+                      </template>
+                    </v-data-table>
+                </v-list-item-content>
+              </v-list-item>
+          </v-list-group>
+        </div>
+      </v-list>
+      <div v-if="selectedFeaturesList && !selectedFeaturesList.length">
+        Select a map feature or draw a polygon to browse data.
       </div>
-    </v-list>
     </v-card-text>
 
   </v-card>
@@ -137,7 +140,6 @@ export default {
     }
   },
   beforeDestroy () {
-    this.$store.dispatch('map/clearSelections')
   }
 }
 </script>
