@@ -7,7 +7,7 @@
     <div v-if="licenceData">
       <div class="font-weight-bold my-3">Water Rights Licences</div>
 
-      <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
+      <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
 
       <Plotly v-if="availability && licenceData"
         :layout="demandAvailabilityLayout()"
@@ -28,7 +28,7 @@
           sort-desc
         >
           <template v-slot:item.qty="{ item }">
-            {{ item.qty.toFixed(1) }}
+            {{ item.qty.toFixed(1) | formatNumber }}
           </template>
         </v-data-table>
       </div>
