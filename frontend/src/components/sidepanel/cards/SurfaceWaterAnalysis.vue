@@ -71,7 +71,7 @@ export default {
     disableHydatLayer () {
       this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
     },
-    ...mapActions('map', ['setDrawMode']),
+    ...mapActions('map', ['setDrawMode', 'clearSelections']),
     ...mapActions(['exitFeature'])
   },
   computed: {
@@ -88,6 +88,8 @@ export default {
     ...mapGetters(['pointOfInterest'])
   },
   mounted () {
+    this.clearSelections()
+
     if (!this.isHydatLayerEnabled) {
       this.hydatLayerAutomaticallyEnabled = true
       this.enableHydatLayer()

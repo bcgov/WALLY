@@ -69,7 +69,7 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections'])
   },
   computed: {
     isWellsLayerEnabled () {
@@ -89,6 +89,7 @@ export default {
     }
   },
   mounted () {
+    this.clearSelections()
     this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
