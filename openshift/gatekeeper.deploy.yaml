@@ -96,7 +96,7 @@ objects:
               - name: WALLY_ENV
                 value: "${ENVIRONMENT}"
               image: >-
-                quay.io/keycloak/keycloak-gatekeeper:6.0.1
+                quay.io/keycloak/keycloak-gatekeeper:9.0.0
               imagePullPolicy: Always
               name: wally-${NAME}-gatekeeper
               resources:
