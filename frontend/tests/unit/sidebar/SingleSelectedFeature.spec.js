@@ -51,7 +51,8 @@ describe('SingleSelectedFeature', () => {
       featureSelectionExists: () => null,
       layerSelectionActive: () => null,
       featureError: () => null,
-      loadingFeature: () => null
+      loadingFeature: () => null,
+      pointOfInterest: () => null
 
     }
 

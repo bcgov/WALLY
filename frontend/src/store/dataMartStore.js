@@ -9,6 +9,7 @@ export default {
     activeDataMartLayers: [], // comes from 'activeLayers' on Map.js;
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
+    pointOfInterest: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
     singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
     loadingFeature: false,
@@ -47,8 +48,13 @@ export default {
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length
           })) {
+            console.log('no features found - skipping setting datamart features')
             return
           }
+
+          // new features were found; the old features can be deleted.
+          commit('resetDataMartFeatureInfo')
+          commit('clearDataMartFeatures')
 
           let feature = {}
           let displayDataName = ''
@@ -82,14 +88,10 @@ export default {
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
-            commit('setDataMartFeatureInfo', {})
-            if (router.currentRoute.name === 'home' ||
-              router.currentRoute.name === 'place-poi' ||
-              router.currentRoute.name === 'multiple-features') {
-              router.push({
-                name: 'multiple-features'
-              })
-            }
+
+            router.push({
+              name: 'multiple-features'
+            })
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
@@ -99,8 +101,11 @@ export default {
                 geometry: feature.geometry,
                 properties: feature.properties
               })
-
-            commit('setDataMartFeatures', {})
+            // create a list containing only the single feature returned.
+            // this allows the multiple features card to display something,
+            // and enables easy exporting the single feature as an xlsx
+            // using the same menu as when exporting multiple features.
+            commit('setDataMartFeatures', { [displayDataName]: [feature] })
           }
           commit('setLoadingFeature', false)
         }).catch((error) => {
@@ -170,6 +175,14 @@ export default {
       // since features may be stacked and/or adjacent, one click will often return several results.
       state.singleSelectionFeatures = payload
     },
+    setPointOfInterest: (state, payload) => {
+      console.log('poi set')
+      state.pointOfInterest = payload
+    },
+    resetPointOfInterest: (state) => {
+      console.log('poi reset')
+      state.pointOfInterest = { content: { properties: {} } }
+    },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
 
@@ -216,6 +229,7 @@ export default {
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
+    pointOfInterest: state => state.pointOfInterest,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     loadingFeature: state => state.loadingFeature,
