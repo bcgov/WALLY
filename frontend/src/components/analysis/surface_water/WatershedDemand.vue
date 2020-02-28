@@ -6,7 +6,6 @@
     </div>
     <div v-if="licenceData">
       <v-card flat>
-<!--        <div class="font-weight-bold my-3">-->
         <v-card-title class="pl-0">
           Water Rights Licences
           <v-card-actions>
@@ -21,7 +20,6 @@
           :edit="show.editingAllocationValues"
           :qtyByPurpose="licenceData.total_qty_by_purpose"
           @close="closeEditAllocationTableDialog"/>
-<!--        </div>-->
 
         <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
 
@@ -80,7 +78,7 @@ export default {
       { text: '', value: 'action', sortable: false }
     ],
     show: {
-      editingAllocationValues: false,
+      editingAllocationValues: false
     },
     purposeTypes: [],
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
@@ -266,19 +264,22 @@ export default {
     },
     computeQuantityPerMonth (qtyPerYear, allocValues) {
       // alloc values must be empty or length 12
-      let defaultAllocValue = 1
       let monthlyQty = []
-      let allocFraction
 
-      for (let i = 0; i < 12; i++) {
-        if (allocValues.length === 0) {
-          allocFraction = defaultAllocValue
-        } else {
-          allocFraction = allocValues[i]
-        }
-        monthlyQty.push(qtyPerYear * (allocFraction / 12))
+      for (let i = 1; i <= 12; i++) {
+        monthlyQty.push(this.computeQuantityForMonth(qtyPerYear, allocValues, i))
       }
       return monthlyQty
+    },
+    computeQuantityForMonth (qtyPerYear, allocValues, month) {
+      let defaultAllocValue = 1
+      let allocFraction
+      if (allocValues.length === 0) {
+        allocFraction = defaultAllocValue
+      } else {
+        allocFraction = allocValues[month - 1]
+      }
+      return qtyPerYear * (allocFraction / 12)
     }
   },
   mounted () {
