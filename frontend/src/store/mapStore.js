@@ -20,11 +20,6 @@ const emptyPolygon = {
   }
 }
 
-const emptyFeatureCollection = {
-  type: 'FeatureCollection',
-  features: [emptyPoint]
-}
-
 const defaultMode = {
   type: 'interactive',
   name: 'clicky'
