@@ -5,56 +5,48 @@
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
     <div v-if="licenceData">
-      <div class="font-weight-bold my-3">Water Rights Licences</div>
-
-      <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
-
-      <Plotly v-if="availability && licenceData"
-        :layout="demandAvailabilityLayout()"
-        :data="demandAvailabilityData"
-      ></Plotly>
-
-      <div class="my-5">
-        <div class="mb-3">
-          Annual licenced quantity by use type:
-          <v-btn  icon @click="show.licencesInfo = true">
-            <v-icon>info</v-icon>
-          </v-btn>
-        </div>
-        <v-data-table
-          :items="licenceData.total_qty_by_purpose"
-          :headers="licencePurposeHeaders"
-          sort-by="qty"
-          sort-desc
-        >
-          <template v-slot:item.qty="{ item }">
-            {{ item.qty.toFixed(1) | formatNumber }}
-          </template>
-        </v-data-table>
-      </div>
-      <v-dialog v-model="show.licencesInfo" max-width="400">
-        <v-card>
-          <v-card-title class="headline">
-            Annual licenced quantity
-          </v-card-title>
-          <v-card-text>
-            Morbi eros orci, euismod id dignissim sodales, consequat quis ipsum. Nam a eleifend tellus. Morbi faucibus varius vestibulum. Vestibulum non molestie odio. Pellentesque eget sollicitudin est. Morbi ac mollis enim. Nulla facilisi.
-          </v-card-text>
+      <v-card flat>
+<!--        <div class="font-weight-bold my-3">-->
+        <v-card-title class="pl-0">
+          Water Rights Licences
           <v-card-actions>
-            <v-btn color="green darken-1" text @click="openEditAllocationTableDialog">
-              <v-icon small>
+            <v-btn x-small fab depressed light @click="openEditAllocationTableDialog">
+              <v-icon small color="primary">
                 mdi-tune
               </v-icon>
-              Allocation values
             </v-btn>
-            <v-btn text @click="show.licencesInfo = false">Cancel</v-btn>
           </v-card-actions>
-        </v-card>
-      </v-dialog>
-      <MonthlyAllocationTable
-        :edit="show.editingAllocationValues"
-        :qtyByPurpose="licenceData.total_qty_by_purpose"
-        @close="closeEditAllocationTableDialog"/>
+        </v-card-title>
+        <MonthlyAllocationTable
+          :edit="show.editingAllocationValues"
+          :qtyByPurpose="licenceData.total_qty_by_purpose"
+          @close="closeEditAllocationTableDialog"/>
+<!--        </div>-->
+
+        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
+
+        <Plotly v-if="availability && licenceData"
+          :layout="demandAvailabilityLayout()"
+          :data="demandAvailabilityData"
+        ></Plotly>
+
+        <div class="my-5">
+          <div class="mb-3">
+            Annual licenced quantity by use type:
+          </div>
+          <v-data-table
+            :items="licenceData.total_qty_by_purpose"
+            :headers="licencePurposeHeaders"
+            sort-by="qty"
+            sort-desc
+          >
+            <template v-slot:item.qty="{ item }">
+              {{ item.qty.toFixed(1) | formatNumber }}
+            </template>
+          </v-data-table>
+        </div>
+
+      </v-card>
     </div>
   </div>
 </template>
@@ -84,12 +76,11 @@ export default {
     licenceData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty' },
+      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
       editingAllocationValues: false,
-      licencesInfo: false
     },
     purposeTypes: [],
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
@@ -244,7 +235,6 @@ export default {
     },
     openEditAllocationTableDialog () {
       this.show.editingAllocationValues = true
-      this.show.licencesInfo = false
     },
     closeEditAllocationTableDialog () {
       this.show.editingAllocationValues = false

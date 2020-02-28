@@ -212,10 +212,22 @@
             :headers="monthlyDischargeHeaders"
             :hide-default-footer="true"
           /> -->
-          <Plotly v-if="monthlyDischargeData"
-            :layout="monthlyDischargeLayout()"
-            :data="monthlyDischargeData"
-          ></Plotly>
+          <v-card flat>
+            <v-card-title>
+              Monthly Discharge
+              <v-card-actions>
+                <v-btn small icon color=""  @click="openEditAllocationTableDialog">
+                  <v-icon small>
+                    mdi-tune
+                  </v-icon>
+                </v-btn>
+              </v-card-actions>
+            </v-card-title>
+            <Plotly v-if="monthlyDischargeData"
+                    :layout="monthlyDischargeLayout()"
+                    :data="monthlyDischargeData"
+            ></Plotly>
+          </v-card>
         </div>
 
         <div class="borderBlock">
@@ -295,18 +307,18 @@ export default {
     secondsInYear: 31536000,
     monthHeaders: [
       { text: 'Unit', value: 'unit' },
-      { text: 'Jan', value: 'm1' },
-      { text: 'Feb', value: 'm2' },
-      { text: 'Mar', value: 'm3' },
-      { text: 'Apr', value: 'm4' },
-      { text: 'May', value: 'm5' },
-      { text: 'Jun', value: 'm6' },
-      { text: 'Jul', value: 'm7' },
-      { text: 'Aug', value: 'm8' },
-      { text: 'Sep', value: 'm9' },
-      { text: 'Oct', value: 'm10' },
-      { text: 'Nov', value: 'm11' },
-      { text: 'Dec', value: 'm12' }
+      { text: 'Jan', value: 'm1', align: 'end' },
+      { text: 'Feb', value: 'm2', align: 'end' },
+      { text: 'Mar', value: 'm3', align: 'end' },
+      { text: 'Apr', value: 'm4', align: 'end' },
+      { text: 'May', value: 'm5', align: 'end' },
+      { text: 'Jun', value: 'm6', align: 'end' },
+      { text: 'Jul', value: 'm7', align: 'end' },
+      { text: 'Aug', value: 'm8', align: 'end' },
+      { text: 'Sep', value: 'm9', align: 'end' },
+      { text: 'Oct', value: 'm10', align: 'end' },
+      { text: 'Nov', value: 'm11', align: 'end' },
+      { text: 'Dec', value: 'm12', align: 'end' }
     ]
   }),
   computed: {

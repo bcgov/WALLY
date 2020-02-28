@@ -76,10 +76,10 @@
             item-key="ogc_fid"
             :items="streams">
             <template v-slot:item.length_metre="{ item }">
-              <span>{{item.length_metre.toFixed(2)}}</span>
+              <span>{{item.length_metre.toFixed(2) | formatNumber}}</span>
             </template>
             <template v-slot:item.distance="{ item }">
-              <span>{{item.distance.toFixed(2)}}</span>
+              <span>{{item.distance.toFixed(2) | formatNumber }}</span>
             </template>
             <template v-slot:item.apportionment="{ item }">
               <span>{{item.apportionment.toFixed(2)}}%</span>

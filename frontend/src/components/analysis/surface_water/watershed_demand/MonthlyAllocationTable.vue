@@ -32,24 +32,21 @@
                 filled
                 v-model="purposeTypeAllocationValues[i][j]"
                 hide-details="auto"
+                color="primary"
               >
               </v-text-field>
               <p class="font-weight-light caption text-right">
-                {{purposeTypeAllocationValuesFraction[i][j].toFixed(2)}}
+                {{purposeTypeAllocationValuesFraction[i][j] | formatNumber}}
               </p>
-<!--              <v-text-field-->
-<!--                disabled-->
-<!--                dense-->
-<!--                v-model="purposeTypeAllocationValuesFraction[i][j]"-->
-<!--              ></v-text-field>-->
             </td>
             <td>
-              <v-chip>
+              <v-chip small :color="(computeRowTotal(purposeTypeAllocationValues[i]) === 12)?'green': 'red'">
                 <v-avatar left
                 >
-                  <v-icon>mdi-check</v-icon>
+                  <v-icon small v-if="computeRowTotal(purposeTypeAllocationValues[i]) === 12">mdi-check</v-icon>
+                  <v-icon small v-else>mdi-close</v-icon>
                 </v-avatar>
-                {{purposeTypeAllocationValues[i].reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)}}
+                {{computeRowTotal(purposeTypeAllocationValues[i])}}
               </v-chip>
             </td>
           </tr>
@@ -74,7 +71,7 @@
   }
   .v-text-field__suffix{
     font-size: smaller;
-    opacity: 0.5;
+    opacity: 0.2;
   }
   .v-text-field{
     input {
@@ -134,6 +131,9 @@ export default {
         this.purposeTypeAllocationValuesFraction.push(allocValuesFraction)
       })
       console.log(this.purposeTypes, this.purposeTypeQty, this.purposeTypeAllocationValues)
+    },
+    computeRowTotal (values) {
+      return values.reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)
     }
   },
   watch: {
@@ -150,9 +150,7 @@ export default {
         })
       })
     },
-    computeTotal (values) {
-      return values.reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)
-    }
+
   },
   mounted () {
     console.log('edit', this.edit)
