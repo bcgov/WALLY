@@ -97,7 +97,7 @@ export default {
         )
       })
     },
-    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#088', opacity = 0.3) {
+    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#039be5', opacity = 0.3) {
       console.log(data)
       this.map.addLayer({
         id: id,
