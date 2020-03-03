@@ -3,17 +3,16 @@
     <div>
       <div class="titleSub">Comparitive Runoff Models</div>
       <div v-if="annualNormalizedRunoff">
-
-        <div>Annual normalized runoff: {{ annualNormalizedRunoff }} mm</div>
-        <div>Watershed area (highlighted area): {{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</div>
-        <div>
-          Using normalized runoff from: {{ annualNormalizedRunoffSource }}
-        </div>
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries" target="_blank">
             Hydrometric Watersheds (DataBC)
           </a>
+        </div>
+        <div>Annual normalized runoff: {{ annualNormalizedRunoff }} mm</div>
+        <div>Watershed area (highlighted area): {{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</div>
+        <div>
+          Using normalized runoff from: {{ annualNormalizedRunoffSource }}
         </div>
         <Plotly v-if="normalizedRunoffByMonth"
           :layout="runoffLayout"
@@ -21,14 +20,14 @@
         ></Plotly>
       </div>
       <div v-if="annualIsolineRunoff">
-        <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
-        <div>Watershed area: {{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</div>
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical" target="_blank">
             Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical (DataBC)
           </a>
         </div>
+        <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
+        <div>Watershed area: {{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</div>
         <Plotly v-if="isolineRunoffByMonth"
           :layout="isolineRunoffLayout"
           :data="isolineRunoffByMonth"
