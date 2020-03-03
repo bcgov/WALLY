@@ -16,10 +16,12 @@
             </v-btn>
           </v-card-actions>
         </v-card-title>
-        <MonthlyAllocationTable
-          :edit="show.editingAllocationValues"
-          :qtyByPurpose="licenceData.total_qty_by_purpose"
-          @close="closeEditAllocationTableDialog"/>
+        <v-dialog v-model="show.editingAllocationValues" persistent>
+          <MonthlyAllocationTable
+            :allocation-items="licenceData.total_qty_by_purpose"
+            key-field="purpose"
+            @close="closeEditAllocationTableDialog"/>
+        </v-dialog>
 
         <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
 
@@ -55,7 +57,7 @@ import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 import { Plotly } from 'vue-plotly'
 
-import MonthlyAllocationTable from './watershed_demand/MonthlyAllocationTable'
+import MonthlyAllocationTable from './watershed_demand/MonthlyAllocationTable.vue'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -99,6 +101,7 @@ export default {
   }),
   computed: {
     ...mapGetters('map', ['map']),
+    ...mapGetters('surfaceWater', ['allocationValues']),
     demandAvailabilityData () {
       if (!this.licenceData || !this.availability) {
         return null

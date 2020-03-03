@@ -11,30 +11,30 @@
       <v-tab-item>
         <!-- <WatershedDetails :watershedID="watershedID" :record="record" :details="watershedDetails"/> -->
         <v-menu>
-        <template v-slot:activator="{ on }">
-          <v-btn
-            color="grey darken-3"
-            class="ml-3 selection-menu-buttons"
-            tile
-            text
-            v-on="on"
-          >
-            Select Anchor <v-icon>keyboard_arrow_down</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item
-            v-for="(item, index) in anchors"
-            :key="index"
-            active-class="font-weight-bold"
-            @click="scrollMeTo(item.anchor)"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              color="grey darken-3"
+              class="ml-3 selection-menu-buttons"
+              tile
+              text
+              v-on="on"
+            >
+              select anchor <v-icon>keyboard_arrow_down</v-icon>
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(item, index) in anchors"
+              :key="index"
+              active-class="font-weight-bold"
+              @click="scrollmeto(item.anchor)"
+            >
+              <v-list-item-content>
+                <v-list-item-title>{{ item.title }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+          </v-list>
+        </v-menu>
         <div>
           <MeanAnnualRunoff ref="anchor-mar" :watershedID="watershedID" :record="record" :allWatersheds="watersheds" :details="watershedDetails"/>
 
@@ -120,7 +120,7 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}`)
         .then(r => {
           this.watershedDetailsLoading = false
-          if(!r.data) {
+          if (!r.data) {
             return
           }
           this.watershedDetails = r.data

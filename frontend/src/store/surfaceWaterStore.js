@@ -4,28 +4,37 @@ export default {
     // Store monthly allocation values in this object
     // Example:
     //   { key: [1,1,1,1,1,1,1,1,1,1,1] }
-    allocationValues: {}
+    defaultAllocValue: 1,
+    defaultAllocValues: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    allocationValues: { key: [] }
   },
   actions: {
-    computeQuantityForMonth ({ state }, qtyPerYear, allocKey, month) {
-      let defaultAllocValue = 1
-      let allocFraction
+    computeQuantityForMonth ({ state, dispatch }, qtyPerYear, allocItemKey, month) {
+      dispatch('initAllocationItemIfNotExists', allocItemKey)
 
-      let allocValues = (allocKey in state.allocationValues)
-        ? state.allocationValues[allocKey]
-        : []
-
-      if (allocValues.length === 0) {
-        allocFraction = defaultAllocValue
-      } else {
-        allocFraction = allocValues[month - 1]
-      }
+      let allocValues = state.allocationValues[allocItemKey]
+      let allocFraction = allocValues[month - 1]
       return qtyPerYear * (allocFraction / 12)
+    },
+    loadAllocationItemsFromStorage ({ state }) {
+      state.allocationValues =
+        JSON.parse(localStorage.getItem('allocationItems')) || {}
+    },
+    initAllocationItemIfNotExists ({ state, commit, dispatch }, allocItemKey) {
+      if (!(allocItemKey in state.allocationValues)) {
+        commit('setAllocationValues', {
+          key: allocItemKey,
+          values: state.defaultAllocValues })
+      }
     }
   },
   mutations: {
-    setAllocationValues (state, key, values) {
-      state.allocationValues[key] = values
+    setAllocationValues (state, item) {
+      state.allocationValues[item.key] = item.values
+    },
+    saveAllocationValues (state) {
+      localStorage.setItem('allocationItems',
+        JSON.stringify(state.allocationValues))
     },
     clearAllocationValues (state, key) {
       if (key in state.allocationValues) {
@@ -37,6 +46,7 @@ export default {
     }
   },
   getters: {
-    allocationValues: state => state.allocationValues
+    allocationValues: state => state.allocationValues,
+    test: state => state.allocationValues
   }
 }

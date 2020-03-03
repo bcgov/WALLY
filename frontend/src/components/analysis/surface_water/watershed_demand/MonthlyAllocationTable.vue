@@ -1,5 +1,4 @@
 <template>
-  <v-dialog v-model="showEditDialog" persistent>
     <v-card>
       <v-card-title class="headline">
         Edit monthly allocation values
@@ -16,37 +15,37 @@
         <template v-slot:default>
           <thead>
           <tr>
-            <th scope="col" class="purpose-type">Purpose Type</th>
+            <th scope="col" class="alloc-item">Name</th>
             <th scope="col" class="text-left alloc-value" v-for="month in months" :key="month">{{month}}</th>
             <th scope="col"></th>
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(purposeType, i) in purposeTypes" :key="purposeType">
-            <td class="purpose-type">{{purposeType}}</td>
-            <td v-for="(month, j) in months" :key="month">
-              <v-text-field
-                class="alloc-value"
-                suffix="/12"
-                dense
-                filled
-                v-model="purposeTypeAllocationValues[i][j]"
-                hide-details="auto"
-                color="primary"
-              >
-              </v-text-field>
+            <tr v-for="(item, i) in allocItems" :key="`${i}-${item.name}`">
+              <td>{{item.name}}</td>
+              <td v-for="(month, j) in months" :key="`${j}-${month}`">
+                <v-text-field
+                  class="alloc-value"
+                  suffix="/12"
+                  dense
+                  filled
+                  v-model="item.values[j]"
+                  hide-details="auto"
+                  color="primary"
+                >
+                </v-text-field>
               <p class="font-weight-light caption text-right">
-                {{purposeTypeAllocationValuesFraction[i][j] | formatNumber}}
+                {{computeDecimal(item.values[j]) | formatNumber}}
               </p>
-            </td>
+              </td>
             <td>
-              <v-chip small :color="(computeRowTotal(purposeTypeAllocationValues[i]) === 12)?'green': 'red'">
+              <v-chip small :color="(computeRowTotal(item.values) === 12)?'green': 'red'">
                 <v-avatar left
                 >
-                  <v-icon small v-if="computeRowTotal(purposeTypeAllocationValues[i]) === 12">mdi-check</v-icon>
+                  <v-icon small v-if="computeRowTotal(item.values) === 12">mdi-check</v-icon>
                   <v-icon small v-else>mdi-close</v-icon>
                 </v-avatar>
-                {{computeRowTotal(purposeTypeAllocationValues[i])}}
+                {{computeRowTotal(item.values)}}
               </v-chip>
             </td>
           </tr>
@@ -55,15 +54,13 @@
       </v-simple-table>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary lighten-1" depressed @click="showEditDialog = false">Apply</v-btn>
+        <v-btn color="primary lighten-1" depressed @click="saveValues">Apply</v-btn>
         <v-btn color="grey" dark depressed @click="exit">Cancel</v-btn>
       </v-card-actions>
     </v-card>
-  </v-dialog>
-
 </template>
 <style lang="scss">
-  .purpose-type{
+  .alloc-item{
     width: 300px;
   }
   .alloc-value{
@@ -93,68 +90,4 @@
 
   }
 </style>
-<script>
-import moment from 'moment'
-
-export default {
-  name: 'MonthlyAllocationTable',
-  components: {
-  },
-  props: ['edit', 'qtyByPurpose'],
-  data: () => ({
-    items: [],
-    months: moment.monthsShort(),
-    testRows: [1, 2, 3, 4, 5, 6, 7],
-    showEditDialog: false,
-    purposeTypes: [],
-    purposeTypeQty: [],
-    purposeTypeAllocationValues: [],
-    purposeTypeAllocationValuesFraction: []
-  }),
-  methods: {
-    exit () {
-      this.$emit('close', false)
-    },
-    populateTable () {
-      this.purposeTypes = []
-      this.purposeTypeQty = []
-      console.log(this.qtyByPurpose)
-      let defaultFraction = 1 / 12
-      this.qtyByPurpose.forEach(item => {
-        this.purposeTypes.push(item.purpose)
-        this.purposeTypeQty.push(item.qty)
-        let allocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        this.purposeTypeAllocationValues.push(allocValues)
-        let allocValuesFraction = [defaultFraction, defaultFraction, defaultFraction, defaultFraction,
-          defaultFraction, defaultFraction, defaultFraction, defaultFraction,
-          defaultFraction, defaultFraction, defaultFraction, defaultFraction]
-        this.purposeTypeAllocationValuesFraction.push(allocValuesFraction)
-      })
-      console.log(this.purposeTypes, this.purposeTypeQty, this.purposeTypeAllocationValues)
-    },
-    computeRowTotal (values) {
-      return values.reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)
-    }
-  },
-  watch: {
-    edit (value) {
-      this.showEditDialog = value
-    },
-    qtyByPurpose (value) {
-      this.populateTable(value)
-    },
-    purposeTypeAllocationValues (value) {
-      value.forEach((purposeType, i) => {
-        purposeType.forEach((monthlyAllocationVal, j) => {
-          this.purposeTypeAllocationValuesFraction[i][j] = this.purposeTypeAllocationValues[i][j] / 12
-        })
-      })
-    },
-
-  },
-  mounted () {
-    console.log('edit', this.edit)
-    this.populateTable()
-  }
-}
-</script>
+<script src="./MonthlyAllocationTable.js"/>

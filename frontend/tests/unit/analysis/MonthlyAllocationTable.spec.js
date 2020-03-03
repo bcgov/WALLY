@@ -4,7 +4,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import MonthlyAllocationTable
-  from '../../../src/components/analysis/surface_water/watershed_demand/MonthlyAllocationTable'
+  from '../../../src/components/analysis/surface_water/watershed_demand/MonthlyAllocationTable.vue'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 // localVue with Vuetify shows console warnings so we'll use Vue instead
@@ -14,7 +14,7 @@ Vue.use(Vuetify)
 
 const vuetify = new Vuetify()
 
-describe('Stream apportionment tests', () => {
+describe('Monthly Allocation Table Editor', () => {
   let wrapper
 
   beforeEach(() => {
@@ -32,6 +32,14 @@ describe('Stream apportionment tests', () => {
   })
 
   it('Table with editable values shows up', () => {
+    let allocationItems = {
+      'test1':
+        [1, 1, 1, 1,
+          1, 1, 1, 1,
+          1, 1, 1, 1]
+    }
+    wrapper.vm.populateTable()
+    expect(wrapper.vm.allocItems)
     expect(1).toEqual(1)
   })
 })
