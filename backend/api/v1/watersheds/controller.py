@@ -18,7 +18,7 @@ from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.isolines.controller import calculate_runoff_in_area
+from api.v1.models.isolines.controller import calculate_runoff_in_area
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 
@@ -394,6 +394,24 @@ def get_temperature(poly: Polygon):
     return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
 
 
+def get_annual_precipitation(poly: Polygon):
+    """
+    gets precipitation data from PCIC, and returns an annual precipitation
+    value calculated by summing monthly means.
+    """
+    response = pcic_data_request(poly)
+
+    months_data = list(response["data"].values())
+    months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    month_totals = [a*b for a,b in zip(months_data, months_days)]
+
+    annual_precipitation = sum(month_totals)
+    # logger.warning("annual_precipitation")
+    # logger.warning(annual_precipitation)
+
+    return annual_precipitation
+
+
 def calculate_daylight_hours_usgs(day: int, latitude_r: float):
     """ calculates daily radiation for a given day and latitude (latitude in radians)
         https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
@@ -452,3 +470,86 @@ def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data
     pet_mm_month = thornthwaite(monthly_t, mmdlh)
 
     return sum(pet_mm_month)
+
+
+def get_slope_elevation_aspect(polygon: MultiPolygon):
+    """
+    This calls the sea api with a polygon and receives back 
+    slope, elevation and aspect information.
+    """
+    sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
+
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Connection': 'keep-alive'
+    }
+
+    exterior = extract_poly_coords(polygon)["exterior_coords"]
+    coordinates = [[list(elem) for elem in exterior]]
+
+    payload = "format=json&aoi={\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"MultiPolygon\", \"coordinates\":" \
+        + str(coordinates) + \
+        "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
+
+    try:
+        response = requests.post(sea_url, headers=headers, data=payload)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as error:
+        raise HTTPException(status_code=error.response.status_code, detail=str(error))
+    
+    result = response.json()
+    logger.warning("sea result")
+    logger.warning(result)
+
+    if result["status"] != "SUCCESS":
+        raise HTTPException(204, detail=result["message"])
+
+    # response object from sea example
+    # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
+    # "SlopeElevationAspectResult":{"slope":44.28170006222049,
+    # "minElevation":793.0,"maxElevation":1776.0,
+    # "averageElevation":1202.0223152022315,"aspect":125.319019998603,
+    # "confidenceIndicator":46.840837384501654}}
+    sea = result["SlopeElevationAspectResult"]
+
+    slope = sea["slope"]
+    median_elevation = sea["averageElevation"]
+    aspect = sea["aspect"]
+
+    return (slope, median_elevation, aspect)
+
+
+def get_hillshade(slope: float, aspect: float):
+    """
+    Calculates the percentage hillshade (solar_exposure) value
+    based on the average slope and aspect of a point
+    """
+    azimuth = 180.0 # 0-360 we are using values from the scsb2016 paper
+    altitude = 45.0 # 0-90 " "
+    azimuth_rad = azimuth * math.pi / 2.
+    altitude_rad = altitude * math.pi / 180.
+
+    shade_value = math.sin(altitude_rad) * math.sin(slope) \
+        + math.cos(altitude_rad) * math.cos(slope) \
+        * math.cos((azimuth_rad - math.pi / 2.) - aspect)
+
+    return abs(shade_value)
+
+
+def extract_poly_coords(geom):
+    if geom.type == 'Polygon':
+        exterior_coords = geom.exterior.coords[:]
+        interior_coords = []
+        for interior in geom.interiors:
+            interior_coords += interior.coords[:]
+    elif geom.type == 'MultiPolygon':
+        exterior_coords = []
+        interior_coords = []
+        for part in geom:
+            epc = extract_poly_coords(part)  # Recursive call
+            exterior_coords += epc['exterior_coords']
+            interior_coords += epc['interior_coords']
+    else:
+        raise ValueError('Unhandled geometry type: ' + repr(geom.type))
+    return {'exterior_coords': exterior_coords,
+            'interior_coords': interior_coords}
