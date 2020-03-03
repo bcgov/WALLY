@@ -32,14 +32,14 @@ describe('Monthly Allocation Table Editor', () => {
   })
 
   it('Table with editable values shows up', () => {
-    let allocationItems = {
-      'test1':
-        [1, 1, 1, 1,
-          1, 1, 1, 1,
-          1, 1, 1, 1]
-    }
+    // let allocationItems = {
+    //   'test1':
+    //     [1, 1, 1, 1,
+    //       1, 1, 1, 1,
+    //       1, 1, 1, 1]
+    // }
     wrapper.vm.populateTable()
-    expect(wrapper.vm.allocItems)
+    // expect(wrapper.vm.allocItems)
     expect(1).toEqual(1)
   })
 })

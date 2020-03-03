@@ -402,7 +402,7 @@ export default {
         return Number(hydroWatershed.properties['ANNUAL_RUNOFF_IN_MM'])
       }
       return null
-    },
+    }
   },
   watch: {
     details: {
@@ -415,7 +415,7 @@ export default {
   methods: {
     updateModelData (details) {
       // MAD Model Calculations
-      if(details && details.scsb2016_model) {
+      if (details && details.scsb2016_model) {
         let outputs = details.scsb2016_model
         let mar = outputs.find((x) => x.output_type === 'MAR')
         let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
