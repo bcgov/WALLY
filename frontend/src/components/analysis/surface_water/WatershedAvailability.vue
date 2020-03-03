@@ -1,8 +1,9 @@
 <template>
   <div>
     <div>
-      <div class="title my-5">Availability</div>
+      <div class="titleSub">Comparitive Runoff Models</div>
       <div v-if="annualNormalizedRunoff">
+
         <div>Annual normalized runoff: {{ annualNormalizedRunoff }} mm</div>
         <div>Watershed area (highlighted area): {{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</div>
         <div>
@@ -206,5 +207,10 @@ export default {
 </script>
 
 <style>
-
+.titleSub {
+  color: #202124;
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
 </style>

@@ -8,8 +8,8 @@
       <div>
         <MeanAnnualRunoff ref="anchor-mar" :watershedID="watershedID" :record="record" :allWatersheds="watersheds" :details="watershedDetails"/>
         <WatershedAvailability ref="anchor-availability" :watershedID="watershedID" :allWatersheds="watersheds" :record="record" :details="watershedDetails"/>
-        <WatershedClimate ref="anchor-climate" :watershedID="watershedID" :record="record" :details="watershedDetails"/>
-        <SurficialGeology :watershedID="watershedID" :record="record"/>
+        <!-- <WatershedClimate ref="anchor-climate" :watershedID="watershedID" :record="record" :details="watershedDetails"/> -->
+        <!-- <SurficialGeology :watershedID="watershedID" :record="record"/> -->
       </div>
     </div>
   </div>

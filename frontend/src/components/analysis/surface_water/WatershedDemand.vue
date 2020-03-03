@@ -1,20 +1,14 @@
 <template>
   <div>
-    <div class="title my-5">Watershed Licenced Quantity</div>
+    <div class="titleSub my-5">Watershed Licenced Quantity</div>
     <div v-if="licencesLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
     <div v-if="licenceData">
-      <div class="font-weight-bold my-3">Water Rights Licences</div>
 
       <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
       
       <Dialog v-bind="wmd.availabilityVsDemand"/>
-
-      <Plotly v-if="availability && licenceData"
-        :layout="demandAvailabilityLayout()"
-        :data="demandAvailabilityData"
-      ></Plotly>
 
       <div class="my-5">
         <div class="mb-3">Annual licenced quantity by use type:</div>
@@ -29,6 +23,12 @@
           </template>
         </v-data-table>
       </div>
+
+      <Plotly v-if="availability && licenceData"
+        :layout="demandAvailabilityLayout()"
+        :data="demandAvailabilityData"
+      ></Plotly>
+
     </div>
   </div>
 </template>
@@ -102,7 +102,7 @@ export default {
         type: 'line',
         mode: 'lines',
         hoverinfo: 'skip',
-        name: '20% mean annual discharge',
+        name: '20% MAD',
         y: Array(12).fill(mar * 0.2),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#5ab190' }
@@ -111,7 +111,7 @@ export default {
         type: 'line',
         mode: 'lines',
         hoverinfo: 'skip',
-        name: '15% mean annual discharge',
+        name: '15% MAD',
         y: Array(12).fill(mar * 0.15),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fec925' }
@@ -120,7 +120,7 @@ export default {
         type: 'line',
         mode: 'lines',
         hoverinfo: 'skip',
-        name: '10% mean annual discharge',
+        name: '10% MAD',
         y: Array(12).fill(mar * 0.1),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fa1e44' }
@@ -239,5 +239,9 @@ export default {
 </script>
 
 <style>
-
+.titleSub {
+  color: #202124;
+  font-weight: bold;
+  font-size: 20px;
+}
 </style>

@@ -156,17 +156,22 @@
         </v-col>
       </v-row>
 
-        <div class="borderBlock">
+        <!-- <div class="borderBlock"> -->
+          <v-divider class="my-5"/>
           <Dialog v-bind="wmd.monthlyDischarge"/>
-          <div class="titleSub">Monthly Discharge</div>
+          <div class="titleSub">Watershed Monthly Discharge</div>
           <div class="unitSub">
-            m^3/s
           </div>
+          
           <v-data-table
             :items="getReverseMontlyDischargeItems"
             :headers="monthHeaders"
             :hide-default-footer="true"
           />
+          <Plotly v-if="monthlyDischargeData"
+            :layout="monthlyDischargeLayout()"
+            :data="monthlyDischargeData"
+          ></Plotly>
 
           <WatershedDemand ref="anchor-demand" :watershedID="watershedID" :record="record" :availability="availability"/>
 
@@ -175,13 +180,10 @@
             :headers="monthlyDischargeHeaders"
             :hide-default-footer="true"
           /> -->
-          <Plotly v-if="monthlyDischargeData"
-            :layout="monthlyDischargeLayout()"
-            :data="monthlyDischargeData"
-          ></Plotly>
-        </div>
+          
+        <!-- </div> -->
 
-        <div class="borderBlock">
+        <!-- <div class="borderBlock">
           <div class="titleSub">Monthly Distribution</div>
           <div class="unitSub">
             Annual %
@@ -191,15 +193,15 @@
             :headers="monthlydistributionHeaders"
             :hide-default-footer="true"
           >
-            <!-- <template v-slot:item="{ item }">
+            <template v-slot:item="{ item }">
               {{ (item.model_result.toFixed(4) * 100) + '%' }}
-            </template> -->
+            </template>
           </v-data-table>
           <Plotly v-if="monthlyDistributionsData"
             :layout="monthlyDistributionsLayout()"
             :data="monthlyDistributionsData"
           ></Plotly>
-        </div>
+        </div> -->
 
       </div>
       </div>
@@ -308,14 +310,41 @@ export default {
       if (!this.modelOutputs.monthlyDischarges) {
         return null
       }
-      const plotData = {
+      let mds = this.modelOutputs.monthlyDischarges
+      var discharge = []
+      var volume = []
+      var percent = []
+      var hoverText = []
+      for (let i = 0; i < mds.length; i++) {
+        discharge.push((mds[i].model_result).toFixed(2))
+        volume.push((mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0))
+        percent.push((mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2))
+        hoverText.push(volume[i] + ' m^3 <br>' + discharge[i] + ' m^3/s <br>' + percent[i] + '%MAD')
+      }
+      const volumeData = {
+        type: 'bar',
+        name: 'Monthly Volume',
+        y: volume,
+        x: this.monthHeaders.map((h) => h.text),
+        text: hoverText,
+        hoverinfo: 'text'
+        // hovertemplate: '%{y:.2f} m^3'
+      }
+      const dischargeData = {
         type: 'bar',
         name: 'Monthly Discharge',
-        y: this.modelOutputs.monthlyDischarges.map(m => { return m.model_result }),
+        y: discharge,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m^3/s'
       }
-      return [plotData]
+      const percentData = {
+        type: 'bar',
+        name: 'Monthly Distribution',
+        y: percent,
+        x: this.monthHeaders.map((h) => h.text),
+        hovertemplate: '%{y:.2f} %'
+      }
+      return [volumeData] //, dischargeData, percentData]
     },
     getMonthlyDistributionItems () {
       return this.modelOutputs.monthlyDistributions.map(m => {
@@ -464,7 +493,8 @@ export default {
     },
     monthlyDischargeLayout () {
       return {
-        title: 'Monthly Discharge',
+        title: 'Monthly Discharge Values',
+        // barmode: 'group',
         xaxis: {
           tickformat: '%B',
           title: {
@@ -472,12 +502,12 @@ export default {
             standoff: 20
           }
         },
-        yaxis: {
-          title: {
-            text: 'm^3/s',
-            standoff: 20
-          }
-        }
+        // yaxis: {
+        //   title: {
+        //     text: 'm^3/s',
+        //     standoff: 20
+        //   }
+        // }
       }
     },
     downloadWatershedInfo (plotType) {
@@ -564,6 +594,7 @@ export default {
   font-weight: bold;
   font-size: 16px;
   margin-left: 5px;
+  margin-bottom: 20px;
 }
 .titleExp {
   color: #202124;
