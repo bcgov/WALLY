@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-if="name && url" width="650">
+  <v-dialog v-if="name" width="650">
     <template v-slot:activator="{ on }">
       <v-icon class="float-right" v-on="on">
         mdi-information-outline
@@ -16,7 +16,7 @@
         {{description}}
       </v-card-text>
       <v-divider></v-divider>
-      <v-card-actions>
+      <v-card-actions v-if="url">
         <v-btn
           text
           color="primary accent-4"

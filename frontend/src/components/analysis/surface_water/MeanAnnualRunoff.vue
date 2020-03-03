@@ -38,6 +38,7 @@
         <v-col cols=5>
           <v-row class="borderBlock">
             <v-col>
+              <Dialog v-bind="wmd.drainageArea"/>
               <div class="titleBlock">Drainage Area</div>
               <div class="infoBlock">
                 {{ watershedDetails.drainage_area ? watershedDetails.drainage_area : 'N/A' }}
@@ -62,15 +63,8 @@
 
       <v-row class="borderSub">
         <v-col cols=4 class="colSub">
-            <v-tooltip top>
-              <template v-slot:activator="{ on }">
-                <v-icon size="28" class="float-right" v-on="on">
-                  mdi-information-outline
-                </v-icon>
-              </template>
-              <span>Average annual precipitation in mm.</span>
-            </v-tooltip>
-            <div class="titleSub">Annual Precipitation</div>
+          <Dialog v-bind="wmd.annualPrecipitation"/>
+          <div class="titleSub">Annual Precipitation</div>
           <div class="infoSub">
             {{ watershedDetails.annual_precipitation ? watershedDetails.annual_precipitation : 'N/A' }}
           </div>
@@ -79,14 +73,7 @@
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-icon size="28" class="float-right" v-on="on">
-                mdi-information-outline
-              </v-icon>
-            </template>
-            <span>Percentage glacial coverage over the selected watershed area.</span>
-          </v-tooltip>
+          <Dialog v-bind="wmd.glacialCoverage"/>
           <div class="titleSub">Glacial Coverage</div>
           <div class="infoSub">
             {{ watershedDetails.glacial_coverage ? watershedDetails.glacial_coverage : 'N/A' }}
@@ -96,14 +83,7 @@
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-icon size="28" class="float-right" v-on="on">
-                mdi-information-outline
-              </v-icon>
-            </template>
-            <span>Median elevation over the area of the watershed.</span>
-          </v-tooltip>
+          <Dialog v-bind="wmd.medianElevation"/>
           <div class="titleSub">Median Elevation</div>
           <div class="infoSub">
             {{ watershedDetails.median_elevation ? watershedDetails.median_elevation : 'N/A' }}
@@ -125,13 +105,16 @@
           </div>
         </v-col>
         <v-col cols=6>
+          <Dialog v-bind="wmd.meanAnnualDischarge"/>
           <div class="titleExp">Source</div>
           <div class="unitExp">
+            {{madSourceDescription}}
             The CDEM stems from the existing Canadian Digital Elevation Data (CDED). The latter were extracted
             from the hypsograph
           </div>
           <div class="titleExp">Model</div>
           <div class="unitExp">
+            {{madModelDescription}}
             We used a model based upon South Coast Stewardship Baseline (Brem, Fraser Valley South, Toba, Upper Lillooet) <a
             href="https://apps.nrs.gov.bc.ca/gwells/"
             target="_blank"
@@ -142,14 +125,7 @@
 
       <v-row class="borderSub">
         <v-col cols=4 class="colSub">
-            <v-tooltip top>
-              <template v-slot:activator="{ on }">
-                <v-icon size="28" class="float-right" v-on="on">
-                  mdi-information-outline
-                </v-icon>
-              </template>
-              <span>This the area unit value describing annual runoff.</span>
-            </v-tooltip>
+          <Dialog v-bind="wmd.meanAnnualRunoff"/>
             <div class="titleSub">Mean Annual Runoff</div>
           <div class="infoSub">
             {{ modelOutputs.mar }}
@@ -159,14 +135,7 @@
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-icon size="28" class="float-right" v-on="on">
-                mdi-information-outline
-              </v-icon>
-            </template>
-            <span>2-year annual 7-day low flow.</span>
-          </v-tooltip>
+          <Dialog v-bind="wmd.low7Q2"/>
           <div class="titleSub">Low7Q2</div>
           <div class="infoSub">
             {{ modelOutputs.low7q2 ? modelOutputs.low7q2 : 'N/A' }}
@@ -176,14 +145,7 @@
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
-          <v-tooltip top>
-            <template v-slot:activator="{ on }">
-              <v-icon size="28" class="float-right" v-on="on">
-                mdi-information-outline
-              </v-icon>
-            </template>
-            <span>10-year dry return period 7-day late summer (Jun-Sep) low flow.</span>
-          </v-tooltip>
+          <Dialog v-bind="wmd.dry7Q10"/>
           <div class="titleSub">Dry7Q10</div>
           <div class="infoSub">
             {{ modelOutputs.dry7q10 ? modelOutputs.dry7q10 : 'N/A' }}
@@ -195,6 +157,7 @@
       </v-row>
 
         <div class="borderBlock">
+          <Dialog v-bind="wmd.monthlyDischarge"/>
           <div class="titleSub">Monthly Discharge</div>
           <div class="unitSub">
             m^3/s
@@ -250,11 +213,14 @@ import moment from 'moment'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import WatershedDemand from './WatershedDemand'
+import Dialog from '../../common/Dialog'
+import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
 export default {
   name: 'MeanAnnualRunoff',
   components: {
     Plotly,
+    Dialog,
     WatershedDemand
   },
   props: ['watershedID', 'record', 'details', 'allWatersheds'],
@@ -307,7 +273,8 @@ export default {
       { text: 'Oct', value: 'm10' },
       { text: 'Nov', value: 'm11' },
       { text: 'Dec', value: 'm12' }
-    ]
+    ],
+    wmd: WatershedModelDescriptions
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -372,7 +339,7 @@ export default {
       for (let i = 0; i < mds.length; i++) {
         rate['m' + (i + 1)] = (mds[i].model_result).toFixed(2)
         volume['m' + (i + 1)] = (mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0)
-        percent['m' + (i + 1)] = (mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(3)
+        percent['m' + (i + 1)] = (mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2)
       }
       return [rate, volume, percent]
     },
@@ -391,6 +358,18 @@ export default {
       }
       return null
     },
+    madSourceDescription () {
+      if (this.details && this.details.scsb2016_model) {
+        return ''
+      }
+      return ''
+    },
+    madModelDescription () {
+      if (this.details && this.details.scsb2016_model) {
+        return ''
+      }
+      return ''
+    }
   },
   watch: {
     details: {
@@ -403,7 +382,7 @@ export default {
   methods: {
     updateModelData (details) {
       // MAD Model Calculations
-      if(details && details.scsb2016_model) {
+      if (details && details.scsb2016_model) {
         let outputs = details.scsb2016_model
         let mar = outputs.find((x) => x.output_type === 'MAR')
         let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
@@ -420,7 +399,7 @@ export default {
           monthlyDischarges: monthlyDischarges
         }
         this.watershedDetails = {
-          median_elevation: details.median_elevation.toFixed(2),
+          median_elevation: details.median_elevation.toFixed(0),
           average_slope: details.average_slope,
           solar_exposure: details.solar_exposure,
           drainage_area: details.drainage_area.toFixed(2),
@@ -527,10 +506,9 @@ export default {
       let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
       return size
     }
-
   },
   mounted () {
-    // this.fetchModelData()
+    console.log(this.wmd)
   },
   beforeDestroy () {
   }

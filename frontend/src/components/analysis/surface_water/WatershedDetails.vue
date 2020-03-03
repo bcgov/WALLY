@@ -1,64 +1,17 @@
 <template>
-  <div>
+  <div ref="anchor-parent">
     <div v-if="watershedDetailsLoading">
       <v-progress-linear indeterminate show></v-progress-linear>
     </div>
-    <v-tabs v-else>
-      <v-tab>Watershed Details</v-tab>
-      <!-- <v-tab>Climate</v-tab>
-      <v-tab>Availability</v-tab>
-      <v-tab>Demand</v-tab> -->
-      <v-tab-item>
-        <!-- <WatershedDetails :watershedID="watershedID" :record="record" :details="watershedDetails"/> -->
-        <v-menu>
-        <template v-slot:activator="{ on }">
-          <v-btn
-            color="grey darken-3"
-            class="ml-3 selection-menu-buttons"
-            tile
-            text
-            v-on="on"
-          >
-            Select Anchor <v-icon>keyboard_arrow_down</v-icon>
-          </v-btn>
-        </template>
-        <v-list>
-          <v-list-item
-            v-for="(item, index) in anchors"
-            :key="index"
-            active-class="font-weight-bold"
-            @click="scrollMeTo(item.anchor)"
-          >
-            <v-list-item-content>
-              <v-list-item-title>{{ item.title }}</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-        <div>
-          <MeanAnnualRunoff ref="anchor-mar" :watershedID="watershedID" :record="record" :allWatersheds="watersheds" :details="watershedDetails"/>
-
-          <WatershedAvailability ref="anchor-availability" :watershedID="watershedID" :allWatersheds="watersheds" :record="record" :details="watershedDetails"/>
-
-          <WatershedClimate ref="anchor-climate" :watershedID="watershedID" :record="record" :details="watershedDetails"/>
-
-          <!-- <div class="my-3" v-if="watershedArea">
-            <span class="font-weight-bold">Area:</span>
-            {{watershedArea.toFixed(1) }} sq. m ({{ (watershedArea / 1e6).toFixed(2)}} sq. km)
-          </div> -->
-        </div>
-      </v-tab-item>
-      <!-- <v-tab-item>
-        <WatershedClimate :watershedID="watershedID" :record="record" :details="watershedDetails"/>
-      </v-tab-item> -->
-      <!-- <v-tab-item>
-        <WatershedAvailability :watershedID="watershedID" :allWatersheds="watersheds" :record="record" :details="watershedDetails"/>
-      </v-tab-item>
-        <WatershedDemand :watershedID="watershedID" :record="record" :details="watershedDetails"/>
-      </v-tab-item> -->
-    </v-tabs>
-
-    <!-- <SurficialGeology :watershedID="watershedID" :record="record"/> -->
+    <div v-else>
+      <div>Watershed Details</div>
+      <div>
+        <MeanAnnualRunoff ref="anchor-mar" :watershedID="watershedID" :record="record" :allWatersheds="watersheds" :details="watershedDetails"/>
+        <WatershedAvailability ref="anchor-availability" :watershedID="watershedID" :allWatersheds="watersheds" :record="record" :details="watershedDetails"/>
+        <WatershedClimate ref="anchor-climate" :watershedID="watershedID" :record="record" :details="watershedDetails"/>
+        <SurficialGeology :watershedID="watershedID" :record="record"/>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -120,7 +73,7 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}`)
         .then(r => {
           this.watershedDetailsLoading = false
-          if(!r.data) {
+          if (!r.data) {
             return
           }
           this.watershedDetails = r.data
@@ -132,9 +85,8 @@ export default {
     },
     scrollMeTo (refName) {
       var element = this.$refs[refName]
-      var top = element.offsetTop
-
-      window.scrollTo(0, top)
+      var top = element.$el.offsetTop
+      this.$refs["anchor-parent"].scrollTo(0, top)
     }
   },
   mounted () {

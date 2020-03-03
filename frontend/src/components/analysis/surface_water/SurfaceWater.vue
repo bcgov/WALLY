@@ -5,10 +5,27 @@
         <v-progress-linear show indeterminate></v-progress-linear>
       </v-col>
     </v-row>
+    <v-banner one-line>
+      <v-avatar
+        slot="icon"
+        color="blue accent-4"
+        size="40"
+      >
+        <v-icon
+          icon="mdi-exclamation"
+          color="white"
+        >
+          mdi-exclamation
+        </v-icon>
+      </v-avatar>
+
+      This modelling output has not been peer reviewed and is still considered experimental. Use the values generated with your own discretion.
+
+    </v-banner>
     <template v-if="watersheds && watersheds.length">
       <v-row>
-        <v-col cols=12 md=8><div class="title mb-3">Watersheds</div></v-col>
-        <v-col cols=12 md=4 class="text-right">
+        <!-- <v-col cols=12 md=8><div class="title mb-3">Watersheds</div></v-col> -->
+        <v-col cols=12 md=12 class="text-right">
           <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
         </v-col>
       </v-row>

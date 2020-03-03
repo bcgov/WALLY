@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="title my-5">Watershed Demand</div>
+    <div class="title my-5">Watershed Licenced Quantity</div>
     <div v-if="licencesLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
@@ -8,6 +8,8 @@
       <div class="font-weight-bold my-3">Water Rights Licences</div>
 
       <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
+      
+      <Dialog v-bind="wmd.availabilityVsDemand"/>
 
       <Plotly v-if="availability && licenceData"
         :layout="demandAvailabilityLayout()"
@@ -36,6 +38,8 @@ import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 import { Plotly } from 'vue-plotly'
+import Dialog from '../../common/Dialog'
+import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -45,7 +49,8 @@ const popup = new mapboxgl.Popup({
 export default {
   name: 'SurfaceWaterDemand',
   components: {
-    Plotly
+    Plotly,
+    Dialog
   },
   props: ['watershedID', 'record', 'availability'],
   data: () => ({
@@ -69,7 +74,8 @@ export default {
       { text: 'Oct', value: 'm10' },
       { text: 'Nov', value: 'm11' },
       { text: 'Dec', value: 'm12' }
-    ]
+    ],
+    wmd: WatershedModelDescriptions
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -77,6 +83,7 @@ export default {
       if (!this.licenceData || !this.availability) {
         return null
       }
+      var mar = this.availability.reduce((a, b) => a + b, 0) / 12
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
@@ -86,7 +93,7 @@ export default {
       }
       const licencePlotData = {
         type: 'bar',
-        name: 'Monthly Demand',
+        name: 'Monthly Licenced Quantity',
         y: Array(12).fill(this.licenceData.total_qty / 12),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m^3'
@@ -96,7 +103,7 @@ export default {
         mode: 'lines',
         hoverinfo: 'skip',
         name: '20% mean annual discharge',
-        y: Array(12).fill(0.2 * this.licenceData.total_qty),
+        y: Array(12).fill(mar * 0.2),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#5ab190' }
       }
@@ -105,7 +112,7 @@ export default {
         mode: 'lines',
         hoverinfo: 'skip',
         name: '15% mean annual discharge',
-        y: Array(12).fill(0.15 * this.licenceData.total_qty),
+        y: Array(12).fill(mar * 0.15),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fec925' }
       }
@@ -114,7 +121,7 @@ export default {
         mode: 'lines',
         hoverinfo: 'skip',
         name: '10% mean annual discharge',
-        y: Array(12).fill(0.1 * this.licenceData.total_qty),
+        y: Array(12).fill(mar * 0.1),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fa1e44' }
       }
@@ -133,7 +140,7 @@ export default {
     demandAvailabilityLayout () {
       return {
         barmode: 'stack',
-        title: 'Availability vs Demand',
+        title: 'Availability vs Licenced Quantity',
         xaxis: {
           tickformat: '%B'
         },
