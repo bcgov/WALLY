@@ -7,7 +7,7 @@
     <div v-if="licenceData">
 
       <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) }} m3/year
-      
+
       <Dialog v-bind="wmd.availabilityVsDemand"/>
 
       <div class="my-5">

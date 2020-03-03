@@ -162,7 +162,7 @@
           <div class="titleSub">Watershed Monthly Discharge</div>
           <div class="unitSub">
           </div>
-          
+
           <v-data-table
             :items="getReverseMontlyDischargeItems"
             :headers="monthHeaders"
@@ -180,7 +180,7 @@
             :headers="monthlyDischargeHeaders"
             :hide-default-footer="true"
           /> -->
-          
+
         <!-- </div> -->
 
         <!-- <div class="borderBlock">
@@ -330,20 +330,20 @@ export default {
         hoverinfo: 'text'
         // hovertemplate: '%{y:.2f} m^3'
       }
-      const dischargeData = {
-        type: 'bar',
-        name: 'Monthly Discharge',
-        y: discharge,
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m^3/s'
-      }
-      const percentData = {
-        type: 'bar',
-        name: 'Monthly Distribution',
-        y: percent,
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} %'
-      }
+      // const dischargeData = {
+      //   type: 'bar',
+      //   name: 'Monthly Discharge',
+      //   y: discharge,
+      //   x: this.monthHeaders.map((h) => h.text),
+      //   hovertemplate: '%{y:.2f} m^3/s'
+      // }
+      // const percentData = {
+      //   type: 'bar',
+      //   name: 'Monthly Distribution',
+      //   y: percent,
+      //   x: this.monthHeaders.map((h) => h.text),
+      //   hovertemplate: '%{y:.2f} %'
+      // }
       return [volumeData] //, dischargeData, percentData]
     },
     getMonthlyDistributionItems () {
@@ -501,7 +501,7 @@ export default {
             text: 'Month',
             standoff: 20
           }
-        },
+        }
         // yaxis: {
         //   title: {
         //     text: 'm^3/s',

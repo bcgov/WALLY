@@ -18,14 +18,14 @@
 <script>
 import ApiService from '../../../services/ApiService'
 
-import WatershedClimate from './WatershedClimate'
+// import WatershedClimate from './WatershedClimate'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
 export default {
   name: 'WatershedDetails',
   props: ['watershedID', 'record', 'watersheds'],
   components: {
-    WatershedClimate,
+    // WatershedClimate,
     WatershedAvailability,
     MeanAnnualRunoff
   },
@@ -86,7 +86,7 @@ export default {
     scrollMeTo (refName) {
       var element = this.$refs[refName]
       var top = element.$el.offsetTop
-      this.$refs["anchor-parent"].scrollTo(0, top)
+      this.$refs['anchor-parent'].scrollTo(0, top)
     }
   },
   mounted () {
