@@ -103,6 +103,12 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
         }
 
+        location /files {
+            proxy_pass http://${WALLY_BACKEND_SERVICE}:9000;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
         location / {
             # First attempt to serve request as file, then
             # as directory, then fall back to redirecting to index.html
