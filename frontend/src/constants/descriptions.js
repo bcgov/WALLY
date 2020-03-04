@@ -1,7 +1,7 @@
 export const WatershedModelDescriptions = {
   drainageArea: {
     name: 'Drainage Area',
-    description: 'Total are of the selected watershed measured in kilometers squared (km^2).',
+    description: 'Total area of the selected watershed measured in kilometers squared (km^2).',
     url: ''
   },
   annualPrecipitation: {
@@ -68,7 +68,7 @@ export const WatershedModelDescriptions = {
   },
   monthlyDischarge: {
     name: 'Monthly Discharge',
-    description: '',
+    description: 'This section displays a table and chart of the mean monthly discharges, volume discharge, and percentage of mean annual discharge.',
     url: ''
   },
   monthlyDistribution: {
@@ -78,7 +78,7 @@ export const WatershedModelDescriptions = {
   },
   availabilityVsDemand: {
     name: 'Availability vs Licenced Quantity',
-    description: 'Demand ouput visualized against availability.',
+    description: 'This section shows all the water rights licences found within the watershed, and compares the licenced quantity against the calculated availability.',
     url: ''
   }
 }
