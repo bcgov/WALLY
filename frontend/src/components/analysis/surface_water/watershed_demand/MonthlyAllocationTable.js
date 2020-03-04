@@ -9,7 +9,7 @@ export default {
   data: () => ({
     months: moment.monthsShort(),
     allocItems: [],
-    ...mapGetters('surfaceWater', ['allocationValues', 'test'])
+    ...mapGetters('surfaceWater', ['allocationValues'])
   }),
   methods: {
     exit () {
@@ -22,7 +22,7 @@ export default {
 
         this.allocItems.push({
           name: allocItemKey,
-          values: this.allocationValues[allocItemKey] || defaultAllocValues
+          values: this.allocationValues()[allocItemKey] || defaultAllocValues
         })
       })
     },

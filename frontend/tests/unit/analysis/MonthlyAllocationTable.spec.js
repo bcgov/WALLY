@@ -18,6 +18,7 @@ const vuetify = new Vuetify()
 describe('MonthlyAllocationTable Test', () => {
   let wrapper
   let store
+  let propsData
 
   beforeEach(() => {
     let surfaceWater = {
@@ -33,24 +34,41 @@ describe('MonthlyAllocationTable Test', () => {
       }
     }
 
+    propsData = {
+      'allocationItems': [
+        { 'testKey': 'test 1' },
+        { 'testKey': 'test 2' },
+        { 'testKey': 'test 3' }
+      ],
+      'keyField': 'testKey'
+    }
+
     store = new Vuex.Store({ modules: { surfaceWater } })
     wrapper = mount(MonthlyAllocationTable, {
       vuetify,
       store,
       localVue,
-      propsData: {
-        'allocationItems': [
-          { 'testKey': 'test 1' },
-          { 'testKey': 'test 2' },
-          { 'testKey': 'test 3' }
-        ],
-        'keyField': 'testKey'
-      }
+      propsData
     })
   })
 
   it('Show allocation table', () => {
-    console.log(wrapper.findAll('div'))
-    expect(wrapper.findAll('div#allocationTable').length).toBe(1)
+    let allocationCard = wrapper.findAll('div#allocationTable')
+    expect(allocationCard.length).toBe(1)
+  })
+
+  it('Rows for each allocation item', () => {
+    let tableRows = wrapper.findAll('table tbody tr')
+    expect(tableRows.length).toBe(propsData.allocationItems.length)
+  })
+
+  it('Input text fields for each alloc item for each month', () => {
+    let inputTextFields = wrapper.findAll('input[type=text]')
+    expect(inputTextFields.length).toBe(propsData.allocationItems.length * 12)
+  })
+
+  it('Populates table from local storage', () => {
+    console.log(wrapper.vm.allocItems)
+    wrapper.vm.populateTable()
   })
 })
