@@ -1,5 +1,5 @@
 <template>
-    <v-card>
+    <v-card id="allocationTable">
       <v-card-title class="headline">
         Edit monthly allocation values
         <v-spacer></v-spacer>

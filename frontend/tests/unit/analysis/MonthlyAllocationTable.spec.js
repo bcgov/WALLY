@@ -1,45 +1,56 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
-import Vuetify from 'vuetify'
-import Vue from 'vue'
-import Vuex from 'vuex'
-
+import { createLocalVue, mount } from '@vue/test-utils'
 import MonthlyAllocationTable
   from '../../../src/components/analysis/surface_water/watershed_demand/MonthlyAllocationTable.vue'
+import Vuex from 'vuex'
+import Vuetify from 'vuetify'
+import Vue from 'vue'
+
 const localVue = createLocalVue()
 localVue.use(Vuex)
 // localVue with Vuetify shows console warnings so we'll use Vue instead
 // https://github.com/vuetifyjs/vuetify/issues/4964
 // localVue.use(Vuetify)
 Vue.use(Vuetify)
+Vue.filter('formatNumber', () => 'foo')
 
 const vuetify = new Vuetify()
 
-describe('Monthly Allocation Table Editor', () => {
+describe('MonthlyAllocationTable Test', () => {
   let wrapper
+  let store
 
   beforeEach(() => {
-    let methods = {
-      populateTable: jest.fn()
-    }
-    // store = new Vuex.Store({ modules: { map } })
+    let surfaceWater = {
+      namespaced: true,
+      getters: {
+        allocationValues: () => {}
+      },
+      mutations: {
 
-    wrapper = shallowMount(MonthlyAllocationTable, {
+      },
+      actions: {
+        loadAllocationItemsFromStorage: jest.fn()
+      }
+    }
+
+    store = new Vuex.Store({ modules: { surfaceWater } })
+    wrapper = mount(MonthlyAllocationTable, {
       vuetify,
-      // store,
+      store,
       localVue,
-      methods
+      propsData: {
+        'allocationItems': [
+          { 'testKey': 'test 1' },
+          { 'testKey': 'test 2' },
+          { 'testKey': 'test 3' }
+        ],
+        'keyField': 'testKey'
+      }
     })
   })
 
-  it('Table with editable values shows up', () => {
-    // let allocationItems = {
-    //   'test1':
-    //     [1, 1, 1, 1,
-    //       1, 1, 1, 1,
-    //       1, 1, 1, 1]
-    // }
-    wrapper.vm.populateTable()
-    // expect(wrapper.vm.allocItems)
-    expect(1).toEqual(1)
+  it('Show allocation table', () => {
+    console.log(wrapper.findAll('div'))
+    expect(wrapper.findAll('div#allocationTable').length).toBe(1)
   })
 })
