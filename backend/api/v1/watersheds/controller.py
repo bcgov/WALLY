@@ -393,19 +393,6 @@ def get_watershed(db: Session, watershed_feature: str, include_self=False):
     watershed_feature_id = watershed_feature.split('.')[-1:]
     watershed = None
 
-    # basic method to lookup a cached watershed geometry, if one exists.
-    # it first clears out outdated cached records.
-    cache_q = """
-    with del_outdated as (
-        delete from upstream_watershed_cache
-        where expiry_date < now()
-    )
-    select * from upstream_watershed_cache
-    where watershed_feature_id = :watershed_feature
-    and include_features = ARRAY[(:include_features)::int)
-    
-    """
-
     logger.info(watershed_feature_id)
 
     # if we generated this watershed, use the catchment area
