@@ -24,7 +24,6 @@
     </v-banner>
     <template v-if="watersheds && watersheds.length">
       <v-row>
-        <!-- <v-col cols=12 md=8><div class="title mb-3">Watersheds</div></v-col> -->
         <v-col cols=12 md=12 class="text-right">
           <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
         </v-col>
@@ -50,7 +49,6 @@
       </v-row>
 
       <div v-if="selectedWatershed">
-        <!-- <WatershedDetails :record="selectedWatershedRecord" :watersheds="watersheds" :watershedID="selectedWatershed" ></WatershedDetails> -->
         <div v-if="watershedDetailsLoading">
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
@@ -73,7 +71,6 @@ import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
-// import WatershedDetails from './WatershedDetails'
 
 export default {
   name: 'SurfaceWaterDetails',

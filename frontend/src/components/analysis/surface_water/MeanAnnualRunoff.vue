@@ -4,13 +4,6 @@
       <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Watershed Info</span>
     </v-btn>
   <div id="watershedInfo">
-
-    <!-- <v-row v-if="watershedLoading">
-      <v-col>
-        <div class="headerPad titleSub">Calculating Watershed Details</div>
-        <v-progress-linear show indeterminate></v-progress-linear>
-      </v-col>
-    </v-row> -->
     <div v-if="error">
       <v-row class="borderBlock">
         <v-col>
@@ -24,7 +17,6 @@
     <div v-else-if="watershedDetails">
       <v-row>
         <v-col cols=7>
-          <!-- <div class="titleBlock">Watershed Details</div> -->
           <v-row class="borderBlock">
             <v-col>
               <div class="titleBlock">Watershed</div>
@@ -49,16 +41,6 @@
             </v-col>
           </v-row>
         </v-col>
-        <!-- <v-col cols=6>
-          <div class="titleExp">Watershed Name</div>
-          <div class="unitExp">{{this.record ? this.record.properties.GNIS_NAME_1 : ''}}</div>
-          <div class="titleExp">Average Slope</div>
-          <div class="unitExp">{{modelInputs.average_slope}}</div>
-          <div class="titleExp">Solar Exposure</div>
-          <div class="unitExp">{{modelInputs.solar_exposure}}</div>
-          <div class="titleExp">Evapo-Transpiration</div>
-          <div class="unitExp">{{modelInputs.evapo_transpiration}}</div>
-        </v-col> -->
       </v-row>
 
       <v-row class="borderSub">
@@ -156,32 +138,23 @@
         </v-col>
       </v-row>
 
-        <!-- <div class="borderBlock"> -->
-          <v-divider class="my-5"/>
-          <Dialog v-bind="wmd.monthlyDischarge"/>
-          <div class="titleSub">Watershed Monthly Discharge</div>
-          <div class="unitSub">
-          </div>
+      <v-divider class="my-5"/>
+      <Dialog v-bind="wmd.monthlyDischarge"/>
+      <div class="titleSub">Watershed Monthly Discharge</div>
+      <div class="unitSub">
+      </div>
 
-          <v-data-table
-            :items="getReverseMontlyDischargeItems"
-            :headers="monthHeaders"
-            :hide-default-footer="true"
-          />
-          <Plotly v-if="monthlyDischargeData"
-            :layout="monthlyDischargeLayout()"
-            :data="monthlyDischargeData"
-          ></Plotly>
+      <v-data-table
+        :items="getReverseMontlyDischargeItems"
+        :headers="monthHeaders"
+        :hide-default-footer="true"
+      />
+      <Plotly v-if="monthlyDischargeData"
+        :layout="monthlyDischargeLayout()"
+        :data="monthlyDischargeData"
+      ></Plotly>
 
-          <WatershedDemand ref="anchor-demand" :watershedID="watershedID" :record="record" :availability="availability"/>
-
-          <!-- <v-data-table
-            :items="getMonthlyDischargeItems"
-            :headers="monthlyDischargeHeaders"
-            :hide-default-footer="true"
-          /> -->
-
-        <!-- </div> -->
+      <WatershedDemand ref="anchor-demand" :watershedID="watershedID" :record="record" :availability="availability"/>
 
         <!-- <div class="borderBlock">
           <div class="titleSub">Monthly Distribution</div>
@@ -204,8 +177,8 @@
         </div> -->
 
       </div>
-      </div>
-      </div>
+    </div>
+    </div>
 </template>
 
 <script>
@@ -328,23 +301,8 @@ export default {
         x: this.monthHeaders.map((h) => h.text),
         text: hoverText,
         hoverinfo: 'text'
-        // hovertemplate: '%{y:.2f} m^3'
       }
-      // const dischargeData = {
-      //   type: 'bar',
-      //   name: 'Monthly Discharge',
-      //   y: discharge,
-      //   x: this.monthHeaders.map((h) => h.text),
-      //   hovertemplate: '%{y:.2f} m^3/s'
-      // }
-      // const percentData = {
-      //   type: 'bar',
-      //   name: 'Monthly Distribution',
-      //   y: percent,
-      //   x: this.monthHeaders.map((h) => h.text),
-      //   hovertemplate: '%{y:.2f} %'
-      // }
-      return [volumeData] //, dischargeData, percentData]
+      return [volumeData]
     },
     getMonthlyDistributionItems () {
       return this.modelOutputs.monthlyDistributions.map(m => {
@@ -357,9 +315,6 @@ export default {
         }
       })
     },
-    // getMonthlyDischargeItems () {
-    //   return this.modelOutputs.monthlyDistributions.map(m => { return { month: moment.months(m.month - 1), model_result: (m.model_result * this.modelOutputs.mad.model_result).toFixed(4) } })
-    // },
     getReverseMontlyDischargeItems () {
       let mds = this.modelOutputs.monthlyDischarges
       let rate = { 'unit': 'm^3/s' }
@@ -494,7 +449,6 @@ export default {
     monthlyDischargeLayout () {
       return {
         title: 'Monthly Discharge Values',
-        // barmode: 'group',
         xaxis: {
           tickformat: '%B',
           title: {
@@ -502,12 +456,6 @@ export default {
             standoff: 20
           }
         }
-        // yaxis: {
-        //   title: {
-        //     text: 'm^3/s',
-        //     standoff: 20
-        //   }
-        // }
       }
     },
     downloadWatershedInfo (plotType) {
