@@ -46,7 +46,6 @@ export default {
     }
   },
   getters: {
-    allocationValues: state => state.allocationValues,
-    test: state => state.allocationValues
+    allocationValues: state => state.allocationValues
   }
 }
