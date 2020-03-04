@@ -220,7 +220,7 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
                 :watershed_feature_id,
                 (:include)::int,
                 feat.geom,
-                now(), now(), now() + interval '1 min'
+                now(), now(), now() + interval '10 min'
                 from feat
             on conflict do nothing
         )
