@@ -47,7 +47,7 @@ const popup = new mapboxgl.Popup({
 })
 
 export default {
-  name: 'SurfaceWaterDemand',
+  name: 'WatershedDemand',
   components: {
     Plotly,
     Dialog

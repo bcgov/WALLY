@@ -319,7 +319,7 @@ export default {
         discharge.push((mds[i].model_result).toFixed(2))
         volume.push((mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0))
         percent.push((mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2))
-        hoverText.push(volume[i] + ' m^3 <br>' + discharge[i] + ' m^3/s <br>' + percent[i] + '%MAD')
+        hoverText.push(volume[i] + ' m^3 <br>' + discharge[i] + ' m^3/s <br>' + percent[i] + '% MAD')
       }
       const volumeData = {
         type: 'bar',
@@ -538,7 +538,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.wmd)
   },
   beforeDestroy () {
   }

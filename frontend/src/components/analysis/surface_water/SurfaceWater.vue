@@ -48,8 +48,20 @@
           <v-checkbox v-model="includePOIPolygon" label="Include area around point (estimated catchment areas only)"></v-checkbox>
         </v-col>
       </v-row>
+
       <div v-if="selectedWatershed">
-        <WatershedDetails :record="selectedWatershedRecord" :watersheds="watersheds" :watershedID="selectedWatershed" ></WatershedDetails>
+        <!-- <WatershedDetails :record="selectedWatershedRecord" :watersheds="watersheds" :watershedID="selectedWatershed" ></WatershedDetails> -->
+        <div v-if="watershedDetailsLoading">
+          <v-progress-linear indeterminate show></v-progress-linear>
+        </div>
+        <div v-else>
+          <div>Watershed Details</div>
+          <div>
+            <MeanAnnualRunoff ref="anchor-mar" :watershedID="selectedWatershed" :record="selectedWatershedRecord" :allWatersheds="watersheds" :details="watershedDetails"/>
+            <WatershedAvailability ref="anchor-availability" :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord" :details="watershedDetails"/>
+          </div>
+        </div>
+
       </div>
     </template>
   </v-container>
@@ -59,13 +71,15 @@
 import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
-
-import WatershedDetails from './WatershedDetails'
+import WatershedAvailability from './WatershedAvailability'
+import MeanAnnualRunoff from './MeanAnnualRunoff'
+// import WatershedDetails from './WatershedDetails'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
-    WatershedDetails
+    WatershedAvailability,
+    MeanAnnualRunoff
   },
   data: () => ({
     infoTabs: null,
@@ -75,7 +89,9 @@ export default {
     hydrometricWatershed: null,
     watersheds: [],
     geojsonLayersAdded: [],
-    includePOIPolygon: false
+    includePOIPolygon: false,
+    watershedDetails: null,
+    watershedDetailsLoading: false
   }),
   watch: {
     selectedWatershed (v) {
@@ -146,12 +162,29 @@ export default {
             if (i === 0) this.selectedWatershed = ws.id
             this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
             this.geojsonLayersAdded.push(`ws-${ws.id}`)
+            this.fetchWatershedDetails()
           })
           this.watershedLoading = false
         })
         .catch(e => {
           console.error(e)
           this.watershedLoading = false
+        })
+    },
+    fetchWatershedDetails () {
+      this.watershedDetailsLoading = true
+      this.watershedDetails = null
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
+        .then(r => {
+          this.watershedDetailsLoading = false
+          if (!r.data) {
+            return
+          }
+          this.watershedDetails = r.data
+        })
+        .catch(e => {
+          this.watershedDetailsLoading = false
+          console.error(e)
         })
     },
     resetGeoJSONLayers () {

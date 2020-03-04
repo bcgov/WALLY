@@ -82,7 +82,7 @@ export default {
       }
     },
     isolineRunoffLayout: {
-      title: 'Monthly discharge (using 1961 - 1990 runoff isolines) (m3/s)',
+      title: 'Monthly discharge (using 1961 - 1990 runoff isolines)',
       xaxis: {
         tickformat: '%B'
       },
@@ -107,7 +107,7 @@ export default {
       const meanAnnualDischarge = this.annualNormalizedRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60
       const plotData = {
         type: 'bar',
-        name: 'Runoff (Normalized Hydrometric)',
+        name: 'MAD',
         y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -115,7 +115,7 @@ export default {
 
       const mad20 = {
         type: 'line',
-        name: '20% mean annual discharge',
+        name: '20% MAD',
         y: Array(12).fill(0.2 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -123,7 +123,7 @@ export default {
 
       const mad10 = {
         type: 'line',
-        name: '10% mean annual discharge',
+        name: '10% MAD',
         y: Array(12).fill(0.1 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -173,7 +173,7 @@ export default {
 
       const plotData = {
         type: 'bar',
-        name: 'Estimated runoff (using 1961 - 1990 runoff isolines)',
+        name: 'MAD',
         y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -181,7 +181,7 @@ export default {
 
       const mad20 = {
         type: 'line',
-        name: '20% mean annual discharge',
+        name: '20% MAD',
         y: Array(12).fill(0.2 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -189,7 +189,7 @@ export default {
 
       const mad10 = {
         type: 'line',
-        name: '10% mean annual discharge',
+        name: '10% MAD',
         y: Array(12).fill(0.1 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
