@@ -186,12 +186,24 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     """
 
     q = """
-        select ST_AsGeojson(
-            coalesce(
+        with feat as (
+            select coalesce(
                 (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
                 (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
+            ) as geom
+        ),
+        ins_feat as (
+            insert into upstream_watershed_cache
+            values (
+                :watershed_feature_id,
+                ARRAY[:include],
+                feat.geom,
+                now(), now(), now() + interval '1 day'
             )
-        ) as geom """
+        )
+        select ST_AsGeojson(
+            geom
+        ) as geom from feat """
 
     res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
                          "include": watershed_feature_id if include_self else None})
@@ -230,6 +242,7 @@ def calculate_watershed(
     watershed_id = q.first()
 
     if not watershed_id:
+        logger.info('watershed estimation: no watershed polygons available at this point')
         return None
     watershed_id = watershed_id[0]
 
@@ -352,6 +365,19 @@ def get_watershed(db: Session, watershed_feature: str):
     watershed_feature_id = watershed_feature.split('.')[-1:]
     watershed = None
 
+    # basic method to lookup a cached watershed geometry, if one exists.
+    # it first clears out outdated cached records.
+    cache_q = """
+    with del_outdated as (
+        delete from upstream_watershed_cache
+        where expiry_date < now()
+    )
+    select * from upstream_watershed_cache
+    where watershed_feature_id = :watershed_feature
+    and include_features = :include_features
+    
+    """
+
     logger.info(watershed_feature_id)
 
     # if we generated this watershed, use the catchment area
@@ -403,7 +429,7 @@ def get_annual_precipitation(poly: Polygon):
 
     months_data = list(response["data"].values())
     months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    month_totals = [a*b for a,b in zip(months_data, months_days)]
+    month_totals = [a*b for a, b in zip(months_data, months_days)]
 
     annual_precipitation = sum(month_totals)
     # logger.warning("annual_precipitation")
@@ -496,7 +522,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
         raise HTTPException(status_code=error.response.status_code, detail=str(error))
-    
+
     result = response.json()
     logger.warning("sea result")
     logger.warning(result)
@@ -524,8 +550,8 @@ def get_hillshade(slope: float, aspect: float):
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
-    azimuth = 180.0 # 0-360 we are using values from the scsb2016 paper
-    altitude = 45.0 # 0-90 " "
+    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
+    altitude = 45.0  # 0-90 " "
     azimuth_rad = azimuth * math.pi / 2.
     altitude_rad = altitude * math.pi / 180.
 
