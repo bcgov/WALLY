@@ -80,6 +80,30 @@ describe('Map Store', () => {
     expect(monthQty).toEqual(0)
   })
 
+  it('Returns an array of monthly qty values', () => {
+    let allocValues = [1, 1, 1, 1,
+      1, 1, 1, 1,
+      1, 1, 1, 1]
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
+    let qtyByMonth = store.actions.computeMonthlyQuantities(store, 1200, 'test')
+    expect(qtyByMonth).toEqual([100, 100, 100, 100,
+      100, 100, 100, 100,
+      100, 100, 100, 100 ])
+
+    allocValues = [3, 3, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 3, 3]
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
+    qtyByMonth = store.actions.computeMonthlyQuantities(store, 1200, 'test')
+    expect(qtyByMonth).toEqual([300, 300, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 300, 300 ])
+  })
+
   it('Initializes allocation item if it doesn\'t exist', () => {
     store.state.defaultAllocValue = 1
     store.actions.initAllocationItemIfNotExists(store, 'test2')
