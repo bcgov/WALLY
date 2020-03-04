@@ -18,7 +18,9 @@ describe('Map Store', () => {
       0, 0, 0, 0,
       0, 0, 3, 3]
 
-    store.mutations.setAllocationValues(store.state, 'test', allocValues)
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
     expect(store.state.allocationValues).toEqual({ 'test': allocValues })
   })
 
@@ -26,7 +28,9 @@ describe('Map Store', () => {
     let allocValues = [3, 3, 0, 0,
       0, 0, 0, 0,
       0, 0, 3, 3]
-    store.mutations.setAllocationValues(store.state, 'test', allocValues)
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
     expect(store.state.allocationValues).toEqual({ 'test': allocValues })
 
     store.mutations.clearAllocationValues(store.state, 'test')
@@ -37,7 +41,9 @@ describe('Map Store', () => {
     let allocValues = [3, 3, 0, 0,
       0, 0, 0, 0,
       0, 0, 3, 3]
-    store.mutations.setAllocationValues(store.state, 'test', allocValues)
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
 
     store.mutations.clearAllAllocationValues(store.state)
     expect(store.state.allocationValues).toEqual({})
@@ -47,7 +53,9 @@ describe('Map Store', () => {
     let allocValues = [1, 1, 1, 1,
       1, 1, 1, 1,
       1, 1, 1, 1]
-    store.mutations.setAllocationValues(store.state, 'test', allocValues)
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
 
     // No alloc values exist yet
     store.commit = jest.fn()
@@ -56,14 +64,15 @@ describe('Map Store', () => {
       'initAllocationItemIfNotExists', 'test')
 
     // Alloc item default values
-    console.log(store.state.allocationValues)
     expect(monthQty).toEqual(100)
 
     // Set alloc values for 'test'
     allocValues = [3, 3, 0, 0,
       0, 0, 0, 0,
       0, 0, 3, 3]
-    store.mutations.setAllocationValues(store.state, 'test', allocValues)
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
     monthQty = store.actions.computeQuantityForMonth(store, 1200, 'test', 1)
     expect(monthQty).toEqual(300)
 
@@ -80,7 +89,9 @@ describe('Map Store', () => {
       allocValues.push(defaultAllocValue)
     }
     expect(store.commit).toHaveBeenCalledWith(
-      'setAllocationValues', 'test2', allocValues
+      'setAllocationValues', {
+        key: 'test2',
+        values: allocValues }
     )
   })
 })

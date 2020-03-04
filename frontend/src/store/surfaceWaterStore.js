@@ -6,7 +6,7 @@ export default {
     //   { key: [1,1,1,1,1,1,1,1,1,1,1] }
     defaultAllocValue: 1,
     defaultAllocValues: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    allocationValues: { key: [] }
+    allocationValues: {}
   },
   actions: {
     computeQuantityForMonth ({ state, dispatch }, qtyPerYear, allocItemKey, month) {

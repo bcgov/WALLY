@@ -20,16 +20,11 @@ export default {
         let allocItemKey = item[this.keyField].trim()
         let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 
-        // Init allocation values if they don't exist
-        this.initAllocationItemIfNotExists(allocItemKey)
-        console.log('values would be', allocItemKey, this.test, this.allocationValues, this.allocationValues[allocItemKey])
-        // TODO: Get values from store
         this.allocItems.push({
           name: allocItemKey,
-          values: defaultAllocValues
+          values: this.allocationValues[allocItemKey] || defaultAllocValues
         })
       })
-      this.saveAllocationValues()
     },
     computeRowTotal (values) {
       return values.reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)

@@ -260,10 +260,10 @@ export default {
       // console.log(this.licenceData.total_qty_by_purpose)
       this.purposeTypes = []
       this.licenceData.total_qty_by_purpose.forEach(item => {
-        console.log(item)
+        // console.log(item)
         this.purposeTypes.push(item.purpose)
       })
-      console.log(this.purposeTypes)
+      // console.log(this.purposeTypes)
     },
     computeQuantityPerMonth (qtyPerYear, allocValues) {
       // alloc values must be empty or length 12
@@ -287,6 +287,7 @@ export default {
   },
   mounted () {
     this.fetchLicenceData()
+    // console.log(localStorage)
   },
   beforeDestroy () {
     this.map.removeLayer('waterLicences')
