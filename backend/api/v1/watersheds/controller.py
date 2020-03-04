@@ -185,21 +185,44 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         for more info.
     """
 
+    # calculates an upstream catchment feature (see function docstring), and inserts it into
+    # upstream_watershed_cache.
+    # the first query in the coalesce function retrieves a cached geometry, if available.
+    # the second query attempts method 1 (see docstring); the third attempts method 3.
     q = """
-        with feat as (
+        with del_outdated as (
+            delete from upstream_watershed_cache
+            where expiry_date < now()
+        ),
+        feat as (
             select coalesce(
-                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
-                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
+                (
+                    select  geom
+                    from    upstream_watershed_cache
+                    where   watershed_feature_id = :watershed_feature_id
+                    and     include_features is not distinct from (:include)::int
+                    and     expiry_date >= now()
+                    limit 1
+                ),
+                (
+                    select  ST_Union(geom) as geom
+                    from     calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)
+                ),
+                (
+                    select  ST_Union(geom) as geom
+                    from    calculate_upstream_catchment(:watershed_feature_id))
             ) as geom
         ),
         ins_feat as (
             insert into upstream_watershed_cache
-            values (
+            (watershed_feature_id, include_features, geom, create_date, update_date, expiry_date)
+            select 
                 :watershed_feature_id,
-                ARRAY[:include],
+                (:include)::int,
                 feat.geom,
-                now(), now(), now() + interval '1 day'
-            )
+                now(), now(), now() + interval '1 min'
+                from feat
+            on conflict do nothing
         )
         select ST_AsGeojson(
             geom
@@ -211,8 +234,12 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     record = res.fetchone()
 
     if not record or not record[0]:
-        logger.warn('unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        db.rollback()
+        logger.warn(
+            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
+
+    db.commit()
 
     return Feature(
         geometry=shape(
@@ -242,7 +269,8 @@ def calculate_watershed(
     watershed_id = q.first()
 
     if not watershed_id:
-        logger.info('watershed estimation: no watershed polygons available at this point')
+        logger.info(
+            'watershed estimation: no watershed polygons available at this point')
         return None
     watershed_id = watershed_id[0]
 
@@ -359,7 +387,7 @@ def surficial_geology(polygon: Polygon):
     )
 
 
-def get_watershed(db: Session, watershed_feature: str):
+def get_watershed(db: Session, watershed_feature: str, include_self=False):
     """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
@@ -374,7 +402,7 @@ def get_watershed(db: Session, watershed_feature: str):
     )
     select * from upstream_watershed_cache
     where watershed_feature_id = :watershed_feature
-    and include_features = :include_features
+    and include_features = ARRAY[(:include_features)::int)
     
     """
 
@@ -389,7 +417,8 @@ def get_watershed(db: Session, watershed_feature: str):
     # feature id.
     else:
         watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(transform_3005_4326, shape(watershed.geometry))
+        watershed_poly = transform(
+            transform_3005_4326, shape(watershed.geometry))
         watershed.geometry = mapping(watershed_poly)
 
     return watershed
@@ -521,7 +550,8 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
-        raise HTTPException(status_code=error.response.status_code, detail=str(error))
+        raise HTTPException(
+            status_code=error.response.status_code, detail=str(error))
 
     result = response.json()
     logger.warning("sea result")
