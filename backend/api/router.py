@@ -14,7 +14,7 @@ from api.v1.firstnations import routes as firstnations
 from api.v1.wells import routes as wells
 from api.v1.watersheds import routes as watersheds
 from api.v1.config import routes as config
-from api.v1.isolines import routes as isolines
+from api.v1.models.isolines import routes as isolines
 
 api_router = APIRouter()
 

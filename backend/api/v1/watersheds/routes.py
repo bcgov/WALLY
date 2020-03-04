@@ -35,8 +35,11 @@ from api.v1.watersheds.controller import (
     get_upstream_catchment_area,
     surficial_geology,
     get_temperature,
+    get_annual_precipitation,
     calculate_potential_evapotranspiration_thornthwaite,
-    calculate_potential_evapotranspiration_hamon
+    calculate_potential_evapotranspiration_hamon,
+    get_slope_elevation_aspect,
+    get_hillshade
 )
 from api.v1.watersheds.schema import (
     WatershedDetails,
@@ -44,8 +47,8 @@ from api.v1.watersheds.schema import (
     SurficialGeologyDetails,
     SurficialGeologyTypeSummary
 )
-from api.v1.isolines.controller import calculate_runoff_in_area
-
+from api.v1.models.isolines.controller import calculate_runoff_in_area
+from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff
 
 logger = getLogger("aggregator")
 
@@ -96,6 +99,7 @@ def get_watersheds(
         point = Point(point_parsed)
 
     watersheds = databc_feature_search(search_layers, search_area=point)
+
     watershed_features = []
 
     calculated_ws = calculate_watershed(db, point, include_self=include_self)
@@ -121,41 +125,52 @@ def watershed_stats(
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
                                   description=watershed_feature_description)
-
-
 ):
     """ aggregates statistics/info about a watershed """
 
+    # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
     watershed_poly = shape(watershed.geometry)
-
     watershed_area = transform(transform_4326_3005, watershed_poly).area
-
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
-    glacial_area_m, glacial_coverage = calculate_glacial_area(
-        db, watershed_rect)
-
-    isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
-
-    temp_data = get_temperature(watershed_poly)
-
+    # watershed characteristics lookups
+    drainage_area = watershed_area / 1e6 # needs to be in km^2
+    glacial_area_m, glacial_coverage = calculate_glacial_area(db, watershed_rect)
+    temperature_data = get_temperature(watershed_poly)
+    annual_precipitation = get_annual_precipitation(watershed_poly)
     potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-        watershed_poly, temp_data)
-
+        watershed_poly, temperature_data)
     potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-        watershed_poly, temp_data
+        watershed_poly, temperature_data
     )
+    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+    average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+    solar_exposure = get_hillshade(average_slope, aspect)
 
-    return WatershedDetails(
-        glacial_coverage=glacial_coverage,
-        glacial_area=glacial_area_m,
-        watershed_area=watershed_area,
-        potential_evapotranspiration_hamon=potential_evapotranspiration_hamon,
-        potential_evapotranspiration_thornthwaite=potential_evapotranspiration_thornthwaite,
-        runoff_isoline_avg=(isoline_runoff['runoff'] /
-                            isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0
-    )
+    # custom model outputs
+    isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
+    scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation, \
+        glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite, \
+        drainage_area, solar_exposure, average_slope)
+
+    return {
+        "watershed_area": watershed_area,
+        "drainage_area": drainage_area,
+        "glacial_area": glacial_area_m,
+        "glacial_coverage": glacial_coverage,
+        "temperature_data": temperature_data,
+        "annual_precipitation": annual_precipitation,
+        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
+        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
+        "hydrological_zone": hydrological_zone,
+        "average_slope": average_slope,
+        "median_elevation": median_elevation,
+        "aspect": aspect,
+        "runoff_isoline_avg": (isoline_runoff['runoff'] /
+                               isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
+        "scsb2016_model": scsb2016_model
+    }
 
 
 @router.get('/{watershed_feature}/licences')
