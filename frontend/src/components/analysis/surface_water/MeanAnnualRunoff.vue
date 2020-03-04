@@ -157,6 +157,7 @@
       <WatershedDemand ref="anchor-demand" :watershedID="watershedID" :record="record" :availability="availability"/>
 
         <!-- <div class="borderBlock">
+          <Dialog v-bind="wmd.monthlyDistribution"/>
           <div class="titleSub">Monthly Distribution</div>
           <div class="unitSub">
             Annual %
