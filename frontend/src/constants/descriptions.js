@@ -20,7 +20,7 @@ export const WatershedModelDescriptions = {
   },
   medianElevation: {
     name: 'Median Elevation',
-    description: 'Median elevation is ideal but the dataset we have access to currently only support mean elevation over the watershed area. ' +
+    description: 'Median elevation is ideal but the dataset we have access to currently only supports mean elevation over the watershed area. ' +
     'The data is sourced from https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json which is an api that returns a SlopeElevationAspectResult ' +
     'containing the following variables: ' +
     'slope: The slope of the best fit plane based on elevation points found within or around the input geometry. ' +
@@ -35,7 +35,7 @@ export const WatershedModelDescriptions = {
   meanAnnualDischarge: {
     name: 'Mean Annual Discharge',
     description: 'This value is calculated from the output of the Mean Annual Runoff (MAR) multivariate model. ' +
-    'To calculate Mean Annual Discharge the following equation is used: MAD = MAR / 1000 * DRAINAGE_AREA.' +
+    'To calculate Mean Annual Discharge the following equation is used: MAD = MAR / 1000 * DRAINAGE_AREA. ' +
     'MAR is an output of a multivariate model sourced from a scientific hydrological paper. ' +
     'The model has trained co-efficients for three hydrological zones (25, 26, 27) from the DataBC hosted layer: Hydrology: Hydrologic Zone Boundaries of British Columbia: ' +
     'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrologic-zone-boundaries-of-british-columbia ' +
@@ -68,7 +68,8 @@ export const WatershedModelDescriptions = {
   },
   monthlyDischarge: {
     name: 'Monthly Discharge',
-    description: 'This section displays a table and chart of the mean monthly discharges, volume discharge, and percentage of mean annual discharge.',
+    description: 'This section displays a table and chart of the mean monthly discharges, volume discharge, ' + 
+    'and percentage of mean annual discharge. These values are produced as ouput from the above model.',
     url: ''
   },
   monthlyDistribution: {
@@ -78,7 +79,8 @@ export const WatershedModelDescriptions = {
   },
   availabilityVsDemand: {
     name: 'Availability vs Licenced Quantity',
-    description: 'This section shows all the water rights licences found within the watershed, and compares the licenced quantity against the calculated availability.',
-    url: ''
+    description: 'This section shows all the water rights licences found within the watershed, ' + 
+    'and compares the licenced quantity against the calculated availability. Water rights licences are sourced from the DataBC layer "Water Rights Licences - Public" linked below.',
+    url: 'https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public'
   }
 }
