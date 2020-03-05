@@ -33,6 +33,18 @@ export default {
     ]
   }),
   methods: {
+    submitStreamsForExport () {
+      const params = {
+        streams: this.streams,
+        weighting_factor: this.weightingFactor,
+        point: this.record.geometry.coordinates
+      }
+      ApiService.post(`/api/v1/streams/apportionment/export`, params).then((r) => {
+        console.log(r.data)
+      }).catch((e) => {
+        console.log(e)
+      })
+    },
     enableFreshwaterAtlasStreamNetworksLayer () {
       this.addMapLayer('freshwater_atlas_stream_networks')
     },

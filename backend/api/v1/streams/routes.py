@@ -47,6 +47,19 @@ def get_nearby_streams(
     }
 
 
+@router.post("/apportionment/export")
+def export_stream_apportionment(
+    req: streams_schema.ApportionmentExportRequest
+):
+    """ export a table of stream apportionment data, after the user
+        has chosen a set of streams and parameters using the Wally UI.
+    """
+
+    logger.info(req)
+
+    return ''
+
+
 @router.get("/apportionment", response_model=streams_schema.Streams)
 def get_streams_apportionment(
         db: Session = Depends(get_db),
@@ -65,4 +78,3 @@ def get_streams_apportionment(
         'weighting_factor': weighting_factor,
         'streams': streams_with_apportionment
     }
-
