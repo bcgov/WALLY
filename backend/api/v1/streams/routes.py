@@ -1,11 +1,14 @@
 """
 Analysis functions for data in the Wally system
 """
+import datetime
 import json
+import requests
 from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
+from api import config
 from api.db.utils import get_db
 
 from api.v1.streams import controller as streams_controller
@@ -55,9 +58,27 @@ def export_stream_apportionment(
         has chosen a set of streams and parameters using the Wally UI.
     """
 
-    logger.info(req)
+    req.generated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    return ''
+    cur_date = datetime.datetime.now().strftime("%Y%m%d")
+    template_data = open('./templates/StreamApportionment.xlsx', 'rb').read()
+    base64_encoded = base64.b64encode(data).decode('UTF-8')
+
+    token = streams_controller.get_docgen_token()
+    auth_header = f"Bearer {token}"
+
+    body = streams_schema.ApportionmentDocGenRequest(
+        contexts=[req],
+        template=streams_schema.ApportionmentTemplateFile(
+            filename=f'{cur_date}_StreamApportionment.xlsx',
+            contentEncodingType='base64',
+            content=base64_encoded
+        )
+    )
+
+    res = requests.post(config.COMMON_DOCGEN_ENDPOINT, data=json.dumps(body) headers={"Authorization": auth_header})
+
+    return res
 
 
 @router.get("/apportionment", response_model=streams_schema.Streams)

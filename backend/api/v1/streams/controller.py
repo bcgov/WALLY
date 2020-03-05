@@ -1,8 +1,9 @@
 import logging
-
+import requests
 from shapely.geometry import Point
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
+from api import config
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from geojson import Point, Feature, FeatureCollection
 import shapely.wkt
@@ -163,3 +164,20 @@ def get_connected_streams(db: Session, outflowCode: str) -> list:
         row, FreshwaterAtlasStreamNetworks.GEOMETRY) for row in results]
 
     return feature_results
+
+
+def get_docgen_token():
+    params = {
+        "grant_type": "client_credentials",
+        "client_id": config.COMMON_DOCGEN_CLIENT_ID,
+        "client_secret": config.COMMON_DOCGEN_CLIENT_SECRET
+    }
+
+    req = requests.post(
+        config.COMMON_DOCGEN_SSO_ENDPOINT,
+        data=params
+    )
+
+    token = req.json().get('access_token')
+    logger.info(token)
+    return token

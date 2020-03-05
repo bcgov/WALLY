@@ -51,4 +51,24 @@ class ApportionmentExportRequest(BaseModel):
 
     streams: List[StreamDetailsExport]
     point: List[float]
+    generated: Optional[str]
     weighting_factor: float
+
+
+class ApportionmentTemplateFile(BaseModel):
+    """ the metadata and encoded file for
+        a stream apportionment excel template.
+        This is the format required by the Common Services
+        Document Generator.
+    """
+
+    filename: str
+    contentEncodingType: str
+    content: str  # base64 encoded
+
+
+class ApportionmentDocGenRequest(BaseModel):
+    """ the request body for making document generator requests """
+
+    contexts: List[ApportionmentExportRequest]
+    template: ApportionmentTemplateFile
