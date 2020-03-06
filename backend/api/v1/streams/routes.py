@@ -1,11 +1,13 @@
 """
 Analysis functions for data in the Wally system
 """
+import base64
 import datetime
 import json
 import requests
 from logging import getLogger
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
+from starlette.responses import Response
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
 from api import config
@@ -61,24 +63,36 @@ def export_stream_apportionment(
     req.generated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     cur_date = datetime.datetime.now().strftime("%Y%m%d")
-    template_data = open('./templates/StreamApportionment.xlsx', 'rb').read()
-    base64_encoded = base64.b64encode(data).decode('UTF-8')
-
+    template_data = open("./api/v1/streams/templates/StreamApportionment.xlsx", "rb").read()
+    base64_encoded = base64.b64encode(template_data).decode("UTF-8")
+    filename = f"{cur_date}_StreamApportionment"
     token = streams_controller.get_docgen_token()
     auth_header = f"Bearer {token}"
 
     body = streams_schema.ApportionmentDocGenRequest(
         contexts=[req],
         template=streams_schema.ApportionmentTemplateFile(
-            filename=f'{cur_date}_StreamApportionment.xlsx',
-            contentEncodingType='base64',
-            content=base64_encoded
-        )
+            outputFileName=filename,
+            contentEncodingType="base64",
+            content=base64_encoded,
+            contentFileType="xlsx"
+        ).dict()
     )
 
-    res = requests.post(config.COMMON_DOCGEN_ENDPOINT, data=json.dumps(body) headers={"Authorization": auth_header})
+    logger.info(body.json())
 
-    return res
+    try:
+        res = requests.post(config.COMMON_DOCGEN_ENDPOINT, json=body.dict(), headers={"Authorization": auth_header, "Content-Type": "application/json"})
+        res.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.info(e)
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+    return Response(
+        content=res.content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
+    )
 
 
 @router.get("/apportionment", response_model=streams_schema.Streams)

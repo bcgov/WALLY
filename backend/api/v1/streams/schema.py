@@ -62,13 +62,14 @@ class ApportionmentTemplateFile(BaseModel):
         Document Generator.
     """
 
-    filename: str
+    outputFileName: str
     contentEncodingType: str
     content: str  # base64 encoded
+    contentFileType: str
 
 
 class ApportionmentDocGenRequest(BaseModel):
     """ the request body for making document generator requests """
 
-    contexts: List[ApportionmentExportRequest]
-    template: ApportionmentTemplateFile
+    contexts: list
+    template: dict
