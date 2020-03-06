@@ -63,7 +63,8 @@ def export_stream_apportionment(
     req.generated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     cur_date = datetime.datetime.now().strftime("%Y%m%d")
-    template_data = open("./api/v1/streams/templates/StreamApportionment.xlsx", "rb").read()
+    template_data = open(
+        "./api/v1/streams/templates/StreamApportionment.xlsx", "rb").read()
     base64_encoded = base64.b64encode(template_data).decode("UTF-8")
     filename = f"{cur_date}_StreamApportionment"
     token = streams_controller.get_docgen_token()
@@ -79,10 +80,12 @@ def export_stream_apportionment(
         ).dict()
     )
 
-    logger.info(body.json())
+    logger.info('making POST request to common docgen: %s',
+                config.COMMON_DOCGEN_ENDPOINT)
 
     try:
-        res = requests.post(config.COMMON_DOCGEN_ENDPOINT, json=body.dict(), headers={"Authorization": auth_header, "Content-Type": "application/json"})
+        res = requests.post(config.COMMON_DOCGEN_ENDPOINT, json=body.dict(), headers={
+                            "Authorization": auth_header, "Content-Type": "application/json"})
         res.raise_for_status()
     except requests.exceptions.HTTPError as e:
         logger.info(e)
@@ -103,12 +106,15 @@ def get_streams_apportionment(
                            description="Point of interest to centre search at"),
         ogc_fid: list = Query(..., title="A list of ogc_fid of streams",
                               description="A list of ogc_fid of streams"),
-        weighting_factor: int = Query(2, title="Weighting factor", description="Weighting factor")
+        weighting_factor: int = Query(
+            2, title="Weighting factor", description="Weighting factor")
 ):
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
-    streams_by_ocg_fid = streams_controller.get_nearest_streams_by_ogc_fid(db, point_shape, ogc_fid)
-    streams_with_apportionment = streams_controller.get_apportionment(streams_by_ocg_fid, weighting_factor)
+    streams_by_ocg_fid = streams_controller.get_nearest_streams_by_ogc_fid(
+        db, point_shape, ogc_fid)
+    streams_with_apportionment = streams_controller.get_apportionment(
+        streams_by_ocg_fid, weighting_factor)
     return {
         'weighting_factor': weighting_factor,
         'streams': streams_with_apportionment
