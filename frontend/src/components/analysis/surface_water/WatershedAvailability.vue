@@ -1,18 +1,18 @@
 <template>
   <div>
     <div>
-      <div class="title my-5">Availability</div>
+      <div class="titleSub">Comparitive Runoff Models</div>
       <div v-if="annualNormalizedRunoff">
-        <div>Annual normalized runoff: {{ annualNormalizedRunoff }} mm</div>
-        <div>Watershed area (highlighted area): {{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</div>
-        <div>
-          Using normalized runoff from: {{ annualNormalizedRunoffSource }}
-        </div>
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries" target="_blank">
             Hydrometric Watersheds (DataBC)
           </a>
+        </div>
+        <div>Annual normalized runoff: {{ annualNormalizedRunoff }} mm</div>
+        <div>Watershed area (highlighted area): {{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</div>
+        <div>
+          Using normalized runoff from: {{ annualNormalizedRunoffSource }}
         </div>
         <Plotly v-if="normalizedRunoffByMonth"
           :layout="runoffLayout"
@@ -20,14 +20,14 @@
         ></Plotly>
       </div>
       <div v-if="annualIsolineRunoff">
-        <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
-        <div>Watershed area: {{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</div>
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical" target="_blank">
             Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical (DataBC)
           </a>
         </div>
+        <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
+        <div>Watershed area: {{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</div>
         <Plotly v-if="isolineRunoffByMonth"
           :layout="isolineRunoffLayout"
           :data="isolineRunoffByMonth"
@@ -82,7 +82,7 @@ export default {
       }
     },
     isolineRunoffLayout: {
-      title: 'Monthly discharge (using 1961 - 1990 runoff isolines) (m3/s)',
+      title: 'Monthly discharge (using 1961 - 1990 runoff isolines)',
       xaxis: {
         tickformat: '%B'
       },
@@ -107,7 +107,7 @@ export default {
       const meanAnnualDischarge = this.annualNormalizedRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60
       const plotData = {
         type: 'bar',
-        name: 'Runoff (Normalized Hydrometric)',
+        name: 'MAD',
         y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -115,7 +115,7 @@ export default {
 
       const mad20 = {
         type: 'line',
-        name: '20% mean annual discharge',
+        name: '20% MAD',
         y: Array(12).fill(0.2 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -123,7 +123,7 @@ export default {
 
       const mad10 = {
         type: 'line',
-        name: '10% mean annual discharge',
+        name: '10% MAD',
         y: Array(12).fill(0.1 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -173,7 +173,7 @@ export default {
 
       const plotData = {
         type: 'bar',
-        name: 'Estimated runoff (using 1961 - 1990 runoff isolines)',
+        name: 'MAD',
         y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -181,7 +181,7 @@ export default {
 
       const mad20 = {
         type: 'line',
-        name: '20% mean annual discharge',
+        name: '20% MAD',
         y: Array(12).fill(0.2 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -189,7 +189,7 @@ export default {
 
       const mad10 = {
         type: 'line',
-        name: '10% mean annual discharge',
+        name: '10% MAD',
         y: Array(12).fill(0.1 * meanAnnualDischarge),
         x: months,
         line: { color: '#17BECF' }
@@ -206,5 +206,10 @@ export default {
 </script>
 
 <style>
-
+.titleSub {
+  color: #202124;
+  font-weight: bold;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
 </style>

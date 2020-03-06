@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="title my-5">Watershed Demand</div>
+    <div class="titleSub my-5">Watershed Licenced Quantity</div>
     <div v-if="licencesLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
@@ -25,15 +25,10 @@
 
         <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
 
-        <Plotly v-if="availability && licenceData"
-          :layout="demandAvailabilityLayout()"
-          :data="demandAvailabilityData"
-        ></Plotly>
+        <Dialog v-bind="wmd.availabilityVsDemand"/>
 
         <div class="my-5">
-          <div class="mb-3">
-            Annual licenced quantity by use type:
-          </div>
+          <div class="mb-3">Annual licenced quantity by use type:</div>
           <v-data-table
             :items="licenceData.total_qty_by_purpose"
             :headers="licencePurposeHeaders"
@@ -46,6 +41,11 @@
           </v-data-table>
         </div>
 
+        <Plotly v-if="availability && licenceData"
+                :layout="demandAvailabilityLayout()"
+                :data="demandAvailabilityData"
+        ></Plotly>
+
       </v-card>
     </div>
   </div>
@@ -56,6 +56,8 @@ import { mapGetters, mapActions } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 import { Plotly } from 'vue-plotly'
+import Dialog from '../../common/Dialog'
+import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
 import surfaceWaterMixin from './mixins'
 import MonthlyAllocationTable from './watershed_demand/MonthlyAllocationTable.vue'
@@ -66,11 +68,12 @@ const popup = new mapboxgl.Popup({
 })
 
 export default {
-  name: 'SurfaceWaterDemand',
+  name: 'WatershedDemand',
   mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
-    Plotly
+    Plotly,
+    Dialog
   },
   props: ['watershedID', 'record', 'availability'],
   data: () => ({
@@ -100,11 +103,13 @@ export default {
       { text: 'Nov', value: 'm11' },
       { text: 'Dec', value: 'm12' }
     ],
-    demandAvailabilityData: []
+    demandAvailabilityData: [],
+    wmd: WatershedModelDescriptions
   }),
   computed: {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['allocationValues'])
+
   },
   watch: {
     watershedID () {
@@ -119,7 +124,7 @@ export default {
     demandAvailabilityLayout () {
       return {
         barmode: 'stack',
-        title: 'Availability vs Demand',
+        title: 'Availability vs Licenced Quantity',
         xaxis: {
           tickformat: '%B'
         },
@@ -226,6 +231,7 @@ export default {
       if (!this.licenceData || !this.availability) {
         return null
       }
+      let mar = this.availability.reduce((a, b) => a + b, 0) / 12
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
@@ -250,7 +256,7 @@ export default {
 
       const licencePlotData = {
         type: 'bar',
-        name: 'Monthly Demand',
+        name: 'Monthly Licenced Quantity',
         y: y,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m^3'
@@ -260,8 +266,8 @@ export default {
         type: 'line',
         mode: 'lines',
         hoverinfo: 'skip',
-        name: '20% mean annual discharge',
-        y: Array(12).fill(0.2 * this.licenceData.total_qty),
+        name: '20% MAD',
+        y: Array(12).fill(mar * 0.2),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#5ab190' }
       }
@@ -269,8 +275,8 @@ export default {
         type: 'line',
         mode: 'lines',
         hoverinfo: 'skip',
-        name: '15% mean annual discharge',
-        y: Array(12).fill(0.15 * this.licenceData.total_qty),
+        name: '15% MAD',
+        y: Array(12).fill(mar * 0.15),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fec925' }
       }
@@ -278,8 +284,8 @@ export default {
         type: 'line',
         mode: 'lines',
         hoverinfo: 'skip',
-        name: '10% mean annual discharge',
-        y: Array(12).fill(0.1 * this.licenceData.total_qty),
+        name: '10% MAD',
+        y: Array(12).fill(mar * 0.1),
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fa1e44' }
       }
@@ -298,5 +304,9 @@ export default {
 </script>
 
 <style>
-
+.titleSub {
+  color: #202124;
+  font-weight: bold;
+  font-size: 20px;
+}
 </style>

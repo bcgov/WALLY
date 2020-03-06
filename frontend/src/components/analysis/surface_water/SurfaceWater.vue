@@ -5,10 +5,26 @@
         <v-progress-linear show indeterminate></v-progress-linear>
       </v-col>
     </v-row>
+    <v-banner one-line>
+      <v-avatar
+        slot="icon"
+        color="blue accent-4"
+        size="40"
+      >
+        <v-icon
+          icon="mdi-exclamation"
+          color="white"
+        >
+          mdi-exclamation
+        </v-icon>
+      </v-avatar>
+
+      This modelling output has not been peer reviewed and is still considered experimental. Use the values generated with your own discretion.
+
+    </v-banner>
     <template v-if="watersheds && watersheds.length">
       <v-row>
-        <v-col cols=12 md=8><div class="title mb-3">Watersheds</div></v-col>
-        <v-col cols=12 md=4 class="text-right">
+        <v-col cols=12 md=12 class="text-right">
           <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
         </v-col>
       </v-row>
@@ -31,8 +47,19 @@
           <v-checkbox v-model="includePOIPolygon" label="Include area around point (estimated catchment areas only)"></v-checkbox>
         </v-col>
       </v-row>
+
       <div v-if="selectedWatershed">
-        <WatershedDetails :record="selectedWatershedRecord" :watersheds="watersheds" :watershedID="selectedWatershed" ></WatershedDetails>
+        <div v-if="watershedDetailsLoading">
+          <v-progress-linear indeterminate show></v-progress-linear>
+        </div>
+        <div v-else>
+          <div>Watershed Details</div>
+          <div>
+            <MeanAnnualRunoff ref="anchor-mar" :watershedID="selectedWatershed" :record="selectedWatershedRecord" :allWatersheds="watersheds" :details="watershedDetails"/>
+            <WatershedAvailability ref="anchor-availability" :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord" :details="watershedDetails"/>
+          </div>
+        </div>
+
       </div>
     </template>
   </v-container>
@@ -42,13 +69,14 @@
 import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
-
-import WatershedDetails from './WatershedDetails'
+import WatershedAvailability from './WatershedAvailability'
+import MeanAnnualRunoff from './MeanAnnualRunoff'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
-    WatershedDetails
+    WatershedAvailability,
+    MeanAnnualRunoff
   },
   data: () => ({
     infoTabs: null,
@@ -58,7 +86,9 @@ export default {
     hydrometricWatershed: null,
     watersheds: [],
     geojsonLayersAdded: [],
-    includePOIPolygon: false
+    includePOIPolygon: false,
+    watershedDetails: null,
+    watershedDetailsLoading: false
   }),
   watch: {
     selectedWatershed (v) {
@@ -129,12 +159,29 @@ export default {
             if (i === 0) this.selectedWatershed = ws.id
             this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
             this.geojsonLayersAdded.push(`ws-${ws.id}`)
+            this.fetchWatershedDetails()
           })
           this.watershedLoading = false
         })
         .catch(e => {
           console.error(e)
           this.watershedLoading = false
+        })
+    },
+    fetchWatershedDetails () {
+      this.watershedDetailsLoading = true
+      this.watershedDetails = null
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
+        .then(r => {
+          this.watershedDetailsLoading = false
+          if (!r.data) {
+            return
+          }
+          this.watershedDetails = r.data
+        })
+        .catch(e => {
+          this.watershedDetailsLoading = false
+          console.error(e)
         })
     },
     resetGeoJSONLayers () {

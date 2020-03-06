@@ -108,7 +108,7 @@ export default {
       }
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -125,6 +125,7 @@ export default {
     }
   },
   mounted () {
+    this.clearSelections()
     this.$store.commit('setInfoPanelVisibility', true)
     this.loadApportionment()
   },
