@@ -49,61 +49,6 @@ describe('Map Store', () => {
     expect(store.state.allocationValues).toEqual({})
   })
 
-  it('Recomputes demand for a given month', () => {
-    let allocValues = [1, 1, 1, 1,
-      1, 1, 1, 1,
-      1, 1, 1, 1]
-    store.mutations.setAllocationValues(store.state, {
-      key: 'test',
-      values: allocValues })
-
-    // No alloc values exist yet
-    store.commit = jest.fn()
-    let monthQty = store.actions.computeQuantityForMonth(store, 1200, 'test', 1)
-    expect(store.dispatch).toHaveBeenCalledWith(
-      'initAllocationItemIfNotExists', 'test')
-
-    // Alloc item default values
-    expect(monthQty).toEqual(100)
-
-    // Set alloc values for 'test'
-    allocValues = [3, 3, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 3, 3]
-    store.mutations.setAllocationValues(store.state, {
-      key: 'test',
-      values: allocValues })
-    monthQty = store.actions.computeQuantityForMonth(store, 1200, 'test', 1)
-    expect(monthQty).toEqual(300)
-
-    monthQty = store.actions.computeQuantityForMonth(store, 1200, 'test', 3)
-    expect(monthQty).toEqual(0)
-  })
-
-  it('Returns an array of monthly qty values', () => {
-    let allocValues = [1, 1, 1, 1,
-      1, 1, 1, 1,
-      1, 1, 1, 1]
-    store.mutations.setAllocationValues(store.state, {
-      key: 'test',
-      values: allocValues })
-    let qtyByMonth = store.actions.computeMonthlyQuantities(store, 1200, 'test')
-    expect(qtyByMonth).toEqual([100, 100, 100, 100,
-      100, 100, 100, 100,
-      100, 100, 100, 100 ])
-
-    allocValues = [3, 3, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 3, 3]
-    store.mutations.setAllocationValues(store.state, {
-      key: 'test',
-      values: allocValues })
-    qtyByMonth = store.actions.computeMonthlyQuantities(store, 1200, 'test')
-    expect(qtyByMonth).toEqual([300, 300, 0, 0,
-      0, 0, 0, 0,
-      0, 0, 300, 300 ])
-  })
-
   it('Initializes allocation item if it doesn\'t exist', () => {
     store.state.defaultAllocValue = 1
     store.actions.initAllocationItemIfNotExists(store, 'test2')

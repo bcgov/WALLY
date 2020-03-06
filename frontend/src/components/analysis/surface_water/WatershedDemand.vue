@@ -52,11 +52,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 import { Plotly } from 'vue-plotly'
 
+import surfaceWaterMixin from './mixins'
 import MonthlyAllocationTable from './watershed_demand/MonthlyAllocationTable.vue'
 
 const popup = new mapboxgl.Popup({
@@ -66,6 +67,7 @@ const popup = new mapboxgl.Popup({
 
 export default {
   name: 'SurfaceWaterDemand',
+  mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
     Plotly
@@ -97,58 +99,12 @@ export default {
       { text: 'Oct', value: 'm10' },
       { text: 'Nov', value: 'm11' },
       { text: 'Dec', value: 'm12' }
-    ]
+    ],
+    demandAvailabilityData: []
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['allocationValues']),
-    demandAvailabilityData () {
-      if (!this.licenceData || !this.availability) {
-        return null
-      }
-      const availabilityData = {
-        type: 'bar',
-        name: 'Available Water',
-        y: this.availability.map((val) => { return val - (this.licenceData.total_qty / 12) }),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m^3'
-      }
-      const licencePlotData = {
-        type: 'bar',
-        name: 'Monthly Demand',
-        y: Array(12).fill(this.licenceData.total_qty / 12),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m^3'
-      }
-      const mad30 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '20% mean annual discharge',
-        y: Array(12).fill(0.2 * this.licenceData.total_qty),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#5ab190' }
-      }
-      const mad20 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '15% mean annual discharge',
-        y: Array(12).fill(0.15 * this.licenceData.total_qty),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fec925' }
-      }
-      const mad10 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '10% mean annual discharge',
-        y: Array(12).fill(0.1 * this.licenceData.total_qty),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fa1e44' }
-      }
-      return [availabilityData, licencePlotData, mad10, mad20, mad30]
-    }
+    ...mapGetters('surfaceWater', ['allocationValues'])
   },
   watch: {
     watershedID () {
@@ -159,6 +115,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions('surfaceWater', ['loadAllocationItemsFromStorage', 'initAllocationItemIfNotExists']),
     demandAvailabilityLayout () {
       return {
         barmode: 'stack',
@@ -238,6 +195,8 @@ export default {
       this.show.editingAllocationValues = true
     },
     closeEditAllocationTableDialog () {
+      // TODO: Distribute quantity based on alloc values
+      this.setDemandAvailabilityData()
       this.show.editingAllocationValues = false
     },
     fetchLicenceData () {
@@ -245,11 +204,12 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
         .then(r => {
           this.licenceData = r.data
-          console.log('adding data to map')
+          // console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           this.addLicencesLayer('waterLicences', r.data.licences, '#00e676', 0.5, max)
           this.setPurposeTypes()
           this.licencesLoading = false
+          this.setDemandAvailabilityData()
         })
         .catch(e => {
           this.licencesLoading = false
@@ -257,37 +217,78 @@ export default {
         })
     },
     setPurposeTypes () {
-      // console.log(this.licenceData.total_qty_by_purpose)
       this.purposeTypes = []
       this.licenceData.total_qty_by_purpose.forEach(item => {
-        // console.log(item)
         this.purposeTypes.push(item.purpose)
       })
-      // console.log(this.purposeTypes)
     },
-    computeQuantityPerMonth (qtyPerYear, allocValues) {
-      // alloc values must be empty or length 12
-      let monthlyQty = []
+    setDemandAvailabilityData () {
+      if (!this.licenceData || !this.availability) {
+        return null
+      }
+      const availabilityData = {
+        type: 'bar',
+        name: 'Available Water',
+        y: this.availability.map((val) => { return val - (this.licenceData.total_qty / 12) }),
+        x: this.monthHeaders.map((h) => h.text),
+        hovertemplate: '%{y:.2f} m^3'
+      }
 
-      for (let i = 1; i <= 12; i++) {
-        monthlyQty.push(this.computeQuantityForMonth(qtyPerYear, allocValues, i))
+      let y = []
+      let allocItemKey, monthlyQty
+
+      // Get total quantity per month based on allocation values
+      for (let i = 0; i < 12; i++) {
+        monthlyQty = 0
+        this.licenceData.total_qty_by_purpose.map(item => {
+          allocItemKey = item.purpose.trim()
+          this.initAllocationItemIfNotExists(allocItemKey)
+          monthlyQty += this.computeQuantityForMonth(item.qty, this.allocationValues[allocItemKey], i + 1)
+        })
+        y[i] = monthlyQty
       }
-      return monthlyQty
-    },
-    computeQuantityForMonth (qtyPerYear, allocValues, month) {
-      let defaultAllocValue = 1
-      let allocFraction
-      if (allocValues.length === 0) {
-        allocFraction = defaultAllocValue
-      } else {
-        allocFraction = allocValues[month - 1]
+
+      const licencePlotData = {
+        type: 'bar',
+        name: 'Monthly Demand',
+        y: y,
+        x: this.monthHeaders.map((h) => h.text),
+        hovertemplate: '%{y:.2f} m^3'
       }
-      return qtyPerYear * (allocFraction / 12)
+
+      const mad30 = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: '20% mean annual discharge',
+        y: Array(12).fill(0.2 * this.licenceData.total_qty),
+        x: this.monthHeaders.map((h) => h.text),
+        line: { color: '#5ab190' }
+      }
+      const mad20 = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: '15% mean annual discharge',
+        y: Array(12).fill(0.15 * this.licenceData.total_qty),
+        x: this.monthHeaders.map((h) => h.text),
+        line: { color: '#fec925' }
+      }
+      const mad10 = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: '10% mean annual discharge',
+        y: Array(12).fill(0.1 * this.licenceData.total_qty),
+        x: this.monthHeaders.map((h) => h.text),
+        line: { color: '#fa1e44' }
+      }
+      this.demandAvailabilityData = [availabilityData, licencePlotData, mad10, mad20, mad30]
     }
   },
   mounted () {
     this.fetchLicenceData()
-    // console.log(localStorage)
+    this.loadAllocationItemsFromStorage()
   },
   beforeDestroy () {
     this.map.removeLayer('waterLicences')

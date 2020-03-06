@@ -9,25 +9,6 @@ export default {
     allocationValues: {}
   },
   actions: {
-    computeMonthlyQuantities ({ state, dispatch }, qtyPerYear, allocItemKey) {
-      let monthlyQty, allocValues, allocFraction
-      let allQty = []
-      for (let i = 0; i < 12; i++) {
-        // monthlyQty = dispatch('computeQuantityForMonth', qtyPerYear, allocItemKey, i)
-        allocValues = state.allocationValues[allocItemKey]
-        allocFraction = allocValues[i]
-        monthlyQty = qtyPerYear * (allocFraction / 12)
-        // console.log(monthlyQty)
-        allQty.push(monthlyQty)
-      }
-      return allQty
-    },
-    computeQuantityForMonth ({ state, dispatch }, qtyPerYear, allocItemKey, month) {
-      dispatch('initAllocationItemIfNotExists', allocItemKey)
-      let allocValues = state.allocationValues[allocItemKey]
-      let allocFraction = allocValues[month - 1]
-      return qtyPerYear * (allocFraction / 12)
-    },
     loadAllocationItemsFromStorage ({ state }) {
       state.allocationValues =
         JSON.parse(localStorage.getItem('allocationItems')) || {}

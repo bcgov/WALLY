@@ -24,10 +24,11 @@ describe('MonthlyAllocationTable Test', () => {
     let surfaceWater = {
       namespaced: true,
       getters: {
-        allocationValues: () => {}
+        allocationValues: () => {
+          return { 'test 1': [] }
+        }
       },
       mutations: {
-
       },
       actions: {
         loadAllocationItemsFromStorage: jest.fn()
