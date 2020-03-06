@@ -60,6 +60,26 @@ objects:
               - "/app/prestart.sh"
             containerName: wally-${NAME}-api
             env:
+            - name: COMMON_DOCGEN_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  key: COMMON_DOCGEN_CLIENT_ID
+                  name: common-docgen
+            - name: COMMON_DOCGEN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: COMMON_DOCGEN_CLIENT_SECRET
+                  name: common-docgen
+            - name: COMMON_DOCGEN_SSO_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  key: COMMON_DOCGEN_SSO_ENDPOINT
+                  name: common-docgen
+            - name: COMMON_DOCGEN_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  key: COMMON_DOCGEN_ENDPOINT
+                  name: common-docgen
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
