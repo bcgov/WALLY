@@ -67,9 +67,4 @@ describe('MonthlyAllocationTable Test', () => {
     let inputTextFields = wrapper.findAll('input[type=text]')
     expect(inputTextFields.length).toBe(propsData.allocationItems.length * 12)
   })
-
-  it('Populates table from local storage', () => {
-    console.log(wrapper.vm.allocItems)
-    wrapper.vm.populateTable()
-  })
 })

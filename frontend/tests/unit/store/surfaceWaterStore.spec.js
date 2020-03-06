@@ -10,7 +10,7 @@ describe('Map Store', () => {
   beforeEach(() => {
     store = surfaceWaterStore.default
     store.dispatch = jest.fn()
-    // store.commit = jest.fn()
+    store.commit = jest.fn()
   })
 
   it('Sets allocation values', () => {
@@ -63,4 +63,6 @@ describe('Map Store', () => {
         values: allocValues }
     )
   })
+
+  // TODO: Add test to check if it populates from localStorage
 })
