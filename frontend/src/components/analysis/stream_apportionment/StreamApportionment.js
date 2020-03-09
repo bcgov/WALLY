@@ -7,6 +7,7 @@ export default {
   props: ['record'],
   data: () => ({
     loading: false,
+    spreadsheetLoading: false,
     streams: [],
     selected: [],
     weightingFactor: 2,
@@ -39,6 +40,9 @@ export default {
         weighting_factor: this.weightingFactor,
         point: this.record.geometry.coordinates
       }
+
+      this.spreadsheetLoading = true
+
       ApiService.post(`/api/v1/streams/apportionment/export`, params, {
         responseType: 'arraybuffer'
       }).then((res) => {
@@ -53,8 +57,10 @@ export default {
           document.body.removeChild(link)
           window.URL.revokeObjectURL(link.href)
         }, 0)
+        this.spreadsheetLoading = false
       }).catch((error) => {
         console.error(error)
+        this.spreadsheetLoading = false
       })
     },
     enableFreshwaterAtlasStreamNetworksLayer () {
