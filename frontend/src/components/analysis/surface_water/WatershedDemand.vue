@@ -133,7 +133,7 @@ export default {
         }
       }
     },
-    addLicencesLayer (id = 'waterLicences', data, color = '#00e676', opacity = 0.5, max = 100000000) {
+    addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -211,8 +211,9 @@ export default {
           this.licenceData = r.data
           // console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          this.addLicencesLayer('waterLicences', r.data.licences, '#00e676', 0.5, max)
+          this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
           this.setPurposeTypes()
+
           this.licencesLoading = false
           this.setDemandAvailabilityData()
         })
