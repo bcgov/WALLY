@@ -22,7 +22,7 @@ def upgrade():
     create extension pg_trgm;
     create index if not exists idx_freshwater_atlas_watersheds_fwa_watershed_code
         on freshwater_atlas_watersheds
-        using gin ("FWA_WATERSHED_CODE", gin_trgm_ops);
+        using gin ("FWA_WATERSHED_CODE" gin_trgm_ops);
     """)
     # ### end Alembic commands ###
 
