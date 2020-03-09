@@ -10,6 +10,8 @@ import { AuthService } from './services/AuthService.js'
 import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
 
+import './filters'
+
 Vue.config.productionTip = false
 
 const auth = new AuthService()

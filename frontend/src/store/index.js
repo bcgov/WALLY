@@ -7,6 +7,7 @@ import dataMart from './dataMartStore'
 import stream from './streamStore'
 import feature from './featureStore'
 import crossSection from './crossSection'
+import surfaceWater from './surfaceWaterStore'
 
 Vue.use(Vuex)
 
@@ -18,6 +19,7 @@ export default new Vuex.Store({
     report,
     stream,
     feature,
-    crossSection
+    crossSection,
+    surfaceWater
   }
 })
