@@ -194,6 +194,16 @@ pipeline {
                 def deployment = createDeployment('dev', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
 
+                // apply database service account.
+                // this is a pre-requisite for the database statefulset.
+                openshift.apply(openshift.process("-f",
+                  "openshift/database.rolebinding.yaml",
+                  "NAME=wally-psql",
+                  "SUFFIX=-${env_name}"
+                ))
+
+                sleep(3)
+
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
                   "openshift/frontend.deploy.yaml",
@@ -377,6 +387,16 @@ pipeline {
                 def deployment = createDeployment('staging', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
 
+                // apply database service account.
+                // this is a pre-requisite for the database statefulset.
+                openshift.apply(openshift.process("-f",
+                  "openshift/database.rolebinding.yaml",
+                  "NAME=wally-psql",
+                  "SUFFIX=-${env_name}"
+                ))
+
+                sleep(3)
+
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
                   "openshift/frontend.deploy.yaml",
@@ -461,6 +481,16 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('production', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply database service account.
+                // this is a pre-requisite for the database statefulset.
+                openshift.apply(openshift.process("-f",
+                  "openshift/database.rolebinding.yaml",
+                  "NAME=wally-psql",
+                  "SUFFIX=-${env_name}"
+                ))
+
+                sleep(3)
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
