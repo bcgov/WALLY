@@ -199,7 +199,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     record = res.fetchone()
 
     if not record or not record[0]:
-        logger.warn('unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        logger.warn(
+            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
     return Feature(
@@ -235,6 +236,14 @@ def calculate_watershed(
 
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
+
+    if not feature:
+        # was not able to calculate a watershed with the provided params.
+        # return None; the calling function will skip this calculated watershed
+        # and return other pre-generated ones.
+        logger.info(
+            "skipping calculated watershed based on watershed feature id %s", watershed_id)
+        return None
 
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
@@ -363,7 +372,8 @@ def get_watershed(db: Session, watershed_feature: str):
     # feature id.
     else:
         watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(transform_3005_4326, shape(watershed.geometry))
+        watershed_poly = transform(
+            transform_3005_4326, shape(watershed.geometry))
         watershed.geometry = mapping(watershed_poly)
 
     return watershed
@@ -403,7 +413,7 @@ def get_annual_precipitation(poly: Polygon):
 
     months_data = list(response["data"].values())
     months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    month_totals = [a*b for a,b in zip(months_data, months_days)]
+    month_totals = [a*b for a, b in zip(months_data, months_days)]
 
     annual_precipitation = sum(month_totals)
     # logger.warning("annual_precipitation")
@@ -495,8 +505,9 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
-        raise HTTPException(status_code=error.response.status_code, detail=str(error))
-    
+        raise HTTPException(
+            status_code=error.response.status_code, detail=str(error))
+
     result = response.json()
     logger.warning("sea result")
     logger.warning(result)
@@ -524,8 +535,8 @@ def get_hillshade(slope: float, aspect: float):
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
-    azimuth = 180.0 # 0-360 we are using values from the scsb2016 paper
-    altitude = 45.0 # 0-90 " "
+    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
+    altitude = 45.0  # 0-90 " "
     azimuth_rad = azimuth * math.pi / 2.
     altitude_rad = altitude * math.pi / 180.
 
