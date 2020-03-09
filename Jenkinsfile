@@ -199,7 +199,7 @@ pipeline {
                 openshift.apply(openshift.process("-f",
                   "openshift/database.rolebinding.yaml",
                   "NAME=wally-psql",
-                  "SUFFIX=-${env_name}"
+                  "SUFFIX=-${NAME}"
                 ))
 
                 sleep(3)
