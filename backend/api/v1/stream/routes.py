@@ -49,9 +49,11 @@ def get_streams_by_watershed_code(
     # contain a non-zero value).
     # There is an assumption made that no watershed codes have
     # non-zero values to the right of a zero value.
-    code_parsed = [x for x in code.split('-') if x != '000000']
-    code_parsed.append('%')
-    code_parsed = '-'.join(code_parsed)
+    root_code = stream_controller.watershed_root_code(code)
+
+    # add a wildcard for searching
+    root_code.append('%')
+    root_code = '-'.join(root_code)
 
     # Gather up the selected stream segments (from the stream's own headwaters
     # down to the mouth of the stream where it drains into the next river),
@@ -87,7 +89,7 @@ def get_streams_by_watershed_code(
         where   "FWA_WATERSHED_CODE" = :code
         union all
         select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" ilike :code_parsed
+        where   "FWA_WATERSHED_CODE" ilike :root_code
         AND     split_part(
                     "FWA_WATERSHED_CODE", '-',
                     watershed_code_stats.loc_code_last_nonzero_code
@@ -102,7 +104,7 @@ def get_streams_by_watershed_code(
         q,
         {
             "code": code,
-            "code_parsed": code_parsed,
+            "root_code": root_code,
             "linear_feature_id": linear_feature_id,
             "buffer": buffer
         }).fetchone()

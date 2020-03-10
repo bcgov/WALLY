@@ -128,6 +128,8 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
             features.append(Feature(id=feat.pop('id', None), geometry=feat.pop(
                 'geometry'), properties=feat.pop('properties', {})))
 
+        # CRS for this set of results. DataBC results have a crs specified in the FeatureCollection
+        # that indicates the projection of geometry in the collection.
         if data.get("crs"):
             crs = data.get("crs")
 

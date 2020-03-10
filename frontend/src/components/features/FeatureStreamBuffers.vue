@@ -38,7 +38,6 @@
 import { mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../services/ApiService'
 import StreamBufferData from '../analysis/StreamBufferData'
-import buffer from '@turf/buffer'
 import debounce from 'lodash.debounce'
 
 export default {
@@ -85,8 +84,12 @@ export default {
     enableMapLayer () {
       this.$store.dispatch('map/addMapLayer', this.selectedLayer)
     },
+    updateStreams: debounce(function () {
+      this.drawStreamNetwork()
+      this.updateStreamBuffers()
+    }, 250),
     drawStreamNetwork () {
-      if (!this.record) {
+      if (!this.record || this.buffer < 0) {
         return
       }
 
@@ -97,7 +100,7 @@ export default {
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
       const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
 
-      ApiService.query('/api/v1/stream/features', { code: fwaCode, linear_feature_id: linearFeatID })
+      ApiService.query('/api/v1/stream/features', { code: fwaCode, linear_feature_id: linearFeatID, buffer: this.buffer })
         .then((r) => {
           const data = r.data
 
@@ -125,7 +128,7 @@ export default {
         })
     },
     fetchStreamBufferInformation () {
-      if (buffer <= 0 || !this.selectedLayer) {
+      if (this.buffer <= 0 || !this.selectedLayer) {
         return
       }
       this.loadingData = true
@@ -134,8 +137,6 @@ export default {
 
       const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
-
-      console.log(fwaCode)
 
       const params = {
         buffer: parseFloat(this.buffer),
@@ -157,7 +158,7 @@ export default {
     resetStreamData () {
       this.streamData = null
     },
-    ...mapMutations('map', ['map', 'setMode'])
+    ...mapMutations('map', ['setMode'])
   },
   computed: {
     loading () {
@@ -194,10 +195,7 @@ export default {
     },
     buffer (value) {
       if (this.buffer > 0 && this.buffer < this.inputRules.max) {
-        debounce(function () {
-          this.drawStreamNetwork()
-          this.updateStreamBuffers()
-        }, 250)()
+        this.updateStreams()
       }
     },
     selectedLayer () {

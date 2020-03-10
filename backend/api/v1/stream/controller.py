@@ -26,6 +26,16 @@ def get_connected_streams(db: Session, outflowCode: str) -> list:
     return feature_results
 
 
+def watershed_root_code(code: str) -> str:
+    """ truncates zero values from the end of watershed codes, .
+        Watershed codes have 21 segments, but most of the segments will
+        be a "zero value". E.g.:
+        100-123333-432123-000000-000000-000000- .... etc
+    """
+
+    return [x for x in code.split('-') if x != '000000']
+
+
 def to_3005(from_proj, feat):
     """ returns a feature in EPSG:3005, transforming if necessary
         `from_proj` supports 4326 and 3005.
