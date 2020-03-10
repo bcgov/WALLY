@@ -27,7 +27,7 @@ export default {
     },
     headers: [
       { text: 'GNIS Name', value: 'gnis_name' },
-      { text: 'Length (m)', value: 'length_metre', align: 'end' },
+      { text: 'Length of reach (m)', value: 'length_metre', align: 'end' },
       { text: 'Distance (m)', value: 'distance', align: 'end' },
       { text: 'Apportionment', value: 'apportionment', align: 'end' },
       { text: '', value: 'action', sortable: false }

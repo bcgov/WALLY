@@ -42,6 +42,7 @@ class StreamDetailsExport(BaseModel):
     gnis_name: Optional[str]
     linear_feature_id: Optional[int]
     distance: float
+    length_metre: float
     apportionment: float
 
 

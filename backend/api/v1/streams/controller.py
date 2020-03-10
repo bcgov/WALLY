@@ -187,5 +187,4 @@ def get_docgen_token():
     resp = req.json()
 
     token = req.json().get('access_token')
-    logger.info(token)
     return token
