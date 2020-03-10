@@ -10,6 +10,7 @@ if [[ (! -z "$APP_USER") &&  (! -z "$APP_PASSWORD") && (! -z "$APP_DATABASE")]];
 
   echo "Creating PostGIS extension"
   psql "$1" -d $APP_DATABASE -w -c "CREATE EXTENSION POSTGIS'"
+  psql "$1" -d $APP_DATABASE -w -c "CREATE EXTENSION pg_trgm'"
 
 else
   echo "Skipping user creation"
