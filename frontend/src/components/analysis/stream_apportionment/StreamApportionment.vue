@@ -1,7 +1,28 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="1">
+      <v-col class="text-right">
+        <v-btn
+                    v-if="streams && streams.length"
+                    outlined
+                    :disabled="loading"
+                    @click="submitStreamsForExport"
+                    color="primary"
+                  >
+                    Excel
+                    <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                    <v-progress-circular
+                      v-if="spreadsheetLoading"
+                      indeterminate
+                      size=24
+                      class="ml-1"
+                      color="primary"
+                    ></v-progress-circular>
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="6" md="1">
         <span class="text-sm-right">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -25,7 +46,7 @@
             </span>
           </span>
       </v-col>
-      <v-col>
+      <v-col cols="6" md="3">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn x-small v-show="show.removeOverlaps" v-on:click="removeOverlaps" v-on="on" color="blue-grey lighten-4" class="mb-1 mt-1">
@@ -43,7 +64,7 @@
             <span>Remove streams that have less than 10% apportionment</span>
           </v-tooltip>
       </v-col>
-      <v-col cols="3">
+      <v-col cols="12" md="3">
         <v-text-field
           dense
           label="Weighting Factor"
