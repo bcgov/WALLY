@@ -125,6 +125,16 @@ export default {
       return {
         barmode: 'stack',
         title: 'Availability vs Licenced Quantity',
+        showlegend: true,
+        legend: {
+          xanchor: 'center',
+          x: 0.5,
+          y: -0.1,
+          orientation: 'h'
+        },
+        margin: {
+          r: 120
+        },
         xaxis: {
           tickformat: '%B'
         },
