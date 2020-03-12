@@ -107,6 +107,8 @@ http {
             proxy_pass http://minio:9000;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header Host $host;
+            ignore_invalid_headers off;
+            proxy_buffering off;
 
 
 
