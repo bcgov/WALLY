@@ -14,7 +14,7 @@
         <template v-slot:activator="{ on }">
           <v-btn icon v-on="on" @click="toggle" x-small class="float-right close">
             <v-icon v-if="show">mdi-close</v-icon>
-            <v-icon v-else>mdi-chevron-up</v-icon>
+            <v-icon v-else>mdi-map-legend</v-icon>
           </v-btn>
         </template>
         <span v-if="show">Hide</span>
