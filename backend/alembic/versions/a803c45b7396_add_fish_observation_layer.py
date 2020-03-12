@@ -20,7 +20,7 @@ def upgrade():
     op.execute('SET search_path TO metadata')
 
     op.execute("""
-        INSERT INTO mapbox_source (mapbox_source_id, max_zoom) VALUES ('iit-water.448thhpa', 9)
+        INSERT INTO mapbox_source (mapbox_source_id, max_zoom) VALUES ('iit-water.448thhpa', 7)
     """)
 
     # need to update water_rights_licences display_catalogue
