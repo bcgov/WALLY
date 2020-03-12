@@ -150,11 +150,53 @@ describe('Map Legend Test', () => {
   })
 
   it('Replaces label code', () => {
-    expect(1).toEqual(1)
     let legendText = wrapper.vm.replaceLabelCode('Test Label')
     expect(legendText).toEqual('Test Label')
 
     legendText = wrapper.vm.replaceLabelCode('OR')
     expect(legendText).toEqual('Office Reserve')
+  })
+
+  it('Is collapsible', async () => {
+    let legend = []
+    legend.push({
+      className: false,
+      legendItems: [{
+        color: 'hsla(190, 98%, 75%, 0.39)',
+        icon: 'signal_cellular_4_bar',
+        iconSize: 20,
+        lineWidth: false,
+        outlineColor: [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          5,
+          'hsla(0, 0%, 55%, 0)',
+          10,
+          'hsl(0, 0%, 19%)'
+        ],
+        strokeWidth: '1px',
+        text: ''
+      }],
+      name: 'Aquifers',
+      plenty: false
+    })
+    wrapper.setData({ legend: legend })
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.findAll('div#legend>.legendItems').length).toEqual(1)
+
+    // Legend is visible when a layer is selected
+    expect(wrapper.find('div#legend>.legendItems').isVisible()).toBe(true)
+
+    // Hide legend
+    wrapper.find('.v-btn.close').trigger('click')
+    await Vue.nextTick()
+    expect(wrapper.find('div#legend>.legendItems').isVisible()).toBe(false)
+
+    // Show legend
+    wrapper.find('.v-btn.close').trigger('click')
+    await Vue.nextTick()
+    expect(wrapper.find('div#legend>.legendItems').isVisible()).toBe(true)
   })
 })
