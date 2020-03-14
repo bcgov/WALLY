@@ -1,4 +1,4 @@
-FROM registry.hub.docker.com/library/postgres:10
+FROM registry.hub.docker.com/library/postgres:12
 
 # Patroni install from https://github.com/zalando/patroni
 # OpenShift config from https://github.com/BCDevOps/platform-services
@@ -6,8 +6,8 @@ FROM registry.hub.docker.com/library/postgres:10
 
 ARG PGHOME=/home/postgres
 
-ENV POSTGIS_MAJOR 2.5
-ENV POSTGIS_VERSION 2.5.2+dfsg-1~exp1.pgdg90+1
+ENV POSTGIS_MAJOR 3
+ENV POSTGIS_VERSION 3.0.0+dfsg-2~exp1.pgdg100+1
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01norecommend \
