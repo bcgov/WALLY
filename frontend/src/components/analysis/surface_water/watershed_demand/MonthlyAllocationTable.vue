@@ -1,7 +1,7 @@
 <template>
     <v-card id="allocationTable">
       <v-card-title class="headline">
-        Edit monthly allocation values
+        Configure monthly allocation values
         <v-spacer></v-spacer>
         <v-btn
           icon
@@ -10,7 +10,10 @@
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </v-card-title>
-      <v-card-text>Nam dictum fringilla velit et placerat. Aliquam ultricies massa gravida posuere ullamcorper. Duis fermentum purus felis. Duis fermentum lectus vel purus accumsan consectetur. Nunc suscipit mauris a eleifend consectetur. Vestibulum at odio lorem. Integer vel dignissim purus, nec pretium mi.</v-card-text>
+      <v-card-text>
+        <p>The allocation volume can be distributed differently over 12 months of a year. To reflect variations in the monthly demand, a coefficient can be applied based on the proportion of distribution over the year. For example, an irrigation licence has an annual quantity. However, it may only be allowable to use between April 1 and September 30. Therefore, it could be assigned a value of 2/12 between April and September, and 0/12 between October and March.</p>
+        <p>Edit the monthly allocation coefficient values by re-distributing the expected annual proportion of licensed water quantity in the table below. Values allocated monthly should total 12 to indicate an annual allocation distribution.</p>
+      </v-card-text>
       <v-simple-table>
         <template v-slot:default>
           <thead>
@@ -39,7 +42,7 @@
               </p>
               </td>
             <td>
-              <v-chip small :color="(computeRowTotal(item.values) === 12)?'green': 'red'">
+              <v-chip small :color="(computeRowTotal(item.values) === 12)?'green lighten-3': 'red lighten-3'">
                 <v-avatar left
                 >
                   <v-icon small v-if="computeRowTotal(item.values) === 12">mdi-check</v-icon>
@@ -80,12 +83,17 @@
       padding: 0 2px;
     }
 
+    td:first-child{
+      padding-left: 20px;
+    }
+
     td.purpose-type {
       padding: 0 15px;
     }
 
     td:last-child{
-      padding: 0 15px;
+      padding: 10px 15px;
+      vertical-align: top;
     }
 
   }
