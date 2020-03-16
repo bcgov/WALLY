@@ -4,7 +4,8 @@ export default {
   name: 'MapLegend',
   data () {
     return {
-      legend: []
+      legend: [],
+      show: true
     }
   },
   props: ['map'],
@@ -137,6 +138,9 @@ export default {
         default:
           return code
       }
+    },
+    toggle () {
+      this.show = !this.show
     }
   },
   computed: {
