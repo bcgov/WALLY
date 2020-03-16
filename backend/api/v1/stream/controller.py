@@ -51,7 +51,7 @@ def to_3005(from_proj, feat):
     return feat
 
 
-def get_features_within_buffer(db: Session, line, distance: float, layer: str) -> list:
+def get_features_within_buffer(db: Session, line, distance: float, layer: str) -> FeatureCollection:
     """ List features within a buffer zone from a geometry
     """
 
