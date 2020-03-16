@@ -93,6 +93,7 @@ export default {
   watch: {
     selectedWatershed (v) {
       this.filterWatershed(v)
+      this.fetchWatershedDetails()
     },
     includePOIPolygon () {
       this.recalculateWatershed()
@@ -159,7 +160,6 @@ export default {
             if (i === 0) this.selectedWatershed = ws.id
             this.addSingleWatershedLayer(`ws-${ws.id}`, ws)
             this.geojsonLayersAdded.push(`ws-${ws.id}`)
-            this.fetchWatershedDetails()
           })
           this.watershedLoading = false
         })
