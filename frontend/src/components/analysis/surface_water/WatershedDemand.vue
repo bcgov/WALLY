@@ -9,12 +9,18 @@
         <v-card-title class="pl-0">
           Water Rights Licences
           <v-card-actions>
-            <v-btn x-small fab depressed light @click="openEditAllocationTableDialog">
-              <v-icon small color="primary">
-                mdi-tune
-              </v-icon>
-            </v-btn>
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" x-small fab depressed light @click="openEditAllocationTableDialog">
+                  <v-icon small color="primary">
+                    mdi-tune
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Configure monthly allocation coefficients</span>
+            </v-tooltip>
           </v-card-actions>
+
         </v-card-title>
         <v-dialog v-model="show.editingAllocationValues" persistent>
           <MonthlyAllocationTable
