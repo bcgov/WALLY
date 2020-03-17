@@ -64,13 +64,13 @@
                                    :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"
                                    :details="watershedDetails"/>
-            <HydrometricStationsContainer ref="anchor-hydrometric-stations"
-                                          v-if="watershedDetails.hydrometric_stations"
-                                          :stations="watershedDetails.hydrometric_stations"
+            <HydrometricStationsContainer
+              ref="anchor-hydrometric-stations"
+              v-if="watershedDetails && watershedDetails.hydrometric_stations"
+              :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
           </div>
         </div>
-
       </div>
     </template>
   </v-container>
