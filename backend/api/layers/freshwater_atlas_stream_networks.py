@@ -7,7 +7,7 @@ class FreshwaterAtlasStreamNetworks(BaseLayerTable):
     __tablename__ = 'freshwater_atlas_stream_networks'
 
     OGC_FID = Column(Integer, primary_key=True)
-    LINEAR_FEATURE_ID = Column(Integer)
+    LINEAR_FEATURE_ID = Column(Integer, index=True)
     WATERSHED_GROUP_ID = Column(Integer)
     EDGE_TYPE = Column(Integer)
     BLUE_LINE_KEY = Column(Integer)
