@@ -89,7 +89,7 @@ def get_streams_by_watershed_code(
         where   "FWA_WATERSHED_CODE" = :code
         union all
         select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" ilike :root_code
+        where   "FWA_WATERSHED_CODE" like :root_code
         AND     split_part(
                     "FWA_WATERSHED_CODE", '-',
                     watershed_code_stats.loc_code_last_nonzero_code
