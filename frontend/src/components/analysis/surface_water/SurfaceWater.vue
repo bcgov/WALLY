@@ -29,13 +29,12 @@
         </v-col>
       </v-row>
       <v-row align="center">
-        <v-col cols=12 md=6>Select watershed:</v-col>
-        <v-col cols=12 md=6>
+        <v-col cols=12 md=12>
           <v-select
             v-model="selectedWatershed"
             :items="watershedOptions"
             :menu-props="{ maxHeight: '400' }"
-            label="Select"
+            label="Select watershed"
             item-text="label"
             item-value="value"
             hint="Available watersheds at this location"
@@ -108,7 +107,7 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`,
+        label: (w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`).toLowerCase(),
         value: w.id
       }))
     },
@@ -213,5 +212,7 @@ export default {
 </script>
 
 <style>
-
+.v-list-item__content, .v-select__selection{
+  text-transform: capitalize;
+}
 </style>

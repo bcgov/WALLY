@@ -135,7 +135,7 @@ def watershed_stats(
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     # watershed characteristics lookups
-    drainage_area = watershed_area / 1e6 # needs to be in km^2
+    drainage_area = watershed_area / 1e6 # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(db, watershed_rect)
     temperature_data = get_temperature(watershed_poly)
     annual_precipitation = get_annual_precipitation(watershed_poly)

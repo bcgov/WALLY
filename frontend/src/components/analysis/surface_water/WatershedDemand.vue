@@ -145,7 +145,7 @@ export default {
           tickformat: '%B'
         },
         yaxis: {
-          title: 'Volume (m^3)'
+          title: 'Volume (m³)'
         }
       }
     },
@@ -254,7 +254,7 @@ export default {
         name: 'Available Water',
         y: this.availability.map((val) => { return val - (this.licenceData.total_qty / 12) }),
         x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m^3'
+        hovertemplate: '%{y:.2f} m³'
       }
 
       let y = []
@@ -276,7 +276,7 @@ export default {
         name: 'Monthly Licenced Quantity',
         y: y,
         x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m^3'
+        hovertemplate: '%{y:.2f} m³'
       }
 
       const mad30 = {
