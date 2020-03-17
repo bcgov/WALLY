@@ -49,7 +49,7 @@ objects:
         intervalSeconds: 1
         maxSurge: 25%
         maxUnavailable: 25%
-        timeoutSeconds: 600
+        timeoutSeconds: 1200
         updatePeriodSeconds: 1
         pre:
           failurePolicy: Abort
@@ -92,6 +92,26 @@ objects:
       spec:
         containers:
         - env:
+          - name: COMMON_DOCGEN_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_CLIENT_ID
+                name: common-docgen
+          - name: COMMON_DOCGEN_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_CLIENT_SECRET
+                name: common-docgen
+          - name: COMMON_DOCGEN_SSO_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_SSO_ENDPOINT
+                name: common-docgen
+          - name: COMMON_DOCGEN_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_ENDPOINT
+                name: common-docgen
           - name: MAPBOX_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:

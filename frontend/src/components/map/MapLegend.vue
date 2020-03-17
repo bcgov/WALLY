@@ -1,13 +1,25 @@
 <template>
     <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
-      <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
-          <h4 v-if="layer.plenty" :key='i' class="layerName">{{layer.name}}</h4>
-          <div v-for="(item, j) in layer.legendItems" v-bind:key="`legendItem${j}`" v-bind:class="layer.className">
-            <v-icon :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
-            <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
-            <span class="layerName" v-else>{{layer.name}}</span>
-          </div>
+      <div class="legendItems" v-show="show">
+        <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
+            <h4 v-if="layer.plenty" :key='i' class="layerName">{{layer.name}}</h4>
+            <div v-for="(item, j) in layer.legendItems" v-bind:key="`legendItem${j}`" v-bind:class="layer.className">
+              <v-icon :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
+              <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
+              <span class="layerName" v-else>{{layer.name}}</span>
+            </div>
+        </div>
       </div>
+      <v-tooltip left>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" @click="toggle" x-small class="float-right close">
+            <v-icon v-if="show">mdi-close</v-icon>
+            <v-icon v-else>mdi-map-legend</v-icon>
+          </v-btn>
+        </template>
+        <span v-if="show">Hide</span>
+        <span v-else>Show map legend</span>
+      </v-tooltip>
     </div>
 </template>
 <style>
