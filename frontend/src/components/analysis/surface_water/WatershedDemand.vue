@@ -9,12 +9,18 @@
         <v-card-title class="pl-0">
           Water Rights Licences
           <v-card-actions>
-            <v-btn x-small fab depressed light @click="openEditAllocationTableDialog">
-              <v-icon small color="primary">
-                mdi-tune
-              </v-icon>
-            </v-btn>
+            <v-tooltip right>
+              <template v-slot:activator="{ on }">
+                <v-btn v-on="on" x-small fab depressed light @click="openEditAllocationTableDialog">
+                  <v-icon small color="primary">
+                    mdi-tune
+                  </v-icon>
+                </v-btn>
+              </template>
+              <span>Configure monthly allocation coefficients</span>
+            </v-tooltip>
           </v-card-actions>
+
         </v-card-title>
         <v-dialog v-model="show.editingAllocationValues" persistent>
           <MonthlyAllocationTable
@@ -125,6 +131,16 @@ export default {
       return {
         barmode: 'stack',
         title: 'Availability vs Licenced Quantity',
+        showlegend: true,
+        legend: {
+          xanchor: 'center',
+          x: 0.5,
+          y: -0.2,
+          orientation: 'h'
+        },
+        margin: {
+          r: 120
+        },
         xaxis: {
           tickformat: '%B'
         },
