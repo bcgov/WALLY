@@ -32,4 +32,4 @@ def get_scsb2016_values(
         glacial_coverage, annual_precipitation, evapo_transpiration, \
         drainage_area, solar_exposure, average_slope)
 
-    return { "result": result }
+    return result

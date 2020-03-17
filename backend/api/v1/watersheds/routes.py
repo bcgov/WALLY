@@ -165,6 +165,7 @@ def watershed_stats(
         "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
         "hydrological_zone": hydrological_zone,
         "average_slope": average_slope,
+        "solar_exposure": solar_exposure,
         "median_elevation": median_elevation,
         "aspect": aspect,
         "runoff_isoline_avg": (isoline_runoff['runoff'] /
