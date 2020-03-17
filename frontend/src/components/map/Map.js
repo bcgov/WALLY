@@ -7,7 +7,6 @@ import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import MapScale from './MapScale'
 import circle from '@turf/circle'
 import coordinatesGeocoder from './localGeocoder'
-import * as streamConfig from '../../utils/streamHighlights.config'
 
 import { getArrayDepth } from '../../helpers'
 
@@ -273,7 +272,6 @@ export default {
       'getMapObjects',
       'addActiveSelection',
       'handleAddPointSelection',
-      'initStreamHighlights',
       'initHighlightLayers',
       'updateHighlightLayerData',
       'updateHighlightsLayerData',
@@ -316,27 +314,6 @@ export default {
       if (value) {
         this.loadLayers(value)
       }
-    },
-    dataMartFeaturesInfo (value) {
-
-    },
-    getSelectedStreamData (value) {
-      this.map.getSource(streamConfig.sources[0].name).setData(value)
-    },
-    getUpstreamData (value) {
-      this.map.getSource(streamConfig.sources[1].name).setData(value)
-    },
-    getDownstreamData (value) {
-      this.map.getSource(streamConfig.sources[2].name).setData(value)
-    },
-    getSelectedStreamBufferData (value) {
-      this.map.getSource(streamConfig.sources[3].name).setData(value)
-    },
-    getUpstreamBufferData (value) {
-      this.map.getSource(streamConfig.sources[4].name).setData(value)
-    },
-    getDownstreamBufferData (value) {
-      this.map.getSource(streamConfig.sources[5].name).setData(value)
     }
   }
 }
