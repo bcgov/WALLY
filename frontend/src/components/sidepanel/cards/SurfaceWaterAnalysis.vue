@@ -23,7 +23,6 @@
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWater></SurfaceWater>
     </div>
-
     <v-row class="pa-5" v-else>
       <v-col cols=12 lg=8>
         <p>Select a point of interest.</p>

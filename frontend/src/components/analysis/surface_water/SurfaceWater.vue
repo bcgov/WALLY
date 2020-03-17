@@ -54,8 +54,20 @@
         <div v-else>
           <div>Watershed Details</div>
           <div>
-            <MeanAnnualRunoff ref="anchor-mar" :watershedID="selectedWatershed" :record="selectedWatershedRecord" :allWatersheds="watersheds" :details="watershedDetails"/>
-            <WatershedAvailability ref="anchor-availability" :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord" :details="watershedDetails"/>
+            <MeanAnnualRunoff ref="anchor-mar"
+                              :watershedID="selectedWatershed"
+                              :record="selectedWatershedRecord"
+                              :allWatersheds="watersheds"
+                              :details="watershedDetails"/>
+            <WatershedAvailability ref="anchor-availability"
+                                   :watershedID="selectedWatershed"
+                                   :allWatersheds="watersheds"
+                                   :record="selectedWatershedRecord"
+                                   :details="watershedDetails"/>
+            <HydrometricStationsContainer ref="anchor-hydrometric-stations"
+                                          v-if="watershedDetails.hydrometric_stations"
+                                          :stations="watershedDetails.hydrometric_stations"
+            class="pt-8" />
           </div>
         </div>
 
@@ -70,10 +82,12 @@ import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
+import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
+    HydrometricStationsContainer,
     WatershedAvailability,
     MeanAnnualRunoff
   },
