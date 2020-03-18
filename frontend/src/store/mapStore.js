@@ -20,6 +20,11 @@ const emptyPolygon = {
   }
 }
 
+const emptyFeatureCollection = {
+  type: 'FeatureCollection',
+  features: [emptyPoint]
+}
+
 const defaultMode = {
   type: 'interactive',
   name: 'clicky'
@@ -117,6 +122,7 @@ export default {
     loadMap ({ state, dispatch }) {
       state.map.on('style.load', () => {
         dispatch('getMapLayers')
+        dispatch('initStreamHighlights')
       })
     },
     setDrawMode ({ state }, drawMode) {
@@ -327,12 +333,28 @@ export default {
         layerData.setData(emptyPolygon)
       }
       dispatch('removeElementsByClass', 'annotationMarker')
+      dispatch('clearStreamHighlights')
+      commit('resetStreamData', {}, { root: true })
+    },
+    clearStreamHighlights ({ rootGetters, state }) {
+      rootGetters.getStreamSources.forEach((s) => {
+        state.map.getSource(s.name).setData(emptyFeatureCollection)
+      })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
+    },
+    initStreamHighlights ({ state, rootGetters }) {
+      // Import sources and layers for stream segment highlighting
+      rootGetters.getStreamSources.forEach((s) => {
+        state.map.addSource(s.name, { type: 'geojson', data: s.options })
+      })
+      rootGetters.getStreamLayers.forEach((l) => {
+        state.map.addLayer(l)
+      })
     },
     async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {
