@@ -61,7 +61,8 @@ DATABC_LAYER_IDS = {
     "fn_treaty_lands": "WHSE_LEGAL_ADMIN_BOUNDARIES.FNT_TREATY_LAND_SP",
     "bc_major_watersheds": "WHSE_BASEMAPPING.BC_MAJOR_WATERSHEDS",
     "freshwater_atlas_glaciers": "WHSE_BASEMAPPING.FWA_GLACIERS_POLY",
-    "runoff_isolines": "WHSE_WATER_MANAGEMENT.HYDZ_ANNUAL_RUNOFF_LINE"
+    "runoff_isolines": "WHSE_WATER_MANAGEMENT.HYDZ_ANNUAL_RUNOFF_LINE",
+    "fish_observations": "WHSE_FISH.FISS_FISH_OBSRVTN_PNT_SP"
 }
 
 
@@ -77,6 +78,8 @@ DATABC_GEOMETRY_FIELD = {
     "fn_treaty_areas": "GEOMETRY",
     "fn_community_locations": "SHAPE",
     "fn_treaty_lands": "GEOMETRY",
+    "freshwater_atlas_glaciers": "GEOMETRY",
+    "fish_observations": "GEOMETRY"
 }
 
 

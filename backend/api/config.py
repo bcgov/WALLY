@@ -31,3 +31,8 @@ MAPBOX_STYLE = os.getenv("MAPBOX_STYLE", "")
 
 GWELLS_API_URL = os.getenv(
     "GWELLS_API_URL", "https://gwells-prod.pathfinder.gov.bc.ca/gwells")
+
+COMMON_DOCGEN_CLIENT_ID = os.getenv("COMMON_DOCGEN_CLIENT_ID", "")
+COMMON_DOCGEN_CLIENT_SECRET = os.getenv("COMMON_DOCGEN_CLIENT_SECRET", "")
+COMMON_DOCGEN_SSO_ENDPOINT = os.getenv("COMMON_DOCGEN_SSO_ENDPOINT", "")
+COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")

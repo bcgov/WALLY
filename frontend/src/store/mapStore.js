@@ -232,8 +232,6 @@ export default {
       // redraw any current features and update selection.
       dispatch('addActiveSelection', { featureCollection: state.draw.getAll(), options: { showFeatureList: false } })
     },
-    expandMapLegend () {},
-    collapseMapLegend () {},
     addMapLayer ({ commit, dispatch, state }, displayDataName) {
       let mapLayer = state.mapLayers.find((layer) => {
         return layer.display_data_name === displayDataName
