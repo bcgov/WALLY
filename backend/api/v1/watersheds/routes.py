@@ -215,18 +215,3 @@ def get_surficial_geology(
 
     return surf_geol_summary
 
-@router.get('/{watershed_feature}/hydrometric_stations')
-def get_hydrometric_stations(
-    db: Session = Depends(get_db),
-    watershed_feature: str = Path(...,
-                                  title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
-
-
-):
-    """ returns data about watershed demand by querying DataBC """
-
-    watershed = get_watershed(db, watershed_feature)
-
-    return get_stations_in_area(shape(watershed.geometry))
-
