@@ -3,7 +3,11 @@ import pytest
 
 # from api.v1.watersheds.controller import get_hydrometric_stations
 from api.v1.hydat.controller import get_stations_in_area
+from tests.utils import get_mock_session
+from shapely.geometry import Polygon
+
 import logging
+
 
 logger = logging.getLogger('test')
 
@@ -17,4 +21,9 @@ class TestHydrometricStations:
     """
     def test_hydrometric_station(self):
         # Watershed data returns hydrometric stations
-        return True
+        db = get_mock_session()
+
+        polygon = Polygon(((0.0, 0.0), (0.0, 1.0), (-1.0, 1.0), (-1.0, 0.0)))
+
+        stations = get_stations_in_area(db, polygon)
+        assert type(stations) == list

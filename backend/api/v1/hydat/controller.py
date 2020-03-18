@@ -30,6 +30,4 @@ def get_stations_in_area(db: Session, polygon: Polygon) -> list:
         for x in rs_stations
     ]
 
-    # TODO:
-    # - import fixtures for testing
     return stations
