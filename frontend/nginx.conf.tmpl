@@ -87,6 +87,7 @@ http {
         listen       [::]:8080 default_server;
         server_name  _;
         root         /opt/app-root/src;
+        ignore_invalid_headers off;
 
         # Load configuration files for the default server block.
         include      /opt/app-root/etc/nginx.default.d/*.conf;
@@ -107,11 +108,7 @@ http {
             proxy_pass http://minio:9000;
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header Host $host;
-            ignore_invalid_headers off;
             proxy_buffering off;
-
-
-
         }
 
         location / {
