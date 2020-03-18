@@ -130,7 +130,7 @@ requests:
     set:
       - var: watershed_id
         from: "features.[0].id"
-  # Left as an example to test our own model using external api inputs
+  # An example to test our own model using external api inputs
   # - name: Watershed Information Test (Stawamus River)
   #   url: "{{host}}/api/v1/watersheds/{{watershed_id}}"
   #   method: get
