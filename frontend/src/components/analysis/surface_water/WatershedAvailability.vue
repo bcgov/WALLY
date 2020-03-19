@@ -74,6 +74,12 @@ export default {
     monthlyRunoffCoefficients: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     runoffLayout: {
       title: 'Runoff (Normalized annual runoff * area)',
+      legend: {
+        xanchor: 'center',
+        x: 0.5,
+        y: -0.1,
+        orientation: 'h'
+      },
       xaxis: {
         tickformat: '%B'
       },
@@ -83,6 +89,12 @@ export default {
     },
     isolineRunoffLayout: {
       title: 'Monthly discharge (using 1961 - 1990 runoff isolines)',
+      legend: {
+        xanchor: 'center',
+        x: 0.5,
+        y: -0.1,
+        orientation: 'h'
+      },
       xaxis: {
         tickformat: '%B'
       },

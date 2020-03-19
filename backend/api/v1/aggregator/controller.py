@@ -118,6 +118,8 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
     except json.JSONDecodeError as e:
         logger.error(e)
 
+    crs = None
+
     # check if data looks like a geojson FeatureCollection, and if so,
     # make proper Features out of all the objects
     if (res.status == 200 and
@@ -129,6 +131,11 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
             features.append(Feature(id=feat.pop('id', None), geometry=feat.pop(
                 'geometry'), properties=feat.pop('properties', {})))
 
+        # CRS for this set of results. DataBC results have a crs specified in the FeatureCollection
+        # that indicates the projection of geometry in the collection.
+        if data.get("crs"):
+            crs = data.get("crs")
+
     # if we didn't recognize a geojson response, check if a formatter was supplied to create geojson.
     elif res.status == 200 and req.formatter and len(data) > 0:
         features = req.formatter(data)['features']
@@ -136,7 +143,7 @@ async def parse_result(res: ClientResponse, req: ExternalAPIRequest):
     if data.get('next', None) and data.get('results', None):
         next_url = data['next']
 
-    return features, res.status, next_url
+    return features, res.status, next_url, crs
 
 
 async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> LayerResponse:
@@ -157,6 +164,11 @@ async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> Laye
     MAX_PAGES = 20
     features = []
 
+    # CRS for this set of results. DataBC results have a crs specified in the FeatureCollection.
+    # there is no assertion that in any given set of paginated results that the CRS is
+    # identical for each page. Currently the last page sets the CRS.
+    crs = None
+
     # make request, and follow URLs for the next page if the response is paginated
     # and "next" is provided in the response.
     # continue to make requests until there is no "next" url.
@@ -173,7 +185,7 @@ async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> Laye
 
         logger.info('external request: %s', next_url)
         async with session.get(next_url) as response:
-            results, status, next_url = await asyncio.ensure_future(parse_result(response, req))
+            results, status, next_url, crs = await asyncio.ensure_future(parse_result(response, req))
             features.extend(results)
             # preserve error statuses even if a later request returns 200 OK
             if layer_resp.status < status:
@@ -183,7 +195,7 @@ async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> Laye
         if not req.paginate:
             break
 
-    layer_resp.geojson = FeatureCollection(features=features)
+    layer_resp.geojson = FeatureCollection(features=features, crs=crs)
     return layer_resp
 
 

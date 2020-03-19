@@ -322,22 +322,19 @@ export default {
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
-      console.log('clearing highlight layer')
+      const pointData = state.map.getSource('highlightPointData')
+      const layerData = state.map.getSource('highlightLayerData')
 
-      const highlightPoints = state.map.getSource('highlightPointData')
-      const highlightLayers = state.map.getSource('highlightLayerData')
-
-      if (highlightPoints) {
-        highlightPoints.setData(emptyPoint)
+      if (pointData) {
+        pointData.setData(emptyPoint)
       }
 
-      if (highlightLayers) {
-        highlightLayers.setData(emptyPolygon)
+      if (layerData) {
+        layerData.setData(emptyPolygon)
       }
-      dispatch('clearStreamHighlights')
       dispatch('removeElementsByClass', 'annotationMarker')
+      dispatch('clearStreamHighlights')
       commit('resetStreamData', {}, { root: true })
-      commit('resetStreamBufferData', {}, { root: true })
     },
     clearStreamHighlights ({ rootGetters, state }) {
       rootGetters.getStreamSources.forEach((s) => {
@@ -416,24 +413,15 @@ export default {
         state.map.getSource('highlightPointData').setData(emptyPoint)
         state.map.getSource('highlightLayerData').setData(emptyPolygon)
         // For local rendered streams only calculation
-        commit('resetStreamData', {}, { root: true })
-
-        // Update stream layer
-        let layer = state.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
-        dispatch('calculateStreamHighlights', { stream: data, streams: layer }, { root: true })
 
         // Backend query for all connected streams
         // this.$store.dispatch('fetchConnectedStreams', { stream: data })
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         state.map.getSource('highlightPointData').setData(data)
         state.map.getSource('highlightLayerData').setData(emptyPolygon)
-        commit('resetStreamData', {}, { root: true })
-        commit('resetStreamBufferData', {}, { root: true })
       } else {
         state.map.getSource('highlightPointData').setData(emptyPoint)
         state.map.getSource('highlightLayerData').setData(data)
-        commit('resetStreamData', {}, { root: true })
-        commit('resetStreamBufferData', {}, { root: true })
       }
     },
     removeElementsByClass ({ state }, payload) {
