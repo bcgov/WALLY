@@ -2,6 +2,7 @@
 Endpoints for returning statistics about watersheds
 """
 from logging import getLogger
+import datetime
 import json
 import geojson
 from geojson import FeatureCollection, Feature
@@ -39,7 +40,8 @@ from api.v1.watersheds.controller import (
     calculate_potential_evapotranspiration_thornthwaite,
     calculate_potential_evapotranspiration_hamon,
     get_slope_elevation_aspect,
-    get_hillshade
+    get_hillshade,
+    export_summary_as_xlsx
 )
 from api.v1.watersheds.schema import (
     WatershedDetails,
@@ -125,7 +127,12 @@ def watershed_stats(
     db: Session = Depends(get_db),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
+                                  description=watershed_feature_description),
+    format: str = Query(
+        "json",
+        title="Format",
+        description="Format to return results in. Options: json (default), xlsx"
+    )
 ):
     """ aggregates statistics/info about a watershed """
 
@@ -157,7 +164,7 @@ def watershed_stats(
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
-    return {
+    data = {
         "watershed_name": watershed.properties.get("name", None),
         "watershed_source": watershed.properties.get("watershed_source", None),
         "watershed_area": watershed_area,
@@ -176,6 +183,20 @@ def watershed_stats(
                                isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
         "scsb2016_model": scsb2016_model
     }
+
+    if format == 'xlsx':
+        licence_data = surface_water_rights_licences(watershed_poly)
+        data['generated_date'] = datetime.datetime.now().strftime(
+            "%Y-%m-%d %H:%M:%S")
+
+        if licence_data.licences and licence_data.licences.features:
+            data['licences'] = [dict(**x.properties)
+                                for x in licence_data.licences.features]
+
+            data['licences_count_pod'] = len(licence_data.licences.features)
+        return export_summary_as_xlsx(data)
+
+    return data
 
 
 @router.get('/{watershed_feature}/licences')

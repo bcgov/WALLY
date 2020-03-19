@@ -10,6 +10,9 @@ from fastapi import APIRouter, Depends, Query, HTTPException
 from starlette.responses import Response
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
+
+from external.docgen.schema import DocGenRequest, DocGenTemplateFile
+from external.docgen.request_token import get_docgen_token
 from api import config
 from api.db.utils import get_db
 
@@ -67,12 +70,12 @@ def export_stream_apportionment(
         "./api/v1/streams/templates/StreamApportionment.xlsx", "rb").read()
     base64_encoded = base64.b64encode(template_data).decode("UTF-8")
     filename = f"{cur_date}_StreamApportionment"
-    token = streams_controller.get_docgen_token()
+    token = get_docgen_token()
     auth_header = f"Bearer {token}"
 
-    body = streams_schema.ApportionmentDocGenRequest(
+    body = DocGenRequest(
         contexts=[req],
-        template=streams_schema.ApportionmentTemplateFile(
+        template=DocGenTemplateFile(
             outputFileName=filename,
             contentEncodingType="base64",
             content=base64_encoded,

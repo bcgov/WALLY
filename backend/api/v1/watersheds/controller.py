@@ -1,28 +1,35 @@
 """
 Functions for aggregating data from web requests and database records
 """
+import base64
+import datetime
 import logging
 import requests
 import geojson
 import json
-
 import math
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform
+from starlette.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
+
+
+from api import config
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
-
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
-
 from api.v1.aggregator.controller import feature_search, databc_feature_search
+
+from external.docgen.schema import DocGenRequest, DocGenTemplateFile
+from external.docgen.request_token import get_docgen_token
+
 
 logger = logging.getLogger('api')
 
@@ -491,8 +498,12 @@ def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data
 
 def get_slope_elevation_aspect(polygon: MultiPolygon):
     """
-    This calls the sea api with a polygon and receives back 
+    This calls the sea api with a polygon and receives back
     slope, elevation and aspect information.
+
+    In case of an error in the external slope/elevation/aspect service,
+    a tuple of (None, None, None) will be returned. Any code making
+    use of this function should interpret None as "not available".
     """
     sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
 
@@ -512,8 +523,11 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
-        raise HTTPException(
-            status_code=error.response.status_code, detail=str(error))
+        logger.warning('External service error (SEA): %s', str(error))
+
+        # calling function expects a tuple of 3 values.
+        # must be able to handle return value of None
+        return (None, None, None)
 
     result = response.json()
     logger.warning("sea result")
@@ -542,6 +556,10 @@ def get_hillshade(slope: float, aspect: float):
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
+
+    if slope is None or aspect is None:
+        return None
+
     azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
     altitude = 45.0  # 0-90 " "
     azimuth_rad = azimuth * math.pi / 2.
@@ -571,3 +589,44 @@ def extract_poly_coords(geom):
         raise ValueError('Unhandled geometry type: ' + repr(geom.type))
     return {'exterior_coords': exterior_coords,
             'interior_coords': interior_coords}
+
+
+def export_summary_as_xlsx(data: dict):
+    """ exports watershed summary data as an excel file
+        using a template in the ./templates directory.
+    """
+
+    cur_date = datetime.datetime.now().strftime("%Y%m%d")
+    template_data = open(
+        "./api/v1/watersheds/templates/SurfaceWater.xlsx", "rb").read()
+    base64_encoded = base64.b64encode(template_data).decode("UTF-8")
+    filename = f"{cur_date}_SurfaceWater"
+    token = get_docgen_token()
+    auth_header = f"Bearer {token}"
+
+    body = DocGenRequest(
+        contexts=[data],
+        template=DocGenTemplateFile(
+            outputFileName=filename,
+            contentEncodingType="base64",
+            content=base64_encoded,
+            contentFileType="xlsx"
+        ).dict()
+    )
+
+    logger.info('making POST request to common docgen: %s',
+                config.COMMON_DOCGEN_ENDPOINT)
+
+    try:
+        res = requests.post(config.COMMON_DOCGEN_ENDPOINT, json=body.dict(), headers={
+                            "Authorization": auth_header, "Content-Type": "application/json"})
+        res.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        logger.info(e)
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+    return Response(
+        content=res.content,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
+    )

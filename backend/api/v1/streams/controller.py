@@ -19,11 +19,15 @@ def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: l
         FreshwaterAtlasStreamNetworks.LENGTH_METRE.label("length_metre"),
         FreshwaterAtlasStreamNetworks.FEATURE_SOURCE.label("feature_source"),
         FreshwaterAtlasStreamNetworks.GNIS_NAME.label("gnis_name"),
-        FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label("left_right_tributary"),
+        FreshwaterAtlasStreamNetworks.LEFT_RIGHT_TRIBUTARY.label(
+            "left_right_tributary"),
         FreshwaterAtlasStreamNetworks.GEOMETRY_LEN.label("geometry_length"),
-        FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label("watershed_group_code"),
-        FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.labe("fwa_watershed_code"),
-        func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label("geometry"),
+        FreshwaterAtlasStreamNetworks.WATERSHED_GROUP_CODE.label(
+            "watershed_group_code"),
+        FreshwaterAtlasStreamNetworks.FWA_WATERSHED_CODE.labe(
+            "fwa_watershed_code"),
+        func.ST_ASText(FreshwaterAtlasStreamNetworks.GEOMETRY).label(
+            "geometry"),
         # FreshwaterAtlasStreamNetworks,
         func.ST_Distance(
             FreshwaterAtlasStreamNetworks.GEOMETRY,
@@ -47,7 +51,8 @@ def get_nearest_streams_by_ogc_fid(db: Session, search_point: Point, ogc_fids: l
     for row in rs_streams:
         stream = {columns[i]: item for i, item in enumerate(row)}
         stream['geojson'] = get_feature_geojson(stream)
-        stream['closest_stream_point'] = json.loads(stream['closest_stream_point'])
+        stream['closest_stream_point'] = json.loads(
+            stream['closest_stream_point'])
         streams_with_columns.append(stream)
 
     logging.debug(streams_with_columns)
@@ -66,7 +71,8 @@ def get_streams_with_apportionment(
     if not with_apportionment:
         return streams
 
-    streams_with_apportionment = get_apportionment(streams, weighting_factor, get_all)
+    streams_with_apportionment = get_apportionment(
+        streams, weighting_factor, get_all)
     return streams_with_apportionment
 
 
@@ -99,7 +105,8 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
         ST_SetSRID(ST_GeomFromText(:search_point), 4326)
       LIMIT :limit 
     """)
-    rp_nearest_streams = db.execute(sql, {'search_point': search_point.wkt, 'limit': limit})
+    rp_nearest_streams = db.execute(
+        sql, {'search_point': search_point.wkt, 'limit': limit})
     nearest_streams = [
         dict(row,
              geojson=get_feature_geojson(row),
@@ -122,7 +129,8 @@ def get_apportionment(streams, weighting_factor, get_all=False, force_recursion=
     # Get the summation of the inverse distance formula
     total = 0
     for stream in streams:
-        stream['inverse_distance'] = get_inverse_distance(stream['distance'], weighting_factor)
+        stream['inverse_distance'] = get_inverse_distance(
+            stream['distance'], weighting_factor)
         total += stream['inverse_distance']
 
     # We need to loop again after we have the total so we know the percentage
@@ -165,26 +173,3 @@ def get_connected_streams(db: Session, outflowCode: str) -> list:
         row, FreshwaterAtlasStreamNetworks.GEOMETRY) for row in results]
 
     return feature_results
-
-
-def get_docgen_token():
-    params = {
-        "grant_type": "client_credentials",
-        "client_id": config.COMMON_DOCGEN_CLIENT_ID,
-        "client_secret": config.COMMON_DOCGEN_CLIENT_SECRET,
-        "scope": ""
-    }
-
-    req = requests.post(
-        config.COMMON_DOCGEN_SSO_ENDPOINT,
-        data=params,
-        headers={
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
-    )
-    req.raise_for_status()
-
-    resp = req.json()
-
-    token = req.json().get('access_token')
-    return token
