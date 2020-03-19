@@ -199,7 +199,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     record = res.fetchone()
 
     if not record or not record[0]:
-        logger.warn('unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        logger.warn(
+            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
     return Feature(
@@ -208,7 +209,10 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         ),
         id=f"generated.{watershed_feature_id}",
         properties={
-            "name": "Estimated catchment area (Freshwater Atlas)"
+            "name": "Estimated catchment area (Freshwater Atlas)",
+            "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
+            "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
+            "and LOCAL_WATERSHED_CODE properties."
         }
     )
 
@@ -255,6 +259,12 @@ def get_databc_watershed(watershed_id: str):
         'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'HYD_WATERSHED_BND_POLY_ID'
     }
 
+    source_urls = {
+        'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY': 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds',
+        'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY': 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-watersheds',
+        'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries'
+    }
+
     cql_filter = f"{id_props[watershed_layer]}={watershed_feature}"
 
     watershed = databc_feature_search(watershed_layer, cql_filter=cql_filter)
@@ -262,7 +272,13 @@ def get_databc_watershed(watershed_id: str):
         raise HTTPException(
             status_code=404, detail=f"Watershed with id {watershed_id} not found")
 
-    return watershed.features[0]
+    ws = watershed.features[0]
+
+    ws.properties['name'] = ws.properties.get(
+        'GNIS_NAME_1', None) or ws.properties.get('SOURCE_NAME', None)
+    ws.properties['watershed_source'] = source_urls.get(watershed_layer, None)
+
+    return ws
 
 
 def surficial_geology(polygon: Polygon):
@@ -363,7 +379,8 @@ def get_watershed(db: Session, watershed_feature: str):
     # feature id.
     else:
         watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(transform_3005_4326, shape(watershed.geometry))
+        watershed_poly = transform(
+            transform_3005_4326, shape(watershed.geometry))
         watershed.geometry = mapping(watershed_poly)
 
     return watershed
@@ -403,7 +420,7 @@ def get_annual_precipitation(poly: Polygon):
 
     months_data = list(response["data"].values())
     months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    month_totals = [a*b for a,b in zip(months_data, months_days)]
+    month_totals = [a*b for a, b in zip(months_data, months_days)]
 
     annual_precipitation = sum(month_totals)
     # logger.warning("annual_precipitation")
@@ -495,8 +512,9 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
-        raise HTTPException(status_code=error.response.status_code, detail=str(error))
-    
+        raise HTTPException(
+            status_code=error.response.status_code, detail=str(error))
+
     result = response.json()
     logger.warning("sea result")
     logger.warning(result)
@@ -524,8 +542,8 @@ def get_hillshade(slope: float, aspect: float):
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
-    azimuth = 180.0 # 0-360 we are using values from the scsb2016 paper
-    altitude = 45.0 # 0-90 " "
+    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
+    altitude = 45.0  # 0-90 " "
     azimuth_rad = azimuth * math.pi / 2.
     altitude_rad = altitude * math.pi / 180.
 

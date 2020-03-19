@@ -71,7 +71,8 @@ def get_watersheds(
     point: str = Query(
         "", title="Search point",
         description="Point to search within"),
-    include_self: bool = Query(False, title="Include the area around the point of interest in generated polygons")
+    include_self: bool = Query(
+        False, title="Include the area around the point of interest in generated polygons")
 ):
     """ returns a list of watersheds at this point, if any.
     Watersheds are sourced from the following datasets:
@@ -135,8 +136,9 @@ def watershed_stats(
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     # watershed characteristics lookups
-    drainage_area = watershed_area / 1e6 # needs to be in km^2
-    glacial_area_m, glacial_coverage = calculate_glacial_area(db, watershed_rect)
+    drainage_area = watershed_area / 1e6  # needs to be in km^2
+    glacial_area_m, glacial_coverage = calculate_glacial_area(
+        db, watershed_rect)
     temperature_data = get_temperature(watershed_poly)
     annual_precipitation = get_annual_precipitation(watershed_poly)
     potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
@@ -145,16 +147,19 @@ def watershed_stats(
         watershed_poly, temperature_data
     )
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-    average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+    average_slope, median_elevation, aspect = get_slope_elevation_aspect(
+        watershed_poly)
     solar_exposure = get_hillshade(average_slope, aspect)
 
     # custom model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
-    scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation, \
-        glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite, \
-        drainage_area, solar_exposure, average_slope)
+    scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation,
+                                                  glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
+                                                  drainage_area, solar_exposure, average_slope)
 
     return {
+        "watershed_name": watershed.properties.get("name", None),
+        "watershed_source": watershed.properties.get("watershed_source", None),
         "watershed_area": watershed_area,
         "drainage_area": drainage_area,
         "glacial_area": glacial_area_m,
