@@ -59,8 +59,8 @@
           <v-card-title class="headline">
             About Water Allocation (WALLY)
           </v-card-title>
-          <v-card-text>
-            Version Number: {{appInfo.wally_version}}
+          <v-card-text v-if="appInfo">
+            Version Number: {{appInfo && appInfo.wally_version}}
           </v-card-text>
         </v-card>
       </v-dialog>
