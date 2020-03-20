@@ -79,6 +79,10 @@ export default {
       let iconSize = icon === 'lens' ? 12 : 20
       let legendItems = []
 
+      if (!paint.color) {
+        return legendItems
+      }
+
       // There's only one type in this layer
       if (typeof paint.color === 'string') {
         legendItems.push({
@@ -107,7 +111,31 @@ export default {
         return legendItems
       }
 
-      // Multiple legend items in this layer
+      // Multiple legend items in this layer, but there are a few different
+      // ways mapbox sends the details (see Mapbox Style Specs)
+
+      // Water Rights Licences
+      if (paint.color[0] === 'match') {
+        // color[1] will be the condition
+        for (let i = 2; i < paint.color.length - 1; i += 2) {
+          console.log(paint.color[i].constructor)
+          if (paint.color[i].constructor === Array) {
+            text = paint.color[i][0].join(', ')
+            color = paint.color[i + 1]
+            legendItems.push({
+              text,
+              color,
+              outlineColor: paint.outlineColor,
+              icon,
+              iconSize
+            })
+          }
+        }
+        return legendItems
+      }
+
+      // Streams with allocation restrictions
+
       for (let i = 1; i < paint.color.length; i += 2) {
         if (paint.color[i].constructor === Array) {
           text = this.replaceLabelCode(paint.color[i][2].join(', '))
@@ -125,6 +153,7 @@ export default {
     },
     replaceLabelCode (code) {
       switch (code) {
+        // Stream restrictions
         case 'OR':
           return 'Office Reserve'
         case 'FR':
@@ -135,6 +164,11 @@ export default {
           return 'Possible Water Shortage'
         case 'PWS, RNW':
           return 'Possible Water Shortage, Refused No Water'
+        // Water Rights Licences
+        case 'POD':
+          return 'Surface Water'
+        case 'PG, PWD':
+          return 'Groundwater'
         default:
           return code
       }
