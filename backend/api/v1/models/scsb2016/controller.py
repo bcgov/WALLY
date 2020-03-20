@@ -144,7 +144,7 @@ def model_output_as_dict(data: list):
     """
 
     # if data is already a dict indicating an error, return it now.
-    if data.get('error', None):
+    if isinstance(data, dict) and data.get('error', None):
         return data
 
     monthly_discharge = {}
