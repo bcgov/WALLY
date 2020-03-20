@@ -150,6 +150,7 @@ def model_output_as_dict(data: list):
     monthly_discharge = {}
     monthly_distributions = {}
     mar = None
+    mad = None
     ind_7q2 = None
     ind_s7q10 = None
 
@@ -182,6 +183,11 @@ def model_output_as_dict(data: list):
         elif output_type == 'MAD':
             month = item.pop('month')
 
+            if month == 0:
+                # month = 0 is the annual result
+                mad = item.get('model_result')
+                continue
+
             assert monthly_discharge.get(month, None) is None
 
             monthly_discharge[month] = item
@@ -194,5 +200,6 @@ def model_output_as_dict(data: list):
         "monthly_distributions": monthly_distributions,
         "7q2": ind_7q2,
         "s7q10": ind_s7q10,
-        "mar": mar
+        "mar": mar,
+        "mad": mad
     }
