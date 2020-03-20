@@ -51,7 +51,7 @@ from api.v1.watersheds.schema import (
     SurficialGeologyTypeSummary
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
-from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff
+from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
 
 logger = getLogger("aggregator")
 
@@ -182,7 +182,8 @@ def watershed_stats(
         "aspect": aspect,
         "runoff_isoline_avg": (isoline_runoff['runoff'] /
                                isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
-        "scsb2016_model": scsb2016_model
+        "scsb2016_model": scsb2016_model,
+        "scsb2016_output": model_output_as_dict(scsb2016_model)
     }
 
     if format == 'xlsx':
@@ -195,6 +196,7 @@ def watershed_stats(
                                 for x in licence_data.licences.features]
 
             data['licences_count_pod'] = len(licence_data.licences.features)
+
         return export_summary_as_xlsx(jsonable_encoder(data))
 
     return data
@@ -206,8 +208,6 @@ def get_watershed_demand(
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
                                   description=watershed_feature_description)
-
-
 ):
     """ returns data about watershed demand by querying DataBC """
 
