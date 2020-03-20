@@ -182,6 +182,7 @@ def watershed_stats(
         "aspect": aspect,
         "runoff_isoline_avg": (isoline_runoff['runoff'] /
                                isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
+        "runoff_isoline_discharge_m3s": isoline_runoff['runoff'] / 365 / 24 / 60 / 60,
         "scsb2016_model": scsb2016_model,
         "scsb2016_output": model_output_as_dict(scsb2016_model)
     }
