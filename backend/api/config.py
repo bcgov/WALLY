@@ -9,10 +9,16 @@ def getenv_boolean(var_name, default_value=False):
     return result
 
 
+# Environments
+ENV_DEV = "DEV"
+ENV_STAGING = "STAGING"
+ENV_PROD = "PRODUCTION"
+
 API_V1_STR = "/api/v1"
+
 API_VERSION = os.getenv("API_VERSION", "1")
 WALLY_VERSION = os.getenv("WALLY_VERSION", "0.0.0")
-WALLY_ENV = os.getenv("WALLY_ENV", "DEV")
+WALLY_ENV = os.getenv("WALLY_ENV", ENV_DEV)
 
 SERVER_NAME = os.getenv("SERVER_NAME")
 SERVER_HOST = os.getenv("SERVER_HOST")

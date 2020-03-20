@@ -56,7 +56,9 @@ export default {
 
     .v-application {
       font-family: $app-font;
-      .title {
+      .title, .headline, .body-1, .body-2,
+      .display-4, .display-3, .display-2, .display-1,
+      .subtitle-1, .subtitle-2, .caption, .overline {
         font-family: $app-font;
       }
     }
