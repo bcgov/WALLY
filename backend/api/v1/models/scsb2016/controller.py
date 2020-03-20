@@ -189,4 +189,10 @@ def model_output_as_dict(data: list):
         else:
             raise ValueError("unrecognized model output %s", output_type)
 
-    return data
+    return {
+        "monthly_discharge": monthly_discharge,
+        "monthly_distributions": monthly_distributions,
+        "7q2": ind_7q2,
+        "s7q10": ind_s7q10,
+        "mar": mar
+    }
