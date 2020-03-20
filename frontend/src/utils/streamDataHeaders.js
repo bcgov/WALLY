@@ -1,18 +1,19 @@
 export const streamDataHeaders = {
   groundwater_wells: [
-    { text: 'Well Tag No.', value: 'WELL_TAG_NUMBER' },
-    { text: 'Plate number', value: 'WELL_IDENTIFICATION_PLATE_NO' },
-    { text: 'Well use', value: 'WELL_USE_NAME' },
-    { text: 'Depth drilled', value: 'DEPTH_WELL_DRILLED' },
-    { text: 'Yield', value: 'YIELD_VALUE' },
-    { text: 'Yield Units', value: 'YIELD_UNIT_DESCRIPTION' }
+    { text: 'Well Tag No.', value: 'well_tag_number' },
+    { text: 'Plate number', value: 'identification_plate_number' },
+    { text: 'Well use', value: 'well_class' },
+    { text: 'Depth drilled', value: 'finished_well_depth' },
+    { text: 'Yield', value: 'well_yield' },
+    { text: 'Yield Units', value: 'well_yield_unit' }
   ],
   water_rights_licences: [
     { text: 'Licence number', value: 'LICENCE_NUMBER' },
     { text: 'POD number', value: 'POD_NUMBER' },
     { text: 'POD subtype', value: 'POD_SUBTYPE' },
     { text: 'Purpose use', value: 'PURPOSE_USE' },
-    { text: 'Quantity', value: 'QUANTITY' }
+    { text: 'Quantity', value: 'QUANTITY' },
+    { text: 'Units', value: 'QUANTITY_UNITS' }
   ],
   water_rights_applications: [
     { text: 'Job Number', value: 'APPLICATION_JOB_NUMBER' },

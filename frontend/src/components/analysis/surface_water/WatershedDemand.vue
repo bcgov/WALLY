@@ -135,7 +135,7 @@ export default {
         legend: {
           xanchor: 'center',
           x: 0.5,
-          y: -0.1,
+          y: -0.2,
           orientation: 'h'
         },
         margin: {

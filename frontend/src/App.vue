@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Header></Header>
+    <Header :appInfo="this.app"></Header>
     <v-content>
       <v-container
         class="pa-0"
@@ -19,6 +19,8 @@ import Header from './components/Header'
 import Toolbar from './components/Toolbar'
 import Home from './components/Home'
 import Notifications from './components/Notifications'
+import { mapGetters, mapActions } from 'vuex'
+
 import '@bcgov/bc-sans/css/BCSans.css'
 
 export default {
@@ -30,7 +32,16 @@ export default {
     Home
   },
   data: () => ({
-  })
+  }),
+  computed: {
+    ...mapGetters(['app'])
+  },
+  methods: {
+    ...mapActions(['getAppInfo'])
+  },
+  mounted () {
+    this.getAppInfo()
+  }
 }
 </script>
 
