@@ -145,6 +145,7 @@ def model_output_as_dict(data: list):
 
     # if data is already a dict indicating an error, return it now.
     if isinstance(data, dict) and data.get('error', None):
+        data['status'] = "Unavailable"
         return data
 
     monthly_discharge = {}
@@ -201,5 +202,6 @@ def model_output_as_dict(data: list):
         "7q2": ind_7q2,
         "s7q10": ind_s7q10,
         "mar": mar,
-        "mad": mad
+        "mad": mad,
+        "status": "Available"
     }
