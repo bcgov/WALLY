@@ -71,20 +71,22 @@ def export_stream_apportionment(
     auth_header = f"Bearer {token}"
 
     body = streams_schema.ApportionmentDocGenRequest(
-        contexts=[req],
+        data=req,
+        options=streams_schema.ApportionmentDocGenOptions(
+            reportName=filename
+        ).dict(),
         template=streams_schema.ApportionmentTemplateFile(
-            outputFileName=filename,
-            contentEncodingType="base64",
+            encodingType="base64",
             content=base64_encoded,
-            contentFileType="xlsx"
+            fileType="xlsx"
         ).dict()
     )
 
     logger.info('making POST request to common docgen: %s',
-                config.COMMON_DOCGEN_ENDPOINT)
+                "https://cdogs-master-idcqvl-dev.pathfinder.gov.bc.ca/api/v2/template/render")
 
     try:
-        res = requests.post(config.COMMON_DOCGEN_ENDPOINT, json=body.dict(), headers={
+        res = requests.post("https://cdogs-master-idcqvl-dev.pathfinder.gov.bc.ca/api/v2/template/render", json=body.dict(), headers={
                             "Authorization": auth_header, "Content-Type": "application/json"})
         res.raise_for_status()
     except requests.exceptions.HTTPError as e:
