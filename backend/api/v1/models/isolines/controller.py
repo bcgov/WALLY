@@ -46,5 +46,5 @@ def calculate_runoff_in_area(db: Session, polygon: MultiPolygon):
     return {
         "area": area_total,
         "runoff": runoff_total,
-        "avg_mm": (runoff_total / area_total) if area_total > 0 else 0
+        "avg_mm": (runoff_total / area_total * 1000) if area_total > 0 else 0
     }
