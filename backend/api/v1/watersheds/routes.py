@@ -7,6 +7,7 @@ import json
 import geojson
 from geojson import FeatureCollection, Feature
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -194,7 +195,7 @@ def watershed_stats(
                                 for x in licence_data.licences.features]
 
             data['licences_count_pod'] = len(licence_data.licences.features)
-        return export_summary_as_xlsx(data)
+        return export_summary_as_xlsx(jsonable_encoder(data))
 
     return data
 
