@@ -49,8 +49,7 @@ objects:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: 'nginx:1.12'
-            namespace: openshift
+            name: 'caddy/caddy:2.0.0'
         type: Docker
       successfulBuildsHistoryLimit: 5
       triggers:
