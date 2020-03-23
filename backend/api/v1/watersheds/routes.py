@@ -41,6 +41,7 @@ from api.v1.watersheds.controller import (
     get_slope_elevation_aspect,
     get_hillshade
 )
+from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
     WatershedDetails,
     LicenceDetails,
@@ -135,7 +136,7 @@ def watershed_stats(
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     # watershed characteristics lookups
-    drainage_area = watershed_area / 1e6 # needs to be in km^2
+    drainage_area = watershed_area / 1e6 # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(db, watershed_rect)
     temperature_data = get_temperature(watershed_poly)
     annual_precipitation = get_annual_precipitation(watershed_poly)
@@ -145,7 +146,13 @@ def watershed_stats(
         watershed_poly, temperature_data
     )
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-    average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+    try:
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+    except HTTPException:
+        # TODO: Add error here
+        average_slope = median_elevation = aspect = 0
+        logger.warning('SEA is down')
+
     solar_exposure = get_hillshade(average_slope, aspect)
 
     # custom model outputs
@@ -153,6 +160,9 @@ def watershed_stats(
     scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation, \
         glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite, \
         drainage_area, solar_exposure, average_slope)
+
+    # Hydrometric stations within the watershed
+    hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
 
     return {
         "watershed_area": watershed_area,
@@ -169,7 +179,8 @@ def watershed_stats(
         "aspect": aspect,
         "runoff_isoline_avg": (isoline_runoff['runoff'] /
                                isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
-        "scsb2016_model": scsb2016_model
+        "scsb2016_model": scsb2016_model,
+        "hydrometric_stations": hydrometric_stations
     }
 
 
@@ -203,3 +214,4 @@ def get_surficial_geology(
     surf_geol_summary = surficial_geology(shape(watershed.geometry))
 
     return surf_geol_summary
+
