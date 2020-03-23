@@ -90,13 +90,13 @@ export default {
       } else {
         state.scsb2016ModelInputs = {
           hydrological_zone: payload.hydrological_zone,
-          median_elevation: payload.median_elevation,
-          glacial_coverage: payload.glacial_coverage,
-          annual_precipitation: payload.annual_precipitation,
-          evapo_transpiration: payload.evapo_transpiration,
-          drainage_area: payload.drainage_area,
-          solar_exposure: payload.solar_exposure,
-          average_slope: payload.average_slope
+          median_elevation: payload.median_elevation.toFixed(2),
+          glacial_coverage: payload.glacial_coverage.toFixed(3),
+          annual_precipitation: payload.annual_precipitation.toFixed(2),
+          evapo_transpiration: payload.potential_evapotranspiration_thornthwaite.toFixed(2),
+          drainage_area: payload.drainage_area.toFixed(2),
+          solar_exposure: payload.solar_exposure.toFixed(3),
+          average_slope: payload.average_slope.toFixed(2)
         }
       }
     }

@@ -68,7 +68,7 @@ export default {
     },
     humanReadable: (val) => humanReadable(val),
     saveValues () {
-      ApiService.query(`/api/v1/scsb2016?${qs.stringify(this.scsb2016ModelInputs)}`)
+      ApiService.query(`/api/v1/scsb2016/?${qs.stringify(this.scsb2016ModelInputs)}`)
         .then(r => {
           if (!r.data) {
             return
