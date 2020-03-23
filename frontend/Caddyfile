@@ -5,7 +5,8 @@ file_server
 reverse_proxy /api/* {$WALLY_BACKEND_SERVICE}:8000
 reverse_proxy /docs {$WALLY_BACKEND_SERVICE}:8000
 reverse_proxy /files/* minio:9000 {
-    header_upstream X-Forwarded-Proto {scheme}
-    header_upstream X-Forwarded-Host {host}
-    header_upstream Host {host}
+    header X-Forwarded-Proto {scheme}
+    header X-Forwarded-Host {host}
+    header Host {host}
 }
+try_files {path} /index.html
