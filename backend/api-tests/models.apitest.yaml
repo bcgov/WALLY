@@ -38,8 +38,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 77
           lt: 79
   - name: SCSB2016 Test Proof 2 - Mashiter Creek
@@ -48,8 +48,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 77
           lt: 79
   - name: SCSB2016 Test Proof 3 - Slesse Creek
@@ -58,8 +58,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 49
           lt: 51
   - name: SCSB2016 Test Proof 4 - Sumas River
@@ -68,8 +68,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 50
           lt: 52
   - name: SCSB2016 Test Proof 5 - Tahumming River
@@ -78,8 +78,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 97
           lt: 99
   - name: SCSB2016 Test Proof 6 - Lillooet River
@@ -88,8 +88,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 54
           lt: 56
   - name: SCSB2016 Test Proof 7 - Millar Creek
@@ -98,8 +98,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 41
           lt: 43
   - name: SCSB2016 Test Proof 8 - Meslilloet Creek
@@ -108,8 +108,8 @@ requests:
     expect:
       status: 200
       values:
-        result.[0].output_type: MAR
-        result.[0].model_result:
+        .[0].output_type: MAR
+        .[0].model_result:
           gt: 117
           lt: 119
   - name: Watersheds available at point (Stawamus River)
