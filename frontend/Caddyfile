@@ -2,6 +2,7 @@
 
 root * /app/src
 file_server
+encode gzip
 reverse_proxy /api/* {$WALLY_BACKEND_SERVICE}:8000
 reverse_proxy /docs {$WALLY_BACKEND_SERVICE}:8000
 reverse_proxy /files/* minio:9000 {
