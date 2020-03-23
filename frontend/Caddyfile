@@ -6,11 +6,6 @@ encode gzip
 route {
     reverse_proxy /api/* {$WALLY_BACKEND_SERVICE}:8000
     reverse_proxy /docs {$WALLY_BACKEND_SERVICE}:8000
-    reverse_proxy /files/* minio:9000 {
-        header_up X-Forwarded-Proto {scheme}
-        header_up X-Forwarded-Host {host}
-        header_up Host {host}
-    }
 
     file_server
     try_files {path} /index.html
