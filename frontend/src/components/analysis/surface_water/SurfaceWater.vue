@@ -66,11 +66,22 @@
               </v-tooltip>
           </div>
 
+          <v-alert
+            v-if="customModelInputsActive"
+            class="my-5"
+            outlined
+            type="warning"
+            prominent
+            border="left"
+          >
+            You are using custom model inputs and not the values supplied by the Wally API.
+          </v-alert>
+
           <v-dialog v-model="show.editingModelInputs" persistent>
             <EditableModelInputs
               @close="closeEditableModelInputsDialog"/>
           </v-dialog>
-          
+
           <div>
             <MeanAnnualRunoff ref="anchor-mar" :watershedID="selectedWatershed" :record="selectedWatershedRecord" :allWatersheds="watersheds" :details="watershedDetails"/>
             <WatershedAvailability ref="anchor-availability" :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord" :details="watershedDetails"/>
@@ -110,7 +121,7 @@ export default {
     watershedDetailsLoading: false,
     show: {
       editingModelInputs: false
-    },
+    }
   }),
   watch: {
     selectedWatershed (v) {
@@ -134,7 +145,7 @@ export default {
         value: w.id
       }))
     },
-    ...mapGetters('surfaceWater', ['watershedDetails']),
+    ...mapGetters('surfaceWater', ['watershedDetails', 'customModelInputsActive']),
     ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['map'])
   },
@@ -231,13 +242,8 @@ export default {
     },
     closeEditableModelInputsDialog () {
       this.show.editingModelInputs = false
-    },
+    }
   },
-  // watch: {
-  //   watershedDetails (value) {
-  //     console.log(value)
-  //   }
-  // },
   mounted () {
     this.setMode({ type: 'analyze', name: 'surface_water' })
     this.fetchWatersheds()

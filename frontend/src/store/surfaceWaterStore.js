@@ -9,6 +9,7 @@ export default {
     allocationValues: {},
     // Watershed detail state objects
     watershedDetails: null,
+    customModelInputsActive: false,
     scsb2016ModelInputs: {
       hydrological_zone: 25,
       median_elevation: 1,
@@ -18,7 +19,7 @@ export default {
       drainage_area: 1,
       solar_exposure: 1,
       average_slope: 1
-    },
+    }
   },
   actions: {
     loadAllocationItemsFromStorage ({ state }) {
@@ -32,7 +33,7 @@ export default {
           values: state.defaultAllocValues })
       }
     },
-    updateWatershedDetails ({state, commit}, payload) {
+    updateWatershedDetails ({ state, commit }, payload) {
       commit('setWatershedDetails', payload)
       commit('resetEditableModelInputs', payload)
     }
@@ -71,9 +72,11 @@ export default {
         median_elevation: sc.median_elevation,
         scsb2016_model: payload
       }
+      state.customModelInputsActive = true
     },
     resetEditableModelInputs (state, payload) {
-      if(payload === null) {
+      state.customModelInputsActive = false
+      if (payload === null) {
         state.scsb2016ModelInputs = {
           hydrological_zone: 25,
           median_elevation: 1,
@@ -96,11 +99,12 @@ export default {
           average_slope: payload.average_slope
         }
       }
-    },
+    }
   },
   getters: {
     allocationValues: state => state.allocationValues,
     watershedDetails: state => state.watershedDetails,
-    scsb2016ModelInputs: state => state.scsb2016ModelInputs
+    scsb2016ModelInputs: state => state.scsb2016ModelInputs,
+    customModelInputsActive: state => state.customModelInputsActive
   }
 }

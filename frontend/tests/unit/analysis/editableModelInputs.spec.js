@@ -1,70 +1,57 @@
-// import { createLocalVue, mount } from '@vue/test-utils'
-// import MonthlyAllocationTable
-//   from '../../../src/components/analysis/surface_water/watershed_demand/MonthlyAllocationTable.vue'
-// import Vuex from 'vuex'
-// import Vuetify from 'vuetify'
-// import Vue from 'vue'
+import { createLocalVue, mount } from '@vue/test-utils'
+import EditableModelInputs
+  from '../../../src/components/analysis/surface_water/EditableModelInputs.vue'
+import Vuex from 'vuex'
+import Vuetify from 'vuetify'
+import Vue from 'vue'
 
-// const localVue = createLocalVue()
-// localVue.use(Vuex)
-// // localVue with Vuetify shows console warnings so we'll use Vue instead
-// // https://github.com/vuetifyjs/vuetify/issues/4964
-// // localVue.use(Vuetify)
-// Vue.use(Vuetify)
-// Vue.filter('formatNumber', () => 'foo')
+const localVue = createLocalVue()
+localVue.use(Vuex)
+Vue.use(Vuetify)
+Vue.filter('formatNumber', () => 'foo')
 
-// const vuetify = new Vuetify()
+const vuetify = new Vuetify()
 
-// describe('MonthlyAllocationTable Test', () => {
-//   let wrapper
-//   let store
-//   let propsData
+describe('EditableModelInputs Test', () => {
+  let wrapper
+  let store
+  let propsData
 
-//   beforeEach(() => {
-//     let surfaceWater = {
-//       namespaced: true,
-//       getters: {
-//         allocationValues: () => {
-//           return { 'test 1': [] }
-//         }
-//       },
-//       mutations: {
-//       },
-//       actions: {
-//         loadAllocationItemsFromStorage: jest.fn()
-//       }
-//     }
+  beforeEach(() => {
+    let surfaceWater = {
+      namespaced: true,
+      getters: {
+        watershedDetails: () => { return {} },
+        scsb2016ModelInputs: () => { 
+          return {
+            hydrological_zone: 25,
+            median_elevation: 700,
+            glacial_coverage: 0.2,
+            annual_precipitation: 2500,
+            evapo_transpiration: 0.67,
+            drainage_area: 52,
+            solar_exposure: 0.65,
+            average_slope: 9
+          }
+        }
+      },
+      mutations: {
+      },
+      actions: {
+      }
+    }
 
-//     propsData = {
-//       'allocationItems': [
-//         { 'testKey': 'test 1' },
-//         { 'testKey': 'test 2' },
-//         { 'testKey': 'test 3' }
-//       ],
-//       'keyField': 'testKey'
-//     }
+    store = new Vuex.Store({ modules: { surfaceWater } })
+    wrapper = mount(EditableModelInputs, {
+      vuetify,
+      store,
+      localVue
+    })
+  })
 
-//     store = new Vuex.Store({ modules: { surfaceWater } })
-//     wrapper = mount(MonthlyAllocationTable, {
-//       vuetify,
-//       store,
-//       localVue,
-//       propsData
-//     })
-//   })
+  it('Show editableModelCard', () => {
+    let modelCard = wrapper.findAll('div#editableModelCard')
+    expect(modelCard.length).toBe(1)
+  })
 
-//   it('Show allocation table', () => {
-//     let allocationCard = wrapper.findAll('div#editableModelCard')
-//     expect(allocationCard.length).toBe(1)
-//   })
-
-//   it('Rows for each allocation item', () => {
-//     let tableRows = wrapper.findAll('table tbody tr')
-//     expect(tableRows.length).toBe(propsData.allocationItems.length)
-//   })
-
-//   it('Input text fields for each alloc item for each month', () => {
-//     let inputTextFields = wrapper.findAll('input[type=text]')
-//     expect(inputTextFields.length).toBe(propsData.allocationItems.length * 12)
-//   })
-// })
+})

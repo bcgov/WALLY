@@ -1,20 +1,12 @@
 """
-Functions for aggregating data from web requests and database records
+Functions for calculating model data from params and database records
 """
 import logging
-import math
 from decimal import Decimal
-import requests
-from geojson import FeatureCollection, Feature
-from shapely.geometry import MultiPolygon
-from shapely.ops import transform
-from shapely import geometry
-from api.v1.aggregator.helpers import transform_4326_3005
-from fastapi import Depends, HTTPException, Query, Path
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api.v1.watersheds.controller import calculate_glacial_area, pcic_data_request, get_temperature, calculate_potential_evapotranspiration_thornthwaite
-from api.v1.aggregator.controller import feature_search, databc_feature_search
-from api.v1.models.isolines.controller import calculate_runoff_in_area
+from api.v1.aggregator.controller import databc_feature_search
+
 
 logger = logging.getLogger('api')
 
@@ -59,6 +51,7 @@ def calculate_mean_annual_runoff(db: Session,
     # logger.warning("dra.area:" + str(drainage_area) + " km2")
     # logger.warning("gla.cov.: " + str(glacial_coverage))
     # logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
+    # logger.warning("models: " + str(models))
 
     model_outputs = []
     mean_annual_discharge = 0
