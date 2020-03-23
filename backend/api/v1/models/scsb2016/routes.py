@@ -10,12 +10,12 @@ from shapely.geometry import Polygon, MultiPolygon, shape
 from shapely.ops import transform
 from api.db.utils import get_db
 
-logger = getLogger("isolines")
+logger = getLogger("scsb2016")
 
 router = APIRouter()
 
 # test endpoint for validating the scsb2016 implementation
-@router.get("/test")
+@router.get("/")
 def get_scsb2016_values(
         hydrological_zone: int,
         median_elevation: float,
@@ -32,4 +32,4 @@ def get_scsb2016_values(
         glacial_coverage, annual_precipitation, evapo_transpiration, \
         drainage_area, solar_exposure, average_slope)
 
-    return {"result": result}
+    return result

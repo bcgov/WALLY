@@ -53,7 +53,24 @@
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
-          <div>Watershed Details</div>
+          <div>Watershed Details
+             <v-tooltip right>
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" x-small fab depressed light @click="openEditableModelInputsDialog">
+                    <v-icon small color="primary">
+                      mdi-tune
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <span>Customize Model Inputs</span>
+              </v-tooltip>
+          </div>
+
+          <v-dialog v-model="show.editingModelInputs" persistent>
+            <EditableModelInputs
+              @close="closeEditableModelInputsDialog"/>
+          </v-dialog>
+          
           <div>
             <MeanAnnualRunoff ref="anchor-mar" :watershedID="selectedWatershed" :record="selectedWatershedRecord" :allWatersheds="watersheds" :details="watershedDetails"/>
             <WatershedAvailability ref="anchor-availability" :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord" :details="watershedDetails"/>
@@ -66,17 +83,19 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
+import EditableModelInputs from './EditableModelInputs'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
     WatershedAvailability,
-    MeanAnnualRunoff
+    MeanAnnualRunoff,
+    EditableModelInputs
   },
   data: () => ({
     infoTabs: null,
@@ -87,8 +106,11 @@ export default {
     watersheds: [],
     geojsonLayersAdded: [],
     includePOIPolygon: false,
-    watershedDetails: null,
-    watershedDetailsLoading: false
+    // watershedDetails: null,
+    watershedDetailsLoading: false,
+    show: {
+      editingModelInputs: false
+    },
   }),
   watch: {
     selectedWatershed (v) {
@@ -112,6 +134,7 @@ export default {
         value: w.id
       }))
     },
+    ...mapGetters('surfaceWater', ['watershedDetails']),
     ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['map'])
   },
@@ -170,14 +193,14 @@ export default {
     },
     fetchWatershedDetails () {
       this.watershedDetailsLoading = true
-      this.watershedDetails = null
+      this.updateWatershedDetails(null)
       ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
         .then(r => {
           this.watershedDetailsLoading = false
           if (!r.data) {
             return
           }
-          this.watershedDetails = r.data
+          this.updateWatershedDetails(r.data)
         })
         .catch(e => {
           this.watershedDetailsLoading = false
@@ -199,8 +222,22 @@ export default {
     },
     ...mapMutations('map', [
       'setMode'
-    ])
+    ]),
+    ...mapActions('surfaceWater', [
+      'updateWatershedDetails'
+    ]),
+    openEditableModelInputsDialog () {
+      this.show.editingModelInputs = true
+    },
+    closeEditableModelInputsDialog () {
+      this.show.editingModelInputs = false
+    },
   },
+  // watch: {
+  //   watershedDetails (value) {
+  //     console.log(value)
+  //   }
+  // },
   mounted () {
     this.setMode({ type: 'analyze', name: 'surface_water' })
     this.fetchWatersheds()
