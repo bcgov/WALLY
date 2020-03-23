@@ -1,12 +1,12 @@
 export const WatershedModelDescriptions = {
   drainageArea: {
     name: 'Drainage Area',
-    description: 'Total area of the selected watershed measured in kilometers squared (km^2).',
+    description: `Total area of the selected watershed measured in kilometers squared (km²).`,
     url: ''
   },
   annualPrecipitation: {
     name: 'Annual Precipitation',
-    description: 'Total annual rainfall over the selected watershed area measured in milimeters (mm). ' +
+    description: 'Total annual rainfall over the selected watershed area measured in millimeters (mm). ' +
     'This is received from the Pacific Climate organization precipitation api ' +
     '(https://services.pacificclimate.org/pcex/api/timeseries)',
     url: 'https://pacificclimate.org/'
@@ -48,7 +48,7 @@ export const WatershedModelDescriptions = {
     'The inputs used in calculting MAR are as follows: <br>' +
     '  drainage area, glacial coverage, median elevation, annual precipitation, evapo-transpiration, solar exposure, ' +
     'and average slope. These inputs are multiplied by trained co-efficient values and adjusted by an intercept to ' +
-    'output a predicted MAR value in l/km^2/s. The source paper is linked below.',
+    'output a predicted MAR value in l/km²/s. The source paper is linked below.',
     url: ''
   },
   meanAnnualRunoff: {
@@ -60,7 +60,7 @@ export const WatershedModelDescriptions = {
     'The inputs used in calculting MAR are as follows: <br>' +
     ' drainage area, glacial coverage, median elevation, annual precipitation, evapo-transpiration, solar ' +
     'exposure, and average slope. These inputs are multiplied by trained co-efficient values and adjusted ' +
-    'by an intercept to output a predicted MAR value in l/km^2/s. The source paper is linked below.',
+    'by an intercept to output a predicted MAR value in l/km²/s. The source paper is linked below.',
     url: ''
   },
   low7Q2: {
