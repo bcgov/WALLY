@@ -23,7 +23,6 @@
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWater></SurfaceWater>
     </div>
-
     <v-row class="pa-5" v-else>
       <v-col cols=12 lg=8>
         <p>Select a point of interest.</p>
@@ -71,6 +70,34 @@ export default {
     disableHydatLayer () {
       this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
     },
+    loadSurfaceWaterAnalysis () {
+      if (!this.isHydatLayerEnabled) {
+        this.hydatLayerAutomaticallyEnabled = true
+        this.enableHydatLayer()
+      }
+      if (!this.isApplicationsLayerEnabled) {
+        this.applicationsLayerAutomaticallyEnabled = true
+        this.enableApplicationsLayer()
+      }
+      if (!this.isLicencesLayerEnabled) {
+        this.licencesLayerAutomaticallyEnabled = true
+        this.enableLicencesLayer()
+      }
+      this.loadFeature()
+    },
+    loadFeature () {
+      if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
+        // load feature from coordinates
+        const coordinates = this.$route.query.coordinates.map((x) => Number(x))
+
+        let data = {
+          coordinates: coordinates,
+          layerName: 'point-of-interest'
+        }
+
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
+      }
+    },
     ...mapActions('map', ['setDrawMode', 'clearSelections']),
     ...mapActions(['exitFeature'])
   },
@@ -84,24 +111,29 @@ export default {
     isHydatLayerEnabled () {
       return this.isMapLayerActive('hydrometric_stream_flow')
     },
-    ...mapGetters('map', ['isMapLayerActive']),
+    ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
     ...mapGetters(['pointOfInterest'])
+  },
+  watch: {
+    pointOfInterest (value) {
+      if (value && value.geometry) {
+        // Update router
+        console.log('updating POI route')
+        this.$router.push({
+          path: '/surface-water',
+          query: { coordinates: value.geometry.coordinates }
+        })
+      }
+    },
+    isMapReady (value) {
+      if (value) {
+        this.loadSurfaceWaterAnalysis()
+      }
+    }
   },
   mounted () {
     this.clearSelections()
-
-    if (!this.isHydatLayerEnabled) {
-      this.hydatLayerAutomaticallyEnabled = true
-      this.enableHydatLayer()
-    }
-    if (!this.isApplicationsLayerEnabled) {
-      this.applicationsLayerAutomaticallyEnabled = true
-      this.enableApplicationsLayer()
-    }
-    if (!this.isLicencesLayerEnabled) {
-      this.licencesLayerAutomaticallyEnabled = true
-      this.enableLicencesLayer()
-    }
+    this.loadSurfaceWaterAnalysis()
   },
   beforeDestroy () {
     if (this.hydatLayerAutomaticallyEnabled) {

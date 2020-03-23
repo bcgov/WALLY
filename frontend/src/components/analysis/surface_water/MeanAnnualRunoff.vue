@@ -18,8 +18,8 @@
           <v-row class="borderBlock">
             <v-col>
               <div class="titleBlock">Watershed</div>
-              <div class="infoBlock">
-                {{watershedName}}
+              <div class="infoBlock text-capitalize">
+                {{watershedName.toLowerCase()}}
               </div>
             </v-col>
           </v-row>
@@ -34,7 +34,7 @@
                 {{ watershedDetails.drainage_area ? watershedDetails.drainage_area : 'N/A' }}
               </div>
               <div class="unitBlock">
-                km^2
+                km²
               </div>
             </v-col>
           </v-row>
@@ -81,7 +81,7 @@
             {{ modelOutputs.mad }}
           </div>
           <div class="unitBlock">
-            m^3/s
+            m³/s
           </div>
         </v-col>
         <v-col cols=6>
@@ -111,7 +111,7 @@
             {{ modelOutputs.mar }}
           </div>
           <div class="unitSub">
-            l/s/km^2
+            l/s/km²
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
@@ -121,7 +121,7 @@
             {{ modelOutputs.low7q2 ? modelOutputs.low7q2 : 'N/A' }}
           </div>
           <div class="unitSub">
-            m^3
+            m³
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
@@ -131,7 +131,7 @@
             {{ modelOutputs.dry7q10 ? modelOutputs.dry7q10 : 'N/A' }}
           </div>
           <div class="unitSub">
-            m^3/s
+            m³/s
           </div>
         </v-col>
       </v-row>
@@ -227,7 +227,7 @@ export default {
     ],
     monthlyDischargeHeaders: [
       { text: 'Month', value: 'month' },
-      { text: 'Monthly Discharge m^3', value: 'model_result' }
+      { text: 'Monthly Discharge m³', value: 'model_result' }
     ],
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     secondsInMonth: 86400,
@@ -290,7 +290,7 @@ export default {
         discharge.push((mds[i].model_result).toFixed(2))
         volume.push((mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0))
         percent.push((mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2))
-        hoverText.push(volume[i] + ' m^3 <br>' + discharge[i] + ' m^3/s <br>' + percent[i] + '% MAD')
+        hoverText.push(volume[i] + ' m³ <br>' + discharge[i] + ' m³/s <br>' + percent[i] + '% MAD')
       }
       const volumeData = {
         type: 'bar',
@@ -315,8 +315,8 @@ export default {
     },
     getReverseMontlyDischargeItems () {
       let mds = this.modelOutputs.monthlyDischarges
-      let rate = { 'unit': 'm^3/s' }
-      let volume = { 'unit': 'm^3' }
+      let rate = { 'unit': 'm³/s' }
+      let volume = { 'unit': 'm³' }
       let percent = { 'unit': '%MAD' }
       for (let i = 0; i < mds.length; i++) {
         rate['m' + (i + 1)] = (mds[i].model_result).toFixed(2)

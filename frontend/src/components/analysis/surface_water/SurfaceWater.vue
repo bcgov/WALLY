@@ -29,13 +29,12 @@
         </v-col>
       </v-row>
       <v-row align="center">
-        <v-col cols=12 md=6>Select watershed:</v-col>
-        <v-col cols=12 md=6>
+        <v-col cols=12 md=12>
           <v-select
             v-model="selectedWatershed"
             :items="watershedOptions"
             :menu-props="{ maxHeight: '400' }"
-            label="Select"
+            label="Select watershed"
             item-text="label"
             item-value="value"
             hint="Available watersheds at this location"
@@ -74,11 +73,24 @@
               </v-btn>
             </v-col>
           </v-row>
-
-            <MeanAnnualRunoff ref="anchor-mar" :watershedID="selectedWatershed" :record="selectedWatershedRecord" :allWatersheds="watersheds" :details="watershedDetails"/>
-            <WatershedAvailability ref="anchor-availability" :watershedID="selectedWatershed" :allWatersheds="watersheds" :record="selectedWatershedRecord" :details="watershedDetails"/>
+          <div>
+            <MeanAnnualRunoff ref="anchor-mar"
+                              :watershedID="selectedWatershed"
+                              :record="selectedWatershedRecord"
+                              :allWatersheds="watersheds"
+                              :details="watershedDetails"/>
+            <WatershedAvailability ref="anchor-availability"
+                                   :watershedID="selectedWatershed"
+                                   :allWatersheds="watersheds"
+                                   :record="selectedWatershedRecord"
+                                   :details="watershedDetails"/>
+            <HydrometricStationsContainer
+              ref="anchor-hydrometric-stations"
+              v-if="watershedDetails && watershedDetails.hydrometric_stations"
+              :stations="watershedDetails.hydrometric_stations"
+            class="pt-8" />
+          </div>
         </div>
-
       </div>
     </template>
   </v-container>
@@ -92,10 +104,12 @@ import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
+import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
+    HydrometricStationsContainer,
     WatershedAvailability,
     MeanAnnualRunoff
   },
@@ -130,7 +144,7 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`,
+        label: (w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`).toLowerCase(),
         value: w.id
       }))
     },
@@ -289,5 +303,7 @@ export default {
 </script>
 
 <style>
-
+.v-list-item__content, .v-select__selection{
+  text-transform: capitalize;
+}
 </style>

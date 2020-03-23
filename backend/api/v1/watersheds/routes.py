@@ -44,6 +44,7 @@ from api.v1.watersheds.controller import (
     get_hillshade,
     export_summary_as_xlsx
 )
+from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
     WatershedDetails,
     LicenceDetails,
@@ -144,7 +145,7 @@ def watershed_stats(
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     # watershed characteristics lookups
-    drainage_area = watershed_area / 1e6  # needs to be in km^2
+    drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
     temperature_data = get_temperature(watershed_poly)
@@ -165,6 +166,8 @@ def watershed_stats(
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
+    hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
+
     data = {
         "watershed_name": watershed.properties.get("name", None),
         "watershed_source": watershed.properties.get("watershed_source", None),
@@ -184,7 +187,8 @@ def watershed_stats(
                                isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
         "runoff_isoline_discharge_m3s": isoline_runoff['runoff'] / 365 / 24 / 60 / 60,
         "scsb2016_model": scsb2016_model,
-        "scsb2016_output": model_output_as_dict(scsb2016_model)
+        "scsb2016_output": model_output_as_dict(scsb2016_model),
+        "hydrometric_stations": hydrometric_stations
     }
 
     if format == 'xlsx':
