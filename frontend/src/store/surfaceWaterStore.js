@@ -9,6 +9,7 @@ export default {
     allocationValues: {},
     // Watershed detail state objects
     watershedDetails: null,
+    defaultWatershedDetails: null,
     customModelInputsActive: false,
     scsb2016ModelInputs: {
       hydrological_zone: 25,
@@ -35,7 +36,11 @@ export default {
     },
     updateWatershedDetails ({ state, commit }, payload) {
       commit('setWatershedDetails', payload)
-      commit('resetEditableModelInputs', payload)
+      commit('setEditableModelInputs', payload)
+    },
+    resetWatershedDetails ({state, commit}) {
+      commit('resetWatershedDetails')
+      commit('setEditableModelInputs', state.defaultWatershedDetails)
     }
   },
   mutations: {
@@ -57,6 +62,10 @@ export default {
     // Watershed detail mutations
     setWatershedDetails (state, payload) {
       state.watershedDetails = payload
+      state.defaultWatershedDetails = payload
+    },
+    resetWatershedDetails (state) {
+      state.watershedDetails = state.defaultWatershedDetails
     },
     updateCustomScsb2016ModelData (state, payload) {
       let sc = state.scsb2016ModelInputs
@@ -74,7 +83,7 @@ export default {
       }
       state.customModelInputsActive = true
     },
-    resetEditableModelInputs (state, payload) {
+    setEditableModelInputs (state, payload) {
       state.customModelInputsActive = false
       if (payload === null) {
         state.scsb2016ModelInputs = {
@@ -90,13 +99,13 @@ export default {
       } else {
         state.scsb2016ModelInputs = {
           hydrological_zone: payload.hydrological_zone,
-          median_elevation: payload.median_elevation.toFixed(2),
-          glacial_coverage: payload.glacial_coverage.toFixed(3),
-          annual_precipitation: payload.annual_precipitation.toFixed(2),
-          evapo_transpiration: payload.potential_evapotranspiration_thornthwaite.toFixed(2),
-          drainage_area: payload.drainage_area.toFixed(2),
-          solar_exposure: payload.solar_exposure.toFixed(3),
-          average_slope: payload.average_slope.toFixed(2)
+          median_elevation: Math.round(payload.median_elevation * 100) / 100,
+          glacial_coverage: Math.round(payload.glacial_coverage * 1000) / 1000,
+          annual_precipitation: Math.round(payload.annual_precipitation * 100) / 100,
+          evapo_transpiration: Math.round(payload.potential_evapotranspiration_thornthwaite * 100) / 100,
+          drainage_area: Math.round(payload.drainage_area * 100) / 100,
+          solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
+          average_slope: Math.round(payload.average_slope * 100) / 100
         }
       }
     }

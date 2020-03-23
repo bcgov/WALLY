@@ -19,6 +19,9 @@
           <tr>
             <th scope="col" class="text-left alloc-value" v-for="field in Object.keys(scsb2016ModelInputs)" :key="field">{{humanReadable(field)}}</th>
           </tr>
+          <tr>
+            <th scope="col" class="text-left font-weight-light" v-for="field in Object.keys(scsb2016ModelInputs)" :key="field">{{inputUnits[field]}}</th>
+          </tr>
           </thead>
           <tbody>
             <tr>
@@ -40,13 +43,14 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="primary lighten-1" depressed @click="saveValues">Apply</v-btn>
+        <v-btn color="grey" dark depressed @click="reset">Reset</v-btn>
         <v-btn color="grey" dark depressed @click="exit">Cancel</v-btn>
       </v-card-actions>
     </v-card>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
 import { humanReadable } from '../../../helpers'
@@ -60,14 +64,42 @@ export default {
     inputRules: {
       required: value => !!value || 'Required',
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number'
+    },
+    inputUnits: {
+      hydrological_zone: "25, 26, 27",
+      median_elevation: "masl",
+      glacial_coverage: "%",
+      annual_precipitation: "mm/yr",
+      evapo_transpiration: "mm/yr",
+      drainage_area: "km^2",
+      solar_exposure: "%",
+      average_slope: "%*100"
     }
   }),
   methods: {
     exit () {
       this.$emit('close', false)
     },
-    humanReadable: (val) => humanReadable(val),
+    inputsAreValid () {
+      var inputs = Object.values(this.scsb2016ModelInputs)
+      var rules = Object.keys(this.inputRules)
+      for(let i = 0; i < inputs.length; i++) {
+        for(let r = 0; r < rules.length; r++) {
+          if (this.inputRules[rules[r]](inputs[i]) !== true) {
+            return false
+          }
+        }
+      }
+      return true
+    },
+    reset () {
+      this.resetWatershedDetails()
+      this.exit()
+    },
     saveValues () {
+      if (!this.inputsAreValid()) {
+        return
+      }
       ApiService.query(`/api/v1/scsb2016/?${qs.stringify(this.scsb2016ModelInputs)}`)
         .then(r => {
           if (!r.data) {
@@ -82,7 +114,9 @@ export default {
     },
     ...mapMutations('surfaceWater', [
       'setCustomModelInputs',
-      'updateCustomScsb2016ModelData'])
+      'updateCustomScsb2016ModelData']),
+    ...mapActions('surfaceWater', ['resetWatershedDetails']),
+    humanReadable: (val) => humanReadable(val)
   },
   computed: {
     ...mapGetters('surfaceWater', ['scsb2016ModelInputs'])
