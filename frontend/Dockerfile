@@ -8,16 +8,12 @@ RUN npm ci
 
 COPY . .
 
-# run unit tests and build
-RUN npm run test:unit && npm run build
+RUN npm run build
 
-FROM nginx:1.12
+FROM caddy/caddy:2.0.0
 
-COPY --from=build /app/dist/ /tmp/src
-COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
-COPY --from=build /app/nginx.conf.tmpl /opt/app-root/etc/nginx.conf.tmpl
-
-RUN /usr/libexec/s2i/assemble
+WORKDIR /app/src
+COPY --from=build /app/dist/ /app/src
+COPY --from=build /app/Caddyfile /etc/caddy/Caddyfile
 
 EXPOSE 8080
-CMD /usr/libexec/s2i/run
