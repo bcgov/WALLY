@@ -33,7 +33,7 @@
     </div>
     <div class="wally-user mr-5">{{ name }}</div>
     <div>
-      <v-menu offset-y open-on-hover min-width="300">
+      <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on }">
           <v-btn
             v-on="on"
