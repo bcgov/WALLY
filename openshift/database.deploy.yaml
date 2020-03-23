@@ -187,9 +187,10 @@ objects:
             initialDelaySeconds: 5
             timeoutSeconds: 5
             failureThreshold: 4
-            exec:
-              command:
-                - /usr/share/scripts/patroni/health_check.sh
+            httpGet:
+              path: /health
+              port: 8008
+              scheme: HTTP
           volumeMounts:
           - mountPath: /home/postgres/pgdata
             name: postgresql
