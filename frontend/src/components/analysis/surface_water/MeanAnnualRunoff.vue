@@ -364,7 +364,7 @@ export default {
   methods: {
     updateModelData (details) {
       // MAD Model Calculations
-      if (details && details.scsb2016_model) {
+      if (details && details.scsb2016_model && !details.scsb2016_model.error) {
         let outputs = details.scsb2016_model
         let mar = outputs.find((x) => x.output_type === 'MAR')
         let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
