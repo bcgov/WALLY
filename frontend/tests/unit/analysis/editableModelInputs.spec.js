@@ -15,14 +15,13 @@ const vuetify = new Vuetify()
 describe('EditableModelInputs Test', () => {
   let wrapper
   let store
-  let propsData
 
   beforeEach(() => {
     let surfaceWater = {
       namespaced: true,
       getters: {
         watershedDetails: () => { return {} },
-        scsb2016ModelInputs: () => { 
+        scsb2016ModelInputs: () => {
           return {
             hydrological_zone: 25,
             median_elevation: 700,
@@ -53,5 +52,4 @@ describe('EditableModelInputs Test', () => {
     let modelCard = wrapper.findAll('div#editableModelCard')
     expect(modelCard.length).toBe(1)
   })
-
 })
