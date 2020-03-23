@@ -49,7 +49,7 @@ objects:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: 'caddy:2.0.0'
+            name: 'caddy:latest'
         type: Docker
       successfulBuildsHistoryLimit: 5
       triggers:

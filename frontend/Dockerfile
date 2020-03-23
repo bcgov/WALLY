@@ -10,7 +10,7 @@ COPY . .
 
 RUN npm run build
 
-FROM caddy/caddy:2.0.0
+FROM caddy:latest
 
 WORKDIR /app/src
 COPY --from=build /app/dist/ /app/src
