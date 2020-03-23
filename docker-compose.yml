@@ -33,5 +33,6 @@ services:
       - env-postgres.env
     volumes:
       - ./.tmp/postgis-dev:/var/lib/postgresql/dat
+      - ./scripts/database/dev:/docker-entrypoint-initdb.d
     ports:
       - '5432:5432'
