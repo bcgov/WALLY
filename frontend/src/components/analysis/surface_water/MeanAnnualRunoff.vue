@@ -146,7 +146,7 @@
 
       <v-data-table
         :items="getReverseMontlyDischargeItems"
-        :headers="monthHeaders"
+        :headers="unitColumnHeader.concat(monthHeaders)"
         :hide-default-footer="true"
       />
       <Plotly v-if="monthlyDischargeData"
@@ -235,8 +235,10 @@ export default {
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     secondsInMonth: 86400,
     secondsInYear: 31536000,
+    unitColumnHeader: [
+      { text: 'Unit', value: 'unit' }
+    ],
     monthHeaders: [
-      { text: 'Unit', value: 'unit' },
       { text: 'Jan', value: 'm1', align: 'end' },
       { text: 'Feb', value: 'm2', align: 'end' },
       { text: 'Mar', value: 'm3', align: 'end' },
