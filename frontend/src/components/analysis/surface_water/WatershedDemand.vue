@@ -248,16 +248,8 @@ export default {
       if (!this.licenceData || !this.availability) {
         return null
       }
-      let mar = this.availability.reduce((a, b) => a + b, 0) / 12
-      const availabilityData = {
-        type: 'bar',
-        name: 'Available Water',
-        y: this.availability.map((val) => { return val - (this.licenceData.total_qty / 12) }),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
 
-      let y = []
+      let allocationY = []
       let allocItemKey, monthlyQty
 
       // Get total quantity per month based on allocation values
@@ -268,13 +260,22 @@ export default {
           this.initAllocationItemIfNotExists(allocItemKey)
           monthlyQty += this.computeQuantityForMonth(item.qty, this.allocationValues[allocItemKey], i + 1)
         })
-        y[i] = monthlyQty
+        allocationY[i] = monthlyQty
+      }
+
+      let mar = this.availability.reduce((a, b) => a + b, 0) / 12
+      const availabilityData = {
+        type: 'bar',
+        name: 'Available Water',
+        y: this.availability.map((val, i) => { return val - allocationY[i] }),
+        x: this.monthHeaders.map((h) => h.text),
+        hovertemplate: '%{y:.2f} m³'
       }
 
       const licencePlotData = {
         type: 'bar',
         name: 'Monthly Licenced Quantity',
-        y: y,
+        y: allocationY,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
