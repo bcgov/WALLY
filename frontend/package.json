@@ -5,6 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "node --max_old_space_size=8000 node_modules/@vue/cli-service/bin/vue-cli-service.js build",
+    "build:report": "vue-cli-service build --report",
+    "build:report:json": "vue-cli-service build --report-json",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit --no-cache"
   },
