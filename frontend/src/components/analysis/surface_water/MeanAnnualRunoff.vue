@@ -91,7 +91,10 @@
             <Dialog v-bind="wmd.meanAnnualDischarge"/>
             <div class="titleExp">Source</div>
             <div class="unitExp">
-              Model based on South Coast Stewardship Baseline (Sentlinger, 2016).
+              <div>{{ modelOutputs.sourceDescription }}</div>
+              <div v-if="modelOutputs.sourceLink">
+                <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
+              </div>
             </div>
           </v-col>
         </v-row>
@@ -369,6 +372,7 @@ export default {
         let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
         let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
         this.modelOutputs = {
+          sourceDescription: 'Model based on South Coast Stewardship Baseline (Sentlinger, 2016).',
           mar: mar.model_result.toFixed(2),
           mad: mad.model_result.toFixed(2),
           low7q2: low7q2.model_result.toFixed(2),
@@ -410,6 +414,8 @@ export default {
           })
         }
         this.modelOutputs = {
+          sourceDescription: 'Model based on normalized runoff from hydrometric watersheds.',
+          sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries',
           mar: (meanAnnualDischarge * 1000 / this.watershedArea).toFixed(2),
           mad: meanAnnualDischarge.toFixed(2),
           low7q2: null,
