@@ -262,8 +262,9 @@ export default {
       let props = this.record.properties
       name = props.GNIS_NAME_1 ? props.GNIS_NAME_1
         : props.SOURCE_NAME ? props.SOURCE_NAME
-          : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
-            : props.OBJECTID ? props.OBJECTID : ''
+          : props.name ? props.name
+            : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
+              : props.OBJECTID ? props.OBJECTID : ''
 
       return name
     },
