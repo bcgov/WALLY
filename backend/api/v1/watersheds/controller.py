@@ -216,7 +216,7 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         ),
         id=f"generated.{watershed_feature_id}",
         properties={
-            "name": "Estimated catchment area (Freshwater Atlas)",
+            "name": "Estimated catchment area",
             "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
             "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
             "and LOCAL_WATERSHED_CODE properties."
@@ -600,7 +600,11 @@ def export_summary_as_xlsx(data: dict):
     template_data = open(
         "./api/v1/watersheds/templates/SurfaceWater.xlsx", "rb").read()
     base64_encoded = base64.b64encode(template_data).decode("UTF-8")
-    filename = f"{cur_date}_SurfaceWater"
+
+    ws_name = data.get("watershed_name", "Surface_Water")
+    ws_name.replace(" ", "_").replace("(", "_").replace(")", "_")
+
+    filename = f"{cur_date}_{ws_name}"
     token = get_docgen_token()
     auth_header = f"Bearer {token}"
 
