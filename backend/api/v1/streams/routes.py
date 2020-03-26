@@ -18,6 +18,9 @@ from api.db.utils import get_db
 
 from api.v1.streams import controller as streams_controller
 from api.v1.streams import schema as streams_schema
+
+from external.docgen.request_token import get_docgen_token
+from external.docgen.schema import DocGenOptions, DocGenRequest, DocGenTemplateFile
 logger = getLogger("streams")
 
 router = APIRouter()
@@ -73,12 +76,12 @@ def export_stream_apportionment(
     token = get_docgen_token()
     auth_header = f"Bearer {token}"
 
-    body = streams_schema.ApportionmentDocGenRequest(
+    body = DocGenRequest(
         data=req,
-        options=streams_schema.ApportionmentDocGenOptions(
+        options=DocGenOptions(
             reportName=filename
         ).dict(),
-        template=streams_schema.ApportionmentTemplateFile(
+        template=DocGenTemplateFile(
             encodingType="base64",
             content=base64_encoded,
             fileType="xlsx"

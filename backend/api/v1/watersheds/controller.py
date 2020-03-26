@@ -27,7 +27,7 @@ from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 
-from external.docgen.schema import DocGenRequest, DocGenTemplateFile
+from external.docgen.schema import DocGenRequest, DocGenTemplateFile, DocGenOptions
 from external.docgen.request_token import get_docgen_token
 
 
@@ -605,12 +605,14 @@ def export_summary_as_xlsx(data: dict):
     auth_header = f"Bearer {token}"
 
     body = DocGenRequest(
-        contexts=[data],
+        data=data,
+        options=DocGenOptions(
+            reportName=filename,
+        ).dict(),
         template=DocGenTemplateFile(
-            outputFileName=filename,
-            contentEncodingType="base64",
+            encodingType="base64",
             content=base64_encoded,
-            contentFileType="xlsx"
+            fileType="xlsx"
         ).dict()
     )
 
