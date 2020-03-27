@@ -602,7 +602,7 @@ def export_summary_as_xlsx(data: dict):
     base64_encoded = base64.b64encode(template_data).decode("UTF-8")
 
     ws_name = data.get("watershed_name", "Surface_Water")
-    ws_name.replace(" ", "_").replace("(", "_").replace(")", "_")
+    ws_name.replace(" ", "_")
 
     filename = f"{cur_date}_{ws_name}"
     token = get_docgen_token()
