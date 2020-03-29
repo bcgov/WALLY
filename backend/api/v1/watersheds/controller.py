@@ -553,3 +553,39 @@ def extract_poly_coords(geom):
         raise ValueError('Unhandled geometry type: ' + repr(geom.type))
     return {'exterior_coords': exterior_coords,
             'interior_coords': interior_coords}
+
+
+def get_fish_observations(polygon: Polygon):
+    """ returns fish observation data from within a watershed polygon"""
+    fish_observations_layer = 'fish_observations'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    fish_observations = databc_feature_search(
+        fish_observations_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    features_within_search_area = []
+
+    for feature in fish_observations.features:
+        feature_shape = shape(feature.geometry)
+
+        # skip observations outside search area
+        if not feature_shape.within(polygon_3005):
+            continue
+
+        life_stage = feature.properties['LIFE_STAGE']
+        species_name = feature.properties['SPECIES_NAME']
+        activity = feature.properties['ACTIVITY']
+
+        features_within_search_area.append(feature)
+
+    return FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in features_within_search_area
+        ])
