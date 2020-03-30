@@ -6,6 +6,11 @@
     </div>
     <div v-if="fishData">
       <v-card flat>
+        <div>
+            Source:
+            <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
+                target="_blank">Known BC Fish Observations and BC Fish Distributions (DataBC)</a>
+        </div>
         <div class="my-5">
           <v-data-table
             :items="fishData.fish_species_data"
@@ -112,8 +117,8 @@ export default {
           .setHTML(`
             <dl>
               <dt>Species Name:</dt> <dd>${speciesName}</dd>
-              <dt>Life Stage:</dt> <dd>${lifeStage ? lifeStage : ''}</dd>
-              <dt>Observation Date::</dt> <dd>${observationDate ? observationDate : ''}</dd>
+              <dt>Life Stage:</dt> <dd>${lifeStage && lifeStage !== 'null' ? lifeStage : 'Not Observed'}</dd>
+              <dt>Observation Date::</dt> <dd>${observationDate && observationDate !== 'null' ? observationDate : ''}</dd>
             </dl>
           `)
           .addTo(this.map)

@@ -649,4 +649,5 @@ def known_fish_observations(polygon: Polygon):
 def parse_fish_life_stages(stages):
     split_list = [item.split(',') for item in stages]
     flat_list = [item for sublist in split_list for item in sublist]
+
     return list(set(flat_list))
