@@ -23,6 +23,8 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 from api import config
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.aggregator.controller import DATABC_LAYER_IDS, DATABC_GEOMETRY_FIELD
+from api.v1.aggregator.schema import WMSGetFeatureQuery, ExternalAPIRequest
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 from api.v1.aggregator.controller import feature_search, databc_feature_search
@@ -636,3 +638,59 @@ def export_summary_as_xlsx(data: dict):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
     )
+
+
+def create_databc_request(layer, area):
+    """
+    creates a databc request object for a given layer and area of interest.
+    Returns an ExternalAPIRequest that can be used by aiohttp to make API requests.
+    """
+
+    query = WMSGetFeatureQuery(
+        typeName=DATABC_LAYER_IDS.get(
+            layer, None) or layer,
+        cql_filter=f"""
+            INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {
+                        albers_search_area.wkt})
+        """
+    )
+    req = ExternalAPIRequest(
+        url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
+        layer=item.display_data_name,
+        q=query
+    )
+
+    return req
+
+
+def fetch_watershed_data(include_licences=False, include_fish=False):
+    """
+    Makes requests to DataBC and PCIC to collect watershed data.
+    The default set of data includes glacial coverage, precipitation,
+    temperature, watershed slope, elevation and aspect.
+
+    It can optionally include licences and fish observations. These 
+    options are for collecting more data at once for producing Excel
+    reports (whereas the Wally web app does not necessarily need all
+    the data at one time).
+    """
+
+    req_list = []
+
+    # List of datasets that we need to get from DataBC.
+    # Layer names can either be the Wally internal layer name (if available)
+    # or the DataBC layer name.
+    databc_layers = [
+        "freshwater_atlas_glaciers",
+        "WHSE_WATER_MANAGEMENT.HYDZ_HYDROLOGICZONE_SP"  # hydrologic zone
+    ]
+
+    # Pacific Climate Impacts Consortium (PCIC)
+
+    # NRS Slope/Elevation/Aspect
+
+    # go and make requests concurrently...
+
+    # sort into a dict
+    # return dict.
+    return ""
