@@ -41,11 +41,6 @@
           ></v-select>
         </v-col>
       </v-row>
-      <v-row no-gutters class="pa-0 ma-0" v-if="selectedWatershed.startsWith('generated')">
-        <v-col>
-          <v-checkbox v-model="includePOIPolygon" label="Include area around point (estimated catchment areas only)"></v-checkbox>
-        </v-col>
-      </v-row>
 
       <div v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
