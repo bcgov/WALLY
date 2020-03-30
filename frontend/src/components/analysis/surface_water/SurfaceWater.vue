@@ -69,6 +69,9 @@
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
+            <FishObservations ref="anchor-fish-observations"
+                                   :watershedID="selectedWatershed"
+                                   :record="selectedWatershedRecord"/>
           </div>
         </div>
       </div>
@@ -83,13 +86,15 @@ import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
+import FishObservations from './FishObservations'
 
 export default {
   name: 'SurfaceWaterDetails',
   components: {
     HydrometricStationsContainer,
     WatershedAvailability,
-    MeanAnnualRunoff
+    MeanAnnualRunoff,
+    FishObservations
   },
   data: () => ({
     infoTabs: null,

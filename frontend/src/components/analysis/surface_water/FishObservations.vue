@@ -4,40 +4,12 @@
     <div v-if="fishLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
-    <div v-if="licenceData">
+    <div v-if="fishData">
       <v-card flat>
-        <v-card-title class="pl-0">
-          Water Rights Licences
-          <v-card-actions>
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" x-small fab depressed light @click="openEditAllocationTableDialog">
-                  <v-icon small color="primary">
-                    mdi-tune
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Configure monthly allocation coefficients</span>
-            </v-tooltip>
-          </v-card-actions>
-
-        </v-card-title>
-        <v-dialog v-model="show.editingAllocationValues" persistent>
-          <MonthlyAllocationTable
-            :allocation-items="licenceData.total_qty_by_purpose"
-            key-field="purpose"
-            @close="closeEditAllocationTableDialog"/>
-        </v-dialog>
-
-        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
-
-        <Dialog v-bind="wmd.availabilityVsDemand"/>
-
         <div class="my-5">
-          <div class="mb-3">Annual licenced quantity by use type:</div>
           <v-data-table
-            :items="licenceData.total_qty_by_purpose"
-            :headers="licencePurposeHeaders"
+            :items="fishData.fish_species_data"
+            :headers="fishObservationHeaders"
             sort-by="qty"
             sort-desc
           >
@@ -46,219 +18,70 @@
             </template>
           </v-data-table>
         </div>
-
-        <Plotly v-if="availability && licenceData"
-                :layout="demandAvailabilityLayout()"
-                :data="demandAvailabilityData"
-        ></Plotly>
-
       </v-card>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
-import mapboxgl from 'mapbox-gl'
-import { Plotly } from 'vue-plotly'
-import Dialog from '../../common/Dialog'
-import { WatershedModelDescriptions } from '../../../constants/descriptions'
-
-import surfaceWaterMixin from './mixins'
-import MonthlyAllocationTable from './watershed_demand/MonthlyAllocationTable.vue'
-
-const popup = new mapboxgl.Popup({
-  closeButton: false,
-  closeOnClick: false
-})
 
 export default {
-  name: 'WatershedDemand',
-  mixins: [surfaceWaterMixin],
+  name: 'FishObservations',
   components: {
-    MonthlyAllocationTable,
-    Plotly,
-    Dialog
   },
-  props: ['watershedID', 'record', 'availability'],
+  props: ['watershedID', 'record'],
   data: () => ({
     fishLoading: false,
-    licenceData: null,
-    licencePurposeHeaders: [
-      { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
-      { text: '', value: 'action', sortable: false }
-    ],
-    show: {
-      editingAllocationValues: false
-    },
-    purposeTypes: [],
-    months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
-    monthHeaders: [
-      { text: 'Jan', value: 'm1' },
-      { text: 'Feb', value: 'm2' },
-      { text: 'Mar', value: 'm3' },
-      { text: 'Apr', value: 'm4' },
-      { text: 'May', value: 'm5' },
-      { text: 'Jun', value: 'm6' },
-      { text: 'Jul', value: 'm7' },
-      { text: 'Aug', value: 'm8' },
-      { text: 'Sep', value: 'm9' },
-      { text: 'Oct', value: 'm10' },
-      { text: 'Nov', value: 'm11' },
-      { text: 'Dec', value: 'm12' }
-    ],
-    demandAvailabilityData: [],
-    wmd: WatershedModelDescriptions
+    fishData: null,
+    fishObservationHeaders: [
+      { text: 'Fish Species', value: 'species', sortable: true },
+      { text: 'Observation Count', value: 'count', align: 'center'},
+      { text: 'Life Stages Observed', value: 'life_stages', align: 'center'},
+      { text: 'First Observation Date', value: 'observation_date_min', align: 'center'},
+      { text: 'Last Observation Date', value: 'observation_date_max', align: 'center'},
+    ]
   }),
   computed: {
-    ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['allocationValues'])
-
+    ...mapGetters('map', ['map'])
   },
   watch: {
     watershedID () {
-      this.licenceData = null
-      this.map.removeLayer('waterLicences')
-      this.map.removeSource('waterLicences')
-      this.fetchLicenceData()
+    //   this.map.removeLayer('fishObservations')
+    //   this.map.removeSource('fishObservations')
+      this.fetchFishObservations()
     }
   },
   methods: {
-    ...mapActions('surfaceWater', ['loadAllocationItemsFromStorage', 'initAllocationItemIfNotExists']),
-    demandAvailabilityLayout () {
-      return {
-        barmode: 'stack',
-        title: 'Availability vs Licenced Quantity',
-        showlegend: true,
-        legend: {
-          xanchor: 'center',
-          x: 0.5,
-          y: -0.2,
-          orientation: 'h'
-        },
-        margin: {
-          r: 120
-        },
-        xaxis: {
-          tickformat: '%B'
-        },
-        yaxis: {
-          title: 'Volume (m³)'
-        }
-      }
-    },
-    addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
-        paint: {
-          'circle-color': color,
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['number', ['get', 'qty_m3_yr'], 0],
-            0,
-            10,
-            max,
-            max > 1000000 ? 50 : 25
-          ],
-          'circle-opacity': opacity
-        }
-      }, 'water_rights_licences')
-
-      this.map.on('mouseenter', id, (e) => {
-      // Change the cursor style as a UI indicator.
-        this.map.getCanvas().style.cursor = 'pointer'
-
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
-        let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
-        let sourceName = e.features[0].properties['SOURCE_NAME']
-        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
-        let purpose = e.features[0].properties['PURPOSE_USE']
-
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-        }
-
-        // Populate the popup and set its coordinates
-        // based on the feature found.
-        popup
-          .setLngLat(coordinates)
-          .setHTML(`
-            <dl>
-              <dt>Licence no.:</dt> <dd>${licenceNumber}</dd>
-              <dt>Primary licensee:</dt> <dd>${licenseeName}</dd>
-              <dt>Source:</dt> <dd>${sourceName}</dd>
-              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
-              <dt>Purpose use:</dt> <dd>${purpose}</dd>
-            </dl>
-
-          `)
-          .addTo(this.map)
-      })
-
-      this.map.on('mouseleave', id, () => {
-        this.map.getCanvas().style.cursor = ''
-        popup.remove()
-      })
-    },
-    openEditAllocationTableDialog () {
-      this.show.editingAllocationValues = true
-    },
-    closeEditAllocationTableDialog () {
-      // TODO: Distribute quantity based on alloc values
-      this.setDemandAvailabilityData()
-      this.show.editingAllocationValues = false
-    },
     fetchFishObservations () {
+      this.fishData = null
       this.fishLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fish_observations`)
         .then(r => {
           this.fishData = r.data
-          // console.log('adding data to map')
-          const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
-          this.setPurposeTypes()
+
+        //   const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
+        //   this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
+        //   this.setPurposeTypes()
 
           this.fishLoading = false
-          this.setDemandAvailabilityData()
         })
         .catch(e => {
           this.fishLoading = false
           console.error(e)
         })
-    },
-    setPurposeTypes () {
-      this.purposeTypes = []
-      this.fishData.total_qty_by_purpose.forEach(item => {
-        this.purposeTypes.push(item.purpose)
-      })
-    },
-    
+    }
+  },
   mounted () {
     this.fetchFishObservations()
   },
   beforeDestroy () {
-    this.map.removeLayer('fishObservations')
-    this.map.removeSource('fishObservations')
+    // this.map.removeLayer('fishObservations')
+    // this.map.removeSource('fishObservations')
   }
 }
 </script>
 
 <style>
-.titleSub {
-  color: #202124;
-  font-weight: bold;
-  font-size: 20px;
-}
 </style>

@@ -40,7 +40,7 @@ from api.v1.watersheds.controller import (
     calculate_potential_evapotranspiration_hamon,
     get_slope_elevation_aspect,
     get_hillshade,
-    fish_observations
+    known_fish_observations
 )
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
@@ -228,7 +228,7 @@ def get_fish_observations(
 
     watershed = get_watershed(db, watershed_feature)
 
-    watershed_fish_observations = fish_observations(shape(watershed.geometry))
+    watershed_fish_observations = known_fish_observations(shape(watershed.geometry))
 
     return watershed_fish_observations
 
