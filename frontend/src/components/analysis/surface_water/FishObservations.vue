@@ -66,7 +66,7 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/fish_observations`)
         .then(r => {
           this.fishData = r.data
-          this.addFishObservationsLayer('fishObservations', r.data.fish_observations, '#00796b')
+          this.addFishObservationsLayer('fishObservations', r.data.fish_observations)
           this.fishLoading = false
         })
         .catch(e => {
@@ -74,7 +74,7 @@ export default {
           console.error(e)
         })
     },
-    addFishObservationsLayer (id = 'fishObservations', data, color = '#ff2424', opacity = 0.5) {
+    addFishObservationsLayer (id = 'fishObservations', data, color = '#B22222', opacity = 0.5) {
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -84,6 +84,7 @@ export default {
         },
         paint: {
           'circle-color': color,
+          'circle-radius': 5,
           'circle-opacity': opacity
         }
       }, 'fish_observations')
