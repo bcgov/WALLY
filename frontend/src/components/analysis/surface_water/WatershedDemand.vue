@@ -47,6 +47,12 @@
           </v-data-table>
         </div>
 
+        <div class="subtitle-1 my-3 font-weight-bold">Availability vs Licensed Quantity</div>
+        <div class="my-3"><span class="font-weight-bold">How to read this graph:</span>
+          this graph shows available water after allocation from existing surface water licences,
+          as determined by subtracting licensed quantities (including any adjusted monthly allocation
+          values) from the estimated discharge for each month.
+        </div>
         <Plotly v-if="availability && licenceData"
                 :layout="demandAvailabilityLayout()"
                 :data="demandAvailabilityData"
