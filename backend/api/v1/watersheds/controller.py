@@ -628,7 +628,7 @@ def known_fish_observations(polygon: Polygon):
         fish_species_data_list.append({
             'species': key,
             'count': val['count'],
-            'life_stages': val['life_stages'],
+            'life_stages': parse_fish_life_stages(val['life_stages']),
             'observation_date_min': val['observation_date_min'],
             'observation_date_max': val['observation_date_max']
         })
@@ -643,3 +643,10 @@ def known_fish_observations(polygon: Polygon):
         ]),
         fish_species_data=fish_species_data_list
     )
+
+
+# cleans up life state strings such as 'egg,juvenile'
+def parse_fish_life_stages(stages):
+    split_list = [item.split(',') for item in stages]
+    flat_list = [item for sublist in split_list for item in sublist]
+    return list(set(flat_list))

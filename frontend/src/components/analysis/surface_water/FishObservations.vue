@@ -112,8 +112,8 @@ export default {
           .setHTML(`
             <dl>
               <dt>Species Name:</dt> <dd>${speciesName}</dd>
-              <dt>Life Stage:</dt> <dd>${lifeStage}</dd>
-              <dt>Observation Date::</dt> <dd>${observationDate}</dd>
+              <dt>Life Stage:</dt> <dd>${lifeStage ? lifeStage : ''}</dd>
+              <dt>Observation Date::</dt> <dd>${observationDate ? observationDate : ''}</dd>
             </dl>
           `)
           .addTo(this.map)
