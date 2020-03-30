@@ -26,6 +26,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
+import mapboxgl from 'mapbox-gl'
+
+const popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false
+})
 
 export default {
   name: 'FishObservations',
@@ -48,37 +54,82 @@ export default {
   },
   watch: {
     watershedID () {
-    //   this.map.removeLayer('fishObservations')
-    //   this.map.removeSource('fishObservations')
+      this.fishData = null
+      this.map.removeLayer('fishObservations')
+      this.map.removeSource('fishObservations')
       this.fetchFishObservations()
     }
   },
   methods: {
     fetchFishObservations () {
-      this.fishData = null
       this.fishLoading = true
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/fish_observations`)
         .then(r => {
           this.fishData = r.data
-
-        //   const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-        //   this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
-        //   this.setPurposeTypes()
-
+          this.addFishObservationsLayer('fishObservations', r.data.fish_observations, '#00796b')
           this.fishLoading = false
         })
         .catch(e => {
           this.fishLoading = false
           console.error(e)
         })
-    }
+    },
+    addFishObservationsLayer (id = 'fishObservations', data, color = '#ff2424', opacity = 0.5) {
+      this.map.addLayer({
+        id: id,
+        type: 'circle',
+        source: {
+          type: 'geojson',
+          data: data
+        },
+        paint: {
+          'circle-color': color,
+          'circle-opacity': opacity
+        }
+      }, 'fish_observations')
+
+      this.map.on('mouseenter', id, (e) => {
+      // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer'
+
+        let coordinates = e.features[0].geometry.coordinates.slice()
+        let speciesName = e.features[0].properties['SPECIES_NAME']
+        let lifeStage = e.features[0].properties['LIFE_STAGE']
+        let observationDate = e.features[0].properties['OBSERVATION_DATE']
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup
+          .setLngLat(coordinates)
+          .setHTML(`
+            <dl>
+              <dt>Species Name:</dt> <dd>${speciesName}</dd>
+              <dt>Life Stage:</dt> <dd>${lifeStage}</dd>
+              <dt>Observation Date::</dt> <dd>${observationDate}</dd>
+            </dl>
+          `)
+          .addTo(this.map)
+      })
+
+      this.map.on('mouseleave', id, () => {
+        this.map.getCanvas().style.cursor = ''
+        popup.remove()
+      })
+    },
   },
   mounted () {
     this.fetchFishObservations()
   },
   beforeDestroy () {
-    // this.map.removeLayer('fishObservations')
-    // this.map.removeSource('fishObservations')
+    this.map.removeLayer('fishObservations')
+    this.map.removeSource('fishObservations')
   }
 }
 </script>
