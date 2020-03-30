@@ -43,10 +43,10 @@ export default {
     fishData: null,
     fishObservationHeaders: [
       { text: 'Fish Species', value: 'species', sortable: true },
-      { text: 'Observation Count', value: 'count', align: 'center'},
-      { text: 'Life Stages Observed', value: 'life_stages', align: 'center'},
-      { text: 'First Observation Date', value: 'observation_date_min', align: 'center'},
-      { text: 'Last Observation Date', value: 'observation_date_max', align: 'center'},
+      { text: 'Observation Count', value: 'count', align: 'center' },
+      { text: 'Life Stages Observed', value: 'life_stages', align: 'center' },
+      { text: 'First Observation Date', value: 'observation_date_min', align: 'center' },
+      { text: 'Last Observation Date', value: 'observation_date_max', align: 'center' }
     ]
   }),
   computed: {
@@ -123,7 +123,7 @@ export default {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
-    },
+    }
   },
   mounted () {
     this.fetchFishObservations()
