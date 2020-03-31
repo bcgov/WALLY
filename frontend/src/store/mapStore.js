@@ -167,7 +167,7 @@ export default {
       // changing layers (which triggers a new search with the new layer included). Made
       // redundant by separating the layer select screen and feature views.
 
-      console.log('active selection - - ', state.isDrawingToolActive)
+      // console.log('active selection - - ', state.isDrawingToolActive)
       // if (state.isDrawingToolActive) {
       //   return false
       // }
@@ -179,7 +179,7 @@ export default {
 
       options = Object.assign({}, defaultOptions, options)
 
-      console.log(options)
+      // console.log(options)
 
       if (!featureCollection || !featureCollection.features || !featureCollection.features.length) return
 
