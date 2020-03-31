@@ -1,4 +1,6 @@
 const CompressionPlugin = require('compression-webpack-plugin')
+// const Visualizer = require('webpack-visualizer-plugin')
+
 module.exports = {
   configureWebpack: {
     resolve: {
@@ -6,9 +8,12 @@ module.exports = {
         'plotly.js': 'plotly.js/dist/plotly-basic.min.js'
       }
     },
-    plugins: [new CompressionPlugin({
-      filename: '[dir][name].gz[ext][query]'
-    })]
+    plugins: [
+      new CompressionPlugin({
+        filename: '[dir][name].gz[ext][query]'
+      })
+      // new Visualizer() # Creates a stats.html file with a sunburst chart
+    ]
   }
 }
 
