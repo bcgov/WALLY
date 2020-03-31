@@ -64,7 +64,7 @@
             %
           </div>
         </v-col>
-        <v-col cols=4 class="colSub colSubInner">
+        <v-col cols=4 class="colSubInner">
           <Dialog v-bind="wmd.medianElevation"/>
           <div class="titleSub">Median Elevation</div>
           <div class="infoSub">
@@ -76,67 +76,62 @@
         </v-col>
       </v-row>
 
-      <v-row class="borderBlock">
-        <v-col cols=6>
-          <div class="titleBlock">Mean Annual Discharge</div>
-          <div class="infoBlock">
-            {{ modelOutputs.mad }}
-          </div>
-          <div class="unitBlock">
-            m³/s
-          </div>
-        </v-col>
-        <v-col cols=6>
-          <Dialog v-bind="wmd.meanAnnualDischarge"/>
-          <div class="titleExp">Source</div>
-          <div class="unitExp">
-            {{madSourceDescription}}
-            The CDEM stems from the existing Canadian Digital Elevation Data (CDED). The latter were extracted
-            from the hypsograph
-          </div>
-          <div class="titleExp">Model</div>
-          <div class="unitExp">
-            {{madModelDescription}}
-            We used a model based upon South Coast Stewardship Baseline (Brem, Fraser Valley South, Toba, Upper Lillooet) <a
-            href="https://apps.nrs.gov.bc.ca/gwells/"
-            target="_blank"
-            >Source Paper</a>.
-          </div>
-        </v-col>
-      </v-row>
+      <div class="modelOutputBorder mt-5">
+        <v-row class="borderBlock">
+          <v-col cols=6>
+            <div class="titleBlock">Mean Annual Discharge</div>
+            <div class="infoBlock">
+              {{ modelOutputs.mad }}
+            </div>
+            <div class="unitBlock">
+              m³/s
+            </div>
+          </v-col>
+          <v-col cols=6>
+            <Dialog v-bind="wmd.meanAnnualDischarge"/>
+            <div class="titleExp">Source</div>
+            <div class="unitExp">
+              <div>{{ modelOutputs.sourceDescription }}</div>
+              <div v-if="modelOutputs.sourceLink">
+                <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
 
-      <v-row class="borderSub">
-        <v-col cols=4 class="colSub">
-          <Dialog v-bind="wmd.meanAnnualRunoff"/>
-            <div class="titleSub">Mean Annual Runoff</div>
-          <div class="infoSub">
-            {{ modelOutputs.mar }}
-          </div>
-          <div class="unitSub">
-            l/s/km²
-          </div>
-        </v-col>
-        <v-col cols=4 class="colSub colSubInner">
-          <Dialog v-bind="wmd.low7Q2"/>
-          <div class="titleSub">Low7Q2</div>
-          <div class="infoSub">
-            {{ modelOutputs.low7q2 ? modelOutputs.low7q2 : 'N/A' }}
-          </div>
-          <div class="unitSub">
-            m³
-          </div>
-        </v-col>
-        <v-col cols=4 class="colSub colSubInner">
-          <Dialog v-bind="wmd.dry7Q10"/>
-          <div class="titleSub">Dry7Q10</div>
-          <div class="infoSub">
-            {{ modelOutputs.dry7q10 ? modelOutputs.dry7q10 : 'N/A' }}
-          </div>
-          <div class="unitSub">
-            m³/s
-          </div>
-        </v-col>
-      </v-row>
+        <v-row class="borderSub">
+          <v-col cols=4 class="colSub">
+            <Dialog v-bind="wmd.meanAnnualRunoff"/>
+              <div class="titleSub">Mean Annual Runoff</div>
+            <div class="infoSub">
+              {{ modelOutputs.mar }}
+            </div>
+            <div class="unitSub">
+              l/s/km²
+            </div>
+          </v-col>
+          <v-col cols=4 class="colSub colSubInner">
+            <Dialog v-bind="wmd.low7Q2"/>
+            <div class="titleSub">Low7Q2</div>
+            <div class="infoSub">
+              {{ modelOutputs.low7q2 ? modelOutputs.low7q2 : 'N/A' }}
+            </div>
+            <div class="unitSub">
+              m³
+            </div>
+          </v-col>
+          <v-col cols=4 class="colSubInner">
+            <Dialog v-bind="wmd.dry7Q10"/>
+            <div class="titleSub">Dry7Q10</div>
+            <div class="infoSub">
+              {{ modelOutputs.dry7q10 ? modelOutputs.dry7q10 : 'N/A' }}
+            </div>
+            <div class="unitSub">
+              m³/s
+            </div>
+          </v-col>
+        </v-row>
+      </div>
 
       <v-divider class="my-5"/>
       <Dialog v-bind="wmd.monthlyDischarge"/>
@@ -146,7 +141,7 @@
 
       <v-data-table
         :items="getReverseMontlyDischargeItems"
-        :headers="monthHeaders"
+        :headers="unitColumnHeader.concat(monthHeaders)"
         :hide-default-footer="true"
       />
       <Plotly v-if="monthlyDischargeData"
@@ -235,8 +230,10 @@ export default {
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     secondsInMonth: 86400,
     secondsInYear: 31536000,
+    unitColumnHeader: [
+      { text: 'Unit', value: 'unit' }
+    ],
     monthHeaders: [
-      { text: 'Unit', value: 'unit' },
       { text: 'Jan', value: 'm1', align: 'end' },
       { text: 'Feb', value: 'm2', align: 'end' },
       { text: 'Mar', value: 'm3', align: 'end' },
@@ -262,8 +259,9 @@ export default {
       let props = this.record.properties
       name = props.GNIS_NAME_1 ? props.GNIS_NAME_1
         : props.SOURCE_NAME ? props.SOURCE_NAME
-          : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
-            : props.OBJECTID
+          : props.name ? props.name
+            : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
+              : props.OBJECTID ? props.OBJECTID : ''
 
       return name
     },
@@ -376,6 +374,7 @@ export default {
         let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
         let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
         this.modelOutputs = {
+          sourceDescription: 'Model based on South Coast Stewardship Baseline (Sentlinger, 2016).',
           mar: mar.model_result.toFixed(2),
           mad: mad.model_result.toFixed(2),
           low7q2: low7q2.model_result.toFixed(2),
@@ -417,6 +416,8 @@ export default {
           })
         }
         this.modelOutputs = {
+          sourceDescription: 'Model based on normalized runoff from hydrometric watersheds.',
+          sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries',
           mar: (meanAnnualDischarge * 1000 / this.watershedArea).toFixed(2),
           mad: meanAnnualDischarge.toFixed(2),
           low7q2: null,
@@ -430,7 +431,7 @@ export default {
           solar_exposure: null,
           drainage_area: this.watershedArea.toFixed(2),
           glacial_coverage: null,
-          annual_precipitation: this.annualNormalizedRunoff,
+          annual_precipitation: null,
           evapo_transpiration: null
         }
         this.availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
@@ -495,7 +496,7 @@ export default {
 
 <style>
 .borderBlock {
-  padding: 36px 54px 54px 50px;
+  padding: 18px 27px 27px 25px;
 }
 .titleBlock {
   color: #202124;
@@ -505,7 +506,7 @@ export default {
 .infoBlock {
   color: #1A5A96;
   font-weight: bold;
-  font-size: 56px;
+  font-size: 26px;
 }
 .unitBlock {
   color: #5f6368;
@@ -513,9 +514,11 @@ export default {
   font-size: 16px;
   margin-left: 5px;
 }
-.borderSub {
+.modelOutputBorder {
   border: 1px solid #dadce0;
-  padding: 36px 36px 42px 36px;
+}
+.borderSub {
+  padding: 24px 24px 28px 24px;
 }
 .colSub {
   border-right: 1px solid #dadce0;
@@ -526,16 +529,16 @@ export default {
 .titleSub {
   color: #202124;
   font-weight: bold;
-  font-size: 20px;
+  font-size: 26px;
 }
 .infoSub {
   color: #1A5A96;
   font-weight: bold;
-  font-size: 44px;
+  font-size: 26px;
 }
 .iconSub {
   float: right;
-  font-size: 30px;
+  font-size: 26px;
 }
 .unitSub {
   color: #5f6368;
@@ -544,6 +547,17 @@ export default {
   margin-left: 5px;
   margin-bottom: 20px;
 }
+.inputTitle {
+  color: #202124;
+  font-weight: bold;
+  font-size: 18px;
+}
+.inputValueText {
+  color: #1A5A96;
+  font-weight: bold;
+  font-size: 18px;
+}
+
 .titleExp {
   color: #202124;
   font-weight: 600;

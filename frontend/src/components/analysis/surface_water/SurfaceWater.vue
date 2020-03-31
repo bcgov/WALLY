@@ -41,11 +41,6 @@
           ></v-select>
         </v-col>
       </v-row>
-      <v-row no-gutters class="pa-0 ma-0" v-if="selectedWatershed.startsWith('generated')">
-        <v-col>
-          <v-checkbox v-model="includePOIPolygon" label="Include area around point (estimated catchment areas only)"></v-checkbox>
-        </v-col>
-      </v-row>
 
       <div v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
@@ -97,6 +92,9 @@
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
+            <FishObservations ref="anchor-fish-observations"
+                                   :watershedID="selectedWatershed"
+                                   :record="selectedWatershedRecord"/>
           </div>
         </div>
       </div>
@@ -112,6 +110,7 @@ import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
 import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
+import FishObservations from './FishObservations'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -119,7 +118,8 @@ export default {
     HydrometricStationsContainer,
     WatershedAvailability,
     MeanAnnualRunoff,
-    EditableModelInputs
+    EditableModelInputs,
+    FishObservations
   },
   data: () => ({
     infoTabs: null,
