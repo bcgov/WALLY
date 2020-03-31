@@ -17,25 +17,30 @@
         <template v-slot:default>
           <thead>
           <tr>
-            <th scope="col" class="text-left alloc-value" v-for="field in Object.keys(scsb2016ModelInputs)" :key="field">{{humanReadable(field)}}</th>
-          </tr>
-          <tr>
-            <th scope="col" class="text-left font-weight-light" v-for="field in Object.keys(scsb2016ModelInputs)" :key="field">{{inputUnits[field]}}</th>
+            <th scope="col" class="">Model Input</th>
+            <th scope="col" class="text-left input-value">Value</th>
+            <th scope="col">Units</th>
           </tr>
           </thead>
           <tbody>
-            <tr>
-              <td v-for="(item, i) in Object.keys(scsb2016ModelInputs)" :key="`${i}-${item}`">
-                <v-text-field
-                  dense
-                  filled
-                  hide-details="auto"
-                  color="primary"
-                  :rules="[inputRules.number, inputRules.required]"
-                  v-model.number="scsb2016ModelInputs[item]"
-                >
-                </v-text-field>
-              </td>
+          <tr v-for="(item, i) in Object.keys(scsb2016ModelInputs)" :key="`${i}-${item}`">
+            <th :id="`${item}`">
+              {{humanReadable(item)}}
+            </th>
+            <td>
+              <v-text-field
+                dense
+                filled
+                hide-details="auto"
+                color="primary"
+                :rules="[inputRules.number, inputRules.required]"
+                v-model.number="scsb2016ModelInputs[item]"
+              >
+              </v-text-field>
+            </td>
+            <td>
+              {{inputUnits[item]}}
+            </td>
           </tr>
           </tbody>
         </template>
@@ -66,14 +71,14 @@ export default {
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number'
     },
     inputUnits: {
-      hydrological_zone: "25, 26, 27",
-      median_elevation: "masl",
-      glacial_coverage: "%",
-      annual_precipitation: "mm/yr",
-      evapo_transpiration: "mm/yr",
-      drainage_area: "km^2",
-      solar_exposure: "%",
-      average_slope: "%*100"
+      hydrological_zone: '25, 26, 27',
+      median_elevation: 'masl',
+      glacial_coverage: '%',
+      annual_precipitation: 'mm/yr',
+      evapo_transpiration: 'mm/yr',
+      drainage_area: 'km^2',
+      solar_exposure: '%',
+      average_slope: '%*100'
     }
   }),
   methods: {
@@ -81,10 +86,10 @@ export default {
       this.$emit('close', false)
     },
     inputsAreValid () {
-      var inputs = Object.values(this.scsb2016ModelInputs)
-      var rules = Object.keys(this.inputRules)
-      for(let i = 0; i < inputs.length; i++) {
-        for(let r = 0; r < rules.length; r++) {
+      const inputs = Object.values(this.scsb2016ModelInputs)
+      const rules = Object.keys(this.inputRules)
+      for (let i = 0; i < inputs.length; i++) {
+        for (let r = 0; r < rules.length; r++) {
           if (this.inputRules[rules[r]](inputs[i]) !== true) {
             return false
           }
@@ -129,8 +134,8 @@ export default {
 </script>
 
 <style lang="scss">
-  .alloc-value{
-    width: 70px;
+  .input-value{
+    width: 200px;
   }
   .v-text-field{
     input {
@@ -138,6 +143,11 @@ export default {
     }
   }
   .v-data-table {
+    table{
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
     td {
       padding: 0 2px;
     }
