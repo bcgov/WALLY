@@ -25,8 +25,8 @@ class Stream(BaseModel):
     distance: float
 
     closest_stream_point: Any
-    inverse_distance: float
-    apportionment: float
+    inverse_distance: Optional[float]
+    apportionment: Optional[float]
 
 
 class Streams(BaseModel):

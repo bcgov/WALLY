@@ -78,6 +78,7 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
         nearest_streams."LENGTH_METRE" as length_metre,
         nearest_streams."FEATURE_SOURCE" as feature_source,
         nearest_streams."GNIS_NAME" as gnis_name,
+        nearest_streams."LINEAR_FEATURE_ID" as linear_feature_id,
         nearest_streams."LEFT_RIGHT_TRIBUTARY" as left_right_tributary,
         nearest_streams."GEOMETRY.LEN" as geometry_length,
         ST_AsText(nearest_streams."GEOMETRY") as geometry,
