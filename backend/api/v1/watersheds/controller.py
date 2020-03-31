@@ -1,6 +1,11 @@
 """
 Functions for aggregating data from web requests and database records
 """
+from external.docgen.request_token import get_docgen_token
+from external.docgen.schema import DocGenRequest, DocGenTemplateFile, DocGenOptions
+from api.v1.aggregator.controller import feature_search, databc_feature_search
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 import base64
 import datetime
 import logging
@@ -8,6 +13,7 @@ import requests
 import geojson
 import json
 import math
+from datetime import datetime
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -26,11 +32,11 @@ from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.controller import DATABC_LAYER_IDS, DATABC_GEOMETRY_FIELD
 from api.v1.aggregator.schema import WMSGetFeatureQuery, ExternalAPIRequest
 from api.v1.models.isolines.controller import calculate_runoff_in_area
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
-from api.v1.aggregator.controller import feature_search, databc_feature_search
+<< << << < HEAD
+== == == =
 
-from external.docgen.schema import DocGenRequest, DocGenTemplateFile, DocGenOptions
-from external.docgen.request_token import get_docgen_token
+
+>>>>>> > master
 
 
 logger = logging.getLogger('api')
@@ -694,3 +700,102 @@ def fetch_watershed_data(include_licences=False, include_fish=False):
     # sort into a dict
     # return dict.
     return ""
+
+
+def known_fish_observations(polygon: Polygon):
+    """ returns fish observation data from within a watershed polygon"""
+    fish_observations_layer = 'fish_observations'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    fish_observations = databc_feature_search(
+        fish_observations_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    features_within_search_area = []
+    # observation_count_by_species = {}
+    # life_stages_by_species = {}
+    # observation_date_by_species = {}
+
+    fish_species_data = {}
+
+    for feature in fish_observations.features:
+        feature_shape = shape(feature.geometry)
+
+        # skip observations outside search area
+        if not feature_shape.within(polygon_3005):
+            continue
+
+        # skip point if not a direct observation
+        # summary points are consolidated observations.
+        if feature.properties['POINT_TYPE_CODE'] != 'Observation':
+            continue
+
+        species_name = feature.properties['SPECIES_NAME']
+        life_stage = feature.properties['LIFE_STAGE']
+        observation_date = datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
+            if feature.properties['OBSERVATION_DATE'] is not None else None  # 1997-02-01Z
+
+        if species_name is not None:
+            if not fish_species_data.get(species_name, None):
+                fish_species_data[species_name] = {
+                    'count': 0,
+                    'life_stages': [],
+                    'observation_date_min': None,
+                    'observation_date_max': None
+                }
+
+            # add to observation count for this species
+            fish_species_data[species_name]['count'] += 1
+
+            # add life stage observed uniquely
+            if life_stage is not None:
+                if life_stage not in fish_species_data[species_name]['life_stages']:
+                    fish_species_data[species_name]['life_stages'].append(
+                        life_stage)
+
+            # add oldest and latest observation of species within watershed
+            if observation_date is not None:
+                if fish_species_data[species_name]['observation_date_min'] is None:
+                    fish_species_data[species_name]['observation_date_min'] = observation_date
+                if fish_species_data[species_name]['observation_date_max'] is None:
+                    fish_species_data[species_name]['observation_date_max'] = observation_date
+
+                if observation_date < fish_species_data[species_name]['observation_date_min']:
+                    fish_species_data[species_name]['observation_date_min'] = observation_date
+                if observation_date > fish_species_data[species_name]['observation_date_max']:
+                    fish_species_data[species_name]['observation_date_max'] = observation_date
+
+        features_within_search_area.append(feature)
+
+    # transform multi-dict to flat list
+    fish_species_data_list = []
+    for key, val in fish_species_data.items():
+        fish_species_data_list.append({
+            'species': key,
+            'count': val['count'],
+            'life_stages': parse_fish_life_stages(val['life_stages']),
+            'observation_date_min': val['observation_date_min'],
+            'observation_date_max': val['observation_date_max']
+        })
+
+    return FishObservationsDetails(
+        fish_observations=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in features_within_search_area
+        ]),
+        fish_species_data=fish_species_data_list
+    )
+
+
+# cleans up life state strings such as 'egg,juvenile'
+def parse_fish_life_stages(stages):
+    split_list = [item.split(',') for item in stages]
+    flat_list = [item for sublist in split_list for item in sublist]
+
+    return list(set(flat_list))

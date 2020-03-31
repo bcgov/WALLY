@@ -50,3 +50,12 @@ class SurficialGeologyDetails(BaseModel):
     coverage_area: Optional[float]
     projected_geometry_area: Optional[float]
     projected_geometry_area_simplified: Optional[float]
+
+
+class FishObservationsDetails(BaseModel):
+    """ statistics about fish observations in a given area """
+    fish_observations: FeatureCollection
+    fish_species_data: List
+
+    class Config:
+        arbitrary_types_allowed = True
