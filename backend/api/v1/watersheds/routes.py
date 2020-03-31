@@ -39,7 +39,8 @@ from api.v1.watersheds.controller import (
     calculate_potential_evapotranspiration_thornthwaite,
     calculate_potential_evapotranspiration_hamon,
     get_slope_elevation_aspect,
-    get_hillshade
+    get_hillshade,
+    known_fish_observations
 )
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
@@ -214,4 +215,20 @@ def get_surficial_geology(
     surf_geol_summary = surficial_geology(shape(watershed.geometry))
 
     return surf_geol_summary
+
+
+@router.get('/{watershed_feature}/fish_observations')
+def get_fish_observations(
+    db: Session = Depends(get_db),
+    watershed_feature: str = Path(...,
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
+):
+    """ returns data about fish observations within a watershed by querying DataBC """
+
+    watershed = get_watershed(db, watershed_feature)
+
+    watershed_fish_observations = known_fish_observations(shape(watershed.geometry))
+
+    return watershed_fish_observations
 
