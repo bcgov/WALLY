@@ -42,11 +42,9 @@ from api.v1.watersheds.controller import (
     calculate_potential_evapotranspiration_hamon,
     get_slope_elevation_aspect,
     get_hillshade,
-    << << << < HEAD
-    export_summary_as_xlsx
-    == == == =
-    known_fish_observations
-    >> >>>> > master
+    export_summary_as_xlsx,
+    known_fish_observations,
+    fetch_watershed_data
 )
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
@@ -145,8 +143,10 @@ def watershed_stats(
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
     watershed_poly = shape(watershed.geometry)
-    watershed_area = transform(transform_4326_3005, watershed_poly).area
+    watershed_3005 = transform(transform_4326_3005, watershed_poly)
+    watershed_area = watershed_3005.area
     watershed_rect = watershed_poly.minimum_rotated_rectangle
+    watershed_3005_rect = watershed_3005.minimum_rotated_rectangle
 
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²
@@ -194,6 +194,8 @@ def watershed_stats(
         "scsb2016_output": model_output_as_dict(scsb2016_model),
         "hydrometric_stations": hydrometric_stations
     }
+
+    fetch_watershed_data(watershed_3005_rect)
 
     if format == 'xlsx':
         licence_data = surface_water_rights_licences(watershed_poly)

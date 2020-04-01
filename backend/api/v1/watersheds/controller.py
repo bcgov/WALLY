@@ -1,11 +1,7 @@
 """
 Functions for aggregating data from web requests and database records
 """
-from external.docgen.request_token import get_docgen_token
-from external.docgen.schema import DocGenRequest, DocGenTemplateFile, DocGenOptions
-from api.v1.aggregator.controller import feature_search, databc_feature_search
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
+
 import base64
 import datetime
 import logging
@@ -13,6 +9,7 @@ import requests
 import geojson
 import json
 import math
+from aiohttp import ClientSession, ClientResponse
 from datetime import datetime
 from typing import Tuple
 from urllib.parse import urlencode
@@ -25,19 +22,18 @@ from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
-
 from api import config
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.aggregator.controller import DATABC_LAYER_IDS, DATABC_GEOMETRY_FIELD
+from api.v1.aggregator.controller import DATABC_LAYER_IDS, DATABC_GEOMETRY_FIELD, fetch_geojson_features
 from api.v1.aggregator.schema import WMSGetFeatureQuery, ExternalAPIRequest
 from api.v1.models.isolines.controller import calculate_runoff_in_area
-<< << << < HEAD
-== == == =
+from api.v1.aggregator.controller import feature_search, databc_feature_search
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
 
-
->>>>>> > master
-
+from external.docgen.request_token import get_docgen_token
+from external.docgen.schema import DocGenRequest, DocGenTemplateFile, DocGenOptions
 
 logger = logging.getLogger('api')
 
@@ -71,7 +67,8 @@ def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, f
     return (glacial_area, coverage)
 
 
-def pcic_data_request(
+async def pcic_data_request(
+        session: ClientSession,
         polygon: Polygon,
         output_variable: str = 'pr',
         dataset=None):
@@ -657,19 +654,19 @@ def create_databc_request(layer, area):
             layer, None) or layer,
         cql_filter=f"""
             INTERSECTS({DATABC_GEOMETRY_FIELD.get(layer, 'GEOMETRY')}, {
-                        albers_search_area.wkt})
+                        area.wkt})
         """
     )
     req = ExternalAPIRequest(
         url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",
-        layer=item.display_data_name,
+        layer=layer,
         q=query
     )
 
     return req
 
 
-def fetch_watershed_data(include_licences=False, include_fish=False):
+def fetch_watershed_data(area, include_licences=False, include_fish=False):
     """
     Makes requests to DataBC and PCIC to collect watershed data.
     The default set of data includes glacial coverage, precipitation,
@@ -681,21 +678,28 @@ def fetch_watershed_data(include_licences=False, include_fish=False):
     the data at one time).
     """
 
-    req_list = []
-
     # List of datasets that we need to get from DataBC.
     # Layer names can either be the Wally internal layer name (if available)
     # or the DataBC layer name.
     databc_layers = [
         "freshwater_atlas_glaciers",
-        "WHSE_WATER_MANAGEMENT.HYDZ_HYDROLOGICZONE_SP"  # hydrologic zone
+        "WHSE_WATER_MANAGEMENT.HYDZ_HYDROLOGICZONE_SP",  # hydrologic zone
+        "fish_observations"
     ]
+
+    area = area.minimum_rotated_rectangle
+
+    req_list = [create_databc_request(l, area) for l in databc_layers]
 
     # Pacific Climate Impacts Consortium (PCIC)
 
     # NRS Slope/Elevation/Aspect
 
     # go and make requests concurrently...
+
+    data = fetch_geojson_features(req_list)
+
+    logger.info(data)
 
     # sort into a dict
     # return dict.
