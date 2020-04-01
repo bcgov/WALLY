@@ -120,7 +120,7 @@ export default {
         for (let i = 2; i < paint.color.length - 1; i += 2) {
           console.log(paint.color[i].constructor)
           if (paint.color[i].constructor === Array) {
-            text = paint.color[i][0].join(', ')
+            text = this.replaceLabelCode(paint.color[i].join(', '))
             color = paint.color[i + 1]
             legendItems.push({
               text,

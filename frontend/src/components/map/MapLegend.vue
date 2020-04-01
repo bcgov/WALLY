@@ -36,6 +36,12 @@
     z-index: 3;
   }
 
+  .legendItems {
+    /* Don't cover the other map tools at the top right*/
+    max-height: calc(100vh - 380px);
+    overflow: auto;
+  }
+
   .legend h4 {
     margin: 10px 0 0 0;
     font-weight: normal;
