@@ -2,9 +2,9 @@
   <div>
     <div class="titleBlock">Watershed Details</div>
     <div class="ml-3 unitSub">
-      <div>- {{ modelOutputs.sourceDescription }}</div>
+      <div>{{ modelOutputs.sourceDescription }}</div>
       <div v-if="modelOutputs.sourceLink">
-        <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
+        Source Link: <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
       </div>
     </div>
 
@@ -183,7 +183,6 @@
         :headers="unitColumnHeader.concat(monthHeaders)"
         :hide-default-footer="true"
       />
-
       <Plotly v-if="monthlyDischargeData"
         :layout="monthlyDischargeLayout()"
         :data="monthlyDischargeData"
@@ -415,8 +414,7 @@ export default {
         let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
         let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
         this.modelOutputs = {
-          sourceDescription: 'Model based on South Coast Stewardship Baseline (Sentlinger, 2016).',
-          sourceType: 'scsb',
+          sourceDescription: 'Model output based on South Coast Stewardship Baseline (Sentlinger, 2016).',
           mar: mar.model_result.toFixed(2),
           mad: mad.model_result.toFixed(2),
           low7q2: low7q2.model_result.toFixed(2),
@@ -458,8 +456,7 @@ export default {
           })
         }
         this.modelOutputs = {
-          sourceDescription: 'Model based on normal annual runoff isolines (1961-1990) from DataBC.',
-          sourceType: 'isolines',
+          sourceDescription: 'Model output based on Normal Annual Runoff Isolines (1961-1990) from DataBC.',
           sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical',
           mar: (meanAnnualDischarge * 1000 / this.watershedArea).toFixed(2),
           mad: meanAnnualDischarge.toFixed(2),
