@@ -4,6 +4,8 @@ import base64
 import requests
 import logging
 
+from fastapi import HTTPException
+
 from api import config
 
 from external.docgen.request_token import get_docgen_token
