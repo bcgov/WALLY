@@ -1,5 +1,13 @@
 <template>
   <div>
+    <div class="titleBlock">Watershed Details</div>
+    <div class="ml-3 unitSub">
+      <div>- {{ modelOutputs.sourceDescription }}</div>
+      <div v-if="modelOutputs.sourceLink">
+        <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
+      </div>
+    </div>
+
     <v-btn small v-on:click="downloadWatershedInfo()" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
       <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Watershed Info</span>
     </v-btn>
@@ -15,13 +23,17 @@
       </v-row>
     </div>
     <div v-else-if="watershedDetails">
+      
       <v-row>
         <v-col cols=7>
           <v-row class="borderBlock">
             <v-col>
               <div class="titleBlock">Watershed</div>
-              <div class="infoBlock text-capitalize">
+              <div class="infoBlock text-capitalize" v-if="watershedName">
                 {{watershedName.toLowerCase()}}
+              </div>
+              <div class="unitSub" v-else>
+                {{'No watershed name found'}}
               </div>
             </v-col>
           </v-row>
@@ -32,11 +44,14 @@
             <v-col>
               <Dialog v-bind="wmd.drainageArea"/>
               <div class="titleBlock">Drainage Area</div>
-              <div class="infoBlock">
-                {{ watershedDetails.drainage_area ? watershedDetails.drainage_area : 'N/A' }}
+              <div v-if="watershedDetails.drainage_area">
+                <div class="infoSub">
+                  {{ watershedDetails.drainage_area }}
+                </div>
+                <div class="unitSub">km²</div>
               </div>
-              <div class="unitBlock">
-                km²
+              <div class="unitSub" v-else>
+                {{ noValueText }}
               </div>
             </v-col>
           </v-row>
@@ -47,54 +62,71 @@
         <v-col cols=4 class="colSub">
           <Dialog v-bind="wmd.annualPrecipitation"/>
           <div class="titleSub">Annual Precipitation</div>
-          <div class="infoSub">
-            {{ watershedDetails.annual_precipitation ? watershedDetails.annual_precipitation : 'N/A' }}
+          <div v-if="watershedDetails.annual_precipitation">
+            <div class="infoSub">
+              {{ watershedDetails.annual_precipitation }}
+            </div>
+            <div class="unitSub">mm</div>
           </div>
-          <div class="unitSub">
-            mm
+          <div class="unitSub" v-else>
+            {{ noValueText }}
           </div>
         </v-col>
         <v-col cols=4 class="colSub colSubInner">
           <Dialog v-bind="wmd.glacialCoverage"/>
           <div class="titleSub">Glacial Coverage</div>
-          <div class="infoSub">
-            {{ watershedDetails.glacial_coverage ? watershedDetails.glacial_coverage : 'N/A' }}
+          <div v-if="watershedDetails.glacial_coverage">
+            <div class="infoSub">
+              {{ watershedDetails.glacial_coverage }}
+            </div>
+            <div class="unitSub">%</div>
           </div>
-          <div class="unitSub">
-            %
+          <div class="unitSub" v-else>
+            {{ noValueText }}
           </div>
         </v-col>
         <v-col cols=4 class="colSubInner">
           <Dialog v-bind="wmd.medianElevation"/>
           <div class="titleSub">Median Elevation</div>
-          <div class="infoSub">
-            {{ watershedDetails.median_elevation ? watershedDetails.median_elevation : 'N/A' }}
+          <div v-if="watershedDetails.median_elevation">
+            <div class="infoSub">
+              {{ watershedDetails.median_elevation }}
+            </div>
+            <div class="unitSub">mASL</div>
           </div>
-          <div class="unitSub">
-            mASL
+          <div class="unitSub" v-else>
+            {{ noValueText }}
           </div>
         </v-col>
       </v-row>
 
       <div class="modelOutputBorder mt-5">
         <v-row class="borderBlock">
-          <v-col cols=6>
+          <v-col cols=6 class="colSub">
+            <Dialog v-bind="wmd.meanAnnualDischarge"/>
             <div class="titleBlock">Mean Annual Discharge</div>
-            <div class="infoBlock">
-              {{ modelOutputs.mad }}
+            <div v-if="modelOutputs.mad">
+              <div class="infoBlock">
+                {{ modelOutputs.mad }}
+              </div>
+              <div class="unitBlock">m³/s</div>
             </div>
-            <div class="unitBlock">
-              m³/s
+            <div class="unitSub" v-else>
+              {{ noValueText }}
             </div>
           </v-col>
-          <v-col cols=6>
-            <Dialog v-bind="wmd.meanAnnualDischarge"/>
-            <div class="titleExp">Source</div>
-            <div class="unitExp">
-              <div>{{ modelOutputs.sourceDescription }}</div>
-              <div v-if="modelOutputs.sourceLink">
-                <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
+
+          <v-col cols=6 class="colSubInner">
+            <Dialog v-bind="wmd.totalAnnualQuantity"/>
+            <div class="titleBlock">Total Annual Quantity</div>
+            <div v-if="availability">
+              <div class="infoBlock">
+                {{this.availability.reduce((a, b) => a + b, 0).toLocaleString('en', {maximumFractionDigits: 0})}}
               </div>
+              <div class="unitBlock">m³</div>
+            </div>
+            <div class="unitSub" v-else>
+              {{ noValueText }}
             </div>
           </v-col>
         </v-row>
@@ -102,32 +134,41 @@
         <v-row class="borderSub">
           <v-col cols=4 class="colSub">
             <Dialog v-bind="wmd.meanAnnualRunoff"/>
-              <div class="titleSub">Mean Annual Runoff</div>
-            <div class="infoSub">
-              {{ modelOutputs.mar }}
+            <div class="titleSub">Mean Annual Runoff</div>
+            <div v-if="modelOutputs.mar">
+              <div class="infoSub">
+                {{ modelOutputs.mar }}
+              </div>
+              <div class="unitSub">l/s/km²</div>
             </div>
-            <div class="unitSub">
-              l/s/km²
+            <div class="unitSub" v-else>
+              {{ noValueText }}
             </div>
           </v-col>
           <v-col cols=4 class="colSub colSubInner">
             <Dialog v-bind="wmd.low7Q2"/>
             <div class="titleSub">Low7Q2</div>
-            <div class="infoSub">
-              {{ modelOutputs.low7q2 ? modelOutputs.low7q2 : 'N/A' }}
+            <div v-if="modelOutputs.low7q2">
+              <div class="infoSub">
+                {{ modelOutputs.low7q2 }}
+              </div>
+              <div class="unitSub">m³</div>
             </div>
-            <div class="unitSub">
-              m³
+            <div class="unitSub" v-else>
+              {{ noValueText }}
             </div>
           </v-col>
           <v-col cols=4 class="colSubInner">
             <Dialog v-bind="wmd.dry7Q10"/>
             <div class="titleSub">Dry7Q10</div>
-            <div class="infoSub">
-              {{ modelOutputs.dry7q10 ? modelOutputs.dry7q10 : 'N/A' }}
+            <div v-if="modelOutputs.dry7q10">
+              <div class="infoSub">
+                {{ modelOutputs.dry7q10 }}
+              </div>
+              <div class="unitSub">m³/s</div>
             </div>
-            <div class="unitSub">
-              m³/s
+            <div class="unitSub" v-else>
+              {{ noValueText }}
             </div>
           </v-col>
         </v-row>
@@ -135,15 +176,14 @@
 
       <v-divider class="my-5"/>
       <Dialog v-bind="wmd.monthlyDischarge"/>
-      <div class="titleSub">Watershed Monthly Discharge</div>
-      <div class="unitSub">
-      </div>
+      <div class="titleSub mb-8">Watershed Monthly Discharge</div>
 
       <v-data-table
         :items="getReverseMontlyDischargeItems"
         :headers="unitColumnHeader.concat(monthHeaders)"
         :hide-default-footer="true"
       />
+
       <Plotly v-if="monthlyDischargeData"
         :layout="monthlyDischargeLayout()"
         :data="monthlyDischargeData"
@@ -199,6 +239,7 @@ export default {
     watershedLoading: false,
     error: null,
     availability: [],
+    noValueText: 'No info available',
     watershedDetails: {
       median_elevation: 0,
       average_slope: 0,
@@ -324,7 +365,7 @@ export default {
         volume['m' + (i + 1)] = (mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0)
         percent['m' + (i + 1)] = (mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2)
       }
-      return [rate, volume, percent]
+      return [rate, percent, volume]
     },
     watershedArea () {
       if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
@@ -375,6 +416,7 @@ export default {
         let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
         this.modelOutputs = {
           sourceDescription: 'Model based on South Coast Stewardship Baseline (Sentlinger, 2016).',
+          sourceType: 'scsb',
           mar: mar.model_result.toFixed(2),
           mad: mad.model_result.toFixed(2),
           low7q2: low7q2.model_result.toFixed(2),
@@ -416,8 +458,9 @@ export default {
           })
         }
         this.modelOutputs = {
-          sourceDescription: 'Model based on normalized runoff from hydrometric watersheds.',
-          sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries',
+          sourceDescription: 'Model based on normal annual runoff isolines (1961-1990) from DataBC.',
+          sourceType: 'isolines',
+          sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical',
           mar: (meanAnnualDischarge * 1000 / this.watershedArea).toFixed(2),
           mad: meanAnnualDischarge.toFixed(2),
           low7q2: null,

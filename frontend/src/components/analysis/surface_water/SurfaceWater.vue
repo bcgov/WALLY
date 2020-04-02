@@ -47,7 +47,6 @@
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
-          <div>Watershed Details</div>
           <div>
             <MeanAnnualRunoff ref="anchor-mar"
                               :watershedID="selectedWatershed"
