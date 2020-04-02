@@ -30,9 +30,8 @@ from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, Fi
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 
-from external.docgen.schema import DocGenRequest, DocGenTemplateFile, DocGenOptions
-from external.docgen.request_token import get_docgen_token
-
+from external.docgen.controller import docgen_export_to_xlsx
+from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logger = logging.getLogger('api')
 
@@ -607,43 +606,18 @@ def export_summary_as_xlsx(data: dict):
         using a template in the ./templates directory.
     """
 
-    cur_date = datetime.datetime.now().strftime("%Y%m%d")
-    template_data = open(
-        "./api/v1/watersheds/templates/SurfaceWater.xlsx", "rb").read()
-    base64_encoded = base64.b64encode(template_data).decode("UTF-8")
+    cur_date = datetime.now().strftime("%Y%m%d")
 
     ws_name = data.get("watershed_name", "Surface_Water")
     ws_name.replace(" ", "_")
 
     filename = f"{cur_date}_{ws_name}"
-    token = get_docgen_token()
-    auth_header = f"Bearer {token}"
 
-    body = DocGenRequest(
-        data=data,
-        options=DocGenOptions(
-            reportName=filename,
-        ).dict(),
-        template=DocGenTemplateFile(
-            encodingType="base64",
-            content=base64_encoded,
-            fileType="xlsx"
-        ).dict()
-    )
-
-    logger.info('making POST request to common docgen: %s',
-                config.COMMON_DOCGEN_ENDPOINT)
-
-    try:
-        res = requests.post(config.COMMON_DOCGEN_ENDPOINT, json=body.dict(), headers={
-                            "Authorization": auth_header, "Content-Type": "application/json"})
-        res.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        logger.info(e)
-        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    excel_file = docgen_export_to_xlsx(
+        data, SURFACE_WATER_XLSX_TEMPLATE, filename)
 
     return Response(
-        content=res.content,
+        content=excel_file,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
     )
