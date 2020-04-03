@@ -1,4 +1,4 @@
-"""
+"""South Coast Stewardship Baseline MAR Model controller
 Functions for calculating model data from params and database records
 """
 import logging
@@ -7,10 +7,8 @@ from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from api.v1.aggregator.controller import databc_feature_search
 
-
 logger = logging.getLogger('api')
 
-# South Coast Stewardship Baseline MAR Model controller
 
 def calculate_mean_annual_runoff(db: Session,
                                  hydrological_zone: int,
@@ -21,7 +19,7 @@ def calculate_mean_annual_runoff(db: Session,
                                  drainage_area: Decimal,
                                  solar_exposure: Decimal,
                                  average_slope: Decimal
-):
+                                 ):
     """
     This method pulls the model information for the selected hydrological zone and
     calculates estimated runoff and montly distribution values for the selected watershed area.
@@ -29,9 +27,9 @@ def calculate_mean_annual_runoff(db: Session,
     """
 
     if not hydrological_zone or not median_elevation or glacial_coverage is None \
-        or not annual_precipitation or not evapo_transpiration or not drainage_area \
-          or not solar_exposure or not average_slope:
-        return { "error": "Missing scsb2016 model parameters."}
+            or not annual_precipitation or not evapo_transpiration or not drainage_area \
+            or not solar_exposure or not average_slope:
+        return {"error": "Missing scsb2016 model parameters."}
         # raise HTTPException(
         #     status_code=400, detail="Missing scsb2016 model parameters.")
 
@@ -41,7 +39,7 @@ def calculate_mean_annual_runoff(db: Session,
     """
     models = db.execute(query, {"hydro_zone_id": hydrological_zone})
     if not models:
-        return { "error": "Selection point not within supported hydrological zone."}
+        return {"error": "Selection point not within supported hydrological zone."}
         # raise HTTPException(204, "Selection point not within supported hydrological zone.")
 
     # logger.warning("**** CALCULATED VALUES ****")
@@ -53,19 +51,24 @@ def calculate_mean_annual_runoff(db: Session,
     # logger.warning("ann.prec.: " + str(annual_precipitation) + " mm")
     # logger.warning("models: " + str(models))
 
+    print('getting models')
+    print(models)
+    logger.info(models)
+
     model_outputs = []
     mean_annual_discharge = 0
     # calculate model outputs for gathered inputs,
     # model output types, MAR, MD(x12months), 7Q2, S-7Q10
     for model in models:
-        model_result = model.median_elevation_co * Decimal(median_elevation) + \
-          model.glacial_coverage_co * Decimal(glacial_coverage) + \
-            model.precipitation_co * Decimal(annual_precipitation) + \
-              model.potential_evapo_transpiration_co * Decimal(evapo_transpiration) + \
-                model.drainage_area_co * Decimal(drainage_area) + \
-                  model.solar_exposure_co * Decimal(solar_exposure) + \
-                    model.average_slope_co * Decimal(average_slope) + \
-                      model.intercept_co
+        model_result = Decimal(model.median_elevation_co) * Decimal(median_elevation) + \
+                       Decimal(model.glacial_coverage_co) * Decimal(glacial_coverage) + \
+                       Decimal(model.precipitation_co) * Decimal(annual_precipitation) + \
+                       Decimal(model.potential_evapo_transpiration_co) * Decimal(
+            evapo_transpiration) + \
+                       Decimal(model.drainage_area_co) * Decimal(drainage_area) + \
+                       Decimal(model.solar_exposure_co) * Decimal(solar_exposure) + \
+                       Decimal(model.average_slope_co) * Decimal(average_slope) + \
+                       Decimal(model.intercept_co)
 
         model_outputs.append({
             "output_type": model.model_output_type,
@@ -92,7 +95,7 @@ def calculate_mean_annual_runoff(db: Session,
         return {"error": "No model output calculated."}
         # raise HTTPException(204, "No model output calculated.")
 
-    months = {1:31, 2:28, 3:31, 4:30, 5:31, 6:30, 7:31, 8:31, 9:30, 10:31, 11:30, 12:31}
+    months = {1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31}
 
     # helper to add mad monthly values to result based on Monthly Distributions
     mad_monthlys = []
@@ -101,7 +104,7 @@ def calculate_mean_annual_runoff(db: Session,
             mad_monthlys.append({
                 "output_type": 'MAD',
                 "model_result": mean_annual_discharge * model["model_result"] * \
-                  Decimal(365/months[model["month"]]),
+                                Decimal(365 / months[model["month"]]),
                 "month": model["month"],
                 "r2": 0,
                 "adjusted_r2": 0,
@@ -126,5 +129,3 @@ def get_hydrological_zone(point=None):
         hydrologic_zone_number = None
 
     return hydrologic_zone_number
-
-
