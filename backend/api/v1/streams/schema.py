@@ -25,8 +25,8 @@ class Stream(BaseModel):
     distance: float
 
     closest_stream_point: Any
-    inverse_distance: float
-    apportionment: float
+    inverse_distance: Optional[float]
+    apportionment: Optional[float]
 
 
 class Streams(BaseModel):
@@ -63,14 +63,20 @@ class ApportionmentTemplateFile(BaseModel):
         Document Generator.
     """
 
-    outputFileName: str
-    contentEncodingType: str
+    encodingType: str
     content: str  # base64 encoded
-    contentFileType: str
+    fileType: str
+
+
+class ApportionmentDocGenOptions(BaseModel):
+    """ options for docgen requests """
+    reportName: str
+    overwrite: str = "true"
 
 
 class ApportionmentDocGenRequest(BaseModel):
     """ the request body for making document generator requests """
 
-    contexts: list
+    data: dict
     template: dict
+    options: dict = {}
