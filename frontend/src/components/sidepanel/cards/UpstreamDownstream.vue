@@ -90,14 +90,14 @@ export default {
       if (value && value.geometry) {
         this.buttonClicked = false
         const params = {
-            point: JSON.stringify(value.geometry.coordinates),
-            limit: 1,
-            get_all: true,
-            with_apportionment: false
+          point: JSON.stringify(value.geometry.coordinates),
+          limit: 1,
+          get_all: true,
+          with_apportionment: false
         }
         ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
           let geojson = r.data.streams[0].geojson
-          geojson.display_data_name = "freshwater_atlas_stream_networks"
+          geojson.display_data_name = 'freshwater_atlas_stream_networks'
           // the nearby endpoint returns values in lower snake case, we capatalize them for consistency
           geojson.properties.LINEAR_FEATURE_ID = geojson.properties.linear_feature_id
           geojson.properties.FWA_WATERSHED_CODE = geojson.properties.fwa_watershed_code

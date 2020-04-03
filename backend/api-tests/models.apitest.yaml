@@ -1,0 +1,62 @@
+environment:
+  vars:
+    host: http://localhost:8000
+    auth_token: test
+  headers:
+    Authorization: Bearer {{auth_token}}
+requests:
+  - name: Log in
+    url: "{{auth_url}}"
+    method: post
+    contentType: application/x-www-form-urlencoded
+    body:
+      client_id: "{{auth_id}}"
+      client_secret: "{{auth_secret}}"
+      grant_type: password
+      username: "{{auth_user}}"
+      password: "{{auth_pass}}"
+    expect:
+      status: 200
+    set:
+      - var: auth_token # set the {{auth_token}} here
+        from: access_token
+  - name: Get Isoline Runoff
+    url: "{{host}}/api/v1/isolines/runoff?polygon=[[[-123.02201370854334,50.12217755683673],[-122.9494857102976,50.11744970738056],[-122.96039700206931,50.13985145871305],[-123.02201370854334,50.12217755683673]]]"
+    method: get
+    expect:
+      status: 200
+      values:
+        area:
+          exists: true
+        runoff:
+          exists: true
+        avg_mm:
+          exists: true
+  - name: Watersheds available at point (Stawamus River)
+    url: "{{host}}/api/v1/watersheds/?point=%5B-123.14608370256562%2C49.68977177141528%5D&include_self=false"
+    method: get
+    expect:
+      status: 200
+      type:
+        equals: FeatureCollection
+    set:
+      - var: watershed_id
+        from: "features.[0].id"
+  # An example to test our own model using external api inputs
+  # - name: Watershed Information Test (Stawamus River)
+  #   url: "{{host}}/api/v1/watersheds/{{watershed_id}}"
+  #   method: get
+  #   expect:
+  #     status: 200
+  #     values:
+  #       hydrological_zone: 27
+  #       drainage_area:
+  #         gt: 51
+  #       drainage_area:
+  #         lt: 53
+  #       scsb2016_model.[0].output_type: MAR
+  #       scsb2016_model.[0].model_result:
+  #         gt: 45
+  #       scsb2016_model.[0].model_result:
+  #         lt: 55
+  
