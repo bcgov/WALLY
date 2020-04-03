@@ -674,6 +674,64 @@ def create_databc_request(layer, area):
     return req
 
 
+def create_pcic_request(output_variable='pr', area=None, dataset=None):
+    """ creates an ExternalAPIRequest for the Pacific Climate Impacts Consortium
+        for a given dataset and area.
+        Output variables:
+        - pr: precipitation
+        - tasmin: min daily temperature near surface
+        - tasmax: max daily temperature near surface
+    """
+
+    pcic_url = "https://services.pacificclimate.org/pcex/api/timeseries?"
+
+    if not area:
+        raise ValueError("PCIC request missing area")
+
+    if not dataset:
+        dataset = f"{output_variable}_mClim_BCCAQv2_CanESM2_historical-rcp85_r1i1p1_19810101-20101231_Canada"
+
+    params = {
+        "id_": dataset,
+        "variable": output_variable,
+        "area": area.wkt
+    }
+
+    logger.info('pcic request: %s', pcic_url + urlencode(params))
+
+    req = ExternalAPIRequest(
+        url=pcic_url,
+        layer=f"pcic_{output_variable}",
+        q=params
+    )
+
+    return req
+
+
+def create_sea_request(area):
+    """ creates an ExternalAPIRequest for the NRS Slope Elevation Aspect API """
+
+    sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
+
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Connection': 'keep-alive'
+    }
+
+    exterior = extract_poly_coords(area)["exterior_coords"]
+    coordinates = [[list(elem) for elem in exterior]]
+
+    payload = "format=json&aoi={\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"MultiPolygon\", \"coordinates\":" \
+        + str(coordinates) + \
+        "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
+
+    return ExternalAPIRequest(
+        url=sea_url,
+        layer="sea",
+        q=payload
+    )
+
+
 def fetch_watershed_data(area, include_licences=False, include_fish=False):
     """
     Makes requests to DataBC and PCIC to collect watershed data.
@@ -695,17 +753,28 @@ def fetch_watershed_data(area, include_licences=False, include_fish=False):
         "fish_observations"
     ]
 
-    area = area.minimum_rotated_rectangle
+    approx_area = area.minimum_rotated_rectangle
 
-    req_list = [create_databc_request(l, area) for l in databc_layers]
+    databc_req_list = [create_databc_request(
+        l, approx_area) for l in databc_layers]
 
     # Pacific Climate Impacts Consortium (PCIC)
 
+    pcic_req_list = [
+        create_pcic_request(output_type, approx_area) for output_type in ('pr', 'tasmin', 'tasmax')
+    ]
+
     # NRS Slope/Elevation/Aspect
+
+    sea_req_list = [
+        create_sea_request(approx_area)
+    ]
 
     # go and make requests concurrently...
 
-    data = fetch_geojson_features(req_list)
+    data_requests = databc_req_list + pcic_req_list + sea_req_list
+
+    data = fetch_geojson_features(databc_req_list)
 
     logger.info(data)
 
