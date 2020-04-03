@@ -221,9 +221,9 @@ export default {
         // so we don't need to check for layer type anymore
         const layerName = layer['display_data_name']
         // we use a custom cursor for stream selection so we dont set the cursor for it
-        if (layerName !== 'freshwater_atlas_stream_networks') { 
-            this.map.on('mouseenter', layerName, this.setCursorPointer)
-            this.map.on('mouseleave', layerName, this.resetCursor)
+        if (layerName !== 'freshwater_atlas_stream_networks') {
+          this.map.on('mouseenter', layerName, this.setCursorPointer)
+          this.map.on('mouseleave', layerName, this.resetCursor)
         }
       }
     },
