@@ -47,7 +47,32 @@
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
-          <div>Watershed Details</div>
+          <v-row>
+            <v-col class="text-right">
+              <v-btn outlined v-on:click="downloadWatershedInfo()" color="primary" class="mx-1">
+                <span class="hidden-sm-and-down">
+                  PDF
+                  <v-icon class="ml-1">cloud_download</v-icon>
+                  </span>
+              </v-btn>
+              <v-btn
+                  class="mx-1"
+                  outlined
+                  @click="exportWatershedXLSX"
+                  color="primary"
+                >
+                  Excel
+                  <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                  <v-progress-circular
+                    v-if="spreadsheetLoading"
+                    indeterminate
+                    size=24
+                    class="ml-1"
+                    color="primary"
+                  ></v-progress-circular>
+              </v-btn>
+            </v-col>
+          </v-row>
           <div>
             <MeanAnnualRunoff ref="anchor-mar"
                               :watershedID="selectedWatershed"
@@ -76,6 +101,8 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
@@ -101,7 +128,8 @@ export default {
     geojsonLayersAdded: [],
     includePOIPolygon: false,
     watershedDetails: null,
-    watershedDetailsLoading: false
+    watershedDetailsLoading: false,
+    spreadsheetLoading: false
   }),
   watch: {
     selectedWatershed (v) {
@@ -129,6 +157,69 @@ export default {
     ...mapGetters('map', ['map'])
   },
   methods: {
+    exportWatershedXLSX () {
+      const params = {
+        format: 'xlsx'
+      }
+
+      this.spreadsheetLoading = true
+
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`, params, {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        console.log(res)
+        console.log(res.headers['content-disposition'])
+
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'SurfaceWater.xlsx'
+        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+        this.spreadsheetLoading = false
+      }).catch((error) => {
+        console.error(error)
+        this.spreadsheetLoading = false
+      })
+    },
+    downloadWatershedInfo (plotType) {
+      // var elementHandler = {
+      //   '#ignorePDF': function (element, renderer) {
+      //     return true
+      //   }
+      // }
+      let doc = jsPDF('p', 'in', [230, 900])
+      let width = doc.internal.pageSize.getWidth()
+      let height = doc.internal.pageSize.getHeight()
+      let filename = 'watershed--'.concat(this.watershedName) + '--'.concat(new Date().toISOString()) + '.pdf'
+      // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
+      // doc.save(filename)
+      html2canvas(document.getElementById('watershedInfo')).then(canvas => {
+        let img = canvas.toDataURL('image/png')
+        const imgProps = doc.getImageProperties(img)
+        let size = this.scaleImageToFit(width, height, imgProps.width, imgProps.height)
+        doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
+        doc.save(filename)
+      })
+    },
+    scaleImageToFit (ws, hs, wi, hi) {
+      let ri = wi / hi
+      let rs = ws / hs
+      let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
+      return size
+    },
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')
     },
