@@ -94,7 +94,7 @@ export const WatershedModelDescriptions = {
   totalAnnualQuantity: {
     name: 'Total Annual Quantity',
     description: 'This section shows the total amount of water ouputted by this watershed ' +
-    ' per year in meters cubed m³.',
+    ' per year in cubic metres (m³).',
     url: ''
   }
 }
