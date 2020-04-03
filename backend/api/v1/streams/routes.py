@@ -19,8 +19,8 @@ from api.db.utils import get_db
 from api.v1.streams import controller as streams_controller
 from api.v1.streams import schema as streams_schema
 
-from external.docgen.request_token import get_docgen_token
-from external.docgen.schema import DocGenOptions, DocGenRequest, DocGenTemplateFile
+from external.docgen.controller import docgen_export_to_xlsx
+from external.docgen.templates import STREAM_APPORTIONMENT_EXPORT_TEMPLATE
 logger = getLogger("streams")
 
 router = APIRouter()
@@ -69,38 +69,14 @@ def export_stream_apportionment(
     req.generated = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     cur_date = datetime.datetime.now().strftime("%Y%m%d")
-    template_data = open(
-        "./api/v1/streams/templates/StreamApportionment.xlsx", "rb").read()
-    base64_encoded = base64.b64encode(template_data).decode("UTF-8")
+
     filename = f"{cur_date}_StreamApportionment"
-    token = get_docgen_token()
-    auth_header = f"Bearer {token}"
 
-    body = DocGenRequest(
-        data=req,
-        options=DocGenOptions(
-            reportName=filename
-        ).dict(),
-        template=DocGenTemplateFile(
-            encodingType="base64",
-            content=base64_encoded,
-            fileType="xlsx"
-        ).dict()
-    )
-
-    logger.info('making POST request to common docgen: %s',
-                "https://cdogs-master-idcqvl-dev.pathfinder.gov.bc.ca/api/v2/template/render")
-
-    try:
-        res = requests.post("https://cdogs-master-idcqvl-dev.pathfinder.gov.bc.ca/api/v2/template/render", json=body.dict(), headers={
-                            "Authorization": auth_header, "Content-Type": "application/json"})
-        res.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        logger.info(e)
-        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+    excel_file = docgen_export_to_xlsx(
+        req, STREAM_APPORTIONMENT_EXPORT_TEMPLATE, filename)
 
     return Response(
-        content=res.content,
+        content=excel_file,
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
     )
