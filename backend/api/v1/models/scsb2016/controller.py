@@ -164,7 +164,7 @@ def model_output_as_dict(data: list):
             mar = item
 
         elif output_type == 'MD':
-            month = item.pop('month')
+            month = item.get('month')
             # each month must only have one record in the model output,
             # so assert that this month has not been more than once
             assert monthly_distributions.get(month, None) is None
@@ -173,16 +173,14 @@ def model_output_as_dict(data: list):
 
         elif output_type == '7Q2':
             assert ind_7q2 is None
-            item.pop('month', None)  # month is not needed
             ind_7q2 = item
 
         elif output_type == 'S-7Q10':
             assert ind_s7q10 is None
-            item.pop('month', None)
             ind_s7q10 = item
 
         elif output_type == 'MAD':
-            month = item.pop('month')
+            month = item.get('month')
 
             if month == 0:
                 # month = 0 is the annual result
