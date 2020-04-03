@@ -62,7 +62,7 @@ class WMSGetFeatureQuery(BaseModel):
     service: str = "WFS"
     request: str = "GetFeature"
     count: int = 10000
-    srsName: str = "EPSG:4326"
+    srsName: str = "EPSG:3005"
     version: str = "2.0"
     outputFormat: str = "json"
     typeName: Optional[str]
