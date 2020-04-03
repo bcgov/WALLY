@@ -28,10 +28,11 @@ services:
     depends_on: 
       - db
   db:
-    image: mdillon/postgis:11
+    image: postgis/postgis:11-2.5
     env_file:
       - env-postgres.env
     volumes:
       - ./.tmp/postgis-dev:/var/lib/postgresql/dat
+      - ./scripts/database/dev/init-dev.sql:/docker-entrypoint-initdb.d/99_init-dev.sql
     ports:
       - '5432:5432'

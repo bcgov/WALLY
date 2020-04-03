@@ -7,7 +7,7 @@ FROM registry.hub.docker.com/library/postgres:10
 ARG PGHOME=/home/postgres
 
 ENV POSTGIS_MAJOR 2.5
-ENV POSTGIS_VERSION 2.5.2+dfsg-1~exp1.pgdg90+1
+ENV POSTGIS_VERSION 2.5.4+dfsg-1.pgdg90+1
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01norecommend \
@@ -20,7 +20,6 @@ RUN export DEBIAN_FRONTEND=noninteractive \
       && apt-get install -y --no-install-recommends \
             postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR=$POSTGIS_VERSION \
             postgresql-$PG_MAJOR-postgis-$POSTGIS_MAJOR-scripts=$POSTGIS_VERSION \
-            postgis=$POSTGIS_VERSION \
     ## Make sure we have a en_US.UTF-8 locale available
     && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 \
     && pip3 install setuptools \

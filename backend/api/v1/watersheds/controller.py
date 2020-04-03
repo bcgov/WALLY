@@ -252,6 +252,14 @@ def calculate_watershed(
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
 
+    if not feature:
+        # was not able to calculate a watershed with the provided params.
+        # return None; the calling function will skip this calculated watershed
+        # and return other pre-generated ones.
+        logger.info(
+            "skipping calculated watershed based on watershed feature id %s", watershed_id)
+        return None
+
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
