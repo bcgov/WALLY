@@ -1,8 +1,6 @@
 <template>
   <div>
-    <v-btn small v-on:click="downloadWatershedInfo()" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-      <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Watershed Info</span>
-    </v-btn>
+
   <div id="watershedInfo">
     <div v-if="error">
       <v-row class="borderBlock">
@@ -181,8 +179,7 @@
 import { mapGetters } from 'vuex'
 import { Plotly } from 'vue-plotly'
 import moment from 'moment'
-import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+
 import WatershedDemand from './WatershedDemand'
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
@@ -459,32 +456,6 @@ export default {
           }
         }
       }
-    },
-    downloadWatershedInfo (plotType) {
-      // var elementHandler = {
-      //   '#ignorePDF': function (element, renderer) {
-      //     return true
-      //   }
-      // }
-      let doc = jsPDF('p', 'in', [230, 900])
-      let width = doc.internal.pageSize.getWidth()
-      let height = doc.internal.pageSize.getHeight()
-      let filename = 'watershed--'.concat(this.watershedName) + '--'.concat(new Date().toISOString()) + '.pdf'
-      // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
-      // doc.save(filename)
-      html2canvas(document.getElementById('watershedInfo')).then(canvas => {
-        let img = canvas.toDataURL('image/png')
-        const imgProps = doc.getImageProperties(img)
-        let size = this.scaleImageToFit(width, height, imgProps.width, imgProps.height)
-        doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
-        doc.save(filename)
-      })
-    },
-    scaleImageToFit (ws, hs, wi, hi) {
-      let ri = wi / hi
-      let rs = ws / hs
-      let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
-      return size
     }
   },
   mounted () {
