@@ -45,6 +45,9 @@
               {{ item.qty.toFixed(1) | formatNumber }}
             </template>
           </v-data-table>
+          <v-col class="text-right">
+             <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
+          </v-col>
         </div>
 
         <div class="subtitle-1 my-3 font-weight-bold">Availability vs Licensed Quantity</div>
@@ -116,12 +119,12 @@ export default {
       { text: 'Dec', value: 'm12' }
     ],
     demandAvailabilityData: [],
-    wmd: WatershedModelDescriptions
+    wmd: WatershedModelDescriptions,
+    isLicencesLayerVisible: true
   }),
   computed: {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['allocationValues'])
-
   },
   watch: {
     watershedID () {
@@ -314,6 +317,11 @@ export default {
         line: { color: '#fa1e44' }
       }
       this.demandAvailabilityData = [availabilityData, licencePlotData, mad10, mad20, mad30]
+    },
+    toggleLayerVisibility () {
+      this.isLicencesLayerVisible = !this.isLicencesLayerVisible
+      this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
     }
   },
   mounted () {

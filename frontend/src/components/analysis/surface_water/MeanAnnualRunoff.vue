@@ -24,7 +24,7 @@
       </v-row>
     </div>
     <div v-else-if="watershedDetails">
-      
+
       <v-row>
         <v-col cols=7>
           <v-row class="borderBlock">

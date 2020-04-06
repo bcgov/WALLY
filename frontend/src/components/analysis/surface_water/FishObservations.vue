@@ -22,6 +22,9 @@
               {{ item.qty.toFixed(1) | formatNumber }}
             </template>
           </v-data-table>
+          <v-col class="text-right">
+            <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isFishLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
+          </v-col>
         </div>
       </v-card>
     </div>
@@ -52,7 +55,8 @@ export default {
       { text: 'Life Stages Observed', value: 'life_stages', align: 'center' },
       { text: 'First Observation Date', value: 'observation_date_min', align: 'center' },
       { text: 'Last Observation Date', value: 'observation_date_max', align: 'center' }
-    ]
+    ],
+    isFishLayerVisible: true
   }),
   computed: {
     ...mapGetters('map', ['map'])
@@ -79,7 +83,7 @@ export default {
           console.error(e)
         })
     },
-    addFishObservationsLayer (id = 'fishObservations', data, color = '#B22222', opacity = 0.5) {
+    addFishObservationsLayer (id = 'fishObservations', data, color = '#B22222', opacity = 0) {
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -128,6 +132,11 @@ export default {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
+    },
+    toggleLayerVisibility () {
+      this.isFishLayerVisible = !this.isFishLayerVisible
+      this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
     }
   },
   mounted () {
