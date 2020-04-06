@@ -83,7 +83,7 @@ export default {
           console.error(e)
         })
     },
-    addFishObservationsLayer (id = 'fishObservations', data, color = '#B22222', opacity = 0.5) {
+    addFishObservationsLayer (id = 'fishObservations', data, color = '#B22222', opacity = 0) {
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -134,9 +134,9 @@ export default {
       })
     },
     toggleLayerVisibility () {
-      this.isFishLayerVisible = !this.isFishLayerVisible  
-      this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none');
-      this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none');
+      this.isFishLayerVisible = !this.isFishLayerVisible
+      this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
     }
   },
   mounted () {

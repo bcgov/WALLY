@@ -60,7 +60,7 @@
                 :layout="demandAvailabilityLayout()"
                 :data="demandAvailabilityData"
         ></Plotly>
-        
+
       </v-card>
     </div>
   </div>
@@ -319,9 +319,9 @@ export default {
       this.demandAvailabilityData = [availabilityData, licencePlotData, mad10, mad20, mad30]
     },
     toggleLayerVisibility () {
-      this.isLicencesLayerVisible = !this.isLicencesLayerVisible  
-      this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none');
-      this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none');
+      this.isLicencesLayerVisible = !this.isLicencesLayerVisible
+      this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
     }
   },
   mounted () {
