@@ -63,7 +63,11 @@ def aggregate_sources(
         height: float = Query(500, title="Height",
                               description="Height of area of interest"),
         format: str = Query('geojson', title="Format",
-                            description="Format that results will be returned in (e.g. geojson, xlsx)")
+                            description="Format that results will be returned in (e.g. geojson, xlsx)"),
+        srs: str = Query(
+            "EPSG:3005", title="SRS Name",
+            description="SRS name required in response"
+        ),
 ):
     """
     Generate a list of features from a variety of sources and map layers (specified by `layers`)
@@ -84,7 +88,7 @@ def aggregate_sources(
     # define a search area out of the polygon shape
     search_area = polygon or box(*bbox)
 
-    feature_list = feature_search(db, layers, search_area)
+    feature_list = feature_search(db, layers, search_area, srsName=srs)
 
     # if xlsx format was requested, package the response as xlsx and return the xlsx notebook.
     if format == 'xlsx':
