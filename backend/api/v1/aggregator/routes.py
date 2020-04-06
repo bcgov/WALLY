@@ -88,7 +88,7 @@ def aggregate_sources(
     # define a search area out of the polygon shape
     search_area = polygon or box(*bbox)
 
-    feature_list = feature_search(db, layers, search_area, srs)
+    feature_list = feature_search(db, layers, search_area, srsName=srs)
 
     # if xlsx format was requested, package the response as xlsx and return the xlsx notebook.
     if format == 'xlsx':
