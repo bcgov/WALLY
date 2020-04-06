@@ -35,8 +35,9 @@ export default {
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
       const width = 'width=' + payload.size.x + '&'
-      const height = 'height=' + payload.size.y
-      const params = layers.join('') + polygonQ + width + height
+      const height = 'height=' + payload.size.y + '&'
+      const srs = 'srs=EPSG:4326'
+      const params = layers.join('') + polygonQ + width + height + srs
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
