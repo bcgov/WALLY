@@ -12,7 +12,8 @@ from api import config
 from api.router import api_router
 from api.db.session import Session
 
-wally_api = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
+wally_api = FastAPI(title=config.PROJECT_NAME,
+                    openapi_url="/api/v1/openapi.json")
 
 
 # CORS
@@ -30,6 +31,7 @@ if config.BACKEND_CORS_ORIGINS:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["Content-Disposition"]
     ),
 
 wally_api.add_middleware(GZipMiddleware)

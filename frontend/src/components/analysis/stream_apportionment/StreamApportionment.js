@@ -46,11 +46,18 @@ export default {
       ApiService.post(`/api/v1/streams/apportionment/export`, params, {
         responseType: 'arraybuffer'
       }).then((res) => {
-        console.log(res)
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'StreamApportionment.xlsx'
+        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
         let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         let link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
-        link.download = 'StreamApportionment.xlsx'
+        link.download = filename
         document.body.appendChild(link)
         link.click()
         setTimeout(() => {

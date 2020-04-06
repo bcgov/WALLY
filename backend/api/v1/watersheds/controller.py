@@ -1,6 +1,8 @@
 """
 Functions for aggregating data from web requests and database records
 """
+import base64
+import datetime
 import logging
 import requests
 import geojson
@@ -12,17 +14,24 @@ from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform
+from starlette.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
+
+
+from api import config
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
+
+from external.docgen.controller import docgen_export_to_xlsx
+from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logger = logging.getLogger('api')
 
@@ -199,7 +208,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     record = res.fetchone()
 
     if not record or not record[0]:
-        logger.warn('unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        logger.warn(
+            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
     return Feature(
@@ -208,7 +218,10 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         ),
         id=f"generated.{watershed_feature_id}",
         properties={
-            "name": "Estimated catchment area (Freshwater Atlas)"
+            "name": "Estimated catchment area",
+            "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
+            "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
+            "and LOCAL_WATERSHED_CODE properties."
         }
     )
 
@@ -236,6 +249,14 @@ def calculate_watershed(
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
 
+    if not feature:
+        # was not able to calculate a watershed with the provided params.
+        # return None; the calling function will skip this calculated watershed
+        # and return other pre-generated ones.
+        logger.info(
+            "skipping calculated watershed based on watershed feature id %s", watershed_id)
+        return None
+
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
@@ -255,6 +276,12 @@ def get_databc_watershed(watershed_id: str):
         'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'HYD_WATERSHED_BND_POLY_ID'
     }
 
+    source_urls = {
+        'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY': 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds',
+        'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY': 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-watersheds',
+        'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries'
+    }
+
     cql_filter = f"{id_props[watershed_layer]}={watershed_feature}"
 
     watershed = databc_feature_search(watershed_layer, cql_filter=cql_filter)
@@ -262,7 +289,13 @@ def get_databc_watershed(watershed_id: str):
         raise HTTPException(
             status_code=404, detail=f"Watershed with id {watershed_id} not found")
 
-    return watershed.features[0]
+    ws = watershed.features[0]
+
+    ws.properties['name'] = ws.properties.get(
+        'GNIS_NAME_1', None) or ws.properties.get('SOURCE_NAME', None)
+    ws.properties['watershed_source'] = source_urls.get(watershed_layer, None)
+
+    return ws
 
 
 def surficial_geology(polygon: Polygon):
@@ -363,7 +396,8 @@ def get_watershed(db: Session, watershed_feature: str):
     # feature id.
     else:
         watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(transform_3005_4326, shape(watershed.geometry))
+        watershed_poly = transform(
+            transform_3005_4326, shape(watershed.geometry))
         watershed.geometry = mapping(watershed_poly)
 
     return watershed
@@ -403,7 +437,7 @@ def get_annual_precipitation(poly: Polygon):
 
     months_data = list(response["data"].values())
     months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    month_totals = [a*b for a,b in zip(months_data, months_days)]
+    month_totals = [a*b for a, b in zip(months_data, months_days)]
 
     annual_precipitation = sum(month_totals)
     # logger.warning("annual_precipitation")
@@ -474,8 +508,12 @@ def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data
 
 def get_slope_elevation_aspect(polygon: MultiPolygon):
     """
-    This calls the sea api with a polygon and receives back 
+    This calls the sea api with a polygon and receives back
     slope, elevation and aspect information.
+
+    In case of an error in the external slope/elevation/aspect service,
+    a tuple of (None, None, None) will be returned. Any code making
+    use of this function should interpret None as "not available".
     """
     sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
 
@@ -495,8 +533,12 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
-        raise HTTPException(status_code=error.response.status_code, detail=str(error))
-    
+        logger.warning('External service error (SEA): %s', str(error))
+
+        # calling function expects a tuple of 3 values.
+        # must be able to handle return value of None
+        return (None, None, None)
+
     result = response.json()
     logger.warning("sea result")
     logger.warning(result)
@@ -524,8 +566,12 @@ def get_hillshade(slope: float, aspect: float):
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
-    azimuth = 180.0 # 0-360 we are using values from the scsb2016 paper
-    altitude = 45.0 # 0-90 " "
+
+    if slope is None or aspect is None:
+        return None
+
+    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
+    altitude = 45.0  # 0-90 " "
     azimuth_rad = azimuth * math.pi / 2.
     altitude_rad = altitude * math.pi / 180.
 
@@ -553,6 +599,28 @@ def extract_poly_coords(geom):
         raise ValueError('Unhandled geometry type: ' + repr(geom.type))
     return {'exterior_coords': exterior_coords,
             'interior_coords': interior_coords}
+
+
+def export_summary_as_xlsx(data: dict):
+    """ exports watershed summary data as an excel file
+        using a template in the ./templates directory.
+    """
+
+    cur_date = datetime.now().strftime("%Y%m%d")
+
+    ws_name = data.get("watershed_name", "Surface_Water")
+    ws_name.replace(" ", "_")
+
+    filename = f"{cur_date}_{ws_name}"
+
+    excel_file = docgen_export_to_xlsx(
+        data, SURFACE_WATER_XLSX_TEMPLATE, filename)
+
+    return Response(
+        content=excel_file,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
+    )
 
 
 def known_fish_observations(polygon: Polygon):
@@ -589,7 +657,7 @@ def known_fish_observations(polygon: Polygon):
         species_name = feature.properties['SPECIES_NAME']
         life_stage = feature.properties['LIFE_STAGE']
         observation_date = datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
-            if feature.properties['OBSERVATION_DATE'] is not None else None # 1997-02-01Z
+            if feature.properties['OBSERVATION_DATE'] is not None else None  # 1997-02-01Z
 
         if species_name is not None:
             if not fish_species_data.get(species_name, None):
@@ -606,7 +674,8 @@ def known_fish_observations(polygon: Polygon):
             # add life stage observed uniquely
             if life_stage is not None:
                 if life_stage not in fish_species_data[species_name]['life_stages']:
-                    fish_species_data[species_name]['life_stages'].append(life_stage)
+                    fish_species_data[species_name]['life_stages'].append(
+                        life_stage)
 
             # add oldest and latest observation of species within watershed
             if observation_date is not None:

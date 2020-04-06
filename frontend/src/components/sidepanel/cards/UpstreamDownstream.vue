@@ -19,13 +19,18 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
+    <v-row class="mx-3 mt-4">
+      <v-col cols=12 lg=8>
+        <p>Select a point on a stream to view water data upstream and downstream.</p>
+      </v-col>
+      <v-col class="text-right">
+        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select Point</v-btn>
+      </v-col>
+    </v-row>
     <FeatureStreamBuffer
       :record="selectedStream"
       :coordinates="selectedStream.geometry.coordinates"
       v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
-    <div class="pa-5" v-else>
-      <p>Select a point on a stream to view water data upstream and downstream.</p>
-    </div>
   </v-container>
 </template>
 
@@ -33,6 +38,8 @@
 import { mapGetters, mapActions } from 'vuex'
 
 import FeatureStreamBuffer from '../../features/FeatureStreamBuffers'
+import ApiService from '../../../services/ApiService'
+import qs from 'querystring'
 
 export default {
   name: 'UpstreamDownstream',
@@ -41,42 +48,63 @@ export default {
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,
-    selectedStream: { geometry: null }
+    selectedStream: { geometry: null },
+    buttonClicked: false
   }),
   methods: {
+    selectPoint () {
+      this.setDrawMode('draw_point')
+      this.buttonClicked = true
+    },
     enableStreamsLayer () {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
+    resetSelectedStream () {
+      this.selectedStream = { geometry: null }
+      this.buttonClicked = false
+      this.clearSelections()
+    },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections'])
   },
   computed: {
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    ...mapGetters('map', ['map', 'isMapLayerActive', 'isMapReady']),
+    ...mapGetters(['pointOfInterest'])
   },
   watch: {
     isMapReady (value) {
       if (value) {
-        this.setDrawMode('simple_select')
-
         if (!this.isStreamsLayerEnabled) {
           this.streamsLayerAutomaticallyEnabled = true
           this.enableStreamsLayer()
         }
       }
     },
-    dataMartFeatureInfo (value) {
-      if (value && value.display_data_name === 'freshwater_atlas_stream_networks') {
-        this.selectedStream = value
-      } else {
-        // Reset the dataMartFeatureInfo to the current selected stream
-        this.$store.commit('setDataMartFeatureInfo', this.selectedStream)
+    pointOfInterest (value) {
+      if (value && value.geometry) {
+        this.buttonClicked = false
+        const params = {
+          point: JSON.stringify(value.geometry.coordinates),
+          limit: 1,
+          get_all: true,
+          with_apportionment: false
+        }
+        ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
+          let geojson = r.data.streams[0].geojson
+          geojson.display_data_name = 'freshwater_atlas_stream_networks'
+          // the nearby endpoint returns values in lower snake case, we capatalize them for consistency
+          geojson.properties.LINEAR_FEATURE_ID = geojson.properties.linear_feature_id
+          geojson.properties.FWA_WATERSHED_CODE = geojson.properties.fwa_watershed_code
+          this.selectedStream = r.data.streams[0].geojson
+        }).catch((e) => {
+          console.error(e)
+        })
       }
     }
   },

@@ -176,11 +176,9 @@ export default {
       state.singleSelectionFeatures = payload
     },
     setPointOfInterest: (state, payload) => {
-      console.log('poi set')
       state.pointOfInterest = payload
     },
     resetPointOfInterest: (state) => {
-      console.log('poi reset')
       state.pointOfInterest = { content: { properties: {} } }
     },
     setDataMartFeatureInfo: (state, payload) => {
