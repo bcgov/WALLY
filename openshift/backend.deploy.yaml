@@ -84,6 +84,9 @@ objects:
       metadata:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
+          prometheus.io/scrape: 'true'
+          prometheus.io/port: '8000'
+          prometheus.io/path: '/metrics'
         labels:
             app: wally-${NAME}
             env: ${NAME}

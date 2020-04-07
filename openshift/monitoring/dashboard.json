@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
   "links": [],
   "panels": [
     {
@@ -162,20 +161,55 @@
       }
     },
     {
+      "alert": {
+        "alertRuleTags": {},
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                1
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "A",
+                "1h",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "5m",
+        "frequency": "1m",
+        "handler": 1,
+        "message": "2 errors in the past 1 hour for one route",
+        "name": "API automated monitoring (requests/errors last 60 minutes) alert",
+        "noDataState": "no_data",
+        "notifications": []
+      },
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "description": "Latency of requests proxied by Gatekeeper",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
         "h": 6,
-        "w": 10,
+        "w": 11,
         "x": 13,
         "y": 0
       },
-      "id": 6,
+      "id": 18,
       "legend": {
         "avg": false,
         "current": false,
@@ -201,16 +235,33 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "proxy_request_duration_sec",
-          "legendFormat": "{{kubernetes_pod_name}} [quantile={{quantile}}]",
+          "expr": "sum(increase(apitest_requests_errors_total{path!~\".*no...value.*\"}[60m])) by (name, path)",
+          "intervalFactor": 10,
+          "legendFormat": "[errors] {{ path }}",
           "refId": "A"
+        },
+        {
+          "expr": "sum(increase(apitest_requests_total{path!~\".*no...value.*\"}[60m])) by (name, path)",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "[requests] {{ path }}",
+          "refId": "B"
         }
       ],
-      "thresholds": [],
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 1
+        }
+      ],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Gatekeeper latency",
+      "title": "API automated monitoring (requests/errors last 60 minutes)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -386,89 +437,64 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "fill": 1,
-      "fillGradient": 0,
+      "columns": [
+        {
+          "text": "Current",
+          "value": "current"
+        }
+      ],
+      "fontSize": "100%",
       "gridPos": {
-        "h": 6,
-        "w": 10,
+        "h": 12,
+        "w": 11,
         "x": 13,
         "y": 6
       },
-      "id": 12,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
+      "id": 20,
+      "options": {},
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": null,
+        "desc": false
       },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": "cell",
+          "colors": [
+            "#73BF69",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(245, 54, 54, 0.9)"
+          ],
+          "decimals": 2,
+          "pattern": "Current",
+          "thresholds": [
+            "1",
+            "12"
+          ],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
       "targets": [
         {
-          "expr": "http_request_duration_microseconds*1000",
-          "legendFormat": "{{kubernetes_pod_name}} quantile={{quantile}}",
+          "expr": "sum(increase(apitest_requests_errors_total{path!~\".*no...value.*\"}[60m])) by (name, path)",
           "refId": "A"
         }
       ],
-      "thresholds": [],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
-      "title": "Request duration (ms)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "title": "Errors (last 60 minutes)",
+      "transform": "timeseries_aggregations",
+      "type": "table"
     },
     {
       "gridPos": {
@@ -618,6 +644,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
+      "description": "Latency of requests proxied by Gatekeeper",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
@@ -626,7 +653,7 @@
         "x": 0,
         "y": 18
       },
-      "id": 18,
+      "id": 6,
       "legend": {
         "avg": false,
         "current": false,
@@ -652,25 +679,101 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(increase(apitest_requests_errors_total{path!~\".*no...value.*\"}[60m])) by (name, path)",
-          "intervalFactor": 10,
-          "legendFormat": "[errors] {{ path }}",
+          "expr": "proxy_request_duration_sec",
+          "legendFormat": "{{kubernetes_pod_name}} [quantile={{quantile}}]",
           "refId": "A"
-        },
-        {
-          "expr": "sum(increase(apitest_requests_total{path!~\".*no...value.*\"}[60m])) by (name, path)",
-          "format": "time_series",
-          "instant": false,
-          "intervalFactor": 1,
-          "legendFormat": "[requests] {{ path }}",
-          "refId": "B"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "API automated monitoring (requests/errors last 60 minutes)",
+      "title": "Gatekeeper latency",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 6,
+        "w": 10,
+        "x": 13,
+        "y": 18
+      },
+      "id": 12,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "http_request_duration_microseconds*1000",
+          "legendFormat": "{{kubernetes_pod_name}} quantile={{quantile}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Request duration (ms)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -736,5 +839,5 @@
   "timezone": "",
   "title": "Wally Staging",
   "uid": "R1Uoy9vWz",
-  "version": 30
+  "version": 1
 }
