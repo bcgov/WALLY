@@ -180,7 +180,7 @@ import { mapGetters } from 'vuex'
 import { Plotly } from 'vue-plotly'
 import moment from 'moment'
 
-import WatershedDemand from './WatershedDemand'
+import WatershedDemand from './watershed_demand/WatershedDemand'
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 

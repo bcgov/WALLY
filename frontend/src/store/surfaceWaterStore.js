@@ -38,7 +38,7 @@ export default {
       commit('setWatershedDetails', payload)
       commit('setEditableModelInputs', payload)
     },
-    resetWatershedDetails ({state, commit}) {
+    resetWatershedDetails ({ state, commit }) {
       commit('resetWatershedDetails')
       commit('setEditableModelInputs', state.defaultWatershedDetails)
     }
