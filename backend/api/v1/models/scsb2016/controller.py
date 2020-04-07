@@ -1,4 +1,5 @@
-"""South Coast Stewardship Baseline MAR Model controller
+"""
+South Coast Stewardship Baseline MAR Model controller
 Functions for calculating model data from params and database records
 """
 import logging
@@ -6,7 +7,6 @@ from decimal import Decimal
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from api.v1.aggregator.controller import databc_feature_search
-
 
 logger = logging.getLogger('api')
 
