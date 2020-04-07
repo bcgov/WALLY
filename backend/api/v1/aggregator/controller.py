@@ -267,7 +267,7 @@ def get_layer_feature(db: Session, layer_class, feature_id):
     return layer_class.get_as_feature(q, geom)
 
 
-def feature_search(db: Session, layers, search_area):
+def feature_search(db: Session, layers, search_area, srsName="EPSG:3005"):
     """ finds features in a given search area """
 
     albers_search_area = transform(transform_4326_3005, search_area)
@@ -316,7 +316,8 @@ def feature_search(db: Session, layers, search_area):
                 cql_filter=f"""
                     INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {
                                albers_search_area.wkt})
-                """
+                """,
+                srsName=srsName
             )
             req = ExternalAPIRequest(
                 url=f"https://openmaps.gov.bc.ca/geo/pub/wfs?",

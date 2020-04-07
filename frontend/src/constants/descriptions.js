@@ -90,5 +90,11 @@ export const WatershedModelDescriptions = {
     'and compares the licenced quantity against the calculated availability. Water rights licences are ' +
     'sourced from the DataBC layer "Water Rights Licences - Public" linked below.',
     url: 'https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public'
+  },
+  totalAnnualQuantity: {
+    name: 'Total Annual Quantity',
+    description: 'This section shows the total amount of water ouputted by this watershed ' +
+    ' per year in cubic metres (m³).',
+    url: ''
   }
 }

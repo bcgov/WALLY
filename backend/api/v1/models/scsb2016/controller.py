@@ -1,4 +1,4 @@
-"""
+"""South Coast Stewardship Baseline MAR Model controller
 Functions for calculating model data from params and database records
 """
 import logging
@@ -57,14 +57,14 @@ def calculate_mean_annual_runoff(db: Session,
     # calculate model outputs for gathered inputs,
     # model output types, MAR, MD(x12months), 7Q2, S-7Q10
     for model in models:
-        model_result = model.median_elevation_co * Decimal(median_elevation) + \
-            model.glacial_coverage_co * Decimal(glacial_coverage) + \
-            model.precipitation_co * Decimal(annual_precipitation) + \
-            model.potential_evapo_transpiration_co * Decimal(evapo_transpiration) + \
-            model.drainage_area_co * Decimal(drainage_area) + \
-            model.solar_exposure_co * Decimal(solar_exposure) + \
-            model.average_slope_co * Decimal(average_slope) + \
-            model.intercept_co
+        model_result = Decimal(model.median_elevation_co) * Decimal(median_elevation) + \
+            Decimal(model.glacial_coverage_co) * Decimal(glacial_coverage) + \
+            Decimal(model.precipitation_co) * Decimal(annual_precipitation) + \
+            Decimal(model.potential_evapo_transpiration_co) * Decimal(evapo_transpiration) + \
+            Decimal(model.drainage_area_co) * Decimal(drainage_area) + \
+            Decimal(model.solar_exposure_co) * Decimal(solar_exposure) + \
+            Decimal(model.average_slope_co) * Decimal(average_slope) + \
+            Decimal(model.intercept_co)
 
         model_outputs.append({
             "output_type": model.model_output_type,
@@ -101,8 +101,8 @@ def calculate_mean_annual_runoff(db: Session,
         if model["output_type"] == 'MD':
             mad_monthlys.append({
                 "output_type": 'MAD',
-                "model_result": mean_annual_discharge * model["model_result"] *
-                Decimal(365/months[model["month"]]),
+                "model_result": mean_annual_discharge * model["model_result"] * \
+                                Decimal(365 / months[model["month"]]),
                 "month": model["month"],
                 "r2": 0,
                 "adjusted_r2": 0,
@@ -155,7 +155,7 @@ def model_output_as_dict(data: list):
             mar = item
 
         elif output_type == 'MD':
-            month = item.pop('month')
+            month = item.get('month')
             # each month must only have one record in the model output,
             # so assert that this month has not been more than once
             assert monthly_distributions.get(month, None) is None
@@ -164,16 +164,14 @@ def model_output_as_dict(data: list):
 
         elif output_type == '7Q2':
             assert ind_7q2 is None
-            item.pop('month', None)  # month is not needed
             ind_7q2 = item
 
         elif output_type == 'S-7Q10':
             assert ind_s7q10 is None
-            item.pop('month', None)
             ind_s7q10 = item
 
         elif output_type == 'MAD':
-            month = item.pop('month')
+            month = item.get('month')
 
             if month == 0:
                 # month = 0 is the annual result
