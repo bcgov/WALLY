@@ -52,6 +52,8 @@ objects:
             name: volume-gocfh
           - mountPath: /etc/grafana/provisioning/dashboards/
             name: volume-4nkne
+          - mountPath: /etc/grafana/provisioning/notifiers/
+            name: volume-4lxje 
           - mountPath: /var/lib/grafana/dashboards/
             name: volume-q18fv
         - args:
@@ -138,6 +140,10 @@ objects:
             defaultMode: 420
             name: ${SERVICE_NAME}-dashboards
           name: volume-q18fv
+        - configMap:
+            defaultMode: 420
+            name: ${SERVICE_NAME}-notifiers
+          name: volume-4lxje 
     test: false
     triggers:
     - type: ConfigChange
