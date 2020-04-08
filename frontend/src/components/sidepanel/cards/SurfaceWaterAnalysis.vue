@@ -46,7 +46,8 @@ export default {
   data: () => ({
     licencesLayerAutomaticallyEnabled: false,
     hydatLayerAutomaticallyEnabled: false,
-    applicationsLayerAutomaticallyEnabled: false
+    applicationsLayerAutomaticallyEnabled: false,
+    fishLayerAutomaticallyEnabled: false
   }),
   methods: {
     selectPoint () {
@@ -70,6 +71,12 @@ export default {
     disableHydatLayer () {
       this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
     },
+    enableFishLayer () {
+      this.$store.dispatch('map/addMapLayer', 'fish_observations')
+    },
+    disableFishLayer () {
+      this.$store.dispatch('map/removeMapLayer', 'fish_observations')
+    },
     loadSurfaceWaterAnalysis () {
       if (!this.isHydatLayerEnabled) {
         this.hydatLayerAutomaticallyEnabled = true
@@ -82,6 +89,10 @@ export default {
       if (!this.isLicencesLayerEnabled) {
         this.licencesLayerAutomaticallyEnabled = true
         this.enableLicencesLayer()
+      }
+      if (!this.isFishLayerEnabled) {
+        this.fishLayerAutomaticallyEnabled = true
+        this.enableFishLayer()
       }
       this.loadFeature()
     },
@@ -110,6 +121,9 @@ export default {
     },
     isHydatLayerEnabled () {
       return this.isMapLayerActive('hydrometric_stream_flow')
+    },
+    isFishLayerEnabled () {
+      return this.isMapLayerActive('fish_observations')
     },
     ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
     ...mapGetters(['pointOfInterest'])
@@ -144,6 +158,9 @@ export default {
     }
     if (this.applicationsLayerAutomaticallyEnabled) {
       this.disableApplicationsLayer()
+    }
+    if (this.fishLayerAutomaticallyEnabled) {
+      this.disableFishLayer()
     }
   }
 }
