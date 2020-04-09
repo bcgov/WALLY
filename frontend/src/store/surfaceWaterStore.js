@@ -115,7 +115,7 @@ export default {
         median_elevation: Math.round(payload.median_elevation * 100) / 100,
         glacial_coverage: Math.round(payload.glacial_coverage * 1000) / 1000,
         annual_precipitation: Math.round(payload.annual_precipitation * 100) / 100,
-        evapo_transpiration: Math.round(payload.potential_evapotranspiration_thornthwaite * 100) / 100,
+        evapo_transpiration: Math.round(payload.evapo_transpiration * 100) / 100,
         drainage_area: Math.round(payload.drainage_area * 100) / 100,
         solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
         average_slope: Math.round(payload.average_slope * 100) / 100

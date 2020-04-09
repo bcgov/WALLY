@@ -13,7 +13,11 @@
       <v-card-text>
         <p>The watershed modeling inputs are pulled from various sources described by their info icons. The following inputs allow you to edit these values to allow for expert adjustment and discretion.</p>
       </v-card-text>
+      <v-form
+        ref="form"
+        v-model="valid">
       <v-simple-table>
+
         <template v-slot:default>
           <thead>
           <tr>
@@ -33,7 +37,7 @@
                 filled
                 hide-details="auto"
                 color="primary"
-                :rules="[inputRules.number, inputRules.required]"
+                :rules="[inputRules.number]"
                 v-model.number="scsb2016ModelInputValues[item]"
               >
               </v-text-field>
@@ -45,6 +49,7 @@
           </tbody>
         </template>
       </v-simple-table>
+      </v-form>
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="primary lighten-1" depressed @click="saveValues">Apply</v-btn>
@@ -66,6 +71,7 @@ export default {
   },
   props: [''],
   data: () => ({
+    valid: true,
     inputRules: {
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number'
     },
@@ -79,7 +85,7 @@ export default {
       solar_exposure: '%',
       average_slope: '%*100'
     },
-    scsb2016ModelInputValues: null
+    scsb2016ModelInputValues: {}
   }),
   methods: {
     exit () {
@@ -87,17 +93,19 @@ export default {
       this.populateForm()
     },
     inputsAreValid () {
-      const inputs = Object.values(this.scsb2016ModelInputValues)
-      const rules = Object.keys(this.inputRules)
-      for (let i = 0; i < inputs.length; i++) {
-        for (let r = 0; r < rules.length; r++) {
-          console.log(rules[r], inputs[i], this.inputRules[rules[r]](inputs[i]))
-          if (this.inputRules[rules[r]](inputs[i]) !== true) {
-            return false
-          }
-        }
-      }
-      return true
+      // const inputs = Object.values(this.scsb2016ModelInputValues)
+      // const rules = Object.keys(this.inputRules)
+      // for (let i = 0; i < inputs.length; i++) {
+      //   for (let r = 0; r < rules.length; r++) {
+      //     console.log(rules[r], inputs[i], this.inputRules[rules[r]](inputs[i]))
+      //     if (this.inputRules[rules[r]](inputs[i]) !== true) {
+      //       return false
+      //     }
+      //   }
+      // }
+      // return true
+      // console.log(this.$refs.form.validate())
+      return this.$refs.form.validate()
     },
     reset () {
       this.resetModelInputs()

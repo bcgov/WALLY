@@ -126,11 +126,13 @@ describe('Map Store', () => {
   it('Sets custom inputs flag on when inputs are modified', () => {
     const watershedDetails = {
       drainage_area: 150,
+      potential_evapotranspiration_thornthwaite: 123,
       scsb2016_model: {
       }
     }
     const newInputs = {
-      drainage_area: 200
+      drainage_area: 200,
+      evapo_transpiration: 456
     }
     expect(store.state.customModelInputsActive).toBeFalsy()
     store.actions.initWatershedDetailsAndInputs(store, watershedDetails)
