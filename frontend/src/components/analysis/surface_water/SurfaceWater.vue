@@ -19,7 +19,10 @@
         </v-icon>
       </v-avatar>
 
-      This modelling output has not been peer reviewed and is still considered experimental. Use the values generated with your own discretion.
+      <p>
+        This modelling output has not been peer reviewed and is still considered
+        experimental. Use the values generated with your own discretion.
+      </p>
 
     </v-banner>
     <template v-if="watersheds && watersheds.length">
@@ -47,9 +50,43 @@
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
+          <div>Watershed Details
+             <v-tooltip right v-if="this.scsb2016ModelInputs">
+                <template v-slot:activator="{ on }">
+                  <v-btn v-on="on" x-small fab depressed light
+                         @click="openEditableModelInputsDialog">
+                    <v-icon small color="primary">
+                      mdi-tune
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <span>Customize Model Inputs</span>
+              </v-tooltip>
+          </div>
+
+          <v-alert
+            v-if="customModelInputsActive"
+            class="my-5"
+            outlined
+            type="warning"
+            prominent
+            border="left"
+          >
+            <p>
+              You are using custom model inputs and not the values supplied by the
+              Wally API.
+            </p>
+          </v-alert>
+
+          <v-dialog v-model="show.editingModelInputs" persistent>
+            <EditableModelInputs
+              @close="closeEditableModelInputsDialog"/>
+          </v-dialog>
+
           <v-row>
             <v-col class="text-right">
-              <v-btn outlined v-on:click="downloadWatershedInfo()" color="primary" class="mx-1">
+              <v-btn outlined v-on:click="downloadWatershedInfo()"
+                     color="primary" class="mx-1">
                 <span class="hidden-sm-and-down">
                   PDF
                   <v-icon class="ml-1">cloud_download</v-icon>
@@ -62,7 +99,9 @@
                   color="primary"
                 >
                   Excel
-                  <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                  <v-icon class="ml-1" v-if="!spreadsheetLoading">
+                    cloud_download
+                  </v-icon>
                   <v-progress-circular
                     v-if="spreadsheetLoading"
                     indeterminate
@@ -101,13 +140,14 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
+import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
 
@@ -117,6 +157,7 @@ export default {
     HydrometricStationsContainer,
     WatershedAvailability,
     MeanAnnualRunoff,
+    EditableModelInputs,
     FishObservations
   },
   data: () => ({
@@ -128,9 +169,11 @@ export default {
     watersheds: [],
     geojsonLayersAdded: [],
     includePOIPolygon: false,
-    watershedDetails: null,
     watershedDetailsLoading: false,
-    spreadsheetLoading: false
+    spreadsheetLoading: false,
+    show: {
+      editingModelInputs: false
+    }
   }),
   watch: {
     selectedWatershed (v) {
@@ -150,10 +193,14 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: (w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`).toLowerCase(),
+        label: (w.properties['GNIS_NAME_1'] ||
+          w.properties['SOURCE_NAME'] ||
+          w.properties['name'] ||
+          `Watershed ${i + 1}`).toLowerCase(),
         value: w.id
       }))
     },
+    ...mapGetters('surfaceWater', ['watershedDetails', 'customModelInputsActive', 'scsb2016ModelInputs']),
     ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['map'])
   },
@@ -165,21 +212,24 @@ export default {
 
       this.spreadsheetLoading = true
 
-      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`, params, {
-        responseType: 'arraybuffer'
-      }).then((res) => {
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`,
+        params, {
+          responseType: 'arraybuffer'
+        }).then((res) => {
         console.log(res)
         console.log(res.headers['content-disposition'])
 
         // default filename, and inspect response header Content-Disposition
         // for a more specific filename (if provided).
         let filename = 'SurfaceWater.xlsx'
-        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        const filenameData = res.headers['content-disposition'] &&
+          res.headers['content-disposition'].split('filename=')
         if (filenameData && filenameData.length === 2) {
           filename = filenameData[1]
         }
 
-        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let blob = new Blob([res.data], { type:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         let link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
         link.download = filename
@@ -204,16 +254,19 @@ export default {
       let doc = jsPDF('p', 'in', [230, 900])
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
-      let filename = 'watershed--'.concat(this.watershedName) + '--'.concat(new Date().toISOString()) + '.pdf'
+      let filename = 'watershed--'.concat(this.watershedName) +
+        '--'.concat(new Date().toISOString()) + '.pdf'
       // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
       // doc.save(filename)
-      html2canvas(document.getElementById('watershedInfo')).then(canvas => {
-        let img = canvas.toDataURL('image/png')
-        const imgProps = doc.getImageProperties(img)
-        let size = this.scaleImageToFit(width, height, imgProps.width, imgProps.height)
-        doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
-        doc.save(filename)
-      })
+      html2canvas(document.getElementById('watershedInfo'))
+        .then(canvas => {
+          let img = canvas.toDataURL('image/png')
+          const imgProps = doc.getImageProperties(img)
+          let size = this.scaleImageToFit(width, height, imgProps.width,
+            imgProps.height)
+          doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
+          doc.save(filename)
+        })
     },
     scaleImageToFit (ws, hs, wi, hi) {
       let ri = wi / hi
@@ -233,7 +286,8 @@ export default {
         )
       })
     },
-    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#039be5', opacity = 0.3) {
+    addSingleWatershedLayer (id = 'watershedsAtLocation',
+      data, color = '#039be5', opacity = 0.3) {
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -275,14 +329,16 @@ export default {
     },
     fetchWatershedDetails () {
       this.watershedDetailsLoading = true
-      this.watershedDetails = null
       ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
         .then(r => {
           this.watershedDetailsLoading = false
           if (!r.data) {
             return
           }
-          this.watershedDetails = r.data
+          // Set default watershed details/default model inputs
+          // this.setDefaultScsb2016ModelInputs(r.data)
+          // this.setDefaultWatershedDetails(r.data)
+          this.initWatershedDetailsAndInputs(r.data)
         })
         .catch(e => {
           this.watershedDetailsLoading = false
@@ -304,7 +360,16 @@ export default {
     },
     ...mapMutations('map', [
       'setMode'
-    ])
+    ]),
+    ...mapActions('surfaceWater', [
+      'initWatershedDetailsAndInputs'
+    ]),
+    openEditableModelInputsDialog () {
+      this.show.editingModelInputs = true
+    },
+    closeEditableModelInputsDialog () {
+      this.show.editingModelInputs = false
+    }
   },
   mounted () {
     this.setMode({ type: 'analyze', name: 'surface_water' })

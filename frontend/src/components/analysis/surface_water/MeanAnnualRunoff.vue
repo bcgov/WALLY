@@ -222,7 +222,7 @@ import { mapGetters } from 'vuex'
 import { Plotly } from 'vue-plotly'
 import moment from 'moment'
 
-import WatershedDemand from './WatershedDemand'
+import WatershedDemand from './watershed_demand/WatershedDemand'
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
@@ -465,6 +465,8 @@ export default {
           monthlyDistributions: distributions,
           monthlyDischarges: discharges
         }
+        // TODO: This completely ignores the model inputs provided by the user.
+        //  Verify that this is what we want.
         this.watershedDetails = {
           median_elevation: null,
           average_slope: null,
