@@ -23,7 +23,7 @@
           </tr>
           </thead>
           <tbody>
-          <tr v-for="(item, i) in Object.keys(scsb2016ModelInputs)" :key="`${i}-${item}`">
+          <tr v-for="(item, i) in Object.keys(scsb2016ModelInputValues)" :key="`${i}-${item}`">
             <th :id="`${item}`">
               {{humanReadable(item)}}
             </th>
@@ -34,7 +34,7 @@
                 hide-details="auto"
                 color="primary"
                 :rules="[inputRules.number, inputRules.required]"
-                v-model.number="scsb2016ModelInputs[item]"
+                v-model.number="scsb2016ModelInputValues[item]"
               >
               </v-text-field>
             </td>
@@ -67,7 +67,6 @@ export default {
   props: [''],
   data: () => ({
     inputRules: {
-      required: value => !!value || 'Required',
       number: value => !Number.isNaN(parseFloat(value)) || 'Invalid number'
     },
     inputUnits: {
@@ -79,17 +78,20 @@ export default {
       drainage_area: 'km^2',
       solar_exposure: '%',
       average_slope: '%*100'
-    }
+    },
+    scsb2016ModelInputValues: null
   }),
   methods: {
     exit () {
       this.$emit('close', false)
+      this.populateForm()
     },
     inputsAreValid () {
-      const inputs = Object.values(this.scsb2016ModelInputs)
+      const inputs = Object.values(this.scsb2016ModelInputValues)
       const rules = Object.keys(this.inputRules)
       for (let i = 0; i < inputs.length; i++) {
         for (let r = 0; r < rules.length; r++) {
+          console.log(rules[r], inputs[i], this.inputRules[rules[r]](inputs[i]))
           if (this.inputRules[rules[r]](inputs[i]) !== true) {
             return false
           }
@@ -98,13 +100,19 @@ export default {
       return true
     },
     reset () {
-      this.resetWatershedDetails()
+      this.resetModelInputs()
       this.exit()
     },
     saveValues () {
+      console.log('apply changes')
       if (!this.inputsAreValid()) {
+        console.log('input is wrong')
         return
       }
+      // TODO: save scsb2016ModelInputValues to scsb2016ModelInputs
+      // Recalculate values from the API
+      // Update Watershed Details
+      this.setCustomModelInputs(this.scsb2016ModelInputValues)
       ApiService.query(`/api/v1/scsb2016/?${qs.stringify(this.scsb2016ModelInputs)}`)
         .then(r => {
           if (!r.data) {
@@ -117,18 +125,25 @@ export default {
         })
       this.$emit('close', false)
     },
+    populateForm () {
+      console.log('populating form', this.scsb2016ModelInputs)
+      this.scsb2016ModelInputValues = Object.assign({}, this.scsb2016ModelInputs)
+    },
     ...mapMutations('surfaceWater', [
       'setCustomModelInputs',
       'updateCustomScsb2016ModelData']),
-    ...mapActions('surfaceWater', ['resetWatershedDetails']),
+    ...mapActions('surfaceWater', ['resetModelInputs']),
     humanReadable: (val) => humanReadable(val)
   },
   computed: {
-    ...mapGetters('surfaceWater', ['scsb2016ModelInputs'])
+    ...mapGetters('surfaceWater', [
+      'scsb2016ModelInputs'
+    ])
   },
   mounted () {
     // console.log(Object.keys(this.scsb2016ModelInputs))
     // console.log(Object.values(this.scsb2016ModelInputs))
+    this.populateForm()
   }
 }
 </script>

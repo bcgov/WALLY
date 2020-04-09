@@ -19,7 +19,10 @@
         </v-icon>
       </v-avatar>
 
-      This modelling output has not been peer reviewed and is still considered experimental. Use the values generated with your own discretion.
+      <p>
+        This modelling output has not been peer reviewed and is still considered
+        experimental. Use the values generated with your own discretion.
+      </p>
 
     </v-banner>
     <template v-if="watersheds && watersheds.length">
@@ -48,9 +51,10 @@
         </div>
         <div v-else>
           <div>Watershed Details
-             <v-tooltip right>
+             <v-tooltip right v-if="this.scsb2016ModelInputs">
                 <template v-slot:activator="{ on }">
-                  <v-btn v-on="on" x-small fab depressed light @click="openEditableModelInputsDialog">
+                  <v-btn v-on="on" x-small fab depressed light
+                         @click="openEditableModelInputsDialog">
                     <v-icon small color="primary">
                       mdi-tune
                     </v-icon>
@@ -68,7 +72,10 @@
             prominent
             border="left"
           >
-            You are using custom model inputs and not the values supplied by the Wally API.
+            <p>
+              You are using custom model inputs and not the values supplied by the
+              Wally API.
+            </p>
           </v-alert>
 
           <v-dialog v-model="show.editingModelInputs" persistent>
@@ -78,7 +85,8 @@
 
           <v-row>
             <v-col class="text-right">
-              <v-btn outlined v-on:click="downloadWatershedInfo()" color="primary" class="mx-1">
+              <v-btn outlined v-on:click="downloadWatershedInfo()"
+                     color="primary" class="mx-1">
                 <span class="hidden-sm-and-down">
                   PDF
                   <v-icon class="ml-1">cloud_download</v-icon>
@@ -91,7 +99,9 @@
                   color="primary"
                 >
                   Excel
-                  <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                  <v-icon class="ml-1" v-if="!spreadsheetLoading">
+                    cloud_download
+                  </v-icon>
                   <v-progress-circular
                     v-if="spreadsheetLoading"
                     indeterminate
@@ -159,7 +169,6 @@ export default {
     watersheds: [],
     geojsonLayersAdded: [],
     includePOIPolygon: false,
-    watershedDetails: null,
     watershedDetailsLoading: false,
     spreadsheetLoading: false,
     show: {
@@ -184,11 +193,14 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: (w.properties['GNIS_NAME_1'] || w.properties['SOURCE_NAME'] || w.properties['name'] || `Watershed ${i + 1}`).toLowerCase(),
+        label: (w.properties['GNIS_NAME_1'] ||
+          w.properties['SOURCE_NAME'] ||
+          w.properties['name'] ||
+          `Watershed ${i + 1}`).toLowerCase(),
         value: w.id
       }))
     },
-    ...mapGetters('surfaceWater', ['watershedDetails', 'customModelInputsActive']),
+    ...mapGetters('surfaceWater', ['watershedDetails', 'customModelInputsActive', 'scsb2016ModelInputs']),
     ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['map'])
   },
@@ -200,21 +212,24 @@ export default {
 
       this.spreadsheetLoading = true
 
-      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`, params, {
-        responseType: 'arraybuffer'
-      }).then((res) => {
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`,
+        params, {
+          responseType: 'arraybuffer'
+        }).then((res) => {
         console.log(res)
         console.log(res.headers['content-disposition'])
 
         // default filename, and inspect response header Content-Disposition
         // for a more specific filename (if provided).
         let filename = 'SurfaceWater.xlsx'
-        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        const filenameData = res.headers['content-disposition'] &&
+          res.headers['content-disposition'].split('filename=')
         if (filenameData && filenameData.length === 2) {
           filename = filenameData[1]
         }
 
-        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let blob = new Blob([res.data], { type:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         let link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
         link.download = filename
@@ -239,16 +254,19 @@ export default {
       let doc = jsPDF('p', 'in', [230, 900])
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
-      let filename = 'watershed--'.concat(this.watershedName) + '--'.concat(new Date().toISOString()) + '.pdf'
+      let filename = 'watershed--'.concat(this.watershedName) +
+        '--'.concat(new Date().toISOString()) + '.pdf'
       // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
       // doc.save(filename)
-      html2canvas(document.getElementById('watershedInfo')).then(canvas => {
-        let img = canvas.toDataURL('image/png')
-        const imgProps = doc.getImageProperties(img)
-        let size = this.scaleImageToFit(width, height, imgProps.width, imgProps.height)
-        doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
-        doc.save(filename)
-      })
+      html2canvas(document.getElementById('watershedInfo'))
+        .then(canvas => {
+          let img = canvas.toDataURL('image/png')
+          const imgProps = doc.getImageProperties(img)
+          let size = this.scaleImageToFit(width, height, imgProps.width,
+            imgProps.height)
+          doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
+          doc.save(filename)
+        })
     },
     scaleImageToFit (ws, hs, wi, hi) {
       let ri = wi / hi
@@ -268,7 +286,8 @@ export default {
         )
       })
     },
-    addSingleWatershedLayer (id = 'watershedsAtLocation', data, color = '#039be5', opacity = 0.3) {
+    addSingleWatershedLayer (id = 'watershedsAtLocation',
+      data, color = '#039be5', opacity = 0.3) {
       this.map.addLayer({
         id: id,
         type: 'fill',
@@ -310,14 +329,16 @@ export default {
     },
     fetchWatershedDetails () {
       this.watershedDetailsLoading = true
-      this.updateWatershedDetails(null)
       ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
         .then(r => {
           this.watershedDetailsLoading = false
           if (!r.data) {
             return
           }
-          this.updateWatershedDetails(r.data)
+          // Set default watershed details/default model inputs
+          // this.setDefaultScsb2016ModelInputs(r.data)
+          // this.setDefaultWatershedDetails(r.data)
+          this.initWatershedDetailsAndInputs(r.data)
         })
         .catch(e => {
           this.watershedDetailsLoading = false
@@ -341,7 +362,7 @@ export default {
       'setMode'
     ]),
     ...mapActions('surfaceWater', [
-      'updateWatershedDetails'
+      'initWatershedDetailsAndInputs'
     ]),
     openEditableModelInputsDialog () {
       this.show.editingModelInputs = true

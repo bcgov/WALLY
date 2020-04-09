@@ -465,6 +465,8 @@ export default {
           monthlyDistributions: distributions,
           monthlyDischarges: discharges
         }
+        // TODO: This completely ignores the model inputs provided by the user.
+        //  Verify that this is what we want.
         this.watershedDetails = {
           median_elevation: null,
           average_slope: null,

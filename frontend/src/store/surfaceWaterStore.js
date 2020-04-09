@@ -11,16 +11,8 @@ export default {
     watershedDetails: null,
     defaultWatershedDetails: null,
     customModelInputsActive: false,
-    scsb2016ModelInputs: {
-      hydrological_zone: 25,
-      median_elevation: 1,
-      glacial_coverage: 1,
-      annual_precipitation: 1,
-      evapo_transpiration: 1,
-      drainage_area: 1,
-      solar_exposure: 1,
-      average_slope: 1
-    }
+    defaultScsb2016ModelInputs: null,
+    scsb2016ModelInputs: null
   },
   actions: {
     loadAllocationItemsFromStorage ({ state }) {
@@ -35,12 +27,19 @@ export default {
       }
     },
     updateWatershedDetails ({ state, commit }, payload) {
+      console.log('update watershed details', payload)
       commit('setWatershedDetails', payload)
       commit('setEditableModelInputs', payload)
     },
-    resetWatershedDetails ({ state, commit }) {
+    initWatershedDetailsAndInputs ({ state, commit }, payload) {
+      if (payload && payload.scsb2016_model && !payload.scsb2016_model.error) {
+        commit('setDefaultScsb2016ModelInputs', payload)
+      }
+      commit('setDefaultWatershedDetails', payload)
+    },
+    resetModelInputs ({ state, commit }) {
       commit('resetWatershedDetails')
-      commit('setEditableModelInputs', state.defaultWatershedDetails)
+      commit('setEditableModelInputs', state.defaultScsb2016ModelInputs)
     }
   },
   mutations: {
@@ -59,16 +58,27 @@ export default {
     clearAllAllocationValues (state) {
       state.allocationValues = {}
     },
-    // Watershed detail mutations
+    setDefaultWatershedDetails (state, payload) {
+      state.defaultWatershedDetails = payload
+
+      if (!state.watershedDetails) {
+        state.watershedDetails = state.defaultWatershedDetails
+      }
+    },
     setWatershedDetails (state, payload) {
       state.watershedDetails = payload
-      state.defaultWatershedDetails = payload
     },
     resetWatershedDetails (state) {
       state.watershedDetails = state.defaultWatershedDetails
+      state.customModelInputsActive = false
+    },
+    setCustomModelInputs (state, payload) {
+      state.scsb2016ModelInputs = payload
     },
     updateCustomScsb2016ModelData (state, payload) {
+      // Change Watershed Details depending on modified input data
       let sc = state.scsb2016ModelInputs
+      // TODO: move this to set watershed details
       state.watershedDetails = {
         watershed_area: sc.drainage_area * 1e6,
         drainage_area: sc.drainage_area,
@@ -83,37 +93,40 @@ export default {
       }
       state.customModelInputsActive = true
     },
-    setEditableModelInputs (state, payload) {
-      state.customModelInputsActive = false
-      if (payload === null) {
-        state.scsb2016ModelInputs = {
-          hydrological_zone: 25,
-          median_elevation: 1,
-          glacial_coverage: 1,
-          annual_precipitation: 1,
-          evapo_transpiration: 1,
-          drainage_area: 1,
-          solar_exposure: 1,
-          average_slope: 1
-        }
-      } else {
-        state.scsb2016ModelInputs = {
-          hydrological_zone: payload.hydrological_zone,
-          median_elevation: Math.round(payload.median_elevation * 100) / 100,
-          glacial_coverage: Math.round(payload.glacial_coverage * 1000) / 1000,
-          annual_precipitation: Math.round(payload.annual_precipitation * 100) / 100,
-          evapo_transpiration: Math.round(payload.potential_evapotranspiration_thornthwaite * 100) / 100,
-          drainage_area: Math.round(payload.drainage_area * 100) / 100,
-          solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
-          average_slope: Math.round(payload.average_slope * 100) / 100
-        }
+    setDefaultScsb2016ModelInputs (state, payload) {
+      console.log(state.defaultScsb2016ModelInputs, payload)
+      state.defaultScsb2016ModelInputs = {
+        hydrological_zone: payload.hydrological_zone,
+        median_elevation: Math.round(payload.median_elevation * 100) / 100,
+        glacial_coverage: Math.round(payload.glacial_coverage * 1000) / 1000,
+        annual_precipitation: Math.round(payload.annual_precipitation * 100) / 100,
+        evapo_transpiration: Math.round(payload.potential_evapotranspiration_thornthwaite * 100) / 100,
+        drainage_area: Math.round(payload.drainage_area * 100) / 100,
+        solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
+        average_slope: Math.round(payload.average_slope * 100) / 100
       }
+    },
+    setEditableModelInputs (state, payload) {
+      console.log('model inputs', payload)
+      // state.customModelInputsActive = false
+
+      state.scsb2016ModelInputs = {
+        hydrological_zone: payload.hydrological_zone,
+        median_elevation: Math.round(payload.median_elevation * 100) / 100,
+        glacial_coverage: Math.round(payload.glacial_coverage * 1000) / 1000,
+        annual_precipitation: Math.round(payload.annual_precipitation * 100) / 100,
+        evapo_transpiration: Math.round(payload.potential_evapotranspiration_thornthwaite * 100) / 100,
+        drainage_area: Math.round(payload.drainage_area * 100) / 100,
+        solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
+        average_slope: Math.round(payload.average_slope * 100) / 100
+      }
+      console.log(state.scsb2016ModelInputs.evapo_transpiration)
     }
   },
   getters: {
     allocationValues: state => state.allocationValues,
     watershedDetails: state => state.watershedDetails,
-    scsb2016ModelInputs: state => state.scsb2016ModelInputs,
+    scsb2016ModelInputs: state => state.scsb2016ModelInputs || state.defaultScsb2016ModelInputs,
     customModelInputsActive: state => state.customModelInputsActive
   }
 }
