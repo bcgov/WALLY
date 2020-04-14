@@ -27,7 +27,7 @@ parameters:
 - name: API_VERSION
   displayName: Wally API Version
   description: API Version
-  value: 1
+  value: "1"
 - name: REPLICAS
   value: "1"
 objects:
