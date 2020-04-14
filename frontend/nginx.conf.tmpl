@@ -28,68 +28,6 @@ http {
     keepalive_timeout  65;
     types_hash_max_size 2048;
 
-
-    # Enable Gzip compressed.
-    gzip on;
-
-    # Serve pre-compressed files
-    gzip_static on;
-
-    # Enable compression both for HTTP/1.0 and HTTP/1.1 (required for CloudFront).
-    # gzip_http_version  1.0;
-
-    # Set higher HTTP protocol version fro proxying connections to upstream.
-    proxy_http_version 1.1;
-
-    # Compression level (1-9).
-    # 5 is a perfect compromise between size and cpu usage, offering about
-    # 75% reduction for most ascii files (almost identical to level 9).
-    gzip_comp_level    5;
-
-    # Don't compress anything that's already small and unlikely to shrink much
-    # if at all (the default is 20 bytes, which is bad as that usually leads to
-    # larger files after gzipping).
-    gzip_min_length    256;
-
-    # Compress data even for clients that are connecting to us via proxies,
-    # identified by the "Via" header (required for CloudFront).
-    gzip_proxied       any;
-
-    # Tell proxies to cache both the gzipped and regular version of a resource
-    # whenever the client's Accept-Encoding capabilities header varies;
-    # Avoids the issue where a non-gzip capable client (which is extremely rare
-    # today) would display gibberish if their proxy gave them the gzipped version.
-    gzip_vary          on;
-
-    # This assigns the number and the size of the compression buffers.
-    # The default is gzip_buffers 4 4k;
-    # Increase this value to make sure that big Javascript or
-    # CSS files can be compressed as well.
-    gzip_buffers 16 8k;
-
-    # Compress all output labeled with one of the following MIME-types.
-    gzip_types
-      application/atom+xml
-      application/javascript
-      application/x-javascript
-      text/xml
-      application/xml+rss
-      text/javascript
-      application/json
-      application/rss+xml
-      application/vnd.ms-fontobject
-      application/x-font-ttf
-      application/x-web-app-manifest+json
-      application/xhtml+xml
-      application/xml
-      font/opentype
-      image/svg+xml
-      image/x-icon
-      text/css
-      text/plain
-      text/x-component;
-    # text/html is always compressed by HttpGzipModule
-
     include       /etc/opt/rh/rh-nginx112/nginx/mime.types;
     default_type  application/octet-stream;
 
@@ -106,6 +44,67 @@ http {
 
         # Load configuration files for the default server block.
         include      /opt/app-root/etc/nginx.default.d/*.conf;
+
+        # Enable Gzip compressed.
+        gzip on;
+
+        # Serve pre-compressed files
+        # gzip_static on;
+
+        # Enable compression both for HTTP/1.0 and HTTP/1.1 (required for CloudFront).
+        # gzip_http_version  1.0;
+
+        # Set higher HTTP protocol version fro proxying connections to upstream.
+        proxy_http_version 1.1;
+
+        # Compression level (1-9).
+        # 5 is a perfect compromise between size and cpu usage, offering about
+        # 75% reduction for most ascii files (almost identical to level 9).
+        gzip_comp_level    5;
+
+        # Don't compress anything that's already small and unlikely to shrink much
+        # if at all (the default is 20 bytes, which is bad as that usually leads to
+        # larger files after gzipping).
+        gzip_min_length    256;
+
+        # Compress data even for clients that are connecting to us via proxies,
+        # identified by the "Via" header (required for CloudFront).
+        gzip_proxied       any;
+
+        # Tell proxies to cache both the gzipped and regular version of a resource
+        # whenever the client's Accept-Encoding capabilities header varies;
+        # Avoids the issue where a non-gzip capable client (which is extremely rare
+        # today) would display gibberish if their proxy gave them the gzipped version.
+        gzip_vary          on;
+
+        # This assigns the number and the size of the compression buffers.
+        # The default is gzip_buffers 4 4k;
+        # Increase this value to make sure that big Javascript or
+        # CSS files can be compressed as well.
+        gzip_buffers 16 8k;
+
+        # Compress all output labeled with one of the following MIME-types.
+        gzip_types
+          application/atom+xml
+          application/javascript
+          application/x-javascript
+          text/xml
+          application/xml+rss
+          text/javascript
+          application/json
+          application/rss+xml
+          application/vnd.ms-fontobject
+          application/x-font-ttf
+          application/x-web-app-manifest+json
+          application/xhtml+xml
+          application/xml
+          font/opentype
+          image/svg+xml
+          image/x-icon
+          text/css
+          text/plain
+          text/x-component;
+        # text/html is always compressed by HttpGzipModule
 
         location /api {
             proxy_pass http://${WALLY_BACKEND_SERVICE}:8000;
