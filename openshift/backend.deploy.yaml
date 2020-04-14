@@ -24,6 +24,10 @@ parameters:
   displayName: Wally Application Version
   description: Version
   value: 1.0.0
+- name: WALLY_BUILD
+  displayName: Wally Build Info
+  description: Build Info
+  value: "YYYY-MM-DD-HH:MM:SS-ID"
 - name: API_VERSION
   displayName: Wally API Version
   description: API Version
@@ -154,6 +158,8 @@ objects:
             value: "${ENVIRONMENT}"
           - name: WALLY_VERSION
             value: "${WALLY_VERSION}"
+          - name: WALLY_BUILD
+            value: "${WALLY_BUILD}"
           - name: API_VERSION
             value: "${API_VERSION}"
           image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
