@@ -20,6 +20,18 @@ parameters:
   description: The environment that these template objects will run in (e.g. dev, test, prod)
   value: TEST
   required: true
+- name: WALLY_VERSION
+  displayName: Wally Application Version
+  description: Version
+  value: 1.0.0
+- name: WALLY_BUILD
+  displayName: Wally Build Info
+  description: Build Info
+  value: "YYYY-MM-DD-HH:MM:SS-ID"
+- name: API_VERSION
+  displayName: Wally API Version
+  description: API Version
+  value: "1"
 - name: REPLICAS
   value: "1"
 objects:
@@ -144,6 +156,12 @@ objects:
             value: wally-psql-master-${NAME}
           - name: WALLY_ENV
             value: "${ENVIRONMENT}"
+          - name: WALLY_VERSION
+            value: "${WALLY_VERSION}"
+          - name: WALLY_BUILD
+            value: "${WALLY_BUILD}"
+          - name: API_VERSION
+            value: "${API_VERSION}"
           image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api
