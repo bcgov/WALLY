@@ -9,7 +9,7 @@
 # e.g.:
 # raster/prism_tasmin.asc raster/prism_tasmin.prj
 
-set -e
+set -euo pipefail
 cd /dataload
 
 dataset="$1"
