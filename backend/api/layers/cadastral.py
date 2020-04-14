@@ -1,8 +1,9 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, Float
+from sqlalchemy import Integer, String, Column, DateTime, Float, BigInteger, Text
 from api.db.base_class import BaseLayerTable
 from geoalchemy2 import Geometry
-from sqlalchemy.dialects.postgresql import BYTEA
+from sqlalchemy.dialects.postgresql import BYTEA, UUID
+import uuid
 
 
 class Cadastral(BaseLayerTable):
@@ -58,3 +59,23 @@ class Cadastral(BaseLayerTable):
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='SE_ANNO_CAD_DATA is a binary column used by spatial tools to store '
                                              'annotation, curve features and CAD data when using the SDO_GEOMETRY '
                                              'storage data type.')
+
+
+class Parcel(BaseLayerTable):
+    __tablename__ = "parcel"
+
+    geom = Column(Geometry('MULTIPOLYGON', 4326))
+    PARCEL_FABRIC_POLY_ID = Column(BigInteger, unique=True, primary_key=True)
+    PIN = Column(BigInteger)
+    PID = Column(Text)
+    PID_NUMBER = Column(BigInteger)
+    PARCEL_NAME = Column(Text)
+    PLAN_NUMBER = Column(BigInteger)
+
+
+class Publisher(BaseLayerTable):
+    __tablename__ = "publisher"
+
+    publisher_guid = Column(UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4())
+    name = Column(String, index=True, nullable=False)
+    description = Column(String)

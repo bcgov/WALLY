@@ -141,12 +141,12 @@ export default {
     },
     isMapReady (value) {
       if (value) {
+        this.clearSelections()
         this.loadSurfaceWaterAnalysis()
       }
     }
   },
   mounted () {
-    this.clearSelections()
     this.loadSurfaceWaterAnalysis()
   },
   beforeDestroy () {
