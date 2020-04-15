@@ -15,10 +15,14 @@ import './filters'
 
 Vue.config.productionTip = false
 
+const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
+
 const auth = new AuthService()
 Vue.prototype.$auth = auth
 
-if (process.env.VUE_APP_ENV === 'production') {
+if (process.env.VUE_APP_ENV === 'production' &&
+    window.location.hostname === WALLY_HOSTNAME
+) {
   Sentry.init({
     dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
     integrations: [new Integrations.Vue({ Vue,
