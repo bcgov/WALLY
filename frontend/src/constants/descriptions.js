@@ -7,34 +7,21 @@ export const WatershedModelDescriptions = {
   annualPrecipitation: {
     name: 'Annual Precipitation',
     description: 'Total annual rainfall over the selected watershed area measured in millimeters (mm). ' +
-    'This is received from the Pacific Climate organization precipitation api ' +
-    '(https://services.pacificclimate.org/pcex/api/timeseries)',
-    url: 'https://pacificclimate.org/'
+    'Source:  Pacific Climate Impacts Consortium, University of Victoria, and PRISM Climate Group, Oregon State University, ' +
+    '(Jan. 2014). High Resolution Climatology. ' +
+    'https://www.pacificclimate.org/data/prism-climatology-and-monthly-timeseries-portal',
+    url: 'https://www.pacificclimate.org/data/prism-climatology-and-monthly-timeseries-portal'
   },
   glacialCoverage: {
     name: 'Glacial Coverage',
-    description: 'Percentage glacial coverage over the selected watershed area. This is calculated ' +
-    'by taking the selected watershed polygon and performing an intersect against the DataBC layer ' +
-    'Freshwater Atlas Glaciers.',
+    description: 'Percentage glacial coverage over the selected watershed area, ' +
+    'using data from Freshwater Atlas Glaciers.',
     url: 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-glaciers'
   },
   medianElevation: {
-    name: 'Median Elevation',
-    description: 'Median elevation is ideal but the dataset we have access to currently only supports mean ' +
-    'elevation over the watershed area. The data is sourced from ' +
-    'https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json which is an api that returns a ' +
-    'SlopeElevationAspectResult containing the following variables: ' +
-    'slope: The slope of the best fit plane based on elevation points found within or around the input geometry. ' +
-    'A slope may be returned as NULL in the case where there was insufficient data available to ' +
-    'calculate the value. Slope is returned as a percentage from 0 to 100 (100% = straight up, 50% ' +
-    '= 45 degree slope). minElevation: The minimum elevation of a point found within or around the input geometry. ' +
-    'maxElevation: The maximum elevation of a point found within or around the input geometry. ' +
-    'averageElevation: The minimum elevation of a point found within or around the input geometry. ' +
-    'aspect: Aspect is a measure of the orientation or exposure of an area by means of compass points ' +
-    '(e.g. 180 degrees - south). Permitted values 0 – 359. An aspect may be returned as NULL in the case ' +
-    'where there was insufficient data available to calculate the value. confidenceIndicator: A value ' +
-    'based on the accumulated error between the plane and each of the DEM points. The lower the value the ' +
-    'better where 0 represents a perfect fit. The larger the feature the higher probability of a low confidence value.',
+    name: 'Mean elevation',
+    description: 'Mean elevation for the watershed area from the FLNRORD Slope Elevation Aspect service ' +
+    'http://apps.gov.bc.ca/gov/sea/index.html (accessible from internal Province of British Columbia networks)',
     url: 'http://apps.gov.bc.ca/gov/sea/index.html'
   },
   meanAnnualDischarge: {
@@ -93,7 +80,7 @@ export const WatershedModelDescriptions = {
   },
   totalAnnualQuantity: {
     name: 'Total Annual Quantity',
-    description: 'This section shows the total amount of water ouputted by this watershed ' +
+    description: 'This section shows the total amount of water drained by this watershed ' +
     ' per year in cubic metres (m³).',
     url: ''
   }

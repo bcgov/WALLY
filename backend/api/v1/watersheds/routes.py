@@ -45,6 +45,7 @@ from api.v1.watersheds.controller import (
     export_summary_as_xlsx,
     known_fish_observations
 )
+from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
     WatershedDetails,
@@ -150,7 +151,7 @@ def watershed_stats(
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
     temperature_data = get_temperature(watershed_poly)
-    annual_precipitation = get_annual_precipitation(watershed_poly)
+    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
     potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
         watershed_poly, temperature_data)
     potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
