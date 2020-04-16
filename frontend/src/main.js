@@ -5,7 +5,8 @@ import vuetify from './plugins/vuetify'
 import App from './App'
 import router from './router'
 import store from './store'
-
+import * as Sentry from '@sentry/browser'
+import * as Integrations from '@sentry/integrations'
 import { AuthService } from './services/AuthService.js'
 import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
@@ -14,15 +15,21 @@ import './filters'
 
 Vue.config.productionTip = false
 
+const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
+
 const auth = new AuthService()
 Vue.prototype.$auth = auth
 
-// Sentry.init({
-//   dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
-//   integrations: process.env.VUE_APP_ENV === 'production' ? [new Integrations.Vue({ Vue,
-//     attachProps: true,
-//     logErrors: true })] : []
-// })
+if (process.env.VUE_APP_ENV === 'production' &&
+    window.location.hostname === WALLY_HOSTNAME
+) {
+  Sentry.init({
+    dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
+    integrations: [new Integrations.Vue({ Vue,
+      attachProps: true,
+      logErrors: true })]
+  })
+}
 
 auth.init({
   onLoad: 'check-sso',
