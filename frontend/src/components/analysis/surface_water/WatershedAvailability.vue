@@ -39,8 +39,10 @@
 </template>
 
 <script>
-import { Plotly } from 'vue-plotly'
-
+// import { Plotly } from 'vue-plotly'
+const Plotly = () => import('vue-plotly').then(module => {
+  return module.Plotly
+})
 const months = [
   '2020-01-01',
   '2020-02-01',

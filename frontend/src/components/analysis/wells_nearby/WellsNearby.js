@@ -3,7 +3,11 @@ import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
-import { Plotly } from 'vue-plotly'
+// import { Plotly } from 'vue-plotly'
+
+const Plotly = () => import('vue-plotly').then(module => {
+  return module.Plotly
+})
 
 export default {
   name: 'WellsNearby',
