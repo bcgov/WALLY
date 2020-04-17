@@ -37,7 +37,6 @@ export default {
       commit('setEditableModelInputs', state.defaultScsb2016ModelInputs)
     },
     updateWatershedDetails ({ state, commit }, payload) {
-      // console.log('updating watershed details', payload)
       commit('setWatershedDetails', payload)
       commit('setEditableModelInputs', payload)
     }
@@ -71,6 +70,11 @@ export default {
       state.watershedDetails = state.defaultWatershedDetails
       state.customModelInputsActive = false
     },
+    clearWatershedDetailsAndDefaults (state) {
+      state.watershedDetails = null
+      state.defaultWatershedDetails = null
+      state.customModelInputsActive = false
+    },
     setCustomModelInputs (state, payload) {
       state.scsb2016ModelInputs = payload
     },
@@ -93,7 +97,6 @@ export default {
       state.customModelInputsActive = true
     },
     setDefaultScsb2016ModelInputs (state, payload) {
-      // console.log(state.defaultScsb2016ModelInputs, payload)
       state.defaultScsb2016ModelInputs = {
         hydrological_zone: payload.hydrological_zone,
         median_elevation: Math.round(payload.median_elevation * 100) / 100,
@@ -106,7 +109,6 @@ export default {
       }
     },
     setEditableModelInputs (state, payload) {
-      // console.log('model inputs', payload)
       // state.customModelInputsActive = false
       state.scsb2016ModelInputs = {
         hydrological_zone: payload.hydrological_zone,
