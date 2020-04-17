@@ -26,11 +26,6 @@ export default {
           values: state.defaultAllocValues })
       }
     },
-    updateWatershedDetails ({ state, commit }, payload) {
-      console.log('update watershed details', payload)
-      commit('setWatershedDetails', payload)
-      commit('setEditableModelInputs', payload)
-    },
     initWatershedDetailsAndInputs ({ state, commit }, payload) {
       if (payload && payload.scsb2016_model && !payload.scsb2016_model.error) {
         commit('setDefaultScsb2016ModelInputs', payload)
@@ -40,6 +35,11 @@ export default {
     resetModelInputs ({ state, commit }) {
       commit('resetWatershedDetails')
       commit('setEditableModelInputs', state.defaultScsb2016ModelInputs)
+    },
+    updateWatershedDetails ({ state, commit }, payload) {
+      // console.log('updating watershed details', payload)
+      commit('setWatershedDetails', payload)
+      commit('setEditableModelInputs', payload)
     }
   },
   mutations: {
@@ -60,8 +60,7 @@ export default {
     },
     setDefaultWatershedDetails (state, payload) {
       state.defaultWatershedDetails = payload
-
-      if (!state.watershedDetails) {
+      if (state.watershedDetails == null) {
         state.watershedDetails = state.defaultWatershedDetails
       }
     },
@@ -94,7 +93,7 @@ export default {
       state.customModelInputsActive = true
     },
     setDefaultScsb2016ModelInputs (state, payload) {
-      console.log(state.defaultScsb2016ModelInputs, payload)
+      // console.log(state.defaultScsb2016ModelInputs, payload)
       state.defaultScsb2016ModelInputs = {
         hydrological_zone: payload.hydrological_zone,
         median_elevation: Math.round(payload.median_elevation * 100) / 100,
@@ -107,9 +106,8 @@ export default {
       }
     },
     setEditableModelInputs (state, payload) {
-      console.log('model inputs', payload)
+      // console.log('model inputs', payload)
       // state.customModelInputsActive = false
-
       state.scsb2016ModelInputs = {
         hydrological_zone: payload.hydrological_zone,
         median_elevation: Math.round(payload.median_elevation * 100) / 100,
@@ -120,7 +118,6 @@ export default {
         solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
         average_slope: Math.round(payload.average_slope * 100) / 100
       }
-      console.log(state.scsb2016ModelInputs.evapo_transpiration)
     }
   },
   getters: {
