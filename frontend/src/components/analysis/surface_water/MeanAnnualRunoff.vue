@@ -219,12 +219,15 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { Plotly } from 'vue-plotly'
 import moment from 'moment'
 
 import WatershedDemand from './watershed_demand/WatershedDemand'
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
+
+const Plotly = () => import('vue-plotly').then(module => {
+  return module.Plotly
+})
 
 export default {
   name: 'MeanAnnualRunoff',

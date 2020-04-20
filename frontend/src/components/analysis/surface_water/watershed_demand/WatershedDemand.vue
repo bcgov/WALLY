@@ -70,13 +70,15 @@
 import { mapGetters, mapActions } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
-import { Plotly } from 'vue-plotly'
+
 import Dialog from '../../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
-
+const Plotly = () => import('vue-plotly').then(module => {
+  return module.Plotly
+})
 const popup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false

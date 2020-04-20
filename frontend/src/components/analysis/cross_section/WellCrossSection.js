@@ -1,12 +1,17 @@
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
-import { Plotly } from 'vue-plotly'
-import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
 import { mapGetters, mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
+
+const Plotly = () => import('vue-plotly').then(module => {
+  return module.Plotly
+})
+const PlotlyJS = () => import('plotly.js').then(module => {
+  return module
+})
 
 export default {
   name: 'WellsCrossSection',
