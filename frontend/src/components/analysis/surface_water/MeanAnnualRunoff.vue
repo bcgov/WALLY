@@ -219,7 +219,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-// import { Plotly } from 'vue-plotly'
 import moment from 'moment'
 
 import WatershedDemand from './watershed_demand/WatershedDemand'

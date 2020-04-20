@@ -39,7 +39,6 @@
 </template>
 
 <script>
-// import { Plotly } from 'vue-plotly'
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })

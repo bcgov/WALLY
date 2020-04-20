@@ -37,7 +37,6 @@
 import ApiService from '../../services/ApiService'
 import EventBus from '../../services/EventBus'
 import { SHORT_MONTHS } from '../../constants/dates'
-// import { Plotly } from 'vue-plotly'
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })

@@ -70,7 +70,6 @@
 import { mapGetters, mapActions } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
-// import { Plotly } from 'vue-plotly'
 
 import Dialog from '../../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../../constants/descriptions'

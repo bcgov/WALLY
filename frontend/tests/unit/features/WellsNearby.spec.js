@@ -94,9 +94,6 @@ describe('Wells Nearby', () => {
   })
 
   it('Shows all three charts when there\'s data', async () => {
-    // const wrapper = mount(WellsNearby, {
-    //   Plotly: Component
-    // })
     let well = {
       aquifer: null,
       aquifer_hydraulically_connected: null,
@@ -117,7 +114,8 @@ describe('Wells Nearby', () => {
       well_yield_unit: 'USGPM'
     }
     wrapper.setData({ wells: [well], loading: false })
-    // await wrapper.vm.$nextTick()
+    // await wrapper.vm.$nextTick() doesn't work since we need to wait a few
+    // secs for the module to be loaded
     setTimeout(() => {
       expect(wrapper.find('#wells_charts').findAll('.chart').length).toEqual(3)
     })
