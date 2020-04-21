@@ -1,6 +1,6 @@
 <template>
-  <v-dialog id="welcome-message" v-model="show.welcome_message" persistent max-width="1000">
-    <v-card raised>
+  <v-dialog v-model="show.welcome_message" persistent max-width="1000">
+    <v-card id="welcome-message" raised>
       <v-card-title class="headline">
         <span class="text-uppercase display-1">
           Water Allocation (WALLY)
@@ -16,7 +16,7 @@
       </v-card-title>
       <v-card-text class="mt-4">
         <p>
-          Welcome to WALLY! This tool is intended to assist B.C. Government water allocation staff efficiently and effectively gather and analyze data and information in order to support robust and defensible water resource decisions. This tool is not designed to fetter or replace the decisions made by a statutory decision-maker.
+          Welcome to WALLY! This tool is intended to assist B.C. Government water allocation staff efficiently and effectively gather and analyze data and information in order to support robust and defensible water resource decisions. This tool is not designed to fetter the discretion or replace the decisions made by a statutory decision-maker.
         </p>
         <strong>
           Limitations
