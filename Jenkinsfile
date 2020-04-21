@@ -184,6 +184,10 @@ pipeline {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
+          // Get full describe info including # of commits & last commit hash
+          def git_tag = sh(returnStdout: true,
+            script: 'git describe'
+          ).trim()
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -231,7 +235,8 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "REPLICAS=1",
-                  "ENVIRONMENT=DEV"
+                  "ENVIRONMENT=DEV",
+                  "WALLY_VERSION=${git_tag}",
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
@@ -373,6 +378,11 @@ pipeline {
       }
       steps {
         script {
+          // Get full describe info including # of commits & last commit hash
+          def git_tag = sh (
+              returnStdout: true,
+              script: 'git describe'
+            ).trim()
           def project = TEST_PROJECT
           def env_name = "staging"
           def host = "wally-staging.pathfinder.gov.bc.ca"
@@ -426,6 +436,8 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
+                  "WALLY_VERSION=${git_tag}",
+                  "API_VERSION=${API_VERSION}"
                   "REPLICAS=2"
                 ))
 
@@ -461,8 +473,14 @@ pipeline {
     }
     stage('Deploy to production') {
       when {
-          expression { env.JOB_BASE_NAME == 'master' }
+        allOf {
+         tag "v*";
+         expression { env.JOB_BASE_NAME == 'master' }
+        }
       }
+//       when {
+//           expression { env.JOB_BASE_NAME == 'master' }
+//       }
       steps {
         script {
 
@@ -521,6 +539,8 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
+                  "WALLY_VERSION=${git_tag}",
+                  "API_VERSION=${API_VERSION}"
                   "REPLICAS=2"
                 ))
 
