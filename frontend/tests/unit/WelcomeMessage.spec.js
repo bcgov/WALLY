@@ -20,7 +20,6 @@ describe('Welcome Message', () => {
   })
 
   it('Displays Welcome Message', () => {
-    // console.log(wrapper.text())
     expect(wrapper.text()).toMatch('Welcome to WALLY')
   })
 
