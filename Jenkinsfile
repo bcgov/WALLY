@@ -437,7 +437,7 @@ pipeline {
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
                   "WALLY_VERSION=${git_tag}",
-                  "API_VERSION=${API_VERSION}"
+                  "API_VERSION=${API_VERSION}",
                   "REPLICAS=2"
                 ))
 
