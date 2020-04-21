@@ -186,7 +186,7 @@ pipeline {
           def ref = "pull/${CHANGE_ID}/head"
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true,
-            script: 'git describe'
+            script: 'git fetch --tags && git describe'
           ).trim()
           openshift.withCluster() {
             openshift.withProject(project) {
@@ -381,7 +381,7 @@ pipeline {
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh (
               returnStdout: true,
-              script: 'git describe'
+              script: 'git fetch --tags && git describe'
             ).trim()
           def project = TEST_PROJECT
           def env_name = "staging"
@@ -486,6 +486,10 @@ pipeline {
 
           input "Deploy to production?"
 
+          def git_tag = sh (
+            returnStdout: true,
+            script: 'git fetch --tags && git describe --abbrev=0'
+          ).trim()
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
