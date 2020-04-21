@@ -3,10 +3,6 @@
     <Overlay/>
     <Map :style="{ width: '100vw' }"/>
     <WelcomeMessage></WelcomeMessage>
-<!--    <v-dialog v-model="show.welcome_message" persistent max-width="1000">-->
-<!--      <WelcomeMessage-->
-<!--        @close="show.welcome_message = false"></WelcomeMessage>-->
-<!--    </v-dialog>-->
   </div>
 </template>
 
