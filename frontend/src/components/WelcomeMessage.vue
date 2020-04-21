@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="show.welcome_message" persistent max-width="1000">
-  <v-card id="allocationTable" raised>
+  <v-card id="welcomeMessage" raised>
     <v-card-title class="headline">
       <span class="text-uppercase display-1">
         Water Allocation (WALLY)
@@ -75,9 +75,11 @@
   </v-dialog>
 </template>
 <style lang="scss">
-  .headline{
-    background-color: #036;
-    color: white;
+  #welcomeMessage{
+    .headline{
+      background-color: #036;
+      color: white;
+    }
   }
 </style>
 <script>
