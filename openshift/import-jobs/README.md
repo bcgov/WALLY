@@ -69,6 +69,7 @@ Visit http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/ for the download l
 | freshwater_atlas_glaciers                | freshwater_atlas_glaciers | `oc process -f tippecanoe.job.yaml -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
 | normal_annual_runoff_isolines            | normal_annual_runoff_isolines | `oc process -f tippecanoe.job.yaml -p JOB_NAME=isolines -p LAYER_NAME=normal_annual_runoff_isolines | oc apply -f -`
 | fish_observations                        | fish_observations | `oc process -f tippecanoe.job.yaml -p JOB_NAME=fishobservations -p LAYER_NAME=fish_observations | oc apply -f -`
+| water_approval_points                    | water_approval_points | `oc process -f tippecanoe.job.yaml -p JOB_NAME=waterapprovalpoints -p LAYER_NAME=water_approval_points | oc apply -f -`
 
 ## Freshwater Atlas
 
@@ -111,7 +112,7 @@ tippecanoe -l freshwater_atlas_stream_networks  -j '
 Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbtiles` files that are associated with that source ID and upload them all together using tile-join.
 | iit-water.first-nations                   | fn_community_locations, fn_treaty_areas, fn_treaty_lands | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=first-nations -p LAYER_NAME=iit-water.first-nations | oc apply -f -`
 | iit-water.0tsq064k                   | aquifers, bc_major_watersheds, critical_habitat_species_at_risk, freshwater_atlas_glaciers, hydrologic_zone_boundaries, normal_annual_runoff_isolines | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=0tsq064k -p LAYER_NAME=iit-water.0tsq064k | oc apply -f -`
-| iit-water.448thhpa                   | water_rights_licences, fish_observations | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=448thhpa -p LAYER_NAME=iit-water.448thhpa | oc apply -f -`
+| iit-water.448thhpa                   | water_rights_licences, fish_observations, water_approval_points | `oc process -f mapbox-upload.job.yaml -p JOB_NAME=448thhpa -p LAYER_NAME=iit-water.448thhpa | oc apply -f -`
 
 # Importing into the Wally database
 
