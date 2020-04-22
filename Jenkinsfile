@@ -204,6 +204,8 @@ pipeline {
 //                 script: 'git fetch --tags && git describe'
 //             ).trim()
 //           }
+          def git_tag = sh(returnStdout: true, script: 'git describe').trim()
+
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -275,7 +277,7 @@ pipeline {
                   "NAMESPACE=${project}",
                   "REPLICAS=1",
                   "ENVIRONMENT=DEV",
-//                   "WALLY_VERSION=${git_tag}",
+                  "WALLY_VERSION=${git_tag}",
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
@@ -418,6 +420,8 @@ pipeline {
       steps {
         script {
           // Get full describe info including # of commits & last commit hash
+          def git_tag = sh(returnStdout: true, script: 'git describe').trim()
+
 //           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
 //                                                                     usernameVariable: 'GIT_USER',
 //                                                                     passwordVariable: 'GIT_TOKEN')]){
@@ -478,7 +482,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
-//                   "WALLY_VERSION=${git_tag}",
+                  "WALLY_VERSION=${git_tag}",
                   "API_VERSION=${API_VERSION}",
                   "REPLICAS=2"
                 ))
@@ -535,6 +539,7 @@ pipeline {
 //                           script: 'git fetch --tags && git describe --abbrev=0'
 //                       ).trim()
 //                     }
+          def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
@@ -588,7 +593,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
-//                   "WALLY_VERSION=${git_tag}",
+                  "WALLY_VERSION=${git_tag}",
                   "API_VERSION=${API_VERSION}",
                   "REPLICAS=2"
                 ))
