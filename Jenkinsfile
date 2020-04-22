@@ -185,9 +185,13 @@ pipeline {
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
           // Get full describe info including # of commits & last commit hash
-          def git_tag = sh(returnStdout: true,
-            script: 'git fetch --tags && git describe'
-          ).trim()
+          def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+                                                          usernameVariable: 'GIT_USER',
+                                                          passwordVariable: 'GIT_TOKEN')]){
+            sh(returnStdout: true,
+                script: 'git fetch --tags && git describe'
+            ).trim()
+          }
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
