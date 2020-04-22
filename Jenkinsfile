@@ -222,9 +222,9 @@ pipeline {
                                                script: 'git status'
                                            ).trim()
                                          }
-                echo $git_status
+                echo git_status
                 def git_status2 = sh(returnStdout: true, script: 'git status').trim()
-                echo $git_status2
+                echo git_status2
 //                 def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
 //                                                                   usernameVariable: 'GIT_USER',
 //                                                                   passwordVariable: 'GIT_TOKEN')]){
