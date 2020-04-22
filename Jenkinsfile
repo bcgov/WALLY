@@ -198,7 +198,7 @@ pipeline {
 //             sh(returnStdout: true,
 //                 script: 'git fetch --tags && git describe'
 //             ).trim()
-          }
+//           }
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -223,6 +223,7 @@ pipeline {
                     sh(returnStdout: true,
                         script: 'git fetch --tags && git describe'
                     ).trim()
+                }
 
                 echo $git_tag
                 echo $git_status
