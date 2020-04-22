@@ -361,6 +361,9 @@ export default {
     ...mapMutations('map', [
       'setMode'
     ]),
+    ...mapMutations('surfaceWater', [
+      'clearWatershedDetailsAndDefaults'
+    ]),
     ...mapActions('surfaceWater', [
       'initWatershedDetailsAndInputs'
     ]),
@@ -377,6 +380,7 @@ export default {
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()
+    this.clearWatershedDetailsAndDefaults()
     this.setMode({ type: 'interactive', name: '' })
   }
 }
