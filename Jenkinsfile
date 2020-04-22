@@ -225,6 +225,7 @@ pipeline {
                 echo git_status
                 def git_status2 = sh(returnStdout: true, script: 'git status').trim()
                 echo git_status2
+                def git_tag = sh(returnStdout: true, script: 'git fetch --tags && git describe').trim()
 //                 def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
 //                                                                   usernameVariable: 'GIT_USER',
 //                                                                   passwordVariable: 'GIT_TOKEN')]){
@@ -233,7 +234,7 @@ pipeline {
 //                     ).trim()
 //                 }
 
-//                 echo $git_tag
+                echo git_tag
 
 
                 // apply database service account.
@@ -274,7 +275,7 @@ pipeline {
                   "NAMESPACE=${project}",
                   "REPLICAS=1",
                   "ENVIRONMENT=DEV",
-                  "WALLY_VERSION=${git_tag}",
+//                   "WALLY_VERSION=${git_tag}",
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
