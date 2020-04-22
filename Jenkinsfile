@@ -101,7 +101,9 @@ pipeline {
   }
   stages {
     stage('Git') {
+      steps {
         git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+      }
     }
     stage('Build') {
       steps {
