@@ -184,13 +184,20 @@ pipeline {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
-          // Get full describe info including # of commits & last commit hash
-          def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-                                                          usernameVariable: 'GIT_USER',
-                                                          passwordVariable: 'GIT_TOKEN')]){
-            sh(returnStdout: true,
-                script: 'git fetch --tags && git describe'
-            ).trim()
+//           // Get full describe info including # of commits & last commit hash
+//           def status = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+//                                                                                  usernameVariable: 'GIT_USER',
+//                                                                                  passwordVariable: 'GIT_TOKEN')]){
+//                                    sh(returnStdout: true,
+//                                        script: 'git status'
+//                                    ).trim()
+//                                  }
+//           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+//                                                           usernameVariable: 'GIT_USER',
+//                                                           passwordVariable: 'GIT_TOKEN')]){
+//             sh(returnStdout: true,
+//                 script: 'git fetch --tags && git describe'
+//             ).trim()
           }
           openshift.withCluster() {
             openshift.withProject(project) {
@@ -201,6 +208,24 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('dev', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
+
+                // Get full describe info including # of commits & last commit hash
+                def git_status = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+                                                                                         usernameVariable: 'GIT_USER',
+                                                                                         passwordVariable: 'GIT_TOKEN')]){
+                                           sh(returnStdout: true,
+                                               script: 'git status'
+                                           ).trim()
+                                         }
+                def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+                                                                  usernameVariable: 'GIT_USER',
+                                                                  passwordVariable: 'GIT_TOKEN')]){
+                    sh(returnStdout: true,
+                        script: 'git fetch --tags && git describe'
+                    ).trim()
+
+                echo $git_tag
+                echo $git_status
 
                 // apply database service account.
                 // this is a pre-requisite for the database statefulset.
@@ -383,13 +408,13 @@ pipeline {
       steps {
         script {
           // Get full describe info including # of commits & last commit hash
-          def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-                                                                    usernameVariable: 'GIT_USER',
-                                                                    passwordVariable: 'GIT_TOKEN')]){
-                      sh(returnStdout: true,
-                          script: 'git fetch --tags && git describe'
-                      ).trim()
-                    }
+//           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+//                                                                     usernameVariable: 'GIT_USER',
+//                                                                     passwordVariable: 'GIT_TOKEN')]){
+//                       sh(returnStdout: true,
+//                           script: 'git fetch --tags && git describe'
+//                       ).trim()
+//                     }
           def project = TEST_PROJECT
           def env_name = "staging"
           def host = "wally-staging.pathfinder.gov.bc.ca"
@@ -443,7 +468,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
-                  "WALLY_VERSION=${git_tag}",
+//                   "WALLY_VERSION=${git_tag}",
                   "API_VERSION=${API_VERSION}",
                   "REPLICAS=2"
                 ))
@@ -493,13 +518,13 @@ pipeline {
 
           input "Deploy to production?"
 
-          def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-                                                                    usernameVariable: 'GIT_USER',
-                                                                    passwordVariable: 'GIT_TOKEN')]){
-                      sh(returnStdout: true,
-                          script: 'git fetch --tags && git describe --abbrev=0'
-                      ).trim()
-                    }
+//           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+//                                                                     usernameVariable: 'GIT_USER',
+//                                                                     passwordVariable: 'GIT_TOKEN')]){
+//                       sh(returnStdout: true,
+//                           script: 'git fetch --tags && git describe --abbrev=0'
+//                       ).trim()
+//                     }
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
@@ -553,7 +578,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
-                  "WALLY_VERSION=${git_tag}",
+//                   "WALLY_VERSION=${git_tag}",
                   "API_VERSION=${API_VERSION}",
                   "REPLICAS=2"
                 ))
