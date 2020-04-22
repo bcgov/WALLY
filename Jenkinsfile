@@ -383,10 +383,13 @@ pipeline {
       steps {
         script {
           // Get full describe info including # of commits & last commit hash
-          def git_tag = sh (
-              returnStdout: true,
-              script: 'git fetch --tags && git describe'
-            ).trim()
+          def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+                                                                    usernameVariable: 'GIT_USER',
+                                                                    passwordVariable: 'GIT_TOKEN')]){
+                      sh(returnStdout: true,
+                          script: 'git fetch --tags && git describe'
+                      ).trim()
+                    }
           def project = TEST_PROJECT
           def env_name = "staging"
           def host = "wally-staging.pathfinder.gov.bc.ca"
@@ -490,10 +493,13 @@ pipeline {
 
           input "Deploy to production?"
 
-          def git_tag = sh (
-            returnStdout: true,
-            script: 'git fetch --tags && git describe --abbrev=0'
-          ).trim()
+          def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+                                                                    usernameVariable: 'GIT_USER',
+                                                                    passwordVariable: 'GIT_TOKEN')]){
+                      sh(returnStdout: true,
+                          script: 'git fetch --tags && git describe --abbrev=0'
+                      ).trim()
+                    }
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
