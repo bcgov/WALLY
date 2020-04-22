@@ -100,6 +100,9 @@ pipeline {
     PROD_PROJECT = "bfpeyx-prod"
   }
   stages {
+    stage('Git') {
+        git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+    }
     stage('Build') {
       steps {
         script {
@@ -217,16 +220,19 @@ pipeline {
                                                script: 'git status'
                                            ).trim()
                                          }
-                def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-                                                                  usernameVariable: 'GIT_USER',
-                                                                  passwordVariable: 'GIT_TOKEN')]){
-                    sh(returnStdout: true,
-                        script: 'git fetch --tags && git describe'
-                    ).trim()
-                }
-
-                echo $git_tag
                 echo $git_status
+                def git_status2 = sh(returnStdout: true, script: 'git status').trim()
+                echo $git_status2
+//                 def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
+//                                                                   usernameVariable: 'GIT_USER',
+//                                                                   passwordVariable: 'GIT_TOKEN')]){
+//                     sh(returnStdout: true,
+//                         script: 'git fetch --tags && git describe'
+//                     ).trim()
+//                 }
+
+//                 echo $git_tag
+
 
                 // apply database service account.
                 // this is a pre-requisite for the database statefulset.
