@@ -64,7 +64,11 @@
       </v-footer>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn id="dont-show-again" color="primary" @click="hideByDefault">Don't show this again</v-btn>
+        <v-checkbox
+          v-model="dont_show_again"
+          :label="`Don't show this again`"
+        ></v-checkbox>
+        <v-btn id="accept" color="primary" @click="exit" class="ml-5">Accept</v-btn>
       </v-card-actions>
     </v-card>
 
@@ -85,6 +89,7 @@ export default {
     show: {
       welcome_message: (JSON.parse(localStorage.getItem('show_welcome_message')) == null) ? true : JSON.parse(localStorage.getItem('show_welcome_message'))
     },
+    dont_show_again: false,
     links: [
       {
         text: 'Copyright',
@@ -106,12 +111,14 @@ export default {
   }),
   methods: {
     exit () {
+      if (this.dont_show_again) {
+        this.hideByDefault()
+      }
       this.$emit('close', false)
       this.show.welcome_message = false
     },
     hideByDefault () {
       localStorage.setItem('show_welcome_message', JSON.stringify(false))
-      this.show.welcome_message = false
     }
   }
 }

@@ -30,8 +30,12 @@ describe('Welcome Message', () => {
   })
 
   it('Hides welcome message on "Dont show again"', () => {
-    expect(wrapper.vm.show.welcome_message).toBeTruthy()
-    wrapper.vm.hideByDefault()
-    expect(wrapper.vm.show.welcome_message).toBeFalsy()
+    // Mock function
+    const mockHide = jest.fn()
+    wrapper.vm.hideByDefault = mockHide
+
+    wrapper.vm.dont_show_again = true
+    wrapper.vm.exit()
+    expect(mockHide).toHaveBeenCalled()
   })
 })
