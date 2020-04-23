@@ -169,6 +169,11 @@ export default {
           return 'Surface Water'
         case 'PG, PWD':
           return 'Groundwater'
+        // Water Approval Points
+        case 'Current':
+          return 'Active Approvals'
+        case 'Refuse/Abandoned, Cancelled':
+          return 'Non-Active Approvals'
         default:
           return code
       }
