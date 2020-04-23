@@ -16,7 +16,8 @@ const PlotlyJS = () => import('plotly.js').then(module => {
 export default {
   name: 'WellsCrossSection',
   components: {
-    Plotly
+    Plotly,
+    PlotlyJS
   },
   mounted () {
     this.$store.commit('map/setMode',
