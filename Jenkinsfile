@@ -526,8 +526,10 @@ pipeline {
         }
       }
       steps {
-        def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
-        echo "Automatically deployed! ${git_tag}"
+        script{
+          def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
+          echo "Automatically deployed! ${git_tag}"
+        }
       }
     }
     stage('Deploy to production') {
