@@ -2,6 +2,7 @@
   <div class="home d-flex">
     <Overlay/>
     <Map :style="{ width: '100vw' }"/>
+    <WelcomeMessage></WelcomeMessage>
   </div>
 </template>
 
@@ -9,12 +10,14 @@
 import { mapGetters } from 'vuex'
 import Map from '../components/map/Map.vue'
 import Overlay from '../components/common/Overlay'
+import WelcomeMessage from './WelcomeMessage'
 
 export default {
   name: 'Home',
   components: {
     Overlay,
-    Map
+    Map,
+    WelcomeMessage
   },
   data: () => ({
     sidebarColumnDefaults: {
