@@ -5,19 +5,21 @@ import { mapGetters, mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
+import { Plotly } from 'vue-plotly'
+import PlotlyJS from 'plotly.js'
 
-const Plotly = () => import('vue-plotly').then(module => {
-  return module.Plotly
-})
-const PlotlyJS = () => import('plotly.js').then(module => {
-  return module
-})
+// TODO Attempt code splitting on Plotly again in the future
+// const Plotly = () => import('vue-plotly').then(module => {
+//   return module.Plotly
+// })
+// const PlotlyJS = () => import('plotly.js').then(module => {
+//   return module
+// })
 
 export default {
   name: 'WellsCrossSection',
   components: {
-    Plotly,
-    PlotlyJS
+    Plotly
   },
   mounted () {
     this.$store.commit('map/setMode',
