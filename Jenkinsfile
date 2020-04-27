@@ -100,11 +100,6 @@ pipeline {
     PROD_PROJECT = "bfpeyx-prod"
   }
   stages {
-//     stage('Git') {
-//       steps {
-//         git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
-//       }
-//     }
     stage('Build') {
       steps {
         script {
@@ -190,21 +185,7 @@ pipeline {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
-//           // Get full describe info including # of commits & last commit hash
-//           def status = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-//                                                                                  usernameVariable: 'GIT_USER',
-//                                                                                  passwordVariable: 'GIT_TOKEN')]){
-//                                    sh(returnStdout: true,
-//                                        script: 'git status'
-//                                    ).trim()
-//                                  }
-//           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-//                                                           usernameVariable: 'GIT_USER',
-//                                                           passwordVariable: 'GIT_TOKEN')]){
-//             sh(returnStdout: true,
-//                 script: 'git fetch --tags && git describe'
-//             ).trim()
-//           }
+          // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
 
           openshift.withCluster() {
@@ -216,26 +197,6 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('dev', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
-
-                // Get full describe info including # of commits & last commit hash
-                def git_status = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-                                                                                         usernameVariable: 'GIT_USER',
-                                                                                         passwordVariable: 'GIT_TOKEN')]){
-                                           sh(returnStdout: true,
-                                               script: 'git status'
-                                           ).trim()
-                                         }
-                echo git_status
-                def git_status2 = sh(returnStdout: true, script: 'git status').trim()
-                echo git_status2
-//                 def git_tag = sh(returnStdout: true, script: 'git describe').trim()
-//                 def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-//                                                                   usernameVariable: 'GIT_USER',
-//                                                                   passwordVariable: 'GIT_TOKEN')]){
-//                     sh(returnStdout: true,
-//                         script: 'git fetch --tags && git describe'
-//                     ).trim()
-//                 }
 
                 echo git_tag
 
@@ -422,14 +383,6 @@ pipeline {
         script {
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
-
-//           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-//                                                                     usernameVariable: 'GIT_USER',
-//                                                                     passwordVariable: 'GIT_TOKEN')]){
-//                       sh(returnStdout: true,
-//                           script: 'git fetch --tags && git describe'
-//                       ).trim()
-//                     }
           def project = TEST_PROJECT
           def env_name = "staging"
           def host = "wally-staging.pathfinder.gov.bc.ca"
@@ -547,13 +500,6 @@ pipeline {
 
           input "Deploy to production?"
 
-//           def git_tag = withCredentials([usernamePassword(credentialsId: 'wally-github-token',
-//                                                                     usernameVariable: 'GIT_USER',
-//                                                                     passwordVariable: 'GIT_TOKEN')]){
-//                       sh(returnStdout: true,
-//                           script: 'git fetch --tags && git describe --abbrev=0'
-//                       ).trim()
-//                     }
           def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
           def project = PROD_PROJECT
           def env_name = "production"
