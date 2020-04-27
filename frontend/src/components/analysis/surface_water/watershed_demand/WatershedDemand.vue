@@ -238,7 +238,11 @@ export default {
           this.licenceData = r.data
           // console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
+          // adding null feature array breaks interpolation in layer setup
+          if(r.data && r.data.licences) {
+            this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
+          }
+          // resets purposeTypes array and re-populates if any entries in list
           this.setPurposeTypes()
 
           this.licencesLoading = false
