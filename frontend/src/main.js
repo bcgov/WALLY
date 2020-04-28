@@ -17,6 +17,7 @@ import './filters'
 Vue.config.productionTip = false
 
 const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
+const WALLY_TEST_HOSTNAME = 'wally-staging.pathfinder.gov.bc.ca'
 
 const auth = new AuthService()
 Vue.prototype.$auth = auth
@@ -32,6 +33,19 @@ if (process.env.VUE_APP_ENV === 'production' &&
   })
   Vue.use(VueMatomo, {
     host: 'https://matomo-bfpeyx-prod.pathfinder.gov.bc.ca/',
+    siteId: 1,
+    router: router,
+    domains: '*.pathfinder.gov.bc.ca'
+  })
+}
+
+if (process.env.VUE_APP_ENV === 'dev' &&
+    window.location.hostname === WALLY_TEST_HOSTNAME
+) {
+  // To test matomo actions locally just move the below plugin code outside
+  // of this if check, otherwise this will only log actions from staging
+  Vue.use(VueMatomo, {
+    host: 'https://matomo-bfpeyx-test.pathfinder.gov.bc.ca/',
     siteId: 1,
     router: router,
     domains: '*.pathfinder.gov.bc.ca'
