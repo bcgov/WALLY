@@ -276,7 +276,7 @@ export default {
     },
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')
-      this.$store.commit('surfaceWater/resetWatershedDetails')
+      this.clearWatershedDetailsAndDefaults()
       console.log('Reset watershed', this.scsb2016ModelInputs)
     },
     filterWatershed (id) {
