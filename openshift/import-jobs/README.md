@@ -25,6 +25,7 @@ The `JOB_NAME` parameter is arbitrary but cannot contain underscores.
 | fn_treaty_areas                          | fn_treaty_areas | `oc process -f wfs.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
 | fn_treaty_lands                          | fn_treaty_lands | `oc process -f wfs.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 | freshwater_atlas_glaciers                | freshwater_atlas_glaciers | `oc process -f wfs.job.yaml -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
+| water_approval_points                    | water_approval_points | `oc process -f wfs.job.yaml -p JOB_NAME=waterapprovalpoints -p LAYER_NAME=water_approval_points | oc apply -f -`
 
 ## Manual layers
 
