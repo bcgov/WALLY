@@ -39,9 +39,7 @@ if (process.env.VUE_APP_ENV === 'production' &&
   })
 }
 
-if (process.env.VUE_APP_ENV === 'dev' &&
-    window.location.hostname === WALLY_TEST_HOSTNAME
-) {
+if (window.location.hostname === WALLY_TEST_HOSTNAME) {
   // To test matomo actions locally just move the below plugin code outside
   // of this if check, otherwise this will only log actions from staging
   Vue.use(VueMatomo, {
