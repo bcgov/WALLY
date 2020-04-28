@@ -277,7 +277,6 @@ export default {
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')
       this.clearWatershedDetailsAndDefaults()
-      console.log('Reset watershed', this.scsb2016ModelInputs)
     },
     filterWatershed (id) {
       this.geojsonLayersAdded.forEach((layerID) => {
@@ -341,7 +340,6 @@ export default {
           // this.setDefaultScsb2016ModelInputs(r.data)
           // this.setDefaultWatershedDetails(r.data)
           this.initWatershedDetailsAndInputs(r.data)
-          console.log('scsb?', this.scsb2016ModelInputs)
         })
         .catch(e => {
           this.watershedDetailsLoading = false

@@ -134,7 +134,6 @@ export default {
       this.$emit('close', false)
     },
     populateForm () {
-      console.log(this.scsb2016ModelInputValues)
       this.scsb2016ModelInputValues = Object.assign({}, this.scsb2016ModelInputs)
     },
     ...mapMutations('surfaceWater', [

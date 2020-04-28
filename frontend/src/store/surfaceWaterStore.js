@@ -77,8 +77,6 @@ export default {
       state.scsb2016ModelInputs = null
       state.defaultScsb2016ModelInputs = null
       state.customModelInputsActive = false
-      console.log('clearing watershed details')
-      console.log(state.watershedDetails, state.scsb2016ModelInputs, state.customModelInputsActive)
     },
     setCustomModelInputs (state, payload) {
       state.scsb2016ModelInputs = payload
