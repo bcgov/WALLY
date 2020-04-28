@@ -10,6 +10,7 @@ import * as Integrations from '@sentry/integrations'
 import { AuthService } from './services/AuthService.js'
 import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
+import VueMatomo from 'vue-matomo'
 
 import './filters'
 
@@ -28,6 +29,12 @@ if (process.env.VUE_APP_ENV === 'production' &&
     integrations: [new Integrations.Vue({ Vue,
       attachProps: true,
       logErrors: true })]
+  })
+  Vue.use(VueMatomo, {
+    host: 'https://matomo-bfpeyx-prod.pathfinder.gov.bc.ca/',
+    siteId: 1,
+    router: router,
+    domains: '*.pathfinder.gov.bc.ca'
   })
 }
 
