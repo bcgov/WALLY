@@ -471,30 +471,24 @@ pipeline {
         }
       }
     }
-    stage('Auto Deploy tag to prod'){
-      when {
-        allOf {
-          tag "v*";
-          expression { env.JOB_BASE_NAME != 'master' }
-        }
-      }
-      steps {
-        script{
-          def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
-          echo "Automatically deployed! ${git_tag}"
-        }
-      }
-    }
+//     stage('Auto Deploy tag to prod'){
+//       when {
+//         allOf {
+//           tag "v*";
+//           expression { env.JOB_BASE_NAME != 'master' }
+//         }
+//       }
+//       steps {
+//         script{
+//           def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
+//           echo "Automatically deployed! ${git_tag}"
+//         }
+//       }
+//     }
     stage('Deploy to production') {
       when {
-        allOf {
-         tag "v*";
-         expression { env.JOB_BASE_NAME == 'master' }
-        }
+          expression { env.JOB_BASE_NAME == 'master' }
       }
-//       when {
-//           expression { env.JOB_BASE_NAME == 'master' }
-//       }
       steps {
         script {
 
