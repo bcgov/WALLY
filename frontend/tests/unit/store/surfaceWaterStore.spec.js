@@ -173,7 +173,7 @@ describe('Map Store', () => {
 
     expect(store.state.customModelInputsActive).toBeTruthy()
 
-    store.mutations.resetWatershedDetails(store.state)
+    store.mutations.clearWatershedDetailsAndDefaults(store.state)
     expect(store.state.scsb2016ModelInputs).toBeNull()
   })
 })
