@@ -149,4 +149,31 @@ describe('Map Store', () => {
     store.mutations.resetWatershedDetails(store.state)
     expect(store.state.customModelInputsActive).toBeFalsy()
   })
+
+  it('Resets custom inputs flag when the reset button is clicked', () => {
+    const watershedDetails = {
+      drainage_area: 150,
+      potential_evapotranspiration_thornthwaite: 123,
+      scsb2016_model: {
+      }
+    }
+    const newInputs = {
+      drainage_area: 200,
+      evapo_transpiration: 456
+    }
+    expect(store.state.customModelInputsActive).toBeFalsy()
+    store.actions.initWatershedDetailsAndInputs(store, watershedDetails)
+    store.mutations.setDefaultWatershedDetails(store.state, watershedDetails)
+    expect(store.state.defaultWatershedDetails).toEqual(watershedDetails)
+
+    store.mutations.setCustomModelInputs(store.state, newInputs)
+    store.mutations.updateCustomScsb2016ModelData(store.state, watershedDetails)
+    expect(store.state.watershedDetails.drainage_area)
+      .toEqual(newInputs.drainage_area)
+
+    expect(store.state.customModelInputsActive).toBeTruthy()
+
+    store.mutations.clearWatershedDetailsAndDefaults(store.state)
+    expect(store.state.scsb2016ModelInputs).toBeNull()
+  })
 })

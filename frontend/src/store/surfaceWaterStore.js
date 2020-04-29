@@ -68,11 +68,14 @@ export default {
     },
     resetWatershedDetails (state) {
       state.watershedDetails = state.defaultWatershedDetails
+      state.scsb2016ModelInputs = state.clearWatershedDetailsAndDefaults
       state.customModelInputsActive = false
     },
     clearWatershedDetailsAndDefaults (state) {
       state.watershedDetails = null
       state.defaultWatershedDetails = null
+      state.scsb2016ModelInputs = null
+      state.defaultScsb2016ModelInputs = null
       state.customModelInputsActive = false
     },
     setCustomModelInputs (state, payload) {

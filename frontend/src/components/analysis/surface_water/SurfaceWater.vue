@@ -276,6 +276,7 @@ export default {
     },
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')
+      this.clearWatershedDetailsAndDefaults()
     },
     filterWatershed (id) {
       this.geojsonLayersAdded.forEach((layerID) => {
