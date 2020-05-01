@@ -43,7 +43,6 @@ export default {
       })
 
       // save to local storage
-      this.saveAllocationValues()
       this.$emit('close', false)
     },
     ...mapMutations('surfaceWater', [
@@ -51,8 +50,7 @@ export default {
       'saveAllocationValues']),
     ...mapActions('surfaceWater', [
       'initAllocationItemIfNotExists',
-      'computeQuantityForMonth',
-      'loadAllocationItemsFromStorage'])
+      'computeQuantityForMonth'])
   },
   watch: {
     // edit (value) {
@@ -65,7 +63,6 @@ export default {
     }
   },
   mounted () {
-    this.loadAllocationItemsFromStorage()
     this.populateTable()
   }
 }
