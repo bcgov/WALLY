@@ -33,7 +33,7 @@ objects:
         - job_name: system          
           pipeline_stages:
             - match:
-                selector: '{app="wally"} |~ ".*GET .health HTTP.*"'
+                selector: '{app="wally"} |~ ".*GET (.health|.metrics) HTTP.*"'
                 action: drop    
           static_configs:
             - targets:
