@@ -103,7 +103,8 @@ pipeline {
     stage('Build') {
       steps {
         script {
-          checkout scm
+          // checkout git repo with tags
+          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
           echo "Cancelling previous builds..."
           timeout(10) {
               abortAllPreviousBuildInProgress(currentBuild)
@@ -381,6 +382,7 @@ pipeline {
       }
       steps {
         script {
+          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
           def project = TEST_PROJECT
