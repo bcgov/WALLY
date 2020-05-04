@@ -182,6 +182,7 @@ pipeline {
       }
       steps {
         script {
+          checkout scm
           def project = DEV_PROJECT
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
