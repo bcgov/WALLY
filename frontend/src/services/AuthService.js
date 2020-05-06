@@ -32,7 +32,7 @@ export class AuthService {
   }
 
   login (next) {
-    this.name = this.accessToken['display_name'] || this.accessToken['given_name']
+    this.name = this.accessToken['display_name'] || this.accessToken['name'] || this.accessToken['given_name']
 
     // required for allowing header to update the name.
     EventBus.$emit('auth:update', { name: this.name, authenticated: this.isAuthenticated() })
