@@ -29,27 +29,27 @@ objects:
   - apiVersion: batch/v1beta1
     kind: CronJob
     metadata:
-      name: wally-cron-download-source-${JOB_NAME}
+      name: wally-cron-download-and-zip-${JOB_NAME}
       labels:
         component: importer
-        job: download-source-${JOB_NAME}
-        name: wally-cron-download-source-${JOB_NAME}
+        job: download-and-zip-${JOB_NAME}
+        name: wally-cron-download-and-zip-${JOB_NAME}
     spec:
       schedule: ${SCHEDULE_TIME}
       concurrencyPolicy: "Forbid"
       jobTemplate:
         metadata:
-          name: wally-cron-download-source-${JOB_NAME}
+          name: wally-cron-download-and-zip-${JOB_NAME}
         spec:
           template:
             metadata:
               labels:          
-                parent: "crondownloadsource"
+                parent: "crondownloadandzip"
             spec:
               containers:
               - name: importer
                 image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
-                command: ['/dataload/download_layer.sh']
+                command: ['/dataload/download_and_zip_layer.sh']
                 args: ['${LAYER_NAME}', '${DOWNLOAD_LINK}']
                 resources:
                   requests:

@@ -28,6 +28,8 @@ def upgrade():
            UPDATE display_catalogue SET mapbox_layer_id = 'iit-water.0tsq064k' WHERE display_data_name = 'aquifers'
            UPDATE display_catalogue SET mapbox_layer_id = 'iit-water.31epl7h1' WHERE display_data_name = 'hydrometric_stream_flow'
            UPDATE display_catalogue SET mapbox_layer_id = 'iit-water.56s6dyhu' WHERE display_data_name = 'freshwater_atlas_stream_directions'
+           UPDATE data_source SET source_object_id = 'AQUIFER_ID' WHERE data_table_name = 'ground_water_aquifers'
+           UPDATE data_source SET source_object_id = 'OBJECTID' WHERE data_table_name = 'bc_major_watersheds'
     """)
 
     op.execute('SET search_path TO public') 
