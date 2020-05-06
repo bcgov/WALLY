@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: wally-importer-cron-job
+  name: wally-download-source-cron-job
 parameters:
 - description: Environment name (staging or production)
   displayName: Environment name
@@ -16,6 +16,10 @@ parameters:
   name: JOB_NAME
   required: true
   value: dataload
+- description: Link where download is available.
+  displayName: Download link
+  name: DOWNLOAD_LINK
+  required: true
 - description: Schedule time. Time that job should run in cron time. ex. "0 2 * * *" 2am everyday
   displayName: Schedule time
   name: SCHEDULE_TIME
@@ -25,28 +29,28 @@ objects:
   - apiVersion: batch/v1beta1
     kind: CronJob
     metadata:
-      name: wally-cron-download-${JOB_NAME}
+      name: wally-cron-download-source-${JOB_NAME}
       labels:
         component: importer
-        job: download-${JOB_NAME}
-        name: wally-cron-download-${JOB_NAME}
+        job: download-source-${JOB_NAME}
+        name: wally-cron-download-source-${JOB_NAME}
     spec:
       schedule: ${SCHEDULE_TIME}
       concurrencyPolicy: "Forbid"
       jobTemplate:
         metadata:
-          name: wally-cron-download-${JOB_NAME}
+          name: wally-cron-download-source-${JOB_NAME}
         spec:
           template:
             metadata:
               labels:          
-                parent: "cronwfsdownload"
+                parent: "crondownloadsource"
             spec:
               containers:
               - name: importer
                 image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
-                command: ['/dataload/wfs_direct_download.sh']
-                args: ['${LAYER_NAME}']
+                command: ['/dataload/download_layer.sh']
+                args: ['${LAYER_NAME}', '${DOWNLOAD_LINK}']
                 resources:
                   requests:
                     cpu: 200m

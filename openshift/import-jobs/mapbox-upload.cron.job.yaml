@@ -32,6 +32,7 @@ objects:
         name: wally-cron-mapbox-upload-${JOB_NAME}
     spec:
       schedule: ${SCHEDULE_TIME}
+      concurrencyPolicy: "Forbid"
       jobTemplate:
         metadata:
           name: wally-cron-mapbox-upload-${JOB_NAME}

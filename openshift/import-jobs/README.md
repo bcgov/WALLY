@@ -165,6 +165,10 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | critical_habitat_species_at_risk
 | fish_observations
 
+## Wells layer comes directly from GWELLS so we use this custom download job to fetch the geojson
+
+| ground_water_wells                        | `oc process -f download.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells -p DOWNLOAD_LINK="https://apps.nrs.gov.bc.ca/gwells/api/v2/gis/wells" | oc apply -f -`
+
 ## Start vector tile creation cron jobs
 
 - These tile jobs run nightly between 3am-4:30am - 5 minutes apart
@@ -180,12 +184,32 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | fn_treaty_lands                           | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="40 3 * * *" -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 | freshwater_atlas_glaciers                 | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="45 3 * * *" -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
 | water_approval_points                     | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="50 3 * * *" -p JOB_NAME=waterapprovalpoints -p LAYER_NAME=water_approval_points | oc apply -f -`
+| ground_water_wells                        | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=aquifers -p LAYER_NAME=ground_water_aquifers | oc apply -f -`
 
 - Manual upload required so may not want to auto run these
-| cadastral                                 | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=cadastral -p LAYER_NAME=cadastral | oc apply -f -`
-| fish_observations                         | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="0 4 * * *" -p JOB_NAME=fishobservations -p LAYER_NAME=fish_observations | oc apply -f -`
-| water_allocation_restrictions             | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="5 4 * * *" -p JOB_NAME=allocationrestrictions -p LAYER_NAME=water_allocation_restrictions | oc apply -f -`
-| critical_habitat_species_at_risk          | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="10 4 * * *" -p JOB_NAME=criticalhabitat -p LAYER_NAME=critical_habitat_species_at_risk | oc apply -f -`
+
+| cadastral                                 | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="0 4 * * *" -p JOB_NAME=cadastral -p LAYER_NAME=cadastral | oc apply -f -`
+| fish_observations                         | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="5 4 * * *" -p JOB_NAME=fishobservations -p LAYER_NAME=fish_observations | oc apply -f -`
+| water_allocation_restrictions             | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="10 4 * * *" -p JOB_NAME=allocationrestrictions -p LAYER_NAME=water_allocation_restrictions | oc apply -f -`
+| critical_habitat_species_at_risk          | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="15 4 * * *" -p JOB_NAME=criticalhabitat -p LAYER_NAME=critical_habitat_species_at_risk | oc apply -f -`
+
+### Manual tile creation and upload to Mapbox
+
+- These layers don't change much so should probably only be updated annually using the manual run jobs
+
+| freshwater_atlas_stream_networks | iit-water.6q8q0qac
+| freshwater_atlas_stream_directions | iit-water.56s6dyhu
+| freshwater_atlas_watersheds | iit-water.7iwr3fo1
+| bc_major_watersheds | iit-water.0tsq064k (currently lives in an auto-updated nightly layer)
+| hydrologic_zone_boundaries | iit-water.0tsq064k (currently lives in an auto-updated nightly layer)
+| normal_annual_runoff_isolines | this is a manual layer that was created and imported into the wally database which probably never needs to be updated because its based on historical data
+
+### Hydat hydrometric_stream_flow layer
+
+- Source should be checked monthly for new data from http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/
+then convert sql data to geojson.zip and place in data/geojson folder on prod Minio
+import data into prod database 
+and then run the manual tile creation and upload jobs to Mapbox layer iit-water.31epl7h1
 
 ## Start Mapbox layer upload cron jobs
 
@@ -196,18 +220,3 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | iit-water.448thhpa        | water_rights_licences, fish_observations, water_approval_points | `oc process -f mapbox-upload.cron.job.yaml -p SCHEDULE_TIME="40 4 * * *" -p JOB_NAME=448thhpa -p LAYER_NAME=iit-water.448thhpa | oc apply -f -`
 | iit-water.36r1x37x        | cadastral | `oc process -f mapbox-upload.cron.job.yaml -p SCHEDULE_TIME="45 4 * * *" -p JOB_NAME=36r1x37x -p LAYER_NAME=iit-water.36r1x37x | oc apply -f -`
 | iit-water.2svbut5f        | automated_snow_weather_station_locations, bc_wildfire_active_weather_stations, ecocat_water_related_reports, water_rights_applications, groundwater_wells | `oc process -f mapbox-upload.cron.job.yaml -p SCHEDULE_TIME="50 4 * * *" -p JOB_NAME=2svbut5f -p LAYER_NAME=iit-water.2svbut5f | oc apply -f -`
-
-### Manual tile creation and upload to Mapbox
-- These layers don't change much so should probably only be updated annually using the manual run jobs
-| freshwater_atlas_stream_networks | iit-water.6q8q0qac
-| freshwater_atlas_stream_directions | iit-water.56s6dyhu
-| freshwater_atlas_watersheds | iit-water.7iwr3fo1
-| bc_major_watersheds | iit-water.0tsq064k (currently lives in an auto-updated nightly layer)
-| hydrologic_zone_boundaries | iit-water.0tsq064k (currently lives in an auto-updated nightly layer)
-| normal_annual_runoff_isolines | this is a manual layer that was created and imported into the wally database which probably never needs to be updated because its based on historical data
-
-### Hydat hydrometric_stream_flow layer
-Source should be checked monthly for new data from http://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/
-then convert sql data to geojson.zip and place in data/geojson folder on prod Minio
-import data into prod database 
-and then run the manual tile creation and upload jobs to Mapbox layer iit-water.31epl7h1
