@@ -438,8 +438,9 @@ export default {
         return
       }
       // ISOLine Model Calculations as backup if Stewardship model doesn't exist
-      if (this.annualNormalizedRunoff && this.watershedArea) {
-        const meanAnnualDischarge = this.annualNormalizedRunoff * (this.watershedArea * 1e6) / this.secondsInYear / 1000
+      if (details.runoff_isoline_discharge_m3s && details.runoff_isoline_avg && this.watershedArea) {
+        const meanAnnualDischarge = details.runoff_isoline_discharge_m3s
+        const meanAnnualRunoff = details.runoff_isoline_avg
         var discharges = []
         var distributions = []
         for (let i = 1; i < 13; i++) {
@@ -461,7 +462,7 @@ export default {
         this.modelOutputs = {
           sourceDescription: 'Model output based on Normal Annual Runoff Isolines (1961-1990) from DataBC.',
           sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical',
-          mar: (meanAnnualDischarge * 1000 / this.watershedArea).toFixed(2),
+          mar: meanAnnualRunoff.toFixed(2),
           mad: meanAnnualDischarge.toFixed(2),
           low7q2: null,
           dry7q10: null,
