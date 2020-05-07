@@ -7,6 +7,7 @@ import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 import PlotlyJS from 'plotly.js'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
+let Plotly
 
 export default {
   name: 'WellsCrossSection',
