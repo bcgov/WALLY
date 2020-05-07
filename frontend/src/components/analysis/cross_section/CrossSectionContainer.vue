@@ -45,7 +45,9 @@
 import { mapGetters, mapActions } from 'vuex'
 
 import WellsCrossSection from './WellsCrossSection'
-
+const Plotly = () => import(/* webpackPrefetch: true */ 'vue-plotly').then(module => {
+  return module.Plotly
+})
 export default {
   name: 'CrossSectionContainer',
   components: {

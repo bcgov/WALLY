@@ -5,18 +5,15 @@ import { mapGetters, mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
-
-const Plotly = () => import('vue-plotly').then(module => {
-  return module.Plotly
-})
-const PlotlyJS = () => import('plotly.js').then(module => {
-  return module
-})
+import PlotlyJS from 'plotly.js'
+const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 
 export default {
   name: 'WellsCrossSection',
   components: {
-    Plotly,
+    Plotly: () => loadPlotly.then(module => {
+      return module.Plotly
+    }),
     PlotlyJS
   },
   mounted () {
@@ -24,7 +21,7 @@ export default {
       { type: 'analysis', name: 'cross_section' })
     this.fetchWellsAlongLine()
   },
-  props: ['record', 'coordinates', 'panelOpen'],
+  props: ['record', 'panelOpen'],
   data: () => ({
     radius: 200,
     wells: [],
@@ -54,6 +51,9 @@ export default {
     }
   }),
   computed: {
+    coordinates () {
+      return this.record && this.record.geometry && this.record.geometry.coordinates
+    },
     chartLayout () {
       // annotations used instead of label text due to textangle feature
       let wellAnnotations = this.wells.map((w) => {
@@ -475,10 +475,12 @@ export default {
       this.$store.commit('map/addShape', polygon)
     },
     initPlotly () {
-      // Subscribe to plotly select and lasso tools
-      this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
-      this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
-      this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
+      this.$nextTick(() => {
+        // Subscribe to plotly select and lasso tools
+        this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
+        this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
+        this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
+      })
     },
     resetMarkerLabels () {
       this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return false })
@@ -587,6 +589,9 @@ export default {
         this.fetchWellsAlongLine()
       },
       deep: true
+    },
+    coordinates () {
+      this.fetchWellsAlongLine()
     },
     radius (value) {
       // delay call to re-fetch data if user still inputting radius numbers
