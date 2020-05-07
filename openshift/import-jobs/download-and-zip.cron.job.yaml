@@ -36,6 +36,8 @@ objects:
         name: wally-cron-download-and-zip-${JOB_NAME}
     spec:
       schedule: ${SCHEDULE_TIME}
+      successfulJobsHistoryLimit: 1 
+      failedJobsHistoryLimit: 1
       concurrencyPolicy: "Forbid"
       jobTemplate:
         metadata:

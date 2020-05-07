@@ -36,6 +36,7 @@ echo "Copying mbtileset to Minio storage..."
 mc --config-dir=./.mc cp "./$mapbox_layer_id.mbtiles" "minio/tilestaging/$mapbox_layer_id.mbtiles"
 
 echo "Uploading $mapbox_layer_id.mbtiles to Mapbox using $mapbox_layer_id"
+echo "token: $MAPBOX_UPLOAD_TOKEN"
 mapbox --access-token "$MAPBOX_UPLOAD_TOKEN" upload "$mapbox_layer_id" "$mapbox_layer_id.mbtiles"
 
 echo "Finished."
