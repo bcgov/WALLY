@@ -171,46 +171,46 @@ export default {
         this.updateStreamLayer(data)
       }
     },
-    addWMSLayer (layer) {
-      const layerID = layer.display_data_name || layer.wms_name || layer.display_name
-      if (!layerID) {
-        return
-      }
+    // addWMSLayer (layer) {
+    //   const layerID = layer.display_data_name
+    //   if (!layerID) {
+    //     return
+    //   }
 
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetMap',
-        format: 'image/png',
-        layers: 'pub:' + layer.wms_name,
-        styles: layer.wms_style,
-        transparent: true,
-        name: layer.name,
-        height: 256,
-        width: 256,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
+    //   const wmsOpts = {
+    //     service: 'WMS',
+    //     request: 'GetMap',
+    //     format: 'image/png',
+    //     layers: 'pub:' + layer.wms_name,
+    //     styles: layer.wms_style,
+    //     transparent: true,
+    //     name: layer.name,
+    //     height: 256,
+    //     width: 256,
+    //     overlay: true,
+    //     srs: 'EPSG:3857'
+    //   }
 
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+    //   const query = qs.stringify(wmsOpts)
+    //   const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
 
-      const newLayer = {
-        'id': layerID,
-        'type': 'raster',
-        'layout': {
-          'visibility': 'none'
-        },
-        'source': {
-          'type': 'raster',
-          'tiles': [
-            url
-          ],
-          'tileSize': 256
-        }
-      }
+    //   const newLayer = {
+    //     'id': layerID,
+    //     'type': 'raster',
+    //     'layout': {
+    //       'visibility': true
+    //     },
+    //     'source': {
+    //       'type': 'raster',
+    //       'tiles': [
+    //         url
+    //       ],
+    //       'tileSize': 256
+    //     }
+    //   }
 
-      this.map.addLayer(newLayer, 'groundwater_wells')
-    },
+    //   this.map.addLayer(newLayer, layerID)
+    // },
     loadLayers (layers) {
       // load each layer, but default to no visibility.
       // the user can toggle layers on and off with the layer controls.

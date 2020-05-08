@@ -4,6 +4,8 @@ import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import qs from 'querystring'
+import { wmsBaseURL } from '../utils/wmsUtils'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -266,6 +268,12 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
+              dispatch('addWMSLayer', {
+                display_data_name: 'fish',
+                name: 'fish',
+                wms_name: 'WHSE_FISH.FISS_FISH_OBSRVTN_PNT_SP',
+                wms_style: ''
+              })
             })
             .catch((error) => {
               reject(error)
@@ -403,6 +411,47 @@ export default {
     updateMapLayerData ({ state, commit, dispatch }, data) {
       let { source, featureData } = data
       state.map.getSource(source).setData(featureData)
+    },
+    addWMSLayer ({state, commit}, layer) {
+      const layerID = layer.display_data_name
+      if (!layerID) {
+        return
+      }
+
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'image/png',
+        layers: 'pub:' + layer.wms_name,
+        styles: layer.wms_style,
+        transparent: true,
+        name: layer.name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      state.map.addSource('fish-source', {
+        'type': 'raster',
+        'tiles': [
+          url
+        ],
+        'tileSize': 256
+      });
+
+      state.map.addLayer({
+        'id': layerID,
+        'type': 'raster',
+        'source': 'fish-source',
+        'layout': {
+          'visibility': 'visible'
+        },
+        'paint': {}
+      }, 'fish_observations')
     },
     /*
       Highlights a single Feature dataset
