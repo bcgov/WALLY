@@ -5,6 +5,7 @@ set -e
 cd /dataload
 
 mapbox_layer_id="$1"
+export MAPBOX_ACCESS_TOKEN=$MAPBOX_UPLOAD_TOKEN
 
 declare -a layers=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" \
   --single-transaction \
@@ -33,6 +34,6 @@ echo "Copying mbtileset to Minio storage..."
 mc --config-dir=./.mc cp "./$mapbox_layer_id.mbtiles" "minio/tilestaging/$mapbox_layer_id.mbtiles"
 
 echo "Uploading $mapbox_layer_id.mbtiles to Mapbox using $mapbox_layer_id"
-mapbox --access-token "$MAPBOX_UPLOAD_TOKEN" upload "$mapbox_layer_id" "$mapbox_layer_id.mbtiles"
+mapbox upload "$mapbox_layer_id" "$mapbox_layer_id.mbtiles"
 
 echo "Finished."
