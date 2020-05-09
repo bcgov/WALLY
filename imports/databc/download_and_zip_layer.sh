@@ -25,8 +25,8 @@ echo "Setting up Minio host"
 echo "downloading $1 from $2"
 curl -Lo "$1.geojson" "$2"
 
-echo "Zipping file $1.geojson"
-zip "./out/$1.zip" "./out/$1.geojson"
+echo "Zipping file $1"
+zip "./$1.zip" "./$1.geojson"
 
 echo "Copying zipped layer to Minio storage..."
 ./mc --config-dir=./.mc cp "./$1.zip" "minio/geojson"
