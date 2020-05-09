@@ -155,21 +155,22 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | fn_treaty_lands                           | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="40 2 * * *" -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 | freshwater_atlas_glaciers                 | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="45 2 * * *" -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
 | water_approval_points                     | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="50 2 * * *" -p JOB_NAME=waterapprovalpoints -p LAYER_NAME=water_approval_points | oc apply -f -`
-| hydrologic_zone_boundaries                | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="55 2 * * *" -p JOB_NAME=hydrozones -p LAYER_NAME=hydrologic_zone_boundaries | oc apply -f -`
 | bc_major_watersheds                       | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="57 2 * * *" -p JOB_NAME=bcmajorwatersheds -p LAYER_NAME=bc_major_watersheds | oc apply -f -`
+| hydrologic_zone_boundaries                | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="55 2 * * *" -p JOB_NAME=hydrozones -p LAYER_NAME=hydrologic_zone_boundaries | oc apply -f -`
 
-## Manual <layername>.zip placement required in prod Minio data/geojson folder
+## Manual <layername>.zip placement required in prod Minio data/geojson folder (scripts below are for posterity if a solution is found)
 
-| freshwater_atlas_watersheds
-| cadastral
-| freshwater_atlas_stream_directions
-| water_allocation_restrictions
-| critical_habitat_species_at_risk
-| fish_observations
+| cadastral                                 | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="0 0 * * *" -p JOB_NAME=cadastral -p LAYER_NAME=cadastral | oc apply -f -`
+| fish_observations                         | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="15 0 * * *" -p JOB_NAME=fishobservations -p LAYER_NAME=fish_observations | oc apply -f -`
+| water_allocation_restrictions             | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="30 0 * * *" -p JOB_NAME=waterrestrictions -p LAYER_NAME=water_allocation_restrictions | oc apply -f -`
+| critical_habitat_species_at_risk          | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="45 0 * * *" -p JOB_NAME=criticalhabitat -p LAYER_NAME=critical_habitat_species_at_risk | oc apply -f -`
+| freshwater_atlas_stream_networks          | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="0 1 * * *" -p JOB_NAME=streams -p LAYER_NAME=freshwater_atlas_stream_networks | oc apply -f -`
+| freshwater_atlas_stream_directions        | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="15 1 * * *" -p JOB_NAME=streamdirections -p LAYER_NAME=freshwater_atlas_stream_directions | oc apply -f -`
+| freshwater_atlas_watersheds               | `oc process -f wfs.cron.job.yaml -p SCHEDULE_TIME="30 1 * * *" -p JOB_NAME=watersheds -p LAYER_NAME=freshwater_atlas_watersheds | oc apply -f -`
 
 ## Wells layer comes directly from GWELLS so we use this custom download job to fetch the geojson
 
-| ground_water_wells                        | `oc process -f download.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells -p DOWNLOAD_LINK="https://apps.nrs.gov.bc.ca/gwells/api/v2/gis/wells" | oc apply -f -`
+| ground_water_wells                        | `oc process -f download-and-zip.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells -p DOWNLOAD_LINK="https://apps.nrs.gov.bc.ca/gwells/api/v2/gis/wells" | oc apply -f -`
 
 ## Start vector tile creation cron jobs
 
@@ -186,8 +187,8 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | fn_treaty_lands                           | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="40 3 * * *" -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 | freshwater_atlas_glaciers                 | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="45 3 * * *" -p JOB_NAME=glaciers -p LAYER_NAME=freshwater_atlas_glaciers | oc apply -f -`
 | water_approval_points                     | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="50 3 * * *" -p JOB_NAME=waterapprovalpoints -p LAYER_NAME=water_approval_points | oc apply -f -`
-| ground_water_wells                        | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=aquifers -p LAYER_NAME=ground_water_aquifers | oc apply -f -`
-| bc_major_watersheds                       | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=aquifers -p LAYER_NAME=ground_water_aquifers | oc apply -f -`
+| ground_water_wells                        | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells | oc apply -f -`
+| bc_major_watersheds                       | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=bcmajorwatersheds -p LAYER_NAME=bc_major_watersheds | oc apply -f -`
 | hydrologic_zone_boundaries                | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="57 3 * * *" -p JOB_NAME=hydrozones -p LAYER_NAME=hydrologic_zone_boundaries | oc apply -f -`
 
 - Manual upload required so may not want to auto run these
@@ -199,6 +200,7 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | freshwater_atlas_stream_networks          | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="20 4 * * *" -p JOB_NAME=streams -p LAYER_NAME=freshwater_atlas_stream_networks | oc apply -f -`
 | freshwater_atlas_stream_directions        | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="25 4 * * *" -p JOB_NAME=streamdirections -p LAYER_NAME=freshwater_atlas_stream_directions | oc apply -f -`
 | freshwater_atlas_watersheds               | `oc process -f tippecanoe.cron.job.yaml -p SCHEDULE_TIME="30 4 * * *" -p JOB_NAME=watersheds -p LAYER_NAME=freshwater_atlas_watersheds | oc apply -f -`
+
 | normal_annual_runoff_isolines | this is a manual layer that was created and imported into the wally database which probably never needs to be updated because its based on historical data
 
 ### Hydat hydrometric_stream_flow layer
