@@ -170,7 +170,7 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 
 ## Wells layer comes directly from GWELLS so we use this custom download job to fetch the geojson
 
-| ground_water_wells                        | `oc process -f download-and-zip.cron.job.yaml -p SCHEDULE_TIME="55 3 * * *" -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells -p DOWNLOAD_LINK="https://apps.nrs.gov.bc.ca/gwells/api/v2/gis/wells" | oc apply -f -`
+| ground_water_wells                        | `oc process -f download-and-zip.cron.job.yaml -p SCHEDULE_TIME="59 2 * * *" -p JOB_NAME=wells -p LAYER_NAME=ground_water_wells -p DOWNLOAD_LINK="https://apps.nrs.gov.bc.ca/gwells/api/v2/gis/wells" | oc apply -f -`
 
 ## Start vector tile creation cron jobs
 
