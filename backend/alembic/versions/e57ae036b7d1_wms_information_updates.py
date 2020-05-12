@@ -33,7 +33,7 @@ def upgrade():
                 (select wms_catalogue_id from wms_catalogue order by wms_catalogue_id desc limit 1) + 1,
                 'Freshwater Atlas Stream Networks', 
                 'WHSE_BASEMAPPING.FWA_STREAM_NETWORKS_SP',
-                '',
+                '1853',
                 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
             ) RETURNING wms_catalogue_id
         )
@@ -67,6 +67,8 @@ def upgrade():
         UPDATE display_catalogue set use_wms = true where display_data_name = 'critical_habitat_species_at_risk';
         UPDATE display_catalogue set use_wms = true where display_data_name = 'fish_observations';
         UPDATE display_catalogue set use_wms = true where display_data_name = 'cadastral';
+        UPDATE wms_catalogue set wms_style = '719' where wms_name = 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY';
+        UPDATE wms_catalogue set wms_style = '4883' where wms_name = 'WHSE_WILDLIFE_MANAGEMENT.WCP_CRITICAL_HABITAT_SP';
     """)
 
     op.execute('SET search_path TO public')
