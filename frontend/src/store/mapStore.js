@@ -414,23 +414,6 @@ export default {
       state.map.getSource(source).setData(featureData)
     },
     initWMSLayers ({state, commit}, allLayers) {
-      // const wmsLayers = [
-      //   'freshwater_atlas_stream_directions',
-      //   'freshwater_atlas_stream_networks', 
-      //   'freshwater_atlas_watersheds',
-      //   'critical_habitat_species_at_risk',
-      //   'water_allocation_restrictions',
-      //   'fish_observations',
-      //   'cadastral'
-      // ]
-
-      // const fish = {
-      //   display_data_name: 'fish',
-      //   name: 'fish',
-      //   wms_name: 'WHSE_FISH.FISS_FISH_OBSRVTN_PNT_SP',
-      //   wms_style: ''
-      // }
-
       allLayers.forEach((layer) => {
         if(layer.use_wms) {
           // Remove existing vector layer if exists
@@ -499,6 +482,7 @@ export default {
       }, 500)
     },
     addWMSLayer (state, layer) {
+      // this mutation adds wms layers to the map
       const layerID = layer.display_data_name
       if (!layerID) {
         return
