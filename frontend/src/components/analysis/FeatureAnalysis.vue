@@ -45,18 +45,6 @@
                 <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
             </v-card-actions>
-            <v-card-actions>
-              <v-btn
-                block
-                text
-                color="deep-purple accent-4"
-                class="analysisButton"
-                :to="{ path: 'apportion-demand', query: { coordinates: record.geometry.coordinates }}"
-              >
-                Apportion a stream
-                <v-icon>mdi-chevron-right</v-icon>
-              </v-btn>
-            </v-card-actions>
           </v-card>
         </template>
 

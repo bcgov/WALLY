@@ -7,8 +7,8 @@
       <v-list dense class="mx-0 px-0">
 
         <v-list-item class="feature-content">
-          <v-list-item-content>Aquifer name</v-list-item-content>
-          <v-list-item-content>{{record.properties.AQNAME}}</v-list-item-content>
+          <v-list-item-content>Aquifer number</v-list-item-content>
+          <v-list-item-content>{{record.properties.AQUIFER_ID}}</v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Litho stratigraphic unit</v-list-item-content>
@@ -16,7 +16,7 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Descriptive location</v-list-item-content>
-          <v-list-item-content>{{record.properties.DESCRIPTIVE_LOCATION}}</v-list-item-content>
+          <v-list-item-content>{{record.properties.LOCATION}}</v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Vulnerability</v-list-item-content>
@@ -24,15 +24,19 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Material type</v-list-item-content>
-          <v-list-item-content>{{record.properties.AQUIFER_MATERIALS}}</v-list-item-content>
+          <v-list-item-content>{{record.properties.MATERIAL}}</v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Subtype</v-list-item-content>
-          <v-list-item-content>{{record.properties.AQUIFER_SUBTYPE_CODE}}</v-list-item-content>
+          <v-list-item-content>{{record.properties.SUBTYPE}}</v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Productivity</v-list-item-content>
           <v-list-item-content>{{record.properties.PRODUCTIVITY}}</v-list-item-content>
+        </v-list-item>
+        <v-list-item class="feature-content">
+          <v-list-item-content>Water use</v-list-item-content>
+          <v-list-item-content>{{record.properties.WATER_USE}}</v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Size (km²)</v-list-item-content>
@@ -48,7 +52,7 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>
-            <a :href="`https://apps.nrs.gov.bc.ca/gwells/aquifers/${Number(record.properties.AQ_TAG)}`" target="_blank">View this aquifer on Groundwater Wells and Aquifers</a>
+            <a :href="`https://apps.nrs.gov.bc.ca/gwells/aquifers/${Number(record.properties.AQUIFER_ID)}`" target="_blank">View this aquifer on Groundwater Wells and Aquifers</a>
           </v-list-item-content>
         </v-list-item>
       </v-list>

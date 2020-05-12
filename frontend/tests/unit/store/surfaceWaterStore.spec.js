@@ -176,4 +176,18 @@ describe('Map Store', () => {
     store.mutations.clearWatershedDetailsAndDefaults(store.state)
     expect(store.state.scsb2016ModelInputs).toBeNull()
   })
+
+  it('Resets allocation values on clearWatershedDetailsAndDefaults', () => {
+    let allocValues = [3, 3, 0, 0,
+      0, 0, 0, 0,
+      0, 0, 3, 3]
+
+    store.mutations.setAllocationValues(store.state, {
+      key: 'test',
+      values: allocValues })
+    expect(store.state.allocationValues).toEqual({ 'test': allocValues })
+    store.mutations.clearWatershedDetailsAndDefaults(store.state)
+    expect(store.state.allocationValues).toEqual({})
+
+  })
 })

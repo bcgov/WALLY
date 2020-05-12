@@ -137,7 +137,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('surfaceWater', ['loadAllocationItemsFromStorage', 'initAllocationItemIfNotExists']),
+    ...mapActions('surfaceWater', ['initAllocationItemIfNotExists']),
     demandAvailabilityLayout () {
       return {
         barmode: 'stack',
@@ -239,7 +239,7 @@ export default {
           // console.log('adding data to map')
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           // adding null feature array breaks interpolation in layer setup
-          if(r.data && r.data.licences) {
+          if (r.data && r.data.licences) {
             this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
           }
           // resets purposeTypes array and re-populates if any entries in list
@@ -332,7 +332,6 @@ export default {
   },
   mounted () {
     this.fetchLicenceData()
-    this.loadAllocationItemsFromStorage()
   },
   beforeDestroy () {
     this.map.removeLayer('waterLicences')

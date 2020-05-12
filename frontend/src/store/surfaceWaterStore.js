@@ -45,10 +45,6 @@ export default {
     setAllocationValues (state, item) {
       state.allocationValues[item.key] = item.values
     },
-    saveAllocationValues (state) {
-      localStorage.setItem('allocationItems',
-        JSON.stringify(state.allocationValues))
-    },
     clearAllocationValues (state, key) {
       if (key in state.allocationValues) {
         delete state.allocationValues[key]
@@ -77,6 +73,7 @@ export default {
       state.scsb2016ModelInputs = null
       state.defaultScsb2016ModelInputs = null
       state.customModelInputsActive = false
+      state.allocationValues = {}
     },
     setCustomModelInputs (state, payload) {
       state.scsb2016ModelInputs = payload
