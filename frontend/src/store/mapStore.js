@@ -413,12 +413,12 @@ export default {
       let { source, featureData } = data
       state.map.getSource(source).setData(featureData)
     },
-    initWMSLayers ({state, commit}, allLayers) {
+    initWMSLayers ({ state, commit }, allLayers) {
       allLayers.forEach((layer) => {
-        if(layer.use_wms) {
+        if (layer.use_wms) {
           // Remove existing vector layer if exists
           var mapLayer = state.map.getLayer(layer.display_data_name)
-          if(typeof mapLayer !== 'undefined') {
+          if (typeof mapLayer !== 'undefined') {
             commit('removeLayer', layer.display_data_name)
           }
           // create wms config and add layer to map
@@ -431,7 +431,6 @@ export default {
           commit('addWMSLayer', layerConfig)
         }
       })
-
     },
     /*
       Highlights a single Feature dataset
@@ -511,7 +510,7 @@ export default {
           url
         ],
         'tileSize': 256
-      });
+      })
 
       state.map.addLayer({
         'id': layerID,

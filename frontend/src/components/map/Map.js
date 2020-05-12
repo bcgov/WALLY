@@ -1,7 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions, mapMutations } from 'vuex'
-import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import MapScale from './MapScale'
@@ -10,7 +9,6 @@ import coordinatesGeocoder from './localGeocoder'
 
 import { getArrayDepth } from '../../helpers'
 
-import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
 export default {
