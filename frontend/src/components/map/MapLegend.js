@@ -29,6 +29,19 @@ export default {
             }
             this.legend.push(layerLegend)
           }
+
+          if (mapLayerType === 'raster') {
+            const legendItems = [{
+              wmsIconUrl: `https://openmaps.gov.bc.ca/geo/pub/${layer.wms_name}/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=pub%3A${layer.wms_name}&style=${layer.wms_style}`
+            }]
+            const layerLegend = {
+              name: layer.display_name,
+              legendItems,
+              'plenty': false,
+              'className': ''
+            }
+            this.legend.push(layerLegend)
+          }
         } catch (err) {
           console.error(err)
         }
