@@ -57,8 +57,9 @@
   .legend div span {
     display: inline-block;
     height: 20px;
-    margin: 5px;
+    margin: 4px;
     vertical-align: top;
+    font-weight: bold;
   }
 
   .legend .v-icon {
