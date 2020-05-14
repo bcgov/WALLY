@@ -45,7 +45,6 @@
 import { mapGetters, mapActions } from 'vuex'
 
 import WellsCrossSection from './WellsCrossSection'
-
 export default {
   name: 'CrossSectionContainer',
   components: {
