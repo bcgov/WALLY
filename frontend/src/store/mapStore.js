@@ -484,7 +484,7 @@ export default {
 
       // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
       if (layerID === 'groundwater_wells') {
-        url = 'https://apps.nrs.gov.bc.ca/gwells/tiles/postgis_ftw.gwells_well_view/{z}/{x}/{y}.pbf'
+        url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
       }
 
       // Add sources for all DataBC supported vector layers
