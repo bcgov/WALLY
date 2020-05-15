@@ -5,7 +5,7 @@ import HighlightPoint from '../components/map/MapHighlightPoint'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
-import { wmsBaseURL } from '../utils/wmsUtils'
+import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -269,12 +269,6 @@ export default {
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
               dispatch('initWMSLayers', response.data.layers)
-              // dispatch('addWMSLayer', {
-              //   display_data_name: 'fish',
-              //   name: 'fish',
-              //   wms_name: 'WHSE_FISH.FISS_FISH_OBSRVTN_PNT_SP',
-              //   wms_style: ''
-              // })
             })
             .catch((error) => {
               reject(error)
@@ -416,19 +410,7 @@ export default {
     initWMSLayers ({ state, commit }, allLayers) {
       allLayers.forEach((layer) => {
         if (layer.use_wms) {
-          // Remove existing vector layer if exists
-          var mapLayer = state.map.getLayer(layer.display_data_name)
-          if (typeof mapLayer !== 'undefined') {
-            commit('removeLayer', layer.display_data_name)
-          }
-          // create wms config and add layer to map
-          let layerConfig = {
-            display_data_name: layer.display_data_name,
-            name: layer.display_name,
-            wms_name: layer.wms_name,
-            wms_style: layer.wms_style
-          }
-          commit('addWMSLayer', layerConfig)
+          commit('updateVectorLayerSourceToUseDataBC', layer)
         }
       })
     },
@@ -479,6 +461,36 @@ export default {
       setTimeout(() => { // delay to let other draw actions finish
         state.isDrawingToolActive = false
       }, 500)
+    },
+    updateVectorLayerSourceToUseDataBC (state, layer) {
+      const layerID = layer.display_data_name
+
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'application/x-protobuf;type=mapbox-vector',
+        layers: 'pub:' + layer.wms_name,
+        styles: layer.wms_style,
+        transparent: true,
+        name: layer.display_name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      // Add sources for all DataBC supported vector layers
+      state.map.addSource(`${layerID}-source`, {
+        'type': 'vector',
+        'tiles': [ url ]
+      })
+
+      // This replaces the mapbox layer source with the DataBC source
+      // Allows us to use mapbox styles, but DataBC vector data
+      setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
     },
     addWMSLayer (state, layer) {
       // this mutation adds wms layers to the map

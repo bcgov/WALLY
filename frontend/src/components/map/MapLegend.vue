@@ -59,7 +59,6 @@
     height: 20px;
     margin: 4px;
     vertical-align: top;
-    font-weight: bold;
   }
 
   .legend .v-icon {
