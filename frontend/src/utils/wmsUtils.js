@@ -18,19 +18,19 @@ export function wmsParamString (payload) {
 }
 
 export function setLayerSource (map, layerId, source, sourceLayer) {
-  const oldLayers = map.getStyle().layers;
-  const layerIndex = oldLayers.findIndex(l => l.id === layerId);
-  const layerDef = oldLayers[layerIndex];
-  const before = oldLayers[layerIndex + 1] && oldLayers[layerIndex + 1].id;
+  const oldLayers = map.getStyle().layers
+  const layerIndex = oldLayers.findIndex(l => l.id === layerId)
+  const layerDef = oldLayers[layerIndex]
+  const before = oldLayers[layerIndex + 1] && oldLayers[layerIndex + 1].id
   // If old layer definition exists
   // replace the source with the new one
   // and then remove and replace the layer
   if (layerDef) {
-    layerDef.source = source;
+    layerDef.source = source
     if (sourceLayer) {
-      layerDef['source-layer'] = sourceLayer;
+      layerDef['source-layer'] = sourceLayer
     }
-    map.removeLayer(layerId);
-    map.addLayer(layerDef, before);
+    map.removeLayer(layerId)
+    map.addLayer(layerDef, before)
   }
 }

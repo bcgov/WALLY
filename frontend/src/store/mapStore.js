@@ -268,7 +268,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
-              dispatch('initWMSLayers', response.data.layers)
+              dispatch('initVectorLayers', response.data.layers)
             })
             .catch((error) => {
               reject(error)
@@ -407,7 +407,7 @@ export default {
       let { source, featureData } = data
       state.map.getSource(source).setData(featureData)
     },
-    initWMSLayers ({ state, commit }, allLayers) {
+    initVectorLayers ({ state, commit }, allLayers) {
       allLayers.forEach((layer) => {
         if (layer.use_wms) {
           commit('updateVectorLayerSourceToUseDataBC', layer)
@@ -480,18 +480,25 @@ export default {
       }
 
       const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+      var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
+      if (layerID === 'groundwater_wells') {
+        url = 'https://apps.nrs.gov.bc.ca/gwells/tiles/postgis_ftw.gwells_well_view/{z}/{x}/{y}.pbf'
+      }
 
       // Add sources for all DataBC supported vector layers
       state.map.addSource(`${layerID}-source`, {
         'type': 'vector',
         'tiles': [ url ],
+        'source-layer': layer.wms_name,
         'minzoom': 3,
         'maxzoom': 20
       })
 
       // This replaces the mapbox layer source with the DataBC source
-      // Allows us to use mapbox styles, but DataBC vector data
+      // Allows us to use mapbox styles managed from the iit-water mapbox account
+      // but use DataBC vector data rather than the mapbox composite source
       setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
     },
     addWMSLayer (state, layer) {

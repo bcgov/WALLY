@@ -174,7 +174,25 @@ def upgrade():
     """)
 
     op.execute("""
-        UPDATE display_catalogue set use_wms = false where display_data_name = 'groundwater_wells';
+        WITH wms_id AS (
+            INSERT INTO wms_catalogue (
+                wms_catalogue_id,
+                description,
+                wms_name,
+                wms_style,
+                create_user, create_date, update_user, update_date, effective_date, expiry_date
+            ) VALUES (
+                (select wms_catalogue_id from wms_catalogue order by wms_catalogue_id desc limit 1) + 1,
+                'Ground Water Wells', 
+                'postgis_ftw.gwells_well_view',
+                '',
+                'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
+            ) RETURNING wms_catalogue_id
+        )
+        UPDATE display_catalogue SET wms_catalogue_id = (SELECT wms_catalogue_id FROM wms_id) WHERE display_data_name = 'groundwater_wells';
+    """)
+
+    op.execute("""
         UPDATE display_catalogue set use_wms = false where display_data_name = 'hydrometric_stream_flow';
         UPDATE display_catalogue set use_wms = false where display_data_name = 'normal_annual_runoff_isolines';
 
