@@ -485,7 +485,9 @@ export default {
       // Add sources for all DataBC supported vector layers
       state.map.addSource(`${layerID}-source`, {
         'type': 'vector',
-        'tiles': [ url ]
+        'tiles': [ url ],
+        'minzoom': 3,
+        'maxzoom': 20
       })
 
       // This replaces the mapbox layer source with the DataBC source
