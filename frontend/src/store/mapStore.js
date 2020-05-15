@@ -268,7 +268,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
-              dispatch('initVectorLayers', response.data.layers)
+              commit('initVectorLayerSources', response.data.layers)
             })
             .catch((error) => {
               reject(error)
@@ -407,13 +407,6 @@ export default {
       let { source, featureData } = data
       state.map.getSource(source).setData(featureData)
     },
-    initVectorLayers ({ state, commit }, allLayers) {
-      allLayers.forEach((layer) => {
-        if (layer.use_wms) {
-          commit('updateVectorLayerSourceToUseDataBC', layer)
-        }
-      })
-    },
     /*
       Highlights a single Feature dataset
      */
@@ -462,44 +455,45 @@ export default {
         state.isDrawingToolActive = false
       }, 500)
     },
-    updateVectorLayerSourceToUseDataBC (state, layer) {
-      const layerID = layer.display_data_name
-
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetMap',
-        format: 'application/x-protobuf;type=mapbox-vector',
-        layers: 'pub:' + layer.wms_name,
-        styles: layer.wms_style,
-        transparent: true,
-        name: layer.display_name,
-        height: 256,
-        width: 256,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
-
-      // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
-      if (layerID === 'groundwater_wells') {
-        url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
-      }
-
-      // Add sources for all DataBC supported vector layers
-      state.map.addSource(`${layerID}-source`, {
-        'type': 'vector',
-        'tiles': [ url ],
-        'source-layer': layer.wms_name,
-        'minzoom': 3,
-        'maxzoom': 20
+    initVectorLayerSources (state, allLayers) {
+      // This mutation replaces the mapbox composite source with DataBC sources
+      // this way we always have the most up to date data from DataBC
+      allLayers.forEach((layer) => {
+        if (layer.use_wms) {
+          const layerID = layer.display_data_name
+          const wmsOpts = {
+            service: 'WMS',
+            request: 'GetMap',
+            format: 'application/x-protobuf;type=mapbox-vector',
+            layers: 'pub:' + layer.wms_name,
+            styles: layer.wms_style,
+            transparent: true,
+            name: layer.display_name,
+            height: 256,
+            width: 256,
+            overlay: true,
+            srs: 'EPSG:3857'
+          }
+          const query = qs.stringify(wmsOpts)
+          var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+          // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
+          if (layerID === 'groundwater_wells') {
+            url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
+          }
+          // replace source with DataBC supported vector layer
+          state.map.addSource(`${layerID}-source`, {
+            'type': 'vector',
+            'tiles': [ url ],
+            'source-layer': layer.wms_name,
+            'minzoom': 3,
+            'maxzoom': 20
+          })
+          // This replaces the mapbox layer source with the DataBC source
+          // Allows us to use mapbox styles managed from the iit-water mapbox account
+          // but use DataBC vector data rather than the mapbox composite source
+          setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
+        }
       })
-
-      // This replaces the mapbox layer source with the DataBC source
-      // Allows us to use mapbox styles managed from the iit-water mapbox account
-      // but use DataBC vector data rather than the mapbox composite source
-      setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
     },
     addWMSLayer (state, layer) {
       // this mutation adds wms layers to the map
