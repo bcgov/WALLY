@@ -35,7 +35,7 @@
     bottom: 60px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.10);
     font-size: 12px;
-    line-height: 10px;
+    line-height: 20px;
     padding: 10px;
     position: absolute;
     right: 10px;
@@ -56,9 +56,9 @@
 
   .legend div span {
     display: inline-block;
-    height: 20px;
-    margin: 4px;
-    vertical-align: top;
+    height: 10px;
+    margin-right: 5px;
+    margin-left: 5px;
   }
 
   .legend .v-icon {
@@ -72,6 +72,5 @@
   .legend .grouped {
     margin-left: 20px;
   }
-
 </style>
 <script src="./MapLegend.js"></script>

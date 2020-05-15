@@ -22,10 +22,15 @@ export function setLayerSource (map, layerId, source, sourceLayer) {
   const layerIndex = oldLayers.findIndex(l => l.id === layerId);
   const layerDef = oldLayers[layerIndex];
   const before = oldLayers[layerIndex + 1] && oldLayers[layerIndex + 1].id;
-  layerDef.source = source;
-  if (sourceLayer) {
+  // If old layer definition exists
+  // replace the source with the new one
+  // and then remove and replace the layer
+  if (layerDef) {
+    layerDef.source = source;
+    if (sourceLayer) {
       layerDef['source-layer'] = sourceLayer;
+    }
+    map.removeLayer(layerId);
+    map.addLayer(layerDef, before);
   }
-  map.removeLayer(layerId);
-  map.addLayer(layerDef, before);
 }
