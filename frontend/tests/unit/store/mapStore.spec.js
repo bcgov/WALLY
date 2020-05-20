@@ -7,6 +7,10 @@ localVue.use(Vuex)
 
 describe('Map Store', () => {
   let store
+
+  window._paq = {
+    push: jest.fn()
+  }
   beforeEach(() => {
     store = map.default
   })
@@ -128,6 +132,10 @@ describe('Map Store', () => {
     store.state.activeMapLayers = [
       { display_data_name: 'test1', display_name: 'Test 1' },
       { display_data_name: 'test2', display_name: 'Test 2' }
+    ]
+
+    store.state.mapLayers = [
+      { display_data_name: 'test3', display_name: 'Test3' }
     ]
     store.state.draw = {
       getAll: jest.fn()
