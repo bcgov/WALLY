@@ -477,7 +477,7 @@ export default {
           const query = qs.stringify(wmsOpts)
           var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
           // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
-          if (layerID === 'groundwater_wells') {
+          if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
             url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
           }
           // replace source with DataBC supported vector layer
