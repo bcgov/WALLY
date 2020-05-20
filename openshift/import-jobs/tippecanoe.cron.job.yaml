@@ -1,0 +1,87 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: wally-tiles-cron-job
+parameters:
+- description: Environment name (staging or production)
+  displayName: Environment name
+  name: ENV_NAME
+  value: production
+- description: Map layer name.  A layer_name.zip and layer_name DB table should be available.
+  displayName: Layer name
+  name: LAYER_NAME
+  required: true
+- description: Job name. OpenShift jobs cannot have underscores, which most of our layers have.
+  displayName: Job name
+  name: JOB_NAME
+  required: true
+  value: dataload
+- description: Schedule time. Time that job should run in cron time. ex. "0 2 * * *" 2am everyday
+  displayName: Schedule time
+  name: SCHEDULE_TIME
+  required: true
+  value: "0 2 * * *"
+objects:
+  - apiVersion: batch/v1beta1
+    kind: CronJob
+    metadata:
+      name: wally-cron-tiles-${JOB_NAME}
+      labels:
+        component: importer
+        job: tiles-${JOB_NAME}
+        name: wally-cron-tiles-${JOB_NAME}
+    spec:
+      schedule: ${SCHEDULE_TIME}
+      successfulJobsHistoryLimit: 1 
+      failedJobsHistoryLimit: 1
+      concurrencyPolicy: "Forbid"
+      jobTemplate:
+        metadata:
+          name: wally-cron-tiles-${JOB_NAME}
+        spec:
+          template:
+            metadata:
+              labels:          
+                parent: "crontilescreate"
+            spec:
+              containers:
+              - name: importer
+                image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
+                command: ['/dataload/create_tileset.sh']
+                args: ['${LAYER_NAME}']
+                resources:
+                  requests:
+                    cpu: 200m
+                    memory: 4Gi
+                  limits:
+                    cpu: '1'
+                    memory: 4Gi
+                env:
+                - name: POSTGRES_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: app-db-username
+                      name: wally-psql
+                - name: POSTGRES_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: app-db-password
+                      name: wally-psql
+                - name: POSTGRES_DB
+                  valueFrom:
+                    secretKeyRef:
+                      key: app-db-name
+                      name: wally-psql
+                - name: MINIO_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: minioAccessKey
+                      name: minio
+                - name: MINIO_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      key: minioSecretKey
+                      name: minio
+                - name: POSTGRES_SERVER
+                  value: wally-psql-master-${ENV_NAME}
+              restartPolicy: OnFailure

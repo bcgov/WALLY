@@ -51,7 +51,7 @@ let downloaded=downloaded+retrieved
 # and will be combined by ogr2ogr after all files have been downloaded.
 while [ $downloaded -lt $matched ]
 do
-  ((index++)) && ((index==20)) && echo "Exceeded loop limit ($index) without retrieving all files, stopping. There are $matched records, but only $downloaded were retrieved." && exit 1
+  ((index++)) && ((index==100)) && echo "Exceeded loop limit ($index) without retrieving all files, stopping. There are $matched records, but only $downloaded were retrieved." && exit 1
 
   echo "$downloaded downloaded, $matched total.  Making another request ..."
 
