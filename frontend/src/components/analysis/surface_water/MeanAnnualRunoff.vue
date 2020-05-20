@@ -482,7 +482,7 @@ export default {
         }
         this.availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
       } else {
-        console.log("No model information reported.")
+        console.log('No model information reported.')
       }
     },
     monthlyDistributionsLayout () {
