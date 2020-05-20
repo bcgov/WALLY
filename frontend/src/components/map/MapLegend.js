@@ -20,7 +20,7 @@ export default {
 
           if (mapLayerType !== 'raster') {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
-            legendItems = this.getLegendItems(mapLayerPaint, mapLayerType)
+            legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerID)
             const layerLegend = {
               name: layer.display_name,
               legendItems,
@@ -72,7 +72,7 @@ export default {
         iconSize
       }
     },
-    getLegendItems (paint, lType) {
+    getLegendItems (paint, lType, layerID) {
       let color, text
       // Skip first element
       let icon
@@ -114,8 +114,8 @@ export default {
       if (paint.color[0] === 'interpolate') {
         legendItems.push({
           'text': '',
-          'color': paint.color[6],
-          'outlineColor': paint.outlineColor,
+          'color': layerID === "water_rights_licences" ? paint.color[4] : paint.color[6],
+          'outlineColor': layerID === "water_rights_licences" ? paint.outlineColor[3] : paint.outlineColor,
           'lineWidth': paint.width,
           'strokeWidth': '1px',
           icon,
