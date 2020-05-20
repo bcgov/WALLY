@@ -142,33 +142,51 @@ def watershed_stats(
 
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
+    logger.warn(watershed)
     watershed_poly = shape(watershed.geometry)
+    logger.warn(watershed_poly)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
+    logger.warn(watershed_area)
     watershed_rect = watershed_poly.minimum_rotated_rectangle
+    logger.warn(watershed_rect)
 
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²
+    logger.warn(drainage_area)
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
+    logger.warn(glacial_area_m)
     temperature_data = get_temperature(watershed_poly)
+    logger.warn(temperature_data)
     annual_precipitation = mean_annual_precipitation(db, watershed_poly)
+    logger.warn(annual_precipitation)
     potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
         watershed_poly, temperature_data)
+    logger.warn(potential_evapotranspiration_hamon)
     potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
         watershed_poly, temperature_data
     )
+    logger.warn(potential_evapotranspiration_thornthwaite)
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+    logger.warn(hydrological_zone)
     average_slope, median_elevation, aspect = get_slope_elevation_aspect(
         watershed_poly)
+    logger.warn(average_slope)
+    logger.warn(median_elevation)
+    logger.warn(aspect)
     solar_exposure = get_hillshade(average_slope, aspect)
+    logger.warn(solar_exposure)
 
     # custom model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
+    logger.warn(isoline_runoff)
     scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation,
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
+    logger.warn(scsb2016_model)
 
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
+    logger.warn(hydrometric_stations)
 
     data = {
         "watershed_name": watershed.properties.get("name", None),
