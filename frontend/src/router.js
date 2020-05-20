@@ -183,12 +183,14 @@ const router = new Router({
 })
 
 router.afterEach(mapResize)
+// https://github.com/AmazingDreams/vue-matomo/issues/60
+// vue-matomo current doesn't track the URL, just the page title from the router
+// Until the issue above is fixed, we can report the URL change to matomo in
+// this manner
 router.afterEach((to, from) => {
   Vue.nextTick(() => {
     window._paq.push(['setReferrerUrl', from.fullPath])
     window._paq.push(['setCustomUrl', to.fullPath])
-    // Matomo.setReferrerUrl(from.fullPath)
-    // Matomo.setCustomUrl(to.fullPath)
   })
 })
 export default router
