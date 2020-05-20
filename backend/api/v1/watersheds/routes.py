@@ -192,7 +192,7 @@ def watershed_stats(
         aspect = sea
         solar_exposure = None
     else:
-        average_slope = sea.get("average_slope")
+        average_slope = sea.get("slope")
         median_elevation = sea.get("median_elevation")
         aspect = sea.get("aspect")
         solar_exposure = get_hillshade(average_slope, aspect)

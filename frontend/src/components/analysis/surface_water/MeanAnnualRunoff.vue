@@ -59,48 +59,6 @@
         </v-col>
       </v-row>
 
-      <v-row class="borderSub">
-        <v-col cols=4 class="colSub">
-          <Dialog v-bind="wmd.annualPrecipitation"/>
-          <div class="titleSub">Annual Precipitation</div>
-          <div v-if="watershedDetails.annual_precipitation">
-            <div class="infoSub">
-              {{ watershedDetails.annual_precipitation }}
-            </div>
-            <div class="unitSub">mm</div>
-          </div>
-          <div class="unitSub" v-else>
-            {{ noValueText }}
-          </div>
-        </v-col>
-        <v-col cols=4 class="colSub colSubInner">
-          <Dialog v-bind="wmd.glacialCoverage"/>
-          <div class="titleSub">Glacial Coverage</div>
-          <div v-if="watershedDetails.glacial_coverage">
-            <div class="infoSub">
-              {{ watershedDetails.glacial_coverage }}
-            </div>
-            <div class="unitSub">%</div>
-          </div>
-          <div class="unitSub" v-else>
-            {{ noValueText }}
-          </div>
-        </v-col>
-        <v-col cols=4 class="colSubInner">
-          <Dialog v-bind="wmd.medianElevation"/>
-          <div class="titleSub">Median Elevation</div>
-          <div v-if="watershedDetails.median_elevation">
-            <div class="infoSub">
-              {{ watershedDetails.median_elevation }}
-            </div>
-            <div class="unitSub">mASL</div>
-          </div>
-          <div class="unitSub" v-else>
-            {{ noValueText }}
-          </div>
-        </v-col>
-      </v-row>
-
       <div class="modelOutputBorder mt-5">
         <v-row class="borderBlock">
           <v-col cols=6 class="colSub">
@@ -174,6 +132,48 @@
           </v-col>
         </v-row>
       </div>
+
+      <v-row class="borderSub">
+        <v-col cols=4 class="colSub">
+          <Dialog v-bind="wmd.annualPrecipitation"/>
+          <div class="titleSub">Annual Precipitation</div>
+          <div v-if="watershedDetails.annual_precipitation">
+            <div class="infoSub">
+              {{ watershedDetails.annual_precipitation }}
+            </div>
+            <div class="unitSub">mm</div>
+          </div>
+          <div class="unitSub" v-else>
+            {{ noValueText }}
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSub colSubInner">
+          <Dialog v-bind="wmd.glacialCoverage"/>
+          <div class="titleSub">Glacial Coverage</div>
+          <div v-if="watershedDetails.glacial_coverage">
+            <div class="infoSub">
+              {{ watershedDetails.glacial_coverage }}
+            </div>
+            <div class="unitSub">%</div>
+          </div>
+          <div class="unitSub" v-else>
+            {{ noValueText }}
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSubInner">
+          <Dialog v-bind="wmd.medianElevation"/>
+          <div class="titleSub">Median Elevation</div>
+          <div v-if="watershedDetails.median_elevation">
+            <div class="infoSub">
+              {{ watershedDetails.median_elevation }}
+            </div>
+            <div class="unitSub">mASL</div>
+          </div>
+          <div class="unitSub" v-else>
+            {{ noValueText }}
+          </div>
+        </v-col>
+      </v-row>
 
       <v-divider class="my-5"/>
       <Dialog v-bind="wmd.monthlyDischarge"/>
