@@ -84,7 +84,7 @@ def pcic_data_request(
 
     req_url = pcic_url + urlencode(params)
 
-    logger.info('pcic request: %s', req_url)
+    logger.warn('pcic request: %s', req_url)
 
     try:
         resp = requests.get(req_url)
