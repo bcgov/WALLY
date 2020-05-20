@@ -52,6 +52,9 @@ export default {
   },
   watch: {
     searchFeatureType (val) {
+      // Customized Metrics - Track each select search option
+      window._paq.push(['trackEvent', 'Search', 'Selected Search Category', this.searchOptions.find(x => x.value === val).text])
+
       this.updateGeocoderType(val)
 
       // find and update the the geocoder search box by its class name.

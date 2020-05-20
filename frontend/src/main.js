@@ -2,6 +2,7 @@ import Vue from 'vue'
 import vuetify from './plugins/vuetify'
 // import * as Sentry from '@sentry/browser'
 // import * as Integrations from '@sentry/integrations'
+import './config/config'
 import App from './App'
 import router from './router'
 import store from './store'
@@ -14,17 +15,19 @@ import VueMatomo from 'vue-matomo'
 
 import './filters'
 
+// Turn off the annoying vue production tip
 Vue.config.productionTip = false
 
-const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
-const WALLY_TEST_HOSTNAME = 'wally-staging.pathfinder.gov.bc.ca'
+// const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
+// const WALLY_TEST_HOSTNAME = 'wally-staging.pathfinder.gov.bc.ca'
 
 const auth = new AuthService()
 Vue.prototype.$auth = auth
 
-if (process.env.VUE_APP_ENV === 'production' &&
-    window.location.hostname === WALLY_HOSTNAME
-) {
+// if (process.env.VUE_APP_ENV === 'production' &&
+//     window.location.hostname === WALLY_HOSTNAME
+// ) {
+if (global.config.isProduction) {
   Sentry.init({
     dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
     integrations: [new Integrations.Vue({ Vue,
@@ -39,7 +42,8 @@ if (process.env.VUE_APP_ENV === 'production' &&
   })
 }
 
-if (window.location.hostname === WALLY_TEST_HOSTNAME) {
+// if (window.location.hostname === WALLY_TEST_HOSTNAME) {
+if (global.config.isStaging) {
   // To test matomo actions locally just move the below plugin code outside
   // of this if check, otherwise this will only log actions from staging
   Vue.use(VueMatomo, {
@@ -47,6 +51,16 @@ if (window.location.hostname === WALLY_TEST_HOSTNAME) {
     siteId: 1,
     router: router,
     domains: '*.pathfinder.gov.bc.ca'
+  })
+}
+
+if (global.config.isDevelopment) {
+  Vue.use(VueMatomo, {
+    host: 'https://matomo-bfpeyx-test.pathfinder.gov.bc.ca/',
+    siteId: 1,
+    router: router,
+    domains: '*.pathfinder.gov.bc.ca',
+    debug: true
   })
 }
 

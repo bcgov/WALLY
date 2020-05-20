@@ -224,7 +224,12 @@ export default {
       prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => dispatch('removeMapLayer', l))
 
       // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
-      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => commit('activateLayer', l))
+      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => {
+        // Customized Metrics - Track when a layer is selected
+        const layerName = state.mapLayers.find(e => e.display_data_name === l).display_name
+        window._paq.push(['trackEvent', 'Layer', 'Activate Layer', layerName])
+        commit('activateLayer', l)
+      })
 
       // reset the list of active layers
       commit('setActiveMapLayers', selectedLayers)

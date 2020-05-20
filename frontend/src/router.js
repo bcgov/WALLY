@@ -69,6 +69,7 @@ const router = new Router({
       name: 'point-of-interest',
       component: PointOfInterest,
       meta: {
+        title: 'Point of Interest',
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -182,4 +183,12 @@ const router = new Router({
 })
 
 router.afterEach(mapResize)
+router.afterEach((to, from) => {
+  Vue.nextTick(() => {
+    window._paq.push(['setReferrerUrl', from.fullPath])
+    window._paq.push(['setCustomUrl', to.fullPath])
+    // Matomo.setReferrerUrl(from.fullPath)
+    // Matomo.setCustomUrl(to.fullPath)
+  })
+})
 export default router
