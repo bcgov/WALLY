@@ -438,9 +438,9 @@ export default {
         return
       }
       // ISOLine Model Calculations as backup if Stewardship model doesn't exist
-      if (details && 
-          details.runoff_isoline_discharge_m3s != null && 
-          details.runoff_isoline_avg != null && 
+      if (details &&
+          details.runoff_isoline_discharge_m3s != null &&
+          details.runoff_isoline_avg != null &&
           this.watershedArea) {
         const meanAnnualDischarge = details.runoff_isoline_discharge_m3s
         const meanAnnualRunoff = details.runoff_isoline_avg
