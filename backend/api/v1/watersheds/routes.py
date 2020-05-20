@@ -150,17 +150,35 @@ def watershed_stats(
     drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
-    temperature_data = get_temperature(watershed_poly)
+
     annual_precipitation = mean_annual_precipitation(db, watershed_poly)
-    potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-        watershed_poly, temperature_data)
-    potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-        watershed_poly, temperature_data
-    )
+
+    # check if temperature returns a successful result
+    temperature_data = get_temperature(watershed_poly)
+    if temperature_data["error"]:
+        potential_evapotranspiration_hamon = None
+        potential_evapotranspiration_thornthwaite = None
+    else:
+        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+            watershed_poly, temperature_data)
+        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+            watershed_poly, temperature_data
+        )
+
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-    average_slope, median_elevation, aspect = get_slope_elevation_aspect(
-        watershed_poly)
-    solar_exposure = get_hillshade(average_slope, aspect)
+
+    # check if sea returns a successful result
+    sea = get_slope_elevation_aspect(watershed_poly)
+    if sea["error"]:
+        average_slope = sea["error"]
+        median_elevation = sea["error"]
+        aspect = sea["error"]
+        solar_exposure = None
+    else:
+        average_slope = sea["average_slope"]
+        median_elevation = sea["median_elevation"]
+        aspect = sea["aspect"]
+        solar_exposure = get_hillshade(average_slope, aspect)
 
     # custom model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)

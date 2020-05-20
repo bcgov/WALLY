@@ -90,7 +90,7 @@ def pcic_data_request(
         resp = requests.get(req_url)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+        return { "status_code": e.response.status_code, "error": str(e) }
 
     return resp.json()
 
@@ -425,7 +425,10 @@ def get_temperature(poly: Polygon):
     min_temp = pcic_data_request(poly, 'tasmin')
     max_temp = pcic_data_request(poly, 'tasmax')
 
-    return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
+    if min_temp["error"] or max_temp["error"]:
+        return { "error": { "min_error": min_temp, "max_error": max_temp } }
+    else:
+        return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
 
 
 def get_annual_precipitation(poly: Polygon):
@@ -544,7 +547,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     logger.warning(result)
 
     if result["status"] != "SUCCESS":
-        raise HTTPException(204, detail=result["message"])
+        return { 'error': result["message"] }
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",

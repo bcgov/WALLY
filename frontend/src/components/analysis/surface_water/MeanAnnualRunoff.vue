@@ -438,7 +438,7 @@ export default {
         return
       }
       // ISOLine Model Calculations as backup if Stewardship model doesn't exist
-      if (details.runoff_isoline_discharge_m3s && details.runoff_isoline_avg && this.watershedArea) {
+      if (details && details.runoff_isoline_discharge_m3s && details.runoff_isoline_avg && this.watershedArea) {
         const meanAnnualDischarge = details.runoff_isoline_discharge_m3s
         const meanAnnualRunoff = details.runoff_isoline_avg
         var discharges = []
@@ -481,6 +481,8 @@ export default {
           evapo_transpiration: null
         }
         this.availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+      } else {
+        console.log("No model information reported.")
       }
     },
     monthlyDistributionsLayout () {
