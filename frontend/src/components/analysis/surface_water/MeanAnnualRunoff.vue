@@ -59,7 +59,7 @@
         </v-col>
       </v-row>
 
-      <div class="modelOutputBorder mt-5">
+      <div class="modelOutputBorder">
         <v-row class="borderBlock">
           <v-col cols=6 class="colSub">
             <Dialog v-bind="wmd.meanAnnualDischarge"/>
@@ -133,7 +133,7 @@
         </v-row>
       </div>
 
-      <v-row class="borderSub">
+      <v-row class="borderSub mt-5">
         <v-col cols=4 class="colSub">
           <Dialog v-bind="wmd.annualPrecipitation"/>
           <div class="titleSub">Annual Precipitation</div>
@@ -521,7 +521,7 @@ export default {
 
 <style>
 .borderBlock {
-  padding: 18px 27px 27px 25px;
+  padding: 18px 27px 20px 25px;
 }
 .titleBlock {
   color: #202124;
