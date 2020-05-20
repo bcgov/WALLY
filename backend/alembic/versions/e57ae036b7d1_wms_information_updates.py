@@ -70,7 +70,7 @@ def upgrade():
             ) VALUES (
                 (select wms_catalogue_id from wms_catalogue order by wms_catalogue_id desc limit 1) + 1,
                 'Ground Water Aquifers', 
-                'WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW',
+                'postgis_ftw.wally_aquifer_view',
                 '',
                 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
             ) RETURNING wms_catalogue_id
@@ -184,7 +184,7 @@ def upgrade():
             ) VALUES (
                 (select wms_catalogue_id from wms_catalogue order by wms_catalogue_id desc limit 1) + 1,
                 'Ground Water Wells', 
-                'postgis_ftw.gwells_well_view',
+                'postgis_ftw.wally_well_view',
                 '',
                 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
             ) RETURNING wms_catalogue_id
