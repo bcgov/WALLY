@@ -187,9 +187,9 @@ def watershed_stats(
     # check if sea returns a successful result
     sea = get_slope_elevation_aspect(watershed_poly)
     if sea.get("error"):
-        average_slope = sea.get("error")
-        median_elevation = sea.get("error")
-        aspect = sea.get("error")
+        average_slope = sea
+        median_elevation = sea
+        aspect = sea
         solar_exposure = None
     else:
         average_slope = sea.get("average_slope")

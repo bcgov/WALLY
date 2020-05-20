@@ -536,18 +536,12 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
-        logger.warning('External service error (SEA): %s', str(error))
-        return {
-            "slope": None, 
-            "median_elevation": None, 
-            "aspect": None
-        }
+        return {"status_code": error.response.status_code, "error": str(error)}
 
     result = response.json()
-    logger.warning(result)
 
     if result["status"] != "SUCCESS":
-        return { 'error': result["message"] }
+        return {'error': result["message"]}
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
@@ -558,9 +552,9 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     sea = result["SlopeElevationAspectResult"]
 
     return {
-        "slope": sea["slope"], 
-        "median_elevation": sea["averageElevation"], 
-        "aspect": sea["aspect"] 
+        "slope": sea["slope"],
+        "median_elevation": sea["averageElevation"],
+        "aspect": sea["aspect"]
     }
 
 
