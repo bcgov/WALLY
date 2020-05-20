@@ -168,10 +168,20 @@ def watershed_stats(
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
     logger.warn("hydrological_zone")
     logger.warn(hydrological_zone)
-    average_slope, median_elevation, aspect = get_slope_elevation_aspect(
-        watershed_poly)
-    solar_exposure = get_hillshade(average_slope, aspect)
 
+    # check if sea returns a successful result
+    sea = get_slope_elevation_aspect(watershed_poly)
+    if sea["error"]:
+        average_slope = sea["error"]
+        median_elevation = sea["error"]
+        aspect = sea["error"]
+        solar_exposure = None
+    else:
+        average_slope = sea["average_slope"]
+        median_elevation = sea["median_elevation"]
+        aspect = sea["aspect"]
+        solar_exposure = get_hillshade(average_slope, aspect)
+      
     # custom model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
     logger.warn("isoline_runoff")

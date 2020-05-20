@@ -343,6 +343,7 @@ export default {
         })
         .catch(e => {
           this.watershedDetailsLoading = false
+          console.log("watershed information gathering failed: " + e)
           console.error(e)
         })
     },
