@@ -1,0 +1,20 @@
+{
+  "development": {
+    "isProduction":  false,
+    "isStaging": false,
+    "isDevelopment": true,
+    "debug": true
+  },
+  "staging": {
+    "isProduction":  false,
+    "isStaging": true,
+    "isDevelopment": true,
+    "debug": true
+  },
+  "production": {
+    "isProduction":  true,
+    "isStaging": false,
+    "isDevelopment": true,
+    "debug": false
+  }
+}
