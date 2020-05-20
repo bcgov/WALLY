@@ -126,8 +126,8 @@ describe('Map Store', () => {
   it('updateActiveMapLayers with 1 new layer triggers the mutation to add a new layer', () => {
     store.commit = jest.fn()
     store.state.activeMapLayers = [
-      { display_data_name: 'test1' },
-      { display_data_name: 'test2' }
+      { display_data_name: 'test1', display_name: 'Test 1' },
+      { display_data_name: 'test2', display_name: 'Test 1' }
     ]
     store.state.draw = {
       getAll: jest.fn()
