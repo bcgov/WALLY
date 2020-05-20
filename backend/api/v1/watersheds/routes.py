@@ -155,29 +155,29 @@ def watershed_stats(
 
     # check if temperature returns a successful result
     temperature_data = get_temperature(watershed_poly)
-    if temperature_data["error"]:
+    if temperature_data.get("error"):
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
     else:
         potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-            watershed_poly, temperature_data)
+            watershed_poly, temperature_data["temp_by_month"])
         potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-            watershed_poly, temperature_data
+            watershed_poly, temperature_data["temp_by_month"]
         )
 
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
     # check if sea returns a successful result
     sea = get_slope_elevation_aspect(watershed_poly)
-    if sea["error"]:
-        average_slope = sea["error"]
-        median_elevation = sea["error"]
-        aspect = sea["error"]
+    if sea.get("error"):
+        average_slope = sea.get("error")
+        median_elevation = sea.get("error")
+        aspect = sea.get("error")
         solar_exposure = None
     else:
-        average_slope = sea["average_slope"]
-        median_elevation = sea["median_elevation"]
-        aspect = sea["aspect"]
+        average_slope = sea.get("average_slope")
+        median_elevation = sea.get("median_elevation")
+        aspect = sea.get("aspect")
         solar_exposure = get_hillshade(average_slope, aspect)
 
     # custom model outputs

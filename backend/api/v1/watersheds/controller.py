@@ -425,10 +425,10 @@ def get_temperature(poly: Polygon):
     min_temp = pcic_data_request(poly, 'tasmin')
     max_temp = pcic_data_request(poly, 'tasmax')
 
-    if min_temp["error"] or max_temp["error"]:
+    if min_temp.get("error") or max_temp.get("error"):
         return { "error": { "min_error": min_temp, "max_error": max_temp } }
     else:
-        return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
+        return  { "temp_by_month": parse_pcic_temp(min_temp.get('data'), max_temp.get('data')) }
 
 
 def get_annual_precipitation(poly: Polygon):
@@ -537,13 +537,13 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         response.raise_for_status()
     except requests.exceptions.HTTPError as error:
         logger.warning('External service error (SEA): %s', str(error))
-
-        # calling function expects a tuple of 3 values.
-        # must be able to handle return value of None
-        return (None, None, None)
+        return {
+            "slope": None, 
+            "median_elevation": None, 
+            "aspect": None
+        }
 
     result = response.json()
-    logger.warning("sea result")
     logger.warning(result)
 
     if result["status"] != "SUCCESS":
@@ -557,11 +557,11 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     # "confidenceIndicator":46.840837384501654}}
     sea = result["SlopeElevationAspectResult"]
 
-    slope = sea["slope"]
-    median_elevation = sea["averageElevation"]
-    aspect = sea["aspect"]
-
-    return (slope, median_elevation, aspect)
+    return {
+        "slope": sea["slope"], 
+        "median_elevation": sea["averageElevation"], 
+        "aspect": sea["aspect"] 
+    }
 
 
 def get_hillshade(slope: float, aspect: float):
