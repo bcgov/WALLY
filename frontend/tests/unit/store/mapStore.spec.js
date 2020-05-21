@@ -5,6 +5,10 @@ import * as map from '../../../src/store/mapStore'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
+global.config = {
+  debug: false
+}
+
 describe('Map Store', () => {
   let store
 
