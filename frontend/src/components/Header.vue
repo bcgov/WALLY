@@ -100,7 +100,7 @@ export default {
   },
   methods: {
     toggleAdjustableSidePanel () {
-      console.log('toggling')
+      global.config.debug && console.log('[wally] toggling')
       this.$store.commit('toggleAdjustableSidePanel')
     },
     setName (payload) {

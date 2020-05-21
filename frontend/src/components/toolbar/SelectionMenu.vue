@@ -106,7 +106,7 @@ export default {
   },
   methods: {
     consoleLog () {
-      console.log('a')
+      global.config.debug && console.log('[wally] a')
     },
     resetSelections () {
       this.$store.dispatch('map/clearSelections')

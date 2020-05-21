@@ -132,7 +132,7 @@ export default {
     async updateBySearchResult (data) {
       this.setDrawMode('simple_select')
       await this.$router.push({ name: 'single-feature' })
-      console.log('route changed')
+      global.config.debug && console.log('[wally] route changed')
       let lat = data.result.center[1]
       let lng = -Math.abs(data.result.center[0])
       const options = { steps: 10, units: 'kilometers', properties: {} }

@@ -65,7 +65,7 @@ export default {
     pointOfInterest (value) {
       if (value && value.geometry) {
         // Update router
-        console.log('updating POI route')
+        global.config.debug && console.log('[wally] updating POI route')
         this.$router.push({
           path: '/point-of-interest',
           query: { coordinates: value.geometry.coordinates }
@@ -112,7 +112,7 @@ export default {
     ...mapGetters('map', ['isMapReady', 'draw', 'isDrawingToolActive'])
   },
   mounted () {
-    console.log('is map ready?', this.isMapReady)
+    global.config.debug && console.log('[wally] is map ready?', this.isMapReady)
     if (this.isMapReady) {
       this.loadFeature()
     }
