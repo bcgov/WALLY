@@ -408,6 +408,23 @@ export default {
   methods: {
     updateModelData (details) {
       // MAD Model Calculations
+
+      if (!details) {
+        return
+      }
+
+      console.log(details.annual_precipitation && details.annual_precipitation.toFixed(0))
+
+      this.watershedDetails = {
+        median_elevation: details.median_elevation && details.median_elevation.toFixed(0),
+        average_slope: details.average_slope,
+        solar_exposure: details.solar_exposure,
+        drainage_area: details.drainage_area && details.drainage_area.toFixed(2),
+        glacial_coverage: details.glacial_coverage && details.glacial_coverage.toFixed(2),
+        annual_precipitation: details.annual_precipitation && details.annual_precipitation.toFixed(0),
+        evapo_transpiration: details.potential_evapotranspiration_thornthwaite
+      }
+
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {
         let outputs = details.scsb2016_model
         let mar = outputs.find((x) => x.output_type === 'MAR')
@@ -424,15 +441,6 @@ export default {
           dry7q10: dry7q10.model_result.toFixed(2),
           monthlyDistributions: monthlyDistributions,
           monthlyDischarges: monthlyDischarges
-        }
-        this.watershedDetails = {
-          median_elevation: details.median_elevation.toFixed(0),
-          average_slope: details.average_slope,
-          solar_exposure: details.solar_exposure,
-          drainage_area: details.drainage_area.toFixed(2),
-          glacial_coverage: details.glacial_coverage.toFixed(2),
-          annual_precipitation: details.annual_precipitation.toFixed(0),
-          evapo_transpiration: details.potential_evapotranspiration_thornthwaite
         }
         this.availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
         return
@@ -468,17 +476,6 @@ export default {
           dry7q10: null,
           monthlyDistributions: distributions,
           monthlyDischarges: discharges
-        }
-        // TODO: This completely ignores the model inputs provided by the user.
-        //  Verify that this is what we want.
-        this.watershedDetails = {
-          median_elevation: null,
-          average_slope: null,
-          solar_exposure: null,
-          drainage_area: this.watershedArea.toFixed(2),
-          glacial_coverage: null,
-          annual_precipitation: null,
-          evapo_transpiration: null
         }
         this.availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
       }
