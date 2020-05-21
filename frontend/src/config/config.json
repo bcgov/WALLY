@@ -3,7 +3,8 @@
     "isProduction":  false,
     "isStaging": false,
     "isDevelopment": true,
-    "debug": true
+    "debug": true,
+    "enableAnalytics": false
   },
   "staging": {
     "isProduction":  false,

@@ -18,15 +18,9 @@ import './filters'
 // Turn off the annoying vue production tip
 Vue.config.productionTip = false
 
-// const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
-// const WALLY_TEST_HOSTNAME = 'wally-staging.pathfinder.gov.bc.ca'
-
 const auth = new AuthService()
 Vue.prototype.$auth = auth
 
-// if (process.env.VUE_APP_ENV === 'production' &&
-//     window.location.hostname === WALLY_HOSTNAME
-// ) {
 if (global.config.isProduction) {
   Sentry.init({
     dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
@@ -42,10 +36,7 @@ if (global.config.isProduction) {
   })
 }
 
-// if (window.location.hostname === WALLY_TEST_HOSTNAME) {
 if (global.config.isStaging) {
-  // To test matomo actions locally just move the below plugin code outside
-  // of this if check, otherwise this will only log actions from staging
   Vue.use(VueMatomo, {
     host: 'https://matomo-bfpeyx-test.pathfinder.gov.bc.ca/',
     siteId: 1,
@@ -54,7 +45,8 @@ if (global.config.isStaging) {
   })
 }
 
-if (global.config.isDevelopment) {
+if (global.config.isDevelopment && global.config.enableAnalytics) {
+  // To test matomo actions locally, turn on enableAnalytics
   Vue.use(VueMatomo, {
     host: 'https://matomo-bfpeyx-test.pathfinder.gov.bc.ca/',
     siteId: 1,
