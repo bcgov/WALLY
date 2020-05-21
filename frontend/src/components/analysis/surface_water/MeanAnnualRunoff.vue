@@ -413,8 +413,6 @@ export default {
         return
       }
 
-      console.log(details.annual_precipitation && details.annual_precipitation.toFixed(0))
-
       this.watershedDetails = {
         median_elevation: details.median_elevation && details.median_elevation.toFixed(0),
         average_slope: details.average_slope,
