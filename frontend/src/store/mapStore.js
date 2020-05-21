@@ -4,6 +4,8 @@ import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import qs from 'querystring'
+import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -266,6 +268,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
+              commit('initVectorLayerSources', response.data.layers)
             })
             .catch((error) => {
               reject(error)
@@ -451,6 +454,88 @@ export default {
       setTimeout(() => { // delay to let other draw actions finish
         state.isDrawingToolActive = false
       }, 500)
+    },
+    initVectorLayerSources (state, allLayers) {
+      // This mutation replaces the mapbox composite source with DataBC sources
+      // this way we always have the most up to date data from DataBC
+      allLayers.forEach((layer) => {
+        if (layer.use_wms) {
+          const layerID = layer.display_data_name
+          const wmsOpts = {
+            service: 'WMS',
+            request: 'GetMap',
+            format: 'application/x-protobuf;type=mapbox-vector',
+            layers: 'pub:' + layer.wms_name,
+            styles: layer.wms_style,
+            transparent: true,
+            name: layer.display_name,
+            height: 256,
+            width: 256,
+            overlay: true,
+            srs: 'EPSG:3857'
+          }
+          const query = qs.stringify(wmsOpts)
+          var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+          // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
+          if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
+            url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
+          }
+          // replace source with DataBC supported vector layer
+          state.map.addSource(`${layerID}-source`, {
+            'type': 'vector',
+            'tiles': [ url ],
+            'source-layer': layer.wms_name,
+            'minzoom': 3,
+            'maxzoom': 20
+          })
+          // This replaces the mapbox layer source with the DataBC source
+          // Allows us to use mapbox styles managed from the iit-water mapbox account
+          // but use DataBC vector data rather than the mapbox composite source
+          setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
+        }
+      })
+    },
+    addWMSLayer (state, layer) {
+      // this mutation adds wms layers to the map
+      const layerID = layer.display_data_name
+      if (!layerID) {
+        return
+      }
+
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'image/png',
+        layers: 'pub:' + layer.wms_name,
+        styles: layer.wms_style,
+        transparent: true,
+        name: layer.name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      state.map.addSource(`${layerID}-source`, {
+        'type': 'raster',
+        'tiles': [
+          url
+        ],
+        'tileSize': 256
+      })
+
+      state.map.addLayer({
+        'id': layerID,
+        'type': 'raster',
+        'source': `${layerID}-source`,
+        'layout': {
+          'visibility': 'none'
+        },
+        'paint': {}
+      })
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map

@@ -20,12 +20,25 @@ export default {
 
           if (mapLayerType !== 'raster') {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
-            legendItems = this.getLegendItems(mapLayerPaint, mapLayerType)
+            legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerID)
             const layerLegend = {
               name: layer.display_name,
               legendItems,
               'plenty': (legendItems.length > 1),
               'className': (legendItems.length > 1) && 'grouped'
+            }
+            this.legend.push(layerLegend)
+          }
+
+          if (mapLayerType === 'raster') {
+            const legendItems = [{
+              wmsIconUrl: `https://openmaps.gov.bc.ca/geo/pub/${layer.wms_name}/ows?service=WMS&request=GetLegendGraphic&format=image%2Fpng&width=20&height=20&layer=pub%3A${layer.wms_name}&style=${layer.wms_style}`
+            }]
+            const layerLegend = {
+              name: layer.display_name,
+              legendItems,
+              'plenty': false,
+              'className': ''
             }
             this.legend.push(layerLegend)
           }
@@ -59,7 +72,7 @@ export default {
         iconSize
       }
     },
-    getLegendItems (paint, lType) {
+    getLegendItems (paint, lType, layerID) {
       let color, text
       // Skip first element
       let icon
@@ -101,8 +114,8 @@ export default {
       if (paint.color[0] === 'interpolate') {
         legendItems.push({
           'text': '',
-          'color': paint.color[6],
-          'outlineColor': paint.outlineColor,
+          'color': layerID === "water_rights_licences" ? paint.color[4] : paint.color[6],
+          'outlineColor': layerID === "water_rights_licences" ? paint.outlineColor[3] : paint.outlineColor,
           'lineWidth': paint.width,
           'strokeWidth': '1px',
           icon,
