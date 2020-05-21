@@ -49,7 +49,8 @@ export default {
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length
           })) {
-            console.log('no features found - skipping setting datamart features')
+            global.config.debug && console.log('[wally] no features found -' +
+              ' skipping setting datamart features')
             return
           }
 
@@ -81,7 +82,8 @@ export default {
             })
           }
 
-          console.log('found feature(s) on map', featureCount)
+          global.config.debug && console.log('[wally] found feature(s) on' +
+            ' map', featureCount)
 
           // Check whether there is a single feature being returned in the click area
           if (featureCount > 1) {
@@ -185,8 +187,10 @@ export default {
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
 
-      console.log('payload display name', payload.display_data_name)
-      console.log('route?', router.currentRoute.name)
+      global.config.debug && console.log('[wally] payload display name',
+        payload.display_data_name)
+      global.config.debug && console.log('[wally] route?',
+        router.currentRoute.name)
       // check if feature info is being reset. If so, stop here and don't alter route.
       if (!payload || payload === {} || !payload.geometry || !payload.display_data_name) {
         return

@@ -118,7 +118,7 @@ export default {
       if (paint.color[0] === 'match') {
         // color[1] will be the condition
         for (let i = 2; i < paint.color.length - 1; i += 2) {
-          console.log(paint.color[i].constructor)
+          global.config.debug && console.log('[wally]', paint.color[i].constructor)
           if (paint.color[i].constructor === Array) {
             text = this.replaceLabelCode(paint.color[i].join(', '))
             color = paint.color[i + 1]

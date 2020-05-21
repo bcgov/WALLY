@@ -8,7 +8,7 @@
   "staging": {
     "isProduction":  false,
     "isStaging": true,
-    "isDevelopment": true,
+    "isDevelopment": false,
     "debug": true
   },
   "production": {

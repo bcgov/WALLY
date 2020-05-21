@@ -204,7 +204,7 @@ export default {
         return
       }
 
-      console.log('feature : ', newFeature)
+      global.config.debug && console.log('[wally] feature : ', newFeature)
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
@@ -293,7 +293,7 @@ export default {
 
       options = Object.assign({}, defaultOptions, options)
 
-      console.log('map click')
+      global.config.debug && console.log('[wally] map click')
       // const popup = new mapboxgl.Popup({
       //   closeButton: false,
       //   closeOnClick: false
@@ -303,13 +303,14 @@ export default {
         const canvas = await state.map.getCanvas()
         const size = { x: canvas.width, y: canvas.height }
 
-        console.log('discard features before querying: ', options.alwaysReplaceFeatures)
+        global.config.debug && console.log('[wally] discard features before' +
+          ' querying: ', options.alwaysReplaceFeatures)
 
         if (options.alwaysReplaceFeatures) {
           commit('clearDataMartFeatures', {}, { root: true })
         }
 
-        console.log(bounds)
+        global.config.debug && console.log('[wally]', bounds)
 
         dispatch('getDataMartFeatures', {
           bounds: bounds,
@@ -399,7 +400,7 @@ export default {
           }
         })
 
-        console.log('map is now ready')
+        global.config.debug && console.log('[wally] map is now ready')
         // End of cascade; map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)

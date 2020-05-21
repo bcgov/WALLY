@@ -222,8 +222,8 @@ export default {
         params, {
           responseType: 'arraybuffer'
         }).then((res) => {
-        console.log(res)
-        console.log(res.headers['content-disposition'])
+        global.config.debug && console.log('[wally]', res)
+        global.config.debug && console.log('[wally]', res.headers['content-disposition'])
 
         // default filename, and inspect response header Content-Disposition
         // for a more specific filename (if provided).

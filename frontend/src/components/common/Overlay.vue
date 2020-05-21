@@ -76,7 +76,7 @@ export default {
     }
   },
   mounted () {
-    console.log(this.$route)
+    global.config.debug && console.log('[wally]', this.$route)
   },
   methods: {
   }

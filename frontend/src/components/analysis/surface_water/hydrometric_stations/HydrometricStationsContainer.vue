@@ -29,7 +29,6 @@ export default {
   }),
   watch: {
     stations (newValue, oldValue) {
-      console.log(newValue, oldValue)
     }
   },
   mounted () {

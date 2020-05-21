@@ -16,7 +16,7 @@ export default {
 
         ApiService.getApi('/aggregate/?' + qs.stringify(payload), { responseType: 'arraybuffer' })
           .then((res) => {
-            console.log(res)
+            global.config.debug && console.log('[wally]', res)
             let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
             let link = document.createElement('a')
             link.href = window.URL.createObjectURL(blob)
