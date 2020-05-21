@@ -8,6 +8,12 @@ export default {
   actions: {
     downloadExcelReport ({ commit }, payload) {
       return new Promise((resolve, reject) => {
+        // Custom metrics - Track Excel downloads
+        window._paq.push([
+          'trackLink',
+          `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/aggregate/?${qs.stringify(payload)}`,
+          'download'])
+
         ApiService.getApi('/aggregate/?' + qs.stringify(payload), { responseType: 'arraybuffer' })
           .then((res) => {
             console.log(res)

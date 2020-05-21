@@ -22,6 +22,8 @@ export default {
       this.downloadMapImage()
     },
     downloadMapImage () {
+      // Custom Metrics - Screen capture
+      window._paq.push(['trackEvent', 'Screenshot', 'Capture screenshot', 'map'])
       let filename = 'map--'.concat(new Date().toISOString()) + '.png'
       html2canvas(this.map._container).then(canvas => {
         canvas.toBlob(function (blob) {
