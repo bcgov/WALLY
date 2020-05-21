@@ -21,4 +21,5 @@ if (window.location.hostname === WALLY_TEST_HOSTNAME) {
   envConfig = config[STAGING]
 }
 
-global.config = envConfig
+const finalConfig = { ...config['app'], ...envConfig }
+global.config = finalConfig

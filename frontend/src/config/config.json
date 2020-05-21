@@ -16,5 +16,8 @@
     "isStaging": false,
     "isDevelopment": true,
     "debug": false
+  },
+  "app": {
+    "title": "Water Allocation - Province of British Columbia"
   }
 }

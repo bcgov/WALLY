@@ -69,7 +69,7 @@ const router = new Router({
       name: 'point-of-interest',
       component: PointOfInterest,
       meta: {
-        title: 'Point of Interest',
+        title: `Point of Interest - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -184,11 +184,14 @@ const router = new Router({
 
 router.afterEach(mapResize)
 // https://github.com/AmazingDreams/vue-matomo/issues/60
-// vue-matomo current doesn't track the URL, just the page title from the router
-// Until the issue above is fixed, we can report the URL change to matomo in
-// this manner
+// vue-matomo currently doesn't track the URL, just the page title from the
+// router. Until the issue above is fixed, we can report the URL change to
+// matomo in this manner
 router.afterEach((to, from) => {
   Vue.nextTick(() => {
+    // Change the page title in the browser
+    document.title = to.meta.title ? to.meta.title : global.config.title
+
     window._paq.push(['setReferrerUrl', from.fullPath])
     window._paq.push(['setCustomUrl', to.fullPath])
   })
