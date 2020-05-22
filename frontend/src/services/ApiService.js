@@ -14,8 +14,8 @@ const ApiService = {
     //   freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
     // })
 
-    axios.defaults.httpAgent = new http.Agent({ keepAlive: true })
-    axios.defaults.httpsAgent = new https.Agent({ keepAlive: true })
+    axios.defaults.httpAgent = new http.Agent({ keepAlive: false })
+    axios.defaults.httpsAgent = new https.Agent({ keepAlive: false })
     axios.defaults.timeout = 60000
     axios.defaults.maxRedirects = 10
     axios.defaults.maxContentLength = 50 * 1000 * 1000
