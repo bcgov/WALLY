@@ -521,8 +521,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
 
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Connection': 'keep-alive'
+        'Content-Type': 'application/x-www-form-urlencoded'
     }
 
     exterior = extract_poly_coords(polygon)["exterior_coords"]
@@ -534,7 +533,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
 
     try:
         response = requests.post(sea_url, headers=headers, data=payload)
-        # response.raise_for_status()
+        response.raise_for_status()
     except requests.exceptions.HTTPError as error:
         return {"status_code": error.response.status_code, "error": str(error)}
 
