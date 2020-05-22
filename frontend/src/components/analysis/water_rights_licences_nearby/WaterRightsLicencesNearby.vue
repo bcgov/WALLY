@@ -109,8 +109,9 @@ export default {
     loading: false,
     headers: [
       { text: 'Distance', value: 'distance' },
-      { text: 'Application status', value: 'APPLICATION_STATUS' },
+      { text: 'Type', value: 'type' },
       { text: 'Application number', value: 'APPLICATION_JOB_NUMBER' },
+      { text: 'Status', value: 'status' },
       { text: 'Licence number', value: 'LICENCE_NUMBER' },
       { text: 'POD number', value: 'POD_NUMBER' },
       { text: 'POD subtype', value: 'POD_SUBTYPE', filterable: true },
@@ -119,6 +120,7 @@ export default {
     ],
     tableOptions: {
       applications: true,
+      approvals: true,
       subtypes: {
         PWD: true,
         POD: true,
@@ -148,8 +150,17 @@ export default {
         }
       }
 
+      // use the property APPLICATION_JOB_NUMBER to determine if this point is an application.
+      // see https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public
       if (!this.tableOptions.applications) {
         licences = licences.filter(x => !x.APPLICATION_JOB_NUMBER)
+      }
+
+      // use the property WATER_APPROVAL_ID to determin if this point is a water approval (section 10
+      // or section 11 approvals).
+      // https://catalogue.data.gov.bc.ca/dataset/water-approval-points
+      if (!this.tableOptions.approvals) {
+        licences = licences.filter(x => !x.WATER_APPROVAL_ID)
       }
 
       return licences
