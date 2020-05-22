@@ -312,8 +312,7 @@ export default {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
         include_self: this.includePOIPolygon
       }
-      fetch(`/api/v1/watersheds/?${qs.stringify(params)}`)
-      .then(response => response.json())
+      ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
           this.watersheds = data.features

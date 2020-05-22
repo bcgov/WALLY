@@ -1,9 +1,17 @@
 import axios from 'axios'
 import qs from 'querystring'
+import AgentKeepAlive from 'agentkeepalive'
 
 const ApiService = {
 
   init () {
+    axios.defaults.httpAgent = new AgentKeepAlive({
+      maxSockets: 100,
+      maxFreeSockets: 10,
+      timeout: 60000, // active socket keepalive for 60 seconds
+      freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
+    })
+    
     axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL
     this.baseURL = axios.defaults.baseURL + '/api/v1'
 
