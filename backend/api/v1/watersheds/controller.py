@@ -534,8 +534,16 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     try:
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
-    except requests.exceptions.HTTPError as error:
-        return {"status_code": error.response.status_code, "error": str(error)}
+    except requests.exceptions.HTTPError as errh:
+        logger.warn("Http Error:" + errh)
+    except requests.exceptions.ConnectionError as errc:
+        logger.warn ("Error Connecting:" + errc)
+    except requests.exceptions.Timeout as errt:
+        logger.warn ("Timeout Error:" + errt)
+    except requests.exceptions.RequestException as err:
+        logger.warn ("OOps: Something Else" + err)
+    # except requests.exceptions.HTTPError as error:
+    #     return {"status_code": error.response.status_code, "error": str(error)}
 
     result = response.json()
 
