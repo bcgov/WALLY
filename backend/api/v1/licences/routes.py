@@ -38,4 +38,4 @@ def get_nearby_licences(
         get_applications_by_distance_databc(point_shape, radius) + \
         get_surface_water_approval_points_databc(point_shape, radius)
 
-    return [LicenceApplicationApproval(**(item.properties)) for item in licences_with_distances]
+    return sorted([LicenceApplicationApproval(**(item.properties)) for item in licences_with_distances], key=lambda x: x.distance)

@@ -11,7 +11,7 @@ class LicenceApplicationApproval(BaseModel):
 
     distance: float
     type: str
-    status: str
+    status: Optional[str]
     qty_m3yr: Optional[float]
 
     # application fields. They will be blank if not applicable.
