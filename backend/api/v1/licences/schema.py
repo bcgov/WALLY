@@ -14,6 +14,15 @@ class LicenceApplicationApproval(BaseModel):
     status: str
     qty_m3yr: Optional[float]
 
+    # application fields. They will be blank if not applicable.
+    APPLICATION_JOB_NUMBER: Optional[str]
+    APPLICATION_STATUS: Optional[str]
+
+    # approval fields
+    WATER_APPROVAL_ID: Optional[str]
+    WATER_APPROVAL_STATUS: Optional[str]
+    WORKS_DESCRIPTION: Optional[str]
+
     # common fields
     LICENCE_NUMBER: Optional[str]
     LICENCE_STATUS: Optional[str]

@@ -52,7 +52,8 @@ def get_surface_water_approval_points_databc(point: Point, radius: float):
             feat.properties['qty_m3yr'] = None
 
         feat.properties['status'] = feat.properties['APPROVAL_STATUS']
-        feat.properties['type'] = 'Water approval'
+        feat.properties['type'] = feat.properties[
+            'APPROVAL_TYPE'] or 'Water approval (no approval type listed)'
         feat.properties['distance'] = shape(feat.geometry).distance(point)
         features_within_search_area.append(feat)
 

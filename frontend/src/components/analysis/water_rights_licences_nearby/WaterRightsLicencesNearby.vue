@@ -9,9 +9,6 @@
           v-model="radius"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" offset-md="1" md="4" align-self="center" v-if="!isLicencesLayerEnabled">
-        <div class="caption"><a href="#" @click.prevent="enableLicencesLayer">Enable water rights licences map layer</a></div>
-      </v-col>
     </v-row>
     <v-row no-gutters >
       <v-col cols="12" md="4">
@@ -25,8 +22,11 @@
       </v-col>
     </v-row>
     <v-row no-gutters>
-      <v-col>
+      <v-col cols="12" md="4">
         <v-checkbox v-model="tableOptions.applications" class="mx-2" :label="`Water Rights Applications (${applicationCount})`"></v-checkbox>
+      </v-col>
+      <v-col cols="12" md="4">
+        <v-checkbox v-model="tableOptions.approvals" class="mx-2" :label="`Water Approval Points (${approvalCount})`"></v-checkbox>
       </v-col>
     </v-row>
     <v-row>
@@ -107,6 +107,9 @@ export default {
     radius: 1000,
     results: [],
     loading: false,
+    licencesLayerAutomaticallyEnabled: false,
+    applicationsLayerAutomaticallyEnabled: false,
+    approvalsLayerAutomaticallyEnabled: false,
     headers: [
       { text: 'Distance', value: 'distance' },
       { text: 'Type', value: 'type' },
@@ -132,6 +135,12 @@ export default {
   computed: {
     isLicencesLayerEnabled () {
       return this.isMapLayerActive('water_rights_licences')
+    },
+    isApplicationsLayerEnabled () {
+      return this.isMapLayerActive('water_rights_applications')
+    },
+    isApprovalsLayerEnabled () {
+      return this.isMapLayerActive('water_approval_points')
     },
     coordinates () {
       return this.record && this.record.geometry && this.record.geometry.coordinates
@@ -168,6 +177,9 @@ export default {
     applicationCount () {
       return this.results.filter(x => !!x.APPLICATION_JOB_NUMBER).length
     },
+    approvalCount () {
+      return this.results.filter(x => !!x.WATER_APPROVAL_ID).length
+    },
     subtypeCounts () {
       // counts each subtype in the results
       let licences = this.results
@@ -184,9 +196,30 @@ export default {
     ...mapGetters('map', ['isMapLayerActive'])
   },
   methods: {
-    enableLicencesLayer () {
-      this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
-      this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
+    addMissingMapLayers () {
+      if (!this.isLicencesLayerEnabled) {
+        this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
+        this.licencesLayerAutomaticallyEnabled = true
+      }
+      if (!this.isApplicationsLayerEnabled) {
+        this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
+        this.applicationsLayerAutomaticallyEnabled = true
+      }
+      if (!this.isApprovalsLayerEnabled) {
+        this.$store.dispatch('map/addMapLayer', 'water_approval_points')
+        this.approvalsLayerAutomaticallyEnabled = true
+      }
+    },
+    removeAutomaticallyAddedLayers () {
+      if (this.licencesLayerAutomaticallyEnabled) {
+        this.$store.dispatch('map/removeMapLayer', 'water_rights_licences')
+      }
+      if (this.applicationsLayerAutomaticallyEnabled) {
+        this.$store.dispatch('map/removeMapLayer', 'water_rights_applications')
+      }
+      if (this.approvalsLayerAutomaticallyEnabled) {
+        this.$store.dispatch('map/removeMapLayer', 'water_rights_approvals')
+      }
     },
     fetchLicences: debounce(function () {
       this.showCircle()
@@ -194,6 +227,9 @@ export default {
       if (!this.radiusIsValid(this.radius)) {
         return
       }
+
+      // turn on licences, applications and approvals map layer
+      this.addMissingMapLayers()
 
       const params = {
         radius: parseFloat(this.radius),
@@ -244,6 +280,7 @@ export default {
     this.fetchLicences()
   },
   beforeDestroy () {
+    this.removeAutomaticallyAddedLayers()
     this.$store.commit('map/removeShapes')
     this.$store.dispatch('map/clearSelections')
   }
