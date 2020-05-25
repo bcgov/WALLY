@@ -95,30 +95,6 @@ def pcic_data_request(
     return resp.json()
 
 
-def surface_water_approval_points(polygon: Polygon):
-    """ returns surface water approval points (section 11 approvals) """
-    water_approval_layer = "WHSE_WATER_MANAGEMENT.WLS_WATER_APPROVALS_SVW"
-
-    polygon_rect = polygon.minimum_rotated_rectangle
-    approvals_list = databc_feature_search(
-        water_approval_layer, search_area=polygon_rect)
-
-    polygon_3005 = transform(transform_4326_3005, polygon)
-
-    features_within_search_area = []
-
-    for feat in approvals_list.features:
-        feature_shape = shape(lic.geometry)
-
-        # skip approvals outside search area
-        if not feature_shape.within(polygon_3005):
-            continue
-
-        features_within_search_area.append(feat)
-
-    return features_within_search_area
-
-
 def surface_water_rights_licences(polygon: Polygon):
     """ returns surface water rights licences (filtered by POD subtype)"""
     water_rights_layer = 'water_rights_licences'
