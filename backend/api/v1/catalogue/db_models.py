@@ -1,5 +1,5 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY, text
+from sqlalchemy import Integer, String, Column, DateTime, JSON, Text, ForeignKey, ARRAY, text, Boolean
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.dialects.postgresql import ARRAY, TEXT
@@ -135,6 +135,8 @@ class DisplayCatalogue(Base):
     wms_catalogue_id = Column(Integer, ForeignKey('metadata.wms_catalogue.wms_catalogue_id'),
                               comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
+
+    use_wms = Column(Boolean, comment='Determines whether the client should query wms or use a vector layer')
 
     vector_catalogue_id = Column(Integer, ForeignKey('metadata.vector_catalogue.vector_catalogue_id'),
                                  comment='references vector catalogue item')

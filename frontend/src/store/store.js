@@ -27,7 +27,7 @@ export default {
       state.infoPanelVisible = payload !== undefined ? payload : !state.infoPanelVisible
     },
     setAppInfo (state, payload) {
-      console.log(state.app, payload)
+      global.config.debug && console.log('[wally]', state.app, payload)
       state.app.api_version = payload.api_version
       state.app.wally_env = payload.wally_env
       state.app.wally_version = payload.wally_version

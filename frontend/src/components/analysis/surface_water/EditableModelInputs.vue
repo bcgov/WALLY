@@ -112,9 +112,8 @@ export default {
       this.exit()
     },
     saveValues () {
-      console.log('apply changes')
+      global.config.debug && console.log('[wally] Edit model inputs - Apply changes')
       if (!this.inputsAreValid()) {
-        console.log('input is wrong')
         return
       }
       // TODO: save scsb2016ModelInputValues to scsb2016ModelInputs

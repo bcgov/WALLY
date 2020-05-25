@@ -4,6 +4,8 @@ import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import qs from 'querystring'
+import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -204,7 +206,7 @@ export default {
         return
       }
 
-      console.log('feature : ', newFeature)
+      global.config.debug && console.log('[wally] feature : ', newFeature)
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
@@ -224,7 +226,12 @@ export default {
       prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => dispatch('removeMapLayer', l))
 
       // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
-      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => commit('activateLayer', l))
+      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => {
+        // Customized Metrics - Track when a layer is selected
+        const layerName = state.mapLayers.find(e => e.display_data_name === l).display_name
+        window._paq.push(['trackEvent', 'Layer', 'Activate Layer', layerName])
+        commit('activateLayer', l)
+      })
 
       // reset the list of active layers
       commit('setActiveMapLayers', selectedLayers)
@@ -266,6 +273,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
+              commit('initVectorLayerSources', response.data.layers)
             })
             .catch((error) => {
               reject(error)
@@ -288,7 +296,7 @@ export default {
 
       options = Object.assign({}, defaultOptions, options)
 
-      console.log('map click')
+      global.config.debug && console.log('[wally] map click')
       // const popup = new mapboxgl.Popup({
       //   closeButton: false,
       //   closeOnClick: false
@@ -298,13 +306,14 @@ export default {
         const canvas = await state.map.getCanvas()
         const size = { x: canvas.width, y: canvas.height }
 
-        console.log('discard features before querying: ', options.alwaysReplaceFeatures)
+        global.config.debug && console.log('[wally] discard features before' +
+          ' querying: ', options.alwaysReplaceFeatures)
 
         if (options.alwaysReplaceFeatures) {
           commit('clearDataMartFeatures', {}, { root: true })
         }
 
-        console.log(bounds)
+        global.config.debug && console.log('[wally]', bounds)
 
         dispatch('getDataMartFeatures', {
           bounds: bounds,
@@ -394,7 +403,7 @@ export default {
           }
         })
 
-        console.log('map is now ready')
+        global.config.debug && console.log('[wally] map is now ready')
         // End of cascade; map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
@@ -451,6 +460,88 @@ export default {
       setTimeout(() => { // delay to let other draw actions finish
         state.isDrawingToolActive = false
       }, 500)
+    },
+    initVectorLayerSources (state, allLayers) {
+      // This mutation replaces the mapbox composite source with DataBC sources
+      // this way we always have the most up to date data from DataBC
+      allLayers.forEach((layer) => {
+        if (layer.use_wms) {
+          const layerID = layer.display_data_name
+          const wmsOpts = {
+            service: 'WMS',
+            request: 'GetMap',
+            format: 'application/x-protobuf;type=mapbox-vector',
+            layers: 'pub:' + layer.wms_name,
+            styles: layer.wms_style,
+            transparent: true,
+            name: layer.display_name,
+            height: 256,
+            width: 256,
+            overlay: true,
+            srs: 'EPSG:3857'
+          }
+          const query = qs.stringify(wmsOpts)
+          var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+          // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
+          if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
+            url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
+          }
+          // replace source with DataBC supported vector layer
+          state.map.addSource(`${layerID}-source`, {
+            'type': 'vector',
+            'tiles': [ url ],
+            'source-layer': layer.wms_name,
+            'minzoom': 3,
+            'maxzoom': 20
+          })
+          // This replaces the mapbox layer source with the DataBC source
+          // Allows us to use mapbox styles managed from the iit-water mapbox account
+          // but use DataBC vector data rather than the mapbox composite source
+          setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
+        }
+      })
+    },
+    addWMSLayer (state, layer) {
+      // this mutation adds wms layers to the map
+      const layerID = layer.display_data_name
+      if (!layerID) {
+        return
+      }
+
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'image/png',
+        layers: 'pub:' + layer.wms_name,
+        styles: layer.wms_style,
+        transparent: true,
+        name: layer.name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      state.map.addSource(`${layerID}-source`, {
+        'type': 'raster',
+        'tiles': [
+          url
+        ],
+        'tileSize': 256
+      })
+
+      state.map.addLayer({
+        'id': layerID,
+        'type': 'raster',
+        'source': `${layerID}-source`,
+        'layout': {
+          'visibility': 'none'
+        },
+        'paint': {}
+      })
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map

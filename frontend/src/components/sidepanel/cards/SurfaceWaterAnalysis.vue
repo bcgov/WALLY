@@ -132,7 +132,7 @@ export default {
     pointOfInterest (value) {
       if (value && value.geometry) {
         // Update router
-        console.log('updating POI route')
+        global.config.debug && console.log('[wally] updating POI route')
         this.$router.push({
           path: '/surface-water',
           query: { coordinates: value.geometry.coordinates }
