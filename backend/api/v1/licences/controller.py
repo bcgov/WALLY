@@ -43,15 +43,16 @@ def get_surface_water_approval_points_databc(point: Point, radius: float):
 
     for feat in approvals_list.features:
 
-        if feat.properties['QUANTITY']:
+        if feat.properties.get('QUANTITY', None):
             qty = float(feat.properties['QUANTITY'])
-            qty_unit = feat.properties['QUANTITY_UNITS'].strip()
+            qty_unit = feat.properties.get('QUANTITY_UNITS', '').strip()
 
             feat.properties['qty_m3yr'] = normalize_quantity(qty, qty_unit)
         else:
             feat.properties['qty_m3yr'] = None
 
-        feat.properties['status'] = feat.properties['APPROVAL_STATUS']
+        feat.properties['status'] = feat.properties.get(
+            'APPROVAL_STATUS', None)
         feat.properties['type'] = feat.properties[
             'APPROVAL_TYPE'] or 'Water approval (no approval type listed)'
         feat.properties['distance'] = shape(feat.geometry).distance(point)
@@ -73,15 +74,15 @@ def get_licences_by_distance_databc(point: Point, radius: float):
 
     for feat in licences_list.features:
 
-        if feat.properties['QUANTITY']:
+        if feat.properties.get('QUANTITY', None):
             qty = float(feat.properties['QUANTITY'])
-            qty_unit = feat.properties['QUANTITY_UNITS'].strip()
+            qty_unit = feat.properties.get('QUANTITY_UNITS', '').strip()
 
             feat.properties['qty_m3yr'] = normalize_quantity(qty, qty_unit)
         else:
             feat.properties['qty_m3yr'] = None
 
-        feat.properties['status'] = feat.properties['LICENCE_STATUS']
+        feat.properties['status'] = feat.properties.get('LICENCE_STATUS', None)
         feat.properties['type'] = 'Licence'
         feat.properties['distance'] = shape(feat.geometry).distance(point)
 
@@ -103,15 +104,16 @@ def get_applications_by_distance_databc(point: Point, radius: float):
 
     for feat in applications_list.features:
 
-        if feat.properties['QUANTITY']:
+        if feat.properties.get('QUANTITY', None):
             qty = float(feat.properties['QUANTITY'])
-            qty_unit = feat.properties['QUANTITY_UNITS'].strip()
+            qty_unit = feat.properties.get('QUANTITY_UNITS', '').strip()
 
             feat.properties['qty_m3yr'] = normalize_quantity(qty, qty_unit)
         else:
             feat.properties['qty_m3yr'] = None
 
-        feat.properties['status'] = feat.properties['APPLICATION_STATUS']
+        feat.properties['status'] = feat.properties.get(
+            'APPLICATION_STATUS', None)
         feat.properties['type'] = 'Application'
         feat.properties['distance'] = shape(feat.geometry).distance(point)
         features_within_search_area.append(feat)
