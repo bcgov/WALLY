@@ -9,6 +9,25 @@
           v-model="radius"
         ></v-text-field>
       </v-col>
+      <v-col class="text-right">
+          <v-btn
+            v-if="filteredLicences.length"
+            outlined
+            :disabled="loading"
+            @click="exportLicencesAsSpreadsheet"
+            color="primary"
+          >
+            Excel
+            <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+            <v-progress-circular
+              v-if="spreadsheetLoading"
+              indeterminate
+              size=24
+              class="ml-1"
+              color="primary"
+            ></v-progress-circular>
+          </v-btn>
+      </v-col>
     </v-row>
     <v-row no-gutters >
       <v-col cols="12" md="4">
@@ -107,6 +126,7 @@ export default {
     radius: 1000,
     results: [],
     loading: false,
+    spreadsheetLoading: false,
     licencesLayerAutomaticallyEnabled: false,
     applicationsLayerAutomaticallyEnabled: false,
     approvalsLayerAutomaticallyEnabled: false,
@@ -248,6 +268,41 @@ export default {
         return this.inputRules[k](val) !== true
       })
       return !invalid
+    },
+    exportLicencesAsSpreadsheet () {
+      this.spreadsheetLoading = true
+      const params = {
+        radius: parseFloat(this.radius),
+        point: JSON.stringify(this.coordinates),
+        format: 'xlsx'
+      }
+      if (!this.radiusIsValid(this.radius)) {
+        return
+      }
+      ApiService.query(`/api/v1/licences/nearby`, params, { responseType: 'arraybuffer' }).then((r) => {
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'WaterLicences.xlsx'
+        const filenameData = r.headers['content-disposition'] && r.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+      }).catch((e) => {
+        console.error(e)
+      }).finally(() => {
+        this.spreadsheetLoading = false
+      })
     },
     showCircle () {
       const options = { steps: 32, units: 'kilometers', properties: { display_data_name: 'user_search_radius' } }

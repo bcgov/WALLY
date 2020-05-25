@@ -8,7 +8,6 @@ import requests
 import geojson
 import json
 import math
-from datetime import datetime
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -606,7 +605,7 @@ def export_summary_as_xlsx(data: dict):
         using a template in the ./templates directory.
     """
 
-    cur_date = datetime.now().strftime("%Y%m%d")
+    cur_date = datetime.datetime.now().strftime("%Y%m%d")
 
     ws_name = data.get("watershed_name", "Surface_Water")
     ws_name.replace(" ", "_")
