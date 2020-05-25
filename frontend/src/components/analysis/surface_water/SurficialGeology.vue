@@ -87,7 +87,7 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/surficial_geology`)
         .then(r => {
           this.surficialGeologyByType = r.data.summary_by_type
-          console.log('adding data to map')
+          global.config.debug && console.log('[wally] adding data to map')
 
           this.surficialGeologyByType.forEach((layer, i) => {
             this.addSurfGeologyLayer(`surficialGeology${i}`, this.surficialGeologyByType[i].geojson, '#000')

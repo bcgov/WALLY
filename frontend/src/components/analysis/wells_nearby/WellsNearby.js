@@ -119,6 +119,12 @@ export default {
   },
   methods: {
     exportDrawdownAsSpreadsheet () {
+      // Custom metrics - Track Excel downloads
+      window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/nearby`,
+        'download'])
+
       this.spreadsheetLoading = true
       const params = {
         radius: parseFloat(this.radius),
@@ -126,7 +132,7 @@ export default {
         format: 'xlsx'
       }
       ApiService.query(`/api/v1/wells/nearby`, params, { responseType: 'arraybuffer' }).then((r) => {
-        console.log(r)
+        global.config.debug && console.log('[wally]', r)
         let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         let link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
@@ -216,7 +222,7 @@ export default {
       })
     },
     loadFeature () {
-      console.log('load feature')
+      global.config.debug && console.log('[wally] load feature')
       // Load Point of Interest feature from query
       if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
         const coordinates = this.$route.query.coordinates.map((x) => Number(x))

@@ -188,6 +188,5 @@ describe('Map Store', () => {
     expect(store.state.allocationValues).toEqual({ 'test': allocValues })
     store.mutations.clearWatershedDetailsAndDefaults(store.state)
     expect(store.state.allocationValues).toEqual({})
-
   })
 })

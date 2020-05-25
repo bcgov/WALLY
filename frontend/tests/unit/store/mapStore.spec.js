@@ -5,8 +5,16 @@ import * as map from '../../../src/store/mapStore'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
+global.config = {
+  debug: false
+}
+
 describe('Map Store', () => {
   let store
+
+  window._paq = {
+    push: jest.fn()
+  }
   beforeEach(() => {
     store = map.default
   })
@@ -126,8 +134,12 @@ describe('Map Store', () => {
   it('updateActiveMapLayers with 1 new layer triggers the mutation to add a new layer', () => {
     store.commit = jest.fn()
     store.state.activeMapLayers = [
-      { display_data_name: 'test1' },
-      { display_data_name: 'test2' }
+      { display_data_name: 'test1', display_name: 'Test 1' },
+      { display_data_name: 'test2', display_name: 'Test 2' }
+    ]
+
+    store.state.mapLayers = [
+      { display_data_name: 'test3', display_name: 'Test3' }
     ]
     store.state.draw = {
       getAll: jest.fn()

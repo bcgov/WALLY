@@ -1,7 +1,6 @@
 import MapLegend from './MapLegend.vue'
 import EventBus from '../../services/EventBus.js'
 import { mapGetters, mapActions, mapMutations } from 'vuex'
-import { wmsBaseURL } from '../../utils/wmsUtils'
 import mapboxgl from 'mapbox-gl'
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder'
 import MapScale from './MapScale'
@@ -10,7 +9,6 @@ import coordinatesGeocoder from './localGeocoder'
 
 import { getArrayDepth } from '../../helpers'
 
-import qs from 'querystring'
 import ApiService from '../../services/ApiService'
 
 export default {
@@ -134,7 +132,7 @@ export default {
     async updateBySearchResult (data) {
       this.setDrawMode('simple_select')
       await this.$router.push({ name: 'single-feature' })
-      console.log('route changed')
+      global.config.debug && console.log('[wally] route changed')
       let lat = data.result.center[1]
       let lng = -Math.abs(data.result.center[0])
       const options = { steps: 10, units: 'kilometers', properties: {} }
@@ -170,46 +168,6 @@ export default {
         }
         this.updateStreamLayer(data)
       }
-    },
-    addWMSLayer (layer) {
-      const layerID = layer.display_data_name || layer.wms_name || layer.display_name
-      if (!layerID) {
-        return
-      }
-
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetMap',
-        format: 'image/png',
-        layers: 'pub:' + layer.wms_name,
-        styles: layer.wms_style,
-        transparent: true,
-        name: layer.name,
-        height: 256,
-        width: 256,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
-
-      const newLayer = {
-        'id': layerID,
-        'type': 'raster',
-        'layout': {
-          'visibility': 'none'
-        },
-        'source': {
-          'type': 'raster',
-          'tiles': [
-            url
-          ],
-          'tileSize': 256
-        }
-      }
-
-      this.map.addLayer(newLayer, 'groundwater_wells')
     },
     loadLayers (layers) {
       // load each layer, but default to no visibility.

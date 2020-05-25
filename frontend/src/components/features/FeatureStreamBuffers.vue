@@ -151,7 +151,7 @@ export default {
           this.loadingData = false
         })
         .catch((error) => {
-          console.log(error)
+          console.error(error)
           this.loadingData = false
         })
     },
@@ -202,7 +202,7 @@ export default {
       this.updateStreamBuffers()
     },
     record () {
-      console.log('record changed')
+      global.config.debug && console.log('[wally] record changed')
       this.drawStreamNetwork()
       this.updateStreamBuffers()
     }
