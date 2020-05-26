@@ -14,9 +14,9 @@ export default {
     customModelInputsActive: false,
     defaultScsb2016ModelInputs: null,
     scsb2016ModelInputs: null,
-    shortTermLicencePlotData,
-    availabilityPlotData,
-    licencePlotData,
+    shortTermLicencePlotData: null,
+    availabilityPlotData: null,
+    licencePlotData: null
   },
   actions: {
     loadAllocationItemsFromStorage ({ state }) {

@@ -66,9 +66,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
-const Plotly = () => import('vue-plotly').then(module => {
-  return module.Plotly
-})
+
 const popup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false
@@ -79,7 +77,6 @@ export default {
   mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
-    Plotly,
     Dialog
   },
   props: ['watershedID'],
@@ -93,11 +90,11 @@ export default {
       { text: '', value: 'action', sortable: false }
     ],
     show: {
-      editingAllocationValues: false,
+      editingAllocationValues: false
     },
     purposeTypes: [],
     wmd: WatershedModelDescriptions,
-    isLicencesLayerVisible: true,
+    isLicencesLayerVisible: true
   }),
   computed: {
     ...mapGetters('map', ['map']),

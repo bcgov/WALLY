@@ -65,9 +65,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import ShortTermMonthlyAllocationTable from './ShortTermMonthlyAllocationTable.vue'
-const Plotly = () => import('vue-plotly').then(module => {
-  return module.Plotly
-})
+
 const popup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false
@@ -78,28 +76,21 @@ export default {
   mixins: [surfaceWaterMixin],
   components: {
     ShortTermMonthlyAllocationTable,
-    Plotly,
     Dialog
   },
   props: ['watershedID'],
   data: () => ({
     shortTermLicenceData: null,
-    licencePurposeHeaders: [
-      { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
-      { text: '', value: 'action', sortable: false }
-    ],
     shortTermPurposeHeaders: [
       { text: 'Approval Number', value: 'approvalNumber', sortable: true },
       { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
-      editingAllocationValues: false,
-      editingShortTermAllocationValues: false,
+      editingShortTermAllocationValues: false
     },
     wmd: WatershedModelDescriptions,
-    isLayerVisible: true,
+    isLayerVisible: true
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -214,12 +205,12 @@ export default {
 
       // Short Term Approvals Demand
       let shortTermAllocationY = []
-      let shortTermallocItemKey, shortTermMonthlyQty
+      let allocItemKey, shortTermMonthlyQty
       // Get total short term quantity per month based on short term allocation values
       for (let i = 0; i < 12; i++) {
         shortTermMonthlyQty = 0
         this.shortTermLicenceData.map(item => {
-          allocItemKey = item.approvalNumber + " - " + item.sourceName
+          allocItemKey = item.approvalNumber + ' - ' + item.sourceName
           this.initShortTermAllocationItemIfNotExists(allocItemKey)
           shortTermMonthlyQty += this.computeQuantityForMonth(item.qty, this.shortTermAllocationValues[allocItemKey], i + 1)
         })

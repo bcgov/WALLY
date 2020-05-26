@@ -89,5 +89,5 @@ export const WatershedModelDescriptions = {
     description: 'This section shows all the water approval points found within the watershed. ' +
     'Water approval points are sourced from the DataBC layer "Water Approval Points" linked below.',
     url: 'https://catalogue.data.gov.bc.ca/dataset/water-approval-points'
-  },
+  }
 }

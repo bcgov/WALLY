@@ -44,9 +44,9 @@ export default {
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'approvalsPlotData']),
+    ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     demandAvailabilityData () {
-      if (!this.availabilityPlotData || !this.licencePlotData || !this.approvalsPlotData) {
+      if (!this.availabilityPlotData || !this.licencePlotData || !this.shortTermLicencePlotData) {
         return null
       }
 
@@ -55,7 +55,7 @@ export default {
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
-        y: this.availabilityPlotData.map((val, i) => { return val - licencePlotData[i] }),
+        y: this.availabilityPlotData.map((val, i) => { return val - this.licencePlotData[i] }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
@@ -63,15 +63,15 @@ export default {
       const licencePlotData = {
         type: 'bar',
         name: 'Monthly Licenced Quantity',
-        y: licencePlotData,
+        y: this.licencePlotData,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
 
-      const approvalsPlotData = {
+      const shortTermPlotData = {
         type: 'bar',
         name: 'Monthly Short Term Approvals Quantity',
-        y: approvalsPlotData,
+        y: this.shortTermLicencePlotData,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
@@ -103,7 +103,7 @@ export default {
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fa1e44' }
       }
-      return [availabilityData, licencePlotData, approvalsPlotData, mad10, mad20, mad30]
+      return [availabilityData, licencePlotData, shortTermPlotData, mad10, mad20, mad30]
     }
   },
   methods: {
