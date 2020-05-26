@@ -103,10 +103,14 @@ export default {
       global.config.debug && console.log('[wally] toggling')
       this.$store.commit('toggleAdjustableSidePanel')
     },
-    setName (payload) {
-      const { name, authenticated } = payload
+    updateAuth (payload) {
+      const { name, uuid, authenticated } = payload
       if (authenticated) {
+        // Set the user's name
         this.name = name
+
+        // Track unique user
+        window._paq.push(['setUserId', uuid])
       }
     },
     openFeedback () {
@@ -115,10 +119,10 @@ export default {
   },
   created () {
     this.name = (this.$auth && this.$auth.name) || '' // fallback value if auth status not yet available
-    EventBus.$on('auth:update', this.setName)
+    EventBus.$on('auth:update', this.updateAuth)
   },
   beforeDestroy () {
-    EventBus.$off('auth:update', this.setName)
+    EventBus.$off('auth:update', this.updateAuth)
   }
 }
 </script>
