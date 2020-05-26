@@ -6,7 +6,7 @@
         as determined by subtracting licensed quantities (including any adjusted monthly allocation
         values) from the estimated discharge for each month.
       </div>
-      <Plotly v-if="availability && licenceData"
+      <Plotly v-if="availabilityPlotData && licencePlotData && shortTermLicencePlotData"
               :layout="demandAvailabilityLayout()"
               :data="demandAvailabilityData"
       ></Plotly>

@@ -46,8 +46,7 @@ export default {
       this.$emit('close', false)
     },
     ...mapMutations('surfaceWater', [
-      'setAllocationValues',
-      'saveAllocationValues']),
+      'setAllocationValues']),
     ...mapActions('surfaceWater', [
       'initAllocationItemIfNotExists',
       'computeQuantityForMonth'])

@@ -110,8 +110,10 @@ export default {
   },
   methods: {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
-    ...mapMutations('surfaceWater', ['setlicencePlotData']),
+    ...mapMutations('surfaceWater', ['setLicencePlotData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
+      console.log("licence data")
+      console.log(data)
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -179,8 +181,8 @@ export default {
     },
     closeEditAllocationTableDialog () {
       // TODO: Distribute quantity based on alloc values
-      this.setDemandData()
       this.show.editingAllocationValues = false
+      this.setDemandPlotData()
     },
     fetchDemandData () {
       this.licencesLoading = true
@@ -188,6 +190,7 @@ export default {
         .then(r => {
           this.licenceData = r.data
           // console.log('adding data to map')
+          // console.log(r.data.licences)
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           // adding null feature array breaks interpolation in layer setup
           if (r.data && r.data.licences) {
@@ -240,10 +243,10 @@ export default {
     this.fetchDemandData()
   },
   beforeDestroy () {
-    this.map.removeLayer('waterLicences')
-    this.map.removeSource('waterLicences')
-    this.map.removeLayer('waterApprovals')
-    this.map.removeSource('waterApprovals')
+    if (this.map.getLayer('waterLicences')) {
+      this.map.removeLayer('waterLicences')
+      this.map.removeSource('waterLicences')
+    }
   }
 }
 </script>

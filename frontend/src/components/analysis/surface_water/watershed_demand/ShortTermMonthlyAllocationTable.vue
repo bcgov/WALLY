@@ -18,7 +18,7 @@
         <template v-slot:default>
           <thead>
           <tr>
-            <th scope="col" class="alloc-item">Name</th>
+            <th scope="col" class="alloc-item">Approval Number</th>
             <th scope="col" class="text-left alloc-value" v-for="month in months" :key="month">{{month}}</th>
             <th scope="col"></th>
           </tr>
@@ -71,7 +71,7 @@ export default {
   name: 'ShortTermMonthlyAllocationTable',
   components: {
   },
-  props: ['allocationItems', 'keyField'],
+  props: ['shortTermAllocationItems', 'keyField'],
   data: () => ({
     months: moment.monthsShort(),
     allocItems: [],
@@ -84,15 +84,13 @@ export default {
     },
     populateTable () {
       this.allocItems = []
-      this.allocationItems.forEach(item => {
-        let allocItemKey = item[this.keyField].trim()
+      for (let [allocItemKey, allocValues] of Object.entries(this.shortTermAllocationItems)) {
         let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
         this.allocItems.push({
           name: allocItemKey,
-          values: [...this.shortTermAllocationValues()[allocItemKey] || defaultAllocValues]
+          values: allocValues || defaultAllocValues
         })
-      })
+      }
     },
     computeRowTotal (values) {
       return values.reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)
@@ -112,14 +110,13 @@ export default {
       this.$emit('close', false)
     },
     ...mapMutations('surfaceWater', [
-      'setShortTermAllocationValues',
-      'saveShortTermAllocationValues']),
+      'setShortTermAllocationValues']),
     ...mapActions('surfaceWater', [
       'initShortTermAllocationItemIfNotExists',
       'computeQuantityForMonth'])
   },
   watch: {
-    allocationItems (value) {
+    shortTermAllocationItems (value) {
       this.populateTable(value)
     }
   },
@@ -128,7 +125,6 @@ export default {
   }
 }
 </script>
-
 
 <style lang="scss">
   .alloc-item{

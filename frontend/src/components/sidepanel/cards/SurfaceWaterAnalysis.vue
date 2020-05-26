@@ -48,7 +48,7 @@ export default {
     hydatLayerAutomaticallyEnabled: false,
     applicationsLayerAutomaticallyEnabled: false,
     fishLayerAutomaticallyEnabled: false,
-    approvalLayerAutomaticallyEnabled: false,
+    approvalLayerAutomaticallyEnabled: false
   }),
   methods: {
     selectPoint () {

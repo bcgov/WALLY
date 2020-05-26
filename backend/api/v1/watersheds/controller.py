@@ -193,29 +193,32 @@ def surface_water_approval_points(polygon: Polygon):
         if not feature_shape.within(polygon_3005):
             continue
         
-        # skip approval if not an active approvals
-        # other approval status' are associated with inactive records.
-        if apr.properties['APPROVAL_STATUS'] != 'Current' or \
-            apr.properties['QUANTITY'] is None or \
-            apr.properties['QUANTITY_UNITS'] is None:
+        # skip approval if its not an active licence
+        # other approval status' are associated with inactive licences
+        if apr.properties['APPROVAL_STATUS'] != 'Current':
             continue
 
         features_within_search_area.append(apr)
 
         qty = apr.properties['QUANTITY']
-        qty_unit = apr.properties['QUANTITY_UNITS'].strip()
+        qty_unit = apr.properties['QUANTITY_UNITS']
 
-        if qty_unit == 'm3/year':
-            pass
-        elif qty_unit == 'm3/day':
-            qty = qty * 365
-        elif qty_unit == 'm3/sec':
-            qty = qty * 60 * 60 * 24 * 365
+        # null if approval is a works project, most of them are
+        if qty and qty_unit: 
+            qty_unit = qty_unit.strip()
+            if qty_unit == 'm3/year':
+                pass
+            elif qty_unit == 'm3/day':
+                qty = qty * 365
+            elif qty_unit == 'm3/sec':
+                qty = qty * 60 * 60 * 24 * 365
+            else:
+                qty = 0
+
+            total_qty_m3_yr += qty
+            apr.properties['qty_m3_yr'] = qty
         else:
-            qty = 0
-
-        total_qty_m3_yr += qty
-        apr.properties['qty_m3_yr'] = qty
+            apr.properties['qty_m3_yr'] = 0
 
     return WaterApprovalDetails(
         approvals=FeatureCollection([

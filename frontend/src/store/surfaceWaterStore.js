@@ -166,5 +166,6 @@ export default {
     shortTermLicencePlotData: state => state.shortTermLicencePlotData,
     availabilityPlotData: state => state.availabilityPlotData,
     licencePlotData: state => state.licencePlotData,
+    shortTermAllocationValues: state => state.shortTermAllocationValues
   }
 }

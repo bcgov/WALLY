@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="titleSub my-5">Watershed Approved Short Term Quantities</div>
     <div v-if="approvalsLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
@@ -22,10 +21,10 @@
           </v-card-actions>
 
         </v-card-title>
-        <v-dialog v-model="show.editingShortTermAllocationValues" persistent>
+        <v-dialog v-model="show.shortTermAllocationTable" persistent>
           <ShortTermMonthlyAllocationTable
-            :allocation-items="shortTermLicenceData"
-            key-field="approvalNumber"
+            :short-term-allocation-items="shortTermAllocationValues"
+            key-field="APPROVAL_FILE_NUMBER"
             @close="closeEditShortTermAllocationTableDialog"/>
         </v-dialog>
 
@@ -36,7 +35,7 @@
         <div class="my-5">
           <div class="mb-3">Short Term Water Approval Points:</div>
           <v-data-table
-            :items="tableItemData"
+            :items="shortTermFeatures"
             :headers="shortTermPurposeHeaders"
             sort-by="qty"
             sort-desc
@@ -83,12 +82,15 @@ export default {
     approvalsLoading: false,
     shortTermLicenceData: {},
     shortTermPurposeHeaders: [
-      { text: 'Approval Number', value: 'approvalNumber', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
+      { text: 'Approval Number', value: 'APPROVAL_FILE_NUMBER', sortable: true },
+      { text: 'Works', value: 'WORKS_DESCRIPTION' },
+      { text: 'Start Date', value: 'APPROVAL_START_DATE' },
+      { text: 'Expiry Date', value: 'APPROVAL_EXPIRY_DATE' },
+      { text: 'Quantity (m3/year)', value: 'qty_m3_yr', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
-      editingShortTermAllocationValues: false
+      shortTermAllocationTable: false
     },
     wmd: WatershedModelDescriptions,
     isLayerVisible: true
@@ -96,9 +98,11 @@ export default {
   computed: {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['shortTermAllocationValues']),
-    tableItemData() {
-      if(this.shortTermLicenceData && this.shortTermLicenceData.approvals) {
-        return this.shortTermLicenceData.approvals.features
+    shortTermFeatures () {
+      if (this.shortTermLicenceData && this.shortTermLicenceData.approvals) {
+        return this.shortTermLicenceData.approvals.features.map((f) => {
+          return f.properties
+        })
       } else {
         return []
       }
@@ -116,6 +120,8 @@ export default {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
     ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
     addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
+      console.log("approvals data")
+      console.log(data)
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -181,21 +187,21 @@ export default {
       })
     },
     openEditShortTermAllocationTableDialog () {
-      this.show.editingShortTermAllocationValues = true
+      this.show.shortTermAllocationTable = true
     },
     closeEditShortTermAllocationTableDialog () {
+      this.show.shortTermAllocationTable = false
       this.updateShortTermData()
-      this.show.editingShortTermAllocationValues = false
     },
     fetchShortTermLicenceData () {
       this.approvalsLoading = true
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/approvals`)
         .then(r => {
           this.shortTermLicenceData = r.data
-          console.log(r.data)
+          // console.log(r.data)
           const max = Math.max(...r.data.approvals.features.map(x => Number(x.properties.qty_m3_yr)))
           // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.approvals && r.data.approvals.length > 0) {
+          if (r.data && r.data.approvals) {
             this.addApprovalsLayer('waterApprovals', r.data.approvals, '#FFE41A', 0.5, max)
           }
           this.approvalsLoading = false
@@ -207,20 +213,28 @@ export default {
         })
     },
     updateShortTermData () {
-      if (!this.shortTermLicenceData) {
+      if (!this.shortTermLicenceData ||
+        !this.shortTermLicenceData.approvals ||
+        !this.shortTermLicenceData.approvals.features) {
         return null
       }
+
+      let features = this.shortTermLicenceData.approvals.features
 
       // Short Term Approvals Demand
       let shortTermAllocationY = []
       let allocItemKey, shortTermMonthlyQty
+
       // Get total short term quantity per month based on short term allocation values
+      // many points are duplicate records so we only save one allocation record for
+      // each approval file number 
       for (let i = 0; i < 12; i++) {
         shortTermMonthlyQty = 0
-        this.shortTermLicenceData.map(item => {
-          allocItemKey = item.approvalNumber + ' - ' + item.sourceName
+        features.map(item => {
+          let properties = item.properties
+          allocItemKey = properties.APPROVAL_FILE_NUMBER
           this.initShortTermAllocationItemIfNotExists(allocItemKey)
-          shortTermMonthlyQty += this.computeQuantityForMonth(item.qty, this.shortTermAllocationValues[allocItemKey], i + 1)
+          shortTermMonthlyQty += this.computeQuantityForMonth(properties.qty_m3_yr, this.shortTermAllocationValues[allocItemKey], i + 1)
         })
         shortTermAllocationY[i] = shortTermMonthlyQty
       }
@@ -237,8 +251,10 @@ export default {
     this.fetchShortTermLicenceData()
   },
   beforeDestroy () {
-    this.map.removeLayer('waterApprovals')
-    this.map.removeSource('waterApprovals')
+    if (this.map.getLayer('waterApprovals')) {
+      this.map.removeLayer('waterApprovals')
+      this.map.removeSource('waterApprovals')
+    }
   }
 }
 </script>
