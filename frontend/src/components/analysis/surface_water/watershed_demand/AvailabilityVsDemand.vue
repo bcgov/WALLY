@@ -1,116 +1,15 @@
 <template>
   <div>
-    <div class="titleSub my-5">Watershed Licenced Quantity</div>
-    <div v-if="licencesLoading || approvalsLoading">
-      <v-progress-linear show indeterminate></v-progress-linear>
-    </div>
-    <div v-if="licenceData">
-      <v-card flat>
-        <v-card-title class="pl-0">
-          Water Rights Licences
-          <v-card-actions>
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" x-small fab depressed light @click="openEditAllocationTableDialog">
-                  <v-icon small color="primary">
-                    mdi-tune
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Configure monthly allocation coefficients</span>
-            </v-tooltip>
-          </v-card-actions>
-
-        </v-card-title>
-        <v-dialog v-model="show.editingAllocationValues" persistent>
-          <MonthlyAllocationTable
-            :allocation-items="licenceData.total_qty_by_purpose"
-            key-field="purpose"
-            @close="closeEditAllocationTableDialog"/>
-        </v-dialog>
-
-        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
-
-        <Dialog v-bind="wmd.availabilityVsDemand"/>
-
-        <div class="my-5">
-          <div class="mb-3">Annual licenced quantity by use type:</div>
-          <v-data-table
-            :items="licenceData.total_qty_by_purpose"
-            :headers="licencePurposeHeaders"
-            sort-by="qty"
-            sort-desc
-          >
-            <template v-slot:item.qty="{ item }">
-              {{ item.qty.toFixed(1) | formatNumber }}
-            </template>
-          </v-data-table>
-          <v-col class="text-right">
-             <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
-          </v-col>
-        </div>
-      </v-card>
-      
-      <!-- Short Term Approvals -->
-      <v-card flat>
-        <v-card-title class="pl-0">
-          Water Approval Points (Short Term Licences)
-          <v-card-actions>
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" x-small fab depressed light @click="openEditShortTermAllocationTableDialog">
-                  <v-icon small color="primary">
-                    mdi-tune
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Configure short term monthly allocation coefficients</span>
-            </v-tooltip>
-          </v-card-actions>
-
-        </v-card-title>
-        <v-dialog v-model="show.editingShortTermAllocationValues" persistent>
-          <ShortTermMonthlyAllocationTable
-            :allocation-items="approvalsData"
-            key-field="approvalNumber"
-            @close="closeEditShortTermAllocationTableDialog"/>
-        </v-dialog>
-
-        <span>Total annual approved quantity:</span> {{ approvalsData.total_qty.toFixed(1) | formatNumber }} m3/year
-
-        <!-- <Dialog v-bind="wmd.availabilityVsDemand"/> -->
-
-        <div class="my-5">
-          <div class="mb-3">Short Term Water Approval Points:</div>
-          <v-data-table
-            :items="approvalsData"
-            :headers="shortTermPurposeHeaders"
-            sort-by="qty"
-            sort-desc
-          >
-            <template v-slot:item.qty="{ item }">
-              {{ item.qty.toFixed(1) | formatNumber }}
-            </template>
-          </v-data-table>
-          <!-- <v-col class="text-right">
-             <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
-          </v-col> -->
-        </div>
-      </v-card>
-
-<!-- TODO move into its own component -->
       <div class="subtitle-1 my-3 font-weight-bold">Availability vs Licensed Quantity</div>
-        <div class="my-3"><span class="font-weight-bold">How to read this graph:</span>
-          this graph shows available water after allocation from existing surface water licences,
-          as determined by subtracting licensed quantities (including any adjusted monthly allocation
-          values) from the estimated discharge for each month.
-        </div>
-        <Plotly v-if="availability && licenceData"
-                :layout="demandAvailabilityLayout()"
-                :data="demandAvailabilityData"
-        ></Plotly>
-        
-    </div>
+      <div class="my-3"><span class="font-weight-bold">How to read this graph:</span>
+        this graph shows available water after allocation from existing surface water licences,
+        as determined by subtracting licensed quantities (including any adjusted monthly allocation
+        values) from the estimated discharge for each month.
+      </div>
+      <Plotly v-if="availability && licenceData"
+              :layout="demandAvailabilityLayout()"
+              :data="demandAvailabilityData"
+      ></Plotly>
   </div>
 </template>
 
@@ -140,25 +39,8 @@ export default {
     Plotly,
     Dialog
   },
-  props: ['watershedID', 'record', 'availability'],
+  props: ['watershedID', 'record', 'availability', 'licenceData', 'approvalsData'],
   data: () => ({
-    licencesLoading: false,
-    licenceData: null,
-    approvalsData: null,
-    licencePurposeHeaders: [
-      { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
-      { text: '', value: 'action', sortable: false }
-    ],
-    shortTermPurposeHeaders: [
-      { text: 'Approval Number', value: 'approvalNumber', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
-      { text: '', value: 'action', sortable: false }
-    ],
-    show: {
-      editingAllocationValues: false,
-      editingShortTermAllocationValues: false,
-    },
     purposeTypes: [],
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     monthHeaders: [

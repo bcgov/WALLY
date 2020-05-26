@@ -26,7 +26,7 @@ from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 
@@ -166,6 +166,64 @@ def surface_water_rights_licences(polygon: Polygon):
         ]),
         total_qty=total_licenced_qty_m3_yr,
         total_qty_by_purpose=licence_purpose_type_list,
+        projected_geometry_area=polygon.area,
+        projected_geometry_area_simplified=polygon_rect.area
+    )
+
+
+def surface_water_approval_points(polygon: Polygon):
+    """ returns surface water approval points (filtered by APPROVAL_STATUS)"""
+    water_approvals_layer = 'water_aproval_points'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    approvals = databc_feature_search(
+        water_approvals_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    features_within_search_area = []
+    total_qty_m3_yr = 0
+
+    for apr in approvals.features:
+        feature_shape = shape(apr.geometry)
+
+        # skip approvals outside search area
+        if not feature_shape.within(polygon_3005):
+            continue
+
+        # skip approval if not an active approvals
+        # other approval status' are associated with inactive records.
+        if apr.properties['APPROVAL_STATUS'] != 'Current':
+            continue
+
+        features_within_search_area.append(apr)
+
+        qty = apr.properties['QUANTITY']
+        qty_unit = apr.properties['QUANTITY_UNITS'].strip()
+
+        if qty_unit == 'm3/year':
+            pass
+        elif qty_unit == 'm3/day':
+            qty = qty * 365
+        elif qty_unit == 'm3/sec':
+            qty = qty * 60 * 60 * 24 * 365
+        else:
+            qty = 0
+
+        total_qty_m3_yr += qty
+        apr.properties['qty_m3_yr'] = qty
+
+    return WaterApprovalDetails(
+        approvals=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in features_within_search_area
+        ]),
+        total_qty=total_qty_m3_yr,
         projected_geometry_area=polygon.area,
         projected_geometry_area_simplified=polygon_rect.area
     )

@@ -32,6 +32,7 @@ from api.v1.watersheds.controller import (
     calculate_glacial_area,
     pcic_data_request,
     surface_water_rights_licences,
+    surface_water_approval_points,
     calculate_watershed,
     get_watershed,
     get_upstream_catchment_area,
@@ -196,6 +197,7 @@ def watershed_stats(
 
     if format == 'xlsx':
         licence_data = surface_water_rights_licences(watershed_poly)
+        # approvals_data = surface_water_approval_points(watershed_poly)
         data['generated_date'] = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S")
 
@@ -222,6 +224,20 @@ def get_watershed_demand(
     watershed = get_watershed(db, watershed_feature)
 
     return surface_water_rights_licences(shape(watershed.geometry))
+
+
+@router.get('/{watershed_feature}/approvals')
+def get_watershed_short_term_demand(
+    db: Session = Depends(get_db),
+    watershed_feature: str = Path(...,
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
+):
+    """ returns data about watershed demand by querying DataBC """
+
+    watershed = get_watershed(db, watershed_feature)
+
+    return surface_water_approval_points(shape(watershed.geometry))
 
 
 @router.get('/{watershed_feature}/surficial_geology')

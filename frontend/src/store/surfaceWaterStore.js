@@ -7,6 +7,7 @@ export default {
     defaultAllocValue: 1,
     defaultAllocValues: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     allocationValues: {},
+    shortTermAllocationValues: {},
     // Watershed detail state objects
     watershedDetails: null,
     defaultWatershedDetails: null,
@@ -22,6 +23,13 @@ export default {
     initAllocationItemIfNotExists ({ state, commit, dispatch }, allocItemKey) {
       if (!(allocItemKey in state.allocationValues)) {
         commit('setAllocationValues', {
+          key: allocItemKey,
+          values: state.defaultAllocValues })
+      }
+    },
+    initShortTermAllocationItemIfNotExists ({ state, commit, dispatch }, allocItemKey) {
+      if (!(allocItemKey in state.shortTermAllocationValues)) {
+        commit('setShortTermAllocationValues', {
           key: allocItemKey,
           values: state.defaultAllocValues })
       }
@@ -52,6 +60,17 @@ export default {
     },
     clearAllAllocationValues (state) {
       state.allocationValues = {}
+    },
+    setShortTermAllocationValues (state, item) {
+      state.shortTermAllocationValues[item.key] = item.values
+    },
+    clearShortTermAllocationValues (state, key) {
+      if (key in state.shortTermAllocationValues) {
+        delete state.shortTermAllocationValues[key]
+      }
+    },
+    clearAllShortTermAllocationValues (state) {
+      state.shortTermAllocationValues = {}
     },
     setDefaultWatershedDetails (state, payload) {
       state.defaultWatershedDetails = payload
