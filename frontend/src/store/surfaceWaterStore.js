@@ -14,8 +14,8 @@ export default {
     customModelInputsActive: false,
     defaultScsb2016ModelInputs: null,
     scsb2016ModelInputs: null,
+    shortTermLicencePlotData,
     availabilityPlotData,
-    approvalsPlotData,
     licencePlotData,
   },
   actions: {
@@ -74,6 +74,20 @@ export default {
     },
     clearAllShortTermAllocationValues (state) {
       state.shortTermAllocationValues = {}
+    },
+    setAvailabilityPlotData (state, data) {
+      state.availabilityPlotData = data
+    },
+    setShortTermLicencePlotData (state, data) {
+      state.shortTermLicencePlotData = data
+    },
+    setLicencePlotData (state, data) {
+      state.licencePlotData = data
+    },
+    clearAvailabilityVsDemandPlotData (state) {
+      state.availabilityPlotData = null
+      state.shortTermLicencePlotData = null
+      state.licencePlotData = null
     },
     setDefaultWatershedDetails (state, payload) {
       state.defaultWatershedDetails = payload

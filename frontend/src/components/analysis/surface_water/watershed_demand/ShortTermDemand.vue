@@ -98,29 +98,12 @@ export default {
       editingAllocationValues: false,
       editingShortTermAllocationValues: false,
     },
-    purposeTypes: [],
-    months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
-    monthHeaders: [
-      { text: 'Jan', value: 'm1' },
-      { text: 'Feb', value: 'm2' },
-      { text: 'Mar', value: 'm3' },
-      { text: 'Apr', value: 'm4' },
-      { text: 'May', value: 'm5' },
-      { text: 'Jun', value: 'm6' },
-      { text: 'Jul', value: 'm7' },
-      { text: 'Aug', value: 'm8' },
-      { text: 'Sep', value: 'm9' },
-      { text: 'Oct', value: 'm10' },
-      { text: 'Nov', value: 'm11' },
-      { text: 'Dec', value: 'm12' }
-    ],
-    demandAvailabilityData: [],
     wmd: WatershedModelDescriptions,
     isLayerVisible: true,
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
+    ...mapGetters('surfaceWater', ['shortTermAllocationValues'])
   },
   watch: {
     watershedID () {
@@ -132,6 +115,7 @@ export default {
   },
   methods: {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
+    ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
     addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
       this.map.addLayer({
         id: id,
@@ -242,6 +226,7 @@ export default {
         shortTermAllocationY[i] = shortTermMonthlyQty
       }
 
+      this.setShortTermLicencePlotData(shortTermAllocationY) // update store so availability vs demand graph gets new plot values
     },
     toggleLayerVisibility () {
       this.isLayerVisible = !this.isLayerVisible

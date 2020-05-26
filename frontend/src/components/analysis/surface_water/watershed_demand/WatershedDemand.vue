@@ -82,7 +82,7 @@ export default {
     Plotly,
     Dialog
   },
-  props: ['watershedID', 'record', 'availability'],
+  props: ['watershedID'],
   data: () => ({
     licencesLoading: false,
     licenceData: null,
@@ -96,25 +96,8 @@ export default {
       editingAllocationValues: false,
     },
     purposeTypes: [],
-    months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
-    monthHeaders: [
-      { text: 'Jan', value: 'm1' },
-      { text: 'Feb', value: 'm2' },
-      { text: 'Mar', value: 'm3' },
-      { text: 'Apr', value: 'm4' },
-      { text: 'May', value: 'm5' },
-      { text: 'Jun', value: 'm6' },
-      { text: 'Jul', value: 'm7' },
-      { text: 'Aug', value: 'm8' },
-      { text: 'Sep', value: 'm9' },
-      { text: 'Oct', value: 'm10' },
-      { text: 'Nov', value: 'm11' },
-      { text: 'Dec', value: 'm12' }
-    ],
-    demandAvailabilityData: [],
     wmd: WatershedModelDescriptions,
     isLicencesLayerVisible: true,
-    isApprovalsLayerVisible: true,
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -199,7 +182,7 @@ export default {
     },
     closeEditAllocationTableDialog () {
       // TODO: Distribute quantity based on alloc values
-      this.setDemandAvailabilityData()
+      this.setDemandData()
       this.show.editingAllocationValues = false
     },
     fetchDemandData () {
@@ -217,28 +200,10 @@ export default {
           this.setPurposeTypes()
 
           this.licencesLoading = false
-          this.setDemandAvailabilityData()
+          this.setDemandPlotData()
         })
         .catch(e => {
           this.licencesLoading = false
-          console.error(e)
-        })
-    },
-    fetchApprovalsData () {
-      this.approvalsLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/approvals`)
-        .then(r => {
-          this.approvalsData = r.data
-          const max = Math.max(...r.data.approvals.features.map(x => Number(x.properties.qty_m3_yr)))
-          // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.approvals) {
-            this.addApprovalsLayer('waterApprovals', r.data.approvals, '#FFE41A', 0.5, max)
-          }
-          this.approvalsLoading = false
-          this.setDemandAvailabilityData()
-        })
-        .catch(e => {
-          this.approvalsLoading = false
           console.error(e)
         })
     },
@@ -248,8 +213,8 @@ export default {
         this.purposeTypes.push(item.purpose)
       })
     },
-    setDemandAvailabilityData () {
-      if (!this.licenceData || !this.availability || !this.approvalsData) {
+    setDemandPlotData () {
+      if (!this.licenceData) {
         return null
       }
 
@@ -266,75 +231,7 @@ export default {
         })
         allocationY[i] = monthlyQty
       }
-
-      // Short Term Approvals Demand
-      let shortTermAllocationY = []
-      let shortTermallocItemKey, shortTermMonthlyQty
-      // Get total short term quantity per month based on short term allocation values
-      for (let i = 0; i < 12; i++) {
-        shortTermMonthlyQty = 0
-        this.approvalsData.map(item => {
-          allocItemKey = item.approvalNumber + " - " + item.sourceName
-          this.initShortTermAllocationItemIfNotExists(allocItemKey)
-          shortTermMonthlyQty += this.computeQuantityForMonth(item.qty, this.shortTermAllocationValues[allocItemKey], i + 1)
-        })
-        shortTermAllocationY[i] = shortTermMonthlyQty
-      }
-
-      // Plot Config
-      let mar = this.availability.reduce((a, b) => a + b, 0) / 12
-      const availabilityData = {
-        type: 'bar',
-        name: 'Available Water',
-        y: this.availability.map((val, i) => { return val - allocationY[i] }),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const licencePlotData = {
-        type: 'bar',
-        name: 'Monthly Licenced Quantity',
-        y: allocationY,
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const shortTermPlotData = {
-        type: 'bar',
-        name: 'Monthly Short Term Approvals Quantity',
-        y: shortTermAllocationY,
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const mad30 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '20% MAD',
-        y: Array(12).fill(mar * 0.2),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#5ab190' }
-      }
-      const mad20 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '15% MAD',
-        y: Array(12).fill(mar * 0.15),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fec925' }
-      }
-      const mad10 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '10% MAD',
-        y: Array(12).fill(mar * 0.1),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fa1e44' }
-      }
-      this.demandAvailabilityData = [availabilityData, licencePlotData, shortTermPlotData, mad10, mad20, mad30]
+      this.setLicencePlotData(allocationY) // update store so availability vs demand graph gets new plot values
     },
     toggleLayerVisibility () {
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
