@@ -72,18 +72,6 @@
           v-model="weightingFactor"
           :rules="[weightingFactorValidation.number, weightingFactorValidation.values, weightingFactorValidation.required]"
         >
-          <v-tooltip slot="append" right>
-            <template v-slot:activator="{ on }">
-              <v-icon small v-on="on">
-                mdi-help-circle
-              </v-icon>
-            </template>
-            <span>
-              A weighting factor of 1 (linear) or 2 (squared) is usually set when calculating apportionment.
-              A larger weighting factor results in a greater contribution from the nearest stream.
-              A weighting factor of 2 is recommended for general applications
-            </span>
-          </v-tooltip>
         </v-text-field>
       </v-col>
       <v-col>
