@@ -234,7 +234,6 @@ export default {
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
       this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('water_approval_points', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
     }
   },
   mounted () {

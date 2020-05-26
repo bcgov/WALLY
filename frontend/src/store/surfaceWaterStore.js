@@ -162,6 +162,9 @@ export default {
     allocationValues: state => state.allocationValues,
     watershedDetails: state => state.watershedDetails,
     scsb2016ModelInputs: state => state.scsb2016ModelInputs || state.defaultScsb2016ModelInputs,
-    customModelInputsActive: state => state.customModelInputsActive
+    customModelInputsActive: state => state.customModelInputsActive,
+    shortTermLicencePlotData: state => state.shortTermLicencePlotData,
+    availabilityPlotData: state => state.availabilityPlotData,
+    licencePlotData: state => state.licencePlotData,
   }
 }

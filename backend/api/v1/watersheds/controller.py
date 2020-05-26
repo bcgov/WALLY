@@ -173,7 +173,7 @@ def surface_water_rights_licences(polygon: Polygon):
 
 def surface_water_approval_points(polygon: Polygon):
     """ returns surface water approval points (filtered by APPROVAL_STATUS)"""
-    water_approvals_layer = 'water_aproval_points'
+    water_approvals_layer = 'water_approval_points'
 
     # search with a simplified rectangle representing the polygon.
     # we will do an intersection on the more precise polygon after
@@ -192,10 +192,12 @@ def surface_water_approval_points(polygon: Polygon):
         # skip approvals outside search area
         if not feature_shape.within(polygon_3005):
             continue
-
+        
         # skip approval if not an active approvals
         # other approval status' are associated with inactive records.
-        if apr.properties['APPROVAL_STATUS'] != 'Current':
+        if apr.properties['APPROVAL_STATUS'] != 'Current' or \
+            apr.properties['QUANTITY'] is None or \
+            apr.properties['QUANTITY_UNITS'] is None:
             continue
 
         features_within_search_area.append(apr)
