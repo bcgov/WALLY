@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="demandAvailabilityData">
       <div class="subtitle-1 my-3 font-weight-bold">Availability vs Licensed Quantity</div>
       <div class="my-3"><span class="font-weight-bold">How to read this graph:</span>
         this graph shows available water after allocation from existing surface water licences,
@@ -14,34 +14,18 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
-import ApiService from '../../../../services/ApiService'
-import mapboxgl from 'mapbox-gl'
-
-import Dialog from '../../../common/Dialog'
-import { WatershedModelDescriptions } from '../../../../constants/descriptions'
-
-import surfaceWaterMixin from '../mixins'
-import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
+import { mapGetters } from 'vuex'
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })
-const popup = new mapboxgl.Popup({
-  closeButton: false,
-  closeOnClick: false
-})
 
 export default {
-  name: 'WatershedDemand',
-  mixins: [surfaceWaterMixin],
+  name: 'AvailabilityVsDemand',
   components: {
-    MonthlyAllocationTable,
-    Plotly,
-    Dialog
+    Plotly
   },
-  props: ['watershedID', 'record', 'availability', 'licenceData', 'approvalsData'],
+  props: [],
   data: () => ({
-    purposeTypes: [],
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     monthHeaders: [
       { text: 'Jan', value: 'm1' },
@@ -56,281 +40,22 @@ export default {
       { text: 'Oct', value: 'm10' },
       { text: 'Nov', value: 'm11' },
       { text: 'Dec', value: 'm12' }
-    ],
-    demandAvailabilityData: [],
-    wmd: WatershedModelDescriptions,
-    isLicencesLayerVisible: true,
-    isApprovalsLayerVisible: true,
+    ]
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
-  },
-  watch: {
-    watershedID () {
-      this.licenceData = null
-      this.approvalsData = null
-      this.map.removeLayer('waterLicences')
-      this.map.removeSource('waterLicences')
-      this.map.removeLayer('waterApprovals')
-      this.map.removeSource('waterApprovals')
-      this.fetchDemandData()
-      this.fetchApprovalsData()
-    }
-  },
-  methods: {
-    ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
-    demandAvailabilityLayout () {
-      return {
-        barmode: 'stack',
-        title: 'Availability vs Licenced Quantity',
-        showlegend: true,
-        legend: {
-          xanchor: 'center',
-          x: 0.5,
-          y: -0.2,
-          orientation: 'h'
-        },
-        margin: {
-          r: 120
-        },
-        xaxis: {
-          tickformat: '%B'
-        },
-        yaxis: {
-          title: 'Volume (m³)'
-        }
-      }
-    },
-    addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
-        paint: {
-          'circle-color': color,
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['number', ['get', 'qty_m3_yr'], 0],
-            0,
-            10,
-            max,
-            max > 1000000 ? 50 : 25
-          ],
-          'circle-opacity': opacity
-        }
-      }, 'water_rights_licences')
-
-      this.map.on('mouseenter', id, (e) => {
-      // Change the cursor style as a UI indicator.
-        this.map.getCanvas().style.cursor = 'pointer'
-
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
-        let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
-        let sourceName = e.features[0].properties['SOURCE_NAME']
-        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
-        let purpose = e.features[0].properties['PURPOSE_USE']
-
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-        }
-
-        // Populate the popup and set its coordinates
-        // based on the feature found.
-        popup
-          .setLngLat(coordinates)
-          .setHTML(`
-            <dl>
-              <dt>Licence no.:</dt> <dd>${licenceNumber}</dd>
-              <dt>Primary licensee:</dt> <dd>${licenseeName}</dd>
-              <dt>Source:</dt> <dd>${sourceName}</dd>
-              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
-              <dt>Purpose use:</dt> <dd>${purpose}</dd>
-            </dl>
-
-          `)
-          .addTo(this.map)
-      })
-
-      this.map.on('mouseleave', id, () => {
-        this.map.getCanvas().style.cursor = ''
-        popup.remove()
-      })
-    },
-    addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
-        paint: {
-          'circle-color': color,
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['number', ['get', 'qty_m3_yr'], 0],
-            0,
-            10,
-            max,
-            max > 1000000 ? 50 : 25
-          ],
-          'circle-opacity': opacity
-        }
-      }, 'waterLicences') // Render on top of waterLicences
-
-      this.map.on('mouseenter', id, (e) => {
-      // Change the cursor style as a UI indicator.
-        this.map.getCanvas().style.cursor = 'pointer'
-
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let approvalNumber = e.features[0].properties['APPROVAL_FILE_NUMBER']
-        let sourceName = e.features[0].properties['SOURCE']
-        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
-        let worksDescription = e.features[0].properties['WORKS_DESCRIPTION']
-        let startDate = e.features[0].properties['APPROVAL_START_DATE']
-        let expiryDate = e.features[0].properties['APPROVAL_EXPIRY_DATE']
-
-        // Ensure that if the map is zoomed out such that multiple
-        // copies of the feature are visible, the popup appears
-        // over the copy being pointed to.
-        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
-        }
-
-        // Populate the popup and set its coordinates
-        // based on the feature found.
-        popup
-          .setLngLat(coordinates)
-          .setHTML(`
-            <dl>
-              <dt>Approval file no.:</dt> <dd>${approvalNumber}</dd>
-              <dt>Source:</dt> <dd>${sourceName}</dd>
-              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
-              <dt>Works Description:</dt> <dd>${worksDescription}</dd>
-              <dt>Start Date:</dt> <dd>${startDate}</dd>
-              <dt>Expiry Date:</dt> <dd>${expiryDate}</dd>
-            </dl>
-
-          `)
-          .addTo(this.map)
-      })
-
-      this.map.on('mouseleave', id, () => {
-        this.map.getCanvas().style.cursor = ''
-        popup.remove()
-      })
-    },
-    openEditAllocationTableDialog () {
-      this.show.editingAllocationValues = true
-    },
-    closeEditAllocationTableDialog () {
-      // TODO: Distribute quantity based on alloc values
-      this.setDemandAvailabilityData()
-      this.show.editingAllocationValues = false
-    },
-    openEditShortTermAllocationTableDialog () {
-      this.show.editingShortTermAllocationValues = true
-    },
-    closeEditShortTermAllocationTableDialog () {
-      // TODO: Distribute quantity based on alloc values
-      this.setDemandAvailabilityData()
-      this.show.editingShortTermAllocationValues = false
-    },
-    fetchDemandData () {
-      this.licencesLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
-        .then(r => {
-          this.licenceData = r.data
-          // console.log('adding data to map')
-          const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.licences) {
-            this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
-          }
-          // resets purposeTypes array and re-populates if any entries in list
-          this.setPurposeTypes()
-
-          this.licencesLoading = false
-          this.setDemandAvailabilityData()
-        })
-        .catch(e => {
-          this.licencesLoading = false
-          console.error(e)
-        })
-    },
-    fetchApprovalsData () {
-      this.approvalsLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/approvals`)
-        .then(r => {
-          this.approvalsData = r.data
-          const max = Math.max(...r.data.approvals.features.map(x => Number(x.properties.qty_m3_yr)))
-          // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.approvals) {
-            this.addApprovalsLayer('waterApprovals', r.data.approvals, '#FFE41A', 0.5, max)
-          }
-          this.approvalsLoading = false
-          this.setDemandAvailabilityData()
-        })
-        .catch(e => {
-          this.approvalsLoading = false
-          console.error(e)
-        })
-    },
-    setPurposeTypes () {
-      this.purposeTypes = []
-      this.licenceData.total_qty_by_purpose.forEach(item => {
-        this.purposeTypes.push(item.purpose)
-      })
-    },
-    setDemandAvailabilityData () {
-      if (!this.licenceData || !this.availability || !this.approvalsData) {
+    ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'approvalsPlotData']),
+    demandAvailabilityData () {
+      if (!this.availabilityPlotData || !this.licencePlotData || !this.approvalsPlotData) {
         return null
       }
 
-      // Water Rights Licences Demand
-      let allocationY = []
-      let allocItemKey, monthlyQty
-      // Get total quantity per month based on allocation values
-      for (let i = 0; i < 12; i++) {
-        monthlyQty = 0
-        this.licenceData.total_qty_by_purpose.map(item => {
-          allocItemKey = item.purpose.trim()
-          this.initAllocationItemIfNotExists(allocItemKey)
-          monthlyQty += this.computeQuantityForMonth(item.qty, this.allocationValues[allocItemKey], i + 1)
-        })
-        allocationY[i] = monthlyQty
-      }
+      let mar = this.availabilityPlotData.reduce((a, b) => a + b, 0) / 12
 
-      // Short Term Approvals Demand
-      let shortTermAllocationY = []
-      let shortTermallocItemKey, shortTermMonthlyQty
-      // Get total short term quantity per month based on short term allocation values
-      for (let i = 0; i < 12; i++) {
-        shortTermMonthlyQty = 0
-        this.approvalsData.map(item => {
-          allocItemKey = item.approvalNumber + " - " + item.sourceName
-          this.initShortTermAllocationItemIfNotExists(allocItemKey)
-          shortTermMonthlyQty += this.computeQuantityForMonth(item.qty, this.shortTermAllocationValues[allocItemKey], i + 1)
-        })
-        shortTermAllocationY[i] = shortTermMonthlyQty
-      }
-
-      // Plot Config
-      let mar = this.availability.reduce((a, b) => a + b, 0) / 12
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
-        y: this.availability.map((val, i) => { return val - allocationY[i] }),
+        y: this.availabilityPlotData.map((val, i) => { return val - licencePlotData[i] }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
@@ -338,15 +63,15 @@ export default {
       const licencePlotData = {
         type: 'bar',
         name: 'Monthly Licenced Quantity',
-        y: allocationY,
+        y: licencePlotData,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
 
-      const shortTermPlotData = {
+      const approvalsPlotData = {
         type: 'bar',
         name: 'Monthly Short Term Approvals Quantity',
-        y: shortTermAllocationY,
+        y: approvalsPlotData,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
@@ -378,31 +103,35 @@ export default {
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fa1e44' }
       }
-      this.demandAvailabilityData = [availabilityData, licencePlotData, shortTermPlotData, mad10, mad20, mad30]
-    },
-    toggleLayerVisibility () {
-      this.isLicencesLayerVisible = !this.isLicencesLayerVisible
-      this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('water_approval_points', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
+      return [availabilityData, licencePlotData, approvalsPlotData, mad10, mad20, mad30]
     }
   },
-  mounted () {
-    this.fetchDemandData()
-  },
-  beforeDestroy () {
-    this.map.removeLayer('waterLicences')
-    this.map.removeSource('waterLicences')
-    this.map.removeLayer('waterApprovals')
-    this.map.removeSource('waterApprovals')
+  methods: {
+    demandAvailabilityLayout () {
+      return {
+        barmode: 'stack',
+        title: 'Availability vs Licenced Quantity',
+        showlegend: true,
+        legend: {
+          xanchor: 'center',
+          x: 0.5,
+          y: -0.2,
+          orientation: 'h'
+        },
+        margin: {
+          r: 120
+        },
+        xaxis: {
+          tickformat: '%B'
+        },
+        yaxis: {
+          title: 'Volume (m³)'
+        }
+      }
+    }
   }
 }
 </script>
 
 <style>
-.titleSub {
-  color: #202124;
-  font-weight: bold;
-  font-size: 20px;
-}
 </style>

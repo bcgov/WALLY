@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 

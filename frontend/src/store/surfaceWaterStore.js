@@ -13,7 +13,10 @@ export default {
     defaultWatershedDetails: null,
     customModelInputsActive: false,
     defaultScsb2016ModelInputs: null,
-    scsb2016ModelInputs: null
+    scsb2016ModelInputs: null,
+    availabilityPlotData,
+    approvalsPlotData,
+    licencePlotData,
   },
   actions: {
     loadAllocationItemsFromStorage ({ state }) {
