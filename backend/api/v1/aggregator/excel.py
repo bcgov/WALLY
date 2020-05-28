@@ -53,7 +53,7 @@ def xlsxExport(features: List[LayerResponse]):
     return response
 
 
-def geojson_to_xlsx(fc_list: List[FeatureCollection]):
+def geojson_to_xlsx(fc_list: List[FeatureCollection], filename: str = "report"):
     """
     packages a list of FeatureCollections into an excel workbook.
     Each FeatureCollection will get its own sheet/tab in the workbook.
@@ -98,6 +98,6 @@ def geojson_to_xlsx(fc_list: List[FeatureCollection]):
     response = Response(
         content=save_virtual_workbook(workbook),
         media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
+        headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'})
 
     return response
