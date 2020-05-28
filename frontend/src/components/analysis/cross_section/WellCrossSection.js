@@ -234,25 +234,8 @@ export default {
         type: 'scatter',
         showlegend: false
       }
-      // order wells by distance from orgin so water levels connect linearly
-      let orderedWells = this.wells.sort(function (a, b) {
-        return parseFloat(a.distance_from_origin) - parseFloat(b.distance_from_origin)
-      })
-      const waterLevel = {
-        x: orderedWells.map(w => w.distance_from_origin ? w.distance_from_origin : null),
-        y: orderedWells.map(w => w.water_depth ? w.ground_elevation_from_dem - w.water_depth : null),
-        mode: 'lines',
-        name: 'Water Level',
-        line: {
-          color: 'blue',
-          width: 2
-        },
-        hoverlabel: {
-          namelength: 0
-        },
-        hoverinfo: 'none'
-      }
-      return [elevProfile, waterDepth, wells, lithology, waterLevel]
+
+      return [elevProfile, waterDepth, wells, lithology]
     },
     surfaceData () {
       let lines = this.surfacePoints
