@@ -8,7 +8,6 @@ import requests
 import geojson
 import json
 import math
-from datetime import datetime
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -22,6 +21,7 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 
 from api import config
+from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
@@ -130,19 +130,13 @@ def surface_water_rights_licences(polygon: Polygon):
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
         purpose = lic.properties['PURPOSE_USE']
 
-        if qty_unit == 'm3/year':
-            pass
-        elif qty_unit == 'm3/day':
-            qty = qty * 365
-        elif qty_unit == 'm3/sec':
-            qty = qty * 60 * 60 * 24 * 365
-        else:
-            qty = 0
+        qty = normalize_quantity(qty, qty_unit)
 
-        total_licenced_qty_m3_yr += qty
+        if qty is not None:
+            total_licenced_qty_m3_yr += qty
         lic.properties['qty_m3_yr'] = qty
 
-        if purpose is not None:
+        if purpose is not None and qty is not None:
             if not licenced_qty_by_use_type.get(purpose, None):
                 licenced_qty_by_use_type[purpose] = 0
             licenced_qty_by_use_type[purpose] += qty
@@ -606,7 +600,7 @@ def export_summary_as_xlsx(data: dict):
         using a template in the ./templates directory.
     """
 
-    cur_date = datetime.now().strftime("%Y%m%d")
+    cur_date = datetime.datetime.now().strftime("%Y%m%d")
 
     ws_name = data.get("watershed_name", "Surface_Water")
     ws_name.replace(" ", "_")
@@ -656,7 +650,7 @@ def known_fish_observations(polygon: Polygon):
 
         species_name = feature.properties['SPECIES_NAME']
         life_stage = feature.properties['LIFE_STAGE']
-        observation_date = datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
+        observation_date = datetime.datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
             if feature.properties['OBSERVATION_DATE'] is not None else None  # 1997-02-01Z
 
         if species_name is not None:
