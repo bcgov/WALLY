@@ -29,30 +29,27 @@
           </v-btn>
       </v-col>
     </v-row>
+
+    <!-- Licences -->
+    <v-row>
+      <v-col class="title">Water Rights Licences (Public) ({{licenceCount}})</v-col>
+    </v-row>
     <v-row no-gutters >
       <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.subtypes.POD" class="mx-2" :label="`Point of diversion (POD) (${subtypeCounts.POD})`"></v-checkbox>
+        <v-checkbox v-model="tableOptions.licences.subtypes.POD" class="mx-2" :label="`Point of diversion (POD) (${licenceSubtypeCounts.POD})`"></v-checkbox>
       </v-col>
       <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.subtypes.PWD" class="mx-2" :label="`Point of well diversion (PWD) (${subtypeCounts.PWD})`"></v-checkbox>
+        <v-checkbox v-model="tableOptions.licences.subtypes.PWD" class="mx-2" :label="`Point of well diversion (PWD) (${licenceSubtypeCounts.PWD})`"></v-checkbox>
       </v-col>
       <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.subtypes.PG" class="mx-2" :label="`Point of groundwater diversion (PG) (${subtypeCounts.PG})`"></v-checkbox>
-      </v-col>
-    </v-row>
-    <v-row no-gutters>
-      <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.applications" class="mx-2" :label="`Water Rights Applications (${applicationCount})`"></v-checkbox>
-      </v-col>
-      <v-col cols="12" md="4">
-        <v-checkbox v-model="tableOptions.approvals" class="mx-2" :label="`Water Approval Points (${approvalCount})`"></v-checkbox>
+        <v-checkbox v-model="tableOptions.licences.subtypes.PG" class="mx-2" :label="`Point of groundwater diversion (PG) (${licenceSubtypeCounts.PG})`"></v-checkbox>
       </v-col>
     </v-row>
     <v-row>
       <v-col>
         <v-data-table
           :loading="loading"
-          :headers="headers"
+          :headers="licenceHeaders"
           :items="filteredLicences"
         >
           <template v-slot:item.LICENCE_NUMBER="{ item }">
@@ -71,6 +68,89 @@
         </v-data-table>
       </v-col>
     </v-row>
+
+    <!-- Applications -->
+    <div v-if="!loading">
+      <v-row>
+        <v-col class="title">Water Rights Applications (Public) ({{applicationCount}})</v-col>
+      </v-row>
+      <v-row no-gutters >
+        <v-col cols="12" md="4">
+          <v-checkbox v-model="tableOptions.applications.subtypes.POD" class="mx-2" :label="`Point of diversion (POD) (${applicationSubtypeCounts.POD})`"></v-checkbox>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-checkbox v-model="tableOptions.applications.subtypes.PWD" class="mx-2" :label="`Point of well diversion (PWD) (${applicationSubtypeCounts.PWD})`"></v-checkbox>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-checkbox v-model="tableOptions.applications.subtypes.PG" class="mx-2" :label="`Point of groundwater diversion (PG) (${applicationSubtypeCounts.PG})`"></v-checkbox>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-data-table
+            :loading="loading"
+            :headers="applicationHeaders"
+            :items="filteredApplications"
+          >
+            <template v-slot:item.LICENCE_NUMBER="{ item }">
+              <span v-if="item.LICENCE_NUMBER">
+                <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.LICENCE_NUMBER}`" target="_blank">
+                  {{item.LICENCE_NUMBER}}
+                </a>
+              </span>
+            </template>
+            <template v-slot:item.distance="{ item }">
+              <span>{{item.distance.toFixed(1)}}</span>
+            </template>
+            <template v-slot:item.QUANTITY="{ item }">
+              <span v-if="item.QUANTITY" >{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </div>
+
+    <!-- Approvals -->
+    <div v-if="!loading">
+      <v-row>
+        <v-col class="title">Water Approval Points ({{approvalCount}})</v-col>
+      </v-row>
+      <v-row no-gutters >
+        <v-col cols="12" md="4">
+          <v-checkbox v-model="tableOptions.approvals.current" class="mx-2" :label="`Current (${approvalStatusCounts.current})`"></v-checkbox>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-checkbox v-model="tableOptions.approvals.expired" class="mx-2" :label="`Expired (${approvalStatusCounts.expired})`"></v-checkbox>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-checkbox v-model="tableOptions.approvals.null" class="mx-2" :label="`Null or no status (${approvalStatusCounts.null})`"></v-checkbox>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-data-table
+            :loading="loading"
+            :headers="approvalHeaders"
+            :items="filteredApprovals"
+          >
+            <template v-slot:item.LICENCE_NUMBER="{ item }">
+              <span v-if="item.LICENCE_NUMBER">
+                <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.LICENCE_NUMBER}`" target="_blank">
+                  {{item.LICENCE_NUMBER}}
+                </a>
+              </span>
+            </template>
+            <template v-slot:item.distance="{ item }">
+              <span>{{item.distance.toFixed(1)}}</span>
+            </template>
+            <template v-slot:item.QUANTITY="{ item }">
+              <span v-if="item.QUANTITY" >{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
+            </template>
+          </v-data-table>
+        </v-col>
+      </v-row>
+    </div>
+
     <v-row>
       <v-col>
         <v-expansion-panels class="mt-5 elevation-0" multiple>
@@ -83,14 +163,20 @@
 
             </v-expansion-panel-header>
             <v-expansion-panel-content>
-              <p>Data on this page comes from <a href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public" target="_blank">Water Rights Licences (public)</a>.</p>
+              <p>Data on this page comes from <a href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public" target="_blank">Water Rights Licences (public)</a>,
+              <a href="https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public" target="_blank">Water Rights Applications (public)</a>, and
+              <a href="https://catalogue.data.gov.bc.ca/dataset/water-approval-points" target="_blank">Water Approval Points</a>.</p>
               <dl>
+                <dt>Type</dt>
+                <dd>Type indicates the data set that this record was found in; either Licence (Water Rights Licences), Application (Water Rights Applications), or an approval type such as CIAS, N-CIAS, or A-CIAS (Water Approval Points).</dd>
+                <dt>Status</dt>
+                <dd>Status comes from either LICENCE_STATUS (Water Rights Licences), APPLICATION_STATUS (Water Rights Applications), or APPROVAL_STATUS (Water Approval Points). See links to datasets on DataBC Catalogue above for more information.</dd>
                 <dt>Licence number</dt>
                 <dd>Licence number is the authorization number referenced in the water licence document, e.g., 121173.</dd>
                 <dt>POD number</dt>
                 <dd>POD number is the unique identifier for a Point of Diversion, e.g., PW189413. Each POD can have multiple licences associated with it.</dd>
-                <dt>Purpose use</dt>
-                <dd>Purpose use is the use of water authorized by the licence, e.g. Industrial.</dd>
+                <dt>Usage type</dt>
+                <dd>Usage type comes from either PURPOSE_USE (Water Rights Licences and Water Rights Applications), or WORKS_DESCRIPTION (Water Approval Points).</dd>
                 <dt>Quantity</dt>
                 <dd>Quantity is the maximum quantity of water that is authorized to be diverted for the purpose use, e.g., 500 m3/day.</dd>
                 <dt>POD subtype</dt>
@@ -130,24 +216,53 @@ export default {
     licencesLayerAutomaticallyEnabled: false,
     applicationsLayerAutomaticallyEnabled: false,
     approvalsLayerAutomaticallyEnabled: false,
-    headers: [
+    licenceHeaders: [
       { text: 'Distance', value: 'distance' },
-      { text: 'Type', value: 'type' },
-      { text: 'Application number', value: 'APPLICATION_JOB_NUMBER' },
-      { text: 'Status', value: 'status' },
+      { text: 'Type', value: 'type', filterable: true },
       { text: 'Licence number', value: 'LICENCE_NUMBER' },
+      { text: 'Status', value: 'status', filterable: true },
       { text: 'POD number', value: 'POD_NUMBER' },
       { text: 'POD subtype', value: 'POD_SUBTYPE', filterable: true },
-      { text: 'Purpose use', value: 'PURPOSE_USE' },
+      { text: 'Usage type', value: 'usage', filterable: true },
+      { text: 'Quantity', value: 'QUANTITY' }
+    ],
+    applicationHeaders: [
+      { text: 'Distance', value: 'distance' },
+      { text: 'Type', value: 'type', filterable: true },
+      { text: 'Application number', value: 'APPLICATION_JOB_NUMBER' },
+      { text: 'Status', value: 'status', filterable: true },
+      { text: 'POD subtype', value: 'POD_SUBTYPE', filterable: true },
+      { text: 'Usage type', value: 'usage', filterable: true },
+      { text: 'Quantity', value: 'QUANTITY' }
+    ],
+    approvalHeaders: [
+      { text: 'Distance', value: 'distance' },
+      { text: 'Type', value: 'type', filterable: true },
+      { text: 'Approval ID', value: 'WATER_APPROVAL_ID' },
+      { text: 'File number', value: 'APPROVAL_FILE_NUMBER' },
+      { text: 'Status', value: 'status', filterable: true },
+      { text: 'Usage type', value: 'usage', filterable: true },
       { text: 'Quantity', value: 'QUANTITY' }
     ],
     tableOptions: {
-      applications: true,
-      approvals: true,
-      subtypes: {
-        PWD: true,
-        POD: true,
-        PG: true
+      applications: {
+        subtypes: {
+          PWD: true,
+          POD: true,
+          PG: true
+        }
+      },
+      approvals: {
+        current: true,
+        expired: true,
+        null: true
+      },
+      licences: {
+        subtypes: {
+          PWD: true,
+          POD: true,
+          PG: true
+        }
       }
 
     }
@@ -165,10 +280,43 @@ export default {
     coordinates () {
       return this.record && this.record.geometry && this.record.geometry.coordinates
     },
-    filteredLicences () {
-      let licences = this.results
+    filteredApprovals () {
+      let approvals = this.results.filter(x => !!x.WATER_APPROVAL_ID)
+      const opts = this.tableOptions.approvals
 
-      const subtypes = this.tableOptions.subtypes
+      const statusMap = {
+        current: ['Current'],
+        expired: ['Expired'],
+        null: ['', null, '<Null>']
+      }
+
+      for (const key of Object.keys(opts)) {
+        // check if this subtype key is disabled.
+        if (!opts[key]) {
+          approvals = approvals.filter(x => statusMap[key].indexOf(x.status) === -1)
+        }
+      }
+      return approvals
+    },
+    filteredApplications () {
+      let applications = this.results.filter(x => !!x.APPLICATION_JOB_NUMBER)
+      const subtypes = this.tableOptions.applications.subtypes
+
+      // loop through subtypes in tableOptions and if any subtype is disabled (false value),
+      // filter it out of the licences array.
+      for (const key of Object.keys(subtypes)) {
+        // check if this subtype key is disabled.
+        if (!subtypes[key]) {
+          applications = applications.filter(x => x.POD_SUBTYPE !== key)
+        }
+      }
+
+      return applications
+    },
+    filteredLicences () {
+      let licences = this.results.filter(x => !!x.LICENCE_NUMBER)
+
+      const subtypes = this.tableOptions.licences.subtypes
 
       // loop through subtypes in tableOptions and if any subtype is disabled (false value),
       // filter it out of the licences array.
@@ -179,19 +327,6 @@ export default {
         }
       }
 
-      // use the property APPLICATION_JOB_NUMBER to determine if this point is an application.
-      // see https://catalogue.data.gov.bc.ca/dataset/water-rights-applications-public
-      if (!this.tableOptions.applications) {
-        licences = licences.filter(x => !x.APPLICATION_JOB_NUMBER)
-      }
-
-      // use the property WATER_APPROVAL_ID to determin if this point is a water approval (section 10
-      // or section 11 approvals).
-      // https://catalogue.data.gov.bc.ca/dataset/water-approval-points
-      if (!this.tableOptions.approvals) {
-        licences = licences.filter(x => !x.WATER_APPROVAL_ID)
-      }
-
       return licences
     },
     applicationCount () {
@@ -200,10 +335,34 @@ export default {
     approvalCount () {
       return this.results.filter(x => !!x.WATER_APPROVAL_ID).length
     },
-    subtypeCounts () {
+    licenceCount () {
+      return this.results.filter(x => !!x.LICENCE_NUMBER).length
+    },
+    applicationSubtypeCounts () {
+      const applications = this.results.filter(x => !!x.APPLICATION_JOB_NUMBER)
+      const subtypes = this.tableOptions.applications.subtypes
+
+      let counts = {}
+
+      // loop through the subtypes, and count the number of each type.
+      for (const key of Object.keys(subtypes)) {
+        counts[key] = applications.filter(x => x.POD_SUBTYPE === key).length
+      }
+      return counts
+    },
+    approvalStatusCounts () {
+      const approvals = this.results.filter(x => !!x.WATER_APPROVAL_ID)
+
+      return {
+        current: approvals.filter(x => x.status === 'Current').length,
+        expired: approvals.filter(x => x.status === 'Expired').length,
+        null: approvals.filter(x => x.status === '' || x.status === '<Null>' || !x.status).length
+      }
+    },
+    licenceSubtypeCounts () {
       // counts each subtype in the results
-      let licences = this.results
-      const subtypes = this.tableOptions.subtypes
+      let licences = this.results.filter(x => !!x.LICENCE_NUMBER)
+      const subtypes = this.tableOptions.licences.subtypes
 
       let counts = {}
 
@@ -243,10 +402,11 @@ export default {
     },
     fetchLicences: debounce(function () {
       this.showCircle()
-      this.loading = true
       if (!this.radiusIsValid(this.radius)) {
         return
       }
+      this.loading = true
+      this.results = []
 
       // turn on licences, applications and approvals map layer
       this.addMissingMapLayers()

@@ -11,6 +11,7 @@ class LicenceApplicationApproval(BaseModel):
 
     distance: float
     type: str
+    usage: Optional[str]
     status: Optional[str]
     qty_m3yr: Optional[float]
 
@@ -21,6 +22,7 @@ class LicenceApplicationApproval(BaseModel):
     # approval fields
     WATER_APPROVAL_ID: Optional[str]
     WATER_APPROVAL_STATUS: Optional[str]
+    APPROVAL_FILE_NUMBER: Optional[str]
     WORKS_DESCRIPTION: Optional[str]
 
     # common fields

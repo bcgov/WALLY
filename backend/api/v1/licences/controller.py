@@ -32,6 +32,8 @@ def get_surface_water_approval_points_databc(point: Point, radius: float):
         else:
             feat.properties['qty_m3yr'] = None
 
+        feat.properties['usage'] = feat.properties.get(
+            'WORKS_DESCRIPTION', '')
         feat.properties['status'] = feat.properties.get(
             'APPROVAL_STATUS', None)
         feat.properties['type'] = feat.properties.get('APPROVAL_TYPE',
@@ -63,6 +65,8 @@ def get_licences_by_distance_databc(point: Point, radius: float):
         else:
             feat.properties['qty_m3yr'] = None
 
+        feat.properties['usage'] = feat.properties.get(
+            'PURPOSE_USE', '')
         feat.properties['status'] = feat.properties.get('LICENCE_STATUS', None)
         feat.properties['type'] = 'Licence'
         feat.properties['distance'] = shape(feat.geometry).distance(point)
@@ -95,6 +99,8 @@ def get_applications_by_distance_databc(point: Point, radius: float):
 
         feat.properties['status'] = feat.properties.get(
             'APPLICATION_STATUS', None)
+        feat.properties['usage'] = feat.properties.get(
+            'PURPOSE_USE', '')
         feat.properties['type'] = 'Application'
         feat.properties['distance'] = shape(feat.geometry).distance(point)
         features_within_search_area.append(feat)
