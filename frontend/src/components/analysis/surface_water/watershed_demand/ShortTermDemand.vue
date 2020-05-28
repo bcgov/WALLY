@@ -216,6 +216,9 @@ export default {
       let shortTermAllocationY = []
       let allocItemKey, shortTermMonthlyQty
 
+      console.log("updating short term data")
+      console.log(this.shortTermAllocationValues)
+
       // Get total short term quantity per month based on short term allocation values
       // many points are duplicate records so we only save one allocation record for
       // each approval file number 

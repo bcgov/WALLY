@@ -84,14 +84,19 @@ export default {
     },
     populateTable () {
       this.allocItems = []
-      // for (let [allocItemKey, allocValues] of Object.entries(this.allocationItems)) {
+      // we only want to see one allocation row 
+      // for each approval file number (keyField)
+      // so we check for seen
+      var seen = []
       this.allocationItems.forEach(item => {
         let allocItemKey = item[this.keyField].trim()
-        let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        this.allocItems.push({
-          name: allocItemKey,
-          values: this.shortTermAllocationValues[allocItemKey] || defaultAllocValues
-        })
+        if(!seen.includes(allocItemKey)) {
+          seen.push(allocItemKey)
+          this.allocItems.push({
+            name: allocItemKey,
+            values: this.shortTermAllocationValues[allocItemKey]
+          })
+        }
       })
     },
     computeRowTotal (values) {
@@ -108,7 +113,7 @@ export default {
           values: item.values })
       })
 
-      // save to local storage
+      // save to vuex store
       this.$emit('close', false)
     },
     ...mapMutations('surfaceWater', [
@@ -118,9 +123,9 @@ export default {
       'computeQuantityForMonth'])
   },
   watch: {
-    // shortTermAllocationItems (value) {
-    //   this.populateTable(value)
-    // }
+    shortTermAllocationItems (value) {
+      this.populateTable(value)
+    }
   },
   mounted () {
     this.populateTable()

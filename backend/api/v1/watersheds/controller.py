@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-
+from api.utils import normalize_quantity
 
 from api import config
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
@@ -205,16 +205,7 @@ def surface_water_approval_points(polygon: Polygon):
 
         # null if approval is a works project, most of them are
         if qty and qty_unit: 
-            qty_unit = qty_unit.strip()
-            if qty_unit == 'm3/year':
-                pass
-            elif qty_unit == 'm3/day':
-                qty = qty * 365
-            elif qty_unit == 'm3/sec':
-                qty = qty * 60 * 60 * 24 * 365
-            else:
-                qty = 0
-
+            qty = normalize_quantity(qty, qty_unit)
             total_qty_m3_yr += qty
             apr.properties['qty_m3_yr'] = qty
         else:
