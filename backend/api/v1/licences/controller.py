@@ -2,31 +2,12 @@ import logging
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 from shapely.geometry import Point, shape
+from api.utils import normalize_quantity
 from api.v1.aggregator.controller import DATABC_GEOMETRY_FIELD, databc_feature_search
 from api.layers.water_rights_licences import WaterRightsLicenses
 from api.layers.water_rights_applications import WaterRightsApplications
 from api.v1.licences.schema import WaterRightsLicence
 logger = logging.getLogger("api")
-
-
-def normalize_quantity(qty, qty_unit: str):
-    """ takes a qty and a unit (as a string) and returns the quantity in m3/year
-        accepts:
-        m3/sec
-        m3/day
-        m3/year
-    """
-
-    qty_unit = qty_unit.strip()
-
-    if qty_unit == 'm3/year':
-        return qty
-    elif qty_unit == 'm3/day':
-        return qty * 365
-    elif qty_unit == 'm3/sec':
-        return qty * 60 * 60 * 24 * 365
-    else:
-        return None
 
 
 def get_surface_water_approval_points_databc(point: Point, radius: float):
@@ -53,7 +34,7 @@ def get_surface_water_approval_points_databc(point: Point, radius: float):
 
         feat.properties['status'] = feat.properties.get(
             'APPROVAL_STATUS', None)
-        feat.properties['type'] = feat.properties.get('APPROVAL_TYPE', 
+        feat.properties['type'] = feat.properties.get('APPROVAL_TYPE',
                                                       'Water approval (no approval type listed)')
         feat.properties['distance'] = shape(feat.geometry).distance(point)
         features_within_search_area.append(feat)
