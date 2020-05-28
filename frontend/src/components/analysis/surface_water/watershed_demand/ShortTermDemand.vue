@@ -23,7 +23,7 @@
         </v-card-title>
         <v-dialog v-model="show.shortTermAllocationTable" persistent>
           <ShortTermMonthlyAllocationTable
-            :short-term-allocation-items="shortTermAllocationValues"
+            :allocation-items="shortTermFeatures"
             key-field="APPROVAL_FILE_NUMBER"
             @close="closeEditShortTermAllocationTableDialog"/>
         </v-dialog>
@@ -120,8 +120,7 @@ export default {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
     ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
     addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
-      console.log("approvals data")
-      console.log(data)
+      // console.log(data)
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -131,15 +130,7 @@ export default {
         },
         paint: {
           'circle-color': color,
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['number', ['get', 'qty_m3_yr'], 0],
-            0,
-            10,
-            max,
-            max > 1000000 ? 50 : 25
-          ],
+          'circle-radius': 10,
           'circle-opacity': opacity
         }
       }, 'waterLicences') // Render on top of waterLicences

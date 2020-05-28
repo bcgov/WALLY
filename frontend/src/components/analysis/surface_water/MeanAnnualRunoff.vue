@@ -311,8 +311,9 @@ export default {
           : props.name ? props.name
             : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
               : props.OBJECTID ? props.OBJECTID : ''
-
-      return name
+      console.log("name")
+      console.log(name)
+      return name.toString()
     },
     monthlyDistributionsData () {
       if (!this.modelOutputs.monthlyDistributions) {

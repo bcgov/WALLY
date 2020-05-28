@@ -71,7 +71,7 @@ export default {
   name: 'ShortTermMonthlyAllocationTable',
   components: {
   },
-  props: ['shortTermAllocationItems', 'keyField'],
+  props: ['allocationItems', 'keyField'],
   data: () => ({
     months: moment.monthsShort(),
     allocItems: [],
@@ -84,13 +84,15 @@ export default {
     },
     populateTable () {
       this.allocItems = []
-      for (let [allocItemKey, allocValues] of Object.entries(this.shortTermAllocationItems)) {
+      // for (let [allocItemKey, allocValues] of Object.entries(this.allocationItems)) {
+      this.allocationItems.forEach(item => {
+        let allocItemKey = item[this.keyField].trim()
         let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
         this.allocItems.push({
           name: allocItemKey,
-          values: allocValues || defaultAllocValues
+          values: this.shortTermAllocationValues[allocItemKey] || defaultAllocValues
         })
-      }
+      })
     },
     computeRowTotal (values) {
       return values.reduce((a, b) => (parseInt(a) || 0) + (parseInt(b) || 0), 0)
@@ -116,9 +118,9 @@ export default {
       'computeQuantityForMonth'])
   },
   watch: {
-    shortTermAllocationItems (value) {
-      this.populateTable(value)
-    }
+    // shortTermAllocationItems (value) {
+    //   this.populateTable(value)
+    // }
   },
   mounted () {
     this.populateTable()

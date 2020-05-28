@@ -102,7 +102,7 @@ export default {
         this.enableFishLayer()
       }
       if (!this.isApprovalsLayerEnabled) {
-        this.approvalsLayerAutomaticallyEnabled = true
+        this.approvalLayerAutomaticallyEnabled = true
         this.enableApprovalsLayer()
       }
       this.loadFeature()
