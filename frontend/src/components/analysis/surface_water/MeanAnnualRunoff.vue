@@ -120,9 +120,9 @@
           <v-col cols=6 class="colSubInner">
             <Dialog v-bind="wmd.totalAnnualQuantity"/>
             <div class="titleBlock">Total Annual Quantity</div>
-            <div v-if="availability">
+            <div v-if="availabilityPlotData">
               <div class="infoBlock">
-                {{this.availability.reduce((a, b) => a + b, 0).toLocaleString('en', {maximumFractionDigits: 0})}}
+                {{this.availabilityPlotData.reduce((a, b) => a + b, 0).toLocaleString('en', {maximumFractionDigits: 0})}}
               </div>
               <div class="unitBlock">m³</div>
             </div>
@@ -189,7 +189,9 @@
         :data="monthlyDischargeData"
       ></Plotly>
 
-      <WatershedDemand ref="anchor-demand" :watershedID="watershedID" :record="record" :availability="availability"/>
+      <WatershedDemand :watershedID="watershedID"/>
+      <ShortTermDemand :watershedID="watershedID"/>
+      <AvailabilityVsDemand/>
 
         <!-- <div class="borderBlock">
           <Dialog v-bind="wmd.monthlyDistribution"/>
@@ -218,10 +220,12 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 import moment from 'moment'
 
 import WatershedDemand from './watershed_demand/WatershedDemand'
+import ShortTermDemand from './watershed_demand/ShortTermDemand'
+import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
@@ -234,13 +238,14 @@ export default {
   components: {
     Plotly,
     Dialog,
-    WatershedDemand
+    WatershedDemand,
+    ShortTermDemand,
+    AvailabilityVsDemand
   },
   props: ['watershedID', 'record', 'details', 'allWatersheds'],
   data: () => ({
     watershedLoading: false,
     error: null,
-    availability: [],
     noValueText: 'No info available',
     watershedDetails: {
       median_elevation: 0,
@@ -294,6 +299,7 @@ export default {
   }),
   computed: {
     ...mapGetters('map', ['map']),
+    ...mapGetters('surfaceWater', ['availabilityPlotData']),
     watershedName () {
       if (!this.record) {
         return ''
@@ -305,8 +311,9 @@ export default {
           : props.name ? props.name
             : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
               : props.OBJECTID ? props.OBJECTID : ''
-
-      return name
+      console.log("name")
+      console.log(name)
+      return name.toString()
     },
     monthlyDistributionsData () {
       if (!this.modelOutputs.monthlyDistributions) {
@@ -406,6 +413,7 @@ export default {
     }
   },
   methods: {
+    ...mapMutations('surfaceWater', ['setAvailabilityPlotData']),
     updateModelData (details) {
       // MAD Model Calculations
 
@@ -440,7 +448,8 @@ export default {
           monthlyDistributions: monthlyDistributions,
           monthlyDischarges: monthlyDischarges
         }
-        this.availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+        let availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+        this.setAvailabilityPlotData(availability)
         return
       }
       // ISOLine Model Calculations as backup if Stewardship model doesn't exist
@@ -475,7 +484,8 @@ export default {
           monthlyDistributions: distributions,
           monthlyDischarges: discharges
         }
-        this.availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+        let availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
+        this.setAvailabilityPlotData(availability)
       }
     },
     monthlyDistributionsLayout () {

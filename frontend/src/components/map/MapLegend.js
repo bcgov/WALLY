@@ -114,8 +114,8 @@ export default {
       if (paint.color[0] === 'interpolate') {
         legendItems.push({
           'text': '',
-          'color': layerID === "water_rights_licences" ? paint.color[4] : paint.color[6],
-          'outlineColor': layerID === "water_rights_licences" ? paint.outlineColor[3] : paint.outlineColor,
+          'color': layerID === 'water_rights_licences' ? paint.color[4] : paint.color[6],
+          'outlineColor': layerID === 'water_rights_licences' ? paint.outlineColor[3] : paint.outlineColor,
           'lineWidth': paint.width,
           'strokeWidth': '1px',
           icon,

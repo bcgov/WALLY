@@ -21,7 +21,6 @@ export default {
       this.allocationItems.forEach(item => {
         let allocItemKey = item[this.keyField].trim()
         let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-
         this.allocItems.push({
           name: allocItemKey,
           values: [...this.allocationValues()[allocItemKey] || defaultAllocValues]
@@ -46,8 +45,7 @@ export default {
       this.$emit('close', false)
     },
     ...mapMutations('surfaceWater', [
-      'setAllocationValues',
-      'saveAllocationValues']),
+      'setAllocationValues']),
     ...mapActions('surfaceWater', [
       'initAllocationItemIfNotExists',
       'computeQuantityForMonth'])

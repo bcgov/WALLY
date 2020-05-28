@@ -7,12 +7,16 @@ export default {
     defaultAllocValue: 1,
     defaultAllocValues: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     allocationValues: {},
+    shortTermAllocationValues: {},
     // Watershed detail state objects
     watershedDetails: null,
     defaultWatershedDetails: null,
     customModelInputsActive: false,
     defaultScsb2016ModelInputs: null,
-    scsb2016ModelInputs: null
+    scsb2016ModelInputs: null,
+    shortTermLicencePlotData: null,
+    availabilityPlotData: null,
+    licencePlotData: null
   },
   actions: {
     loadAllocationItemsFromStorage ({ state }) {
@@ -22,6 +26,13 @@ export default {
     initAllocationItemIfNotExists ({ state, commit, dispatch }, allocItemKey) {
       if (!(allocItemKey in state.allocationValues)) {
         commit('setAllocationValues', {
+          key: allocItemKey,
+          values: state.defaultAllocValues })
+      }
+    },
+    initShortTermAllocationItemIfNotExists ({ state, commit, dispatch }, allocItemKey) {
+      if (!(allocItemKey in state.shortTermAllocationValues)) {
+        commit('setShortTermAllocationValues', {
           key: allocItemKey,
           values: state.defaultAllocValues })
       }
@@ -52,6 +63,31 @@ export default {
     },
     clearAllAllocationValues (state) {
       state.allocationValues = {}
+    },
+    setShortTermAllocationValues (state, item) {
+      state.shortTermAllocationValues[item.key] = item.values
+    },
+    clearShortTermAllocationValues (state, key) {
+      if (key in state.shortTermAllocationValues) {
+        delete state.shortTermAllocationValues[key]
+      }
+    },
+    clearAllShortTermAllocationValues (state) {
+      state.shortTermAllocationValues = {}
+    },
+    setAvailabilityPlotData (state, data) {
+      state.availabilityPlotData = data
+    },
+    setShortTermLicencePlotData (state, data) {
+      state.shortTermLicencePlotData = data
+    },
+    setLicencePlotData (state, data) {
+      state.licencePlotData = data
+    },
+    clearAvailabilityVsDemandPlotData (state) {
+      state.availabilityPlotData = null
+      state.shortTermLicencePlotData = null
+      state.licencePlotData = null
     },
     setDefaultWatershedDetails (state, payload) {
       state.defaultWatershedDetails = payload
@@ -126,6 +162,10 @@ export default {
     allocationValues: state => state.allocationValues,
     watershedDetails: state => state.watershedDetails,
     scsb2016ModelInputs: state => state.scsb2016ModelInputs || state.defaultScsb2016ModelInputs,
-    customModelInputsActive: state => state.customModelInputsActive
+    customModelInputsActive: state => state.customModelInputsActive,
+    shortTermLicencePlotData: state => state.shortTermLicencePlotData,
+    availabilityPlotData: state => state.availabilityPlotData,
+    licencePlotData: state => state.licencePlotData,
+    shortTermAllocationValues: state => state.shortTermAllocationValues
   }
 }

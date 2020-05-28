@@ -47,7 +47,8 @@ export default {
     licencesLayerAutomaticallyEnabled: false,
     hydatLayerAutomaticallyEnabled: false,
     applicationsLayerAutomaticallyEnabled: false,
-    fishLayerAutomaticallyEnabled: false
+    fishLayerAutomaticallyEnabled: false,
+    approvalLayerAutomaticallyEnabled: false
   }),
   methods: {
     selectPoint () {
@@ -77,6 +78,12 @@ export default {
     disableFishLayer () {
       this.$store.dispatch('map/removeMapLayer', 'fish_observations')
     },
+    enableApprovalsLayer () {
+      this.$store.dispatch('map/addMapLayer', 'water_approval_points')
+    },
+    disableApprovalsLayer () {
+      this.$store.dispatch('map/removeMapLayer', 'water_approval_points')
+    },
     loadSurfaceWaterAnalysis () {
       if (!this.isHydatLayerEnabled) {
         this.hydatLayerAutomaticallyEnabled = true
@@ -93,6 +100,10 @@ export default {
       if (!this.isFishLayerEnabled) {
         this.fishLayerAutomaticallyEnabled = true
         this.enableFishLayer()
+      }
+      if (!this.isApprovalsLayerEnabled) {
+        this.approvalLayerAutomaticallyEnabled = true
+        this.enableApprovalsLayer()
       }
       this.loadFeature()
     },
@@ -124,6 +135,9 @@ export default {
     },
     isFishLayerEnabled () {
       return this.isMapLayerActive('fish_observations')
+    },
+    isApprovalsLayerEnabled () {
+      return this.isMapLayerActive('water_approval_points')
     },
     ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
     ...mapGetters(['pointOfInterest'])
@@ -161,6 +175,9 @@ export default {
     }
     if (this.fishLayerAutomaticallyEnabled) {
       this.disableFishLayer()
+    }
+    if (this.approvalLayerAutomaticallyEnabled) {
+      this.disableApprovalsLayer()
     }
   }
 }

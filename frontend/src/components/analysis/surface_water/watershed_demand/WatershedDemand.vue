@@ -4,6 +4,7 @@
     <div v-if="licencesLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
+
     <div v-if="licenceData">
       <v-card flat>
         <v-card-title class="pl-0">
@@ -49,25 +50,14 @@
              <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
           </v-col>
         </div>
-
-        <div class="subtitle-1 my-3 font-weight-bold">Availability vs Licensed Quantity</div>
-        <div class="my-3"><span class="font-weight-bold">How to read this graph:</span>
-          this graph shows available water after allocation from existing surface water licences,
-          as determined by subtracting licensed quantities (including any adjusted monthly allocation
-          values) from the estimated discharge for each month.
-        </div>
-        <Plotly v-if="availability && licenceData"
-                :layout="demandAvailabilityLayout()"
-                :data="demandAvailabilityData"
-        ></Plotly>
-
       </v-card>
     </div>
+
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapGetters, mapActions, mapMutations } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 
@@ -76,9 +66,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
-const Plotly = () => import('vue-plotly').then(module => {
-  return module.Plotly
-})
+
 const popup = new mapboxgl.Popup({
   closeButton: false,
   closeOnClick: false
@@ -89,13 +77,13 @@ export default {
   mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
-    Plotly,
     Dialog
   },
-  props: ['watershedID', 'record', 'availability'],
+  props: ['watershedID'],
   data: () => ({
     licencesLoading: false,
     licenceData: null,
+    approvalsData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
@@ -105,62 +93,27 @@ export default {
       editingAllocationValues: false
     },
     purposeTypes: [],
-    months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
-    monthHeaders: [
-      { text: 'Jan', value: 'm1' },
-      { text: 'Feb', value: 'm2' },
-      { text: 'Mar', value: 'm3' },
-      { text: 'Apr', value: 'm4' },
-      { text: 'May', value: 'm5' },
-      { text: 'Jun', value: 'm6' },
-      { text: 'Jul', value: 'm7' },
-      { text: 'Aug', value: 'm8' },
-      { text: 'Sep', value: 'm9' },
-      { text: 'Oct', value: 'm10' },
-      { text: 'Nov', value: 'm11' },
-      { text: 'Dec', value: 'm12' }
-    ],
-    demandAvailabilityData: [],
     wmd: WatershedModelDescriptions,
     isLicencesLayerVisible: true
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['allocationValues'])
+    ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
   },
   watch: {
     watershedID () {
       this.licenceData = null
       this.map.removeLayer('waterLicences')
       this.map.removeSource('waterLicences')
-      this.fetchLicenceData()
+      this.fetchDemandData()
     }
   },
   methods: {
-    ...mapActions('surfaceWater', ['initAllocationItemIfNotExists']),
-    demandAvailabilityLayout () {
-      return {
-        barmode: 'stack',
-        title: 'Availability vs Licenced Quantity',
-        showlegend: true,
-        legend: {
-          xanchor: 'center',
-          x: 0.5,
-          y: -0.2,
-          orientation: 'h'
-        },
-        margin: {
-          r: 120
-        },
-        xaxis: {
-          tickformat: '%B'
-        },
-        yaxis: {
-          title: 'Volume (m³)'
-        }
-      }
-    },
+    ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
+    ...mapMutations('surfaceWater', ['setLicencePlotData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
+      console.log("licence data")
+      console.log(data)
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -228,15 +181,16 @@ export default {
     },
     closeEditAllocationTableDialog () {
       // TODO: Distribute quantity based on alloc values
-      this.setDemandAvailabilityData()
       this.show.editingAllocationValues = false
+      this.setDemandPlotData()
     },
-    fetchLicenceData () {
+    fetchDemandData () {
       this.licencesLoading = true
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
         .then(r => {
           this.licenceData = r.data
           // console.log('adding data to map')
+          // console.log(r.data.licences)
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           // adding null feature array breaks interpolation in layer setup
           if (r.data && r.data.licences) {
@@ -246,7 +200,7 @@ export default {
           this.setPurposeTypes()
 
           this.licencesLoading = false
-          this.setDemandAvailabilityData()
+          this.setDemandPlotData()
         })
         .catch(e => {
           this.licencesLoading = false
@@ -259,14 +213,14 @@ export default {
         this.purposeTypes.push(item.purpose)
       })
     },
-    setDemandAvailabilityData () {
-      if (!this.licenceData || !this.availability) {
+    setDemandPlotData () {
+      if (!this.licenceData) {
         return null
       }
 
+      // Water Rights Licences Demand
       let allocationY = []
       let allocItemKey, monthlyQty
-
       // Get total quantity per month based on allocation values
       for (let i = 0; i < 12; i++) {
         monthlyQty = 0
@@ -277,52 +231,7 @@ export default {
         })
         allocationY[i] = monthlyQty
       }
-
-      let mar = this.availability.reduce((a, b) => a + b, 0) / 12
-      const availabilityData = {
-        type: 'bar',
-        name: 'Available Water',
-        y: this.availability.map((val, i) => { return val - allocationY[i] }),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const licencePlotData = {
-        type: 'bar',
-        name: 'Monthly Licenced Quantity',
-        y: allocationY,
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const mad30 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '20% MAD',
-        y: Array(12).fill(mar * 0.2),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#5ab190' }
-      }
-      const mad20 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '15% MAD',
-        y: Array(12).fill(mar * 0.15),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fec925' }
-      }
-      const mad10 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '10% MAD',
-        y: Array(12).fill(mar * 0.1),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fa1e44' }
-      }
-      this.demandAvailabilityData = [availabilityData, licencePlotData, mad10, mad20, mad30]
+      this.setLicencePlotData(allocationY) // update store so availability vs demand graph gets new plot values
     },
     toggleLayerVisibility () {
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
@@ -331,11 +240,13 @@ export default {
     }
   },
   mounted () {
-    this.fetchLicenceData()
+    this.fetchDemandData()
   },
   beforeDestroy () {
-    this.map.removeLayer('waterLicences')
-    this.map.removeSource('waterLicences')
+    if (this.map.getLayer('waterLicences')) {
+      this.map.removeLayer('waterLicences')
+      this.map.removeSource('waterLicences')
+    }
   }
 }
 </script>
