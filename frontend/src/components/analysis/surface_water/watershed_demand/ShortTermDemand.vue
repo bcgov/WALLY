@@ -25,7 +25,7 @@
           <ShortTermMonthlyAllocationTable
             :allocation-items="shortTermFeatures"
             key-field="APPROVAL_FILE_NUMBER"
-            @close="closeEditShortTermAllocationTableDialog"/>
+            @close="closeShortTermAllocation"/>
         </v-dialog>
 
         <span>Total annual approved quantity:</span> {{ shortTermLicenceData.total_qty | formatNumber }} m3/year
@@ -180,7 +180,7 @@ export default {
     openEditShortTermAllocationTableDialog () {
       this.show.shortTermAllocationTable = true
     },
-    closeEditShortTermAllocationTableDialog () {
+    closeShortTermAllocation () {
       this.show.shortTermAllocationTable = false
       this.updateShortTermData()
     },

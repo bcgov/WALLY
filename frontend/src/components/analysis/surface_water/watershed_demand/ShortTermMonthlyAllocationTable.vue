@@ -86,15 +86,15 @@ export default {
       this.allocItems = []
       // we only want to see one allocation row 
       // for each approval file number (keyField)
-      // so we check for seen
       var seen = []
       this.allocationItems.forEach(item => {
         let allocItemKey = item[this.keyField].trim()
         if(!seen.includes(allocItemKey)) {
           seen.push(allocItemKey)
+          let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
           this.allocItems.push({
             name: allocItemKey,
-            values: this.shortTermAllocationValues[allocItemKey]
+            values: this.shortTermAllocationValues[allocItemKey] || defaultAllocValues
           })
         }
       })
