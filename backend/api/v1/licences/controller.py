@@ -25,10 +25,14 @@ def get_surface_water_approval_points_databc(point: Point, radius: float):
     for feat in approvals_list.features:
 
         if feat.properties.get('QUANTITY', None):
-            qty = float(feat.properties['QUANTITY'])
-            qty_unit = feat.properties.get('QUANTITY_UNITS', '').strip()
-
-            feat.properties['qty_m3yr'] = normalize_quantity(qty, qty_unit)
+            try:
+                qty = float(feat.properties['QUANTITY'])
+            except:
+                # if QUANTITY can't be converted to a float, treat it like a string.
+                qty = feat.properties['QUANTITY']
+            else:
+                qty_unit = feat.properties.get('QUANTITY_UNITS', '').strip()
+                feat.properties['qty_m3yr'] = normalize_quantity(qty, qty_unit)
         else:
             feat.properties['qty_m3yr'] = None
 
