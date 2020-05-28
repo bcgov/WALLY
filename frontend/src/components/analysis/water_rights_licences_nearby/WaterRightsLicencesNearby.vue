@@ -63,7 +63,7 @@
             <span>{{item.distance.toFixed(1)}}</span>
           </template>
           <template v-slot:item.QUANTITY="{ item }">
-            <span v-if="item.QUANTITY" >{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
+            <span v-if="item.QUANTITY" >{{item.QUANTITY }} {{item.QUANTITY_UNITS}}</span>
           </template>
         </v-data-table>
       </v-col>
@@ -92,18 +92,11 @@
             :headers="applicationHeaders"
             :items="filteredApplications"
           >
-            <template v-slot:item.LICENCE_NUMBER="{ item }">
-              <span v-if="item.LICENCE_NUMBER">
-                <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.LICENCE_NUMBER}`" target="_blank">
-                  {{item.LICENCE_NUMBER}}
-                </a>
-              </span>
-            </template>
             <template v-slot:item.distance="{ item }">
               <span>{{item.distance.toFixed(1)}}</span>
             </template>
             <template v-slot:item.QUANTITY="{ item }">
-              <span v-if="item.QUANTITY" >{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
+              <span v-if="item.QUANTITY" >{{item.QUANTITY }} {{item.QUANTITY_UNITS}}</span>
             </template>
           </v-data-table>
         </v-col>
@@ -133,18 +126,11 @@
             :headers="approvalHeaders"
             :items="filteredApprovals"
           >
-            <template v-slot:item.LICENCE_NUMBER="{ item }">
-              <span v-if="item.LICENCE_NUMBER">
-                <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.LICENCE_NUMBER}`" target="_blank">
-                  {{item.LICENCE_NUMBER}}
-                </a>
-              </span>
-            </template>
             <template v-slot:item.distance="{ item }">
               <span>{{item.distance.toFixed(1)}}</span>
             </template>
             <template v-slot:item.QUANTITY="{ item }">
-              <span v-if="item.QUANTITY" >{{item.QUANTITY.toFixed(3)}} {{item.QUANTITY_UNITS}}</span>
+              <span v-if="item.QUANTITY" >{{item.QUANTITY}} {{item.QUANTITY_UNITS}}</span>
             </template>
           </v-data-table>
         </v-col>

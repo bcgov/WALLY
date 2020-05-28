@@ -32,7 +32,7 @@ class LicenceApplicationApproval(BaseModel):
     POD_SUBTYPE: Optional[str]
     PURPOSE_USE: Optional[str]
     SOURCE_NAME: Optional[str]
-    QUANTITY: Optional[float]
+    QUANTITY: Optional[str]
     QUANTITY_UNITS: Optional[str]
     QTY_DIVERSION_MAX_RATE: Optional[float]
     QTY_UNITS_DIVERSION_MAX_RATE: Optional[str]
