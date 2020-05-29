@@ -472,12 +472,12 @@ def get_temperature(poly: Polygon):
     try:
         min_temp = pcic_data_request(poly, 'tasmin')
     except:
-        raise Error
+        raise Exception
 
     try:
         max_temp = pcic_data_request(poly, 'tasmax')
     except:
-        raise Error
+        raise Exception
 
     return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
 
@@ -597,7 +597,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     result = response.json()
 
     if result["status"] != "SUCCESS":
-        raise Error
+        raise Exception
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
