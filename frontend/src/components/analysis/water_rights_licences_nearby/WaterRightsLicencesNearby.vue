@@ -180,12 +180,6 @@ import ApiService from '../../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
 
-const approvalStatusMap = {
-  current: ['Current'],
-  expired: ['Expired', 'Aborted', 'Cancelled', 'Abandoned'],
-  null: ['', null, '<Null>']
-}
-
 export default {
   name: 'WaterRightsLicencesNearby',
   props: ['record'],
