@@ -166,9 +166,4 @@ data:
     </html>
 kind: ConfigMap
 metadata:
-  creationTimestamp: '2019-07-30T22:27:13Z'
   name: gatekeeper-config
-  namespace: bfpeyx-dev
-  resourceVersion: '1821741585'
-  selfLink: /api/v1/namespaces/bfpeyx-dev/configmaps/gatekeeper-config
-  uid: 2dd1e3b1-b319-11e9-a5a8-0050568379a2
