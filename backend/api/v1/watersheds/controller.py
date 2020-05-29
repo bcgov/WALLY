@@ -584,6 +584,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
 
     try:
+        logger.warn("(SEA) Request Started")
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as errh:
@@ -596,6 +597,9 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         logger.warn ("(SEA) OOps: Something Else" + err)
 
     result = response.json()
+
+    logger.warn("(SEA) Request Finished")
+    logger.warn(result)
 
     if result["status"] != "SUCCESS":
         logger.warn ("(SEA) Request Failed:" + result["message"])
