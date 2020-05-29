@@ -55,7 +55,7 @@ export default {
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
-        y: this.availabilityPlotData.map((val, i) => { return val - this.licencePlotData[i] - this.shortTermLicencePlotData[i]}),
+        y: this.availabilityPlotData.map((val, i) => { return val - this.licencePlotData[i] - this.shortTermLicencePlotData[i] }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }

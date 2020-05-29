@@ -112,7 +112,7 @@ export default {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
-      console.log("licence data")
+      console.log('licence data')
       console.log(data)
       this.map.addLayer({
         id: id,
