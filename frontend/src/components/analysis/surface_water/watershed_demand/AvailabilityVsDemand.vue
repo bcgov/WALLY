@@ -46,32 +46,16 @@ export default {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     demandAvailabilityData () {
-      if (!this.availabilityPlotData || !this.licencePlotData || !this.shortTermLicencePlotData) {
+      if (!this.availabilityPlotData) {
         return null
       }
-
+      var plotConfig = []
       let mar = this.availabilityPlotData.reduce((a, b) => a + b, 0) / 12
 
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
         y: this.availabilityPlotData.map((val, i) => { return val - this.licencePlotData[i] - this.shortTermLicencePlotData[i]}),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const licencePlotData = {
-        type: 'bar',
-        name: 'Monthly Licenced Quantity',
-        y: this.licencePlotData,
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const shortTermPlotData = {
-        type: 'bar',
-        name: 'Monthly Short Term Approvals Quantity',
-        y: this.shortTermLicencePlotData,
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
@@ -85,6 +69,7 @@ export default {
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#5ab190' }
       }
+
       const mad20 = {
         type: 'line',
         mode: 'lines',
@@ -94,6 +79,7 @@ export default {
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fec925' }
       }
+
       const mad10 = {
         type: 'line',
         mode: 'lines',
@@ -103,7 +89,30 @@ export default {
         x: this.monthHeaders.map((h) => h.text),
         line: { color: '#fa1e44' }
       }
-      return [availabilityData, licencePlotData, shortTermPlotData, mad10, mad20, mad30]
+
+      plotConfig.push(availabilityData, mad10, mad20, mad30)
+
+      if(this.licencePlotData) {
+        plotConfig.push({
+          type: 'bar',
+          name: 'Monthly Licenced Quantity',
+          y: this.licencePlotData,
+          x: this.monthHeaders.map((h) => h.text),
+          hovertemplate: '%{y:.2f} m³'
+        })
+      }
+
+      if(this.shortTermLicencePlotData) {
+        plotConfig.push({
+          type: 'bar',
+          name: 'Monthly Short Term Approvals Quantity',
+          y: this.shortTermLicencePlotData,
+          x: this.monthHeaders.map((h) => h.text),
+          hovertemplate: '%{y:.2f} m³'
+        })
+      }
+
+      return plotConfig
     }
   },
   methods: {
