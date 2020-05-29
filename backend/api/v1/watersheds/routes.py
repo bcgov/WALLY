@@ -140,6 +140,7 @@ def watershed_stats(
     )
 ):
     """ aggregates statistics/info about a watershed """
+    logger.warn("Watershed Details - Request Started")
 
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
@@ -227,7 +228,7 @@ def watershed_stats(
 
         return export_summary_as_xlsx(jsonable_encoder(data))
 
-    logger.warn("**** REQUEST FINISHED ****")
+    logger.warn("Watershed Details - Request Finished")
 
     return data
 
