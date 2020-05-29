@@ -65,12 +65,14 @@
           </v-tooltip>
       </v-col>
       <v-col cols="12" md="3">
+
         <v-text-field
           dense
           label="Weighting Factor"
           v-model="weightingFactor"
           :rules="[weightingFactorValidation.number, weightingFactorValidation.values, weightingFactorValidation.required]"
-        />
+        >
+        </v-text-field>
       </v-col>
       <v-col>
         <v-tooltip bottom>
@@ -156,6 +158,8 @@
                 <dd>Computed distance of the closest point of the stream to the selected point of interest</dd>
                 <dt>Apportionment</dt>
                 <dd>Apportion demand from diversion of groundwater on streams</dd>
+                <dt>Weighting Factor</dt>
+                <dd>A weighting factor of 1 (linear) or 2 (squared) is usually set when calculating apportionment. A larger weighting factor results in a greater contribution from the nearest stream. A weighting factor of 2 is recommended for general applications.</dd>
 
               </dl>
             </v-expansion-panel-content>

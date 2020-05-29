@@ -29,6 +29,17 @@ class LicenceDetails(BaseModel):
         arbitrary_types_allowed = True
 
 
+class WaterApprovalDetails(BaseModel):
+    """ short term license amounts in a given area """
+    approvals: FeatureCollection
+    total_qty: float
+    projected_geometry_area: Optional[float]
+    projected_geometry_area_simplified: Optional[float]
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
 class SurficialGeologyTypeSummary(BaseModel):
     """ 
     Summary of features belonging to single type of surficial geology in a search area.

@@ -8,7 +8,6 @@ import requests
 import geojson
 import json
 import math
-from datetime import datetime
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -19,14 +18,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-
+from api.utils import normalize_quantity
 
 from api import config
+from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 
@@ -130,19 +130,13 @@ def surface_water_rights_licences(polygon: Polygon):
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
         purpose = lic.properties['PURPOSE_USE']
 
-        if qty_unit == 'm3/year':
-            pass
-        elif qty_unit == 'm3/day':
-            qty = qty * 365
-        elif qty_unit == 'm3/sec':
-            qty = qty * 60 * 60 * 24 * 365
-        else:
-            qty = 0
+        qty = normalize_quantity(qty, qty_unit)
 
-        total_licenced_qty_m3_yr += qty
+        if qty is not None:
+            total_licenced_qty_m3_yr += qty
         lic.properties['qty_m3_yr'] = qty
 
-        if purpose is not None:
+        if purpose is not None and qty is not None:
             if not licenced_qty_by_use_type.get(purpose, None):
                 licenced_qty_by_use_type[purpose] = 0
             licenced_qty_by_use_type[purpose] += qty
@@ -166,6 +160,60 @@ def surface_water_rights_licences(polygon: Polygon):
         ]),
         total_qty=total_licenced_qty_m3_yr,
         total_qty_by_purpose=licence_purpose_type_list,
+        projected_geometry_area=polygon.area,
+        projected_geometry_area_simplified=polygon_rect.area
+    )
+
+
+def surface_water_approval_points(polygon: Polygon):
+    """ returns surface water approval points (filtered by APPROVAL_STATUS)"""
+    water_approvals_layer = 'water_approval_points'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    approvals = databc_feature_search(
+        water_approvals_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    features_within_search_area = []
+    total_qty_m3_yr = 0
+
+    for apr in approvals.features:
+        feature_shape = shape(apr.geometry)
+
+        # skip approvals outside search area
+        if not feature_shape.within(polygon_3005):
+            continue
+        
+        # skip approval if its not an active licence
+        # other approval status' are associated with inactive licences
+        if apr.properties['APPROVAL_STATUS'] != 'Current':
+            continue
+
+        features_within_search_area.append(apr)
+
+        qty = apr.properties['QUANTITY']
+        qty_unit = apr.properties['QUANTITY_UNITS']
+
+        # null if approval is a works project, most of them are
+        if qty and qty_unit: 
+            qty = normalize_quantity(qty, qty_unit)
+            total_qty_m3_yr += qty
+            apr.properties['qty_m3_yr'] = qty
+        else:
+            apr.properties['qty_m3_yr'] = 0
+
+    return WaterApprovalDetails(
+        approvals=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in features_within_search_area
+        ]),
+        total_qty=total_qty_m3_yr,
         projected_geometry_area=polygon.area,
         projected_geometry_area_simplified=polygon_rect.area
     )
@@ -610,7 +658,7 @@ def export_summary_as_xlsx(data: dict):
         using a template in the ./templates directory.
     """
 
-    cur_date = datetime.now().strftime("%Y%m%d")
+    cur_date = datetime.datetime.now().strftime("%Y%m%d")
 
     ws_name = data.get("watershed_name", "Surface_Water")
     ws_name.replace(" ", "_")
@@ -660,7 +708,7 @@ def known_fish_observations(polygon: Polygon):
 
         species_name = feature.properties['SPECIES_NAME']
         life_stage = feature.properties['LIFE_STAGE']
-        observation_date = datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
+        observation_date = datetime.datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
             if feature.properties['OBSERVATION_DATE'] is not None else None  # 1997-02-01Z
 
         if species_name is not None:
