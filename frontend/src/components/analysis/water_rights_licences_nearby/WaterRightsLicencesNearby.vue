@@ -113,7 +113,7 @@
           <v-checkbox v-model="tableOptions.approvals.current" class="mx-2" :label="`Current (${approvalStatusCounts.current})`"></v-checkbox>
         </v-col>
         <v-col cols="12" md="4">
-          <v-checkbox v-model="tableOptions.approvals.expired" class="mx-2" :label="`Expired (${approvalStatusCounts.expired})`"></v-checkbox>
+          <v-checkbox v-model="tableOptions.approvals.expired" class="mx-2" :label="`Expired/Aborted/Cancelled (${approvalStatusCounts.expired})`"></v-checkbox>
         </v-col>
         <v-col cols="12" md="4">
           <v-checkbox v-model="tableOptions.approvals.null" class="mx-2" :label="`Null or no status (${approvalStatusCounts.null})`"></v-checkbox>
@@ -272,7 +272,7 @@ export default {
 
       const statusMap = {
         current: ['Current'],
-        expired: ['Expired'],
+        expired: ['Expired', 'Aborted', 'Cancelled'],
         null: ['', null, '<Null>']
       }
 
@@ -341,7 +341,9 @@ export default {
 
       return {
         current: approvals.filter(x => x.status === 'Current').length,
-        expired: approvals.filter(x => x.status === 'Expired').length,
+        expired: approvals.filter(
+          x => x.status === 'Expired' || x.status === 'Aborted' || x.status === 'Cancelled'
+        ).length,
         null: approvals.filter(x => x.status === '' || x.status === '<Null>' || !x.status).length
       }
     },
