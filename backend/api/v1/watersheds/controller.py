@@ -469,14 +469,17 @@ def get_temperature(poly: Polygon):
     """
     gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
     """
+    try:
+        min_temp = pcic_data_request(poly, 'tasmin')
+    except:
+        raise Error
 
-    min_temp = pcic_data_request(poly, 'tasmin')
-    max_temp = pcic_data_request(poly, 'tasmax')
+    try:
+        max_temp = pcic_data_request(poly, 'tasmax')
+    except:
+        raise Error
 
-    if min_temp.get("error") or max_temp.get("error"):
-        return { "error": { "min_error": min_temp, "max_error": max_temp } }
-    else:
-        return  { "temp_by_month": parse_pcic_temp(min_temp.get('data'), max_temp.get('data')) }
+    return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
 
 
 def get_annual_precipitation(poly: Polygon):
@@ -590,13 +593,11 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         logger.warn ("Timeout Error:" + errt)
     except requests.exceptions.RequestException as err:
         logger.warn ("OOps: Something Else" + err)
-    # except requests.exceptions.HTTPError as error:
-    #     return {"status_code": error.response.status_code, "error": str(error)}
 
     result = response.json()
 
     if result["status"] != "SUCCESS":
-        return {'error': result["message"]}
+        raise Error
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",

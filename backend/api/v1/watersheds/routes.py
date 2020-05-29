@@ -165,17 +165,17 @@ def watershed_stats(
     logger.warn("annual_precipitation")
     logger.warn(annual_precipitation)
 
-    # check if temperature returns a successful result
-    temperature_data = get_temperature(watershed_poly)
-    if temperature_data.get("error"):
+
+    try:
+        temperature_data = get_temperature(watershed_poly)
+        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+            watershed_poly, temperature_data)
+        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+            watershed_poly, temperature_data
+        )
+    except Exception as e:
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
-    else:
-        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-            watershed_poly, temperature_data["temp_by_month"])
-        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-            watershed_poly, temperature_data["temp_by_month"]
-        )
 
     logger.warn("temperature_data")
     logger.warn(temperature_data)
@@ -185,18 +185,18 @@ def watershed_stats(
     logger.warn("hydrological_zone")
     logger.warn(hydrological_zone)
 
-    # check if sea returns a successful result
-    sea = get_slope_elevation_aspect(watershed_poly)
-    if sea.get("error"):
-        average_slope = sea
-        median_elevation = sea
-        aspect = sea
-        solar_exposure = None
-    else:
+    try:
+        sea = get_slope_elevation_aspect(watershed_poly)
         average_slope = sea.get("slope")
         median_elevation = sea.get("median_elevation")
         aspect = sea.get("aspect")
         solar_exposure = get_hillshade(average_slope, aspect)
+    except Exception as e:
+        sea = e
+        average_slope = None
+        median_elevation = None
+        aspect = None
+        solar_exposure = None
 
     logger.warn("slope_elevation_aspect")
     logger.warn(sea)
