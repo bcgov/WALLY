@@ -1,6 +1,32 @@
 <template>
   <v-container>
     <v-row>
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Instructions
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card flat>
+                <v-card-text>
+                  <p>Zoom into a place of interest on the map.</p>
+                  <p>Click on the "Draw a Line" button and draw a line on the map, which can be a straight line through an
+                    area of wells or can be segmented to connect different wells. Double click to complete the line.
+                    The buffer radius is automatically set to 200 metres and can be updated to 0 to 1000 metres after
+                    your analysis is produced.</p>
+                  <p>If no analysis is produced, then go to the drop down Selection menu and "Reset Selections" and try again. It also helps to have the map zoomed to a smaller area with a sufficiently large amount of detail.</p>
+                  <p>When you hover over the resulting 2D and 3D graphs, a toolbar of icons will appear. To view lithology, select the box or lasso icon and then create a box or lasso over the wells in the graph that you want to see the lithology for.</p>
+                  <p>The table below the graph displays the wells in your buffer radius. If you do not want a well included in your analysis, then click on the trash icon in the corresponding row and it will be removed from the graph and analysis.</p>
+                  <p>Select the Excel button to download the data and information related to the wells within your cross section.</p>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col cols="12" md="6" align-self="center">
         <v-text-field
           label="Buffer radius (m)"
