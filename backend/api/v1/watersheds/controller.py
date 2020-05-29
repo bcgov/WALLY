@@ -598,7 +598,8 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     result = response.json()
 
     if result["status"] != "SUCCESS":
-        raise Exception(detail=result["message"])
+        logger.warn ("(SEA) Request Failed:" + result["message"])
+        raise Exception
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
