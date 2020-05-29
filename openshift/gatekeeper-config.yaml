@@ -14,23 +14,10 @@ data:
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width,initial-scale=1">
-        <meta name="description" content="Groundwater Wells and Aquifers.">
-        <link rel="apple-touch-icon" sizes="120x120" href="/icons/apple-icon-120x120.png">
-        <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png">
-        <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
-        <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
-        <link rel="icon" href="/favicon.ico">
-        <link rel="shortcut icon" href="/favicon.ico">
-        <meta name="msapplication-TileColor" content="#ffffff">
-        <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
+        <meta name="description" content="Water Allocation">
         <meta name="theme-color" content="#ffffff">
         <title>Access error - Water Allocation - Province of British Columbia</title>
-        <script src="https://sso-test.pathfinder.gov.bc.ca/auth/js/keycloak.js">
-    </script>
-    <style type="text/css">
+        <style type="text/css">
         * {
             background-repeat: no-repeat;
             padding: 0;
@@ -67,7 +54,7 @@ data:
             background-color: whitesmoke;
             border: 1px solid #e6e6e6;
         }
-    </style>
+        </style>
     </head>
     <body>
     <div>
@@ -182,6 +169,6 @@ metadata:
   creationTimestamp: '2019-07-30T22:27:13Z'
   name: gatekeeper-config
   namespace: bfpeyx-dev
-  resourceVersion: '1819851945'
+  resourceVersion: '1821741585'
   selfLink: /api/v1/namespaces/bfpeyx-dev/configmaps/gatekeeper-config
   uid: 2dd1e3b1-b319-11e9-a5a8-0050568379a2
