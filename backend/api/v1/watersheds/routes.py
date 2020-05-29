@@ -188,12 +188,10 @@ def watershed_stats(
     try:
         average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
         solar_exposure = get_hillshade(average_slope, aspect)
+        logger.warn("SEA SUCCESS")
     except Exception as e:
-        sea = e
         average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
-
-    logger.warn("slope_elevation_aspect")
-    logger.warn(sea)
+        logger.warn("SEA ERROR: " + e)
   
     # custom model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
