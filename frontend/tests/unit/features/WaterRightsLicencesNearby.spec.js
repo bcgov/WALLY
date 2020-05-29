@@ -90,7 +90,7 @@ describe('WaterRightsLicencesNearby.vue', () => {
     expect(wrapper.vm.filteredApprovals.length).toBe(1)
 
     wrapper.setData({
-      tableOptions: { approvals: { current: false } }
+      tableOptions: { approvals: { 'Current': false } }
     })
     expect(wrapper.vm.filteredApprovals.length).toBe(0)
   })
