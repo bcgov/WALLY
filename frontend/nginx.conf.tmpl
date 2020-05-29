@@ -28,6 +28,9 @@ http {
     keepalive_timeout  65;
     types_hash_max_size 2048;
 
+    proxy_cache_lock on;
+    proxy_cache_lock_age 45s;
+    proxy_cache_lock_timeout 45s;
 
     # Enable Gzip compressed.
     gzip on;
