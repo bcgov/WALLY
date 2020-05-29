@@ -152,6 +152,7 @@ def watershed_stats(
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
 
+    # precipitation values from prism raster
     annual_precipitation = mean_annual_precipitation(db, watershed_poly)
 
     # temperature and potential evapotranspiration values
@@ -162,7 +163,7 @@ def watershed_stats(
         potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
             watershed_poly, temperature_data
         )
-    except Exception as e:
+    except Exception:
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
 
@@ -173,9 +174,8 @@ def watershed_stats(
     try:
         average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
         solar_exposure = get_hillshade(average_slope, aspect)
-    except Exception as e:
+    except Exception:
         average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
-        logger.warn("SEA ERROR: " + e)
   
     # isoline model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
