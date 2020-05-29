@@ -272,6 +272,9 @@ export default {
       for (const status of Object.keys(this.tableOptions.approvals)) {
         // check if this subtype key is disabled.
         if (!this.tableOptions.approvals[status]) {
+          // some statuses have a null value, which gets stringified to "null" in the approval status
+          // map.  Casting the status to a string helps compare to the "null" string.
+          // Ultimately, the data needs to be cleaned up.
           approvals = approvals.filter(x => status !== x.status + '')
         }
       }
@@ -335,8 +338,8 @@ export default {
       return Object.keys(this.tableOptions.approvals).reduce((map, status) => ({
         ...map,
         [status]: approvals.filter(x => {
-          // some statuses have the value `null`, but we can't compare null === null.
-          // using !status helps catch the null value approval status.
+          // some statuses have a null value, which gets stringified to "null" in the approval status
+          // map.  Casting the status to a string helps compare to the "null" string.
           return status === x.status + ''
         }).length
       }), {})
