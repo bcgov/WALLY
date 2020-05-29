@@ -59,49 +59,7 @@
         </v-col>
       </v-row>
 
-      <v-row class="borderSub">
-        <v-col cols=4 class="colSub">
-          <Dialog v-bind="wmd.annualPrecipitation"/>
-          <div class="titleSub">Annual Precipitation</div>
-          <div v-if="watershedDetails.annual_precipitation">
-            <div class="infoSub">
-              {{ watershedDetails.annual_precipitation }}
-            </div>
-            <div class="unitSub">mm</div>
-          </div>
-          <div class="unitSub" v-else>
-            {{ noValueText }}
-          </div>
-        </v-col>
-        <v-col cols=4 class="colSub colSubInner">
-          <Dialog v-bind="wmd.glacialCoverage"/>
-          <div class="titleSub">Glacial Coverage</div>
-          <div v-if="watershedDetails.glacial_coverage">
-            <div class="infoSub">
-              {{ watershedDetails.glacial_coverage }}
-            </div>
-            <div class="unitSub">%</div>
-          </div>
-          <div class="unitSub" v-else>
-            {{ noValueText }}
-          </div>
-        </v-col>
-        <v-col cols=4 class="colSubInner">
-          <Dialog v-bind="wmd.medianElevation"/>
-          <div class="titleSub">Median Elevation</div>
-          <div v-if="watershedDetails.median_elevation">
-            <div class="infoSub">
-              {{ watershedDetails.median_elevation }}
-            </div>
-            <div class="unitSub">mASL</div>
-          </div>
-          <div class="unitSub" v-else>
-            {{ noValueText }}
-          </div>
-        </v-col>
-      </v-row>
-
-      <div class="modelOutputBorder mt-5">
+      <div class="modelOutputBorder">
         <v-row class="borderBlock">
           <v-col cols=6 class="colSub">
             <Dialog v-bind="wmd.meanAnnualDischarge"/>
@@ -174,6 +132,48 @@
           </v-col>
         </v-row>
       </div>
+
+      <v-row class="borderSub mt-5">
+        <v-col cols=4 class="colSub">
+          <Dialog v-bind="wmd.annualPrecipitation"/>
+          <div class="titleSub">Annual Precipitation</div>
+          <div v-if="watershedDetails.annual_precipitation">
+            <div class="infoSub">
+              {{ watershedDetails.annual_precipitation }}
+            </div>
+            <div class="unitSub">mm</div>
+          </div>
+          <div class="unitSub" v-else>
+            {{ noValueText }}
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSub colSubInner">
+          <Dialog v-bind="wmd.glacialCoverage"/>
+          <div class="titleSub">Glacial Coverage</div>
+          <div v-if="watershedDetails.glacial_coverage">
+            <div class="infoSub">
+              {{ watershedDetails.glacial_coverage }}
+            </div>
+            <div class="unitSub">%</div>
+          </div>
+          <div class="unitSub" v-else>
+            {{ noValueText }}
+          </div>
+        </v-col>
+        <v-col cols=4 class="colSubInner">
+          <Dialog v-bind="wmd.medianElevation"/>
+          <div class="titleSub">Median Elevation</div>
+          <div v-if="watershedDetails.median_elevation">
+            <div class="infoSub">
+              {{ watershedDetails.median_elevation }}
+            </div>
+            <div class="unitSub">mASL</div>
+          </div>
+          <div class="unitSub" v-else>
+            {{ noValueText }}
+          </div>
+        </v-col>
+      </v-row>
 
       <v-divider class="my-5"/>
       <Dialog v-bind="wmd.monthlyDischarge"/>
@@ -453,7 +453,10 @@ export default {
         return
       }
       // ISOLine Model Calculations as backup if Stewardship model doesn't exist
-      if (details.runoff_isoline_discharge_m3s && details.runoff_isoline_avg && this.watershedArea) {
+      if (details &&
+          details.runoff_isoline_discharge_m3s != null &&
+          details.runoff_isoline_avg != null &&
+          this.watershedArea) {
         const meanAnnualDischarge = details.runoff_isoline_discharge_m3s
         const meanAnnualRunoff = details.runoff_isoline_avg
         var discharges = []
@@ -484,6 +487,7 @@ export default {
           monthlyDistributions: distributions,
           monthlyDischarges: discharges
         }
+
         let availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
         this.setAvailabilityPlotData(availability)
       }
@@ -521,7 +525,7 @@ export default {
 
 <style>
 .borderBlock {
-  padding: 18px 27px 27px 25px;
+  padding: 18px 27px 20px 25px;
 }
 .titleBlock {
   color: #202124;

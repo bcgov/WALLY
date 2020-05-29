@@ -141,35 +141,77 @@ def watershed_stats(
 ):
     """ aggregates statistics/info about a watershed """
 
+    logger.warn("**** REQUEST START ****")
+
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
     watershed_poly = shape(watershed.geometry)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
+    logger.warn("watershed_area")
+    logger.warn(watershed_area)
+
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
-    temperature_data = get_temperature(watershed_poly)
-    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
-    potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-        watershed_poly, temperature_data)
-    potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-        watershed_poly, temperature_data
-    )
-    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-    average_slope, median_elevation, aspect = get_slope_elevation_aspect(
-        watershed_poly)
-    solar_exposure = get_hillshade(average_slope, aspect)
 
+    logger.warn("glacial_coverage")
+    logger.warn(glacial_coverage)
+
+    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
+
+    logger.warn("annual_precipitation")
+    logger.warn(annual_precipitation)
+
+
+    try:
+        temperature_data = get_temperature(watershed_poly)
+        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+            watershed_poly, temperature_data)
+        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+            watershed_poly, temperature_data
+        )
+    except Exception as e:
+        potential_evapotranspiration_hamon = None
+        potential_evapotranspiration_thornthwaite = None
+
+    logger.warn("temperature_data")
+    logger.warn(temperature_data)
+
+    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+
+    logger.warn("hydrological_zone")
+    logger.warn(hydrological_zone)
+
+    try:
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+        solar_exposure = get_hillshade(average_slope, aspect)
+    except Exception as e:
+        sea = e
+        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+
+    logger.warn("slope_elevation_aspect")
+    logger.warn(sea)
+  
     # custom model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
+
+    logger.warn("isoline_runoff")
+    logger.warn(isoline_runoff)
+
     scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation,
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
+    logger.warn("scsb2016_model")
+    logger.warn(scsb2016_model)
+
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
+
+    logger.warn("hydrometric_stations")
+    logger.warn(hydrometric_stations)
 
     data = {
         "watershed_name": watershed.properties.get("name", None),
@@ -208,6 +250,8 @@ def watershed_stats(
             data['licences_count_pod'] = len(licence_data.licences.features)
 
         return export_summary_as_xlsx(jsonable_encoder(data))
+
+    logger.warn("**** REQUEST FINISHED ****")
 
     return data
 

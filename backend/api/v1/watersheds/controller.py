@@ -469,9 +469,15 @@ def get_temperature(poly: Polygon):
     """
     gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
     """
+    try:
+        min_temp = pcic_data_request(poly, 'tasmin')
+    except:
+        raise Exception
 
-    min_temp = pcic_data_request(poly, 'tasmin')
-    max_temp = pcic_data_request(poly, 'tasmax')
+    try:
+        max_temp = pcic_data_request(poly, 'tasmax')
+    except:
+        raise Exception
 
     return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
 
@@ -580,19 +586,19 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     try:
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
-    except requests.exceptions.HTTPError as error:
-        logger.warning('External service error (SEA): %s', str(error))
-
-        # calling function expects a tuple of 3 values.
-        # must be able to handle return value of None
-        return (None, None, None)
+    except requests.exceptions.HTTPError as errh:
+        logger.warn("(SEA) Http Error:" + errh)
+    except requests.exceptions.ConnectionError as errc:
+        logger.warn ("(SEA) Error Connecting:" + errc)
+    except requests.exceptions.Timeout as errt:
+        logger.warn ("(SEA) Timeout Error:" + errt)
+    except requests.exceptions.RequestException as err:
+        logger.warn ("(SEA) OOps: Something Else" + err)
 
     result = response.json()
-    logger.warning("sea result")
-    logger.warning(result)
 
     if result["status"] != "SUCCESS":
-        raise HTTPException(204, detail=result["message"])
+        raise Exception(detail=result["message"])
 
     # response object from sea example
     # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
