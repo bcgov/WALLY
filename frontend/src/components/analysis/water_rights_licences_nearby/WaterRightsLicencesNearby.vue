@@ -383,7 +383,7 @@ export default {
         this.$store.dispatch('map/removeMapLayer', 'water_rights_applications')
       }
       if (this.approvalsLayerAutomaticallyEnabled) {
-        this.$store.dispatch('map/removeMapLayer', 'water_rights_approvals')
+        this.$store.dispatch('map/removeMapLayer', 'water_approval_points')
       }
     },
     fetchLicences: debounce(function () {
