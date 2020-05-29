@@ -186,17 +186,11 @@ def watershed_stats(
     logger.warn(hydrological_zone)
 
     try:
-        sea = get_slope_elevation_aspect(watershed_poly)
-        average_slope = sea.get("slope")
-        median_elevation = sea.get("median_elevation")
-        aspect = sea.get("aspect")
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
         solar_exposure = get_hillshade(average_slope, aspect)
     except Exception as e:
         sea = e
-        average_slope = None
-        median_elevation = None
-        aspect = None
-        solar_exposure = None
+        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
 
     logger.warn("slope_elevation_aspect")
     logger.warn(sea)

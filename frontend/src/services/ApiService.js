@@ -1,26 +1,10 @@
 import axios from 'axios'
 import qs from 'querystring'
-// import AgentKeepAlive from 'agentkeepalive'
-import http from 'http'
-import https from 'https'
 
 const ApiService = {
 
   init () {
-    // axios.defaults.httpAgent = new AgentKeepAlive({
-    //   maxSockets: 100,
-    //   maxFreeSockets: 10,
-    //   timeout: 60000, // active socket keepalive for 60 seconds
-    //   freeSocketTimeout: 30000, // free socket keepalive for 30 seconds
-    // })
-
-    axios.defaults.httpAgent = new http.Agent({ keepAlive: false })
-    axios.defaults.httpsAgent = new https.Agent({ keepAlive: false })
-    axios.defaults.timeout = 60000
-    axios.defaults.maxRedirects = 10
-    axios.defaults.maxContentLength = 50 * 1000 * 1000
     axios.defaults.baseURL = process.env.VUE_APP_AXIOS_BASE_URL
-
     this.baseURL = axios.defaults.baseURL + '/api/v1'
 
     axios.interceptors.request.use(function (request) {

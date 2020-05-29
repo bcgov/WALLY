@@ -90,7 +90,7 @@ def pcic_data_request(
         resp = requests.get(req_url)
         resp.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        return { "status_code": e.response.status_code, "error": str(e) }
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
 
     return resp.json()
 
@@ -607,11 +607,11 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     # "confidenceIndicator":46.840837384501654}}
     sea = result["SlopeElevationAspectResult"]
 
-    return {
-        "slope": sea["slope"],
-        "median_elevation": sea["averageElevation"],
-        "aspect": sea["aspect"]
-    }
+    slope = sea["slope"]
+    median_elevation = sea["averageElevation"]
+    aspect = sea["aspect"]
+
+    return (slope, median_elevation, aspect)
 
 
 def get_hillshade(slope: float, aspect: float):
