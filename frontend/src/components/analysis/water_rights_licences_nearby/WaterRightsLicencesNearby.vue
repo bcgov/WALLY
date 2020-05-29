@@ -11,7 +11,7 @@
       </v-col>
       <v-col class="text-right">
           <v-btn
-            v-if="filteredLicences.length"
+            v-if="results.length"
             outlined
             :disabled="loading"
             @click="exportLicencesAsSpreadsheet"
@@ -109,14 +109,8 @@
         <v-col class="title">Water Approval Points ({{approvalCount}})</v-col>
       </v-row>
       <v-row no-gutters >
-        <v-col cols="12" md="4">
-          <v-checkbox v-model="tableOptions.approvals.current" class="mx-2" :label="`Current (${approvalStatusCounts.current})`"></v-checkbox>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-checkbox v-model="tableOptions.approvals.expired" class="mx-2" :label="`Expired (${approvalStatusCounts.expired})`"></v-checkbox>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-checkbox v-model="tableOptions.approvals.null" class="mx-2" :label="`Null or no status (${approvalStatusCounts.null})`"></v-checkbox>
+        <v-col cols="12" md="4" v-for="(val, key, i) in tableOptions.approvals" :key="`approvalFilter${i}`">
+          <v-checkbox v-model="tableOptions.approvals[key]" class="mx-2" :label="`${key} (${approvalStatusCounts[key]})`"></v-checkbox>
         </v-col>
       </v-row>
       <v-row>
@@ -268,18 +262,14 @@ export default {
     },
     filteredApprovals () {
       let approvals = this.results.filter(x => !!x.WATER_APPROVAL_ID)
-      const opts = this.tableOptions.approvals
 
-      const statusMap = {
-        current: ['Current'],
-        expired: ['Expired'],
-        null: ['', null, '<Null>']
-      }
-
-      for (const key of Object.keys(opts)) {
+      for (const status of Object.keys(this.tableOptions.approvals)) {
         // check if this subtype key is disabled.
-        if (!opts[key]) {
-          approvals = approvals.filter(x => statusMap[key].indexOf(x.status) === -1)
+        if (!this.tableOptions.approvals[status]) {
+          // some statuses have a null value, which gets stringified to "null" in the approval status
+          // map.  Casting the status to a string helps compare to the "null" string.
+          // Ultimately, the data needs to be cleaned up.
+          approvals = approvals.filter(x => status !== x.status + '')
         }
       }
       return approvals
@@ -339,11 +329,14 @@ export default {
     approvalStatusCounts () {
       const approvals = this.results.filter(x => !!x.WATER_APPROVAL_ID)
 
-      return {
-        current: approvals.filter(x => x.status === 'Current').length,
-        expired: approvals.filter(x => x.status === 'Expired').length,
-        null: approvals.filter(x => x.status === '' || x.status === '<Null>' || !x.status).length
-      }
+      return Object.keys(this.tableOptions.approvals).reduce((map, status) => ({
+        ...map,
+        [status]: approvals.filter(x => {
+          // some statuses have a null value, which gets stringified to "null" in the approval status
+          // map.  Casting the status to a string helps compare to the "null" string.
+          return status === x.status + ''
+        }).length
+      }), {})
     },
     licenceSubtypeCounts () {
       // counts each subtype in the results
@@ -386,6 +379,19 @@ export default {
         this.$store.dispatch('map/removeMapLayer', 'water_approval_points')
       }
     },
+    setApprovalStatusFilters (approvals) {
+      // create new filter options for the various approval statuses in the current result set
+
+      // first create a set of unique approval status values
+      const approvalStatusValues = new Set(approvals.map(a => a.status))
+
+      // create an object with the status values as keys (defaulting to true, indicating
+      // that the filter checkboxes will start checked for all values)
+      this.tableOptions.approvals = [...approvalStatusValues].reduce((a, c) => ({
+        ...a,
+        [c]: true
+      }), {})
+    },
     fetchLicences: debounce(function () {
       this.showCircle()
       if (!this.radiusIsValid(this.radius)) {
@@ -407,6 +413,7 @@ export default {
         console.error(e)
       }).finally(() => {
         this.loading = false
+        this.setApprovalStatusFilters(this.filteredApprovals)
       })
     }, 500),
     radiusIsValid (val) {
