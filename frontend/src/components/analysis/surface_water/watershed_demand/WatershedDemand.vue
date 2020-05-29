@@ -94,7 +94,8 @@ export default {
     },
     purposeTypes: [],
     wmd: WatershedModelDescriptions,
-    isLicencesLayerVisible: true
+    isLicencesLayerVisible: true,
+    emptyMonths: [0,0,0,0,0,0,0,0,0,0,0,0]
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -204,6 +205,7 @@ export default {
         })
         .catch(e => {
           this.licencesLoading = false
+          this.setLicencePlotData(this.emptyMonths)
           console.error(e)
         })
     },

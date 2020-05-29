@@ -93,7 +93,8 @@ export default {
       shortTermAllocationTable: false
     },
     wmd: WatershedModelDescriptions,
-    isLayerVisible: true
+    isLayerVisible: true,
+    emptyMonths: [0,0,0,0,0,0,0,0,0,0,0,0]
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -200,6 +201,7 @@ export default {
         })
         .catch(e => {
           this.approvalsLoading = false
+          this.setShortTermLicencePlotData(this.emptyMonths)
           console.error(e)
         })
     },
