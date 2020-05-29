@@ -11,7 +11,7 @@
       </v-col>
       <v-col class="text-right">
           <v-btn
-            v-if="filteredLicences.length"
+            v-if="results.length"
             outlined
             :disabled="loading"
             @click="exportLicencesAsSpreadsheet"
