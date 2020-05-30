@@ -311,7 +311,7 @@ export default {
           : props.name ? props.name
             : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
               : props.OBJECTID ? props.OBJECTID : ''
-      console.log("name")
+      console.log('name')
       console.log(name)
       return name.toString()
     },
