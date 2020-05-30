@@ -55,7 +55,10 @@ export default {
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
-        y: this.availabilityPlotData.map((val, i) => { return val - this.licencePlotData[i] - this.shortTermLicencePlotData[i] }),
+        y: this.availabilityPlotData.map((val, i) => {
+          return val - (this.licencePlotData ? this.licencePlotData[i] : 0) -
+          (this.shortTermLicencePlotData ? this.shortTermLicencePlotData[i] : 0)
+        }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'
       }
@@ -92,7 +95,7 @@ export default {
 
       plotConfig.push(availabilityData, mad10, mad20, mad30)
 
-      if(this.licencePlotData) {
+      if (this.licencePlotData) {
         plotConfig.push({
           type: 'bar',
           name: 'Monthly Licenced Quantity',
@@ -102,7 +105,7 @@ export default {
         })
       }
 
-      if(this.shortTermLicencePlotData) {
+      if (this.shortTermLicencePlotData) {
         plotConfig.push({
           type: 'bar',
           name: 'Monthly Short Term Approvals Quantity',
