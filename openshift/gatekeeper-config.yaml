@@ -3,9 +3,6 @@ data:
   config.yaml: |
     enable-default-deny: true
     listen: :3000
-    server-read-timeout: 30s
-    server-write-timeout: 30s
-    upstream-response-header-timeout: 30s
     resources:
     - uri: /*
       roles:
