@@ -89,8 +89,6 @@ objects:
                 - '--discovery-url'
                 - '$(DISCOVERY_URL)'
                 - '--enable-metrics'
-                - '--forbidden-page'
-                - /app/forbidden-page.html
               envFrom:
                 - secretRef:
                     name: gatekeeper-credentials
