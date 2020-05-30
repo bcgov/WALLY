@@ -3,13 +3,6 @@ data:
   config.yaml: |
     enable-default-deny: true
     listen: :3000
-    server-read-timeout: 45s
-    server-write-timeout: 45s
-    upstream-expect-continue-timeout: 45s
-    upstream-keepalive-timeout: 45s
-    upstream-response-header-timeout: 45s
-    upstream-tls-handshake-timeout: 45s
-    upstream-timeout: 45s
     resources:
     - uri: /*
       roles:
