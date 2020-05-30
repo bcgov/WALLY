@@ -27,6 +27,7 @@ http {
     tcp_nodelay     on;
     keepalive_timeout  65;
     types_hash_max_size 2048;
+    resolver_timeout 45s;
 
     # Enable Gzip compressed.
     gzip on;
@@ -99,7 +100,6 @@ http {
         listen       [::]:8080 default_server;
         server_name  _;
         root         /opt/app-root/src;
-        fail_timeout 45s;
 
         # Load configuration files for the default server block.
         include      /opt/app-root/etc/nginx.default.d/*.conf;
@@ -108,12 +108,6 @@ http {
             proxy_pass http://${WALLY_BACKEND_SERVICE}:8000;
             proxy_set_header Host $host;
             proxy_set_header X-Real-IP $remote_addr;
-            proxy_cache_lock on;
-            proxy_cache_lock_age     45;
-            proxy_cache_lock_timeout 45;
-            proxy_connect_timeout    45;
-            proxy_send_timeout       45;
-            proxy_read_timeout       45;
         }
 
         location /docs {
