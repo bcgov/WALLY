@@ -194,7 +194,15 @@ def surface_water_approval_points(polygon: Polygon):
 
         features_within_search_area.append(apr)
 
-        qty = apr.properties['QUANTITY']
+        # the rare water approval record has the units
+        # as a suffix in the QUATITY property
+        # these are considered bad data points
+        # and will be skipped
+        try:
+            qty = float(apr.properties['QUANTITY'])
+        except:
+            continue
+
         qty_unit = apr.properties['QUANTITY_UNITS']
 
         # null if approval is a works project, most of them are
