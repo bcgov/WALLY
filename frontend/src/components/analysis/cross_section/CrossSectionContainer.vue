@@ -30,7 +30,7 @@
     </div>
 
     <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=10>
+      <v-col cols=12 lg=9>
         <v-card>
           <v-card-title>Instructions</v-card-title>
           <v-card-text>
@@ -39,7 +39,7 @@
         </v-card>
         <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
       </v-col>
-      <v-col class="text-right" lg=2>
+      <v-col lg=3>
         <v-btn @click="drawLine" color="primary" outlined>Draw line</v-btn>
       </v-col>
     </v-row>
