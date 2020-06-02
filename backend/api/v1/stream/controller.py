@@ -47,7 +47,8 @@ def to_3005(from_proj, feat):
     elif from_proj == 4326:
         return transform(transform_4326_3005, feat)
 
-    logger.warn('to_3005: from_proj must be either 4326 or 3005. Feature returned without transforming to 3005.')
+    logger.warn(
+        'to_3005: from_proj must be either 4326 or 3005. Feature returned without transforming to 3005.')
     return feat
 
 

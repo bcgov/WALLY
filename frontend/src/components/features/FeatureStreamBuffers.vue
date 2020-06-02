@@ -108,7 +108,7 @@ export default {
 
           this.map.addLayer({
             id: 'selectedStreamNetwork',
-            type: 'fill',
+            type: 'line',
             source: {
               type: 'geojson',
               data: data
@@ -117,9 +117,8 @@ export default {
               visibility: 'visible'
             },
             paint: {
-              'fill-color': '#0d47a1',
-              'fill-outline-color': '#002171',
-              'fill-opacity': 0.3
+              'line-color': '#002171',
+              'line-width': 2
             }
           }, 'water_rights_licences')
           this.loadingMapFeatures = false

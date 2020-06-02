@@ -68,9 +68,11 @@ def get_streams_by_watershed_code(
     q = """
     with watershed_code_stats as (
         SELECT
+            "FWA_WATERSHED_CODE" as fwa_code,
             "LOCAL_WATERSHED_CODE" as loc_code,
             (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
-                as loc_code_last_nonzero_code
+                as loc_code_last_nonzero_code,
+            left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_prefix
         FROM freshwater_atlas_stream_networks
         WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
     )
@@ -78,18 +80,18 @@ def get_streams_by_watershed_code(
         ST_AsGeoJSON(
             ST_Transform(
                 ST_Buffer(
-                    ST_Transform(ST_Union("GEOMETRY"), 3005),
+                    ST_Transform(ST_Collect("GEOMETRY"), 3005),
                     :buffer, 'endcap=round join=round'
                 ),
                 4326
             )
         )
     from    (
-        select  "GEOMETRY" from freshwater_atlas_stream_networks
-        where   "FWA_WATERSHED_CODE" = :code
+        select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
+        where   "FWA_WATERSHED_CODE" = fwa_code
         union all
         select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" like :root_code
+        where   "FWA_WATERSHED_CODE" like fwa_prefix
         AND     split_part(
                     "FWA_WATERSHED_CODE", '-',
                     watershed_code_stats.loc_code_last_nonzero_code
@@ -103,10 +105,9 @@ def get_streams_by_watershed_code(
     geom = db.execute(
         q,
         {
-            "code": code,
             "root_code": root_code,
             "linear_feature_id": linear_feature_id,
-            "buffer": buffer
+            "buffer": buffer,
         }).fetchone()
 
     if not geom:
@@ -121,7 +122,7 @@ def get_streams_by_watershed_code(
     stream_shape = shape(geom_geojson)
 
     return stream_controller.get_features_within_buffer(db, stream_shape,
-                                                        100, layer)
+                                                        buffer, layer)
 
 
 def get_features_within_buffer_zone(
