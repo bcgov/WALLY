@@ -140,6 +140,7 @@ def watershed_stats(
     )
 ):
     """ aggregates statistics/info about a watershed """
+    logger.warn("Watershed Details - Request Started")
 
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
@@ -151,24 +152,41 @@ def watershed_stats(
     drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
-    temperature_data = get_temperature(watershed_poly)
-    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
-    potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-        watershed_poly, temperature_data)
-    potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-        watershed_poly, temperature_data
-    )
-    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-    average_slope, median_elevation, aspect = get_slope_elevation_aspect(
-        watershed_poly)
-    solar_exposure = get_hillshade(average_slope, aspect)
 
-    # custom model outputs
+    # precipitation values from prism raster
+    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
+
+    # temperature and potential evapotranspiration values
+    try:
+        temperature_data = get_temperature(watershed_poly)
+        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+            watershed_poly, temperature_data)
+        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+            watershed_poly, temperature_data
+        )
+    except Exception:
+        potential_evapotranspiration_hamon = None
+        potential_evapotranspiration_thornthwaite = None
+
+    # hydro zone dictates which model values to use
+    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+
+    # slope elevation aspect
+    try:
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+        solar_exposure = get_hillshade(average_slope, aspect)
+    except Exception:
+        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+  
+    # isoline model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
+
+    # custom linear mad model outputs
     scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation,
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
+    # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
 
     data = {
@@ -197,6 +215,7 @@ def watershed_stats(
 
     if format == 'xlsx':
         licence_data = surface_water_rights_licences(watershed_poly)
+        # TODO add approvals data to xlsx output
         # approvals_data = surface_water_approval_points(watershed_poly)
         data['generated_date'] = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S")
@@ -208,6 +227,8 @@ def watershed_stats(
             data['licences_count_pod'] = len(licence_data.licences.features)
 
         return export_summary_as_xlsx(jsonable_encoder(data))
+
+    logger.warn("Watershed Details - Request Finished")
 
     return data
 

@@ -27,7 +27,7 @@ http {
     tcp_nodelay     on;
     keepalive_timeout  65;
     types_hash_max_size 2048;
-
+    resolver_timeout 45s;
 
     # Enable Gzip compressed.
     gzip on;
