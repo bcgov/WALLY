@@ -52,9 +52,13 @@ def to_3005(from_proj, feat):
     return feat
 
 
-def get_upstream_downstream_area(db: Session, linear_feature_id: int, buffer: float, full_upstream_area: bool):
-    """ returns the polygon area upstream and downstream from the selected stream feature (using the linear_feature_id
-    property of a Freshwater Atlas Stream Networks stream segment) """
+def get_upstream_downstream_area(
+        db: Session,
+        linear_feature_id: int,
+        buffer: float,
+        full_upstream_area: bool):
+    """ returns the polygon area upstream and downstream from the selected stream feature
+    (using the linear_feature_id property of a Freshwater Atlas Stream Networks stream segment) """
 
     # Gather up the selected stream segments (from the stream's own headwaters
     # down to the mouth of the stream where it drains into the next river),
@@ -118,10 +122,11 @@ def get_upstream_downstream_area(db: Session, linear_feature_id: int, buffer: fl
     ) subq   
     """
 
-    # if the user overrides searching within the full upstream catchment area, search only within <buffer> metres of
-    # the stream. This produces a polygon with narrow branches that follows the shape of the stream network.
-    # the main difference between this query and the default query is that the "from" subquery selects from FWA Stream
-    # Networks, returning buffered linestrings, which takes longer.
+    # if the user overrides searching within the full upstream catchment area, search only within <buffer>
+    # metres of the stream. This produces a polygon with narrow branches that follows the shape of
+    # the stream network.
+    # The main difference between this query and the default query is that the "from" subquery selects
+    # from FWA Stream Networks, returning buffered linestrings, which takes longer.
     if not full_upstream_area:
         q = """
         with watershed_code_stats as (
@@ -130,7 +135,11 @@ def get_upstream_downstream_area(db: Session, linear_feature_id: int, buffer: fl
                 "LOCAL_WATERSHED_CODE" as loc_code,
                 (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
                     as loc_code_last_nonzero_code,
-                left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_prefix
+                left(
+                    regexp_replace("FWA_WATERSHED_CODE", '000000', '%'),
+                    strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'),
+                    '%')
+                ) as fwa_prefix
             FROM freshwater_atlas_stream_networks
             WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
         )
@@ -192,7 +201,10 @@ def get_features_within_buffer(db: Session, line, distance: float, layer: str) -
     line_3005 = transform(transform_4326_3005, line)
 
     features_intersecting = [
-        Feature(geometry=feat['geometry'], properties=feat['properties']) for feat in features if to_3005(feat_proj, shape(feat['geometry'])).intersects(line_3005)
+        Feature(
+            geometry=feat['geometry'],
+            properties=feat['properties']) for feat in features if to_3005(feat_proj, shape(feat['geometry'])
+                                                                           ).intersects(line_3005)
     ]
 
     return FeatureCollection(features_intersecting)

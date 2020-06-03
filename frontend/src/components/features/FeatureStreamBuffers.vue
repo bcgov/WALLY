@@ -111,32 +111,38 @@ export default {
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
       const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
 
-      ApiService.query('/api/v1/stream/features', { code: fwaCode, linear_feature_id: linearFeatID, buffer: this.buffer, full_upstream_area: this.searchFullUpstreamArea })
-        .then((r) => {
-          const data = r.data
+      ApiService.query(
+        '/api/v1/stream/features',
+        {
+          code: fwaCode,
+          linear_feature_id: linearFeatID,
+          buffer: this.buffer,
+          full_upstream_area: this.searchFullUpstreamArea }
+      ).then((r) => {
+        const data = r.data
 
-          this.streamNetworkMapFeature = 'selectedStreamNetwork'
+        this.streamNetworkMapFeature = 'selectedStreamNetwork'
 
-          this.map.addLayer({
-            id: 'selectedStreamNetwork',
-            type: 'fill',
-            source: {
-              type: 'geojson',
-              data: data
-            },
-            layout: {
-              visibility: 'visible'
-            },
-            paint: {
-              'fill-color': '#0d47a1',
-              'fill-outline-color': '#002171',
-              'fill-opacity': 0.3
-            }
-          }, 'water_rights_licences')
-          this.loadingMapFeatures = false
-        }).catch(() => {
-          this.loadingMapFeatures = false
-        })
+        this.map.addLayer({
+          id: 'selectedStreamNetwork',
+          type: 'fill',
+          source: {
+            type: 'geojson',
+            data: data
+          },
+          layout: {
+            visibility: 'visible'
+          },
+          paint: {
+            'fill-color': '#0d47a1',
+            'fill-outline-color': '#002171',
+            'fill-opacity': 0.3
+          }
+        }, 'water_rights_licences')
+        this.loadingMapFeatures = false
+      }).catch(() => {
+        this.loadingMapFeatures = false
+      })
     },
     fetchStreamBufferInformation () {
       if (this.buffer < 0 || !this.selectedLayer) {
