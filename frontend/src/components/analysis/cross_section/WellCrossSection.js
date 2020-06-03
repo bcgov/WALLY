@@ -565,10 +565,11 @@ export default {
       // Placeholder
     },
     getCrossSectionExport() {
-      // window._paq.push([
-      //   'trackLink',
-      //   `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
-      //   'download'])
+      // Track cross section excel downloads
+      window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
+        'download'])
 
       const params = {
         wells: this.wells.map(w => w.well_tag_number)

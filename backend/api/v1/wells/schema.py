@@ -13,15 +13,6 @@ from geojson import Feature, FeatureCollection, Point
 logger = logging.getLogger('wells')
 
 
-def flatten_geojson_property(value):
-    """ flattens json values for use in geojson properties
-    """
-    if isinstance(value, list):
-        return ', '.join(json.dumps(value))
-
-    return value
-
-
 def export_formatter():
     """ 
     returns a helper function that turns JSON results into GeoJSON,
