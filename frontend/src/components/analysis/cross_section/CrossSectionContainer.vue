@@ -26,11 +26,15 @@
       :coordinates="sectionLine.geometry.coordinates"
       @crossSection:redraw="() => drawLine({ newLine: true })"
       />
-
     </div>
-
-    <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=9>
+    <div v-else class="pa-5 mr-8">
+    <v-row>
+      <v-col  class="text-right">
+        <v-btn @click="drawLine" color="primary" outlined >Draw line</v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols=12 >
         <v-card>
           <v-card-title>Instructions</v-card-title>
           <v-card-text>
@@ -39,10 +43,8 @@
         </v-card>
         <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
       </v-col>
-      <v-col lg=3>
-        <v-btn @click="drawLine" color="primary" outlined>Draw line</v-btn>
-      </v-col>
     </v-row>
+    </div>
   </v-container>
 </template>
 
