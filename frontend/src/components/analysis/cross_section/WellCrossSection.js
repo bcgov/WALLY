@@ -564,7 +564,7 @@ export default {
     highlightWell (selected) {
       // Placeholder
     },
-    getCrossSectionExport() {
+    getCrossSectionExport () {
       // Track cross section excel downloads
       // TODO Uncomment when _paq undefined error is fixed
       // window._paq.push([
