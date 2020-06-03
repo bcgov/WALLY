@@ -1,6 +1,24 @@
 <template>
   <v-container>
     <v-row>
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Instructions
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card flat>
+                <v-card-text>
+                  <CrossSectionInstructions></CrossSectionInstructions>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col cols="12" md="6" align-self="center">
         <v-text-field
           label="Buffer radius (m)"

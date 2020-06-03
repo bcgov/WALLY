@@ -6,6 +6,8 @@ import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 import PlotlyJS from 'plotly.js'
+
+import CrossSectionInstructions from './CrossSectionInstructions'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
@@ -15,7 +17,8 @@ export default {
     Plotly: () => loadPlotly.then(module => {
       return module.Plotly
     }),
-    PlotlyJS
+    PlotlyJS,
+    CrossSectionInstructions
   },
   mounted () {
     this.$store.commit('map/setMode',
