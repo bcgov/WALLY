@@ -12,6 +12,25 @@
       <v-col cols="12" md="6" class="text-right">
         <v-btn @click="handleRedraw" color="primary" outlined class="mt-5">Draw new line</v-btn>
       </v-col>
+      <v-col class="text-right">
+        <v-btn
+          v-if="wells && wells.length"
+          outlined
+          :disabled="loading"
+          @click="getCrossSectionExport"
+          color="primary"
+        >
+          Excel
+          <v-icon class="ml-1" v-if="!xlsLoading">cloud_download</v-icon>
+          <v-progress-circular
+            v-if="xlsLoading"
+            indeterminate
+            size=24
+            class="ml-1"
+            color="primary"
+          ></v-progress-circular>
+        </v-btn>
+      </v-col>
     </v-row>
     <v-tabs>
       <v-tabs-slider></v-tabs-slider>
