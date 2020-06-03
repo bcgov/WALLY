@@ -54,13 +54,27 @@ def crossSectionXlsxExport(features: List[LayerResponse]):
             well_tag_number = props["well_tag_number"]
             if well:
                 ws.append([str(i) for i in list(well.values())])
+            
+            logger.warn(props["lithologydescription_set"])
+            logger.warn(props["casing_set"])
+            logger.warn(props["screen_set"])
+            logger.warn(props["linerperforation_set"])
+            logger.warn(props["drilling_methods"])
+            logger.warn(props["development_methods"])
 
             append_sheet_values(props["lithologydescription_set"], ls_set, ls, well_tag_number)
             append_sheet_values(props["casing_set"], cs_set, cs, well_tag_number)
             append_sheet_values(props["screen_set"], ss_set, ss, well_tag_number)
             append_sheet_values(props["linerperforation_set"], ps_set, ps, well_tag_number)
             append_sheet_values(props["drilling_methods"], dls_set, dls, well_tag_number)
-            append_sheet_values(props["development_methods"], dvs_set, dvs, well_tag_number)
+
+            # drilling_methods is a string array so we handle it explicitly
+            if props["development_methods"]:
+                if not dvs_set[0]:
+                    dvs.append(["well_tag_number", "development_method"])
+                    dvs_set[0] = True
+                for item in props["development_methods"]:
+                    dvs.append([well_tag_number, str(item)])
 
         except Exception as e:
             logger.warn(e)
