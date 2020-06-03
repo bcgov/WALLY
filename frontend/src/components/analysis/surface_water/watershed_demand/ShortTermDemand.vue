@@ -108,19 +108,10 @@ export default {
       }
     }
   },
-  watch: {
-    watershedID () {
-      this.shortTermLicenceData = {}
-      this.map.removeLayer('waterApprovals')
-      this.map.removeSource('waterApprovals')
-      this.fetchShortTermLicenceData()
-    }
-  },
   methods: {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
     ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
     addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
-      // console.log(data)
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -133,7 +124,7 @@ export default {
           'circle-radius': 10,
           'circle-opacity': opacity
         }
-      }, 'waterLicences') // Render on top of waterLicences
+      }, 'water_rights_licences') // Render on top of waterLicences
 
       this.map.on('mouseenter', id, (e) => {
       // Change the cursor style as a UI indicator.
@@ -239,10 +230,20 @@ export default {
       this.isLayerVisible = !this.isLayerVisible
       this.map.setLayoutProperty('waterApprovals', 'visibility', this.isLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_approval_points', 'visibility', this.isLayerVisible ? 'visible' : 'none')
+    },
+    getWaterApprovals () {
+      this.shortTermLicenceData = {}
+      if (this.map.getLayer('waterApprovals')) {
+        this.map.removeLayer('waterApprovals')
+      }
+      if (this.map.getSource('waterApprovals')) {
+        this.map.removeSource('waterApprovals')
+      }
+      this.fetchShortTermLicenceData()
     }
   },
   mounted () {
-    this.fetchShortTermLicenceData()
+    this.getWaterApprovals()
   },
   beforeDestroy () {
     if (this.map.getLayer('waterApprovals')) {

@@ -100,14 +100,11 @@ export default {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
   },
-  watch: {
-    watershedID () {
-      this.licenceData = null
-      this.map.removeLayer('waterLicences')
-      this.map.removeSource('waterLicences')
-      this.fetchDemandData()
-    }
-  },
+  // watch: {
+  //   watershedID () {
+  //     this.getDemandData()
+  //   }
+  // },
   methods: {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
@@ -237,10 +234,20 @@ export default {
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
       this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
+    },
+    getDemandData () {
+      this.licenceData = null
+      if (this.map.getLayer('waterLicences')) {
+        this.map.removeLayer('waterLicences')
+      }
+      if (this.map.getSource('waterLicences')) {
+        this.map.removeSource('waterLicences')
+      }
+      this.fetchDemandData()
     }
   },
   mounted () {
-    this.fetchDemandData()
+    this.getDemandData()
   },
   beforeDestroy () {
     if (this.map.getLayer('waterLicences')) {
