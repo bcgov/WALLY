@@ -27,7 +27,10 @@ router = APIRouter()
 @router.get('/features')
 def get_streams_by_watershed_code(
     linear_feature_id: int,
-    code: str,
+    full_upstream_area: bool = Query(
+        None,
+        title="Search full upstream area",
+        description="Indicates that the search should use the full upstream area, instead of only searching within a stream buffer. This is faster."),
     buffer: float = Query(
         100,
         title="Buffer radius (m)",
@@ -43,72 +46,8 @@ def get_streams_by_watershed_code(
     """ generates a stream network based on a FWA_WATERSHED_CODE and
     LINEAR_FEATURE_ID, and finds features from a given `layer`. """
 
-    # Remove trailing 000000 codes (zero codes). This allows us to look up streams
-    # that branch off the subject stream (if they are tributaries of
-    # the subject stream, at least one of the trailing 000000 code segments will
-    # contain a non-zero value).
-    # There is an assumption made that no watershed codes have
-    # non-zero values to the right of a zero value.
-    root_code = stream_controller.watershed_root_code(code)
-
-    # add a wildcard for searching
-    root_code.append('%')
-    root_code = '-'.join(root_code)
-
-    # Gather up the selected stream segments (from the stream's own headwaters
-    # down to the mouth of the stream where it drains into the next river),
-    # as well as all *upstream* tributary networks from the selected reach.
-    # This represents the entire drainage network upstream of the selected
-    # reach, combined with just the stream's own geometry downstream (no
-    # tributaries downstream of the selected reach are included).
-    #
-    # this query works by inspecting the last non-zero code of the local
-    # watershed code, which roughly represents the percent distance along the
-    # stream of each segment of the stream.
-    q = """
-    with watershed_code_stats as (
-        SELECT
-            "FWA_WATERSHED_CODE" as fwa_code,
-            "LOCAL_WATERSHED_CODE" as loc_code,
-            (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
-                as loc_code_last_nonzero_code,
-            left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_prefix
-        FROM freshwater_atlas_stream_networks
-        WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
-    )
-    select
-        ST_AsGeoJSON(
-            ST_Transform(
-                ST_Buffer(
-                    ST_Transform(ST_Collect("GEOMETRY"), 3005),
-                    :buffer, 'endcap=round join=round'
-                ),
-                4326
-            )
-        )
-    from    (
-        select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" = fwa_code
-        union all
-        select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" like fwa_prefix
-        AND     split_part(
-                    "FWA_WATERSHED_CODE", '-',
-                    watershed_code_stats.loc_code_last_nonzero_code
-                )::int > split_part(
-                    watershed_code_stats.loc_code, '-',
-                    watershed_code_stats.loc_code_last_nonzero_code
-                )::int
-    ) subq
-    """
-
-    geom = db.execute(
-        q,
-        {
-            "root_code": root_code,
-            "linear_feature_id": linear_feature_id,
-            "buffer": buffer,
-        }).fetchone()
+    geom = stream_controller.get_upstream_downstream_area(
+        db, linear_feature_id, buffer, full_upstream_area)
 
     if not geom:
         return None
