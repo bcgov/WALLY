@@ -30,9 +30,6 @@ def export_formatter():
 
     def helper_function(self, result):
 
-        logger.warn("result")
-        logger.warn(type(result))
-
         return FeatureCollection([
             Feature(
                 id=result.get(self.id_field, str(uuid4())),

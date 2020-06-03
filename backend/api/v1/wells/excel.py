@@ -1,5 +1,6 @@
 from typing import List
 import logging
+import datetime
 import openpyxl
 from openpyxl.writer.excel import save_virtual_workbook
 from starlette.responses import Response
@@ -16,73 +17,81 @@ def crossSectionXlsxExport(features: List[LayerResponse]):
     """
 
     wb = openpyxl.Workbook()
-    well = wb.active
-    well.title = "well"
+    ws = wb.active
+    ws.title = "well"
+
+    # testing whether headers have been created
+    # lists so we can pass by reference to append method
+    ls_set = [False]
+    cs_set = [False]
+    ss_set = [False]
+    ps_set = [False]
+    dls_set = [False]
+    dvs_set = [False]
 
     # create the other well information sheets
-    lithology = wb.create_sheet("lithology")
-    casing = wb.create_sheet("casing")
-    screen = wb.create_sheet("screen")
-    perforation = wb.create_sheet("perforation")
-    drilling_method = wb.create_sheet("drilling_method")
-    development_method = wb.create_sheet("development_method")
+    ls = wb.create_sheet("lithology")
+    cs = wb.create_sheet("casing")
+    ss = wb.create_sheet("screen")
+    ps = wb.create_sheet("perforation")
+    dls = wb.create_sheet("drilling_method")
+    dvs = wb.create_sheet("development_method")
 
-    logger.warn(features)
-    logger.warn(features[0].geojson.features[0].properties)
-    
+    # set well sheet headers
     well_headers = [*features[0].geojson.features[0].properties]
-    well.append(well_headers)
+    ws.append(well_headers)
 
     for dataset in features:
         # avoid trying to process layers if they have no features.
         if not dataset.geojson:
             continue
-
-        # create a list of fields for this dataset
-        fields = []
-        try:
-            p = dataset.geojson.features[0].properties
-            
-            well.append([str(i) for i in list(p.values())])
-
-
-            lithology.append([str(i) for i in list(p.lithologydescription_set.values())])
-            
-            
-            casing.append([str(i) for i in list(p.casing_set.values())])
-            screen.append([str(i) for i in list(p.screen_set.values())])
-            perforation.append([str(i) for i in list(p.linerperforation_set.values())])
-            drilling_method.append([str(i) for i in list(p.drilling_methods.values())])
-            development_method.append([str(i) for i in list(p.development_methods.values())])
-            
-            # fields = list(dataset.geojson.features[0].properties.values())
-            # fields = [str(i) for i in fields]
-        except:
-            continue
         
-        # logger.warn(fields)
-        # well.append(fields)
-        # lithology.append()
-        # casing.append()
-        # screen.append()
-        # perforation.append()
-        # drilling_method.append()
-        # development_method.append()
+        try:
+            props = dataset.geojson.features[0].properties
+            
+            well = props
+            well_tag_number = props["well_tag_number"]
+            if well:
+                ws.append([str(i) for i in list(well.values())])
 
-        # features = dataset.geojson.features
-        # # add rows for every object in the collection, using the fields defined above.
-        # for f in features:
-        #     props = f['properties']
-        #     ws.append([
-        #         props.get(x) for x in fields
-        #     ])
+            append_sheet_values(props["lithologydescription_set"], ls_set, ls, well_tag_number)
+            append_sheet_values(props["casing_set"], cs_set, cs, well_tag_number)
+            append_sheet_values(props["screen_set"], ss_set, ss, well_tag_number)
+            append_sheet_values(props["linerperforation_set"], ps_set, ps, well_tag_number)
+            append_sheet_values(props["drilling_methods"], dls_set, dls, well_tag_number)
+            append_sheet_values(props["development_methods"], dvs_set, dvs, well_tag_number)
+
+        except Exception as e:
+            logger.warn(e)
+            continue
+
+    cur_date = datetime.datetime.now().strftime("%X-%Y-%m-%d")
+
+    filename = f"{cur_date}_CrossSection"
 
     response = Response(
         content=save_virtual_workbook(wb),
         media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        headers={'Content-Disposition': 'attachment; filename=report.xlsx'})
+        headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'})
 
     return response
+
+
+def append_sheet_values(value_set, isSet, sheet, well_tag_number):
+    """
+      Check if any subset data exists and if so
+      add it to the appropriate xls sheet.
+      If the isSet bool is False then we add
+      headers for that sheet first.
+      Well tag number is concated to the front
+      of the list on each row.
+    """
+    if value_set:
+        if not isSet[0]:
+            sheet.append(["well_tag_number"] + [str(i) for i in value_set[0]])
+            isSet[0] = True
+        for item in value_set:
+            sheet.append([well_tag_number] + [str(i) for i in list(item.values())])
 
 
 def geojson_to_xlsx(fc_list: List[FeatureCollection], filename: str = "report"):
@@ -91,7 +100,8 @@ def geojson_to_xlsx(fc_list: List[FeatureCollection], filename: str = "report"):
     Each FeatureCollection will get its own sheet/tab in the workbook.
 
     Returns an HTTP response object that has the saved workbook
-    ready to be returned to the client (e.g. the calling http handler can return this object directly)
+    ready to be returned to the client (e.g. the calling http handler 
+    can return this object directly)
     """
 
     workbook = openpyxl.Workbook()
