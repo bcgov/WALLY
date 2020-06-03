@@ -100,11 +100,6 @@ export default {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
   },
-  // watch: {
-  //   watershedID () {
-  //     this.getDemandData()
-  //   }
-  // },
   methods: {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
