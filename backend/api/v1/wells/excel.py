@@ -55,13 +55,6 @@ def crossSectionXlsxExport(features: List[LayerResponse]):
             if well:
                 ws.append([str(i) for i in list(well.values())])
             
-            logger.warn(props["lithologydescription_set"])
-            logger.warn(props["casing_set"])
-            logger.warn(props["screen_set"])
-            logger.warn(props["linerperforation_set"])
-            logger.warn(props["drilling_methods"])
-            logger.warn(props["development_methods"])
-
             append_sheet_values(props["lithologydescription_set"], ls_set, ls, well_tag_number)
             append_sheet_values(props["casing_set"], cs_set, cs, well_tag_number)
             append_sheet_values(props["screen_set"], ss_set, ss, well_tag_number)
