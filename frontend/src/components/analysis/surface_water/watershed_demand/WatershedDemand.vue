@@ -102,6 +102,7 @@ export default {
   },
   methods: {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
+    ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
       global.config.debug && console.log('licence data')
@@ -241,8 +242,17 @@ export default {
       this.fetchDemandData()
     }
   },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.getDemandData()
+      }
+    }
+  },
   mounted () {
-    this.getDemandData()
+    if (this.isMapReady) {
+      this.getDemandData()
+    }
   },
   beforeDestroy () {
     if (this.map.getLayer('waterLicences')) {

@@ -110,6 +110,7 @@ export default {
   },
   methods: {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
+    ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
     addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
       this.map.addLayer({
@@ -124,7 +125,7 @@ export default {
           'circle-radius': 10,
           'circle-opacity': opacity
         }
-      }, 'water_rights_licences') // Render on top of waterLicences
+      }, 'water_rights_licences') // Render on top of water_rights_licences
 
       this.map.on('mouseenter', id, (e) => {
       // Change the cursor style as a UI indicator.
@@ -242,8 +243,17 @@ export default {
       this.fetchShortTermLicenceData()
     }
   },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.getWaterApprovals()
+      }
+    }
+  },
   mounted () {
-    this.getWaterApprovals()
+    if (this.isMapReady) {
+      this.getWaterApprovals()
+    }
   },
   beforeDestroy () {
     if (this.map.getLayer('waterApprovals')) {
