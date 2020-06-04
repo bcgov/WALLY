@@ -250,7 +250,7 @@ export default {
     }
   },
   mounted () {
-    if (this.isMapReady) {
+    if (this.isMapReady()) {
       this.getDemandData()
     }
   },
