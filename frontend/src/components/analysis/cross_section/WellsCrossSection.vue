@@ -88,7 +88,7 @@
           item-key="well_tag_number"
           :items="wells">
           <template v-slot:item.well_tag_number="{ item }">
-            <span>{{item.well_tag_number}}</span>
+            <a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a>
           </template>
           <template v-slot:item.finished_well_depth="{ item }">
             <span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span>
