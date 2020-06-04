@@ -248,6 +248,11 @@ export default {
       if (value) {
         this.getWaterApprovals()
       }
+    },
+    watershedID (value) {
+      if (this.isMapReady) {
+        this.getWaterApprovals()
+      }
     }
   },
   mounted () {
