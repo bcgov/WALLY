@@ -33,7 +33,7 @@
     </v-toolbar>
     <v-row class="pa-5" v-if="!this.isPointSelected">
       <v-col cols=12 lg=8>
-        <p>Select a point on the map.</p>
+        <p>Zoom into an area of interest on the map and place a point. The search radius defaults to 1000 m and can be updated after you’ve made your selection.</p>
       </v-col>
       <v-col class="text-right">
         <v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn>

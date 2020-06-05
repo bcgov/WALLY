@@ -28,7 +28,7 @@
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="6" class="text-right">
-        <v-btn @click="handleRedraw" color="primary" outlined class="mt-5">Draw new line</v-btn>
+        <v-btn @click="handleRedraw" color="primary" outlined class="mt-5">Draw a new cross section</v-btn>
       </v-col>
     </v-row>
     <v-tabs>
