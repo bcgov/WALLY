@@ -45,7 +45,7 @@ export default {
   name: 'FishObservations',
   components: {
   },
-  props: ['watershedID', 'record'],
+  props: ['watershedID'],
   data: () => ({
     fishLoading: false,
     fishData: null,

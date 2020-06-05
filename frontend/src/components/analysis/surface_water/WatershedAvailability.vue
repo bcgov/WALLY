@@ -65,7 +65,6 @@ export default {
     Plotly
   },
   props: {
-    watershedID: null,
     record: null,
     allWatersheds: {
       type: Array,

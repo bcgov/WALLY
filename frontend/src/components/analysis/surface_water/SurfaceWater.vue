@@ -114,21 +114,17 @@
           </v-row>
 
           <div>
-            <MeanAnnualRunoff ref="anchor-mar"
-                              :watershedID="selectedWatershed"
-                              :record="selectedWatershedRecord"/>
-            <WatershedAvailability ref="anchor-availability"
-                                   :watershedID="selectedWatershed"
-                                   :allWatersheds="watersheds"
+            <MeanAnnualRunoff :record="selectedWatershedRecord"/>
+            <WatershedAvailability :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
             <HydrometricStationsContainer
-              ref="anchor-hydrometric-stations"
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
-            <FishObservations ref="anchor-fish-observations"
-                                   :watershedID="selectedWatershed"
-                                   :record="selectedWatershedRecord"/>
+            <FishObservations :watershedID="selectedWatershed"/>
+            <WatershedDemand :watershedID="selectedWatershed"/>
+            <ShortTermDemand :watershedID="selectedWatershed"/>
+            <AvailabilityVsDemand />
           </div>
         </div>
       </div>
@@ -147,6 +143,9 @@ import MeanAnnualRunoff from './MeanAnnualRunoff'
 import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
+import WatershedDemand from './watershed_demand/WatershedDemand'
+import ShortTermDemand from './watershed_demand/ShortTermDemand'
+import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -155,7 +154,10 @@ export default {
     WatershedAvailability,
     MeanAnnualRunoff,
     EditableModelInputs,
-    FishObservations
+    FishObservations,
+    WatershedDemand,
+    ShortTermDemand,
+    AvailabilityVsDemand
   },
   data: () => ({
     infoTabs: null,
