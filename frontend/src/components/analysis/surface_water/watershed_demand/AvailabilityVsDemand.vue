@@ -101,7 +101,8 @@ export default {
           name: 'Monthly Licenced Quantity',
           y: this.licencePlotData,
           x: this.monthHeaders.map((h) => h.text),
-          hovertemplate: '%{y:.2f} m³'
+          hovertemplate: '%{y:.2f} m³',
+           marker: {color: 'orange'}
         })
       }
 
@@ -111,7 +112,8 @@ export default {
           name: 'Monthly Short Term Approvals Quantity',
           y: this.shortTermLicencePlotData,
           x: this.monthHeaders.map((h) => h.text),
-          hovertemplate: '%{y:.2f} m³'
+          hovertemplate: '%{y:.2f} m³',
+           marker: {color: 'purple'}
         })
       }
 

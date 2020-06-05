@@ -107,6 +107,11 @@ export default {
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
       global.config.debug && console.log('licence data')
       global.config.debug && console.log(data)
+
+      if (this.map.getLayer('waterLicences')) {
+        return
+      }
+
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -233,6 +238,7 @@ export default {
     },
     getDemandData () {
       this.licenceData = null
+      this.setLicencePlotData(null)
       if (this.map.getLayer('waterLicences')) {
         this.map.removeLayer('waterLicences')
       }

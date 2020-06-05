@@ -46,10 +46,6 @@ export default {
     resetModelInputs ({ state, commit }) {
       commit('resetWatershedDetails')
       commit('setEditableModelInputs', state.defaultScsb2016ModelInputs)
-    },
-    updateWatershedDetails ({ state, commit }, payload) {
-      commit('setWatershedDetails', payload)
-      commit('setEditableModelInputs', payload)
     }
   },
   mutations: {

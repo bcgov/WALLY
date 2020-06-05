@@ -116,14 +116,11 @@
           <div>
             <MeanAnnualRunoff ref="anchor-mar"
                               :watershedID="selectedWatershed"
-                              :record="selectedWatershedRecord"
-                              :allWatersheds="watersheds"
-                              :details="watershedDetails"/>
+                              :record="selectedWatershedRecord"/>
             <WatershedAvailability ref="anchor-availability"
                                    :watershedID="selectedWatershed"
                                    :allWatersheds="watersheds"
-                                   :record="selectedWatershedRecord"
-                                   :details="watershedDetails"/>
+                                   :record="selectedWatershedRecord"/>
             <HydrometricStationsContainer
               ref="anchor-hydrometric-stations"
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
