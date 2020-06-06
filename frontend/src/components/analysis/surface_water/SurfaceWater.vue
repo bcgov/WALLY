@@ -115,8 +115,6 @@
 
           <div>
             <MeanAnnualRunoff :record="selectedWatershedRecord"/>
-            <WatershedAvailability :allWatersheds="watersheds"
-                                   :record="selectedWatershedRecord"/>
             <WatershedDemand :watershedID="selectedWatershed"/>
             <ShortTermDemand :watershedID="selectedWatershed"/>
             <AvailabilityVsDemand/>
@@ -125,6 +123,8 @@
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
             <FishObservations :watershedID="selectedWatershed"/>
+            <WatershedAvailability :allWatersheds="watersheds"
+                                   :record="selectedWatershedRecord"/>
           </div>
         </div>
       </div>
