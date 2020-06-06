@@ -189,31 +189,6 @@
         :data="monthlyDischargeData"
       ></Plotly>
 
-      <WatershedDemand :watershedID="watershedID"/>
-      <ShortTermDemand :watershedID="watershedID"/>
-      <AvailabilityVsDemand/>
-
-        <!-- <div class="borderBlock">
-          <Dialog v-bind="wmd.monthlyDistribution"/>
-          <div class="titleSub">Monthly Distribution</div>
-          <div class="unitSub">
-            Annual %
-          </div>
-          <v-data-table
-            :items="getMonthlyDistributionItems"
-            :headers="monthlydistributionHeaders"
-            :hide-default-footer="true"
-          >
-            <template v-slot:item="{ item }">
-              {{ (item.model_result.toFixed(4) * 100) + '%' }}
-            </template>
-          </v-data-table>
-          <Plotly v-if="monthlyDistributionsData"
-            :layout="monthlyDistributionsLayout()"
-            :data="monthlyDistributionsData"
-          ></Plotly>
-        </div> -->
-
       </div>
     </div>
     </div>
@@ -223,9 +198,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import moment from 'moment'
 
-import WatershedDemand from './watershed_demand/WatershedDemand'
-import ShortTermDemand from './watershed_demand/ShortTermDemand'
-import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
+
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
@@ -237,12 +210,9 @@ export default {
   name: 'MeanAnnualRunoff',
   components: {
     Plotly,
-    Dialog,
-    WatershedDemand,
-    ShortTermDemand,
-    AvailabilityVsDemand
+    Dialog
   },
-  props: ['watershedID', 'record'],
+  props: ['record'],
   data: () => ({
     watershedLoading: false,
     error: null,

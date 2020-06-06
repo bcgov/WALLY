@@ -117,14 +117,14 @@
             <MeanAnnualRunoff :record="selectedWatershedRecord"/>
             <WatershedAvailability :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
+            <WatershedDemand :watershedID="selectedWatershed"/>
+            <ShortTermDemand :watershedID="selectedWatershed"/>
+            <AvailabilityVsDemand/>
             <HydrometricStationsContainer
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
             <FishObservations :watershedID="selectedWatershed"/>
-            <WatershedDemand :watershedID="selectedWatershed"/>
-            <ShortTermDemand :watershedID="selectedWatershed"/>
-            <AvailabilityVsDemand />
           </div>
         </div>
       </div>
@@ -342,8 +342,6 @@ export default {
             return
           }
           // Set default watershed details/default model inputs
-          // this.setDefaultScsb2016ModelInputs(r.data)
-          // this.setDefaultWatershedDetails(r.data)
           this.initWatershedDetailsAndInputs(r.data)
         })
         .catch(e => {
