@@ -136,7 +136,7 @@
                 <dt>Canadian Digital Elevation Model (CDEM)</dt>
                 <dd>
                   The CDEM stems from the existing Canadian Digital Elevation Data (CDED). The latter were extracted
-                  from the hypsographic andhydrographic elements of the National Topographic Data Base (NTDB) at the
+                  from the hypsographic and hydrographic elements of the National Topographic Data Base (NTDB) at the
                   scale of 1:50 000, the Geospatial Database (GDB), various scaled positional data acquired by the
                   provinces and territories, or remotely sensed imagery. In the CDEM data, elevations can be either
                   ground or reflective surface elevations. The CDEM data covers the Canadian Landmass.
@@ -152,7 +152,7 @@
                 <dd>The finished well depth, as reported in the well report submitted by the well driller or pump installer (in metres).</dd>
                 <dt>Well elevations</dt>
                 <dd>
-                  Elevations for well data (depth to water, finished well depth) are calculated by subtracting
+                  Elevations for well data (depth to water, finished well depth, etc.) are calculated by subtracting
                   the reported depth below ground level from the CDEM elevation at the location of the well.
                 </dd>
               </dl>

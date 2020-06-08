@@ -82,7 +82,7 @@ export default {
     ],
     toolOptions: [
       {
-        title: 'Cross section plot analysis',
+        title: 'Cross section plot',
         route: { name: 'cross-section' }
       },
       {

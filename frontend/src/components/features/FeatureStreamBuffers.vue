@@ -5,7 +5,7 @@
     </div>
       <v-row no-gutters v-if="this.selectedLayer">
         <v-col cols="12">
-          <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{this.selectedLayer}} layer</a></div>
+          <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{selectedLayerName}} layer</a></div>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -74,7 +74,7 @@ export default {
       { value: 'groundwater_wells', text: 'Groundwater Wells' },
       { value: 'water_rights_licences', text: 'Water Rights Licences' },
       { value: 'water_rights_applications', text: 'Water Rights Applications' },
-      { value: 'ecocat_water_related_reports', text: 'Ecocat Reports' },
+      { value: 'ecocat_water_related_reports', text: 'EcoCat Reports' },
       { value: 'aquifers', text: 'Aquifers' },
       { value: 'critical_habitat_species_at_risk', text: 'Critical Habitats' },
       { value: 'water_allocation_restrictions', text: 'Allocation Restrictions' },
@@ -179,6 +179,11 @@ export default {
     ...mapMutations('map', ['setMode'])
   },
   computed: {
+    selectedLayerName () {
+      return this.layerOptions.find(x => {
+        return x.value === this.selectedLayer
+      }).text
+    },
     loading () {
       return this.loadingData || this.loadingMapFeatures
     },

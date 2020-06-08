@@ -503,7 +503,7 @@ export default {
     },
     downloadMergedImage (plotType) {
       // Custom Metrics - Screen capture
-      window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
+      window._paq && window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
       let doc = jsPDF()
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()

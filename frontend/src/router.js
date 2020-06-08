@@ -203,8 +203,8 @@ router.afterEach((to, from) => {
     // Change the page title in the browser
     document.title = to.meta.title ? to.meta.title : global.config.title
 
-    window._paq.push(['setReferrerUrl', from.fullPath])
-    window._paq.push(['setCustomUrl', to.fullPath])
+    window._paq && window._paq.push(['setReferrerUrl', from.fullPath])
+    window._paq && window._paq.push(['setCustomUrl', to.fullPath])
   })
 })
 export default router

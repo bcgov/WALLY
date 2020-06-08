@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Find features along a stream
+          Find features upstream or downstream along a stream
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -21,10 +21,10 @@
     </v-toolbar>
     <v-row class="mx-3 mt-4">
       <v-col cols=12 lg=8>
-        <p>Select a point on a stream to view water data upstream and downstream.</p>
+        <p>Zoom into an area of interest on the map and select a point on a stream to view data upstream and downstream, such as groundwater wells, water rights licences and applications, EcoCat reports, aquifers, critical habitat, allocation restrictions and stream stations.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select Point</v-btn>
+        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
       </v-col>
     </v-row>
     <FeatureStreamBuffer

@@ -150,14 +150,14 @@
               <p>Data on this page comes from <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network" target="_blank">Freshwater Atlas Stream Network</a>.</p>
               <p>
                 Computations used are from the <a href="https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-science-series" target="_blank">Water Science Series</a>
-                publication WSS 2016-01 (<a href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=50832" target="_blank">Determining the Likelihood of Hydraulic Connection - Guidance for Determining the Effect of Diversion of Groundwater on Specific Streams</a>)
+                publication WSS 2016-01 <a href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=50832" target="_blank">"Determining the Likelihood of Hydraulic Connection - Guidance for Determining the Effect of Diversion of Groundwater on Specific Streams"</a>.
               </p>
               <p></p>
               <dl>
                 <dt>Distance</dt>
-                <dd>Computed distance of the closest point of the stream to the selected point of interest</dd>
+                <dd>Computed distance of the closest point of the stream to the selected point of interest.</dd>
                 <dt>Apportionment</dt>
-                <dd>Apportion demand from diversion of groundwater on streams</dd>
+                <dd>Apportioned demand from diversion of groundwater on streams.</dd>
                 <dt>Weighting Factor</dt>
                 <dd>A weighting factor of 1 (linear) or 2 (squared) is usually set when calculating apportionment. A larger weighting factor results in a greater contribution from the nearest stream. A weighting factor of 2 is recommended for general applications.</dd>
 

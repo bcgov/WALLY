@@ -12,7 +12,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Stream apportionment
+          Apportion demand to nearby streams
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -36,8 +36,8 @@
     </div>
 
     <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=8><p>Select a point of interest (e.g. a proposed well site) to apportion demand to nearby streams.</p></v-col>
-      <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
+      <v-col cols=12 lg=8><p>Zoom into an area of interest on the map and select a point of interest (e.g. a proposed well site) to apportion demand to nearby streams.</p></v-col>
+      <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Select a point</v-btn></v-col>
     </v-row>
   </v-container>
 </template>

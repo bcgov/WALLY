@@ -110,7 +110,7 @@ export default {
         this.name = name
 
         // Track unique user
-        window._paq.push(['setUserId', uuid])
+        window._paq && window._paq.push(['setUserId', uuid])
       }
     },
     openFeedback () {
