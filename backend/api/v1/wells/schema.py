@@ -57,6 +57,10 @@ class WellSection(BaseModel):
     water_depth: Optional[float]
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
+    aquifer: Optional[int]
+    aquifer_subtype: Optional[str]
+    aquifer_material: Optional[str]
+    aquifer_lithology: Optional[str]
 
     class Config:
         orm_mode = True
