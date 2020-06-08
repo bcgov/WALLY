@@ -61,7 +61,7 @@ def crossSectionXlsxExport(features: List[LayerResponse]):
             append_sheet_values(props["linerperforation_set"], ps_set, ps, well_tag_number)
             append_sheet_values(props["drilling_methods"], dls_set, dls, well_tag_number)
 
-            # drilling_methods is a string array so we handle it explicitly
+            # development_methods is a string array so we handle it explicitly
             if props["development_methods"]:
                 if not dvs_set[0]:
                     dvs.append(["well_tag_number", "development_method"])
@@ -90,8 +90,8 @@ def append_sheet_values(value_set, isSet, sheet, well_tag_number):
       add it to the appropriate xls sheet.
       If the isSet bool is False then we add
       headers for that sheet first.
-      Well tag number is concated to the front
-      of the list on each row.
+      Well tag number is concatenated to the
+      front of the list on each row.
     """
     if value_set:
         if not isSet[0]:
