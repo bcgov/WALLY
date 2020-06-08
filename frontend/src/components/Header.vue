@@ -15,9 +15,6 @@
     <v-toolbar-title class="bcgov-title">
       Water Allocation
     </v-toolbar-title>
-    <p aria-label="This application is currently in Beta phase" class="beta-banner">
-      Beta
-    </p>
     <p class="ml-2" v-if="appInfo && appInfo.wally_env && appInfo.wally_env.toLowerCase() !== 'production'">
       {{appInfo.wally_env === 'DEV' ? 'Development' : 'Staging'}} Environment
     </p>

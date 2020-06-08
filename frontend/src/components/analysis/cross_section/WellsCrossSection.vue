@@ -99,15 +99,15 @@
       <v-flex>
         <v-data-table
           id="cross-section-well-table"
-          hide-default-footer
           v-on:click:row="highlightWell"
           v-model="selected"
           :loading="loading"
           :headers="headers"
+          :items-per-page="10"
           item-key="well_tag_number"
           :items="wells">
           <template v-slot:item.well_tag_number="{ item }">
-            <span>{{item.well_tag_number}}</span>
+            <a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a>
           </template>
           <template v-slot:item.finished_well_depth="{ item }">
             <span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span>
@@ -186,6 +186,9 @@
 <script src="./WellCrossSection.js"></script>
 
 <style>
+div.plotly-notifier {
+  visibility: hidden;
+}
 .annotationMarker {
   width: 25px;
   height: 25px;
