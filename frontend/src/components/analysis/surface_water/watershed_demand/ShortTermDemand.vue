@@ -117,19 +117,42 @@ export default {
         return
       }
 
+      this.map.addSource('waterApprovals', {
+        'type': 'geojson',
+        'data': data
+      })
+
+      this.map.addLayer({
+        id: "waterApprovalsCoverPoints",
+        type: 'circle',
+        source: 'waterApprovals',
+        paint: {
+          'circle-color': color,
+          'circle-radius': 5,
+          'circle-opacity': 1,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': "#ffffff"
+        }
+      })
+
       this.map.addLayer({
         id: id,
         type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
+        source: 'waterApprovals',
         paint: {
           'circle-color': color,
-          'circle-radius': 10,
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['number', ['get', 'qty_m3_yr'], 0],
+            0,
+            10,
+            max,
+            max > 1000000 ? 50 : 25
+          ],
           'circle-opacity': opacity
         }
-      }, 'water_rights_licences') // Render on top of water_rights_licences
+      }, 'waterApprovalsCoverPoints')
 
       this.map.on('mouseenter', id, (e) => {
       // Change the cursor style as a UI indicator.
@@ -234,6 +257,7 @@ export default {
     toggleLayerVisibility () {
       this.isLayerVisible = !this.isLayerVisible
       this.map.setLayoutProperty('waterApprovals', 'visibility', this.isLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty('waterApprovalsCoverPoints', 'visibility', this.isLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_approval_points', 'visibility', this.isLayerVisible ? 'visible' : 'none')
     },
     getWaterApprovals () {
@@ -241,6 +265,9 @@ export default {
       this.setShortTermLicencePlotData(null)
       if (this.map.getLayer('waterApprovals')) {
         this.map.removeLayer('waterApprovals')
+      }
+      if (this.map.getLayer('waterApprovalsCoverPoints')) {
+        this.map.removeLayer('waterApprovalsCoverPoints')
       }
       if (this.map.getSource('waterApprovals')) {
         this.map.removeSource('waterApprovals')
@@ -261,10 +288,15 @@ export default {
     }
   },
   beforeDestroy () {
-    if (this.map.getLayer('waterApprovals')) {
-      this.map.removeLayer('waterApprovals')
-      this.map.removeSource('waterApprovals')
-    }
+      if (this.map.getLayer('waterApprovals')) {
+        this.map.removeLayer('waterApprovals')
+      }
+      if (this.map.getLayer('waterApprovalsCoverPoints')) {
+        this.map.removeLayer('waterApprovalsCoverPoints')
+      }
+      if (this.map.getSource('waterApprovals')) {
+        this.map.removeSource('waterApprovals')
+      }
   }
 }
 </script>
