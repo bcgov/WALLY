@@ -265,13 +265,22 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             Point(shape(well.geometry))
         )
 
+        # Separate the well aquifer info from the feature info
+        well_aquifer = well.properties.pop('aquifer', None)
+
+        # Add (flattend) aquifer into feature info
+        well.properties['aquifer'] = well_aquifer.get('aquifer_id') if well_aquifer else None
+
+        # Remove lithologydescription_set from well properties as it's not formatted properly
+        well.properties.pop('lithologydescription_set')
+
         well_data = {
             "well_tag_number": well.properties['well_tag_number'],
             "finished_well_depth": float(well.properties['finished_well_depth']) * 0.3048 if well.properties['finished_well_depth'] else None,
             "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties['static_water_level'] else None,
             "distance_from_origin": distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
-            "aquifer": well.properties.get('aquifer'),
+            "aquifer": well_aquifer,
             "feature": well
         }
 
