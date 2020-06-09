@@ -271,7 +271,8 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             "finished_well_depth": float(well.properties['finished_well_depth']) * 0.3048 if well.properties['finished_well_depth'] else None,
             "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties['static_water_level'] else None,
             "distance_from_origin": distance,
-            "ground_elevation_from_dem": elevation_along_line(profile, distance)
+            "ground_elevation_from_dem": elevation_along_line(profile, distance),
+            "feature": well
         }
 
         wells_results.append(well_data)

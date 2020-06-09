@@ -561,16 +561,12 @@ export default {
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
     },
-    highlightWell (selected) {
-      // Placeholder
-    },
     getCrossSectionExport () {
       // Track cross section excel downloads
-      // TODO uncomment when config on dev works
-      // window._paq.push([
-      //   'trackLink',
-      //   `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
-      //   'download'])
+      window._paq && window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
+        'download'])
 
       const params = {
         wells: this.wells.map(w => w.well_tag_number)
@@ -604,7 +600,14 @@ export default {
         console.error(error)
         this.xlsLoading = false
       })
-    }
+    },
+    onMouseEnterWellItem (well) {
+      // highlight well on map that corresponds to the 
+      // hovered list item in the cross section table
+      var feature = well.feature
+      feature['display_data_name'] = "groundwater_wells"
+      this.$store.commit('map/updateHighlightFeatureData', feature)
+    },
   },
   watch: {
     panelOpen (value) {
