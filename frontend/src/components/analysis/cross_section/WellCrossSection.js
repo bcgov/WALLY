@@ -569,7 +569,9 @@ export default {
         'download'])
 
       const params = {
-        wells: this.wells.map(w => w.well_tag_number)
+        wells: this.wells.map(w => w.well_tag_number),
+        coordinates: this.coordinates,
+        buffer: this.radius
       }
 
       this.xlsLoading = true

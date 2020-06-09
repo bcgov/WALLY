@@ -103,6 +103,8 @@ class CrossSection(BaseModel):
 
 class CrossSectionExport(BaseModel):
     wells: List[int]
+    coordinates: list
+    buffer: int
 
 
 class ExportApiParams(BaseModel):

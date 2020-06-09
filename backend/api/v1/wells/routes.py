@@ -115,4 +115,4 @@ def get_wells_section_export(
 ):
     """ gather well information for many wells and export an excel report """
 
-    return get_cross_section_export(req.wells)
+    return get_cross_section_export(req)
