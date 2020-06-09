@@ -6,6 +6,8 @@ import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
 import PlotlyJS from 'plotly.js'
+
+import CrossSectionInstructions from './CrossSectionInstructions'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
@@ -15,7 +17,8 @@ export default {
     Plotly: () => loadPlotly.then(module => {
       return module.Plotly
     }),
-    PlotlyJS
+    PlotlyJS,
+    CrossSectionInstructions
   },
   mounted () {
     this.$store.commit('map/setMode',
@@ -557,9 +560,13 @@ export default {
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
     },
-    highlightWell (selected) {
-      // Placeholder
-    }
+    onMouseEnterWellItem (well) {
+      // highlight well on map that corresponds to the 
+      // hovered list item in the cross section table
+      var feature = well.feature
+      feature['display_data_name'] = "groundwater_wells"
+      this.$store.commit('map/updateHighlightFeatureData', feature)
+    },
   },
   watch: {
     panelOpen (value) {

@@ -100,20 +100,18 @@ export default {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
   },
-  watch: {
-    watershedID () {
-      this.licenceData = null
-      this.map.removeLayer('waterLicences')
-      this.map.removeSource('waterLicences')
-      this.fetchDemandData()
-    }
-  },
   methods: {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
+    ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
-      console.log('licence data')
-      console.log(data)
+      global.config.debug && console.log('licence data')
+      global.config.debug && console.log(data)
+
+      if (this.map.getLayer('waterLicences')) {
+        return
+      }
+
       this.map.addLayer({
         id: id,
         type: 'circle',
@@ -237,10 +235,30 @@ export default {
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
       this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
+    },
+    getDemandData () {
+      this.licenceData = null
+      this.setLicencePlotData(null)
+      if (this.map.getLayer('waterLicences')) {
+        this.map.removeLayer('waterLicences')
+      }
+      if (this.map.getSource('waterLicences')) {
+        this.map.removeSource('waterLicences')
+      }
+      this.fetchDemandData()
+    }
+  },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.getDemandData()
+      }
     }
   },
   mounted () {
-    this.fetchDemandData()
+    if (this.isMapReady()) {
+      this.getDemandData()
+    }
   },
   beforeDestroy () {
     if (this.map.getLayer('waterLicences')) {

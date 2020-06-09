@@ -47,7 +47,7 @@
               <div class="titleBlock">Drainage Area</div>
               <div v-if="watershedDetails.drainage_area">
                 <div class="infoSub">
-                  {{ watershedDetails.drainage_area }}
+                  {{ watershedDetails.drainage_area.toFixed(2) }}
                 </div>
                 <div class="unitSub">km²</div>
               </div>
@@ -139,7 +139,7 @@
           <div class="titleSub">Annual Precipitation</div>
           <div v-if="watershedDetails.annual_precipitation">
             <div class="infoSub">
-              {{ watershedDetails.annual_precipitation }}
+              {{ watershedDetails.annual_precipitation.toFixed(0) }}
             </div>
             <div class="unitSub">mm</div>
           </div>
@@ -152,7 +152,7 @@
           <div class="titleSub">Glacial Coverage</div>
           <div v-if="watershedDetails.glacial_coverage">
             <div class="infoSub">
-              {{ watershedDetails.glacial_coverage }}
+              {{ watershedDetails.glacial_coverage.toFixed(2) }}
             </div>
             <div class="unitSub">%</div>
           </div>
@@ -165,7 +165,7 @@
           <div class="titleSub">Median Elevation</div>
           <div v-if="watershedDetails.median_elevation">
             <div class="infoSub">
-              {{ watershedDetails.median_elevation }}
+              {{ watershedDetails.median_elevation.toFixed(0) }}
             </div>
             <div class="unitSub">mASL</div>
           </div>
@@ -189,31 +189,6 @@
         :data="monthlyDischargeData"
       ></Plotly>
 
-      <WatershedDemand :watershedID="watershedID"/>
-      <ShortTermDemand :watershedID="watershedID"/>
-      <AvailabilityVsDemand/>
-
-        <!-- <div class="borderBlock">
-          <Dialog v-bind="wmd.monthlyDistribution"/>
-          <div class="titleSub">Monthly Distribution</div>
-          <div class="unitSub">
-            Annual %
-          </div>
-          <v-data-table
-            :items="getMonthlyDistributionItems"
-            :headers="monthlydistributionHeaders"
-            :hide-default-footer="true"
-          >
-            <template v-slot:item="{ item }">
-              {{ (item.model_result.toFixed(4) * 100) + '%' }}
-            </template>
-          </v-data-table>
-          <Plotly v-if="monthlyDistributionsData"
-            :layout="monthlyDistributionsLayout()"
-            :data="monthlyDistributionsData"
-          ></Plotly>
-        </div> -->
-
       </div>
     </div>
     </div>
@@ -223,9 +198,7 @@
 import { mapGetters, mapMutations } from 'vuex'
 import moment from 'moment'
 
-import WatershedDemand from './watershed_demand/WatershedDemand'
-import ShortTermDemand from './watershed_demand/ShortTermDemand'
-import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
+
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
@@ -237,25 +210,13 @@ export default {
   name: 'MeanAnnualRunoff',
   components: {
     Plotly,
-    Dialog,
-    WatershedDemand,
-    ShortTermDemand,
-    AvailabilityVsDemand
+    Dialog
   },
-  props: ['watershedID', 'record', 'details', 'allWatersheds'],
+  props: ['record'],
   data: () => ({
     watershedLoading: false,
     error: null,
     noValueText: 'No info available',
-    watershedDetails: {
-      median_elevation: 0,
-      average_slope: 0,
-      solar_exposure: 0,
-      drainage_area: 0,
-      glacial_coverage: 0,
-      annual_precipitation: 0,
-      evapo_transpiration: 0
-    },
     modelOutputs: {
       mad: 0,
       mar: 0,
@@ -299,7 +260,7 @@ export default {
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['availabilityPlotData']),
+    ...mapGetters('surfaceWater', ['availabilityPlotData', 'watershedDetails']),
     watershedName () {
       if (!this.record) {
         return ''
@@ -382,30 +343,9 @@ export default {
       }
       return Number(this.record.properties['FEATURE_AREA_SQM']) / 1e6
     },
-    annualNormalizedRunoff () {
-      const hydroWatershed = this.allWatersheds.find((ws) => {
-        return ws.properties['ANNUAL_RUNOFF_IN_MM']
-      })
-      if (hydroWatershed) {
-        return Number(hydroWatershed.properties['ANNUAL_RUNOFF_IN_MM'])
-      }
-      return null
-    },
-    madSourceDescription () {
-      if (this.details && this.details.scsb2016_model) {
-        return ''
-      }
-      return ''
-    },
-    madModelDescription () {
-      if (this.details && this.details.scsb2016_model) {
-        return ''
-      }
-      return ''
-    }
   },
   watch: {
-    details: {
+    watershedDetails: {
       immediate: true,
       handler (val, oldVal) {
         this.updateModelData(val)
@@ -416,19 +356,8 @@ export default {
     ...mapMutations('surfaceWater', ['setAvailabilityPlotData']),
     updateModelData (details) {
       // MAD Model Calculations
-
       if (!details) {
         return
-      }
-
-      this.watershedDetails = {
-        median_elevation: details.median_elevation && details.median_elevation.toFixed(0),
-        average_slope: details.average_slope,
-        solar_exposure: details.solar_exposure,
-        drainage_area: details.drainage_area && details.drainage_area.toFixed(2),
-        glacial_coverage: details.glacial_coverage && details.glacial_coverage.toFixed(2),
-        annual_precipitation: details.annual_precipitation && details.annual_precipitation.toFixed(0),
-        evapo_transpiration: details.potential_evapotranspiration_thornthwaite
       }
 
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {

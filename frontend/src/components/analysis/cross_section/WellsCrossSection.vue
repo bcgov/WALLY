@@ -1,6 +1,24 @@
 <template>
   <v-container>
     <v-row>
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Instructions
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card flat>
+                <v-card-text>
+                  <CrossSectionInstructions></CrossSectionInstructions>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col cols="12" md="6" align-self="center">
         <v-text-field
           label="Buffer radius (m)"
@@ -62,29 +80,19 @@
       <v-flex>
         <v-data-table
           id="cross-section-well-table"
-          hide-default-footer
-          v-on:click:row="highlightWell"
           v-model="selected"
           :loading="loading"
           :headers="headers"
+          :items-per-page="10"
           item-key="well_tag_number"
           :items="wells">
-          <template v-slot:item.well_tag_number="{ item }">
-            <span>{{item.well_tag_number}}</span>
-          </template>
-          <template v-slot:item.finished_well_depth="{ item }">
-            <span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span>
-          </template>
-          <template v-slot:item.water_depth="{ item }">
-            <span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span>
-          </template>
-          <template v-slot:item.action="{ item }">
-            <v-icon
-              small
-              @click="deleteWell(item)"
-            >
-              delete
-            </v-icon>
+          <template v-slot:item="{ item }">
+            <tr @mouseenter="onMouseEnterWellItem(item)">
+              <td><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
+              <td><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+              <td><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
+              <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
+            </tr>
           </template>
         </v-data-table>
       </v-flex>
@@ -149,6 +157,9 @@
 <script src="./WellCrossSection.js"></script>
 
 <style>
+div.plotly-notifier {
+  visibility: hidden;
+}
 .annotationMarker {
   width: 25px;
   height: 25px;
@@ -162,5 +173,8 @@
   font-size: 16px;
   padding-left: 6px;
   padding-top: 2px;
+}
+.v-data-table td {
+  text-align: center;
 }
 </style>

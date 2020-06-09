@@ -57,15 +57,15 @@ const months = [
   '2020-12-01'
 ]
 
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'WatershedAvailability',
   components: {
     Plotly
   },
   props: {
-    watershedID: null,
     record: null,
-    details: null,
     allWatersheds: {
       type: Array,
       default: () => ([])
@@ -107,6 +107,7 @@ export default {
   watch: {
   },
   computed: {
+    ...mapGetters('surfaceWater', ['watershedDetails']),
     watershedArea () {
       if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
         return null
@@ -172,10 +173,10 @@ export default {
       return null
     },
     annualIsolineRunoff () {
-      if (!this.details || !this.details.runoff_isoline_avg) {
+      if (!this.watershedDetails || !this.watershedDetails.runoff_isoline_avg) {
         return null
       }
-      return (Number(this.details.runoff_isoline_avg)).toFixed(2)
+      return (Number(this.watershedDetails.runoff_isoline_avg)).toFixed(2)
     },
     isolineRunoffByMonth () {
       if (!this.annualIsolineRunoff) {

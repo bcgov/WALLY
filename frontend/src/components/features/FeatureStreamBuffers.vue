@@ -9,15 +9,25 @@
         </v-col>
       </v-row>
       <v-row no-gutters>
-        <v-col cols="12" md="3" align-self="center">
+        <v-col cols="12" md="6" align-self="center">
+          Search options:
+          <v-radio-group v-model="searchFullUpstreamArea">
+            <v-radio
+              label="Entire upstream catchment"
+              :value="true"
+            ></v-radio>
+            <v-radio
+              label="Within distance of stream"
+              :value="false"
+            ></v-radio>
+          </v-radio-group>
           <v-text-field
-            label="Stream Buffer Size (m)"
+            label="Stream buffer size (m)"
             placeholder="20"
             :rules="[inputRules.number, inputRules.max, inputRules.required]"
             v-model="buffer"
           />
         </v-col>
-        <v-col cols="12" md="3" />
         <v-col cols="12" md="6">
           <v-select
             solo
@@ -51,6 +61,7 @@ export default {
     loadingData: false,
     loadingMapFeatures: false,
     panelOpen: [],
+    searchFullUpstreamArea: true,
     streamNetworkMapFeature: null,
     streamData: null,
     selectedLayer: '',
@@ -100,35 +111,41 @@ export default {
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
       const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
 
-      ApiService.query('/api/v1/stream/features', { code: fwaCode, linear_feature_id: linearFeatID, buffer: this.buffer })
-        .then((r) => {
-          const data = r.data
+      ApiService.query(
+        '/api/v1/stream/features',
+        {
+          code: fwaCode,
+          linear_feature_id: linearFeatID,
+          buffer: this.buffer,
+          full_upstream_area: this.searchFullUpstreamArea }
+      ).then((r) => {
+        const data = r.data
 
-          this.streamNetworkMapFeature = 'selectedStreamNetwork'
+        this.streamNetworkMapFeature = 'selectedStreamNetwork'
 
-          this.map.addLayer({
-            id: 'selectedStreamNetwork',
-            type: 'fill',
-            source: {
-              type: 'geojson',
-              data: data
-            },
-            layout: {
-              visibility: 'visible'
-            },
-            paint: {
-              'fill-color': '#0d47a1',
-              'fill-outline-color': '#002171',
-              'fill-opacity': 0.3
-            }
-          }, 'water_rights_licences')
-          this.loadingMapFeatures = false
-        }).catch(() => {
-          this.loadingMapFeatures = false
-        })
+        this.map.addLayer({
+          id: 'selectedStreamNetwork',
+          type: 'fill',
+          source: {
+            type: 'geojson',
+            data: data
+          },
+          layout: {
+            visibility: 'visible'
+          },
+          paint: {
+            'fill-color': '#0d47a1',
+            'fill-outline-color': '#002171',
+            'fill-opacity': 0.3
+          }
+        }, 'water_rights_licences')
+        this.loadingMapFeatures = false
+      }).catch(() => {
+        this.loadingMapFeatures = false
+      })
     },
     fetchStreamBufferInformation () {
-      if (this.buffer <= 0 || !this.selectedLayer) {
+      if (this.buffer < 0 || !this.selectedLayer) {
         return
       }
       this.loadingData = true
@@ -142,7 +159,8 @@ export default {
         buffer: parseFloat(this.buffer),
         code: fwaCode,
         linear_feature_id: linearFeatID,
-        layer: this.selectedLayer
+        layer: this.selectedLayer,
+        full_upstream_area: this.searchFullUpstreamArea
       }
       ApiService.query('/api/v1/stream/features', params)
         .then((response) => {
@@ -194,9 +212,12 @@ export default {
       }
     },
     buffer (value) {
-      if (this.buffer > 0 && this.buffer < this.inputRules.max) {
+      if (this.buffer >= 0 && this.buffer < this.inputRules.max) {
         this.updateStreams()
       }
+    },
+    searchFullUpstreamArea () {
+      this.updateStreams()
     },
     selectedLayer () {
       this.updateStreamBuffers()

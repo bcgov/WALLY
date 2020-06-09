@@ -70,6 +70,7 @@ class WellSection(BaseModel):
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
     aquifer: Optional[WellAquifer]
+    feature: Optional[dict]
 
     class Config:
         orm_mode = True
