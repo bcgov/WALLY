@@ -48,6 +48,18 @@ class WellDrawdown(BaseModel):
                                                     description="The calculated distance between the reported static water level and the finished well depth. This information is based on reported values and should be confirmed.")
 
 
+class WellAquifer(BaseModel):
+    """
+    Well aquifer data
+    """
+    aquifer_id: int
+    subtype: Optional[str]
+    subtype_desc: Optional[str]
+    material: Optional[str]
+    material_desc: Optional[str]
+    litho_stratographic_unit: Optional[str]
+
+
 class WellSection(BaseModel):
     """
     Well data for use in sections
@@ -57,10 +69,7 @@ class WellSection(BaseModel):
     water_depth: Optional[float]
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
-    aquifer: Optional[int]
-    aquifer_subtype: Optional[str]
-    aquifer_material: Optional[str]
-    aquifer_lithology: Optional[str]
+    aquifer: Optional[WellAquifer]
 
     class Config:
         orm_mode = True
