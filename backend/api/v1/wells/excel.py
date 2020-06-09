@@ -30,7 +30,7 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
     # details tab
     details_headers = ['title', 'date', 'A latitude', 'A longitude', 'B latitude', 'B longitude', 'buffer radius (m)']
     details_sheet.append(details_headers)
-    details_sheet.append(['Cross Section Analysis', cur_date, str(coordinates[0][0]), str(coordinates[0][1]), str(coordinates[1][0]), str(coordinates[1][1]), buffer])
+    details_sheet.append(['Cross Section Analysis', cur_date, str(coordinates[0][1]), str(coordinates[0][0]), str(coordinates[1][1]), str(coordinates[1][0]), buffer])
 
     # data sheet headers added
     well_sheet.append(WELL_HEADERS)
