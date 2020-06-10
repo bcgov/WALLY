@@ -20,58 +20,40 @@
       </v-tooltip>
     </v-toolbar>
     <v-row class="mx-3 mt-4">
-      <v-col cols=12 lg=8>
-        <p>Select a point on a stream to view water data upstream and downstream.</p>
-
-        <p>
-          Zoom into an area of interest on the map.
-        </p>
-        <p>
-          Click on the "Select Point" button and select a point on a stream. The buffer radius is
-          automatically set to 50 metres and can be updated from 0 to 500 metres after your analysis is produced.
-        </p>
-        <p>
-          You can search the entire upstream catchment or within the distance of the stream. The entire
-          upstream catchment is the full area that drains to the point you selected (entire drainage basin
-          upstream from your point). The stream buffer shows the area within the buffer radius from the stream.
-        </p>
-        <p>
-          A drop down menu gives you options of layers to analyze: Groundwater Wells, Water Rights Licences,
-          Water Rights Applications, EcoCat Reports, Aquifers or Critical Habitats. After you make a selection,
-          there is the option to enable the layer to see all the features of that layer.
-        </p>
-        <p>
-          If no analysis is produced, then go to the drop down Selection menu in the top navigation bar and
-          "Reset Selections" and try again. It also helps to have the map zoomed to a smaller area with a
-          sufficiently large amount of detail.
-        </p>
-        <p>
-          For more information on what data is used and caveats to the analysis, please review the "Where does
-          this information come from?" box at the bottom of the page.
-        </p>
-      </v-col>
       <v-col class="text-right">
         <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select Point</v-btn>
       </v-col>
     </v-row>
-    <FeatureStreamBuffer
+    <UpstreamDownstream
       :record="selectedStream"
       :coordinates="selectedStream.geometry.coordinates"
       v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
+    <v-row v-else>
+      <v-col cols=12>
+        <v-card>
+          <v-card-title>Instructions</v-card-title>
+          <v-card-text>
+            <UpstreamDownstreamInstructions></UpstreamDownstreamInstructions>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import FeatureStreamBuffer from '../../features/FeatureStreamBuffers'
+import UpstreamDownstream from './UpstreamDownstream'
+import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
 export default {
-  name: 'UpstreamDownstream',
+  name: 'UpstreamDownstreamContainer',
   components: {
-    FeatureStreamBuffer
+    UpstreamDownstream,
+    UpstreamDownstreamInstructions
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,

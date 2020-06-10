@@ -1,6 +1,29 @@
 <template>
   <v-container>
     <v-row>
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Instructions
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card flat>
+                <v-card-text>
+                  <StreamApportionmentInstructions></StreamApportionmentInstructions>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols=12 md=6>
+        <div class="pa-3 mt-3">
+        Point at {{ record.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
+        </div>
+      </v-col>
       <v-col class="text-right">
         <v-btn
                     v-if="streams && streams.length"
