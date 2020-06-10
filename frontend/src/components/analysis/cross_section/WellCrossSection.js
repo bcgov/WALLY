@@ -46,9 +46,9 @@ export default {
       { text: 'Well Tag No.', value: 'well_tag_number', align: 'center' },
       { text: 'Depth drilled (m)', value: 'finished_well_depth', align: 'center' },
       { text: 'Water depth (m)', value: 'water_depth', align: 'center' },
-      { text: 'Aquifer Number', value: 'aquifer.aquifer_id', align: 'start' },
-      { text: 'Aquifer Material', value: 'aquifer.material_desc', align: 'start' },
-      { text: 'Aquifer Lithology', value: 'aquifer_lithology', align: 'start' },
+      { text: 'Aquifer Number', value: 'aquifer.aquifer_id', align: 'center' },
+      { text: 'Aquifer Material', value: 'aquifer.material_desc', align: 'center' },
+      { text: 'Aquifer Lithology', value: 'aquifer_lithology', align: 'center' },
       { text: '', value: 'action', sortable: false }
     ],
     inputRules: {

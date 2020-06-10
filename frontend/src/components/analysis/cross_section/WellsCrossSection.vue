@@ -89,11 +89,11 @@
           <template v-slot:item="{ item }">
             <tr @mouseenter="onMouseEnterWellItem(item)">
               <td><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
-              <td><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
-              <td><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
-              <td><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
+              <td class="text-end"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+              <td class="text-end"><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
+              <td class="text-center"><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
               <td><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
-              <td><span>{{item.aquifer_lithology}}</span></td>
+              <td>{{item.aquifer_lithology}}</td>
               <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
             </tr>
           </template>
@@ -176,8 +176,5 @@ div.plotly-notifier {
   font-size: 16px;
   padding-left: 6px;
   padding-top: 2px;
-}
-.v-data-table td {
-  text-align: center;
 }
 </style>
