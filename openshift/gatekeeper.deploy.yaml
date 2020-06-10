@@ -92,7 +92,6 @@ objects:
                 - '--forbidden-page'
                 - /app/forbidden-page.html
                 - '--enable-refresh-tokens'
-                - 'true'
                 - '--encryption-key'
                 - '$(ENCRYPTION_KEY)'
               envFrom:
