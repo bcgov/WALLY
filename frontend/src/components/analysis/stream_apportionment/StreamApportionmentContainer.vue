@@ -46,7 +46,7 @@
         <p>
           After your analysis is produced, there are buttons available to: remove multiple streams, remove overlaps,
           and remove streams where apportionment is less than 10%. Each row in the table has an eye icon to highlight
-          stream segments and a trash can icon to delete that specific stream segment. If you have made modifications
+          stream segments and a trash can icon to delete that specific stream segment. If you have made modifications
           to your analysis, a counterclockwise arrow icon will appear beside the weighting factor - click on this
           button to reset the analysis to the initial results.
         </p>

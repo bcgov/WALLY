@@ -198,7 +198,6 @@
 import { mapGetters, mapMutations } from 'vuex'
 import moment from 'moment'
 
-
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 
@@ -342,7 +341,7 @@ export default {
         return null
       }
       return Number(this.record.properties['FEATURE_AREA_SQM']) / 1e6
-    },
+    }
   },
   watch: {
     watershedDetails: {

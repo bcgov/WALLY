@@ -561,12 +561,12 @@ export default {
       this.wellsLithology = [...lithologyArr]
     },
     onMouseEnterWellItem (well) {
-      // highlight well on map that corresponds to the 
+      // highlight well on map that corresponds to the
       // hovered list item in the cross section table
       var feature = well.feature
-      feature['display_data_name'] = "groundwater_wells"
+      feature['display_data_name'] = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
-    },
+    }
   },
   watch: {
     panelOpen (value) {
