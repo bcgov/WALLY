@@ -93,7 +93,7 @@
               <td><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
               <td><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
               <td><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
-              <td><span>{{item.aquifer && item.aquifer.subtype_desc}}</span></td>
+              <td><span>{{item.aquifer_lithology}}</span></td>
               <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
             </tr>
           </template>

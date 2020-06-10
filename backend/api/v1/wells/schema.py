@@ -57,7 +57,6 @@ class WellAquifer(BaseModel):
     subtype_desc: Optional[str]
     material: Optional[str]
     material_desc: Optional[str]
-    litho_stratographic_unit: Optional[str]
 
 
 class WellSection(BaseModel):
@@ -70,6 +69,7 @@ class WellSection(BaseModel):
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
     aquifer: Optional[WellAquifer]
+    aquifer_lithology: Optional[str]
     feature: Optional[dict]
 
     class Config:

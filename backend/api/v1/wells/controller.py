@@ -281,6 +281,7 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             "distance_from_origin": distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
             "aquifer": well_aquifer,
+            "aquifer_lithology": well.properties['aquifer_lithology'],
             "feature": well
         }
 
