@@ -19,7 +19,9 @@
       </v-col>
     </v-row>
     <v-row>
-      <v-col cols=12 md=6>
+      <v-col cols=12 md=6
+        v-if="record && record.geometry"
+      >
         <div class="pa-3 mt-3">
         Point at {{ record.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
         </div>
