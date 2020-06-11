@@ -123,7 +123,7 @@ export default {
       })
 
       this.map.addLayer({
-        id: "waterApprovalsCoverPoints",
+        id: 'waterApprovalsCoverPoints',
         type: 'circle',
         source: 'waterApprovals',
         paint: {
@@ -131,7 +131,7 @@ export default {
           'circle-radius': 5,
           'circle-opacity': 1,
           'circle-stroke-width': 2,
-          'circle-stroke-color': "#ffffff"
+          'circle-stroke-color': '#ffffff'
         }
       })
 
@@ -288,15 +288,15 @@ export default {
     }
   },
   beforeDestroy () {
-      if (this.map.getLayer('waterApprovals')) {
-        this.map.removeLayer('waterApprovals')
-      }
-      if (this.map.getLayer('waterApprovalsCoverPoints')) {
-        this.map.removeLayer('waterApprovalsCoverPoints')
-      }
-      if (this.map.getSource('waterApprovals')) {
-        this.map.removeSource('waterApprovals')
-      }
+    if (this.map.getLayer('waterApprovals')) {
+      this.map.removeLayer('waterApprovals')
+    }
+    if (this.map.getLayer('waterApprovalsCoverPoints')) {
+      this.map.removeLayer('waterApprovalsCoverPoints')
+    }
+    if (this.map.getSource('waterApprovals')) {
+      this.map.removeSource('waterApprovals')
+    }
   }
 }
 </script>
