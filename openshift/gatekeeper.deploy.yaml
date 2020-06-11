@@ -91,9 +91,6 @@ objects:
                 - '--enable-metrics'
                 - '--forbidden-page'
                 - /app/forbidden-page.html
-                - '--enable-refresh-tokens'
-                - '--encryption-key'
-                - '$(ENCRYPTION_KEY)'
               envFrom:
                 - secretRef:
                     name: gatekeeper-credentials
