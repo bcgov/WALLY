@@ -12,6 +12,7 @@ class Stream(BaseModel):
 
     ogc_fid: int
     geojson: Feature
+    linear_feature_id: Optional[int]
     length_metre: Any
     feature_source: Any
     gnis_name: Any
@@ -24,11 +25,58 @@ class Stream(BaseModel):
     distance: float
 
     closest_stream_point: Any
-    inverse_distance: float
-    apportionment: float
+    inverse_distance: Optional[float]
+    apportionment: Optional[float]
 
 
 class Streams(BaseModel):
     weighting_factor: int
 
     streams: List[Stream]
+
+
+class StreamDetailsExport(BaseModel):
+    """ details about an apportioned link
+    to a single stream for the purpose of exporting data."""
+
+    gnis_name: Optional[str]
+    linear_feature_id: Optional[int]
+    distance: float
+    length_metre: float
+    apportionment: float
+
+
+class ApportionmentExportRequest(BaseModel):
+    """ the data required to export stream apportionment data,
+    after the user has applied their own adjustments """
+
+    streams: List[StreamDetailsExport]
+    point: List[float]
+    generated: Optional[str]
+    weighting_factor: float
+
+
+class ApportionmentTemplateFile(BaseModel):
+    """ the metadata and encoded file for
+        a stream apportionment excel template.
+        This is the format required by the Common Services
+        Document Generator.
+    """
+
+    encodingType: str
+    content: str  # base64 encoded
+    fileType: str
+
+
+class ApportionmentDocGenOptions(BaseModel):
+    """ options for docgen requests """
+    reportName: str
+    overwrite: str = "true"
+
+
+class ApportionmentDocGenRequest(BaseModel):
+    """ the request body for making document generator requests """
+
+    data: dict
+    template: dict
+    options: dict = {}

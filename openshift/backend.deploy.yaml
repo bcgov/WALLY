@@ -20,6 +20,18 @@ parameters:
   description: The environment that these template objects will run in (e.g. dev, test, prod)
   value: TEST
   required: true
+- name: WALLY_VERSION
+  displayName: Wally Application Version
+  description: Version
+  value: 1.0.0
+- name: WALLY_BUILD
+  displayName: Wally Build Info
+  description: Build Info
+  value: "YYYY-MM-DD-HH:MM:SS-ID"
+- name: API_VERSION
+  displayName: Wally API Version
+  description: API Version
+  value: "1"
 - name: REPLICAS
   value: "1"
 objects:
@@ -49,7 +61,7 @@ objects:
         intervalSeconds: 1
         maxSurge: 25%
         maxUnavailable: 25%
-        timeoutSeconds: 600
+        timeoutSeconds: 1200
         updatePeriodSeconds: 1
         pre:
           failurePolicy: Abort
@@ -84,6 +96,9 @@ objects:
       metadata:
         annotations:
           openshift.io/generated-by: OpenShiftNewApp
+          prometheus.io/scrape: 'true'
+          prometheus.io/port: '8000'
+          prometheus.io/path: '/metrics'
         labels:
             app: wally-${NAME}
             env: ${NAME}
@@ -92,6 +107,26 @@ objects:
       spec:
         containers:
         - env:
+          - name: COMMON_DOCGEN_CLIENT_ID
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_CLIENT_ID
+                name: common-docgen
+          - name: COMMON_DOCGEN_CLIENT_SECRET
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_CLIENT_SECRET
+                name: common-docgen
+          - name: COMMON_DOCGEN_SSO_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_SSO_ENDPOINT
+                name: common-docgen
+          - name: COMMON_DOCGEN_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: COMMON_DOCGEN_ENDPOINT
+                name: common-docgen
           - name: MAPBOX_ACCESS_TOKEN
             valueFrom:
               secretKeyRef:
@@ -121,6 +156,12 @@ objects:
             value: wally-psql-master-${NAME}
           - name: WALLY_ENV
             value: "${ENVIRONMENT}"
+          - name: WALLY_VERSION
+            value: "${WALLY_VERSION}"
+          - name: WALLY_BUILD
+            value: "${WALLY_BUILD}"
+          - name: API_VERSION
+            value: "${API_VERSION}"
           image: docker-registry.default.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api
@@ -160,7 +201,7 @@ objects:
           - name: logging
             mountPath: /app/.log/
         - name: promtail
-          image: grafana/promtail:latest
+          image: grafana/promtail:v1.3.0
           args:
           - -config.file=/etc/promtail/promtail.yaml
           - -client.url=http://loki:3100/api/prom/push

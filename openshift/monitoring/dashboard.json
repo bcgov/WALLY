@@ -15,7 +15,6 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
   "links": [],
   "panels": [
     {
@@ -64,7 +63,7 @@
       "pluginVersion": "6.3.2",
       "targets": [
         {
-          "expr": "sum(up{name=\"wally-staging-gatekeeper\"})",
+          "expr": "sum(up{name=\"wally-production-gatekeeper\"})",
           "format": "time_series",
           "instant": false,
           "refId": "A"
@@ -76,6 +75,42 @@
       "type": "gauge"
     },
     {
+      "alert": {
+        "alertRuleTags": {},
+        "conditions": [
+          {
+            "evaluator": {
+              "params": [
+                0
+              ],
+              "type": "gt"
+            },
+            "operator": {
+              "type": "and"
+            },
+            "query": {
+              "params": [
+                "B",
+                "15m",
+                "now"
+              ]
+            },
+            "reducer": {
+              "params": [],
+              "type": "avg"
+            },
+            "type": "query"
+          }
+        ],
+        "executionErrorState": "alerting",
+        "for": "5m",
+        "frequency": "1m",
+        "handler": 1,
+        "message": "500 Error",
+        "name": "Gatekeeper HTTP status codes alert",
+        "noDataState": "no_data",
+        "notifications": []
+      },
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
@@ -118,9 +153,22 @@
           "expr": "increase(proxy_request_status_total[10m])",
           "legendFormat": "{{kubernetes_pod_name}} [code={{code}}]",
           "refId": "A"
+        },
+        {
+          "expr": "increase(proxy_request_status_total{code='500'}[10m])",
+          "legendFormat": "500 Errors (seen by Gatekeeper)",
+          "refId": "B"
         }
       ],
-      "thresholds": [],
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 0
+        }
+      ],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
@@ -291,7 +339,7 @@
       "pluginVersion": "6.3.2",
       "targets": [
         {
-          "expr": "sum(up{deploymentconfig=\"wally-staging-frontend\"})",
+          "expr": "sum(up{deploymentconfig=\"wally-production-frontend\"})",
           "refId": "A"
         }
       ],
@@ -513,7 +561,7 @@
       "pluginVersion": "6.3.2",
       "targets": [
         {
-          "expr": "sum(up{statefulset=\"wally-psql-staging\"})",
+          "expr": "sum(up{statefulset=\"wally-psql-production\"})",
           "refId": "A"
         }
       ],
@@ -716,7 +764,7 @@
     "list": []
   },
   "time": {
-    "from": "now-24h",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {
@@ -734,7 +782,7 @@
     ]
   },
   "timezone": "",
-  "title": "Wally Staging",
+  "title": "Wally Production",
   "uid": "R1Uoy9vWz",
-  "version": 30
+  "version": 1
 }

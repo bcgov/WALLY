@@ -4,6 +4,8 @@ import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
+import qs from 'querystring'
+import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -160,54 +162,64 @@ export default {
       }
 
       state.draw.add(feature)
-      dispatch('addActiveSelection', { features: [feature] })
+      dispatch('addActiveSelection', { featureCollection: { features: [feature] } })
     },
-    addActiveSelection ({ commit, dispatch, state }, feature, options) {
-      // default options when calling this handler.
+    addActiveSelection ({ commit, dispatch, state }, { featureCollection, options = {} }) {
+      // options:
+      // alwaysReplaceFeatures: indicates that features should always be cleared (even if
+      // there are no new features to replace them).  Toggling this is useful for
+      // changing the behavior of mouse clicks (which probably should not clear
+      // features without warning) vs explicitly searching for features in an area.
+      // (which would be expected to clear features from a previous search area).
       //
-      // showFeatureList: whether features selected by the user should be immediately shown in
-      // a panel.  This might be false if the user is selecting layers and may want to select
-      // several before being "bumped" to the selected features list.
-      //
-      // example: this.addActiveSelection(feature, { showFeatureList: false })
-      console.log('active selection - - ', state.isDrawingToolActive)
+      // showFeatureList: (deprecated) indicates whether to switch the screen to the feature
+      // list. Setting to false is for preventing switching screens while doing other tasks e.g.
+      // changing layers (which triggers a new search with the new layer included). Made
+      // redundant by separating the layer select screen and feature views.
+
+      // console.log('active selection - - ', state.isDrawingToolActive)
       // if (state.isDrawingToolActive) {
       //   return false
       // }
 
       const defaultOptions = {
-        showFeatureList: true
+        showFeatureList: true,
+        alwaysReplaceFeatures: false
       }
 
       options = Object.assign({}, defaultOptions, options)
 
-      if (!feature || !feature.features || !feature.features.length) return
+      // console.log(options)
+
+      if (!featureCollection || !featureCollection.features || !featureCollection.features.length) return
 
       if (options.showFeatureList) {
         commit('setLayerSelectionActiveState', false)
       }
 
-      const newFeature = feature.features[0]
+      const newFeature = featureCollection.features[0]
       commit('replaceOldFeatures', newFeature.id)
 
       // Active selection is a Point
       if (newFeature.geometry.type === 'Point') {
         newFeature.display_data_name = 'point_of_interest'
-        commit('setDataMartFeatureInfo', newFeature, { root: true })
+        commit('setPointOfInterest', newFeature, { root: true })
         return
       }
 
       // Active selection is a LineString
       if (newFeature.geometry.type === 'LineString') {
         newFeature.display_data_name = 'user_defined_line'
-        commit('setDataMartFeatureInfo', newFeature, { root: true })
+        commit('setSectionLine', newFeature, { root: true })
         return
       }
+
+      global.config.debug && console.log('[wally] feature : ', newFeature)
 
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
-      dispatch('getMapObjects', newFeature)
+      dispatch('getMapObjects', { bounds: newFeature, options: { alwaysReplaceFeatures: options.alwaysReplaceFeatures } })
       commit('setSelectionBoundingBox', newFeature, { root: true })
     },
     updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
@@ -222,16 +234,19 @@ export default {
       prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => dispatch('removeMapLayer', l))
 
       // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
-      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => commit('activateLayer', l))
+      selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => {
+        // Customized Metrics - Track when a layer is selected
+        const layerName = state.mapLayers.find(e => e.display_data_name === l).display_name
+        window._paq.push(['trackEvent', 'Layer', 'Activate Layer', layerName])
+        commit('activateLayer', l)
+      })
 
       // reset the list of active layers
       commit('setActiveMapLayers', selectedLayers)
 
       // redraw any current features and update selection.
-      dispatch('addActiveSelection', state.draw.getAll(), { showFeatureList: false })
+      dispatch('addActiveSelection', { featureCollection: state.draw.getAll(), options: { showFeatureList: false } })
     },
-    expandMapLegend () {},
-    collapseMapLegend () {},
     addMapLayer ({ commit, dispatch, state }, displayDataName) {
       let mapLayer = state.mapLayers.find((layer) => {
         return layer.display_data_name === displayDataName
@@ -266,6 +281,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
+              commit('initVectorLayerSources', response.data.layers)
             })
             .catch((error) => {
               reject(error)
@@ -273,10 +289,22 @@ export default {
         })
       }
     },
-    async getMapObjects ({ commit, dispatch, state, getters }, bounds) {
+    async getMapObjects ({ commit, dispatch, state, getters }, { bounds, options = {} }) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
+      // options:
+      // alwaysReplaceFeatures: indicates that features should always be cleared (even if
+      // there are no new features to replace them).  Toggling this is useful for
+      // changing the behavior of mouse clicks (which probably should not clear
+      // features without warning) vs explicitly searching for features in an area.
+      // (which would be expected to clear features from a previous search area).
 
-      console.log('map click')
+      const defaultOptions = {
+        alwaysReplaceFeatures: false
+      }
+
+      options = Object.assign({}, defaultOptions, options)
+
+      global.config.debug && console.log('[wally] map click')
       // const popup = new mapboxgl.Popup({
       //   closeButton: false,
       //   closeOnClick: false
@@ -286,7 +314,15 @@ export default {
         const canvas = await state.map.getCanvas()
         const size = { x: canvas.width, y: canvas.height }
 
-        commit('clearDataMartFeatures', {}, { root: true })
+        global.config.debug && console.log('[wally] discard features before' +
+          ' querying: ', options.alwaysReplaceFeatures)
+
+        if (options.alwaysReplaceFeatures) {
+          commit('clearDataMartFeatures', {}, { root: true })
+        }
+
+        global.config.debug && console.log('[wally]', bounds)
+
         dispatch('getDataMartFeatures', {
           bounds: bounds,
           size: size,
@@ -299,15 +335,23 @@ export default {
       commit('replaceOldFeatures')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('removeShapes')
+      commit('resetPointOfInterest', {}, { root: true })
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
-      state.map.getSource('highlightPointData').setData(emptyPoint)
-      state.map.getSource('highlightLayerData').setData(emptyPolygon)
-      dispatch('clearStreamHighlights')
+      const pointData = state.map.getSource('highlightPointData')
+      const layerData = state.map.getSource('highlightLayerData')
+
+      if (pointData) {
+        pointData.setData(emptyPoint)
+      }
+
+      if (layerData) {
+        layerData.setData(emptyPolygon)
+      }
       dispatch('removeElementsByClass', 'annotationMarker')
+      dispatch('clearStreamHighlights')
       commit('resetStreamData', {}, { root: true })
-      commit('resetStreamBufferData', {}, { root: true })
     },
     clearStreamHighlights ({ rootGetters, state }) {
       rootGetters.getStreamSources.forEach((s) => {
@@ -367,7 +411,7 @@ export default {
           }
         })
 
-        console.log('map is now ready')
+        global.config.debug && console.log('[wally] map is now ready')
         // End of cascade; map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
@@ -386,24 +430,15 @@ export default {
         state.map.getSource('highlightPointData').setData(emptyPoint)
         state.map.getSource('highlightLayerData').setData(emptyPolygon)
         // For local rendered streams only calculation
-        commit('resetStreamData', {}, { root: true })
-
-        // Update stream layer
-        let layer = state.map.queryRenderedFeatures({ layers: ['freshwater_atlas_stream_networks'] })
-        dispatch('calculateStreamHighlights', { stream: data, streams: layer }, { root: true })
 
         // Backend query for all connected streams
         // this.$store.dispatch('fetchConnectedStreams', { stream: data })
       } else if (data.geometry.type === 'Point') { // Normal poly/point highlighting
         state.map.getSource('highlightPointData').setData(data)
         state.map.getSource('highlightLayerData').setData(emptyPolygon)
-        commit('resetStreamData', {}, { root: true })
-        commit('resetStreamBufferData', {}, { root: true })
       } else {
         state.map.getSource('highlightPointData').setData(emptyPoint)
         state.map.getSource('highlightLayerData').setData(data)
-        commit('resetStreamData', {}, { root: true })
-        commit('resetStreamBufferData', {}, { root: true })
       }
     },
     removeElementsByClass ({ state }, payload) {
@@ -433,6 +468,88 @@ export default {
       setTimeout(() => { // delay to let other draw actions finish
         state.isDrawingToolActive = false
       }, 500)
+    },
+    initVectorLayerSources (state, allLayers) {
+      // This mutation replaces the mapbox composite source with DataBC sources
+      // this way we always have the most up to date data from DataBC
+      allLayers.forEach((layer) => {
+        if (layer.use_wms) {
+          const layerID = layer.display_data_name
+          const wmsOpts = {
+            service: 'WMS',
+            request: 'GetMap',
+            format: 'application/x-protobuf;type=mapbox-vector',
+            layers: 'pub:' + layer.wms_name,
+            styles: layer.wms_style,
+            transparent: true,
+            name: layer.display_name,
+            height: 256,
+            width: 256,
+            overlay: true,
+            srs: 'EPSG:3857'
+          }
+          const query = qs.stringify(wmsOpts)
+          var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+          // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
+          if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
+            url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
+          }
+          // replace source with DataBC supported vector layer
+          state.map.addSource(`${layerID}-source`, {
+            'type': 'vector',
+            'tiles': [ url ],
+            'source-layer': layer.wms_name,
+            'minzoom': 3,
+            'maxzoom': 20
+          })
+          // This replaces the mapbox layer source with the DataBC source
+          // Allows us to use mapbox styles managed from the iit-water mapbox account
+          // but use DataBC vector data rather than the mapbox composite source
+          setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
+        }
+      })
+    },
+    addWMSLayer (state, layer) {
+      // this mutation adds wms layers to the map
+      const layerID = layer.display_data_name
+      if (!layerID) {
+        return
+      }
+
+      const wmsOpts = {
+        service: 'WMS',
+        request: 'GetMap',
+        format: 'image/png',
+        layers: 'pub:' + layer.wms_name,
+        styles: layer.wms_style,
+        transparent: true,
+        name: layer.name,
+        height: 256,
+        width: 256,
+        overlay: true,
+        srs: 'EPSG:3857'
+      }
+
+      const query = qs.stringify(wmsOpts)
+      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+
+      state.map.addSource(`${layerID}-source`, {
+        'type': 'raster',
+        'tiles': [
+          url
+        ],
+        'tileSize': 256
+      })
+
+      state.map.addLayer({
+        'id': layerID,
+        'type': 'raster',
+        'source': `${layerID}-source`,
+        'layout': {
+          'visibility': 'none'
+        },
+        'paint': {}
+      })
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map

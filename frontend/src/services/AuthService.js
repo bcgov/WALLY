@@ -6,6 +6,7 @@ export class AuthService {
   accessToken
   idToken
   name
+  uuid
   authenticated
 
   init (options) {
@@ -13,8 +14,11 @@ export class AuthService {
       // local environment pseudo-token.  All tokens/sessions are handled by Keycloak gatekeeper, so
       // the vue app is not responsible for any token handling. We just need some user info.
       if (process.env.VUE_APP_ENV === 'dev') {
-        this.accessToken = { given_name: 'Wally User', realm_access: { roles: ['wally-view'] } }
-        this.authenticated = true
+        this.accessToken = {
+          given_name: 'Wally User',
+          realm_access: { roles: ['wally-view'] },
+          sub: '00000000-0000-0000-0000-00000'
+        }
         this.login()
         resolve()
         return
@@ -32,7 +36,8 @@ export class AuthService {
   }
 
   login (next) {
-    this.name = this.accessToken['given_name']
+    this.name = this.accessToken['display_name'] || this.accessToken['name'] || this.accessToken['given_name']
+    this.uuid = this.accessToken['sub']
 
     // required for allowing header to update the name.
     EventBus.$emit('auth:update', { name: this.name, authenticated: this.isAuthenticated() })

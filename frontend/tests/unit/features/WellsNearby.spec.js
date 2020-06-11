@@ -23,7 +23,7 @@ describe('Wells Nearby', () => {
     getters = {
       isMapLayerActive: state => layerId => false,
       activeMapLayers: () => ([]),
-      dataMartFeatureInfo: () => {
+      pointOfInterest: () => {
       },
       dataMartFeatures: () => [],
       allMapLayers: () => [],
@@ -114,7 +114,10 @@ describe('Wells Nearby', () => {
       well_yield_unit: 'USGPM'
     }
     wrapper.setData({ wells: [well], loading: false })
-    await wrapper.vm.$nextTick()
-    expect(wrapper.find('#wells_charts').findAll('.chart').length).toEqual(3)
+    // await wrapper.vm.$nextTick() doesn't work since we need to wait a few
+    // secs for the module to be loaded
+    setTimeout(() => {
+      expect(wrapper.find('#wells_charts').findAll('.chart').length).toEqual(3)
+    })
   })
 })

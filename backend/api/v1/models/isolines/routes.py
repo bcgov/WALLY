@@ -5,7 +5,7 @@ import json
 from logging import getLogger
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from api.v1.isolines.controller import calculate_runoff_in_area
+from api.v1.models.isolines.controller import calculate_runoff_in_area
 from shapely.geometry import Polygon, MultiPolygon, shape
 from shapely.ops import transform
 from api.db.utils import get_db
@@ -36,7 +36,4 @@ def get_isoline_runoff(
 
     result = calculate_runoff_in_area(db, polygon)
 
-    return {
-        "area": result["area"],
-        "runoff": result["runoff"]
-    }
+    return result

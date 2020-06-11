@@ -40,7 +40,9 @@
 
 <script>
 import ApiService from '../../../services/ApiService'
-import { Plotly } from 'vue-plotly'
+const Plotly = () => import('vue-plotly').then(module => {
+  return module.Plotly
+})
 
 export default {
   name: 'WatershedClimate',

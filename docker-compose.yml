@@ -19,15 +19,20 @@ services:
       PORT: 8000
       MAPBOX_ACCESS_TOKEN: "${MAPBOX_ACCESS_TOKEN}"
       MAPBOX_STYLE: "${MAPBOX_STYLE}"
+      COMMON_DOCGEN_CLIENT_ID: "${COMMON_DOCGEN_CLIENT_ID}"
+      COMMON_DOCGEN_CLIENT_SECRET: "${COMMON_DOCGEN_CLIENT_SECRET}"
+      COMMON_DOCGEN_SSO_ENDPOINT: "${COMMON_DOCGEN_SSO_ENDPOINT}"
+      COMMON_DOCGEN_ENDPOINT: "${COMMON_DOCGEN_ENDPOINT}"
     ports:
       - '8000:8000'
     depends_on: 
       - db
   db:
-    image: mdillon/postgis:11
+    image: postgis/postgis:11-2.5
     env_file:
       - env-postgres.env
     volumes:
       - ./.tmp/postgis-dev:/var/lib/postgresql/dat
+      - ./scripts/database/dev/init-dev.sql:/docker-entrypoint-initdb.d/99_init-dev.sql
     ports:
       - '5432:5432'

@@ -8,12 +8,18 @@ from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
 
+from starlette_exporter import PrometheusMiddleware, handle_metrics
+
 from api import config
 from api.router import api_router
 from api.db.session import Session
 
-wally_api = FastAPI(title=config.PROJECT_NAME, openapi_url="/api/v1/openapi.json")
+wally_api = FastAPI(title=config.PROJECT_NAME,
+                    openapi_url="/api/v1/openapi.json")
 
+
+wally_api.add_middleware(PrometheusMiddleware, app_name="wally")
+wally_api.add_route("/metrics", handle_metrics)
 
 # CORS
 origins = ["*"]
@@ -30,6 +36,7 @@ if config.BACKEND_CORS_ORIGINS:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["Content-Disposition"]
     ),
 
 wally_api.add_middleware(GZipMiddleware)

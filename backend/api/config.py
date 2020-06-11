@@ -9,7 +9,16 @@ def getenv_boolean(var_name, default_value=False):
     return result
 
 
+# Environments
+ENV_DEV = "DEV"
+ENV_STAGING = "STAGING"
+ENV_PROD = "PRODUCTION"
+
 API_V1_STR = "/api/v1"
+
+API_VERSION = os.getenv("API_VERSION", "1")
+WALLY_VERSION = os.getenv("WALLY_VERSION", "0.0.0")
+WALLY_ENV = os.getenv("WALLY_ENV", ENV_DEV)
 
 SERVER_NAME = os.getenv("SERVER_NAME")
 SERVER_HOST = os.getenv("SERVER_HOST")
@@ -26,8 +35,14 @@ POSTGRES_DB = os.getenv("POSTGRES_DB")
 SQLALCHEMY_DATABASE_URI = (
     f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}/{POSTGRES_DB}"
 )
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 MAPBOX_ACCESS_TOKEN = os.getenv("MAPBOX_ACCESS_TOKEN", "")
 MAPBOX_STYLE = os.getenv("MAPBOX_STYLE", "")
 
 GWELLS_API_URL = os.getenv(
     "GWELLS_API_URL", "https://gwells-prod.pathfinder.gov.bc.ca/gwells")
+
+COMMON_DOCGEN_CLIENT_ID = os.getenv("COMMON_DOCGEN_CLIENT_ID", "")
+COMMON_DOCGEN_CLIENT_SECRET = os.getenv("COMMON_DOCGEN_CLIENT_SECRET", "")
+COMMON_DOCGEN_SSO_ENDPOINT = os.getenv("COMMON_DOCGEN_SSO_ENDPOINT", "")
+COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")

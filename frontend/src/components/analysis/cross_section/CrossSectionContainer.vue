@@ -20,23 +20,31 @@
       </v-tooltip>
     </v-toolbar>
     <div
-    v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'user_defined_line'">
+    v-if="sectionLine && sectionLine.display_data_name === 'user_defined_line'">
       <WellsCrossSection
-      :record="dataMartFeatureInfo"
-      :coordinates="dataMartFeatureInfo.geometry.coordinates"
+      :record="sectionLine"
+      :coordinates="sectionLine.geometry.coordinates"
+      @crossSection:redraw="() => drawLine({ newLine: true })"
       />
-      <v-btn @click="() => drawLine({ newLine: true })" color="primary" outlined class="mt-5">Draw new line</v-btn>
     </div>
-
-    <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=8>
-        <p>Draw a line to plot a cross section of subsurface data.</p>
-        <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
-      </v-col>
-      <v-col class="text-right">
-        <v-btn @click="drawLine" color="primary" outlined>Draw line</v-btn>
+    <div v-else class="pa-5 mr-8">
+    <v-row>
+      <v-col  class="text-right">
+        <v-btn @click="drawLine" color="primary" outlined >Draw line</v-btn>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col cols=12 >
+        <v-card>
+          <v-card-title>Instructions</v-card-title>
+          <v-card-text>
+            <CrossSectionInstructions></CrossSectionInstructions>
+          </v-card-text>
+        </v-card>
+        <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
+      </v-col>
+    </v-row>
+    </div>
   </v-container>
 </template>
 
@@ -44,10 +52,11 @@
 import { mapGetters, mapActions } from 'vuex'
 
 import WellsCrossSection from './WellsCrossSection'
-
+import CrossSectionInstructions from './CrossSectionInstructions'
 export default {
   name: 'CrossSectionContainer',
   components: {
+    CrossSectionInstructions,
     WellsCrossSection
   },
   data: () => ({
@@ -56,7 +65,7 @@ export default {
   methods: {
     drawLine (options = {}) {
       const newLine = options.newLine || false
-      if (!newLine && this.dataMartFeatureInfo && this.dataMartFeatureInfo.display_data_name === 'user_defined_line') {
+      if (!newLine && this.sectionLine && this.sectionLine.display_data_name === 'user_defined_line') {
         return
       }
       this.setDrawMode('draw_line_string')
@@ -68,14 +77,14 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections'])
   },
   computed: {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
     ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    ...mapGetters(['sectionLine'])
   },
   watch: {
     isMapReady (value) {
@@ -88,6 +97,7 @@ export default {
     }
   },
   mounted () {
+    this.clearSelections()
     this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true

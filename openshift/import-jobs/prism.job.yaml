@@ -1,0 +1,71 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: wally-prism-job
+parameters:
+- description: Environment name (staging or production)
+  displayName: Environment name
+  name: ENV_NAME
+  value: staging
+- description: Dataset layer name. Refer to load_prism.sh to add datasets.
+  displayName: Layer name
+  name: DATASET_NAME
+  value: 'pr'
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: wally-prism-${DATASET_NAME}
+      labels:
+        component: importer
+        job: prism-${DATASET_NAME}
+        name: wally-prism-${DATASET_NAME}
+    spec:
+      backoffLimit: 3
+      parallelism: 1    
+      completions: 1    
+      template:         
+        metadata:
+          name: wally-prism-${DATASET_NAME}
+        spec:
+          containers:
+          - name: importer
+            image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
+            command: ['/dataload/load_prism.sh']
+            args: ['${DATASET_NAME}']
+            resources:
+              requests:
+                cpu: 200m
+                memory: 4Gi
+              limits:
+                cpu: '1'
+                memory: 4Gi
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: wally-psql
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-password
+                  name: wally-psql
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-name
+                  name: wally-psql
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioAccessKey
+                  name: minio
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioSecretKey
+                  name: minio
+            - name: POSTGRES_SERVER
+              value: wally-psql-master-${ENV_NAME}
+          restartPolicy: Never

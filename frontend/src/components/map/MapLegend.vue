@@ -1,14 +1,32 @@
 <template>
-    <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
+  <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
+    <div class="legendItems" v-show="show">
       <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
           <h4 v-if="layer.plenty" :key='i' class="layerName">{{layer.name}}</h4>
           <div v-for="(item, j) in layer.legendItems" v-bind:key="`legendItem${j}`" v-bind:class="layer.className">
-            <v-icon :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
-            <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
-            <span class="layerName" v-else>{{layer.name}}</span>
+            <div v-if="!item.wmsIconUrl">
+              <v-icon v-if="!item.wmsIconUrl" :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
+              <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
+              <span class="layerName" v-else>{{layer.name}}</span>
+            </div>
+            <div v-else>
+              <img class="legendItem" :src="item.wmsIconUrl" />
+              <span class="layerName">{{layer.name}}</span>
+            </div>
           </div>
       </div>
     </div>
+    <v-tooltip left>
+      <template v-slot:activator="{ on }">
+        <v-btn icon v-on="on" @click="toggle" x-small class="float-right close">
+          <v-icon v-if="show">mdi-close</v-icon>
+          <v-icon v-else>mdi-map-legend</v-icon>
+        </v-btn>
+      </template>
+      <span v-if="show">Hide</span>
+      <span v-else>Show map legend</span>
+    </v-tooltip>
+  </div>
 </template>
 <style>
   .legend {
@@ -22,6 +40,12 @@
     position: absolute;
     right: 10px;
     z-index: 3;
+  }
+
+  .legendItems {
+    /* Don't cover the other map tools at the top right*/
+    max-height: calc(100vh - 380px);
+    overflow: auto;
   }
 
   .legend h4 {
@@ -38,6 +62,10 @@
   }
 
   .legend .v-icon {
+    width: 20px;
+  }
+
+  .legend .img {
     width: 20px;
   }
 

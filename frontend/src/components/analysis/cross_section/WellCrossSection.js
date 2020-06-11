@@ -1,24 +1,31 @@
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
-import { Plotly } from 'vue-plotly'
-import PlotlyJS from 'plotly.js'
 import mapboxgl from 'mapbox-gl'
 import { mapGetters, mapActions } from 'vuex'
 import html2canvas from 'html2canvas'
 import { saveAs } from 'file-saver'
 import jsPDF from 'jspdf'
+import PlotlyJS from 'plotly.js'
+
+import CrossSectionInstructions from './CrossSectionInstructions'
+const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
+let Plotly
 
 export default {
   name: 'WellsCrossSection',
   components: {
-    Plotly
+    Plotly: () => loadPlotly.then(module => {
+      return module.Plotly
+    }),
+    PlotlyJS,
+    CrossSectionInstructions
   },
   mounted () {
     this.$store.commit('map/setMode',
       { type: 'analysis', name: 'cross_section' })
     this.fetchWellsAlongLine()
   },
-  props: ['record', 'coordinates', 'panelOpen'],
+  props: ['record', 'panelOpen'],
   data: () => ({
     radius: 200,
     wells: [],
@@ -27,6 +34,7 @@ export default {
     surfacePoints: [],
     selected: [],
     loading: true,
+    xlsLoading: false,
     timeout: {},
     ignoreButtons: [
       'toImage',
@@ -48,6 +56,9 @@ export default {
     }
   }),
   computed: {
+    coordinates () {
+      return this.record && this.record.geometry && this.record.geometry.coordinates
+    },
     chartLayout () {
       // annotations used instead of label text due to textangle feature
       let wellAnnotations = this.wells.map((w) => {
@@ -149,7 +160,7 @@ export default {
           x1: w.distance_from_origin,
           y1: w.finished_well_depth
             ? w.ground_elevation_from_dem - w.finished_well_depth
-            : null,
+            : w.ground_elevation_from_dem,
           opacity: 0.5,
           line: {
             color: 'blue',
@@ -166,7 +177,7 @@ export default {
         y: this.wells.map(w =>
           w.finished_well_depth
             ? w.ground_elevation_from_dem - w.finished_well_depth
-            : null
+            : w.ground_elevation_from_dem
         ),
         text: this.wells.map(w => w.finished_well_depth),
         textposition: 'bottom',
@@ -227,25 +238,8 @@ export default {
         type: 'scatter',
         showlegend: false
       }
-      // order wells by distance from orgin so water levels connect linearly
-      let orderedWells = this.wells.sort(function (a, b) {
-        return parseFloat(a.distance_from_origin) - parseFloat(b.distance_from_origin)
-      })
-      const waterLevel = {
-        x: orderedWells.map(w => w.distance_from_origin ? w.distance_from_origin : null),
-        y: orderedWells.map(w => w.water_depth ? w.ground_elevation_from_dem - w.water_depth : null),
-        mode: 'lines',
-        name: 'Water Level',
-        line: {
-          color: 'blue',
-          width: 2
-        },
-        hoverlabel: {
-          namelength: 0
-        },
-        hoverinfo: 'none'
-      }
-      return [elevProfile, waterDepth, wells, lithology, waterLevel]
+
+      return [elevProfile, waterDepth, wells, lithology]
     },
     surfaceData () {
       let lines = this.surfacePoints
@@ -358,6 +352,9 @@ export default {
     ...mapActions('map', [
       'removeElementsByClass'
     ]),
+    handleRedraw () {
+      this.$emit('crossSection:redraw')
+    },
     fetchWellsAlongLine () {
       if (!this.radiusIsValid(this.radius)) {
         return
@@ -466,10 +463,12 @@ export default {
       this.$store.commit('map/addShape', polygon)
     },
     initPlotly () {
-      // Subscribe to plotly select and lasso tools
-      this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
-      this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
-      this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
+      this.$nextTick(() => {
+        // Subscribe to plotly select and lasso tools
+        this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
+        this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
+        this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
+      })
     },
     resetMarkerLabels () {
       this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return false })
@@ -504,6 +503,8 @@ export default {
       })
     },
     downloadMergedImage (plotType) {
+      // Custom Metrics - Screen capture
+      window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
       let doc = jsPDF()
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
@@ -560,9 +561,55 @@ export default {
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
     },
-    highlightWell (selected) {
-      // Placeholder
-    }
+    getCrossSectionExport () {
+      // Track cross section excel downloads
+      window._paq && window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
+        'download'])
+
+      const params = {
+        wells: this.wells.map(w => w.well_tag_number),
+        coordinates: this.coordinates,
+        buffer: this.radius
+      }
+
+      this.xlsLoading = true
+
+      ApiService.post(`/api/v1/wells/section/export`, params, {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'WellsCrossSection.xlsx'
+        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+        this.xlsLoading = false
+      }).catch((error) => {
+        console.error(error)
+        this.xlsLoading = false
+      })
+    },
+    onMouseEnterWellItem (well) {
+      // highlight well on map that corresponds to the 
+      // hovered list item in the cross section table
+      var feature = well.feature
+      feature['display_data_name'] = "groundwater_wells"
+      this.$store.commit('map/updateHighlightFeatureData', feature)
+    },
   },
   watch: {
     panelOpen (value) {
@@ -579,6 +626,9 @@ export default {
       },
       deep: true
     },
+    coordinates () {
+      this.fetchWellsAlongLine()
+    },
     radius (value) {
       // delay call to re-fetch data if user still inputting radius numbers
       clearTimeout(this.timeout)
@@ -591,5 +641,6 @@ export default {
     // reset shapes when closing this component
     this.$store.commit('map/resetMode')
     this.$store.dispatch('map/clearSelections')
+    this.$store.commit('resetSectionLine')
   }
 }

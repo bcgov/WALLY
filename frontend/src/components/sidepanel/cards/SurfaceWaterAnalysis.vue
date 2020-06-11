@@ -10,12 +10,19 @@
           Surface water
         </v-toolbar-title>
       </v-banner>
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on" v-on:click="exitFeature">
+            <v-icon>close</v-icon>
+          </v-btn>
+        </template>
+        <span>Exit</span>
+      </v-tooltip>
     </v-toolbar>
     <div
-    v-if="dataMartFeatureInfo && dataMartFeatureInfo.display_data_name === 'point_of_interest'">
+    v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWater></SurfaceWater>
     </div>
-
     <v-row class="pa-5" v-else>
       <v-col cols=12 lg=8>
         <p>Select a point of interest.</p>
@@ -39,7 +46,9 @@ export default {
   data: () => ({
     licencesLayerAutomaticallyEnabled: false,
     hydatLayerAutomaticallyEnabled: false,
-    applicationsLayerAutomaticallyEnabled: false
+    applicationsLayerAutomaticallyEnabled: false,
+    fishLayerAutomaticallyEnabled: false,
+    approvalLayerAutomaticallyEnabled: false
   }),
   methods: {
     selectPoint () {
@@ -63,7 +72,56 @@ export default {
     disableHydatLayer () {
       this.$store.dispatch('map/removeMapLayer', 'hydrometric_stream_flow')
     },
-    ...mapActions('map', ['setDrawMode'])
+    enableFishLayer () {
+      this.$store.dispatch('map/addMapLayer', 'fish_observations')
+    },
+    disableFishLayer () {
+      this.$store.dispatch('map/removeMapLayer', 'fish_observations')
+    },
+    enableApprovalsLayer () {
+      this.$store.dispatch('map/addMapLayer', 'water_approval_points')
+    },
+    disableApprovalsLayer () {
+      this.$store.dispatch('map/removeMapLayer', 'water_approval_points')
+    },
+    loadSurfaceWaterAnalysis () {
+      if (!this.isHydatLayerEnabled) {
+        this.hydatLayerAutomaticallyEnabled = true
+        this.enableHydatLayer()
+      }
+      if (!this.isApplicationsLayerEnabled) {
+        this.applicationsLayerAutomaticallyEnabled = true
+        this.enableApplicationsLayer()
+      }
+      if (!this.isLicencesLayerEnabled) {
+        this.licencesLayerAutomaticallyEnabled = true
+        this.enableLicencesLayer()
+      }
+      if (!this.isFishLayerEnabled) {
+        this.fishLayerAutomaticallyEnabled = true
+        this.enableFishLayer()
+      }
+      if (!this.isApprovalsLayerEnabled) {
+        this.approvalLayerAutomaticallyEnabled = true
+        this.enableApprovalsLayer()
+      }
+      this.loadFeature()
+    },
+    loadFeature () {
+      if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
+        // load feature from coordinates
+        const coordinates = this.$route.query.coordinates.map((x) => Number(x))
+
+        let data = {
+          coordinates: coordinates,
+          layerName: 'point-of-interest'
+        }
+
+        this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
+      }
+    },
+    ...mapActions('map', ['setDrawMode', 'clearSelections']),
+    ...mapActions(['exitFeature'])
   },
   computed: {
     isLicencesLayerEnabled () {
@@ -75,22 +133,35 @@ export default {
     isHydatLayerEnabled () {
       return this.isMapLayerActive('hydrometric_stream_flow')
     },
-    ...mapGetters('map', ['isMapLayerActive']),
-    ...mapGetters(['dataMartFeatureInfo'])
+    isFishLayerEnabled () {
+      return this.isMapLayerActive('fish_observations')
+    },
+    isApprovalsLayerEnabled () {
+      return this.isMapLayerActive('water_approval_points')
+    },
+    ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
+    ...mapGetters(['pointOfInterest'])
+  },
+  watch: {
+    pointOfInterest (value) {
+      if (value && value.geometry) {
+        // Update router
+        global.config.debug && console.log('[wally] updating POI route')
+        this.$router.push({
+          path: '/surface-water',
+          query: { coordinates: value.geometry.coordinates }
+        })
+      }
+    },
+    isMapReady (value) {
+      if (value) {
+        this.clearSelections()
+        this.loadSurfaceWaterAnalysis()
+      }
+    }
   },
   mounted () {
-    if (!this.isHydatLayerEnabled) {
-      this.hydatLayerAutomaticallyEnabled = true
-      this.enableHydatLayer()
-    }
-    if (!this.isApplicationsLayerEnabled) {
-      this.applicationsLayerAutomaticallyEnabled = true
-      this.enableApplicationsLayer()
-    }
-    if (!this.isLicencesLayerEnabled) {
-      this.licencesLayerAutomaticallyEnabled = true
-      this.enableLicencesLayer()
-    }
+    this.loadSurfaceWaterAnalysis()
   },
   beforeDestroy () {
     if (this.hydatLayerAutomaticallyEnabled) {
@@ -101,6 +172,12 @@ export default {
     }
     if (this.applicationsLayerAutomaticallyEnabled) {
       this.disableApplicationsLayer()
+    }
+    if (this.fishLayerAutomaticallyEnabled) {
+      this.disableFishLayer()
+    }
+    if (this.approvalLayerAutomaticallyEnabled) {
+      this.disableApprovalsLayer()
     }
   }
 }

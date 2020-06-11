@@ -1,11 +1,15 @@
 from __future__ import with_statement
 
-import os
-
-from alembic import context
-from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
-from api.db.base import BaseTable  # noqa
+from sqlalchemy import engine_from_config, pool
+from alembic import context
+import logging
+import os
+import sys
+sys.path = ['', '..'] + sys.path[1:]
+
+
+from api.db.base import BaseTable, BaseLayerTable  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -22,20 +26,35 @@ fileConfig(config.config_file_name)
 # target_metadata = None
 
 
-target_metadata = BaseTable.metadata
+target_metadata = [BaseTable.metadata, BaseLayerTable.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+SCHEMA_BLACKLIST = ['topology', 'tiger', 'prism']
+
 
 def get_url():
-    user = os.getenv("POSTGRES_USER", "postgres")
-    password = os.getenv("POSTGRES_PASSWORD", "")
-    server = os.getenv("POSTGRES_SERVER", "db")
-    db = os.getenv("POSTGRES_DB", "app")
+    user = os.getenv("POSTGRES_USER", "wally")
+    password = os.getenv("POSTGRES_PASSWORD", "test_pw")
+    server = os.getenv("POSTGRES_SERVER", "localhost")
+    db = os.getenv("POSTGRES_DB", "wally")
     return f"postgresql://{user}:{password}@{server}/{db}"
+
+
+def include_object(object, name, type_, reflected, compare_to):
+    """
+      Checks if the database object should be used in autogenerate 
+      comparison function
+    """
+    if type_ == "table" and name == 'spatial_ref_sys':
+        return False
+    elif type_ == "table" and object.schema in SCHEMA_BLACKLIST:
+        return False
+    else:
+        return True
 
 
 def run_migrations_offline():
@@ -49,7 +68,12 @@ def run_migrations_offline():
     """
     url = get_url()
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, compare_type=True
+        url=url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        compare_type=True,
+        include_object=include_object,
+        include_schemas=True
     )
 
     with context.begin_transaction():
@@ -71,7 +95,11 @@ def run_migrations_online():
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, compare_type=True
+            connection=connection,
+            target_metadata=target_metadata,
+            compare_type=True,
+            include_object=include_object,
+            include_schemas=True
         )
 
         with context.begin_transaction():

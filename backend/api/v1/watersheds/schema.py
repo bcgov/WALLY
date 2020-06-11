@@ -14,6 +14,7 @@ class WatershedDetails(BaseModel):
     watershed_area: float
     precip_search_area: Optional[float]
     runoff_isoline_avg: Optional[float]
+    hydrological_zone: Optional[str]
 
 
 class LicenceDetails(BaseModel):
@@ -21,6 +22,17 @@ class LicenceDetails(BaseModel):
     licences: FeatureCollection
     total_qty: float
     total_qty_by_purpose: List
+    projected_geometry_area: Optional[float]
+    projected_geometry_area_simplified: Optional[float]
+
+    class Config:
+        arbitrary_types_allowed = True
+
+
+class WaterApprovalDetails(BaseModel):
+    """ short term license amounts in a given area """
+    approvals: FeatureCollection
+    total_qty: float
     projected_geometry_area: Optional[float]
     projected_geometry_area_simplified: Optional[float]
 
@@ -49,3 +61,12 @@ class SurficialGeologyDetails(BaseModel):
     coverage_area: Optional[float]
     projected_geometry_area: Optional[float]
     projected_geometry_area_simplified: Optional[float]
+
+
+class FishObservationsDetails(BaseModel):
+    """ statistics about fish observations in a given area """
+    fish_observations: FeatureCollection
+    fish_species_data: List
+
+    class Config:
+        arbitrary_types_allowed = True

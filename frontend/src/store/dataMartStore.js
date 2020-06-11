@@ -9,6 +9,7 @@ export default {
     activeDataMartLayers: [], // comes from 'activeLayers' on Map.js;
     selectionBoundingBox: [],
     dataMartFeatureInfo: { content: { properties: {} } },
+    pointOfInterest: { content: { properties: {} } },
     dataMartFeatures: [], // selected points
     singleSelectionFeatures: [], // since features may be stacked/adjacent, a single click could return several features
     loadingFeature: false,
@@ -34,8 +35,9 @@ export default {
       let polygon = payload.bounds
       let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
       const width = 'width=' + payload.size.x + '&'
-      const height = 'height=' + payload.size.y
-      const params = layers.join('') + polygonQ + width + height
+      const height = 'height=' + payload.size.y + '&'
+      const srs = 'srs=EPSG:4326'
+      const params = layers.join('') + polygonQ + width + height + srs
       // "layers=automated_snow_weather_station_locations&layers=ground_water_wells&bbox=-123.5&bbox=49&bbox=-123&bbox=50&width=500&height=500"
       ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
@@ -47,8 +49,14 @@ export default {
           if (!displayData.some(layer => {
             return layer.geojson && layer.geojson.features.length
           })) {
+            global.config.debug && console.log('[wally] no features found -' +
+              ' skipping setting datamart features')
             return
           }
+
+          // new features were found; the old features can be deleted.
+          commit('resetDataMartFeatureInfo')
+          commit('clearDataMartFeatures')
 
           let feature = {}
           let displayDataName = ''
@@ -74,7 +82,8 @@ export default {
             })
           }
 
-          console.log('found feature(s) on map', featureCount)
+          global.config.debug && console.log('[wally] found feature(s) on' +
+            ' map', featureCount)
 
           // Check whether there is a single feature being returned in the click area
           if (featureCount > 1) {
@@ -82,14 +91,10 @@ export default {
             displayData.forEach(layer => {
               commit('setDataMartFeatures', { [layer.layer]: layer.geojson.features })
             })
-            commit('setDataMartFeatureInfo', {})
-            if (router.currentRoute.name === 'home' ||
-              router.currentRoute.name === 'place-poi' ||
-              router.currentRoute.name === 'multiple-features') {
-              router.push({
-                name: 'multiple-features'
-              })
-            }
+
+            router.push({
+              name: 'multiple-features'
+            })
           } else {
             // Only one feature returned
             commit('setDataMartFeatureInfo',
@@ -99,8 +104,11 @@ export default {
                 geometry: feature.geometry,
                 properties: feature.properties
               })
-
-            commit('setDataMartFeatures', {})
+            // create a list containing only the single feature returned.
+            // this allows the multiple features card to display something,
+            // and enables easy exporting the single feature as an xlsx
+            // using the same menu as when exporting multiple features.
+            commit('setDataMartFeatures', { [displayDataName]: [feature] })
           }
           commit('setLoadingFeature', false)
         }).catch((error) => {
@@ -170,11 +178,19 @@ export default {
       // since features may be stacked and/or adjacent, one click will often return several results.
       state.singleSelectionFeatures = payload
     },
+    setPointOfInterest: (state, payload) => {
+      state.pointOfInterest = payload
+    },
+    resetPointOfInterest: (state) => {
+      state.pointOfInterest = { content: { properties: {} } }
+    },
     setDataMartFeatureInfo: (state, payload) => {
       state.dataMartFeatureInfo = payload
 
-      console.log('payload display name', payload.display_data_name)
-      console.log('route?', router.currentRoute.name)
+      global.config.debug && console.log('[wally] payload display name',
+        payload.display_data_name)
+      global.config.debug && console.log('[wally] route?',
+        router.currentRoute.name)
       // check if feature info is being reset. If so, stop here and don't alter route.
       if (!payload || payload === {} || !payload.geometry || !payload.display_data_name) {
         return
@@ -216,6 +232,7 @@ export default {
     setSelectionBoundingBox: (state, payload) => { state.selectionBoundingBox = payload }
   },
   getters: {
+    pointOfInterest: state => state.pointOfInterest,
     dataMartFeatureInfo: state => state.dataMartFeatureInfo,
     dataMartFeatures: state => state.dataMartFeatures,
     loadingFeature: state => state.loadingFeature,

@@ -10,8 +10,9 @@ logger = logging.getLogger("isolines")
 
 def calculate_runoff_in_area(db: Session, polygon: MultiPolygon):
     """
-    Calculates the precipitation runoff using the area of `polygon` which intersects with features from
-    the normal annual runoff isolines layer.
+    Calculates the precipitation runoff using the area of `polygon`
+    which intersects with features from the normal annual runoff
+    isolines layer.
     """
 
     isolines_layer = 'normal_annual_runoff_isolines'
@@ -23,6 +24,7 @@ def calculate_runoff_in_area(db: Session, polygon: MultiPolygon):
         isoline_features = []
 
     area_total = 0
+    avg_mm = 0
     runoff_total = 0
 
     for isoline in isoline_features:
@@ -38,7 +40,11 @@ def calculate_runoff_in_area(db: Session, polygon: MultiPolygon):
         runoff_total += isoline_clipped.area * \
             (float(isoline["properties"]["ANNUAL_RUNOFF_IN_MM"]) / 1000)
 
+    if isoline_features:
+        avg_mm = avg_mm / len(isoline_features)
+
     return {
         "area": area_total,
-        "runoff": runoff_total
+        "runoff": runoff_total,
+        "avg_mm": (runoff_total / area_total * 1000) if area_total > 0 else 0
     }

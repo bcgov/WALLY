@@ -1,7 +1,28 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="1">
+      <v-col class="text-right">
+        <v-btn
+                    v-if="streams && streams.length"
+                    outlined
+                    :disabled="loading"
+                    @click="submitStreamsForExport"
+                    color="primary"
+                  >
+                    Excel
+                    <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                    <v-progress-circular
+                      v-if="spreadsheetLoading"
+                      indeterminate
+                      size=24
+                      class="ml-1"
+                      color="primary"
+                    ></v-progress-circular>
+        </v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols="6" md="1">
         <span class="text-sm-right">
             <v-tooltip bottom>
               <template v-slot:activator="{ on }">
@@ -25,7 +46,7 @@
             </span>
           </span>
       </v-col>
-      <v-col>
+      <v-col cols="6" md="3">
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn x-small v-show="show.removeOverlaps" v-on:click="removeOverlaps" v-on="on" color="blue-grey lighten-4" class="mb-1 mt-1">
@@ -43,13 +64,15 @@
             <span>Remove streams that have less than 10% apportionment</span>
           </v-tooltip>
       </v-col>
-      <v-col cols="3">
+      <v-col cols="12" md="3">
+
         <v-text-field
           dense
           label="Weighting Factor"
           v-model="weightingFactor"
           :rules="[weightingFactorValidation.number, weightingFactorValidation.values, weightingFactorValidation.required]"
-        />
+        >
+        </v-text-field>
       </v-col>
       <v-col>
         <v-tooltip bottom>
@@ -76,10 +99,10 @@
             item-key="ogc_fid"
             :items="streams">
             <template v-slot:item.length_metre="{ item }">
-              <span>{{item.length_metre.toFixed(2)}}</span>
+              <span>{{item.length_metre.toFixed(2) | formatNumber}}</span>
             </template>
             <template v-slot:item.distance="{ item }">
-              <span>{{item.distance.toFixed(2)}}</span>
+              <span>{{item.distance.toFixed(2) | formatNumber }}</span>
             </template>
             <template v-slot:item.apportionment="{ item }">
               <span>{{item.apportionment.toFixed(2)}}%</span>
@@ -135,6 +158,8 @@
                 <dd>Computed distance of the closest point of the stream to the selected point of interest</dd>
                 <dt>Apportionment</dt>
                 <dd>Apportion demand from diversion of groundwater on streams</dd>
+                <dt>Weighting Factor</dt>
+                <dd>A weighting factor of 1 (linear) or 2 (squared) is usually set when calculating apportionment. A larger weighting factor results in a greater contribution from the nearest stream. A weighting factor of 2 is recommended for general applications.</dd>
 
               </dl>
             </v-expansion-panel-content>

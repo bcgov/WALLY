@@ -1,0 +1,24 @@
+{
+  "development": {
+    "isProduction":  false,
+    "isStaging": false,
+    "isDevelopment": true,
+    "debug": true,
+    "enableAnalytics": false
+  },
+  "staging": {
+    "isProduction":  false,
+    "isStaging": true,
+    "isDevelopment": false,
+    "debug": true
+  },
+  "production": {
+    "isProduction":  true,
+    "isStaging": false,
+    "isDevelopment": true,
+    "debug": false
+  },
+  "app": {
+    "title": "Water Allocation - Province of British Columbia"
+  }
+}

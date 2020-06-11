@@ -106,15 +106,10 @@ export default {
   },
   methods: {
     consoleLog () {
-      console.log('a')
+      global.config.debug && console.log('[wally] a')
     },
     resetSelections () {
-      this.$store.commit('map/replaceOldFeatures', null)
-      this.$store.dispatch('map/clearHighlightLayer')
-      this.$store.commit('resetDataMartFeatureInfo')
-      this.$store.commit('clearDataMartFeatures')
-      this.$store.commit('setInfoPanelVisibility', false)
-
+      this.$store.dispatch('map/clearSelections')
       setTimeout(() => this.map.resize(), 0)
     },
     openInfoPanelIfClosed () {

@@ -12,26 +12,58 @@
       :src="require('../assets/bcgov_logo.svg')"
       height="40" max-width="150"
       alt="Go to the Government of British Columbia website" />
-    <v-toolbar-title class="bcgov-title">Water Allocation
-
-      </v-toolbar-title>
-      <span aria-label="This application is currently in Beta phase" class="beta-banner">
-        Beta
-      </span>
-      <div class="flex-grow-1"></div>
-      <div class="my-2 mr-3">
-        <v-tooltip bottom>
-          <template v-slot:activator="{ on }">
-            <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
-          </template>
-          <span>Please send us any feedback or ideas you may have on how we can improve the app.</span>
-        </v-tooltip>
-      </div>
-      <div class="wally-user mr-5">{{ name }}</div>
-      <div class="mt-6">
-        <!-- <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch> -->
-      </div>
-    </v-app-bar>
+    <v-toolbar-title class="bcgov-title">
+      Water Allocation
+    </v-toolbar-title>
+    <p class="ml-2" v-if="appInfo && appInfo.wally_env && appInfo.wally_env.toLowerCase() !== 'production'">
+      {{appInfo.wally_env === 'DEV' ? 'Development' : 'Staging'}} Environment
+    </p>
+    <div class="flex-grow-1">
+    </div>
+    <div class="my-2 mr-3">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn small color="primary" v-on="on" @click="openFeedback()">Send Feedback</v-btn>
+        </template>
+        <span>Please send us any feedback or ideas you may have on how we can improve the app.</span>
+      </v-tooltip>
+    </div>
+    <div class="wally-user mr-5">{{ name }}</div>
+    <div>
+      <v-menu offset-y min-width="300">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            icon
+          >
+            <v-icon>mdi-menu</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            v-for="(item, index) in menuItems"
+            :key="index"
+            @click="show[item.name] = true"
+          >
+            <v-list-item-content>
+              <v-list-item-title>{{item.title}}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+      <v-dialog v-model="show.about" width="600px">
+        <v-card>
+          <v-card-title class="headline">
+            About Water Allocation (WALLY)
+          </v-card-title>
+          <v-card-text v-if="appInfo">
+            Version Number: {{appInfo && appInfo.wally_version}}
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+      <!-- <v-switch :label="sidePanelFeatureLabel" :input-value="this.adjustableSidePanel" @change="this.toggleAdjustableSidePanel"></v-switch> -->
+    </div>
+  </v-app-bar>
 </template>
 
 <script>
@@ -40,9 +72,19 @@ import { mapGetters } from 'vuex'
 
 export default {
   name: 'Header',
+  props: ['appInfo'],
   data () {
     return {
-      name: ''
+      name: '',
+      menuItems: [
+        {
+          title: 'About WALLY',
+          name: 'about'
+        }
+      ],
+      show: {
+        about: false
+      }
     }
   },
   computed: {
@@ -55,13 +97,17 @@ export default {
   },
   methods: {
     toggleAdjustableSidePanel () {
-      console.log('toggling')
+      global.config.debug && console.log('[wally] toggling')
       this.$store.commit('toggleAdjustableSidePanel')
     },
-    setName (payload) {
-      const { name, authenticated } = payload
+    updateAuth (payload) {
+      const { name, uuid, authenticated } = payload
       if (authenticated) {
+        // Set the user's name
         this.name = name
+
+        // Track unique user
+        window._paq.push(['setUserId', uuid])
       }
     },
     openFeedback () {
@@ -70,10 +116,10 @@ export default {
   },
   created () {
     this.name = (this.$auth && this.$auth.name) || '' // fallback value if auth status not yet available
-    EventBus.$on('auth:update', this.setName)
+    EventBus.$on('auth:update', this.updateAuth)
   },
   beforeDestroy () {
-    EventBus.$off('auth:update', this.setName)
+    EventBus.$off('auth:update', this.updateAuth)
   }
 }
 </script>
@@ -89,7 +135,6 @@ export default {
 }
 .beta-banner {
   color: #fcba19;
-  margin-top: -0.5em;
   text-transform: uppercase;
   font-weight: 600;
   font-size: 16px;

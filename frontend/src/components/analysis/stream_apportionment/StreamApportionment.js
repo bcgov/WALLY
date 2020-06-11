@@ -7,6 +7,7 @@ export default {
   props: ['record'],
   data: () => ({
     loading: false,
+    spreadsheetLoading: false,
     streams: [],
     selected: [],
     weightingFactor: 2,
@@ -26,13 +27,55 @@ export default {
     },
     headers: [
       { text: 'GNIS Name', value: 'gnis_name' },
-      { text: 'Length (m)', value: 'length_metre', align: 'end' },
+      { text: 'Length of reach (m)', value: 'length_metre', align: 'end' },
       { text: 'Distance (m)', value: 'distance', align: 'end' },
       { text: 'Apportionment', value: 'apportionment', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ]
   }),
   methods: {
+    submitStreamsForExport () {
+      // Custom metrics - Track Excel downloads
+      window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/streams/apportionment/export`,
+        'download'])
+
+      const params = {
+        streams: this.streams,
+        weighting_factor: this.weightingFactor,
+        point: this.record.geometry.coordinates
+      }
+
+      this.spreadsheetLoading = true
+
+      ApiService.post(`/api/v1/streams/apportionment/export`, params, {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'StreamApportionment.xlsx'
+        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+        this.spreadsheetLoading = false
+      }).catch((error) => {
+        console.error(error)
+        this.spreadsheetLoading = false
+      })
+    },
     enableFreshwaterAtlasStreamNetworksLayer () {
       this.addMapLayer('freshwater_atlas_stream_networks')
     },

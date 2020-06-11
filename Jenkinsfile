@@ -103,6 +103,8 @@ pipeline {
     stage('Build') {
       steps {
         script {
+          // checkout git repo with tags
+          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
           echo "Cancelling previous builds..."
           timeout(10) {
               abortAllPreviousBuildInProgress(currentBuild)
@@ -184,6 +186,9 @@ pipeline {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.pathfinder.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
+          // Get full describe info including # of commits & last commit hash
+          def git_tag = sh(returnStdout: true, script: 'git describe').trim()
+
           openshift.withCluster() {
             openshift.withProject(project) {
               withStatus(env.STAGE_NAME) {
@@ -193,6 +198,19 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('dev', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
+
+                echo git_tag
+
+
+                // apply database service account.
+                // this is a pre-requisite for the database statefulset.
+                openshift.apply(openshift.process("-f",
+                  "openshift/database.rolebinding.yaml",
+                  "NAME=wally-psql",
+                  "SUFFIX=-${NAME}"
+                ))
+
+                sleep(3)
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
@@ -221,7 +239,8 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "REPLICAS=1",
-                  "ENVIRONMENT=DEV"
+                  "ENVIRONMENT=DEV",
+                  "WALLY_VERSION=${git_tag}",
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
@@ -363,6 +382,9 @@ pipeline {
       }
       steps {
         script {
+          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+          // Get full describe info including # of commits & last commit hash
+          def git_tag = sh(returnStdout: true, script: 'git describe').trim()
           def project = TEST_PROJECT
           def env_name = "staging"
           def host = "wally-staging.pathfinder.gov.bc.ca"
@@ -376,6 +398,16 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('staging', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply database service account.
+                // this is a pre-requisite for the database statefulset.
+                openshift.apply(openshift.process("-f",
+                  "openshift/database.rolebinding.yaml",
+                  "NAME=wally-psql",
+                  "SUFFIX=-${env_name}"
+                ))
+
+                sleep(3)
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
@@ -406,6 +438,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
+                  "WALLY_VERSION=${git_tag}",
                   "REPLICAS=2"
                 ))
 
@@ -439,6 +472,20 @@ pipeline {
         }
       }
     }
+//     stage('Auto Deploy tag to prod'){
+//       when {
+//         allOf {
+//           tag "v*";
+//           expression { env.JOB_BASE_NAME != 'master' }
+//         }
+//       }
+//       steps {
+//         script{
+//           def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
+//           echo "Automatically deployed! ${git_tag}"
+//         }
+//       }
+//     }
     stage('Deploy to production') {
       when {
           expression { env.JOB_BASE_NAME == 'master' }
@@ -448,6 +495,7 @@ pipeline {
 
           input "Deploy to production?"
 
+          def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
           def project = PROD_PROJECT
           def env_name = "production"
           def host = "wally.pathfinder.gov.bc.ca"
@@ -461,6 +509,16 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('production', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply database service account.
+                // this is a pre-requisite for the database statefulset.
+                openshift.apply(openshift.process("-f",
+                  "openshift/database.rolebinding.yaml",
+                  "NAME=wally-psql",
+                  "SUFFIX=-${env_name}"
+                ))
+
+                sleep(3)
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
@@ -491,6 +549,7 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
+                  "WALLY_VERSION=${git_tag}",
                   "REPLICAS=2"
                 ))
 

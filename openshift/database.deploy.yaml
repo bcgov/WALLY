@@ -77,28 +77,6 @@ objects:
               topologyKey: "kubernetes.io/hostname"
         containers:
         - env:
-            - name: DATA_SOURCE_URI
-              value: 'localhost:5432/wally?sslmode=disable'
-            - name: DATA_SOURCE_USER
-              valueFrom:
-                secretKeyRef:
-                  key: app-db-username
-                  name: wally-psql
-            - name: DATA_SOURCE_PASS
-              valueFrom:
-                secretKeyRef:
-                  key: app-db-password
-                  name: wally-psql
-          image: wrouesnel/postgres_exporter
-          imagePullPolicy: Always
-          name: pg-exporter
-          ports:
-            - containerPort: 9187
-              protocol: TCP
-          resources: {}
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-        - env:
           #TODO: Remove POD_IP in favor of PATRONI_KUBERNETES_POD_IP
           - name: POD_IP
             valueFrom:
@@ -164,7 +142,7 @@ objects:
             value: 0.0.0.0:5432
           - name: PATRONI_RESTAPI_LISTEN
             value: 0.0.0.0:8008
-          image: docker-registry.default.svc:5000/${IMAGE_STREAM_NAMESPACE}/patroni-postgis:10-2.5
+          image: docker-registry.default.svc:5000/${IMAGE_STREAM_NAMESPACE}/patroni-postgis:10-postgis2.5
           # Because we are using image reference to a tag, we need to always pull the image otherwise
           #   we end up with outdated/out-of-sync image depending on the node where it is running
           imagePullPolicy: Always
@@ -187,12 +165,35 @@ objects:
             initialDelaySeconds: 5
             timeoutSeconds: 5
             failureThreshold: 4
-            exec:
-              command:
-                - /usr/share/scripts/patroni/health_check.sh
+            httpGet:
+              path: /health
+              port: 8008
+              scheme: HTTP
           volumeMounts:
           - mountPath: /home/postgres/pgdata
             name: postgresql
+        - env:
+            - name: DATA_SOURCE_URI
+              value: 'localhost:5432/wally?sslmode=disable'
+            - name: DATA_SOURCE_USER
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: wally-psql
+            - name: DATA_SOURCE_PASS
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-password
+                  name: wally-psql
+          image: wrouesnel/postgres_exporter
+          imagePullPolicy: Always
+          name: pg-exporter
+          ports:
+            - containerPort: 9187
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
@@ -226,78 +227,6 @@ objects:
         resources:
           requests:
             storage: ${PVC_SIZE}
-- apiVersion: v1
-  kind: ServiceAccount
-  metadata:
-    labels:
-      cluster-name: ${NAME}${SUFFIX}
-    name: ${NAME}${SUFFIX}
-- apiVersion: rbac.authorization.k8s.io/v1
-  kind: Role
-  metadata:
-    labels:
-      cluster-name: ${NAME}${SUFFIX}
-    name: ${NAME}${SUFFIX}
-  rules:
-  - apiGroups:
-    - ""
-    resources:
-    - services
-    verbs:
-    - create
-    - get
-    - list
-    - patch
-    - update
-    - watch
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - configmaps
-    verbs:
-    - create
-    - get
-    - list
-    - patch
-    - update
-    - watch
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - endpoints
-    verbs:
-    - get
-    - patch
-    - update
-    - create
-    - list
-    - watch
-    - delete
-  - apiGroups:
-    - ""
-    resources:
-    - pods
-    verbs:
-    - get
-    - list
-    - patch
-    - update
-    - watch
-- apiVersion: rbac.authorization.k8s.io/v1
-  kind: RoleBinding
-  metadata:
-    labels:
-      cluster-name: ${NAME}${SUFFIX}
-    name: ${NAME}${SUFFIX}
-  roleRef:
-    apiGroup: rbac.authorization.k8s.io
-    kind: Role
-    name: ${NAME}${SUFFIX}
-  subjects:
-  - kind: ServiceAccount
-    name: ${NAME}${SUFFIX}
 parameters:
 - description: The name of the application for labelling all artifacts.
   displayName: Application Name
@@ -332,7 +261,7 @@ parameters:
   value: bfpeyx-tools
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni-postgis:latest
+  value: patroni-postgis:10-postgis2.5
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE

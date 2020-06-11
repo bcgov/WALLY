@@ -33,7 +33,7 @@ objects:
         - job_name: system          
           pipeline_stages:
             - match:
-                selector: '{app="wally"} |~ ".*GET .health HTTP.*"'
+                selector: '{app="wally"} |~ ".*GET (.health|.metrics) HTTP.*"'
                 action: drop    
           static_configs:
             - targets:
@@ -121,7 +121,7 @@ objects:
           serviceAccountName: default
           containers:
             - name: ${LOKI_SERVICE_NAME}
-              image: "grafana/loki:latest"
+              image: "grafana/loki:v1.3.0"
               imagePullPolicy: Always
               args:
                 - "-config.file=/etc/loki/loki.yaml"            
@@ -169,8 +169,8 @@ objects:
           terminationGracePeriodSeconds: 30
           volumes:
             - name: config
-              secret:
-                secretName: ${LOKI_SERVICE_NAME}
+              configMap:
+                name: ${LOKI_SERVICE_NAME}
             - name: storage
               persistentVolumeClaim:
                 claimName: ${LOKI_SERVICE_NAME}

@@ -13,6 +13,7 @@ class Layer(BaseModel):
     highlight_columns: List[str]
     wms_name: str = ''
     wms_style: str = ''
+    use_wms: bool = False
     name: str = ''
     description: str = ''
     source_url: str = ''

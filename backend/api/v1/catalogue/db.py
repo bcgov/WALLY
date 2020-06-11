@@ -32,11 +32,14 @@ def get_display_catalogue(db: Session):
         DataSource.source_url,
         LayerCategory.display_order,
         DisplayCatalogue.layer_category_code,
+        DisplayCatalogue.use_wms,
         WmsCatalogue.wms_name,
         WmsCatalogue.wms_style,)
 
-    wms_result = wms_query.join(WmsCatalogue).join(LayerCategory).join(DataSource).filter(
-        DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id).all() \
+    wms_result = wms_query.join(WmsCatalogue).join(LayerCategory).join(DataSource) \
+        .filter(DisplayCatalogue.wms_catalogue_id == WmsCatalogue.wms_catalogue_id) \
+        .filter(DisplayCatalogue.use_wms == True) \
+        .all() \
 
     api_query = db.query(
         DisplayCatalogue.display_name,
@@ -51,8 +54,8 @@ def get_display_catalogue(db: Session):
         LayerCategory.display_order,
         ApiCatalogue.url,)
 
-    api_result = api_query.join(ApiCatalogue).join(LayerCategory).join(DataSource).filter(
-        DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id) \
+    api_result = api_query.join(ApiCatalogue).join(LayerCategory).join(DataSource) \
+        .filter(DisplayCatalogue.api_catalogue_id == ApiCatalogue.api_catalogue_id) \
         .all()
 
     vector_query = db.query(
@@ -70,6 +73,7 @@ def get_display_catalogue(db: Session):
 
     vector_result = vector_query.join(VectorCatalogue).join(LayerCategory).join(DataSource) \
         .filter(DisplayCatalogue.vector_catalogue_id == VectorCatalogue.vector_catalogue_id) \
+        .filter(DisplayCatalogue.use_wms == False) \
         .all()
 
     all_layers = wms_result + api_result + vector_result

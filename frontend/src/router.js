@@ -44,6 +44,7 @@ const router = new Router({
       name: 'layer-selection',
       component: LayerSelection,
       meta: {
+        title: `Layers - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 4,
@@ -56,6 +57,7 @@ const router = new Router({
       name: 'single-feature',
       component: SingleSelectedFeature,
       meta: {
+        title: `Feature - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -69,6 +71,7 @@ const router = new Router({
       name: 'point-of-interest',
       component: PointOfInterest,
       meta: {
+        title: `Point of Interest - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -83,6 +86,7 @@ const router = new Router({
       name: 'water-rights-licences-nearby',
       component: WaterRightsLicencesNearbyContainer,
       meta: {
+        title: `Water Rights Licences Nearby - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -95,6 +99,7 @@ const router = new Router({
       name: 'wells-nearby',
       component: WellsNearbyContainer,
       meta: {
+        title: `Wells Nearby - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -107,6 +112,7 @@ const router = new Router({
       name: 'first-nations-areas-nearby',
       component: FirstNationsAreasNearbyContainer,
       meta: {
+        title: `First Nations Areas Nearby - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -119,6 +125,7 @@ const router = new Router({
       name: 'polygon-tool',
       component: PolygonTool,
       meta: {
+        title: `Polygon Selection - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -131,6 +138,7 @@ const router = new Router({
       name: 'cross-section',
       component: CrossSectionContainer,
       meta: {
+        title: `Cross Section - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -143,6 +151,7 @@ const router = new Router({
       name: 'stream-apportionment',
       component: StreamApportionmentContainer,
       meta: {
+        title: `Stream Apportionment - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -155,6 +164,7 @@ const router = new Router({
       name: 'upstream-downstream',
       component: UpstreamDownstream,
       meta: {
+        title: `Upstream and Downstream - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -167,6 +177,7 @@ const router = new Router({
       name: 'multiple-features',
       component: MultipleSelectedFeatures,
       meta: {
+        title: `Multiple Selected Features - ${global.config.title}`,
         sidebarColumns: {}
       }
     },
@@ -175,6 +186,7 @@ const router = new Router({
       name: 'surface-water',
       component: SurfaceWaterAnalysis,
       meta: {
+        title: `Surface Water Analysis - ${global.config.title}`,
         sidebarColumns: {}
       }
     }
@@ -182,4 +194,17 @@ const router = new Router({
 })
 
 router.afterEach(mapResize)
+// https://github.com/AmazingDreams/vue-matomo/issues/60
+// vue-matomo currently doesn't track the URL, just the page title from the
+// router. Until the issue above is fixed, we can report the URL change to
+// matomo in this manner
+router.afterEach((to, from) => {
+  Vue.nextTick(() => {
+    // Change the page title in the browser
+    document.title = to.meta.title ? to.meta.title : global.config.title
+
+    window._paq.push(['setReferrerUrl', from.fullPath])
+    window._paq.push(['setCustomUrl', to.fullPath])
+  })
+})
 export default router

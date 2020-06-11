@@ -1,28 +1,37 @@
 """
 Functions for aggregating data from web requests and database records
 """
+import base64
+import datetime
 import logging
 import requests
 import geojson
 import json
-
 import math
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform
+from starlette.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.isolines.controller import calculate_runoff_in_area
+from api.utils import normalize_quantity
 
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails
+from api import config
+from api.utils import normalize_quantity
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.models.isolines.controller import calculate_runoff_in_area
+
+from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
+
+from external.docgen.controller import docgen_export_to_xlsx
+from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logger = logging.getLogger('api')
 
@@ -121,19 +130,13 @@ def surface_water_rights_licences(polygon: Polygon):
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
         purpose = lic.properties['PURPOSE_USE']
 
-        if qty_unit == 'm3/year':
-            pass
-        elif qty_unit == 'm3/day':
-            qty = qty * 365
-        elif qty_unit == 'm3/sec':
-            qty = qty * 60 * 60 * 24 * 365
-        else:
-            qty = 0
+        qty = normalize_quantity(qty, qty_unit)
 
-        total_licenced_qty_m3_yr += qty
+        if qty is not None:
+            total_licenced_qty_m3_yr += qty
         lic.properties['qty_m3_yr'] = qty
 
-        if purpose is not None:
+        if purpose is not None and qty is not None:
             if not licenced_qty_by_use_type.get(purpose, None):
                 licenced_qty_by_use_type[purpose] = 0
             licenced_qty_by_use_type[purpose] += qty
@@ -157,6 +160,68 @@ def surface_water_rights_licences(polygon: Polygon):
         ]),
         total_qty=total_licenced_qty_m3_yr,
         total_qty_by_purpose=licence_purpose_type_list,
+        projected_geometry_area=polygon.area,
+        projected_geometry_area_simplified=polygon_rect.area
+    )
+
+
+def surface_water_approval_points(polygon: Polygon):
+    """ returns surface water approval points (filtered by APPROVAL_STATUS)"""
+    water_approvals_layer = 'water_approval_points'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    approvals = databc_feature_search(
+        water_approvals_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    features_within_search_area = []
+    total_qty_m3_yr = 0
+
+    for apr in approvals.features:
+        feature_shape = shape(apr.geometry)
+
+        # skip approvals outside search area
+        if not feature_shape.within(polygon_3005):
+            continue
+        
+        # skip approval if its not an active licence
+        # other approval status' are associated with inactive licences
+        if apr.properties['APPROVAL_STATUS'] != 'Current':
+            continue
+
+        features_within_search_area.append(apr)
+
+        # the rare water approval record has the units
+        # as a suffix in the QUATITY property
+        # these are considered bad data points
+        # and will be skipped
+        try:
+            qty = float(apr.properties['QUANTITY'])
+        except:
+            continue
+
+        qty_unit = apr.properties['QUANTITY_UNITS']
+
+        # null if approval is a works project, most of them are
+        if qty and qty_unit: 
+            qty = normalize_quantity(qty, qty_unit)
+            total_qty_m3_yr += qty
+            apr.properties['qty_m3_yr'] = qty
+        else:
+            apr.properties['qty_m3_yr'] = 0
+
+    return WaterApprovalDetails(
+        approvals=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in features_within_search_area
+        ]),
+        total_qty=total_qty_m3_yr,
         projected_geometry_area=polygon.area,
         projected_geometry_area_simplified=polygon_rect.area
     )
@@ -199,7 +264,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     record = res.fetchone()
 
     if not record or not record[0]:
-        logger.warn('unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        logger.warn(
+            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
     return Feature(
@@ -208,7 +274,10 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         ),
         id=f"generated.{watershed_feature_id}",
         properties={
-            "name": "Estimated catchment area (Freshwater Atlas)"
+            "name": "Estimated catchment area",
+            "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
+            "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
+            "and LOCAL_WATERSHED_CODE properties."
         }
     )
 
@@ -236,6 +305,14 @@ def calculate_watershed(
     feature = get_upstream_catchment_area(
         db, watershed_id, include_self=include_self)
 
+    if not feature:
+        # was not able to calculate a watershed with the provided params.
+        # return None; the calling function will skip this calculated watershed
+        # and return other pre-generated ones.
+        logger.info(
+            "skipping calculated watershed based on watershed feature id %s", watershed_id)
+        return None
+
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
@@ -255,6 +332,12 @@ def get_databc_watershed(watershed_id: str):
         'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'HYD_WATERSHED_BND_POLY_ID'
     }
 
+    source_urls = {
+        'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY': 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds',
+        'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY': 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-watersheds',
+        'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY': 'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries'
+    }
+
     cql_filter = f"{id_props[watershed_layer]}={watershed_feature}"
 
     watershed = databc_feature_search(watershed_layer, cql_filter=cql_filter)
@@ -262,7 +345,13 @@ def get_databc_watershed(watershed_id: str):
         raise HTTPException(
             status_code=404, detail=f"Watershed with id {watershed_id} not found")
 
-    return watershed.features[0]
+    ws = watershed.features[0]
+
+    ws.properties['name'] = ws.properties.get(
+        'GNIS_NAME_1', None) or ws.properties.get('SOURCE_NAME', None)
+    ws.properties['watershed_source'] = source_urls.get(watershed_layer, None)
+
+    return ws
 
 
 def surficial_geology(polygon: Polygon):
@@ -363,7 +452,8 @@ def get_watershed(db: Session, watershed_feature: str):
     # feature id.
     else:
         watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(transform_3005_4326, shape(watershed.geometry))
+        watershed_poly = transform(
+            transform_3005_4326, shape(watershed.geometry))
         watershed.geometry = mapping(watershed_poly)
 
     return watershed
@@ -387,11 +477,35 @@ def get_temperature(poly: Polygon):
     """
     gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
     """
+    try:
+        min_temp = pcic_data_request(poly, 'tasmin')
+    except:
+        raise Exception
 
-    min_temp = pcic_data_request(poly, 'tasmin')
-    max_temp = pcic_data_request(poly, 'tasmax')
+    try:
+        max_temp = pcic_data_request(poly, 'tasmax')
+    except:
+        raise Exception
 
     return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
+
+
+def get_annual_precipitation(poly: Polygon):
+    """
+    gets precipitation data from PCIC, and returns an annual precipitation
+    value calculated by summing monthly means.
+    """
+    response = pcic_data_request(poly)
+
+    months_data = list(response["data"].values())
+    months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    month_totals = [a*b for a, b in zip(months_data, months_days)]
+
+    annual_precipitation = sum(month_totals)
+    # logger.warning("annual_precipitation")
+    # logger.warning(annual_precipitation)
+
+    return annual_precipitation
 
 
 def calculate_daylight_hours_usgs(day: int, latitude_r: float):
@@ -452,3 +566,224 @@ def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data
     pet_mm_month = thornthwaite(monthly_t, mmdlh)
 
     return sum(pet_mm_month)
+
+
+def get_slope_elevation_aspect(polygon: MultiPolygon):
+    """
+    This calls the sea api with a polygon and receives back
+    slope, elevation and aspect information.
+
+    In case of an error in the external slope/elevation/aspect service,
+    a tuple of (None, None, None) will be returned. Any code making
+    use of this function should interpret None as "not available".
+    """
+    sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
+
+    headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Connection': 'keep-alive'
+    }
+
+    exterior = extract_poly_coords(polygon)["exterior_coords"]
+    coordinates = [[list(elem) for elem in exterior]]
+
+    payload = "format=json&aoi={\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"MultiPolygon\", \"coordinates\":" \
+        + str(coordinates) + \
+        "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
+
+    try:
+        logger.warn("(SEA) Request Started")
+        response = requests.post(sea_url, headers=headers, data=payload)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as errh:
+        logger.warn("(SEA) Http Error:" + errh)
+    except requests.exceptions.ConnectionError as errc:
+        logger.warn ("(SEA) Error Connecting:" + errc)
+    except requests.exceptions.Timeout as errt:
+        logger.warn ("(SEA) Timeout Error:" + errt)
+    except requests.exceptions.RequestException as err:
+        logger.warn ("(SEA) OOps: Something Else" + err)
+
+    result = response.json()
+
+    logger.warn("(SEA) Request Finished")
+    logger.warn(result)
+
+    if result["status"] != "SUCCESS":
+        logger.warn ("(SEA) Request Failed:" + result["message"])
+        raise Exception
+
+    # response object from sea example
+    # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
+    # "SlopeElevationAspectResult":{"slope":44.28170006222049,
+    # "minElevation":793.0,"maxElevation":1776.0,
+    # "averageElevation":1202.0223152022315,"aspect":125.319019998603,
+    # "confidenceIndicator":46.840837384501654}}
+    sea = result["SlopeElevationAspectResult"]
+
+    slope = sea["slope"]
+    median_elevation = sea["averageElevation"]
+    aspect = sea["aspect"]
+
+    return (slope, median_elevation, aspect)
+
+
+def get_hillshade(slope: float, aspect: float):
+    """
+    Calculates the percentage hillshade (solar_exposure) value
+    based on the average slope and aspect of a point
+    """
+
+    if slope is None or aspect is None:
+        return None
+
+    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
+    altitude = 45.0  # 0-90 " "
+    azimuth_rad = azimuth * math.pi / 2.
+    altitude_rad = altitude * math.pi / 180.
+
+    shade_value = math.sin(altitude_rad) * math.sin(slope) \
+        + math.cos(altitude_rad) * math.cos(slope) \
+        * math.cos((azimuth_rad - math.pi / 2.) - aspect)
+
+    return abs(shade_value)
+
+
+def extract_poly_coords(geom):
+    if geom.type == 'Polygon':
+        exterior_coords = geom.exterior.coords[:]
+        interior_coords = []
+        for interior in geom.interiors:
+            interior_coords += interior.coords[:]
+    elif geom.type == 'MultiPolygon':
+        exterior_coords = []
+        interior_coords = []
+        for part in geom:
+            epc = extract_poly_coords(part)  # Recursive call
+            exterior_coords += epc['exterior_coords']
+            interior_coords += epc['interior_coords']
+    else:
+        raise ValueError('Unhandled geometry type: ' + repr(geom.type))
+    return {'exterior_coords': exterior_coords,
+            'interior_coords': interior_coords}
+
+
+def export_summary_as_xlsx(data: dict):
+    """ exports watershed summary data as an excel file
+        using a template in the ./templates directory.
+    """
+
+    cur_date = datetime.datetime.now().strftime("%Y%m%d")
+
+    ws_name = data.get("watershed_name", "Surface_Water")
+    ws_name.replace(" ", "_")
+
+    filename = f"{cur_date}_{ws_name}"
+
+    excel_file = docgen_export_to_xlsx(
+        data, SURFACE_WATER_XLSX_TEMPLATE, filename)
+
+    return Response(
+        content=excel_file,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
+    )
+
+
+def known_fish_observations(polygon: Polygon):
+    """ returns fish observation data from within a watershed polygon"""
+    fish_observations_layer = 'fish_observations'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    fish_observations = databc_feature_search(
+        fish_observations_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    features_within_search_area = []
+    # observation_count_by_species = {}
+    # life_stages_by_species = {}
+    # observation_date_by_species = {}
+
+    fish_species_data = {}
+
+    for feature in fish_observations.features:
+        feature_shape = shape(feature.geometry)
+
+        # skip observations outside search area
+        if not feature_shape.within(polygon_3005):
+            continue
+
+        # skip point if not a direct observation
+        # summary points are consolidated observations.
+        if feature.properties['POINT_TYPE_CODE'] != 'Observation':
+            continue
+
+        species_name = feature.properties['SPECIES_NAME']
+        life_stage = feature.properties['LIFE_STAGE']
+        observation_date = datetime.datetime.strptime(feature.properties['OBSERVATION_DATE'], '%Y-%m-%dZ').date() \
+            if feature.properties['OBSERVATION_DATE'] is not None else None  # 1997-02-01Z
+
+        if species_name is not None:
+            if not fish_species_data.get(species_name, None):
+                fish_species_data[species_name] = {
+                    'count': 0,
+                    'life_stages': [],
+                    'observation_date_min': None,
+                    'observation_date_max': None
+                }
+
+            # add to observation count for this species
+            fish_species_data[species_name]['count'] += 1
+
+            # add life stage observed uniquely
+            if life_stage is not None:
+                if life_stage not in fish_species_data[species_name]['life_stages']:
+                    fish_species_data[species_name]['life_stages'].append(
+                        life_stage)
+
+            # add oldest and latest observation of species within watershed
+            if observation_date is not None:
+                if fish_species_data[species_name]['observation_date_min'] is None:
+                    fish_species_data[species_name]['observation_date_min'] = observation_date
+                if fish_species_data[species_name]['observation_date_max'] is None:
+                    fish_species_data[species_name]['observation_date_max'] = observation_date
+
+                if observation_date < fish_species_data[species_name]['observation_date_min']:
+                    fish_species_data[species_name]['observation_date_min'] = observation_date
+                if observation_date > fish_species_data[species_name]['observation_date_max']:
+                    fish_species_data[species_name]['observation_date_max'] = observation_date
+
+        features_within_search_area.append(feature)
+
+    # transform multi-dict to flat list
+    fish_species_data_list = []
+    for key, val in fish_species_data.items():
+        fish_species_data_list.append({
+            'species': key,
+            'count': val['count'],
+            'life_stages': parse_fish_life_stages(val['life_stages']),
+            'observation_date_min': val['observation_date_min'],
+            'observation_date_max': val['observation_date_max']
+        })
+
+    return FishObservationsDetails(
+        fish_observations=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in features_within_search_area
+        ]),
+        fish_species_data=fish_species_data_list
+    )
+
+
+# cleans up life state strings such as 'egg,juvenile'
+def parse_fish_life_stages(stages):
+    split_list = [item.split(',') for item in stages]
+    flat_list = [item for sublist in split_list for item in sublist]
+
+    return list(set(flat_list))

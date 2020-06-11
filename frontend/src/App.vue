@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <Header></Header>
+    <Header :appInfo="this.app"></Header>
     <v-content>
       <v-container
         class="pa-0"
@@ -21,6 +21,8 @@ import Toolbar from './components/Toolbar'
 // import Home from './components/Home'
 import HomeSplit from './components/HomeSplit'
 import Notifications from './components/Notifications'
+import { mapGetters, mapActions } from 'vuex'
+
 import '@bcgov/bc-sans/css/BCSans.css'
 
 export default {
@@ -33,7 +35,16 @@ export default {
     HomeSplit
   },
   data: () => ({
-  })
+  }),
+  computed: {
+    ...mapGetters(['app'])
+  },
+  methods: {
+    ...mapActions(['getAppInfo'])
+  },
+  mounted () {
+    this.getAppInfo()
+  }
 }
 </script>
 
@@ -48,7 +59,9 @@ export default {
 
     .v-application {
       font-family: $app-font;
-      .title {
+      .title, .headline, .body-1, .body-2,
+      .display-4, .display-3, .display-2, .display-1,
+      .subtitle-1, .subtitle-2, .caption, .overline {
         font-family: $app-font;
       }
     }
