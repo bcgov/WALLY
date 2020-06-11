@@ -85,7 +85,7 @@ export default {
         tickformat: '%B'
       },
       yaxis: {
-        title: 'm3/s'
+        title: 'm³/s'
       }
     },
     isolineRunoffLayout: {
@@ -100,7 +100,7 @@ export default {
         tickformat: '%B'
       },
       yaxis: {
-        title: 'm3/s'
+        title: 'm³/s'
       }
     }
   }),

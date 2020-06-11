@@ -30,7 +30,7 @@
             @close="closeEditAllocationTableDialog"/>
         </v-dialog>
 
-        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m3/year
+        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year
 
         <Dialog v-bind="wmd.availabilityVsDemand"/>
 
@@ -86,7 +86,7 @@ export default {
     approvalsData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m3/year)', value: 'qty', align: 'end' },
+      { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
@@ -161,7 +161,7 @@ export default {
               <dt>Licence no.:</dt> <dd>${licenceNumber}</dd>
               <dt>Primary licensee:</dt> <dd>${licenseeName}</dd>
               <dt>Source:</dt> <dd>${sourceName}</dd>
-              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
+              <dt>Quantity:</dt> <dd>${qty} m³/year</dd>
               <dt>Purpose use:</dt> <dd>${purpose}</dd>
             </dl>
 
