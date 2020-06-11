@@ -34,6 +34,7 @@ export default {
     surfacePoints: [],
     selected: [],
     loading: true,
+    xlsLoading: false,
     timeout: {},
     ignoreButtons: [
       'toImage',
@@ -559,6 +560,48 @@ export default {
       })
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
+    },
+    getCrossSectionExport () {
+      // Track cross section excel downloads
+      window._paq && window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
+        'download'])
+
+      const params = {
+        wells: this.wells.map(w => w.well_tag_number),
+        coordinates: this.coordinates,
+        buffer: this.radius
+      }
+
+      this.xlsLoading = true
+
+      ApiService.post(`/api/v1/wells/section/export`, params, {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'WellsCrossSection.xlsx'
+        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+        this.xlsLoading = false
+      }).catch((error) => {
+        console.error(error)
+        this.xlsLoading = false
+      })
     },
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the 
