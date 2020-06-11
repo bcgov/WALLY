@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-5">
+  <v-container class="pt-3">
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-map-marker"
@@ -19,7 +19,7 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
-    <v-row class="mx-3 mt-4">
+    <v-row class="mt-3">
       <v-col class="text-right">
         <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select Point</v-btn>
       </v-col>

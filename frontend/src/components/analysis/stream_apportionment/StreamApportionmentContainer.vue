@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-breadcrumbs :items="breadcrumbs">
+  <v-container class="pt-3">
+    <v-breadcrumbs v-if="breadcrumbs && breadcrumbs.length" :items="breadcrumbs">
       <template v-slot:divider>
         <v-icon>mdi-chevron-right</v-icon>
       </template>
@@ -32,7 +32,7 @@
         />
     </div>
 
-    <v-row class="pa-5" v-else>
+    <v-row v-else class="mt-3">
       <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
       <v-col cols=12>
         <v-card>
