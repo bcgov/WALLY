@@ -17,9 +17,11 @@
     <p>
       You can export results to Excel by selecting the “Excel” button.
     </p>
+    <p>
       If no analysis is produced, then go to the drop down Selection menu in the top navigation bar and
       "Reset Selections" and try again. It also helps to have the map zoomed to a smaller area with a
       sufficiently large amount of detail.
+    </p>
     <p>
       For more information on what data is used and caveats to the analysis, please review the
       "Where does this information come from?" box at the bottom of the page.
