@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-5">
+  <v-container class="pt-3">
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-map-marker"
@@ -19,32 +19,41 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
-    <v-row class="mx-3 mt-4">
-      <v-col cols=12 lg=8>
-        <p>Zoom into an area of interest on the map and select a point on a stream to view data upstream and downstream, such as groundwater wells, water rights licences and applications, EcoCat reports, aquifers, critical habitat, allocation restrictions and stream stations.</p>
-      </v-col>
+    <v-row class="mt-3">
       <v-col class="text-right">
         <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
       </v-col>
     </v-row>
-    <FeatureStreamBuffer
+    <UpstreamDownstream
       :record="selectedStream"
       :coordinates="selectedStream.geometry.coordinates"
       v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
+    <v-row v-else>
+      <v-col cols=12>
+        <v-card>
+          <v-card-title>Instructions</v-card-title>
+          <v-card-text>
+            <UpstreamDownstreamInstructions></UpstreamDownstreamInstructions>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import FeatureStreamBuffer from '../../features/FeatureStreamBuffers'
+import UpstreamDownstream from './UpstreamDownstream'
+import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
 export default {
-  name: 'UpstreamDownstream',
+  name: 'UpstreamDownstreamContainer',
   components: {
-    FeatureStreamBuffer
+    UpstreamDownstream,
+    UpstreamDownstreamInstructions
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,

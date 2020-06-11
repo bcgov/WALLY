@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-5">
+  <v-container class="pt-3">
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-chart-bar"
@@ -23,9 +23,9 @@
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWater></SurfaceWater>
     </div>
-    <v-row class="pa-5" v-else>
+    <v-row class="mt-3" v-else>
       <v-col cols=12 lg=8>
-        <p>Select a point of interest to determine water availability.</p>
+        <p class="pl-3">Select a point of interest to determine water availability.</p>
       </v-col>
       <v-col class="text-right">
         <v-btn @click="selectPoint" color="primary" outlined>Select a point</v-btn>

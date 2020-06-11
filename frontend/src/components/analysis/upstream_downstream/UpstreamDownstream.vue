@@ -1,5 +1,23 @@
 <template>
   <v-sheet class="pa-5">
+    <v-row>
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Instructions
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card flat>
+                <v-card-text>
+                  <UpstreamDownstreamInstructions></UpstreamDownstreamInstructions>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
     <div class="title my-3">
           Selected Stream: {{streamName}}
     </div>
@@ -39,21 +57,23 @@
       </v-row>
 
       <v-row no-gutters>
-        <StreamBufferData :loading="loading" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+        <UpstreamDownstreamData :loading="loading" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
       </v-row>
   </v-sheet>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import ApiService from '../../services/ApiService'
-import StreamBufferData from '../analysis/StreamBufferData'
+import ApiService from '../../../services/ApiService'
+import UpstreamDownstreamData from './UpstreamDownstreamData'
+import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import debounce from 'lodash.debounce'
 
 export default {
   name: 'StreamBufferIntersections',
   components: {
-    StreamBufferData
+    UpstreamDownstreamData,
+    UpstreamDownstreamInstructions
   },
   props: ['record'],
   data: () => ({
@@ -205,10 +225,10 @@ export default {
     // panelOpen () {
     //   if (this.panelOpen.length > 0) {
     //     this.$store.commit('setStreamAnalysisPanel', true)
-    //     this.$store.commit('setStreamBufferData', this.buffer)
+    //     this.$store.commit('setUpstreamDownstreamData', this.buffer)
     //   } else {
     //     this.$store.commit('setStreamAnalysisPanel', false)
-    //     this.$store.commit('resetStreamBufferData')
+    //     this.$store.commit('resetUpstreamDownstreamData')
     //   }
     // },
     isMapReady (value) {

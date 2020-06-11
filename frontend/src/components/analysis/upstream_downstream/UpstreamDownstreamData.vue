@@ -15,10 +15,10 @@
 </template>
 
 <script>
-import { streamDataHeaders } from '../../utils/streamDataHeaders'
+import { streamDataHeaders } from '../../../utils/streamDataHeaders'
 
 export default {
-  name: 'StreamBufferData',
+  name: 'UpstreamDownstreamData',
   props: [
     'loading',
     'bufferData',
