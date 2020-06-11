@@ -88,6 +88,10 @@ objects:
                 - 'http://wally-${NAME}:8080'
                 - '--discovery-url'
                 - '$(DISCOVERY_URL)'
+                - '--enable-refresh-tokens'
+                - true
+                - '--encryption-key'
+                - '$(ENCRYPTION_KEY)'
                 - '--enable-metrics'
                 - '--forbidden-page'
                 - /app/forbidden-page.html
