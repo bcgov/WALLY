@@ -192,7 +192,10 @@ const router = new Router({
     },
     {
       path: '/oauth/logout',
-      redirect: 'https://logontest.gov.bc.ca/clp-cgi/logoff.cgi'
+      redirect: (to) => {
+        window.location.href = 'https://logontest.gov.bc.ca/clp-cgi/logoff.cgi'
+        return '/redirecting' // not important since redirecting
+      }
     }
   ]
 })
