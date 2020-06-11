@@ -11,12 +11,12 @@ import time
 from typing import List, Optional
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, LineString, CAP_STYLE, JOIN_STYLE, mapping, shape
+from shapely.geometry import Point, LineString, CAP_STYLE, JOIN_STYLE, mapping, shape, MultiPoint
 from shapely.ops import transform
 from api.config import GWELLS_API_URL
 from api.layers.ground_water_wells import GroundWaterWells
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
-from api.v1.aggregator.controller import fetch_geojson_features
+from api.v1.aggregator.controller import fetch_geojson_features, DATABC_GEOMETRY_FIELD, databc_feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.wells.schema import WellDrawdown, Screen
 logger = logging.getLogger("api")
@@ -214,16 +214,20 @@ def get_parallel_line_offset(db: Session, line: LineString, radius: float):
     ), 4326))).first()
 
 
-def distance_along_line(line: LineString, point: Point):
+def distance_along_line(line: LineString, point: Point, srid=4326):
     """ 
     calculates the distance that `point` is along `line`. Note that 
     this is the distance along the line, not from the beginning of the line
     to the point.
     """
 
-    # transform to BC Albers, which has a base unit of metres
-    point = transform(transform_4326_3005, point)
-    line = transform(transform_4326_3005, line)
+    if srid == 4326:
+        # transform to BC Albers, which has a base unit of metres
+        point = transform(transform_4326_3005, point)
+        line = transform(transform_4326_3005, line)
+
+    elif srid != 3005:
+        raise ValueError("SRID must be either 4326 or 3005")
 
     # note.  shapely's geom.distance calculates distance on a 2d plane
     a = point.distance(line.interpolate(0))
@@ -277,3 +281,87 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         wells_results.append(well_data)
 
     return wells_results
+
+
+def get_waterbodies_along_line(section_line: LineString, profile: LineString):
+    """ retrieves lakes that cross the profile line"""
+    line_3005 = transform(transform_4326_3005, section_line)
+
+    lakes_layer = "WHSE_BASEMAPPING.FWA_LAKES_POLY"
+
+    cql_filter = f"""INTERSECTS({DATABC_GEOMETRY_FIELD.get(
+        lakes_layer, 'GEOMETRY')}, {line_3005.wkt})"""
+
+    intersecting_lakes = databc_feature_search(
+        lakes_layer, cql_filter=cql_filter)
+
+    features = []
+
+    for lake in intersecting_lakes.features:
+        intersecting_points = line_3005.intersection(shape(lake.geometry))
+        logger.info(intersecting_points)
+
+        # the intersection may either be a MultiPoint (which is iterable),
+        # or a single Point instance (not iterable). If not iterable, convert
+        # to a list of 1 Point.
+        if isinstance(intersecting_points, LineString):
+            intersecting_points = [intersecting_points]
+
+        for line in intersecting_points:
+            point = line.centroid
+            distance = distance_along_line(
+                LineString([coords[:2] for coords in list(line_3005.coords)]),
+                point,
+                srid=3005
+            )
+            lake_data = {
+                "name": lake.properties['GNIS_NAME_1'] or f"Lake {lake.properties['GNIS_ID_1']}",
+                "distance": distance,
+                "elevation": elevation_along_line(profile, distance),
+                "geometry": transform(transform_3005_4326, line)
+            }
+            features.append(lake_data)
+
+    return features
+
+
+def get_streams_along_line(profile: LineString):
+    """ retrieves streams that cross the cross section profile line """
+
+    line_3005 = transform(transform_4326_3005, profile)
+
+    streams_layer = "WHSE_BASEMAPPING.FWA_STREAM_NETWORKS_SP"
+
+    cql_filter = f"""INTERSECTS({DATABC_GEOMETRY_FIELD.get(
+        streams_layer, 'GEOMETRY')}, {line_3005.wkt})"""
+
+    intersecting_streams = databc_feature_search(
+        streams_layer, cql_filter=cql_filter)
+
+    features = []
+
+    for stream in intersecting_streams.features:
+        intersecting_points = line_3005.intersection(shape(stream.geometry))
+        logger.info(intersecting_points)
+
+        # the intersection may either be a MultiPoint (which is iterable),
+        # or a single Point instance (not iterable). If not iterable, convert
+        # to a list of 1 Point.
+        if isinstance(intersecting_points, Point):
+            intersecting_points = [intersecting_points]
+
+        for point in intersecting_points:
+            distance = distance_along_line(
+                LineString([coords[:2] for coords in list(line_3005.coords)]),
+                point,
+                srid=3005
+            )
+            stream_data = {
+                "name": stream.properties['GNIS_NAME'] or f"Stream {stream.properties['LINEAR_FEATURE_ID']}",
+                "distance": distance,
+                "elevation": point.z,
+                "geometry": transform(transform_3005_4326, point)
+            }
+            features.append(stream_data)
+
+    return features

@@ -74,3 +74,4 @@ class CrossSection(BaseModel):
     wells: List[WellSection]
     elevation_profile: List[Elevation]
     surface: List
+    streams: List
