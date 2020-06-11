@@ -58,6 +58,11 @@ def upgrade():
     where   display_name = 'Hydrometric Stream Flow';
 
     update  metadata.display_catalogue
+    set     display_name = 'ParcelMap BC'
+    where   display_name = 'Cadastral Parcel Information';
+
+
+    update  metadata.display_catalogue
     set     display_name = 'Known BC Fish Observations & Distributions'
     where   display_name = 'Known BC Fish Observations and BC Fish Distributions';
 
@@ -66,7 +71,7 @@ def upgrade():
 
     update  metadata.data_source
     set     name = 'Known BC Fish Observations & Distributions'
-    where   name = 'Known BC Fish Observations and BC Fish Distributions';
+    where   name = 'Known BC Fish Observations & BC Fish Distributions';
 
     update  metadata.data_source
     set     name = 'EcoCat Water-related Reports'
@@ -74,7 +79,7 @@ def upgrade():
 
     update  metadata.data_source
     set     name = 'Critical Habitat (federally-listed species at risk)'
-    where   name = 'Critical Habitat for federally-listed species at risk (posted)';
+    where   name = 'Critical Habitat federally-listed species at risk';
 
     update  metadata.data_source
     set     name = 'ParcelMap BC'
