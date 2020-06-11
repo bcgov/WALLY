@@ -8,7 +8,7 @@ from sqlalchemy import func
 from shapely.geometry import Point, LineString, mapping
 
 from api.db.utils import get_db
-from api.v1.wells.schema import WellDrawdown, CrossSection
+from api.v1.wells.schema import WellDrawdown, CrossSection, WellsExport
 from api.v1.aggregator.excel import geojson_to_xlsx
 from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
@@ -45,30 +45,39 @@ def get_nearby_wells(
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
 
-    # wells_with_distances = get_wells_by_distance(db, point_shape, radius)
-
-    # # convert nearby wells to a list of strings of well tag numbers
-    # wells_to_search = map(lambda x: str(
-    #     int(x[0])).lstrip("0"), wells_with_distances)
-
     wells_drawdown_data = get_screens(point_shape, radius)
 
-    if format == 'xlsx':
-        return geojson_to_xlsx(
-            [geojson.FeatureCollection(
-                [
-                    geojson.Feature(
-                        geometry=geojson.Point([x.longitude, x.latitude]),
-                        properties=x.dict(exclude={'screen_set'})
-                    ) for x in wells_drawdown_data
-                ],
-                properties={
-                    "name": "Available drawdown"
-                }
-            )]
-        )
-
     return wells_drawdown_data
+
+
+@router.post("/nearby/export")
+def export_nearby_wells(
+    req: WellsExport
+):
+    """ 
+    finds wells near to a point
+    fetches distance data using the Wally database,
+    combines it with screen data from GWELLS and
+    filters based on well list in request
+    """
+    point_parsed = json.loads(req.point)
+    point_shape = Point(point_parsed)
+    wells_drawdown_data = get_screens(point_shape, req.radius)
+    wells_subset = [w for w in wells_drawdown_data if w.well_tag_number in req.export_wells]
+    
+    return geojson_to_xlsx(
+        [geojson.FeatureCollection(
+            [
+                geojson.Feature(
+                    geometry=geojson.Point([x.longitude, x.latitude]),
+                    properties=x.dict(exclude={'screen_set'})
+                ) for x in wells_subset
+            ],
+            properties={
+                "name": "Available drawdown"
+            }
+        )]
+    )
 
 
 @router.get("/section", response_model=CrossSection)

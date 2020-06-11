@@ -48,6 +48,12 @@ class WellDrawdown(BaseModel):
                                                     description="The calculated distance between the reported static water level and the finished well depth. This information is based on reported values and should be confirmed.")
 
 
+class WellsExport(BaseModel):
+    point: str
+    radius: float
+    export_wells: List[int]
+
+
 class WellSection(BaseModel):
     """
     Well data for use in sections

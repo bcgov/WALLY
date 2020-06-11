@@ -102,7 +102,7 @@ export default {
           y: this.licencePlotData,
           x: this.monthHeaders.map((h) => h.text),
           hovertemplate: '%{y:.2f} m³',
-           marker: {color: 'orange'}
+          marker: { color: 'orange' }
         })
       }
 
@@ -113,7 +113,7 @@ export default {
           y: this.shortTermLicencePlotData,
           x: this.monthHeaders.map((h) => h.text),
           hovertemplate: '%{y:.2f} m³',
-           marker: {color: 'purple'}
+          marker: { color: 'purple' }
         })
       }
 

@@ -32,7 +32,8 @@ export default {
       { text: 'Top of screen (ft bgl)', value: 'top_of_screen' },
       { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth' },
       { text: 'SWL to top of screen (ft)', value: 'swl_to_screen' },
-      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well' }
+      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well' },
+      { text: '', value: 'delete', sortable: false }
     ],
     boxPlotSWLData: {
       data: [],
@@ -120,7 +121,7 @@ export default {
   methods: {
     exportDrawdownAsSpreadsheet () {
       // Custom metrics - Track Excel downloads
-      window._paq.push([
+      window._paq && window._paq.push([
         'trackLink',
         `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/nearby`,
         'download'])
@@ -129,9 +130,9 @@ export default {
       const params = {
         radius: parseFloat(this.radius),
         point: JSON.stringify(this.coordinates),
-        format: 'xlsx'
+        export_wells: this.wells.map(w => w.well_tag_number)
       }
-      ApiService.query(`/api/v1/wells/nearby`, params, { responseType: 'arraybuffer' }).then((r) => {
+      ApiService.post(`/api/v1/wells/nearby/export`, params, { responseType: 'arraybuffer' }).then((r) => {
         global.config.debug && console.log('[wally]', r)
         let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
         let link = document.createElement('a')
@@ -234,6 +235,17 @@ export default {
 
         this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
       }
+    },
+    deleteWell (selectedWell) {
+      // delete selected well from well list
+      let wellsArr = this.wells.filter(well => {
+        return well['well_tag_number'] !== selectedWell['well_tag_number']
+      })
+      this.wells = [...wellsArr]
+      this.boxPlotSWLData.data = []
+      this.boxPlotYieldData.data = []
+      this.boxPlotFinishedDepthData.data = []
+      this.populateBoxPlotData(this.wells)
     }
   },
   watch: {

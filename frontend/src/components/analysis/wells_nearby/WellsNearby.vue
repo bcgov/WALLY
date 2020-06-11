@@ -51,6 +51,9 @@
               <template v-slot:item.distance="{ item }">
                 <span>{{item.distance.toFixed(1)}}</span>
               </template>
+              <template v-slot:item.delete="{ item }">
+                <v-icon small @click="deleteWell(item)">delete</v-icon>
+              </template>
             </v-data-table>
           </v-card-text>
         </v-card>
