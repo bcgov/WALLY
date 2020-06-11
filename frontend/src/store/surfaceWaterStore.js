@@ -38,6 +38,7 @@ export default {
       }
     },
     initWatershedDetailsAndInputs ({ state, commit }, payload) {
+      commit('clearWatershedDetailsAndDefaults')
       if (payload && payload.scsb2016_model && !payload.scsb2016_model.error) {
         commit('setDefaultScsb2016ModelInputs', payload)
       }
@@ -46,10 +47,6 @@ export default {
     resetModelInputs ({ state, commit }) {
       commit('resetWatershedDetails')
       commit('setEditableModelInputs', state.defaultScsb2016ModelInputs)
-    },
-    updateWatershedDetails ({ state, commit }, payload) {
-      commit('setWatershedDetails', payload)
-      commit('setEditableModelInputs', payload)
     }
   },
   mutations: {
@@ -95,12 +92,9 @@ export default {
         state.watershedDetails = state.defaultWatershedDetails
       }
     },
-    setWatershedDetails (state, payload) {
-      state.watershedDetails = payload
-    },
     resetWatershedDetails (state) {
       state.watershedDetails = state.defaultWatershedDetails
-      state.scsb2016ModelInputs = state.clearWatershedDetailsAndDefaults
+      state.scsb2016ModelInputs = state.defaultScsb2016ModelInputs
       state.customModelInputsActive = false
     },
     clearWatershedDetailsAndDefaults (state) {

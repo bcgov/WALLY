@@ -158,7 +158,7 @@
                 <dt>Usage type</dt>
                 <dd>Usage type comes from either PURPOSE_USE (Water Rights Licences and Water Rights Applications), or WORKS_DESCRIPTION (Water Approval Points).</dd>
                 <dt>Quantity</dt>
-                <dd>Quantity is the maximum quantity of water that is authorized to be diverted for the purpose use, e.g. 500 m3/day.</dd>
+                <dd>Quantity is the maximum quantity of water that is authorized to be diverted for the purpose use, e.g. 500 m³/day.</dd>
                 <dt>POD subtype</dt>
                 <dd>
                   POD subtype distinguishes the different POD types:

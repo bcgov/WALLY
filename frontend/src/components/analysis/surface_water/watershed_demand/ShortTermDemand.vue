@@ -28,7 +28,7 @@
             @close="closeShortTermAllocation"/>
         </v-dialog>
 
-        <span>Total annual approved quantity:</span> {{ shortTermLicenceData.total_qty | formatNumber }} m3/year
+        <span>Total annual approved quantity:</span> {{ shortTermLicenceData.total_qty | formatNumber }} m³/year
 
         <Dialog v-bind="wmd.shortTermDemand"/>
 
@@ -80,13 +80,13 @@ export default {
   props: ['watershedID'],
   data: () => ({
     approvalsLoading: false,
-    shortTermLicenceData: {},
+    shortTermLicenceData: null,
     shortTermPurposeHeaders: [
       { text: 'Approval Number', value: 'APPROVAL_FILE_NUMBER', sortable: true },
       { text: 'Works', value: 'WORKS_DESCRIPTION' },
       { text: 'Start Date', value: 'APPROVAL_START_DATE' },
       { text: 'Expiry Date', value: 'APPROVAL_EXPIRY_DATE' },
-      { text: 'Quantity (m3/year)', value: 'qty_m3_yr', align: 'end' },
+      { text: 'Quantity (m³/year)', value: 'qty_m³_yr', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
@@ -108,32 +108,51 @@ export default {
       }
     }
   },
-  watch: {
-    watershedID () {
-      this.shortTermLicenceData = {}
-      this.map.removeLayer('waterApprovals')
-      this.map.removeSource('waterApprovals')
-      this.fetchShortTermLicenceData()
-    }
-  },
   methods: {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
+    ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
     addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
-      // console.log(data)
+      if (this.map.getLayer('waterApprovals')) {
+        return
+      }
+
+      this.map.addSource('waterApprovals', {
+        'type': 'geojson',
+        'data': data
+      })
+
+      this.map.addLayer({
+        id: "waterApprovalsCoverPoints",
+        type: 'circle',
+        source: 'waterApprovals',
+        paint: {
+          'circle-color': color,
+          'circle-radius': 5,
+          'circle-opacity': 1,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': "#ffffff"
+        }
+      })
+
       this.map.addLayer({
         id: id,
         type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
+        source: 'waterApprovals',
         paint: {
           'circle-color': color,
-          'circle-radius': 10,
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['number', ['get', 'qty_m³_yr'], 0],
+            0,
+            10,
+            max,
+            max > 1000000 ? 50 : 25
+          ],
           'circle-opacity': opacity
         }
-      }, 'waterLicences') // Render on top of waterLicences
+      }, 'waterApprovalsCoverPoints')
 
       this.map.on('mouseenter', id, (e) => {
       // Change the cursor style as a UI indicator.
@@ -162,7 +181,7 @@ export default {
             <dl>
               <dt>Approval file no.:</dt> <dd>${approvalNumber}</dd>
               <dt>Source:</dt> <dd>${sourceName}</dd>
-              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
+              <dt>Quantity:</dt> <dd>${qty} m³/year</dd>
               <dt>Works Description:</dt> <dd>${worksDescription}</dd>
               <dt>Start Date:</dt> <dd>${startDate}</dd>
               <dt>Expiry Date:</dt> <dd>${expiryDate}</dd>
@@ -228,7 +247,7 @@ export default {
           let properties = item.properties
           allocItemKey = properties.APPROVAL_FILE_NUMBER
           this.initShortTermAllocationItemIfNotExists(allocItemKey)
-          shortTermMonthlyQty += this.computeQuantityForMonth(properties.qty_m3_yr, this.shortTermAllocationValues[allocItemKey], i + 1)
+          shortTermMonthlyQty += this.computeQuantityForMonth(properties.qty_m3_yr || 0, this.shortTermAllocationValues[allocItemKey], i + 1)
         })
         shortTermAllocationY[i] = shortTermMonthlyQty
       }
@@ -238,17 +257,46 @@ export default {
     toggleLayerVisibility () {
       this.isLayerVisible = !this.isLayerVisible
       this.map.setLayoutProperty('waterApprovals', 'visibility', this.isLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty('waterApprovalsCoverPoints', 'visibility', this.isLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_approval_points', 'visibility', this.isLayerVisible ? 'visible' : 'none')
+    },
+    getWaterApprovals () {
+      this.shortTermLicenceData = null
+      this.setShortTermLicencePlotData(null)
+      if (this.map.getLayer('waterApprovals')) {
+        this.map.removeLayer('waterApprovals')
+      }
+      if (this.map.getLayer('waterApprovalsCoverPoints')) {
+        this.map.removeLayer('waterApprovalsCoverPoints')
+      }
+      if (this.map.getSource('waterApprovals')) {
+        this.map.removeSource('waterApprovals')
+      }
+      this.fetchShortTermLicenceData()
+    }
+  },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.getWaterApprovals()
+      }
     }
   },
   mounted () {
-    this.fetchShortTermLicenceData()
+    if (this.isMapReady()) {
+      this.getWaterApprovals()
+    }
   },
   beforeDestroy () {
-    if (this.map.getLayer('waterApprovals')) {
-      this.map.removeLayer('waterApprovals')
-      this.map.removeSource('waterApprovals')
-    }
+      if (this.map.getLayer('waterApprovals')) {
+        this.map.removeLayer('waterApprovals')
+      }
+      if (this.map.getLayer('waterApprovalsCoverPoints')) {
+        this.map.removeLayer('waterApprovalsCoverPoints')
+      }
+      if (this.map.getSource('waterApprovals')) {
+        this.map.removeSource('waterApprovals')
+      }
   }
 }
 </script>

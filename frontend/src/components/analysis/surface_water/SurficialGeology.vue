@@ -40,7 +40,7 @@ export default {
     surficialGeologyByType: [],
     materialHeaders: [
       { text: 'Material', value: 'soil_type', sortable: true },
-      { text: 'Area within watershed (m3)', value: 'area_within_watershed' }
+      { text: 'Area within watershed (m³)', value: 'area_within_watershed' }
     ]
   }),
   computed: {

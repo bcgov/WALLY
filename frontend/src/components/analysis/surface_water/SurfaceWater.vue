@@ -114,23 +114,16 @@
           </v-row>
 
           <div>
-            <MeanAnnualRunoff ref="anchor-mar"
-                              :watershedID="selectedWatershed"
-                              :record="selectedWatershedRecord"
-                              :allWatersheds="watersheds"
-                              :details="watershedDetails"/>
-            <WatershedAvailability ref="anchor-availability"
-                                   :watershedID="selectedWatershed"
-                                   :allWatersheds="watersheds"
-                                   :record="selectedWatershedRecord"
-                                   :details="watershedDetails"/>
+            <MeanAnnualRunoff :record="selectedWatershedRecord"/>
+            <WatershedDemand :watershedID="selectedWatershed"/>
+            <ShortTermDemand :watershedID="selectedWatershed"/>
+            <AvailabilityVsDemand/>
             <HydrometricStationsContainer
-              ref="anchor-hydrometric-stations"
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
-            <FishObservations ref="anchor-fish-observations"
-                                   :watershedID="selectedWatershed"
+            <FishObservations :watershedID="selectedWatershed"/>
+            <WatershedAvailability :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
           </div>
         </div>
@@ -150,6 +143,9 @@ import MeanAnnualRunoff from './MeanAnnualRunoff'
 import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
+import WatershedDemand from './watershed_demand/WatershedDemand'
+import ShortTermDemand from './watershed_demand/ShortTermDemand'
+import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -158,7 +154,10 @@ export default {
     WatershedAvailability,
     MeanAnnualRunoff,
     EditableModelInputs,
-    FishObservations
+    FishObservations,
+    WatershedDemand,
+    ShortTermDemand,
+    AvailabilityVsDemand
   },
   data: () => ({
     infoTabs: null,
@@ -343,8 +342,6 @@ export default {
             return
           }
           // Set default watershed details/default model inputs
-          // this.setDefaultScsb2016ModelInputs(r.data)
-          // this.setDefaultWatershedDetails(r.data)
           this.initWatershedDetailsAndInputs(r.data)
         })
         .catch(e => {
