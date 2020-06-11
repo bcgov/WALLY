@@ -1,7 +1,5 @@
 <template>
   <div>
-    <p>Select a point on a stream to view water data upstream and downstream.</p>
-
     <p>
       Zoom into an area of interest on the map.
     </p>
