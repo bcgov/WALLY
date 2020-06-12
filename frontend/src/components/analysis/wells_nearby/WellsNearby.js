@@ -120,7 +120,10 @@ export default {
     ...mapGetters('map', ['isMapLayerActive', 'isMapReady'])
   },
   methods: {
-    ...mapActions('map', ['clearSelections']),
+    ...mapActions('map', ['setDrawMode']),
+    selectPoint () {
+      this.setDrawMode('draw_point')
+    },
     exportDrawdownAsSpreadsheet () {
       // Custom metrics - Track Excel downloads
       window._paq && window._paq.push([
@@ -157,6 +160,8 @@ export default {
     },
     fetchWells () {
       this.loading = true
+      this.wells = []
+      this.defaultWells = []
       this.wellRequest()
     },
     wellRequest: debounce(function () {
