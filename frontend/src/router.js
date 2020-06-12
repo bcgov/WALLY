@@ -189,13 +189,6 @@ const router = new Router({
         title: `Surface Water Analysis - ${global.config.title}`,
         sidebarColumns: {}
       }
-    },
-    {
-      path: '/oauth/logout',
-      redirect: (to) => {
-        window.location.href = 'https://logontest.gov.bc.ca/clp-cgi/logoff.cgi'
-        return '/redirecting' // not important since redirecting
-      }
     }
   ]
 })
