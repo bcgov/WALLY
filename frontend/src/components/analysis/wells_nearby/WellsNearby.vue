@@ -1,7 +1,7 @@
 <template>
   <v-container id="wells_nearby" class="">
     <v-row no-gutters>
-      <v-col cols="12" md="4" align-self="center">
+      <v-col cols="12" md="3" align-self="center">
         <v-text-field
           label="Search radius (m)"
           placeholder="1000"
@@ -9,8 +9,19 @@
           v-model="radius"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" offset-md="1" md="4" align-self="center" v-if="!isWellsLayerEnabled">
+      <v-col cols="12" md="3" align-self="center">
+        <v-btn v-if="!loading && wells != defaultWells" small v-on:click="resetWells" color="blue-grey lighten-4" class="ml-5 mb-1 mr-5">
+          <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Reset Wells</span>
+        </v-btn>
+      </v-col>
+      <v-col cols="12" offset-md="1" md="3" align-self="center" v-if="!isWellsLayerEnabled">
         <div class="caption"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
+      </v-col>
+      <v-col v-else>
+        <v-spacer/>
+      </v-col>
+      <v-col cols="12" md="3" class="text-right">
+        <v-btn @click="clearSelections" color="primary" outlined class="mt-2">Draw new point</v-btn>
       </v-col>
     </v-row>
     <v-row no-gutters>
@@ -46,13 +57,19 @@
             <v-data-table
               :loading="loading"
               :headers="headers"
-              :items="wells"
-            >
-              <template v-slot:item.distance="{ item }">
-                <span>{{item.distance.toFixed(1)}}</span>
-              </template>
-              <template v-slot:item.delete="{ item }">
-                <v-icon small @click="deleteWell(item)">delete</v-icon>
+              :items="wells">
+              <template v-slot:item="{ item }">
+                <tr @mouseenter="onMouseEnterWellItem(item)">
+                  <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
+                  <td><span>{{item.distance ? item.distance.toFixed(1) : ''}}</span></td>
+                  <td><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
+                  <td><span>{{item.well_yield ? item.well_yield : ''}}</span></td>
+                  <td><span>{{item.static_water_level ? item.static_water_level : ''}}</span></td>
+                  <td><span>{{item.top_of_screen ? item.top_of_screen : ''}}</span></td>
+                  <td><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+                  <td><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
+                  <td><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
+                </tr>
               </template>
             </v-data-table>
           </v-card-text>
