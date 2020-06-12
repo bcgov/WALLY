@@ -18,9 +18,17 @@
         </v-expansion-panels>
       </v-col>
     </v-row>
-    <div class="title my-3">
+    <v-row>
+      <v-col cols=12 md=6>
+        <div class="title my-3">
           Selected Stream: {{streamName}}
-    </div>
+        </div>
+      </v-col>
+      <v-col class="text-right">
+        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
+      </v-col>
+    </v-row>
+
       <v-row no-gutters v-if="this.selectedLayer">
         <v-col cols="12">
           <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{selectedLayerName}} layer</a></div>
@@ -63,7 +71,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import UpstreamDownstreamData from './UpstreamDownstreamData'
 import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
@@ -80,6 +88,7 @@ export default {
     buffer: 50,
     loadingData: false,
     loadingMapFeatures: false,
+    buttonClicked: false,
     panelOpen: [],
     searchFullUpstreamArea: true,
     streamNetworkMapFeature: null,
@@ -102,6 +111,10 @@ export default {
     ]
   }),
   methods: {
+    selectPoint () {
+      this.setDrawMode('draw_point')
+      this.buttonClicked = true
+    },
     updateStreamBuffers () {
       this.fetchStreamBufferInformation()
     },
@@ -196,6 +209,8 @@ export default {
     resetStreamData () {
       this.streamData = null
     },
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode', 'clearSelections']),
     ...mapMutations('map', ['setMode'])
   },
   computed: {
@@ -247,10 +262,13 @@ export default {
     selectedLayer () {
       this.updateStreamBuffers()
     },
-    record () {
+    record (value) {
       global.config.debug && console.log('[wally] record changed')
       this.drawStreamNetwork()
       this.updateStreamBuffers()
+      if (value && value.geometry) {
+        this.buttonClicked = false
+      }
     }
   },
   mounted () {
