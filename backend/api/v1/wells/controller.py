@@ -11,7 +11,16 @@ import time
 from typing import List, Optional
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, LineString, CAP_STYLE, JOIN_STYLE, mapping, shape, MultiPoint, MultiPolygon
+from shapely.geometry import (
+    Point,
+    LineString,
+    CAP_STYLE,
+    JOIN_STYLE,
+    mapping,
+    shape,
+    MultiPoint,
+    MultiPolygon,
+    Polygon)
 from shapely.ops import transform
 from api.config import GWELLS_API_URL
 from api.layers.ground_water_wells import GroundWaterWells
@@ -301,8 +310,18 @@ def get_waterbodies_along_line(section_line: LineString, profile: LineString):
     stream_features = []
     lake_features = []
 
-    lakes_multipoly_shape = MultiPolygon(
-        [shape(feat.geometry) for feat in intersecting_lakes.features])
+    # create a MultiPolygon of all the lake geometries.
+    # this will be used to check if a stream intersection falls inside a lake
+    # (lake names will supersede stream names inside lakes)
+    lake_polygons = []
+    for lake in intersecting_lakes.features:
+        geom = shape(lake.geometry)
+        if isinstance(geom, MultiPolygon):
+            lake_polygons = lake_polygons + [poly for poly in geom]
+        elif isinstance(geom, Polygon):
+            lake_polygons.append(geom)
+
+    lakes_multipoly_shape = MultiPolygon(lake_polygons)
 
     # convert each intersecting stream into a Point or MultiPoint using .intersection().
     # check each point of intersection to make sure it doesn't lie on a lake (stream lines in

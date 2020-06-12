@@ -86,7 +86,7 @@ export default {
           ay: -30
         }
       })
-      let waterbodyAnnotations = this.streams.map((s) => {
+      let waterbodyAnnotations = this.waterbodies.map((s) => {
         return {
           xref: 'x',
           yref: 'y',
@@ -265,10 +265,10 @@ export default {
       }
 
       const streams = {
-        x: this.streams.map(s => s.distance),
-        y: this.streams.map(s => s.elevation),
+        x: this.waterbodies.map(s => s.distance),
+        y: this.waterbodies.map(s => s.elevation),
         name: 'Surface water',
-        text: this.streams.map(s => s.name),
+        text: this.waterbodies.map(s => s.name),
         textposition: 'bottom',
         mode: 'markers',
         marker: {
@@ -412,7 +412,7 @@ export default {
           this.wells = r.data.wells
           this.elevations = r.data.elevation_profile
           this.surfacePoints = r.data.surface
-          this.streams = r.data.streams
+          this.waterbodies = r.data.waterbodies
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
@@ -628,9 +628,9 @@ export default {
       },
       deep: true
     },
-    coordinates () {
-      this.fetchWellsAlongLine()
-    },
+    // coordinates () {
+    //   this.fetchWellsAlongLine()
+    // },
     radius (value) {
       // delay call to re-fetch data if user still inputting radius numbers
       clearTimeout(this.timeout)

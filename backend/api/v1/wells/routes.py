@@ -106,12 +106,12 @@ def get_wells_section(
     surface_lines[1].reverse()
 
     # waterbodies that cross profile
-    streams_along_line = get_waterbodies_along_line(
+    waterbodies_along_line = get_waterbodies_along_line(
         line_shape, profile_line_linestring)
 
     # logger.info(surface_lines)
     section = CrossSection(search_area=mapping(buffer), wells=wells_along_line,
-                           streams=streams_along_line,
+                           waterbodies=waterbodies_along_line,
                            elevation_profile=profile_line, surface=surface_lines)
 
     return section
