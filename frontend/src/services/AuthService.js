@@ -49,7 +49,7 @@ export class AuthService {
   logout () {
     localStorage.removeItem('loggedIn')
     localStorage.removeItem('expiresAt')
-    window.location.href = '/oauth/logout?redirect=https://logontest.gov.bc.ca/clp-cgi/logoff.cgi'
+    window.location.href = `/oauth/logout?redirect=${process.env.VUE_APP_AXIOS_BASE_URL}`
   }
 
   isAuthenticated () {
