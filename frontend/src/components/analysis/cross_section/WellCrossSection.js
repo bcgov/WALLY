@@ -109,7 +109,7 @@ export default {
           arrowsize: 1,
           arrowwidth: 1,
           ax: 8,
-          ay: -30
+          ay: -70
         }
       })
       const opts = {
