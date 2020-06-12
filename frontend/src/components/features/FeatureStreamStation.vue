@@ -73,7 +73,7 @@ export default {
         textposition: 'bottom',
         name: 'Daily flow (average by month)',
         hovertemplate:
-          '<b>Mean</b>: %{text} m3/s',
+          '<b>Mean</b>: %{text} m³/s',
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
@@ -87,7 +87,7 @@ export default {
         textposition: 'bottom',
         name: 'Daily flow (max recorded)',
         hovertemplate:
-          '<b>Max</b>: %{text} m3/s',
+          '<b>Max</b>: %{text} m³/s',
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
@@ -101,7 +101,7 @@ export default {
         textposition: 'bottom',
         name: 'Daily flow (min recorded)',
         hovertemplate:
-          '<b>Min</b>: %{text} m3/s',
+          '<b>Min</b>: %{text} m³/s',
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
@@ -122,7 +122,7 @@ export default {
         },
         yaxis: {
           title: {
-            text: 'Flow Rate (m3/s)'
+            text: 'Flow Rate (m³/s)'
           }
         },
         xaxis: {
@@ -229,7 +229,7 @@ export default {
     fetchMonthlyData (flowURL, levelURL) {
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
-        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm3/s', this.flowData.map((x) => [x.max]))
+        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm³/s', this.flowData.map((x) => [x.max]))
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true

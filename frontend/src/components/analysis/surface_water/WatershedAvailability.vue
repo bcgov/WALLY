@@ -39,6 +39,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })
@@ -56,8 +58,6 @@ const months = [
   '2020-11-01',
   '2020-12-01'
 ]
-
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'WatershedAvailability',
@@ -85,7 +85,7 @@ export default {
         tickformat: '%B'
       },
       yaxis: {
-        title: 'm3/s'
+        title: 'm³/s'
       }
     },
     isolineRunoffLayout: {
@@ -100,7 +100,7 @@ export default {
         tickformat: '%B'
       },
       yaxis: {
-        title: 'm3/s'
+        title: 'm³/s'
       }
     }
   }),

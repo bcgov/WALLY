@@ -28,7 +28,7 @@
             @close="closeShortTermAllocation"/>
         </v-dialog>
 
-        <span>Total annual approved quantity:</span> {{ shortTermLicenceData.total_qty | formatNumber }} m3/year
+        <span>Total annual approved quantity:</span> {{ shortTermLicenceData.total_qty | formatNumber }} m³/year
 
         <Dialog v-bind="wmd.shortTermDemand"/>
 
@@ -86,7 +86,7 @@ export default {
       { text: 'Works', value: 'WORKS_DESCRIPTION' },
       { text: 'Start Date', value: 'APPROVAL_START_DATE' },
       { text: 'Expiry Date', value: 'APPROVAL_EXPIRY_DATE' },
-      { text: 'Quantity (m3/year)', value: 'qty_m3_yr', align: 'end' },
+      { text: 'Quantity (m³/year)', value: 'qty_m³_yr', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
@@ -123,7 +123,7 @@ export default {
       })
 
       this.map.addLayer({
-        id: "waterApprovalsCoverPoints",
+        id: 'waterApprovalsCoverPoints',
         type: 'circle',
         source: 'waterApprovals',
         paint: {
@@ -131,7 +131,7 @@ export default {
           'circle-radius': 5,
           'circle-opacity': 1,
           'circle-stroke-width': 2,
-          'circle-stroke-color': "#ffffff"
+          'circle-stroke-color': '#ffffff'
         }
       })
 
@@ -144,7 +144,7 @@ export default {
           'circle-radius': [
             'interpolate',
             ['linear'],
-            ['number', ['get', 'qty_m3_yr'], 0],
+            ['number', ['get', 'qty_m³_yr'], 0],
             0,
             10,
             max,
@@ -181,7 +181,7 @@ export default {
             <dl>
               <dt>Approval file no.:</dt> <dd>${approvalNumber}</dd>
               <dt>Source:</dt> <dd>${sourceName}</dd>
-              <dt>Quantity:</dt> <dd>${qty} m3/year</dd>
+              <dt>Quantity:</dt> <dd>${qty} m³/year</dd>
               <dt>Works Description:</dt> <dd>${worksDescription}</dd>
               <dt>Start Date:</dt> <dd>${startDate}</dd>
               <dt>Expiry Date:</dt> <dd>${expiryDate}</dd>
@@ -288,15 +288,15 @@ export default {
     }
   },
   beforeDestroy () {
-      if (this.map.getLayer('waterApprovals')) {
-        this.map.removeLayer('waterApprovals')
-      }
-      if (this.map.getLayer('waterApprovalsCoverPoints')) {
-        this.map.removeLayer('waterApprovalsCoverPoints')
-      }
-      if (this.map.getSource('waterApprovals')) {
-        this.map.removeSource('waterApprovals')
-      }
+    if (this.map.getLayer('waterApprovals')) {
+      this.map.removeLayer('waterApprovals')
+    }
+    if (this.map.getLayer('waterApprovalsCoverPoints')) {
+      this.map.removeLayer('waterApprovalsCoverPoints')
+    }
+    if (this.map.getSource('waterApprovals')) {
+      this.map.removeSource('waterApprovals')
+    }
   }
 }
 </script>
