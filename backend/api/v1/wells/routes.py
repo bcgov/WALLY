@@ -14,7 +14,6 @@ from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
     get_wells_by_distance,
-    get_streams_along_line,
     get_waterbodies_along_line,
     merge_wells_datasources,
     create_line_buffer,
@@ -107,13 +106,12 @@ def get_wells_section(
     surface_lines[1].reverse()
 
     # waterbodies that cross profile
-    streams_along_line = get_streams_along_line(line_shape)
-    lakes_along_line = get_waterbodies_along_line(
+    streams_along_line = get_waterbodies_along_line(
         line_shape, profile_line_linestring)
 
     # logger.info(surface_lines)
     section = CrossSection(search_area=mapping(buffer), wells=wells_along_line,
-                           streams=streams_along_line + lakes_along_line,
+                           streams=streams_along_line,
                            elevation_profile=profile_line, surface=surface_lines)
 
     return section
