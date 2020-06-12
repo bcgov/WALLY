@@ -18,7 +18,8 @@ from api.layers.ground_water_wells import GroundWaterWells
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
 from api.v1.aggregator.controller import fetch_geojson_features
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
-from api.v1.wells.schema import WellDrawdown, Screen
+from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportApiParams, CrossSectionExport
+from api.v1.wells.excel import crossSectionXlsxExport
 logger = logging.getLogger("api")
 
 
@@ -277,3 +278,30 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         wells_results.append(well_data)
 
     return wells_results
+
+
+def get_cross_section_export(xs: CrossSectionExport):
+    """ 
+    Gathers together well information and returns an excel report 
+    describing a cross section area
+    """
+    params = ExportApiParams(
+        geojson="true"
+    )
+
+    requests = []
+    for well_tag_number in xs.wells:
+        url = f"{GWELLS_API_URL}/api/v2/wells/{well_tag_number}"
+        req = ExportApiRequest(
+            url=url,
+            layer="gwells",
+            id_field="well_tag_number",
+            q=params
+        )
+        requests.append(req)
+
+    feature_collection = fetch_geojson_features(requests)
+
+    return crossSectionXlsxExport(feature_collection, xs.coordinates, xs.buffer)
+
+

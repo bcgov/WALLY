@@ -1,9 +1,13 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
+import StreamApportionmentInstructions from './StreamApportionmentInstructions'
 
 export default {
   name: 'StreamApportionment',
+  components: {
+    StreamApportionmentInstructions
+  },
   props: ['record'],
   data: () => ({
     loading: false,

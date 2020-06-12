@@ -8,7 +8,7 @@ from sqlalchemy import func
 from shapely.geometry import Point, LineString, mapping
 
 from api.db.utils import get_db
-from api.v1.wells.schema import WellDrawdown, CrossSection, WellsExport
+from api.v1.wells.schema import WellDrawdown, CrossSection, CrossSectionExport, WellsExport
 from api.v1.aggregator.excel import geojson_to_xlsx
 from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
@@ -19,7 +19,8 @@ from api.v1.wells.controller import (
     get_screens,
     get_wells_along_line,
     get_line_buffer_polygon,
-    get_parallel_line_offset
+    get_parallel_line_offset,
+    get_cross_section_export
 )
 
 logger = getLogger("wells")
@@ -115,3 +116,12 @@ def get_wells_section(
                            elevation_profile=profile_line, surface=surface_lines)
 
     return section
+
+
+@router.post("/section/export")
+def get_wells_section_export(
+    req: CrossSectionExport
+):
+    """ gather well information for many wells and export an excel report """
+
+    return get_cross_section_export(req)
