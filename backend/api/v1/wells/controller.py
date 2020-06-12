@@ -239,9 +239,9 @@ def distance_along_line(line: LineString, point: Point, srid=4326):
         raise ValueError("SRID must be either 4326 or 3005")
 
     # note.  shapely's geom.distance calculates distance on a 2d plane
-    a = point.distance(line.interpolate(0))
+    c = point.distance(line.interpolate(0))
     b = point.distance(line)
-    return math.sqrt(a**2 + b**2)
+    return math.sqrt(c**2 - b**2)
 
 
 def elevation_along_line(profile, distance):
