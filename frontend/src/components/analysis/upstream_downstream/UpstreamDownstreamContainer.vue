@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Find features along a stream
+          Find features upstream or downstream along a stream
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -19,16 +19,18 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
-    <v-row class="mt-3">
-      <v-col class="text-right">
-        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select Point</v-btn>
-      </v-col>
-    </v-row>
+
     <UpstreamDownstream
       :record="selectedStream"
       :coordinates="selectedStream.geometry.coordinates"
       v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
-    <v-row v-else>
+    <div v-else>
+    <v-row class="mt-3">
+      <v-col class="text-right">
+        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
       <v-col cols=12>
         <v-card>
           <v-card-title>Instructions</v-card-title>
@@ -38,6 +40,8 @@
         </v-card>
       </v-col>
     </v-row>
+    </div>
+
   </v-container>
 </template>
 

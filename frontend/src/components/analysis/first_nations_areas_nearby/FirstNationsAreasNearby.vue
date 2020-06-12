@@ -56,23 +56,23 @@
         </v-expansion-panel-header>
         <v-expansion-panel-content>
           <dl>
-            <dt>First Nations Community Locations</dt>
-            <dd>
-              <a href="https://catalogue.data.gov.bc.ca/dataset/first-nation-community-locations" target="_blank">
-                https://catalogue.data.gov.bc.ca/dataset/first-nation-community-locations
-              </a>
-            </dd>
             <dt>First Nations Treaty Areas</dt>
             <dd>
+              This layer comes from the
               <a href="https://catalogue.data.gov.bc.ca/dataset/first-nations-treaty-areas" target="_blank">
-                https://catalogue.data.gov.bc.ca/dataset/first-nations-treaty-areas
+                First Nations Treaty Areas
               </a>
+              dataset and contains the areas within which the First Nation has a role (as described in the treaty) related to economic activities, governance activities and cultural activities.
+
             </dd>
             <dt>First Nations Treaty Lands</dt>
             <dd>
+              This layer comes from the
               <a href="https://catalogue.data.gov.bc.ca/dataset/first-nations-treaty-lands" target="_blank">
-                https://catalogue.data.gov.bc.ca/dataset/first-nations-treaty-lands
+                First Nations Treaty Lands
               </a>
+              dataset and shows the lands that are owned by the First Nation as a result of the treaty and over which the First Nation has governance as described in the treaty.
+              These boundaries should be treated as cartographic representations only. The official versions of these boundaries are contained within the treaty documents.
             </dd>
           </dl>
           <dl>

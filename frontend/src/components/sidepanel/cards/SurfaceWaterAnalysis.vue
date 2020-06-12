@@ -2,12 +2,12 @@
   <v-container class="pt-3">
     <v-toolbar flat>
       <v-banner color="indigo"
-                icon="mdi-vector-line"
+                icon="mdi-chart-bar"
                 icon-color="white"
                 width="100%"
       >
         <v-toolbar-title>
-          Surface water
+          Analyze surface water availability
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -25,10 +25,10 @@
     </div>
     <v-row class="mt-3" v-else>
       <v-col cols=12 lg=8>
-        <p class="pl-3">Select a point of interest.</p>
+        <p class="pl-3">Select a point of interest to determine water availability.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Select point</v-btn>
+        <v-btn @click="selectPoint" color="primary" outlined>Select a point</v-btn>
       </v-col>
     </v-row>
   </v-container>
