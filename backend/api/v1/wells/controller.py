@@ -224,8 +224,8 @@ def get_parallel_line_offset(db: Session, line: LineString, radius: float):
 
 
 def distance_along_line(line: LineString, point: Point, srid=4326):
-    """ 
-    calculates the distance that `point` is along `line`. Note that 
+    """
+    calculates the distance that `point` is along `line`. Note that
     this is the distance along the line, not from the beginning of the line
     to the point.
     """
@@ -241,7 +241,7 @@ def distance_along_line(line: LineString, point: Point, srid=4326):
     # note.  shapely's geom.distance calculates distance on a 2d plane
     c = point.distance(line.interpolate(0))
     b = point.distance(line)
-    return math.sqrt(c**2 - b**2)
+    return math.sqrt(abs(c**2 - b**2))
 
 
 def elevation_along_line(profile, distance):
@@ -331,7 +331,6 @@ def get_waterbodies_along_line(section_line: LineString, profile: LineString):
     # the CDEM value from the Canada GeoGratis DEM API.
     for stream in intersecting_streams.features:
         intersecting_points = line_3005.intersection(shape(stream.geometry))
-        logger.info(intersecting_points)
 
         # the intersection may either be a MultiPoint (which is iterable),
         # or a single Point instance (not iterable). If not iterable, convert
