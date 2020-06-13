@@ -26,7 +26,7 @@ export default {
     wells: [],
     loading: false,
     headers: [
-      { text: '', value: 'delete', sortable: false, align: "start" },
+      { text: '', value: 'delete', sortable: false, align: 'start' },
       { text: 'Distance (m)', value: 'distance' },
       { text: 'Well tag number', value: 'well_tag_number' },
       { text: 'Reported yield (USGPM)', value: 'well_yield' },
@@ -256,7 +256,7 @@ export default {
       this.wells = this.defaultWells
       this.updateBoxPlotData()
     },
-    updateBoxPlotData() {
+    updateBoxPlotData () {
       this.boxPlotSWLData.data = []
       this.boxPlotYieldData.data = []
       this.boxPlotFinishedDepthData.data = []
@@ -268,17 +268,17 @@ export default {
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
       // hovered list item in the nearby wells table
-      var feature = { 
-        "id": well.well_tag_number, 
-        "type": "Feature",
-        "geometry": {
-            "type": "Point",
-            "coordinates": [
-              well.longitude,
-              well.latitude
-            ]
+      var feature = {
+        'id': well.well_tag_number,
+        'type': 'Feature',
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [
+            well.longitude,
+            well.latitude
+          ]
         },
-        "properties": {}
+        'properties': {}
       }
       feature['display_data_name'] = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
