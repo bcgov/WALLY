@@ -152,17 +152,27 @@
                 <dt>Status</dt>
                 <dd>Status comes from either LICENCE_STATUS (Water Rights Licences), APPLICATION_STATUS (Water Rights Applications), or APPROVAL_STATUS (Water Approval Points). See links to datasets on DataBC Catalogue above for more information.</dd>
                 <dt>Licence number</dt>
-                <dd>Licence number is the authorization number referenced in the water licence document, e.g., 121173.</dd>
+                <dd>Licence number is the authorization number referenced in the water licence document, e.g. 121173.</dd>
                 <dt>POD number</dt>
-                <dd>POD number is the unique identifier for a Point of Diversion, e.g., PW189413. Each POD can have multiple licences associated with it.</dd>
+                <dd>POD number is the unique identifier for a Point of Diversion, e.g. PW189413. Each POD can have multiple licences associated with it.</dd>
                 <dt>Usage type</dt>
                 <dd>Usage type comes from either PURPOSE_USE (Water Rights Licences and Water Rights Applications), or WORKS_DESCRIPTION (Water Approval Points).</dd>
                 <dt>Quantity</dt>
-                <dd>Quantity is the maximum quantity of water that is authorized to be diverted for the purpose use, e.g., 500 m³/day.</dd>
+                <dd>Quantity is the maximum quantity of water that is authorized to be diverted for the purpose use, e.g. 500 m³/day.</dd>
                 <dt>POD subtype</dt>
                 <dd>
-                  POD subtype distinguishes the different POD types, i.e., POD (a surface water point of diversion), PWD (a point of well diversion that diverts groundwater),
-                  or PG (a point of groundwater diversion that diverts groundwater such as a dugout, ditch or quarry).
+                  POD subtype distinguishes the different POD types:
+                  <ul>
+                    <li>
+                      POD (a surface water point of diversion),
+                    </li>
+                    <li>
+                      PWD (a point of well diversion that diverts groundwater), or
+                    </li>
+                    <li>
+                      PG (a point of groundwater diversion that diverts groundwater such as a dugout, ditch or quarry).
+                    </li>
+                  </ul>
                 </dd>
               </dl>
             </v-expansion-panel-content>

@@ -12,7 +12,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Stream apportionment
+          Apportion demand to nearby streams
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>

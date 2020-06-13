@@ -41,7 +41,7 @@
                 class="analysisButton"
                 :to="{ path: 'first-nations-areas-nearby', query: { coordinates: record.geometry.coordinates }}"
               >
-                Find First Nations communities, treaty areas, lands
+                Find First Nations communities, treaty areas, and lands
                 <v-icon>mdi-chevron-right</v-icon>
               </v-btn>
             </v-card-actions>

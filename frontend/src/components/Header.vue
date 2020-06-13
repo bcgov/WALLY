@@ -29,6 +29,7 @@
       </v-tooltip>
     </div>
     <div class="wally-user mr-5">{{ name }}</div>
+    <v-btn small color="primary" @click="logout()">Log out</v-btn>
     <div>
       <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on }">
@@ -96,6 +97,9 @@ export default {
     }
   },
   methods: {
+    logout() {
+      this.$auth.logout()
+    },
     toggleAdjustableSidePanel () {
       global.config.debug && console.log('[wally] toggling')
       this.$store.commit('toggleAdjustableSidePanel')
@@ -107,7 +111,7 @@ export default {
         this.name = name
 
         // Track unique user
-        window._paq.push(['setUserId', uuid])
+        window._paq && window._paq.push(['setUserId', uuid])
       }
     },
     openFeedback () {
