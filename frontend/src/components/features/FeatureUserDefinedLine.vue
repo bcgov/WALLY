@@ -3,7 +3,7 @@
     <div class="headline">Line</div>
     <v-expansion-panels class="mt-5" multiple v-model="panelOpen">
       <v-expansion-panel>
-        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Cross section analysis</v-expansion-panel-header>
+        <v-expansion-panel-header class="grey--text text--darken-4 subtitle-1">Cross section plot</v-expansion-panel-header>
         <v-expansion-panel-content>
           <WellsCrossSection :record="record" :coordinates="this.record.geometry.coordinates" :panelOpen="open"></WellsCrossSection>
         </v-expansion-panel-content>

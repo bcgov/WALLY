@@ -82,19 +82,19 @@ export default {
     ],
     toolOptions: [
       {
-        title: 'Plot cross section',
+        title: 'Cross section plot',
         route: { name: 'cross-section' }
       },
       {
-        title: 'Find data upstream or downstream along a stream',
+        title: 'Find features upstream or downstream along a stream',
         route: { name: 'upstream-downstream' }
       },
       {
-        title: 'Assign demand at a point to nearby streams',
+        title: 'Stream apportionment',
         route: { name: 'stream-apportionment' }
       },
       {
-        title: 'Surface water analysis',
+        title: 'Surface water availability analysis',
         route: { name: 'surface-water' }
       }
 
@@ -123,8 +123,12 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
 .selection-menu-buttons {
   height: 100%!important;
 }
+.v-list-item__content, .v-select__selection {
+  text-transform: none;
+}
+
 </style>
