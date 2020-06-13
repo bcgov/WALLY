@@ -195,6 +195,63 @@ export default {
         }
         opts.shapes.push(rect)
       })
+
+      let screensList = this.wells.map(w => {
+        if (!w.screen_set || !w.screen_set.length) {
+          return []
+        }
+
+        return w.screen_set.map(s => {
+          return {
+            x: w.distance_from_origin ? w.distance_from_origin : 0,
+            y0: w.ground_elevation_from_dem - (s.start * 0.3048),
+            y1: w.ground_elevation_from_dem - (s.end * 0.3048),
+            ...s
+          }
+        })
+      })
+      console.log(screensList)
+      screensList.flat().forEach(screen => {
+        // generate rectangle
+        const rect = {
+          type: 'rect',
+          xref: 'x',
+          yref: 'y',
+          x0: screen.x - 3,
+          y0: screen.y0,
+          x1: screen.x + 3,
+          y1: screen.y1,
+          opacity: 0.7,
+          line: {
+            color: 'blue',
+            width: 2
+          },
+          hoverlabel: {
+            namelength: 0
+          }
+        }
+        opts.shapes.push(rect)
+
+        // generate hashmarks/lines within rectangle
+        // every 0.2 metres
+        Array(Math.floor(Math.abs(screen.y0 - screen.y1) * 5)).fill({}).map((item, i) => ({
+          type: 'line',
+          xref: 'x',
+          yref: 'y',
+          x0: screen.x - 3,
+          y0: screen.y1 + (i + 1) * 0.2,
+          x1: screen.x + 3,
+          y1: screen.y1 + (i + 1) * 0.2,
+          opacity: 0.7,
+          line: {
+            color: 'blue',
+            width: 2
+          }
+        })).forEach(item => {
+          opts.shapes.push(item)
+        })
+      })
+
       return opts
     },
     chartData () {
@@ -256,6 +313,7 @@ export default {
         hoverinfo: 'text',
         hovertemplate: '%{text} %{y} m'
       }
+
       const elevProfile = {
         x: this.elevations.map(e => e.distance_from_origin),
         y: this.elevations.map(e => e.elevation),
