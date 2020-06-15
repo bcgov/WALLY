@@ -671,9 +671,6 @@ export default {
       },
       deep: true
     },
-    // coordinates () {
-    //   this.fetchWellsAlongLine()
-    // },
     radius (value) {
       // delay call to re-fetch data if user still inputting radius numbers
       clearTimeout(this.timeout)
