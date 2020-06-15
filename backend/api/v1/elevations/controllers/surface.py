@@ -38,7 +38,7 @@ async def parse_result(res: ClientResponse) -> LineString:
 
 async def fetch(line: str, session: ClientSession) -> asyncio.Future:
     """ asynchronously fetch one URL, expecting a geojson response """
-    steps = 10
+    steps = 20
     if not line:
         return []
     url = f"http://geogratis.gc.ca/services/elevation/cdem/profile.json?path={line}&steps={steps}"
@@ -65,7 +65,7 @@ async def fetch_all(requests: List[str]) -> asyncio.Future:
     tasks = []
     semaphore = asyncio.Semaphore(10)
     headers = {'accept': 'application/json'}
-    
+
     async with ClientSession(headers=headers) as session:
         for req in requests:
             task = asyncio.ensure_future(
