@@ -11,12 +11,21 @@ import time
 from typing import List, Optional
 from sqlalchemy import func, text
 from sqlalchemy.orm import Session
-from shapely.geometry import Point, LineString, CAP_STYLE, JOIN_STYLE, mapping, shape
+from shapely.geometry import (
+    Point,
+    LineString,
+    CAP_STYLE,
+    JOIN_STYLE,
+    mapping,
+    shape,
+    MultiPoint,
+    MultiPolygon,
+    Polygon)
 from shapely.ops import transform
 from api.config import GWELLS_API_URL
 from api.layers.ground_water_wells import GroundWaterWells
 from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
-from api.v1.aggregator.controller import fetch_geojson_features
+from api.v1.aggregator.controller import fetch_geojson_features, DATABC_GEOMETRY_FIELD, databc_feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportApiParams, CrossSectionExport
 from api.v1.wells.excel import crossSectionXlsxExport
@@ -215,21 +224,25 @@ def get_parallel_line_offset(db: Session, line: LineString, radius: float):
     ), 4326))).first()
 
 
-def distance_along_line(line: LineString, point: Point):
-    """ 
-    calculates the distance that `point` is along `line`. Note that 
+def distance_along_line(line: LineString, point: Point, srid=4326):
+    """
+    calculates the distance that `point` is along `line`. Note that
     this is the distance along the line, not from the beginning of the line
     to the point.
     """
 
-    # transform to BC Albers, which has a base unit of metres
-    point = transform(transform_4326_3005, point)
-    line = transform(transform_4326_3005, line)
+    if srid == 4326:
+        # transform to BC Albers, which has a base unit of metres
+        point = transform(transform_4326_3005, point)
+        line = transform(transform_4326_3005, line)
+
+    elif srid != 3005:
+        raise ValueError("SRID must be either 4326 or 3005")
 
     # note.  shapely's geom.distance calculates distance on a 2d plane
-    a = point.distance(line.interpolate(0))
+    c = point.distance(line.interpolate(0))
     b = point.distance(line)
-    return math.sqrt(a**2 + b**2)
+    return math.sqrt(abs(c**2 - b**2))
 
 
 def elevation_along_line(profile, distance):
@@ -280,6 +293,97 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
     return wells_results
 
 
+def get_waterbodies_along_line(section_line: LineString, profile: LineString):
+    """ retrieves streams that cross the cross section profile line """
+
+    line_3005 = transform(transform_4326_3005, section_line)
+
+    streams_layer = "WHSE_BASEMAPPING.FWA_STREAM_NETWORKS_SP"
+    lakes_layer = "WHSE_BASEMAPPING.FWA_LAKES_POLY"
+
+    cql_filter = f"""INTERSECTS(GEOMETRY, {line_3005.wkt})"""
+
+    intersecting_lakes = databc_feature_search(
+        lakes_layer, cql_filter=cql_filter)
+    intersecting_streams = databc_feature_search(
+        streams_layer, cql_filter=cql_filter)
+
+    stream_features = []
+    lake_features = []
+
+    # create a MultiPolygon of all the lake geometries.
+    # this will be used to check if a stream intersection falls inside a lake
+    # (lake names will supersede stream names inside lakes)
+    lake_polygons = []
+    for lake in intersecting_lakes.features:
+        geom = shape(lake.geometry)
+        if isinstance(geom, MultiPolygon):
+            lake_polygons = lake_polygons + [poly for poly in geom]
+        elif isinstance(geom, Polygon):
+            lake_polygons.append(geom)
+
+    lakes_multipoly_shape = MultiPolygon(lake_polygons)
+
+    # convert each intersecting stream into a Point or MultiPoint using .intersection().
+    # check each point of intersection to make sure it doesn't lie on a lake (stream lines in
+    # the Freshwater Atlas extend through lakes, but when we are over a lake, we want the lake
+    # name not the stream name).
+    # the elevation for points comes from the Freshwater Atlas, so it's possible it could be slightly off
+    # the CDEM value from the Canada GeoGratis DEM API.
+    for stream in intersecting_streams.features:
+        intersecting_points = line_3005.intersection(shape(stream.geometry))
+
+        # the intersection may either be a MultiPoint (which is iterable),
+        # or a single Point instance (not iterable). If not iterable, convert
+        # to a list of 1 Point.
+        if isinstance(intersecting_points, Point):
+            intersecting_points = [intersecting_points]
+
+        for point in intersecting_points:
+            if point.intersects(lakes_multipoly_shape):
+                # skip so that we can defer to the lake's name
+                continue
+
+            distance = distance_along_line(
+                LineString([coords[:2] for coords in list(line_3005.coords)]),
+                point,
+                srid=3005
+            )
+            stream_data = {
+                "name": stream.properties['GNIS_NAME'] or "Unnamed Stream",
+                "distance": distance,
+                "elevation": point.z,
+                "geometry": transform(transform_3005_4326, point)
+            }
+            stream_features.append(stream_data)
+
+    # for lakes, use a representative point (using the centroid).
+    # Lakes don't come with an elevation, so the elevation uses the profile
+    # retrieved from the GeoGratis CDEM API.
+    for lake in intersecting_lakes.features:
+        intersecting_points = line_3005.intersection(shape(lake.geometry))
+
+        if isinstance(intersecting_points, LineString):
+            intersecting_points = [intersecting_points]
+
+        for line in intersecting_points:
+            point = line.centroid
+            distance = distance_along_line(
+                LineString([coords[:2] for coords in list(line_3005.coords)]),
+                point,
+                srid=3005
+            )
+            lake_data = {
+                "name": lake.properties['GNIS_NAME_1'] or f"Unnamed Lake",
+                "distance": distance,
+                "elevation": elevation_along_line(profile, distance),
+                "geometry": transform(transform_3005_4326, line)
+            }
+            lake_features.append(lake_data)
+
+    return stream_features + lake_features
+
+
 def get_cross_section_export(xs: CrossSectionExport):
     """ 
     Gathers together well information and returns an excel report 
@@ -303,5 +407,3 @@ def get_cross_section_export(xs: CrossSectionExport):
     feature_collection = fetch_geojson_features(requests)
 
     return crossSectionXlsxExport(feature_collection, xs.coordinates, xs.buffer)
-
-

@@ -14,6 +14,7 @@ from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
     get_wells_by_distance,
+    get_waterbodies_along_line,
     merge_wells_datasources,
     create_line_buffer,
     get_screens,
@@ -84,7 +85,8 @@ def export_nearby_wells(
 @router.get("/section", response_model=CrossSection)
 def get_wells_section(
         db: Session = Depends(get_db),
-        line: str = Query(..., title="Section line", description="Section line along which wells will be plotted"),
+        line: str = Query(..., title="Section line",
+                          description="Section line along which wells will be plotted"),
         radius: float = Query(200, title="Search radius",
                               description="Search radius (or offset) from line", ge=0, le=10000)
 ):
@@ -98,11 +100,13 @@ def get_wells_section(
     right = get_parallel_line_offset(db, line_shape, radius)
     right_half = get_parallel_line_offset(db, line_shape, radius/2)
     lines = [left[0], left_half[0], line_shape.wkt, right_half[0], right[0]]
-    surface = fetch_surface_lines(lines)  # surface of 5 lines used for 3d display
+    # surface of 5 lines used for 3d display
+    surface = fetch_surface_lines(lines)
 
     profile_line_linestring = surface[2]
     profile_line = get_profile_line_by_length(db, profile_line_linestring)
-    wells_along_line = get_wells_along_line(db, profile_line_linestring, radius)
+    wells_along_line = get_wells_along_line(
+        db, profile_line_linestring, radius)
 
     buffer = create_line_buffer(profile_line_linestring, radius)
 
@@ -111,8 +115,13 @@ def get_wells_section(
     surface_lines[0].reverse()
     surface_lines[1].reverse()
 
+    # waterbodies that cross profile
+    waterbodies_along_line = get_waterbodies_along_line(
+        line_shape, profile_line_linestring)
+
     # logger.info(surface_lines)
     section = CrossSection(search_area=mapping(buffer), wells=wells_along_line,
+                           waterbodies=waterbodies_along_line,
                            elevation_profile=profile_line, surface=surface_lines)
 
     return section
