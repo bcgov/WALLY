@@ -347,8 +347,7 @@ def get_waterbodies_along_line(section_line: LineString, profile: LineString):
 
         for point in intersecting_points:
             if point.intersects(lakes_multipoly_shape):
-                logger.info(
-                    'stream point intersects a lake.  skipping in order to use data from the lake')
+                # skip so that we can defer to the lake's name
                 continue
 
             distance = distance_along_line(
@@ -369,7 +368,6 @@ def get_waterbodies_along_line(section_line: LineString, profile: LineString):
     # retrieved from the GeoGratis CDEM API.
     for lake in intersecting_lakes.features:
         intersecting_points = line_3005.intersection(shape(lake.geometry))
-        logger.info(intersecting_points)
 
         if isinstance(intersecting_points, LineString):
             intersecting_points = [intersecting_points]
