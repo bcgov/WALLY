@@ -2,7 +2,7 @@ import json
 import geojson
 from typing import List
 from logging import getLogger
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from shapely.geometry import Point, LineString, mapping
@@ -91,8 +91,13 @@ def get_wells_section(
     right = get_parallel_line_offset(db, line_shape, radius)
     right_half = get_parallel_line_offset(db, line_shape, radius/2)
     lines = [left[0], left_half[0], line_shape.wkt, right_half[0], right[0]]
+
     # surface of 5 lines used for 3d display
-    surface = fetch_surface_lines(lines)
+    try:
+        surface = fetch_surface_lines(lines)
+    except:
+        raise HTTPException(
+            status_code=502, detail="unable to retrieve elevations from GeoGratis CDEM API")
 
     profile_line_linestring = surface[2]
     profile_line = get_profile_line_by_length(db, profile_line_linestring)

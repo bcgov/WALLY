@@ -280,11 +280,8 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             Point(shape(well.geometry))
         )
 
+        # load screen data from the geojson response
         screenset = well.properties.get('screen_set', '')
-
-        logger.info(screenset)
-        logger.info(type(screenset))
-
         screenset = json.loads(screenset)
 
         well_data = {
