@@ -7,6 +7,7 @@ import logging
 import requests
 import math
 import pyproj
+import json
 import time
 from typing import List, Optional
 from sqlalchemy import func, text
@@ -279,13 +280,18 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             Point(shape(well.geometry))
         )
 
+        # load screen data from the geojson response
+        screenset = well.properties.get('screen_set', '')
+        screenset = json.loads(screenset)
+
         well_data = {
             "well_tag_number": well.properties['well_tag_number'],
             "finished_well_depth": float(well.properties['finished_well_depth']) * 0.3048 if well.properties['finished_well_depth'] else None,
             "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties['static_water_level'] else None,
             "distance_from_origin": distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
-            "feature": well
+            "feature": well,
+            "screen_set": screenset
         }
 
         wells_results.append(well_data)

@@ -90,6 +90,7 @@ class WellSection(BaseModel):
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
     feature: Optional[dict]
+    screen_set: List
 
     class Config:
         orm_mode = True

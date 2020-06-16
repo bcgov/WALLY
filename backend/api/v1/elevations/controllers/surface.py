@@ -5,6 +5,7 @@ from typing import List
 from shapely.geometry import LineString
 from geojson import Feature
 from aiohttp import ClientSession, ClientResponse
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 logger = logging.getLogger("elevations.controller")
 
@@ -42,7 +43,8 @@ async def fetch(line: str, session: ClientSession) -> asyncio.Future:
     if not line:
         return []
     url = f"http://geogratis.gc.ca/services/elevation/cdem/profile.json?path={line}&steps={steps}"
-    async with session.get(url) as response:
+    logger.info("external request: %s", url)
+    async with session.get(url, raise_for_status=True) as response:
         return await asyncio.ensure_future(parse_result(response))
 
 
@@ -77,6 +79,7 @@ async def fetch_all(requests: List[str]) -> asyncio.Future:
         return await asyncio.gather(*tasks)
 
 
+@retry(wait=wait_fixed(2), stop=stop_after_attempt(2))
 def fetch_surface_lines(requests: List[str]) -> List[Feature]:
     """
     """
