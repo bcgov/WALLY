@@ -160,7 +160,7 @@ export default {
           full_upstream_area: this.searchFullUpstreamArea }
       ).then((r) => {
         const data = r.data
-        // console.log(data)
+        console.log(data)
         this.upstreamNetworkMapFeature = 'upstreamNetwork'
         this.downstreamNetworkMapFeature = 'downstreamNetwork'
 

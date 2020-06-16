@@ -59,8 +59,8 @@ def get_streams_by_watershed_code(
     logger.warn("*** down_geom ***")
     logger.warn(down_geom)
 
-    up_geom_geojson = geojson.loads(up_geom[0]) if up_geom[0] else ""
-    down_geom_geojson = geojson.loads(down_geom[0]) if down_geom[0] else ""
+    up_geom_geojson = geojson.loads(up_geom[0]) if up_geom[0] else None
+    down_geom_geojson = geojson.loads(down_geom[0]) if down_geom[0] else None
 
     # if a layer was not specified, return the unioned stream network that we generated.
     if not layer:
@@ -69,17 +69,23 @@ def get_streams_by_watershed_code(
           "downstream": down_geom_geojson
         }
 
-    upstream_shape = shape(up_geom_geojson)
-    downstream_shape = shape(down_geom_geojson)
+    if up_geom_geojson:
+        upstream_shape = shape(up_geom_geojson)
+        features_upstream = stream_controller.get_features_within_buffer(db,
+                                              upstream_shape, buffer, layer)
+    else:
+        features_upstream = None
 
-    features_upstream = stream_controller.get_features_within_buffer(db, upstream_shape,
-                                                        buffer, layer)
-    features_downstream = stream_controller.get_features_within_buffer(db, downstream_shape,
-                                                        buffer, layer)
+    if down_geom_geojson:
+        downstream_shape = shape(down_geom_geojson)
+        features_downstream = stream_controller.get_features_within_buffer(db,
+                                                downstream_shape, buffer, layer)
+    else:
+        features_downstream = None
 
     return {
-      "upstream": features_upstream,
-      "downstream": features_downstream
+        "upstream": features_upstream,
+        "downstream": features_downstream
     }
 
 
