@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-5">
+  <v-container class="pt-3">
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-vector-line"
@@ -27,23 +27,23 @@
       @crossSection:redraw="() => drawLine({ newLine: true })"
       />
     </div>
-    <div v-else class="pa-5 mr-8">
-    <v-row>
-      <v-col  class="text-right">
-        <v-btn @click="drawLine" color="primary" outlined >Draw line</v-btn>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols=12 >
-        <v-card>
-          <v-card-title>Instructions</v-card-title>
-          <v-card-text>
-            <CrossSectionInstructions></CrossSectionInstructions>
-          </v-card-text>
-        </v-card>
-        <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
-      </v-col>
-    </v-row>
+    <div v-else>
+      <v-row class="mt-3">
+        <v-col  class="text-right">
+          <v-btn @click="drawLine" color="primary" outlined >Draw line</v-btn>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols=12 >
+          <v-card>
+            <v-card-title>Instructions</v-card-title>
+            <v-card-text>
+              <CrossSectionInstructions></CrossSectionInstructions>
+            </v-card-text>
+          </v-card>
+          <div class="caption" v-if="!isWellsLayerEnabled"><a href="#" @click.prevent="enableWellsLayer">Enable groundwater wells map layer</a></div>
+        </v-col>
+      </v-row>
     </div>
   </v-container>
 </template>

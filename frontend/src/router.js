@@ -10,7 +10,7 @@ import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
 import PolygonTool from './components/sidepanel/cards/PolygonTool'
 import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
 import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
-import UpstreamDownstream from './components/sidepanel/cards/UpstreamDownstream'
+import UpstreamDownstream from './components/analysis/upstream_downstream/UpstreamDownstreamContainer'
 import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
 import Start from './components/sidepanel/Start'
 import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
@@ -203,8 +203,8 @@ router.afterEach((to, from) => {
     // Change the page title in the browser
     document.title = to.meta.title ? to.meta.title : global.config.title
 
-    window._paq.push(['setReferrerUrl', from.fullPath])
-    window._paq.push(['setCustomUrl', to.fullPath])
+    window._paq && window._paq.push(['setReferrerUrl', from.fullPath])
+    window._paq && window._paq.push(['setCustomUrl', to.fullPath])
   })
 })
 export default router

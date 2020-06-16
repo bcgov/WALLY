@@ -14,6 +14,9 @@
     <p>Select the Excel button to download the data and information related to the wells within your cross section.</p>
     <p>If no analysis is produced, then go to the drop down Selection menu and "Reset Selections" and try again.
       It also helps to have the map zoomed to a smaller area with a sufficiently large amount of detail.</p>
+    <p>
+      For more information on what data is used and caveats to the analysis, please review the "Where does this information come from?" box at the bottom of the page.
+    </p>
   </div>
 </template>
 <script>

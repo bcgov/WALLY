@@ -237,7 +237,7 @@ export default {
       selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => {
         // Customized Metrics - Track when a layer is selected
         const layerName = state.mapLayers.find(e => e.display_data_name === l).display_name
-        window._paq.push(['trackEvent', 'Layer', 'Activate Layer', layerName])
+        window._paq && window._paq.push(['trackEvent', 'Layer', 'Activate Layer', layerName])
         commit('activateLayer', l)
       })
 

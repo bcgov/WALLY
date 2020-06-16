@@ -145,4 +145,7 @@ export default {
 </script>
 
 <style>
+  .v-list-item__content, .v-select__selection {
+    text-transform: none;
+  }
 </style>

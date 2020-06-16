@@ -1,6 +1,6 @@
 <template>
-  <v-container>
-    <v-breadcrumbs :items="breadcrumbs">
+  <v-container class="pt-3">
+    <v-breadcrumbs v-if="breadcrumbs && breadcrumbs.length" :items="breadcrumbs">
       <template v-slot:divider>
         <v-icon>mdi-chevron-right</v-icon>
       </template>
@@ -12,7 +12,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Stream apportionment
+          Apportion demand to nearby streams
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -27,17 +27,21 @@
     <div
       v-if="pointOfInterest &&
             pointOfInterest.display_data_name === 'point_of_interest'">
-      <div class="pa-3 mt-3">
-        Point at {{ pointOfInterest.geometry.coordinates.map(x => x.toFixed(6)).join(', ') }}
-      </div>
       <StreamApportionment
         :record="pointOfInterest"
         />
     </div>
 
-    <v-row class="pa-5" v-else>
-      <v-col cols=12 lg=8><p>Select a point of interest (e.g. a proposed well site) to apportion demand to nearby streams.</p></v-col>
+    <v-row v-else class="mt-3">
       <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
+      <v-col cols=12>
+        <v-card>
+          <v-card-title>Instructions</v-card-title>
+          <v-card-text>
+            <StreamApportionmentInstructions></StreamApportionmentInstructions>
+          </v-card-text>
+        </v-card>
+      </v-col>
     </v-row>
   </v-container>
 </template>
@@ -46,11 +50,12 @@
 import { mapGetters, mapActions } from 'vuex'
 
 import StreamApportionment from './StreamApportionment.vue'
-
+import StreamApportionmentInstructions from './StreamApportionmentInstructions'
 export default {
   name: 'StreamApportionmentContainer',
   components: {
-    StreamApportionment
+    StreamApportionment,
+    StreamApportionmentInstructions
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,

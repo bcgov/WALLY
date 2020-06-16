@@ -20,7 +20,9 @@
         <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <Dialog :name="item.name" :description="item.description" :url="item.source_url" />
+            <Dialog
+            v-if="item.description"
+            :name="item.name" :description="item.description" :url="item.source_url" />
           </div>
         </template>
       </v-treeview>
@@ -37,7 +39,11 @@
         <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <Dialog :name="item.name" :description="item.description" :url="item.source_url" />
+            <Dialog
+              v-if="item.description"
+              :name="item.name"
+              :description="item.description"
+              :url="item.source_url" />
           </div>
         </template>
       </v-treeview>

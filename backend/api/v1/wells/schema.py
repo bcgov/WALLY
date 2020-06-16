@@ -24,11 +24,12 @@ def export_formatter():
         return FeatureCollection([
             Feature(
                 id=result.get(self.id_field, str(uuid4())),
-                geometry=Point((result.get('longitude'), result.get('latitude'))),
+                geometry=Point(
+                    (result.get('longitude'), result.get('latitude'))),
                 properties=result
             )
         ])
-            
+
     return helper_function
 
 
@@ -73,6 +74,12 @@ class WellDrawdown(BaseModel):
                                                     description="The calculated distance between the reported static water level and the finished well depth. This information is based on reported values and should be confirmed.")
 
 
+class WellsExport(BaseModel):
+    point: str
+    radius: float
+    export_wells: List[int]
+
+
 class WellSection(BaseModel):
     """
     Well data for use in sections
@@ -99,6 +106,7 @@ class CrossSection(BaseModel):
     wells: List[WellSection]
     elevation_profile: List[Elevation]
     surface: List
+    waterbodies: List
 
 
 class CrossSectionExport(BaseModel):
