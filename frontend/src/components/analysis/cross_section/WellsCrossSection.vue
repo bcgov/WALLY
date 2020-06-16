@@ -78,26 +78,28 @@
     </v-tabs>
     <v-row no-gutters>
       <v-flex>
-        <v-data-table
-          id="cross-section-well-table"
-          v-model="selected"
-          :loading="loading"
-          :headers="headers"
-          :items-per-page="10"
-          item-key="well_tag_number"
-          :items="wells">
-          <template v-slot:item="{ item }">
-            <tr @mouseenter="onMouseEnterWellItem(item)">
-              <td><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
-              <td class="text-end"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
-              <td class="text-end"><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
-              <td class="text-center"><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
-              <td><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
-              <td>{{item.aquifer_lithology}}</td>
-              <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
-            </tr>
-          </template>
-        </v-data-table>
+        <v-card outlined>
+          <v-data-table
+            id="cross-section-well-table"
+            v-model="selected"
+            :loading="loading"
+            :headers="headers"
+            :items-per-page="10"
+            item-key="well_tag_number"
+            :items="wells">
+            <template v-slot:item="{ item }">
+              <tr @mouseenter="onMouseEnterWellItem(item)">
+                <td class="text-center v-data-table__divider"><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
+                <td class="text-center v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+                <td class="text-center v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
+                <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
+                <td class="text-center v-data-table__divider pa-2">{{item.aquifer_lithology}}</td>
+                <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
+                <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
+              </tr>
+            </template>
+          </v-data-table>
+        </v-card>
       </v-flex>
     </v-row>
     <v-row no-gutters>

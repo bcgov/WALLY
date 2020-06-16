@@ -43,12 +43,12 @@ export default {
       'toggleSpikelines'
     ],
     headers: [
-      { text: 'Well Tag No.', value: 'well_tag_number', align: 'center' },
-      { text: 'Depth drilled (m)', value: 'finished_well_depth', align: 'center' },
-      { text: 'Water depth (m)', value: 'water_depth', align: 'center' },
-      { text: 'Aquifer Number', value: 'aquifer.aquifer_id', align: 'center' },
-      { text: 'Aquifer Material', value: 'aquifer.material_desc', align: 'center' },
-      { text: 'Aquifer Lithology', value: 'aquifer_lithology', align: 'center' },
+      { text: 'Well Tag No.', value: 'well_tag_number', align: 'center', divider: true },
+      { text: 'Depth drilled (m)', value: 'finished_well_depth', align: 'center', divider: true },
+      { text: 'Water depth (m)', value: 'water_depth', align: 'center', divider: true },
+      { text: 'Aquifer Number', value: 'aquifer.aquifer_id', align: 'center', divider: true },
+      { text: 'Aquifer Lithology', value: 'aquifer_lithology', align: 'center', divider: true },
+      { text: 'Aquifer Material', value: 'aquifer.material_desc', align: 'center', divider: true },
       { text: '', value: 'action', sortable: false }
     ],
     inputRules: {
@@ -62,7 +62,7 @@ export default {
       return this.record && this.record.geometry && this.record.geometry.coordinates
     },
     chartLayout () {
-      // annotations used instead of label text due to textangle feature
+      // annotations used instead of label text due to text angle feature
       let wellAnnotations = this.wells.map((w) => {
         return {
           xref: 'x',
@@ -567,9 +567,9 @@ export default {
       // highlight well on map that corresponds to the
       // hovered list item in the cross section table
       var feature = well.feature
-      feature['display_data_name'] = "groundwater_wells"
+      feature['display_data_name'] = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
-    },
+    }
   },
   watch: {
     panelOpen (value) {
