@@ -4,9 +4,19 @@
             {{title}}
         </div>
         <v-card-text>
+          Upstream
           <v-data-table
             :loading="loading"
-            :items="parsedData"
+            :items="upstreamData"
+            :headers="headers"
+            :items-per-page="5"
+          />
+        </v-card-text>
+        <v-card-text>
+          Downstream
+          <v-data-table
+            :loading="loading"
+            :items="downstreamData"
             :headers="headers"
             :items-per-page="5"
           />
@@ -37,13 +47,17 @@ export default {
     headers () {
       return streamDataHeaders[this.layerId]
     },
-    parsedData () {
-      if (!this.bufferData || !this.bufferData.features.length) {
-        return []
-      }
-      return this.bufferData.features.map((x) => {
-        return x.properties
-      })
+    upstreamData () {
+      return this.bufferData && this.bufferData.upstream ? 
+        this.bufferData.upstream.features.map((x) => {
+          return x.properties
+        }) : []
+    },
+    downstreamData () {
+      return this.bufferData && this.bufferData.downstream ? 
+        this.bufferData.downstream.features.map((x) => {
+          return x.properties
+        }) : []
     }
   }
 }

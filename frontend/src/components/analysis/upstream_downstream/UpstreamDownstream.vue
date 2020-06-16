@@ -91,7 +91,8 @@ export default {
     buttonClicked: false,
     panelOpen: [],
     searchFullUpstreamArea: true,
-    streamNetworkMapFeature: null,
+    upstreamNetworkMapFeature: null,
+    downstreamNetworkMapFeature: null,
     streamData: null,
     selectedLayer: '',
     inputRules: {
@@ -119,10 +120,15 @@ export default {
       this.fetchStreamBufferInformation()
     },
     resetGeoJSONLayers () {
-      if (this.streamNetworkMapFeature) {
-        this.map.removeLayer(this.streamNetworkMapFeature)
-        this.map.removeSource(this.streamNetworkMapFeature)
-        this.streamNetworkMapFeature = null
+      if (this.upstreamNetworkMapFeature) {
+        this.map.removeLayer(this.upstreamNetworkMapFeature)
+        this.map.removeSource(this.upstreamNetworkMapFeature)
+        this.upstreamNetworkMapFeature = null
+      }
+      if (this.downstreamNetworkMapFeature) {
+        this.map.removeLayer(this.downstreamNetworkMapFeature)
+        this.map.removeSource(this.downstreamNetworkMapFeature)
+        this.downstreamNetworkMapFeature = null
       }
     },
     enableMapLayer () {
@@ -136,6 +142,7 @@ export default {
       if (!this.record || this.buffer < 0) {
         return
       }
+      console.log('herehrere')
 
       this.resetGeoJSONLayers()
 
@@ -153,25 +160,44 @@ export default {
           full_upstream_area: this.searchFullUpstreamArea }
       ).then((r) => {
         const data = r.data
-
-        this.streamNetworkMapFeature = 'selectedStreamNetwork'
+        // console.log(data)
+        this.upstreamNetworkMapFeature = 'upstreamNetwork'
+        this.downstreamNetworkMapFeature = 'downstreamNetwork'
 
         this.map.addLayer({
-          id: 'selectedStreamNetwork',
+          id: this.upstreamNetworkMapFeature,
           type: 'fill',
           source: {
             type: 'geojson',
-            data: data
+            data: data.upstream
           },
           layout: {
             visibility: 'visible'
           },
           paint: {
-            'fill-color': '#0d47a1',
+            'fill-color': '#99CC99',
             'fill-outline-color': '#002171',
-            'fill-opacity': 0.3
+            'fill-opacity': 0.5
           }
         }, 'water_rights_licences')
+
+        this.map.addLayer({
+          id: this.downstreamNetworkMapFeature,
+          type: 'fill',
+          source: {
+            type: 'geojson',
+            data: data.downstream
+          },
+          layout: {
+            visibility: 'visible'
+          },
+          paint: {
+            'fill-color': '#FF7F7F',
+            'fill-outline-color': '#002171',
+            'fill-opacity': 0.5
+          }
+        }, 'water_rights_licences')
+
         this.loadingMapFeatures = false
       }).catch(() => {
         this.loadingMapFeatures = false

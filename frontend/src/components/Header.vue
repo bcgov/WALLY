@@ -97,7 +97,7 @@ export default {
     }
   },
   methods: {
-    logout() {
+    logout () {
       this.$auth.logout()
     },
     toggleAdjustableSidePanel () {

@@ -46,22 +46,41 @@ def get_streams_by_watershed_code(
     """ generates a stream network based on a FWA_WATERSHED_CODE and
     LINEAR_FEATURE_ID, and finds features from a given `layer`. """
 
-    geom = stream_controller.get_upstream_downstream_area(
+    up_geom = stream_controller.get_upstream_area(
         db, linear_feature_id, buffer, full_upstream_area)
+    down_geom = stream_controller.get_downstream_area(
+      db, linear_feature_id, buffer)
 
-    if not geom:
+    if not up_geom or not down_geom:
         return None
+    
+    logger.warn("*** up_geom ***")
+    logger.warn(up_geom)
+    logger.warn("*** down_geom ***")
+    logger.warn(down_geom)
 
-    geom_geojson = geojson.loads(geom[0])
+    up_geom_geojson = geojson.loads(up_geom[0]) if up_geom[0] else ""
+    down_geom_geojson = geojson.loads(down_geom[0]) if down_geom[0] else ""
 
     # if a layer was not specified, return the unioned stream network that we generated.
     if not layer:
-        return geom_geojson
+        return {
+          "upstream": up_geom_geojson,
+          "downstream": down_geom_geojson
+        }
 
-    stream_shape = shape(geom_geojson)
+    upstream_shape = shape(up_geom_geojson)
+    downstream_shape = shape(down_geom_geojson)
 
-    return stream_controller.get_features_within_buffer(db, stream_shape,
+    features_upstream = stream_controller.get_features_within_buffer(db, upstream_shape,
                                                         buffer, layer)
+    features_downstream = stream_controller.get_features_within_buffer(db, downstream_shape,
+                                                        buffer, layer)
+
+    return {
+      "upstream": features_upstream,
+      "downstream": features_downstream
+    }
 
 
 def get_features_within_buffer_zone(

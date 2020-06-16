@@ -52,12 +52,61 @@ def to_3005(from_proj, feat):
     return feat
 
 
-def get_upstream_downstream_area(
+def get_downstream_area(
+        db: Session,
+        linear_feature_id: int,
+        buffer: float):
+
+    q = """
+        with watershed_code_stats as (
+            SELECT DISTINCT
+                "FWA_WATERSHED_CODE" as fwa_code,
+                "LOCAL_WATERSHED_CODE" as loc_code,
+                "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
+                (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
+                    as loc_code_last_nonzero_code,
+                left(
+                    regexp_replace(
+                        "FWA_WATERSHED_CODE",
+                        '000000',
+                        '%'
+                    ),
+                    strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'),
+                    '%'
+                )) as fwa_prefix
+            FROM freshwater_atlas_stream_networks
+            WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
+        ),
+        streams as (
+            select  ST_Transform(
+                ST_Buffer(
+                    ST_Transform("GEOMETRY", 3005),
+                    :buffer),
+                    4326
+                ) as "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
+            where   "FWA_WATERSHED_CODE" = fwa_code and "DOWNSTREAM_ROUTE_MEASURE" < watershed_code_stats.downstream_route_measure
+        )
+        select
+            ST_AsGeoJSON(ST_Union("GEOMETRY"))
+        from    (
+            select ST_MakeValid("GEOMETRY") "GEOMETRY" from streams 
+        ) subq   
+        """
+
+    return db.execute(
+        q,
+        {
+            "linear_feature_id": linear_feature_id,
+            "buffer": buffer,
+        }).fetchone()
+
+
+def get_upstream_area(
         db: Session,
         linear_feature_id: int,
         buffer: float,
         full_upstream_area: bool):
-    """ returns the polygon area upstream and downstream from the selected stream feature
+    """ returns the polygon area upstream from the selected stream feature
     (using the linear_feature_id property of a Freshwater Atlas Stream Networks stream segment) """
 
     # Gather up the selected stream segments (from the stream's own headwaters
@@ -80,6 +129,7 @@ def get_upstream_downstream_area(
         SELECT DISTINCT
             "FWA_WATERSHED_CODE" as fwa_code,
             "LOCAL_WATERSHED_CODE" as loc_code,
+            "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
             (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
                 as loc_code_last_nonzero_code,
             left(
@@ -94,20 +144,19 @@ def get_upstream_downstream_area(
         FROM freshwater_atlas_stream_networks
         WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
     ),
-    sn as (
+    streams as (
         select  ST_Transform(
             ST_Buffer(
                 ST_Transform("GEOMETRY", 3005),
                 :buffer),
                 4326
             ) as "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" = fwa_code
+        where   "FWA_WATERSHED_CODE" = fwa_code and "DOWNSTREAM_ROUTE_MEASURE" >= watershed_code_stats.downstream_route_measure
     )
     select
         ST_AsGeoJSON(ST_Union("GEOMETRY"))
     from    (
-
-        select ST_MakeValid("GEOMETRY") "GEOMETRY" from sn
+        select ST_MakeValid("GEOMETRY") "GEOMETRY" from streams 
         union all
         select  ST_MakeValid("GEOMETRY") "GEOMETRY" from freshwater_atlas_watersheds, watershed_code_stats
         where   "FWA_WATERSHED_CODE" like fwa_prefix
@@ -118,7 +167,6 @@ def get_upstream_downstream_area(
                     watershed_code_stats.loc_code, '-',
                     watershed_code_stats.loc_code_last_nonzero_code
                 )::int
-
     ) subq   
     """
 
@@ -133,6 +181,7 @@ def get_upstream_downstream_area(
             SELECT
                 "FWA_WATERSHED_CODE" as fwa_code,
                 "LOCAL_WATERSHED_CODE" as loc_code,
+                "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
                 (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
                     as loc_code_last_nonzero_code,
                 left(
@@ -155,7 +204,7 @@ def get_upstream_downstream_area(
             )
         from    (
             select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-            where   "FWA_WATERSHED_CODE" = fwa_code
+            where   "FWA_WATERSHED_CODE" = fwa_code and "DOWNSTREAM_ROUTE_MEASURE" >= downstream_route_measure
             union all
             select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
             where   "FWA_WATERSHED_CODE" like fwa_prefix
