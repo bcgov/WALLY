@@ -3,6 +3,7 @@
     <InfoSheetAdjustable :panelName=this.panelName>
       <router-view></router-view>
     </InfoSheetAdjustable>
+    <div class="draggableBorder" v-show="true"></div>
   </div>
 </template>
 <style lang="scss">

@@ -3,6 +3,7 @@
     <InfoSheetAdjustable :panelName=this.panelName>
       <router-view></router-view>
     </InfoSheetAdjustable>
+
   </div>
 </template>
 <style lang="scss">

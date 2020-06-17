@@ -29,7 +29,6 @@
         <span>Hide</span>
       </v-tooltip>
     </v-slide-x-reverse-transition>
-    <div class="draggableBorder" v-show="infoPanelVisible"></div>
     <v-slide-x-transition>
       <v-btn
         v-show="!infoPanelVisible"
