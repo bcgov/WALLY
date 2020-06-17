@@ -89,12 +89,12 @@
             :items="wells">
             <template v-slot:item="{ item }">
               <tr @mouseenter="onMouseEnterWellItem(item)">
-                <td class="text-center v-data-table__divider"><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
-                <td class="text-center v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
-                <td class="text-center v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
+                <td class="text-left v-data-table__divider"><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
+                <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+                <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.water_depth ? item.water_depth.toFixed(2) : ''}}</span></td>
                 <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
-                <td class="text-center v-data-table__divider pa-2">{{item.aquifer_lithology}}</td>
-                <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
+                <td class="text-left v-data-table__divider pa-2">{{item.aquifer_lithology}}</td>
+                <td class="text-leftt v-data-table__divider pa-2"><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
                 <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
               </tr>
             </template>

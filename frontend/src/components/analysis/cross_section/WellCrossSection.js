@@ -43,12 +43,12 @@ export default {
       'toggleSpikelines'
     ],
     headers: [
-      { text: 'Well Tag No.', value: 'well_tag_number', align: 'center', divider: true },
-      { text: 'Depth drilled (m)', value: 'finished_well_depth', align: 'center', divider: true },
-      { text: 'Water depth (m)', value: 'water_depth', align: 'center', divider: true },
+      { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
+      { text: 'Depth drilled (m)', value: 'finished_well_depth', align: 'end', divider: true },
+      { text: 'Water depth (m)', value: 'water_depth', align: 'end', divider: true },
       { text: 'Aquifer Number', value: 'aquifer.aquifer_id', align: 'center', divider: true },
-      { text: 'Aquifer Lithology', value: 'aquifer_lithology', align: 'center', divider: true },
-      { text: 'Aquifer Material', value: 'aquifer.material_desc', align: 'center', divider: true },
+      { text: 'Aquifer Lithology', value: 'aquifer_lithology', align: 'start', divider: true },
+      { text: 'Aquifer Material', value: 'aquifer.material_desc', align: 'start', divider: true },
       { text: '', value: 'action', sortable: false }
     ],
     inputRules: {
