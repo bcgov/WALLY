@@ -8,8 +8,7 @@
       >
         <Toolbar/>
         <Notifications/>
-<!--        <Home/>-->
-        <HomeSplit/>
+        <Home/>
       </v-container>
     </v-content>
   </v-app>
@@ -18,8 +17,7 @@
 <script>
 import Header from './components/Header'
 import Toolbar from './components/Toolbar'
-// import Home from './components/Home'
-import HomeSplit from './components/HomeSplit'
+import Home from './components/Home'
 import Notifications from './components/Notifications'
 import { mapGetters, mapActions } from 'vuex'
 
@@ -31,8 +29,7 @@ export default {
     Header,
     Toolbar,
     Notifications,
-    // Home,
-    HomeSplit
+    Home
   },
   data: () => ({
   }),
