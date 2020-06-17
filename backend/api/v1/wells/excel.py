@@ -3,6 +3,7 @@ import logging
 import datetime
 import openpyxl
 from openpyxl.writer.excel import save_virtual_workbook
+from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
 from starlette.responses import Response
 from geojson import FeatureCollection
 from api.v1.aggregator.schema import LayerResponse
@@ -17,20 +18,45 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
     """
 
     workbook = openpyxl.Workbook()
-    details_sheet = workbook.active
-    details_sheet.title = "details"
+    ds = workbook.active
+    ds.title = "details"
+    
+    font_title = Font(size=20, bold=True, color='44546a')
+    font_label = Font(bold=True)
+    border_bottom = Border(bottom=Side(border_style="thick", color='4472c4'))
+    
+    ds['A1'].font = font_title
+    ds['A1'].border = border_bottom
+    ds['B1'].border = border_bottom
+    ds['C1'].border = border_bottom
+
+    ds['A2'].font = font_label
+    ds['A3'].font = font_label
+    ds['A4'].font = font_label
+    ds['A5'].font = font_label
+
+    ds['A1'] = 'Cross section'
+    ds['A2'] = 'Date generated:'
+    ds['A3'] = 'A point coordinates:'
+    ds['A4'] = 'B point coordinates:'
+    ds['A5'] = 'Buffer radius (m):'
+
+    cur_date = datetime.datetime.now().strftime("%X-%Y-%m-%d")
+
+    ds['B2'] = cur_date
+    ds['B3'] = str(coordinates[0][1]) + ', ' + str(coordinates[0][0])
+    ds['B4'] = str(coordinates[1][1]) + ', ' + str(coordinates[1][0])
+    ds['B5'] = buffer
 
     # create data sheets
     well_sheet = workbook.create_sheet("well")
     lith_sheet = workbook.create_sheet("lithology")
     screen_sheet = workbook.create_sheet("screen")
 
-    cur_date = datetime.datetime.now().strftime("%X-%Y-%m-%d")
-
     # details tab
-    details_headers = ['title', 'date', 'A latitude', 'A longitude', 'B latitude', 'B longitude', 'buffer radius (m)']
-    details_sheet.append(details_headers)
-    details_sheet.append(['Cross Section Analysis', cur_date, str(coordinates[0][1]), str(coordinates[0][0]), str(coordinates[1][1]), str(coordinates[1][0]), buffer])
+    # details_headers = ['title', 'date', 'A latitude', 'A longitude', 'B latitude', 'B longitude', 'buffer radius (m)']
+    # ds.append(details_headers)
+    # ds.append(['Cross Section Analysis', cur_date, str(coordinates[0][1]), str(coordinates[0][0]), str(coordinates[1][1]), str(coordinates[1][0]), buffer])
 
     # data sheet headers added
     well_sheet.append(WELL_HEADERS)
@@ -66,6 +92,19 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
             logger.warn(e)
             continue
 
+    # set header style for data sheets    
+    set_row_style(well_sheet)
+    set_row_style(lith_sheet)
+    set_row_style(screen_sheet)
+            
+
+    # well_sheet.row_dimensions[1].font = font_header
+    # well_sheet.row_dimensions[1].fill = fill_header
+    # lith_sheet.row_dimensions[1].font = font_header
+    # lith_sheet.row_dimensions[1].fill = fill_header
+    # screen_sheet.row_dimensions[1].font = font_header
+    # screen_sheet.row_dimensions[1].fill = fill_header
+
     filename = f"{cur_date}_CrossSection"
 
     response = Response(
@@ -74,6 +113,15 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
         headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'})
 
     return response
+
+
+def set_row_style(sheet):
+    font_header = Font(bold=True, color='FFFFFF')
+    fill_header = PatternFill("solid", fgColor="4472c4")
+    for row_cells in sheet.iter_rows(min_row=1, max_row=1):
+        for cell in row_cells:
+            cell.font = font_header
+            cell.fill = fill_header
 
 
 SCREEN_INDEX = [
@@ -148,35 +196,28 @@ WELL_HEADERS = [
     "utm_zone",
     "utm_northing",
     "utm_easting",
-    "owner_full_name",
-    "well_publication_status",
+    "coordinate_acquisition",
     "construction_start_date",
     "construction_end_date",
     "alteration_start_date",
     "alteration_end_date",
     "decommission_start_date",
     "decommission_end_date",
-    "coordinate_acquisition",
-    "ground_elevation",
-    "ground_elevation_method",
-    "other_screen_material",
-    "other_screen_bottom",
-    "screen_information",
+    "diameter",
     "total_depth_drilled",
     "finished_well_depth",
-    "final_casing_stick_up",
     "bedrock_depth",
+    "final_casing_stick_up",
+    "ground_elevation",
+    "ground_elevation_method",
     "static_water_level",
+    "well_yield",
+    "well_yield_unit",
     "artesian_flow",
     "artesian_pressure",
     "comments",
-    "well_yield",
-    "well_yield_unit",
-    "diameter",
     "ems",
     "aquifer_id",
-    "aquifer_vulnerability_index",
-    "aquifer_lithology",
     "storativity",
     "transmissivity",
     "hydraulic_conductivity",
@@ -185,16 +226,8 @@ WELL_HEADERS = [
     "testing_method",
     "testing_duration",
     "analytic_solution_type",
+    "aquifer_vulnerability_index",
+    "aquifer_lithology",
     "boundary_effect",
-    "drawdown",
-    "recommended_pump_depth",
-    "surface_seal_material",
-    "surface_seal_method",
-    "liner_material",
-    "screen_intake_method",
-    "screen_type",
-    "screen_material",
-    "screen_opening",
-    "screen_bottom",
-    "avi"
+    "well_publication_status",
 ]
