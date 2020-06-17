@@ -103,6 +103,7 @@ class WellSection(BaseModel):
     aquifer: Optional[WellAquifer]
     aquifer_lithology: Optional[str]
     feature: Optional[dict]
+    screen_set: List
 
     class Config:
         orm_mode = True

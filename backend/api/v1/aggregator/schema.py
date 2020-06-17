@@ -16,7 +16,7 @@ def flatten_geojson_property(value):
     """ flattens json values for use in geojson properties
     """
     if isinstance(value, list):
-        return ', '.join(json.dumps(value))
+        return json.dumps(value)
 
     return value
 

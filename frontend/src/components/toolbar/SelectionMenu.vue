@@ -82,11 +82,11 @@ export default {
     ],
     toolOptions: [
       {
-        title: 'Cross section plot',
+        title: 'Cross section plot analysis',
         route: { name: 'cross-section' }
       },
       {
-        title: 'Find features upstream or downstream along a stream',
+        title: 'Upstream downstream analysis',
         route: { name: 'upstream-downstream' }
       },
       {
