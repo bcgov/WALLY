@@ -29,7 +29,6 @@
       </v-tooltip>
     </div>
     <div class="wally-user mr-5">{{ name }}</div>
-    <v-btn small color="primary" @click="logout()">Log out</v-btn>
     <div>
       <v-menu offset-y min-width="300">
         <template v-slot:activator="{ on }">
@@ -44,7 +43,7 @@
           <v-list-item
             v-for="(item, index) in menuItems"
             :key="index"
-            @click="show[item.name] = true"
+            @click="item.action()"
           >
             <v-list-item-content>
               <v-list-item-title>{{item.title}}</v-list-item-title>
@@ -80,7 +79,13 @@ export default {
       menuItems: [
         {
           title: 'About WALLY',
-          name: 'about'
+          name: 'about',
+          action: () => this.openDialog()
+        },
+        {
+          title: 'Logout',
+          name: 'logout',
+          action: () => this.logout()
         }
       ],
       show: {
@@ -99,6 +104,9 @@ export default {
   methods: {
     logout () {
       this.$auth.logout()
+    },
+    openDialog () {
+      this.show.about = true
     },
     toggleAdjustableSidePanel () {
       global.config.debug && console.log('[wally] toggling')
