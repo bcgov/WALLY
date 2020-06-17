@@ -195,6 +195,48 @@ export default {
         }
         opts.shapes.push(rect)
       })
+
+      this.screens.forEach(screen => {
+        // generate rectangle
+        const rect = {
+          type: 'rect',
+          xref: 'x',
+          yref: 'y',
+          x0: screen.x - 3,
+          y0: screen.y0,
+          x1: screen.x + 3,
+          y1: screen.y1,
+          opacity: 0.7,
+          line: {
+            color: 'blue',
+            width: 2
+          },
+          hoverlabel: {
+            namelength: 0
+          }
+        }
+        opts.shapes.push(rect)
+
+        // generate hashmarks/lines within rectangle
+        // every 0.2 metres
+        Array(Math.floor(Math.abs(screen.y0 - screen.y1) * 5)).fill({}).map((item, i) => ({
+          type: 'line',
+          xref: 'x',
+          yref: 'y',
+          x0: screen.x - 3,
+          y0: screen.y1 + (i + 1) * 0.2,
+          x1: screen.x + 3,
+          y1: screen.y1 + (i + 1) * 0.2,
+          opacity: 0.7,
+          line: {
+            color: 'blue',
+            width: 2
+          }
+        })).forEach(item => {
+          opts.shapes.push(item)
+        })
+      })
+
       return opts
     },
     chartData () {
@@ -256,6 +298,7 @@ export default {
         hoverinfo: 'text',
         hovertemplate: '%{text} %{y} m'
       }
+
       const elevProfile = {
         x: this.elevations.map(e => e.distance_from_origin),
         y: this.elevations.map(e => e.elevation),
@@ -283,7 +326,51 @@ export default {
         }
       }
 
-      return [elevProfile, waterDepth, wells, lithology, streams]
+      // hover markers for screens.
+      // the popup will appear at the top of the screen
+      // the screens themselves are drawn using rectangles,
+      // these markers only provide the popup.
+      const screens = {
+        x: this.screens.map(s => s.x),
+        y: this.screens.map(s => s.y0),
+        name: 'Screens',
+        mode: 'markers',
+        text: this.screens.map(s => {
+          return `Screen (well ${s.well_tag_number}): ${(s.start * 0.3048).toFixed(1)} m to ${(s.end * 0.3048).toFixed(1)} m (btoc)`
+        }),
+        textposition: 'middle right',
+        marker: {
+          color: 'blue',
+          symbol: 'square-cross-open',
+          size: 1
+        },
+        showlegend: false,
+        hoverlabel: {
+          namelength: 0
+        },
+        hoverinfo: 'text',
+        hovertemplate: '%{text}'
+      }
+
+      // screen icon stand-in for the rectangles that represent screens.
+      // this is only to provide a legend entry.
+      // null values are used to ensure that there is a legend row without any
+      // data on the chart (empty arrays would result in the legend entry being omitted).
+      const screensIcon = {
+        x: [null],
+        y: [null],
+        name: 'Screens',
+        mode: 'markers',
+        marker: {
+          color: 'blue',
+          symbol: 'square-cross-open',
+          size: 12
+        }
+      }
+
+      console.log(screens)
+
+      return [elevProfile, waterDepth, wells, lithology, streams, screens, screensIcon]
     },
     surfaceData () {
       let lines = this.surfacePoints
@@ -399,6 +486,25 @@ export default {
     handleRedraw () {
       this.$emit('crossSection:redraw')
     },
+    prepareScreens (wells) {
+      // creates a list of screens with a start and end height.
+      // used to create rectangles on the plot indicating where screens are.
+      return wells.map(w => {
+        if (!w.screen_set || !w.screen_set.length) {
+          return []
+        }
+
+        return w.screen_set.map(s => {
+          return {
+            well_tag_number: w.well_tag_number,
+            x: w.distance_from_origin ? w.distance_from_origin : 0,
+            y0: w.ground_elevation_from_dem - (s.start * 0.3048),
+            y1: w.ground_elevation_from_dem - (s.end * 0.3048),
+            ...s
+          }
+        })
+      }).flat()
+    },
     fetchWellsAlongLine () {
       if (!this.radiusIsValid(this.radius)) {
         return
@@ -408,12 +514,14 @@ export default {
         radius: parseFloat(this.radius),
         line: JSON.stringify(this.coordinates)
       }
+      this.resetCrossSectionData()
       ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
         .then(r => {
           this.wells = r.data.wells
           this.elevations = r.data.elevation_profile
           this.surfacePoints = r.data.surface
           this.waterbodies = r.data.waterbodies
+          this.screens = this.prepareScreens(r.data.wells)
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
@@ -594,6 +702,11 @@ export default {
       })
       return !invalid
     },
+    resetCrossSectionData () {
+      this.wells = []
+      this.wellsLithology = []
+      this.screens = []
+    },
     deleteWell (selectedWell) {
       // delete selected well from well list
       let wellsArr = this.wells.filter(well => {
@@ -603,8 +716,14 @@ export default {
       let lithologyArr = this.wellsLithology.filter(lith => {
         return lith['well_tag_number'] !== selectedWell['well_tag_number']
       })
+
+      let screensArr = this.screens.filter(screen => {
+        return screen['well'] !== selectedWell['well_tag_number']
+      })
+
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
+      this.screens = [...screensArr]
     },
     getCrossSectionExport () {
       // Track cross section excel downloads
