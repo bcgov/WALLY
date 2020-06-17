@@ -4,7 +4,7 @@
             {{title}}
         </div>
         <v-card-text>
-          Upstream
+          <v-card-title class="mb-5">Upstream</v-card-title>
           <v-data-table
             :loading="loading"
             :items="upstreamData"
@@ -13,7 +13,7 @@
           />
         </v-card-text>
         <v-card-text>
-          Downstream
+          <v-card-title class="mb-5">Downstream</v-card-title>
           <v-data-table
             :loading="loading"
             :items="downstreamData"
