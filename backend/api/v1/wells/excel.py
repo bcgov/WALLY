@@ -25,6 +25,7 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
     font_label = Font(bold=True)
     border_bottom = Border(bottom=Side(border_style="thick", color='4472c4'))
     
+    # styling config
     ds['A1'].font = font_title
     ds['A1'].border = border_bottom
     ds['B1'].border = border_bottom
@@ -53,11 +54,6 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
     lith_sheet = workbook.create_sheet("lithology")
     screen_sheet = workbook.create_sheet("screen")
 
-    # details tab
-    # details_headers = ['title', 'date', 'A latitude', 'A longitude', 'B latitude', 'B longitude', 'buffer radius (m)']
-    # ds.append(details_headers)
-    # ds.append(['Cross Section Analysis', cur_date, str(coordinates[0][1]), str(coordinates[0][0]), str(coordinates[1][1]), str(coordinates[1][0]), buffer])
-
     # data sheet headers added
     well_sheet.append(WELL_HEADERS)
     lith_sheet.append(LITHOLOGY_HEADERS)
@@ -67,7 +63,7 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
         # avoid trying to process layers if they have no features.
         if not dataset.geojson:
             continue
-        
+
         # set row information
         try:
             props = dataset.geojson.features[0].properties
@@ -92,18 +88,10 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
             logger.warn(e)
             continue
 
-    # set header style for data sheets    
+    # set header style for data sheets
     set_row_style(well_sheet)
     set_row_style(lith_sheet)
     set_row_style(screen_sheet)
-            
-
-    # well_sheet.row_dimensions[1].font = font_header
-    # well_sheet.row_dimensions[1].fill = fill_header
-    # lith_sheet.row_dimensions[1].font = font_header
-    # lith_sheet.row_dimensions[1].fill = fill_header
-    # screen_sheet.row_dimensions[1].font = font_header
-    # screen_sheet.row_dimensions[1].fill = fill_header
 
     filename = f"{cur_date}_CrossSection"
 
@@ -230,4 +218,14 @@ WELL_HEADERS = [
     "aquifer_lithology",
     "boundary_effect",
     "well_publication_status",
+]
+
+WELL_NUMBER_COLUMNS = [
+    "diameter",
+    "finished_well_depth",
+    "bedrock_depth",
+    "ground_elevation",
+    "static_water_level",
+    "well_yield",
+    "artesian_flow"
 ]
