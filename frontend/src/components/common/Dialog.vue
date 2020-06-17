@@ -17,6 +17,7 @@
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions v-if="url">
+        <v-spacer></v-spacer>
         <v-btn
           text
           color="primary accent-4"

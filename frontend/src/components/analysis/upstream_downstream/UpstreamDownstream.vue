@@ -1,11 +1,37 @@
 <template>
   <v-sheet class="pa-5">
-    <div class="title my-3">
+    <v-row>
+      <v-col cols="12" md="12">
+        <v-expansion-panels>
+          <v-expansion-panel>
+            <v-expansion-panel-header>
+              Instructions
+            </v-expansion-panel-header>
+            <v-expansion-panel-content>
+              <v-card flat>
+                <v-card-text>
+                  <UpstreamDownstreamInstructions></UpstreamDownstreamInstructions>
+                </v-card-text>
+              </v-card>
+            </v-expansion-panel-content>
+          </v-expansion-panel>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols=12 md=6>
+        <div class="title my-3">
           Selected Stream: {{streamName}}
-    </div>
+        </div>
+      </v-col>
+      <v-col class="text-right">
+        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
+      </v-col>
+    </v-row>
+
       <v-row no-gutters v-if="this.selectedLayer">
         <v-col cols="12">
-          <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{this.selectedLayer}} layer</a></div>
+          <div class="caption text-right ma-2"><a href="#" @click.prevent="enableMapLayer">Enable {{selectedLayerName}} layer</a></div>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -39,27 +65,30 @@
       </v-row>
 
       <v-row no-gutters>
-        <StreamBufferData :loading="loading" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+        <UpstreamDownstreamData :loading="loading" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
       </v-row>
   </v-sheet>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
-import ApiService from '../../services/ApiService'
-import StreamBufferData from '../analysis/StreamBufferData'
+import { mapGetters, mapMutations, mapActions } from 'vuex'
+import ApiService from '../../../services/ApiService'
+import UpstreamDownstreamData from './UpstreamDownstreamData'
+import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import debounce from 'lodash.debounce'
 
 export default {
   name: 'StreamBufferIntersections',
   components: {
-    StreamBufferData
+    UpstreamDownstreamData,
+    UpstreamDownstreamInstructions
   },
   props: ['record'],
   data: () => ({
     buffer: 50,
     loadingData: false,
     loadingMapFeatures: false,
+    buttonClicked: false,
     panelOpen: [],
     searchFullUpstreamArea: true,
     streamNetworkMapFeature: null,
@@ -74,7 +103,7 @@ export default {
       { value: 'groundwater_wells', text: 'Groundwater Wells' },
       { value: 'water_rights_licences', text: 'Water Rights Licences' },
       { value: 'water_rights_applications', text: 'Water Rights Applications' },
-      { value: 'ecocat_water_related_reports', text: 'Ecocat Reports' },
+      { value: 'ecocat_water_related_reports', text: 'EcoCat Reports' },
       { value: 'aquifers', text: 'Aquifers' },
       { value: 'critical_habitat_species_at_risk', text: 'Critical Habitats' },
       { value: 'water_allocation_restrictions', text: 'Allocation Restrictions' },
@@ -82,6 +111,10 @@ export default {
     ]
   }),
   methods: {
+    selectPoint () {
+      this.setDrawMode('draw_point')
+      this.buttonClicked = true
+    },
     updateStreamBuffers () {
       this.fetchStreamBufferInformation()
     },
@@ -176,9 +209,16 @@ export default {
     resetStreamData () {
       this.streamData = null
     },
+    ...mapActions(['exitFeature']),
+    ...mapActions('map', ['setDrawMode', 'clearSelections']),
     ...mapMutations('map', ['setMode'])
   },
   computed: {
+    selectedLayerName () {
+      return this.layerOptions.find(x => {
+        return x.value === this.selectedLayer
+      }).text
+    },
     loading () {
       return this.loadingData || this.loadingMapFeatures
     },
@@ -200,10 +240,10 @@ export default {
     // panelOpen () {
     //   if (this.panelOpen.length > 0) {
     //     this.$store.commit('setStreamAnalysisPanel', true)
-    //     this.$store.commit('setStreamBufferData', this.buffer)
+    //     this.$store.commit('setUpstreamDownstreamData', this.buffer)
     //   } else {
     //     this.$store.commit('setStreamAnalysisPanel', false)
-    //     this.$store.commit('resetStreamBufferData')
+    //     this.$store.commit('resetUpstreamDownstreamData')
     //   }
     // },
     isMapReady (value) {
@@ -222,10 +262,13 @@ export default {
     selectedLayer () {
       this.updateStreamBuffers()
     },
-    record () {
+    record (value) {
       global.config.debug && console.log('[wally] record changed')
       this.drawStreamNetwork()
       this.updateStreamBuffers()
+      if (value && value.geometry) {
+        this.buttonClicked = false
+      }
     }
   },
   mounted () {

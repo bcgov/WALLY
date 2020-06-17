@@ -1,9 +1,13 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
+import StreamApportionmentInstructions from './StreamApportionmentInstructions'
 
 export default {
   name: 'StreamApportionment',
+  components: {
+    StreamApportionmentInstructions
+  },
   props: ['record'],
   data: () => ({
     loading: false,
@@ -36,7 +40,7 @@ export default {
   methods: {
     submitStreamsForExport () {
       // Custom metrics - Track Excel downloads
-      window._paq.push([
+      window._paq && window._paq.push([
         'trackLink',
         `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/streams/apportionment/export`,
         'download'])

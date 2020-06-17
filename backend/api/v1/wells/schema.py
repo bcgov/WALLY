@@ -2,9 +2,35 @@
 API data models.
 These are external facing data models/schemas that users see.
 """
+import json
+import logging
 from typing import Optional, List, Any
 from pydantic import BaseModel, Schema
 from geojson import Polygon
+from uuid import uuid4
+from geojson import Feature, FeatureCollection, Point
+
+logger = logging.getLogger('wells')
+
+
+def export_formatter():
+    """ 
+    returns a helper function that turns JSON results into GeoJSON,
+    using the provided id_field to give each feature an ID. 
+    """
+
+    def helper_function(self, result):
+
+        return FeatureCollection([
+            Feature(
+                id=result.get(self.id_field, str(uuid4())),
+                geometry=Point(
+                    (result.get('longitude'), result.get('latitude'))),
+                properties=result
+            )
+        ])
+
+    return helper_function
 
 
 class Screen(BaseModel):
@@ -59,6 +85,12 @@ class WellAquifer(BaseModel):
     material_desc: Optional[str]
 
 
+class WellsExport(BaseModel):
+    point: str
+    radius: float
+    export_wells: List[int]
+
+
 class WellSection(BaseModel):
     """
     Well data for use in sections
@@ -87,3 +119,28 @@ class CrossSection(BaseModel):
     wells: List[WellSection]
     elevation_profile: List[Elevation]
     surface: List
+    waterbodies: List
+
+
+class CrossSectionExport(BaseModel):
+    wells: List[int]
+    coordinates: list
+    buffer: int
+
+
+class ExportApiParams(BaseModel):
+    """ request params for GWELLS API request """
+    geojson: str = "true"
+
+
+class ExportApiRequest(BaseModel):
+    """ a WMS feature request """
+    url: str
+    layer: str
+    # optional formatter function that accepts a list and returns geojson
+    formatter = export_formatter()
+    q: Optional[Any]
+    # an id field to populate geojson feature IDs (if not specified, a uuid will be created)
+    id_field: Optional[str]
+    # paginate: if set to False, do not follow pagination links (get one set of results only)
+    paginate = False

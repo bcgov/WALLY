@@ -31,9 +31,11 @@ export default {
     wells: [],
     wellsLithology: [],
     elevations: [],
+    streams: [],
     surfacePoints: [],
     selected: [],
     loading: true,
+    xlsLoading: false,
     timeout: {},
     ignoreButtons: [
       'toImage',
@@ -86,6 +88,31 @@ export default {
           arrowwidth: 1,
           ax: 8,
           ay: -30
+        }
+      })
+      let waterbodyAnnotations = this.waterbodies.map((s) => {
+        return {
+          xref: 'x',
+          yref: 'y',
+          x: s.distance,
+          y: s.elevation,
+          xanchor: 'left',
+          yanchor: 'center',
+          text: s.name,
+          textangle: -45,
+          align: 'center',
+          font: {
+            size: 12,
+            color: 'black'
+          },
+          opacity: 0.8,
+          showarrow: true,
+          standoff: 3,
+          arrowhead: 1,
+          arrowsize: 1,
+          arrowwidth: 1,
+          ax: 8,
+          ay: -70
         }
       })
       const opts = {
@@ -149,7 +176,7 @@ export default {
             bgcolor: '#1A5A96',
             opacity: 0.8
           },
-          ...wellAnnotations
+          ...wellAnnotations, ...waterbodyAnnotations
         ]
       }
       this.wells.forEach(w => {
@@ -241,7 +268,25 @@ export default {
         showlegend: false
       }
 
-      return [elevProfile, waterDepth, wells, lithology]
+      const streams = {
+        x: this.waterbodies.map(s => s.distance),
+        y: this.waterbodies.map(s => s.elevation),
+        name: 'Surface water',
+        text: this.waterbodies.map(s => s.name),
+        textposition: 'bottom',
+        mode: 'markers',
+        marker: {
+          color: 'white',
+          symbol: 'triangle-down',
+          size: 12,
+          line: {
+            color: 'blue',
+            width: 2
+          }
+        }
+      }
+
+      return [elevProfile, waterDepth, wells, lithology, streams]
     },
     surfaceData () {
       let lines = this.surfacePoints
@@ -371,6 +416,7 @@ export default {
           this.wells = r.data.wells
           this.elevations = r.data.elevation_profile
           this.surfacePoints = r.data.surface
+          this.waterbodies = r.data.waterbodies
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
@@ -506,7 +552,7 @@ export default {
     },
     downloadMergedImage (plotType) {
       // Custom Metrics - Screen capture
-      window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
+      window._paq && window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
       let doc = jsPDF()
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
@@ -563,6 +609,48 @@ export default {
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
     },
+    getCrossSectionExport () {
+      // Track cross section excel downloads
+      window._paq && window._paq.push([
+        'trackLink',
+        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
+        'download'])
+
+      const params = {
+        wells: this.wells.map(w => w.well_tag_number),
+        coordinates: this.coordinates,
+        buffer: this.radius
+      }
+
+      this.xlsLoading = true
+
+      ApiService.post(`/api/v1/wells/section/export`, params, {
+        responseType: 'arraybuffer'
+      }).then((res) => {
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'WellsCrossSection.xlsx'
+        const filenameData = res.headers['content-disposition'] && res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+        this.xlsLoading = false
+      }).catch((error) => {
+        console.error(error)
+        this.xlsLoading = false
+      })
+    },
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
       // hovered list item in the cross section table
@@ -585,9 +673,6 @@ export default {
         this.fetchWellsAlongLine()
       },
       deep: true
-    },
-    coordinates () {
-      this.fetchWellsAlongLine()
     },
     radius (value) {
       // delay call to re-fetch data if user still inputting radius numbers

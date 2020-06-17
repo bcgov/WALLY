@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-5">
+  <v-container class="pt-3">
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-map-marker"
@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Find features along a stream
+          Find features upstream or downstream along a stream
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -19,32 +19,45 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
-    <v-row class="mx-3 mt-4">
-      <v-col cols=12 lg=8>
-        <p>Select a point on a stream to view water data upstream and downstream.</p>
-      </v-col>
-      <v-col class="text-right">
-        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select Point</v-btn>
-      </v-col>
-    </v-row>
-    <FeatureStreamBuffer
+
+    <UpstreamDownstream
       :record="selectedStream"
       :coordinates="selectedStream.geometry.coordinates"
       v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
+    <div v-else>
+    <v-row class="mt-3">
+      <v-col class="text-right">
+        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col cols=12>
+        <v-card>
+          <v-card-title>Instructions</v-card-title>
+          <v-card-text>
+            <UpstreamDownstreamInstructions></UpstreamDownstreamInstructions>
+          </v-card-text>
+        </v-card>
+      </v-col>
+    </v-row>
+    </div>
+
   </v-container>
 </template>
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import FeatureStreamBuffer from '../../features/FeatureStreamBuffers'
+import UpstreamDownstream from './UpstreamDownstream'
+import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 
 export default {
-  name: 'UpstreamDownstream',
+  name: 'UpstreamDownstreamContainer',
   components: {
-    FeatureStreamBuffer
+    UpstreamDownstream,
+    UpstreamDownstreamInstructions
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,

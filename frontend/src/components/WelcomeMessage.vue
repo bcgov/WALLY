@@ -18,6 +18,9 @@
         <p>
           Welcome to WALLY! This tool is intended to assist B.C. Government water allocation staff efficiently and effectively gather and analyze data and information in order to support robust and defensible water resource decisions. This tool is not designed to fetter the discretion or replace the decisions made by a statutory decision-maker.
         </p>
+        <p>
+          Please use a modern browser to access this application as it will not work correctly on Internet Explorer. We recommend Chrome, Firefox or Safari.
+        </p>
         <strong>
           Limitations
         </strong>

@@ -13,8 +13,7 @@
     </v-toolbar>
     <v-row class="pa-5">
       <v-col cols=12 lg=8>
-        <p>Start drawing a polygon to select data in a region.</p>
-        <p>Click on any point a second time to complete the polygon.</p>
+        <p>Zoom into an area of interest on the map and start drawing a polygon to select data in that region. Click on any point a second time to complete the polygon.</p>
       </v-col>
       <v-col class="text-right">
         <v-btn @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Draw polygon</v-btn>
