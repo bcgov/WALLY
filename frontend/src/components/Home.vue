@@ -1,6 +1,6 @@
 <template>
   <div class="home d-flex">
-    <PanelAdjustable/>
+    <InfoPanel/>
     <Map :style="{ width: '100vw' }"/>
     <WelcomeMessage></WelcomeMessage>
   </div>
@@ -10,12 +10,12 @@
 import { mapGetters } from 'vuex'
 import Map from '../components/map/Map.vue'
 import WelcomeMessage from './WelcomeMessage'
-import PanelAdjustable from './common/PanelAdjustable'
+import InfoPanel from './common/InfoPanel'
 
 export default {
   name: 'Home',
   components: {
-    PanelAdjustable,
+    InfoPanel,
     Map,
     WelcomeMessage
   },

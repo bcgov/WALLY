@@ -16,7 +16,7 @@ import InfoSheet from './InfoSheetResponsive'
 import InfoSheetAdjustable from './InfoSheetAdjustable'
 
 export default {
-  name: 'PanelAdjustable',
+  name: 'InfoPanel',
   components: {
     InfoSheetAdjustable
   },
@@ -84,8 +84,6 @@ export default {
   },
   mounted () {
     console.log(this.$route)
-    console.log('panel mounted?')
-    // this.$store.dispatch('map/resizeMap')
   },
   methods: {
   }
