@@ -10,6 +10,7 @@
         <slot/>
       </v-sheet>
     </v-expand-x-transition>
+    <div class="draggableBorder" v-show="infoPanelVisible"></div>
     <v-slide-x-reverse-transition>
       <v-tooltip right>
         <template v-slot:activator="{ on }">
@@ -86,24 +87,25 @@
   }
 
   .draggableBorder {
+    z-index: 4;
     width: 6px;
-    height: 100%;
+    height: calc(100vh - 120px);
     background-color: #003366;
     opacity: 0.5;
-    float: left;
     cursor: ew-resize;
     transition: opacity 0.2s ease-in-out;
-
-    &:hover {
-      opacity: 1;
-    }
+    position: absolute;
+    padding-left: 0;
+    padding-right: 0;
+    display: inline-flex;
   }
+
 </style>
 <script>
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'InfoSheet',
+  name: 'InfoSheetAdjustable',
   props: {
     closePanel: Function,
     display: Boolean,
@@ -151,6 +153,7 @@ export default {
         const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
 
         infoPanel.style.width = (e.clientX > minSize && e.clientX < maxSize) && e.clientX + 'px'
+        this.$store.dispatch('map/resizeMap')
       }
 
       infoPanelBorder.addEventListener(

@@ -95,7 +95,7 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
-  name: 'InfoSheet',
+  name: 'InfoSheetResponsive',
   props: {
     closePanel: Function,
     display: Boolean,

@@ -1,7 +1,6 @@
 <template>
   <div class="home d-flex">
     <PanelAdjustable/>
-    <div class="draggableBorder" v-show="true"></div>
     <Map :style="{ width: '100vw' }"/>
   </div>
 </template>
@@ -23,13 +22,8 @@ export default {
       md: 6,
       lg: 4,
       xl: 3
-    },
-    minPanelWidth: 300,
-    panelWidth: 800
+    }
   }),
-  mounted () {
-    this.setEvents()
-  },
   computed: {
     sidebarColumns () {
       const sidebarColumns = this.$route.meta.sidebarColumns || {}
@@ -52,40 +46,6 @@ export default {
       }
     },
     ...mapGetters('map', ['map'])
-  },
-  methods: {
-    togglePanel () {
-      this.$store.commit('toggleInfoPanelVisibility')
-    },
-    setEvents () {
-      const minSize = this.minPanelWidth
-      const infoPanelBorder = this.$el.querySelector('.draggableBorder')
-      const infoPanel = this.$el.querySelector('#info-sheet .v-sheet')
-
-      let resize = (e) => {
-        const windowWidth = document.body.scrollWidth
-        const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
-
-        infoPanel.style.width = (e.clientX > minSize && e.clientX < maxSize) && e.clientX + 'px'
-        this.$store.dispatch('map/resizeMap')
-      }
-
-      infoPanelBorder.addEventListener(
-        'mousedown',
-        () => {
-          document.addEventListener('mousemove', resize, false)
-        },
-        false
-      )
-
-      document.addEventListener(
-        'mouseup',
-        () => {
-          document.removeEventListener('mousemove', resize, false)
-        },
-        false
-      )
-    }
   }
 }
 </script>
