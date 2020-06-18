@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="float-left">
       <v-fade-transition>
         <div id="map" class="map" v-bind:style="this.mapStyle"></div>
       </v-fade-transition>
