@@ -246,6 +246,10 @@ requests:
           gt: 500 # all elevations in Whistler should be greater than 500, this is just a sanity check
         surface.[0]:
           exists: true
+        wells.[0].aquifer:
+          exists: true
+        wells.[0].aquifer.aquifer_id:
+          exists: true
   - name: Stream buffer data search (water_rights_licences)
     url: "{{host}}/api/v1/stream/features?linear_feature_id=701707707&code=100-077501-955583-434180-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000&layer=water_rights_licences"
     method: get

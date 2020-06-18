@@ -155,26 +155,31 @@ export default {
 </script>
 
 <style lang="scss">
-  .input-value{
-    width: 200px;
-  }
-  .v-text-field{
-    input {
-      text-align: right;
-    }
-  }
-  .v-data-table {
-    table{
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    td {
-      padding: 0 2px;
+  #editableModelCard {
+    .input-value {
+      width: 200px;
     }
 
-    td:first-child{
-      padding-left: 20px;
+    .v-text-field {
+      input {
+        text-align: right;
+      }
+    }
+
+    .v-data-table {
+      table {
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      td {
+        padding: 0 2px;
+      }
+
+      td:first-child {
+        padding-left: 20px;
+      }
     }
   }
 </style>
