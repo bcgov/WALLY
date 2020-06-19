@@ -34,7 +34,10 @@ export default {
       { text: 'Top of screen (ft bgl)', value: 'top_of_screen' },
       { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth' },
       { text: 'SWL to top of screen (ft)', value: 'swl_to_screen' },
-      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well' }
+      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well' },
+      { text: 'Aquifer Number', value: 'aquifer_number' },
+      { text: 'Aquifer Lithology', value: 'aquifer_lithology' },
+      { text: 'Aquifer Material', value: 'aquifer_material' }
     ],
     boxPlotSWLData: {
       data: [],

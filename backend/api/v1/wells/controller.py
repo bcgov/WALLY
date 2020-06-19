@@ -133,6 +133,7 @@ def get_screens(point, radius) -> List[WellDrawdown]:
             done = True
         url = next_url
 
+    logger.warn(wells_results)
     # return zero results if an error occurred or we did not successfully get all the results.
     # (avoid returning incomplete data)
     if not done:

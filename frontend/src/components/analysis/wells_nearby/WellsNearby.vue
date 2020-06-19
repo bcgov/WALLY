@@ -69,6 +69,9 @@
                   <td><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
                   <td><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
                   <td><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
+                  <td><span>{{item.aquifer_number ? item.aquifer_number : ''}}</span></td>
+                  <td><span>{{item.aquifer_lithology ? item.aquifer_lithology : ''}}</span></td>
+                  <td><span>{{item.aquifer_material ? item.aquifer_material : ''}}</span></td>
                 </tr>
               </template>
             </v-data-table>
