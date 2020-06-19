@@ -10,6 +10,7 @@
         <slot/>
       </v-sheet>
     </v-expand-x-transition>
+    <div class="draggableBorder" v-show="infoPanelVisible"></div>
     <v-slide-x-reverse-transition>
       <v-tooltip right>
         <template v-slot:activator="{ on }">
@@ -24,7 +25,6 @@
           >
 
               <v-icon>mdi-chevron-double-left</v-icon>
-
           </v-btn>
         </template>
         <span>Hide</span>
@@ -33,7 +33,8 @@
     <v-slide-x-transition>
       <v-btn
         v-show="!infoPanelVisible"
-        @click="togglePanel()"
+        @click="togglePanel"
+        class="expand"
         large
         tile
       >
@@ -41,13 +42,12 @@
         <v-icon>mdi-chevron-double-right</v-icon>
       </v-btn>
     </v-slide-x-transition>
-    <div class="draggableBorder" v-show="infoPanelVisible"></div>
   </div>
 </template>
 <style lang="scss">
   $btn-box-shadow: 0px 3px 1px -2px rgba(0, 0, 0, .2), 3px 2px 2px 0px rgba(0, 0, 0, .14), 3px 1px 3px 0px rgba(0, 0, 0, .12) !important;
   #info-sheet {
-    position: absolute;
+    /*position: absolute;*/
     z-index: 4;
     height: calc(100vh - 120px);
 
@@ -55,6 +55,11 @@
       -webkit-box-shadow: $btn-box-shadow;
       -moz-box-shadow: $btn-box-shadow;
       box-shadow: $btn-box-shadow;
+    }
+
+    button.expand {
+      position: absolute;
+      z-index: 5;
     }
   }
 
@@ -82,24 +87,25 @@
   }
 
   .draggableBorder {
+    z-index: 4;
     width: 6px;
-    height: 100%;
+    height: calc(100vh - 120px);
     background-color: #003366;
     opacity: 0.5;
-    float: left;
     cursor: ew-resize;
     transition: opacity 0.2s ease-in-out;
-
-    &:hover {
-      opacity: 1;
-    }
+    position: absolute;
+    padding-left: 0;
+    padding-right: 0;
+    display: inline-flex;
   }
+
 </style>
 <script>
 import { mapGetters } from 'vuex'
 
 export default {
-  name: 'InfoSheet',
+  name: 'InfoSheetAdjustable',
   props: {
     closePanel: Function,
     display: Boolean,
@@ -147,6 +153,7 @@ export default {
         const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
 
         infoPanel.style.width = (e.clientX > minSize && e.clientX < maxSize) && e.clientX + 'px'
+        this.$store.dispatch('map/resizeMap')
       }
 
       infoPanelBorder.addEventListener(

@@ -1,6 +1,6 @@
 <template>
   <div class="home d-flex">
-    <Overlay/>
+    <InfoPanel/>
     <Map :style="{ width: '100vw' }"/>
     <WelcomeMessage></WelcomeMessage>
   </div>
@@ -9,13 +9,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import Map from '../components/map/Map.vue'
-import Overlay from '../components/common/Overlay'
 import WelcomeMessage from './WelcomeMessage'
+import InfoPanel from './common/InfoPanel'
 
 export default {
   name: 'Home',
   components: {
-    Overlay,
+    InfoPanel,
     Map,
     WelcomeMessage
   },
