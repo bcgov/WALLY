@@ -93,6 +93,11 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
     set_row_style(lith_sheet)
     set_row_style(screen_sheet)
 
+    # fix column widths
+    set_column_width(well_sheet)
+    set_column_width(lith_sheet)
+    set_column_width(screen_sheet)
+
     filename = f"{cur_date}_CrossSection"
 
     response = Response(
@@ -101,6 +106,12 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
         headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'})
 
     return response
+
+
+def set_column_width(sheet):
+    for column_cells in sheet.columns:
+        length = max(len(str(cell.value)) for cell in column_cells)
+        sheet.column_dimensions[column_cells[0].column_letter].width = length
 
 
 def set_row_style(sheet):
@@ -206,6 +217,7 @@ WELL_HEADERS = [
     "comments",
     "ems",
     "aquifer_id",
+    "aquifer_vulnerability_index",
     "storativity",
     "transmissivity",
     "hydraulic_conductivity",
@@ -214,9 +226,8 @@ WELL_HEADERS = [
     "testing_method",
     "testing_duration",
     "analytic_solution_type",
-    "aquifer_vulnerability_index",
-    "aquifer_lithology",
     "boundary_effect",
+    "aquifer_lithology",
     "well_publication_status",
 ]
 
