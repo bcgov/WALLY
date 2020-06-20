@@ -82,7 +82,13 @@ def get_downstream_area(
                     :buffer),
                     4326
                 ) as "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-            where   "FWA_WATERSHED_CODE" = fwa_code and "DOWNSTREAM_ROUTE_MEASURE" < watershed_code_stats.downstream_route_measure
+            where "FWA_WATERSHED_CODE" = fwa_code
+            and
+            (CASE
+              WHEN "DOWNSTREAM_ROUTE_MEASURE" = 0
+              THEN "DOWNSTREAM_ROUTE_MEASURE" <= watershed_code_stats.downstream_route_measure
+              ELSE "DOWNSTREAM_ROUTE_MEASURE" < watershed_code_stats.downstream_route_measure
+            END)
         )
         select
             ST_AsGeoJSON(ST_Union("GEOMETRY"))
