@@ -3,6 +3,7 @@
     <InfoSheetAdjustable :panelName=this.panelName>
       <router-view></router-view>
     </InfoSheetAdjustable>
+
   </div>
 </template>
 <style lang="scss">
@@ -15,7 +16,7 @@ import InfoSheet from './InfoSheetResponsive'
 import InfoSheetAdjustable from './InfoSheetAdjustable'
 
 export default {
-  name: 'Overlay',
+  name: 'InfoPanel',
   components: {
     InfoSheetAdjustable
   },
@@ -26,6 +27,11 @@ export default {
       // panelWidth: 500
     }
   },
+  watch: {
+    $route (to, from) {
+      this.$store.dispatch('map/resizeMap')
+    }
+  },
   computed: {
     ...mapGetters('map', [
       'isMapLayerActive',
@@ -33,7 +39,8 @@ export default {
       'mapLayerName',
       'getMapLayer',
       'getCategories',
-      'layerSelectionActive'
+      'layerSelectionActive',
+      'isMapReady'
 
     ]),
     ...mapGetters([
@@ -76,7 +83,7 @@ export default {
     }
   },
   mounted () {
-    global.config.debug && console.log('[wally]', this.$route)
+    console.log(this.$route)
   },
   methods: {
   }

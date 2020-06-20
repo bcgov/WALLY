@@ -16,6 +16,7 @@ export default {
     },
     exitFeature ({ dispatch }) {
       dispatch('map/clearSelections')
+      dispatch('map/resizeMap')
       router.push('/')
     }
   },

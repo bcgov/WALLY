@@ -263,7 +263,7 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
     buf = create_line_buffer(profile, radius)
 
     req = ExternalAPIRequest(
-        url=f"{GWELLS_API_URL}/api/v2/wells/screens",
+        url=f"{GWELLS_API_URL}/api/v2/wells/subsurface",
         q={
             "within": buf.wkt,
             "limit": 100
@@ -280,6 +280,15 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             Point(shape(well.geometry))
         )
 
+        # Separate the well aquifer info from the feature info
+        well_aquifer = well.properties.pop('aquifer', None)
+
+        # Add (flattend) aquifer into feature info
+        well.properties['aquifer'] = well_aquifer.get('aquifer_id') if well_aquifer else None
+
+        # Remove lithologydescription_set from well properties as it's not formatted properly
+        well.properties.pop('lithologydescription_set')
+
         # load screen data from the geojson response
         screenset = well.properties.get('screen_set', '')
         screenset = json.loads(screenset)
@@ -290,6 +299,8 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties['static_water_level'] else None,
             "distance_from_origin": distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
+            "aquifer": well_aquifer,
+            "aquifer_lithology": well.properties['aquifer_lithology'],
             "feature": well,
             "screen_set": screenset
         }

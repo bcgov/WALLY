@@ -63,7 +63,7 @@ export default {
     }]
   },
   actions: {
-    async initMapAndDraw ({ commit, state }) {
+    async initMapAndDraw ({ commit, dispatch }) {
       const mapConfig = await ApiService.get('api/v1/config/map')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
@@ -103,23 +103,31 @@ export default {
       // Fix for the map not expanding to full size when you resize the
       // browser window
       window.addEventListener('resize', () => {
-        // MapboxGL's resize function gets the canvas container div's dimensions
-        // and repaints the canvas accordingly.
-        // https://github.com/mapbox/mapbox-gl-js/blob/0412fdb247f0f0c0bdb46d1e1465a848e1eea7dc/src/ui/map.js#L558
-
-        // Get the map's parent node height and set the canvas container to
-        // the same height
-        let mapboxglCanvasContainer = document.getElementsByClassName('mapboxgl-canvas-container')[0]
-        let map = document.getElementById('map')
-        mapboxglCanvasContainer.style.height = getComputedStyle(map.parentNode).height
-
-        // Mapbox resize takes some time to get the updated height, so it
-        // only works when you wait a bit.
-        // TODO: reconsider this setTimeout
-        setTimeout(() => {
-          state.map.resize()
-        }, 300)
+        dispatch('resizeMap')
       })
+    },
+    resizeMap ({ state }) {
+      // MapboxGL's resize function gets the canvas container div's dimensions
+      // and repaints the canvas accordingly.
+      // https://github.com/mapbox/mapbox-gl-js/blob/0412fdb247f0f0c0bdb46d1e1465a848e1eea7dc/src/ui/map.js#L558
+
+      // Get the map's parent node height and set the canvas container to
+      // the same height
+      const mapboxglCanvasContainer = document.getElementsByClassName('mapboxgl-canvas-container')[0]
+      const map = document.getElementById('map')
+      mapboxglCanvasContainer.style.height = getComputedStyle(map.parentNode).height
+
+      const infoSheetWidth = document.getElementById('info-sheet')
+        ? getComputedStyle(document.getElementById('info-sheet')).width
+        : 0
+      mapboxglCanvasContainer.style.width = window.innerWidth - infoSheetWidth
+
+      // Mapbox resize takes some time to get the updated height, so it
+      // only works when you wait a bit.
+      // TODO: reconsider this setTimeout
+      setTimeout(() => {
+        state.map.resize()
+      }, 300)
     },
     loadMap ({ state, dispatch }) {
       state.map.on('style.load', () => {
