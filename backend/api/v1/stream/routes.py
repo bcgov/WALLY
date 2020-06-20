@@ -8,7 +8,7 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from shapely.geometry import shape, MultiLineString, mapping
+from shapely.geometry import shape, MultiLineString, mapping, MultiPolygon
 from shapely.ops import transform
 from api.db.utils import get_db
 
@@ -49,39 +49,44 @@ def get_streams_by_watershed_code(
     up_geom = stream_controller.get_upstream_area(
         db, linear_feature_id, buffer, full_upstream_area)
     down_geom = stream_controller.get_downstream_area(
-      db, linear_feature_id, buffer)
+        db, linear_feature_id, buffer)
 
     if not up_geom or not down_geom:
         return None
     
-    logger.warn("*** up_geom ***")
-    logger.warn(up_geom)
-    logger.warn("*** down_geom ***")
-    logger.warn(down_geom)
+    logger.warning(up_geom)
+    logger.warning(down_geom)
 
     up_geom_geojson = geojson.loads(up_geom[0]) if up_geom[0] else None
     down_geom_geojson = geojson.loads(down_geom[0]) if down_geom[0] else None
 
-    # if a layer was not specified, return the unioned stream network that we generated.
+    up_shape = shape(up_geom_geojson)
+    down_shape = shape(down_geom_geojson)
+
+    # take only the largest polygon from any multi-polygons
+    # this eliminates any error shapes that occasionally
+    # popup in the freshwater atlas data
+    up_poly = max(up_shape, key=lambda a: a.area) if \
+      isinstance(up_shape, MultiPolygon) else up_shape
+    down_poly = max(down_shape, key=lambda a: a.area) if \
+      isinstance(down_shape, MultiPolygon) else down_shape
+
+    # remove overlapping geometry at the up/down stream junction point
+    # the selected point will always be upstream from this junction
+    # so we remove the intersecting geometry from the upstream poly
+    up_poly = up_poly.difference(down_poly)
+
+    # if a layer was not specified, return the stream network polys that we generated.
     if not layer:
         return {
-          "upstream": up_geom_geojson,
-          "downstream": down_geom_geojson
+            "upstream": mapping(up_poly),
+            "downstream": mapping(down_poly)
         }
 
-    if up_geom_geojson:
-        upstream_shape = shape(up_geom_geojson)
-        features_upstream = stream_controller.get_features_within_buffer(db,
-                                              upstream_shape, buffer, layer)
-    else:
-        features_upstream = None
-
-    if down_geom_geojson:
-        downstream_shape = shape(down_geom_geojson)
-        features_downstream = stream_controller.get_features_within_buffer(db,
-                                                downstream_shape, buffer, layer)
-    else:
-        features_downstream = None
+    features_upstream = stream_controller. \
+      get_features_within_buffer(db, up_poly, buffer, layer)
+    features_downstream = stream_controller \
+      .get_features_within_buffer(db, down_poly, buffer, layer)
 
     return {
         "upstream": features_upstream,

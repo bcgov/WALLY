@@ -177,7 +177,7 @@ export default {
           paint: {
             'fill-color': '#99CC99',
             'fill-outline-color': '#002171',
-            'fill-opacity': 0.5
+            'fill-opacity': 0.65
           }
         }, 'water_rights_licences')
 
@@ -192,7 +192,7 @@ export default {
             visibility: 'visible'
           },
           paint: {
-            'fill-color': '#FF7F7F',
+            'fill-color': '#0d47a1',
             'fill-outline-color': '#002171',
             'fill-opacity': 0.5
           }

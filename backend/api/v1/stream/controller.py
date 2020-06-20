@@ -63,8 +63,6 @@ def get_downstream_area(
                 "FWA_WATERSHED_CODE" as fwa_code,
                 "LOCAL_WATERSHED_CODE" as loc_code,
                 "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
-                (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
-                    as loc_code_last_nonzero_code,
                 left(
                     regexp_replace(
                         "FWA_WATERSHED_CODE",
@@ -77,7 +75,7 @@ def get_downstream_area(
             FROM freshwater_atlas_stream_networks
             WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
         ),
-        streams as (
+        selected_stream as (
             select  ST_Transform(
                 ST_Buffer(
                     ST_Transform("GEOMETRY", 3005),
@@ -89,7 +87,7 @@ def get_downstream_area(
         select
             ST_AsGeoJSON(ST_Union("GEOMETRY"))
         from    (
-            select ST_MakeValid("GEOMETRY") "GEOMETRY" from streams 
+            select ST_MakeValid("GEOMETRY") "GEOMETRY" from watershed_code_stats, selected_stream
         ) subq   
         """
 
@@ -229,6 +227,8 @@ def get_upstream_area(
 def get_features_within_buffer(db: Session, line, distance: float, layer: str) -> FeatureCollection:
     """ List features within a buffer zone from a geometry
     """
+    if not line:
+        return None
 
     buf_simplified = line.minimum_rotated_rectangle
 
