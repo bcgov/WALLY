@@ -727,7 +727,7 @@ export default {
       this.wells = [...wellsArr]
       this.wellsLithology = [...lithologyArr]
       this.screens = [...screensArr]
-      this.$store.commit('map/updateHighlightFeatureData', {})
+      this.$store.dispatch('map/clearHighlightLayer')
     },
     getCrossSectionExport () {
       // Track cross section excel downloads

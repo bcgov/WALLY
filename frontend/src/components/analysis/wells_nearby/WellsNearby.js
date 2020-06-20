@@ -251,7 +251,7 @@ export default {
       })
       this.wells = [...wellsArr]
       this.updateBoxPlotData()
-      this.$store.commit('map/updateHighlightFeatureData', {})
+      this.$store.dispatch('map/clearHighlightLayer')
     },
     resetWells () {
       this.wells = this.defaultWells
