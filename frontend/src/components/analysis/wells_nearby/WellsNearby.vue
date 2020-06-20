@@ -69,7 +69,7 @@
                   <td><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
                   <td><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
                   <td><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
-                  <td><span>{{item.aquifer_number ? item.aquifer_number : ''}}</span></td>
+                  <td><span>{{item.aquifer_id ? item.aquifer_id : ''}}</span></td>
                   <td><span>{{item.aquifer_lithology ? item.aquifer_lithology : ''}}</span></td>
                   <td><span>{{item.aquifer_material ? item.aquifer_material : ''}}</span></td>
                 </tr>
@@ -119,6 +119,12 @@
                 <dd>The distance from the static water level to top of screen (see definition above) in feet.</dd>
                 <dt>SWL to bottom of well</dt>
                 <dd>The distance from the static water level to the finished well depth (see definition above) in feet.</dd>
+                <dt>Aquifer Id</dt>
+                <dd>The aquifer reference id that represents the aquifer the well is associated with.</dd>
+                <dt>Aquifer Lithology</dt>
+                <dd>Consolidated or unconsolidated material consistency.</dd>
+                <dt>Aquifer Material</dt>
+                <dd>The primary material consistency of the aquifer body.</dd>
               </dl>
             </v-expansion-panel-content>
           </v-expansion-panel>

@@ -44,6 +44,17 @@ class Screen(BaseModel):
     assembly_type: Optional[str]
 
 
+class WellAquifer(BaseModel):
+    """
+    Well aquifer data
+    """
+    aquifer_id: int
+    subtype: Optional[str]
+    subtype_desc: Optional[str]
+    material: Optional[str]
+    material_desc: Optional[str]
+
+
 class WellDrawdown(BaseModel):
     """
     Well data focused on drawdown impact assessments
@@ -53,13 +64,15 @@ class WellDrawdown(BaseModel):
     longitude: float
     well_yield: Optional[float]
     diameter: Optional[str]
-    aquifer: Optional[int]
     well_yield_unit: Optional[str]
     finished_well_depth: Optional[float]
     street_address: Optional[str]
     intended_water_use: Optional[str]
     aquifer_subtype: Optional[str]
     aquifer_hydraulically_connected: Optional[bool]
+    aquifer_id: Optional[int]
+    aquifer_material: Optional[str]
+    aquifer_lithology: Optional[str]
     screen_set: Optional[List[Screen]]
     top_of_screen: Optional[float] = Schema(
         None, title="Top of screen", description="The depth of the start of the uppermost reported screen segment.")
@@ -72,17 +85,6 @@ class WellDrawdown(BaseModel):
                                             description="The calculated distance between the reported static water level and the start of the uppermost screen segment. The type of screen is not taken into account. This information is based on reported values and should be confirmed.")
     swl_to_bottom_of_well: Optional[float] = Schema(None, title="Static water level to bottom of well (ft)",
                                                     description="The calculated distance between the reported static water level and the finished well depth. This information is based on reported values and should be confirmed.")
-
-
-class WellAquifer(BaseModel):
-    """
-    Well aquifer data
-    """
-    aquifer_id: int
-    subtype: Optional[str]
-    subtype_desc: Optional[str]
-    material: Optional[str]
-    material_desc: Optional[str]
 
 
 class WellsExport(BaseModel):
