@@ -216,7 +216,7 @@ WELL_HEADERS = [
     "artesian_pressure",
     "comments",
     "ems",
-    "aquifer_id",
+    "aquifer",
     "aquifer_vulnerability_index",
     "storativity",
     "transmissivity",
