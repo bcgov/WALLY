@@ -73,13 +73,13 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
             well_sheet.append(well_values)
 
             lith_set = props["lithologydescription_set"]
-            logger.warn(lith_set)
+
             for item in lith_set:
                 lith_values = [item.get(x, None) for x in LITHOLOGY_INDEX]
                 lith_sheet.append([well_tag_number] + lith_values)
 
             screen_set = props["screen_set"]
-            logger.warn(screen_set)
+
             for item in screen_set:
                 screen_values = [item.get(x, None) for x in SCREEN_INDEX]
                 screen_sheet.append([well_tag_number] + screen_values)
@@ -192,10 +192,10 @@ WELL_HEADERS = [
     "well_location_description",
     "latitude",
     "longitude",
-    "utm_zone",
+    "utm_zone_code",
     "utm_northing",
     "utm_easting",
-    "coordinate_acquisition",
+    "coordinate_acquisition_code",
     "construction_start_date",
     "construction_end_date",
     "alteration_start_date",
