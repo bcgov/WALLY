@@ -198,6 +198,8 @@ export default {
       const radius = this.radius / 1000
       const shape = circle(this.coordinates, radius, options)
       shape.id = 'user_search_radius'
+      // clear highlighted point
+      this.$store.dispatch('map/clearHighlightLayer')
 
       // remove old shapes
       this.$store.commit('map/removeShapes')
