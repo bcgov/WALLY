@@ -27,6 +27,7 @@ def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buf
     
     # styling config
     ds['A1'].font = font_title
+    ds.column_dimensions['A'].width = 20
     ds['A1'].border = border_bottom
     ds['B1'].border = border_bottom
     ds['C1'].border = border_bottom
