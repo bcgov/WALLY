@@ -119,7 +119,7 @@
                 <dd>The distance from the static water level to top of screen (see definition above) in feet.</dd>
                 <dt>SWL to bottom of well</dt>
                 <dd>The distance from the static water level to the finished well depth (see definition above) in feet.</dd>
-                <dt>Aquifer Id</dt>
+                <dt>Aquifer Number</dt>
                 <dd>A unique number assigned to an aquifer and represents the aquifer that a well has been correlated to.</dd>
                 <dt>Aquifer Lithology</dt>
                 <dd>Represents the type of material an aquifer consists of and is described by values of consolidated and unconsolidated.</dd>
