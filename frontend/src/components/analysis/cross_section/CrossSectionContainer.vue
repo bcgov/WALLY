@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Cross section
+          Plot a cross section between wells
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
