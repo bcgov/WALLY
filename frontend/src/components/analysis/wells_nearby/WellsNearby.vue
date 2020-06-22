@@ -120,11 +120,11 @@
                 <dt>SWL to bottom of well</dt>
                 <dd>The distance from the static water level to the finished well depth (see definition above) in feet.</dd>
                 <dt>Aquifer Id</dt>
-                <dd>The aquifer reference id that represents the aquifer the well is associated with.</dd>
+                <dd>A unique number assigned to an aquifer and represents the aquifer that a well has been correlated to.</dd>
                 <dt>Aquifer Lithology</dt>
-                <dd>Consolidated or unconsolidated material consistency.</dd>
+                <dd>Represents the type of material an aquifer consists of and is described by values of consolidated and unconsolidated.</dd>
                 <dt>Aquifer Material</dt>
-                <dd>The primary material consistency of the aquifer body.</dd>
+                <dd>Describes the broad grouping of geological material found in the aquifer.</dd>
               </dl>
             </v-expansion-panel-content>
           </v-expansion-panel>
