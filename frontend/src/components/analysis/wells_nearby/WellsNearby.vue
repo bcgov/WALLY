@@ -53,28 +53,29 @@
                   </v-btn>
               </v-col>
             </v-row>
-
-            <v-data-table
-              :loading="loading"
-              :headers="headers"
-              :items="wells">
-              <template v-slot:item="{ item }">
-                <tr @mouseenter="onMouseEnterWellItem(item)">
-                  <td><v-icon small @click="deleteWell(item)">delete</v-icon></td>
-                  <td><span>{{item.distance ? item.distance.toFixed(1) : ''}}</span></td>
-                  <td><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
-                  <td><span>{{item.well_yield ? item.well_yield : ''}}</span></td>
-                  <td><span>{{item.static_water_level ? item.static_water_level : ''}}</span></td>
-                  <td><span>{{item.top_of_screen ? item.top_of_screen : ''}}</span></td>
-                  <td><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
-                  <td><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
-                  <td><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
-                  <td><span>{{item.aquifer_id ? item.aquifer_id : ''}}</span></td>
-                  <td><span>{{item.aquifer_lithology ? item.aquifer_lithology : ''}}</span></td>
-                  <td><span>{{item.aquifer_material ? item.aquifer_material : ''}}</span></td>
-                </tr>
-              </template>
-            </v-data-table>
+            <v-card outlined width="1000px">
+              <v-data-table
+                :loading="loading"
+                :headers="headers"
+                :items="wells">
+                <template v-slot:item="{ item }">
+                  <tr @mouseenter="onMouseEnterWellItem(item)">
+                    <td class="text-left v-data-table__divider pa-2"><v-icon small @click="deleteWell(item)">delete</v-icon></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.distance ? item.distance.toFixed(1) : ''}}</span></td>
+                    <td class="text-left v-data-table__divider pa-2"><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.well_yield ? item.well_yield : ''}}</span></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.static_water_level ? item.static_water_level : ''}}</span></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.top_of_screen ? item.top_of_screen : ''}}</span></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
+                    <td class="text-right v-data-table__divider pa-2"><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
+                    <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer_id ? item.aquifer_id : ''}}</span></td>
+                    <td class="text-left v-data-table__divider pa-2"><span>{{item.aquifer_lithology ? item.aquifer_lithology : ''}}</span></td>
+                    <td class="text-left pa-2"><span>{{item.aquifer_material ? item.aquifer_material : ''}}</span></td>
+                  </tr>
+                </template>
+              </v-data-table>
+            </v-card>
           </v-card-text>
         </v-card>
       </v-col>
