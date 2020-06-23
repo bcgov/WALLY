@@ -119,9 +119,6 @@ def get_screens(point, radius) -> List[WellDrawdown]:
         logger.info('external request: %s', url)
         resp = requests.get(url)
 
-        logger.warn("**** RESPONSE ****")
-        logger.warn(resp)
-
         i += 1
         # break now if we didn't receive any results.
         results = resp.json().get('results', None)
@@ -129,8 +126,14 @@ def get_screens(point, radius) -> List[WellDrawdown]:
             done = True
             break
 
-        # flatten pertinent aquifer information
         for well in results:
+            # calculate distance from well to click point
+            center_point = transform(transform_4326_3005, point)
+            well_point = transform(transform_4326_3005, Point(well["longitude"], well["latitude"]))
+            distance = center_point.distance(well_point)
+            well["distance"] = distance
+
+            # flatten pertinent aquifer information
             if well["aquifer"]:
                 aquifer = well["aquifer"]
                 well["aquifer_id"] = aquifer["aquifer_id"]
@@ -146,9 +149,6 @@ def get_screens(point, radius) -> List[WellDrawdown]:
             done = True
         url = next_url
 
-    
-
-    logger.warn(wells_results)
     # return zero results if an error occurred or we did not successfully get all the results.
     # (avoid returning incomplete data)
     if not done:
