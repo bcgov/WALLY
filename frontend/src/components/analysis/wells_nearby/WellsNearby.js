@@ -26,15 +26,67 @@ export default {
     wells: [],
     loading: false,
     headers: [
-      { text: '', value: 'delete', sortable: false, align: 'start' },
-      { text: 'Distance (m)', value: 'distance' },
-      { text: 'Well tag number', value: 'well_tag_number' },
-      { text: 'Reported yield (USGPM)', value: 'well_yield' },
-      { text: 'Static water level (ft btoc)', value: 'static_water_level' },
-      { text: 'Top of screen (ft bgl)', value: 'top_of_screen' },
-      { text: 'Finished well depth (ft bgl)', value: 'finished_well_depth' },
-      { text: 'SWL to top of screen (ft)', value: 'swl_to_screen' },
-      { text: 'SWL to bottom of well (ft)', value: 'swl_to_bottom_of_well' }
+      {
+        text: '',
+        value: 'delete',
+        sortable: false,
+        align: 'start',
+        divider: true
+      },
+      {
+        text: 'Distance (m)',
+        value: 'distance',
+        align: 'end',
+        divider: true },
+      {
+        text: 'Well tag number',
+        value: 'well_tag_number',
+        align: 'start',
+        divider: true },
+      {
+        text: 'Reported yield (USGPM)',
+        value: 'well_yield',
+        align: 'end',
+        divider: true },
+      {
+        text: 'Static water level (ft btoc)',
+        value: 'static_water_level',
+        align: 'end',
+        divider: true },
+      {
+        text: 'Top of screen (ft bgl)',
+        value: 'top_of_screen',
+        align: 'end',
+        divider: true },
+      {
+        text: 'Finished well depth (ft bgl)',
+        value: 'finished_well_depth',
+        align: 'end',
+        divider: true },
+      {
+        text: 'SWL to top of screen (ft)',
+        value: 'swl_to_screen',
+        align: 'end',
+        divider: true },
+      {
+        text: 'SWL to bottom of well (ft)',
+        value: 'swl_to_bottom_of_well',
+        align: 'end',
+        divider: true },
+      {
+        text: 'Aquifer Number',
+        value: 'aquifer_id',
+        align: 'center',
+        divider: true },
+      {
+        text: 'Aquifer Lithology',
+        value: 'aquifer_lithology',
+        align: 'start',
+        divider: true },
+      {
+        text: 'Aquifer Material',
+        value: 'aquifer_material',
+        align: 'start' }
     ],
     boxPlotSWLData: {
       data: [],

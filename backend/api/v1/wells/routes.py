@@ -65,8 +65,13 @@ def export_nearby_wells(
     point_parsed = json.loads(req.point)
     point_shape = Point(point_parsed)
     wells_drawdown_data = get_screens(point_shape, req.radius)
+
     wells_subset = [w for w in wells_drawdown_data if w.well_tag_number in req.export_wells]
-    
+
+    # flatten pertinent aquifer information for export
+    # for well in wells_drawdown_data:
+    #     del well.aquifer
+
     return geojson_to_xlsx(
         [geojson.FeatureCollection(
             [
