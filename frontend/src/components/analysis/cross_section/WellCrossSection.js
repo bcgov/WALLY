@@ -594,7 +594,14 @@ export default {
                 y1: well.ground_elevation_from_dem - (w.end * 0.3048),
                 lat: wellLithologySet.latitude,
                 lon: wellLithologySet.longitude,
-                data: w.lithology_raw_data,
+                // combine lithology_raw_data and lithology_observation
+                data: `${
+                  w.lithology_raw_data ? w.lithology_raw_data : ''
+                }${
+                  w.lithology_raw_data && w.lithology_observation ? '; ' : ''
+                }${
+                  w.lithology_observation ? w.lithology_observation : ''
+                }`,
                 color: w.lithology_colour,
                 hardness: w.lithology_hardness,
                 observation: w.lithology_observation,
@@ -721,7 +728,7 @@ export default {
       })
 
       let screensArr = this.screens.filter(screen => {
-        return screen['well'] !== selectedWell['well_tag_number']
+        return screen['well_tag_number'] !== selectedWell['well_tag_number']
       })
 
       this.wells = [...wellsArr]
