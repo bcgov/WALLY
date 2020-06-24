@@ -107,7 +107,10 @@ def get_screens(point, radius) -> List[WellDrawdown]:
     wells_results = []
 
     done = False
-    url = f"{GWELLS_API_URL}/api/v2/wells/screens?point={point.wkt}&radius={radius}&limit=100&offset=0"
+
+    buffer = create_circle_polygon(point, radius)
+
+    url = f"{GWELLS_API_URL}/api/v2/wells/subsurface?within={buffer.wkt}&limit=100"
     # helpers to prevent unbounded requests
     limit_requests = 100
     i = 0  # this i is for recording extra requests within each chunk, if necessary
@@ -122,6 +125,19 @@ def get_screens(point, radius) -> List[WellDrawdown]:
         if not results:
             done = True
             break
+
+        for well in results:
+            # calculate distance from well to click point
+            center_point = transform(transform_4326_3005, point)
+            well_point = transform(transform_4326_3005, Point(well["longitude"], well["latitude"]))
+            distance = center_point.distance(well_point)
+            well["distance"] = distance
+
+            # flatten pertinent aquifer information
+            if well["aquifer"]:
+                aquifer = well["aquifer"]
+                well["aquifer_id"] = aquifer["aquifer_id"]
+                well["aquifer_material"] = aquifer["material_desc"]
 
         # add results to a list.
         wells_results += [WellDrawdown(**well) for well in results]
@@ -193,6 +209,12 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
             **well_map.get(str(well[0]).lstrip('0'), {})
         )
         for well in wells_with_distances])
+
+
+def create_circle_polygon(point: Point, radius: float):
+    point = transform(transform_4326_3005, point)
+    circle = point.buffer(radius)
+    return transform(transform_3005_4326, circle)
 
 
 def create_line_buffer(line: LineString, radius: float):
@@ -271,6 +293,9 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         layer="gwells"
     )
     feature_collection = fetch_geojson_features([req])[0].geojson
+
+    logger.warn("feature_collection")
+    logger.warn(feature_collection)
 
     wells_results = []
 
