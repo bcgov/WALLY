@@ -39,8 +39,10 @@
                 <v-list-item-content>
                     <v-data-table
                       dense
-                      :headers="[{ text: getMapLayer(name).label, value: 'col1' }]"
-                      :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
+                      :headers="getMapLayer(name).highlight_columns.map((h) => {
+                        return { text: h, value: h }
+                      })"
+                      :items="getHighlightProperties(name, value)"
                       :items-per-page="10"
                       :hide-default-footer="value.length < 10"
                     >
@@ -101,6 +103,24 @@ export default {
     }
   },
   methods: {
+    getHighlightProperties (name, featureList) {
+      let layer = this.getMapLayer(name)
+      if (layer != null) {
+        let rows = []
+        let highlightFields = layer.highlight_columns
+        for(var i = 0; i < featureList.length; i++) {
+          let obj = {}
+          highlightFields.forEach((field) => {
+            obj[field] = featureList[i].properties[field]
+          })
+          obj["id"] = i
+          rows.push(obj)
+        }
+        console.log(rows)
+        return rows
+      }
+      return []
+    },
     setSingleListFeature (item, displayName) {
       this.$store.commit('setDataMartFeatureInfo',
         {
