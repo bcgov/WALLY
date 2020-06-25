@@ -595,6 +595,8 @@ export default {
           )
           if (well) {
             wellLithologySet.lithologydescription_set.forEach(w => {
+              const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
+
               lithologyList.push({
                 well_tag_number: wellLithologySet.well_tag_number,
                 x: well.distance_from_origin ? well.distance_from_origin : 0,
@@ -603,13 +605,7 @@ export default {
                 lat: wellLithologySet.latitude,
                 lon: wellLithologySet.longitude,
                 // combine lithology_raw_data and lithology_observation
-                data: `${
-                  w.lithology_raw_data ? w.lithology_raw_data : ''
-                }${
-                  w.lithology_raw_data && w.lithology_observation ? '; ' : ''
-                }${
-                  w.lithology_observation ? w.lithology_observation : ''
-                }`,
+                data: description,
                 color: w.lithology_colour,
                 hardness: w.lithology_hardness,
                 observation: w.lithology_observation,
