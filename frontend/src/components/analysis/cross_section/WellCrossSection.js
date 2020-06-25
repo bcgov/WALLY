@@ -595,6 +595,7 @@ export default {
           )
           if (well) {
             wellLithologySet.lithologydescription_set.forEach(w => {
+              // combine lithology_raw_data and lithology_observation
               const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
 
               lithologyList.push({
@@ -604,7 +605,6 @@ export default {
                 y1: well.ground_elevation_from_dem - (w.end * 0.3048),
                 lat: wellLithologySet.latitude,
                 lon: wellLithologySet.longitude,
-                // combine lithology_raw_data and lithology_observation
                 data: description,
                 color: w.lithology_colour,
                 hardness: w.lithology_hardness,
