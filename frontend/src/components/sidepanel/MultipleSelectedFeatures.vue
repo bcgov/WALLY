@@ -32,7 +32,7 @@
           <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
             <template v-slot:activator>
               <v-list-item-content>
-                <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
+                <v-list-item-title>{{getMapLayer(name).displayName}} ({{value.length}} found in area)</v-list-item-title>
               </v-list-item-content>
             </template>
               <v-list-item>
@@ -104,21 +104,21 @@ export default {
     }
   },
   methods: {
-    getHeaders(display_name) {
-      if (display_name === 'groundwater_wells') {
+    getHeaders (displayName) {
+      if (displayName === 'groundwater_wells') {
         return this.wellheaders
-      } else if (display_name === 'aquifers') {
+      } else if (displayName === 'aquifers') {
         return this.aquiferHeaders
       } else {
-        return [{ text: this.getMapLayer(display_name).label, value: 'col1' }]
+        return [{ text: this.getMapLayer(displayName).label, value: 'col1' }]
       }
     },
-    getItems(display_name, features) {
-      if (display_name === 'groundwater_wells' ||
-          display_name === 'aquifers') {
+    getItems (displayName, features) {
+      if (displayName === 'groundwater_wells' ||
+          displayName === 'aquifers') {
         return features.map(f => f.properties)
       } else {
-        return features.map((x,i) => ({col1: x.properties[this.getMapLayer(display_name).label_column], id: i}))
+        return features.map((x, i) => ({ col1: x.properties[this.getMapLayer(displayName).label_column], id: i }))
       }
     },
     setSingleListFeature (item, displayName) {
