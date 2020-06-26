@@ -71,17 +71,19 @@ export default {
   data: () => ({
     spreadsheetLoading: false,
     pdfReportLoading: false,
-    wellheaders: [
-      { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
-      { text: 'Well Identification Plate No.', value: 'identification_plate_number', align: 'start', divider: true },
-      { text: 'Street Address', value: 'street_address', align: 'start', divider: true }
-    ],
-    aquiferHeaders: [
-      { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
-      { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
-      { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
-      { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: true }
-    ]
+    headers: {
+      "groundwater_wells": [
+        { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
+        { text: 'Well Identification Plate No.', value: 'identification_plate_number', align: 'start', divider: true },
+        { text: 'Street Address', value: 'street_address', align: 'start', divider: true }
+      ],
+      "aquifers": [
+        { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
+        { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
+        { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
+        { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: true }
+      ]
+    }
   }),
   computed: {
     ...mapGetters('map', ['getMapLayer']),
@@ -105,17 +107,14 @@ export default {
   },
   methods: {
     getHeaders (displayName) {
-      if (displayName === 'groundwater_wells') {
-        return this.wellheaders
-      } else if (displayName === 'aquifers') {
-        return this.aquiferHeaders
+      if(displayName in this.headers) {
+        return this.headers[displayName]
       } else {
         return [{ text: this.getMapLayer(displayName).label, value: 'col1' }]
       }
     },
     getItems (displayName, features) {
-      if (displayName === 'groundwater_wells' ||
-          displayName === 'aquifers') {
+      if (displayName in this.headers) {
         return features.map(f => f.properties)
       } else {
         return features.map((x, i) => ({ col1: x.properties[this.getMapLayer(displayName).label_column], id: i }))
