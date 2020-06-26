@@ -39,25 +39,15 @@
                 <v-list-item-content>
                     <v-data-table
                       dense
-                      :headers="getMapLayer(name).highlight_columns.map((h) => {
-                        return { text: h, value: h }
-                      })"
-                      :items="getHighlightProperties(name, value)"
+                      :headers="getHeaders(name)"
+                      :items="getItems(name, value)"
                       :items-per-page="10"
                       :hide-default-footer="value.length < 10"
                     >
-                      <template v-slot:item="{ item }">
-                        <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
-                          <v-card
-                            class="px-2 py-3 mx-1 my-2"
-                            :elevation="hover ? 2 : 0"
-                            @mousedown="setSingleListFeature(value[item.id], name)"
-                            @mouseenter="onMouseEnterListItem(value[item.id], name)"
-                          >
-                            <span>{{ item.col1 }}</span>
-                          </v-card>
-                        </v-hover>
-                        <v-divider :key="`divider-${item.id}`"></v-divider>
+                      <template v-slot:item="{ item, index }">
+                        <tr @mouseenter="onMouseEnterListItem(value[index])" @mousedown="setSingleListFeature(value[index], name)">
+                          <td class="v-data-table__divider pa-2" v-for="header in getHeaders(name)" :key="`td-${name}-${header.value}`">{{ item[header.value] }}</td>
+                        </tr>
                       </template>
                     </v-data-table>
                 </v-list-item-content>
@@ -80,7 +70,18 @@ export default {
   name: 'MultipleSelectedFeatures',
   data: () => ({
     spreadsheetLoading: false,
-    pdfReportLoading: false
+    pdfReportLoading: false,
+    wellheaders: [
+      { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
+      { text: 'Well Identification Plate No.', value: 'identification_plate_number', align: 'start', divider: true },
+      { text: 'Street Address', value: 'street_address', align: 'start', divider: true }
+    ],
+    aquiferHeaders: [
+      { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
+      { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
+      { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
+      { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: true }
+    ]
   }),
   computed: {
     ...mapGetters('map', ['getMapLayer']),
@@ -103,23 +104,22 @@ export default {
     }
   },
   methods: {
-    getHighlightProperties (name, featureList) {
-      let layer = this.getMapLayer(name)
-      if (layer != null) {
-        let rows = []
-        let highlightFields = layer.highlight_columns
-        for(var i = 0; i < featureList.length; i++) {
-          let obj = {}
-          highlightFields.forEach((field) => {
-            obj[field] = featureList[i].properties[field]
-          })
-          obj["id"] = i
-          rows.push(obj)
-        }
-        console.log(rows)
-        return rows
+    getHeaders(display_name) {
+      if (display_name === 'groundwater_wells') {
+        return this.wellheaders
+      } else if (display_name === 'aquifers') {
+        return this.aquiferHeaders
+      } else {
+        return [{ text: this.getMapLayer(display_name).label, value: 'col1' }]
       }
-      return []
+    },
+    getItems(display_name, features) {
+      if (display_name === 'groundwater_wells' ||
+          display_name === 'aquifers') {
+        return features.map(f => f.properties)
+      } else {
+        return features.map((x,i) => ({col1: x.properties[this.getMapLayer(display_name).label_column], id: i}))
+      }
     },
     setSingleListFeature (item, displayName) {
       this.$store.commit('setDataMartFeatureInfo',
