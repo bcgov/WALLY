@@ -107,18 +107,12 @@ export default {
   },
   methods: {
     getHeaders (displayName) {
-      if(displayName in this.headers) {
-        return this.headers[displayName]
-      } else {
-        return [{ text: this.getMapLayer(displayName).label, value: 'col1' }]
-      }
+      return displayName in this.headers ? this.headers[displayName] 
+        : [{ text: this.getMapLayer(displayName).label, value: 'col1' }]
     },
     getItems (displayName, features) {
-      if (displayName in this.headers) {
-        return features.map(f => f.properties)
-      } else {
-        return features.map((x, i) => ({ col1: x.properties[this.getMapLayer(displayName).label_column], id: i }))
-      }
+      return displayName in this.headers ? features.map(f => f.properties) 
+        : features.map((x, i) => ({ col1: x.properties[this.getMapLayer(displayName).label_column], id: i }))
     },
     setSingleListFeature (item, displayName) {
       this.$store.commit('setDataMartFeatureInfo',
