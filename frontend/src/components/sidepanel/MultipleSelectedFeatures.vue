@@ -75,13 +75,13 @@ export default {
       "groundwater_wells": [
         { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
         { text: 'Well Identification Plate No.', value: 'identification_plate_number', align: 'start', divider: true },
-        { text: 'Street Address', value: 'street_address', align: 'start', divider: true }
+        { text: 'Street Address', value: 'street_address', align: 'start', divider: false }
       ],
       "aquifers": [
         { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
         { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
         { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
-        { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: true }
+        { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: false }
       ]
     }
   }),
