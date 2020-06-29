@@ -83,7 +83,7 @@ export default {
     UpstreamDownstreamData,
     UpstreamDownstreamInstructions
   },
-  props: ['record'],
+  props: ['record', 'point'],
   data: () => ({
     buffer: 50,
     loadingData: false,
@@ -142,7 +142,6 @@ export default {
       if (!this.record || this.buffer < 0) {
         return
       }
-      console.log('herehrere')
 
       this.resetGeoJSONLayers()
 
@@ -157,7 +156,9 @@ export default {
           code: fwaCode,
           linear_feature_id: linearFeatID,
           buffer: this.buffer,
-          full_upstream_area: this.searchFullUpstreamArea }
+          full_upstream_area: this.searchFullUpstreamArea,
+          point: this.point
+        }
       ).then((r) => {
         const data = r.data
         console.log(data)

@@ -8,8 +8,8 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from shapely.geometry import shape, MultiLineString, mapping, MultiPolygon
-from shapely.ops import transform
+from shapely.geometry import shape, MultiLineString, mapping, MultiPolygon, Point
+from shapely.ops import transform, cascaded_union
 from api.db.utils import get_db
 
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
@@ -41,6 +41,9 @@ def get_streams_by_watershed_code(
         None,
         title="Layer to search",
         description="The name of the layer to search. Points that are within `buffer` metres of the specified stream will be returned."),
+    point: str = Query(...,
+        title="Point of interest",
+        description="Point of interest close to stream."),
     db: Session = Depends(get_db)
 ):
     """ generates a stream network based on a FWA_WATERSHED_CODE and
@@ -53,7 +56,7 @@ def get_streams_by_watershed_code(
 
     if not up_geom or not down_geom:
         return None
-    
+
     logger.warning(up_geom)
     logger.warning(down_geom)
 
@@ -71,9 +74,22 @@ def get_streams_by_watershed_code(
     down_poly = max(down_shape, key=lambda a: a.area) if \
       isinstance(down_shape, MultiPolygon) else down_shape
 
+    point_parsed = json.loads(point)
+    point_shape = Point(point_parsed)
+
+    # calculate the junction between up and down streams
+    # and return the buffered line segments
+    junction_lines = stream_controller \
+      .get_split_line_stream_buffers(db, linear_feature_id, buffer, point_shape)
+
+    # join the junction calculations with the existing up and down polys
+    up_poly = cascaded_union([up_poly, junction_lines[-1]])
+    down_poly = cascaded_union([down_poly, junction_lines[0]])
+
     # remove overlapping geometry at the up/down stream junction point
     # the selected point will always be upstream from this junction
     # so we remove the intersecting geometry from the upstream poly
+    # down_poly = down_poly.difference(junction_lines[-1])
     up_poly = up_poly.difference(down_poly)
 
     # if a layer was not specified, return the stream network polys that we generated.

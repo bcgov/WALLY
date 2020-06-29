@@ -4,8 +4,8 @@ import geojson
 from geojson import Feature, FeatureCollection
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from shapely.geometry import LineString, CAP_STYLE, JOIN_STYLE, shape, mapping
-from shapely.ops import transform
+from shapely.geometry import LineString, CAP_STYLE, JOIN_STYLE, shape, mapping, Point
+from shapely.ops import transform, split, snap
 from api.v1.aggregator.controller import feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.wells.controller import create_line_buffer
@@ -50,6 +50,47 @@ def to_3005(from_proj, feat):
     logger.warn(
         'to_3005: from_proj must be either 4326 or 3005. Feature returned without transforming to 3005.')
     return feat
+
+
+def split_line_by_closest_point(
+        line: LineString,
+        point: Point):
+
+    distance = line.project(transform(transform_4326_3005, point))
+    interpolated_point = line.interpolate(distance)
+    snap_line = snap(line, interpolated_point, 0.001)
+    split_lines = split(snap_line, interpolated_point)
+
+    return split_lines
+
+
+def get_stream_line(
+        db: Session,
+        linear_feature_id: int):
+
+    return db.execute(
+        """
+        select ST_AsGeoJSON(ST_Transform("GEOMETRY", 3005))
+        as "GEOMETRY" from freshwater_atlas_stream_networks
+        where "LINEAR_FEATURE_ID" = :linear_feature_id
+        """,
+        {
+            "linear_feature_id": linear_feature_id
+        }).fetchone()
+
+
+def get_split_line_stream_buffers(
+        db: Session,
+        linear_feature_id: int,
+        buffer: float,
+        point: Point):
+
+    db_line = get_stream_line(db, linear_feature_id)
+    segment = shape(geojson.loads(db_line[0]) if db_line[0] else None)
+    split_lines = split_line_by_closest_point(segment, point)
+    buffer_lines = [transform(transform_3005_4326, line.buffer(buffer)) for line in split_lines]
+
+    return buffer_lines
 
 
 def get_downstream_area(
