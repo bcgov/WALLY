@@ -29,7 +29,7 @@
           Using value=0 in v-list-group defaults the collapsable list item to "closed".
           In this case, keep the list items collapsed unless there is only one to display.
             -->
-          <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
+          <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" v-model="value.active">
             <template v-slot:activator>
               <v-list-item-content>
                 <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
@@ -78,8 +78,8 @@ export default {
         { text: 'Street Address', value: 'street_address', align: 'start', divider: false }
       ],
       "aquifers": [
-        { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
         { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
+        { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
         { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
         { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: false }
       ]
