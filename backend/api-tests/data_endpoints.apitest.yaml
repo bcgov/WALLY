@@ -251,7 +251,7 @@ requests:
         wells.[0].aquifer.aquifer_id:
           exists: true
   - name: Stream buffer data search (water_rights_licences)
-    url: "{{host}}/api/v1/stream/features?buffer=50&code=100-077501-955583-455209-980096-594904-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000&linear_feature_id=701722349&layer=water_rights_licences&full_upstream_area=true"
+    url: "{{host}}/api/v1/stream/features?buffer=50&code=100-077501-955583-455209-975727-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000&linear_feature_id=701722748&layer=water_rights_licences&full_upstream_area=true&point=[-122.94726175746348,50.107191118140264]"
     method: get
     expect:
       status: 200

@@ -220,7 +220,8 @@ export default {
         code: fwaCode,
         linear_feature_id: linearFeatID,
         layer: this.selectedLayer,
-        full_upstream_area: this.searchFullUpstreamArea
+        full_upstream_area: this.searchFullUpstreamArea,
+        point: this.point
       }
       ApiService.query('/api/v1/stream/features', params)
         .then((response) => {
