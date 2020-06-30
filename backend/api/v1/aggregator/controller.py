@@ -63,7 +63,8 @@ DATABC_LAYER_IDS = {
     "freshwater_atlas_glaciers": "WHSE_BASEMAPPING.FWA_GLACIERS_POLY",
     "runoff_isolines": "WHSE_WATER_MANAGEMENT.HYDZ_ANNUAL_RUNOFF_LINE",
     "fish_observations": "WHSE_FISH.FISS_FISH_OBSRVTN_PNT_SP",
-    "water_approval_points": "WHSE_WATER_MANAGEMENT.WLS_WATER_APPROVALS_SVW"
+    "water_approval_points": "WHSE_WATER_MANAGEMENT.WLS_WATER_APPROVALS_SVW",
+    "fish_obstacles": "WHSE_FISH.FISS_OBSTACLES_PNT_SP",
 }
 
 
@@ -81,7 +82,8 @@ DATABC_GEOMETRY_FIELD = {
     "fn_treaty_lands": "GEOMETRY",
     "freshwater_atlas_glaciers": "GEOMETRY",
     "fish_observations": "GEOMETRY",
-    "water_approval_points": "SHAPE"
+    "water_approval_points": "SHAPE",
+    "fish_obstacles": "GEOMETRY",
 }
 
 
