@@ -57,20 +57,14 @@ def get_streams_by_watershed_code(
     if not up_geom or not down_geom:
         return None
 
-
     up_geom_geojson = geojson.loads(up_geom[0]) if up_geom[0] else None
     down_geom_geojson = geojson.loads(down_geom[0]) if down_geom[0] else None
 
-    up_shape = shape(up_geom_geojson)
-    down_shape = shape(down_geom_geojson)
+    logger.warning(str(up_geom_geojson) == str(down_geom_geojson))
+    logger.warning(up_geom_geojson == down_geom_geojson)
 
-    # take only the largest polygon from any multi-polygons
-    # this eliminates any error shapes that occasionally
-    # popup in the freshwater atlas data
-    up_poly = max(up_shape, key=lambda a: a.area) if \
-      isinstance(up_shape, MultiPolygon) else up_shape
-    down_poly = max(down_shape, key=lambda a: a.area) if \
-      isinstance(down_shape, MultiPolygon) else down_shape
+    if not up_geom_geojson and not down_geom_geojson:
+        return None
 
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
@@ -80,9 +74,26 @@ def get_streams_by_watershed_code(
     junction_lines = stream_controller \
       .get_split_line_stream_buffers(db, linear_feature_id, buffer, point_shape)
 
-    # join the junction calculations with the existing up and down polys
-    up_poly = cascaded_union([up_poly, junction_lines[-1]])
-    down_poly = cascaded_union([down_poly, junction_lines[0]])
+    # if either a up or down stream segment is not found,
+    # it means we are at the last segment ie a final tributary
+    # this means we can skip the union and just return the junction
+    if not up_geom_geojson or not down_geom_geojson or \
+      up_geom_geojson == down_geom_geojson:
+        up_poly = junction_lines[-1]
+        down_poly = junction_lines[0]
+    else:
+        up_shape = shape(up_geom_geojson)
+        down_shape = shape(down_geom_geojson)
+        # take only the largest polygon from any multi-polygons
+        # this eliminates any error shapes that occasionally
+        # popup in the freshwater atlas data
+        up_poly = max(up_shape, key=lambda a: a.area) if \
+          isinstance(up_shape, MultiPolygon) else up_shape
+        down_poly = max(down_shape, key=lambda a: a.area) if \
+          isinstance(down_shape, MultiPolygon) else down_shape
+        # join the junction calculations with the existing up and down polys
+        up_poly = cascaded_union([up_poly, junction_lines[-1]])
+        down_poly = cascaded_union([down_poly, junction_lines[0]])
 
     # remove overlapping geometry at the up/down stream junction point
     # the selected point will always be upstream from this junction
