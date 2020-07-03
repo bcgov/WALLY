@@ -60,9 +60,6 @@ def get_streams_by_watershed_code(
     up_geom_geojson = geojson.loads(up_geom[0]) if up_geom[0] else None
     down_geom_geojson = geojson.loads(down_geom[0]) if down_geom[0] else None
 
-    logger.warning(str(up_geom_geojson) == str(down_geom_geojson))
-    logger.warning(up_geom_geojson == down_geom_geojson)
-
     if not up_geom_geojson and not down_geom_geojson:
         return None
 
