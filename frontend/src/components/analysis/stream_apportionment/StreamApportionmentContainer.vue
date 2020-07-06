@@ -12,7 +12,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Apportion demand to nearby streams
+          Assign demand from a well to nearby streams
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
