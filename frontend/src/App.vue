@@ -37,10 +37,12 @@ export default {
     ...mapGetters(['app'])
   },
   methods: {
-    ...mapActions(['getAppInfo'])
+    ...mapActions(['getAppInfo']),
+    ...mapActions('user', ['getUserProfile'])
   },
   mounted () {
     this.getAppInfo()
+    this.getUserProfile(this.$auth.uuid)
   }
 }
 </script>

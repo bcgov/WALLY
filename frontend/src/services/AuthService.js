@@ -39,7 +39,7 @@ export class AuthService {
     this.name = this.accessToken['display_name'] || this.accessToken['name'] || this.accessToken['given_name']
     this.uuid = this.accessToken['sub']
 
-    // required for allowing header to update the name.
+    // required for allowing header to update the name, and triggering user profile call.
     EventBus.$emit('auth:update', { name: this.name, authenticated: this.isAuthenticated() })
     if (next) {
       router.push(next)

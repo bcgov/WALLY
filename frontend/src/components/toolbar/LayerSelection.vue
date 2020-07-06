@@ -80,6 +80,9 @@ export default {
       'dataMartFeatures',
       'dataMartFeatureInfo'
     ]),
+    ...mapGetters('user', [
+      'defaultMapLayers'
+    ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)
     },
@@ -125,6 +128,7 @@ export default {
     },
     handleSelectLayer (selectedLayers) {
       this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
+      this.$store.dispatch('user/updateDefaultMapLayers', selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)
@@ -132,6 +136,9 @@ export default {
     allowDisableLayerSelection () {
       return this.featureSelectionExists
     }
+  },
+  mounted () {
+    this.$store.dispatch('map/updateActiveMapLayers', this.defaultMapLayers)
   }
 }
 </script>
