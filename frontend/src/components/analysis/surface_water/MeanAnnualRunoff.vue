@@ -379,6 +379,8 @@ export default {
         }
         let availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
         this.setAvailabilityPlotData(availability)
+      } else {
+        this.setAvailabilityPlotData(null)
       }
       return
     },
