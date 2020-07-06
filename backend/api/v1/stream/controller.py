@@ -4,8 +4,8 @@ import geojson
 from geojson import Feature, FeatureCollection
 from sqlalchemy import func
 from sqlalchemy.orm import Session
-from shapely.geometry import LineString, CAP_STYLE, JOIN_STYLE, shape, mapping
-from shapely.ops import transform
+from shapely.geometry import LineString, CAP_STYLE, JOIN_STYLE, shape, mapping, Point
+from shapely.ops import transform, split, snap
 from api.v1.aggregator.controller import feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.wells.controller import create_line_buffer
@@ -52,12 +52,106 @@ def to_3005(from_proj, feat):
     return feat
 
 
-def get_upstream_downstream_area(
+def split_line_by_closest_point(
+        line: LineString,
+        point: Point):
+
+    distance = line.project(transform(transform_4326_3005, point))
+    interpolated_point = line.interpolate(distance)
+    snap_line = snap(line, interpolated_point, 0.001)
+    split_lines = split(snap_line, interpolated_point)
+
+    return split_lines
+
+
+def get_stream_line(
+        db: Session,
+        linear_feature_id: int):
+
+    return db.execute(
+        """
+        select ST_AsGeoJSON(ST_Transform("GEOMETRY", 3005))
+        as "GEOMETRY" from freshwater_atlas_stream_networks
+        where "LINEAR_FEATURE_ID" = :linear_feature_id
+        """,
+        {
+            "linear_feature_id": linear_feature_id
+        }).fetchone()
+
+
+def get_split_line_stream_buffers(
+        db: Session,
+        linear_feature_id: int,
+        buffer: float,
+        point: Point):
+
+    db_line = get_stream_line(db, linear_feature_id)
+    segment = shape(geojson.loads(db_line[0]) if db_line[0] else None)
+    split_lines = split_line_by_closest_point(segment, point)
+    buffer_lines = [transform(transform_3005_4326, line.buffer(buffer)) for line in split_lines]
+
+    return buffer_lines
+
+
+def get_downstream_area(
+        db: Session,
+        linear_feature_id: int,
+        buffer: float):
+
+    q = """
+        with watershed_code_stats as (
+            SELECT DISTINCT
+                "FWA_WATERSHED_CODE" as fwa_code,
+                "LOCAL_WATERSHED_CODE" as loc_code,
+                "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
+                left(
+                    regexp_replace(
+                        "FWA_WATERSHED_CODE",
+                        '000000',
+                        '%'
+                    ),
+                    strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'),
+                    '%'
+                )) as fwa_prefix
+            FROM freshwater_atlas_stream_networks
+            WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
+        ),
+        selected_stream as (
+            select  ST_Transform(
+                ST_Buffer(
+                    ST_Transform("GEOMETRY", 3005),
+                    :buffer),
+                    4326
+                ) as "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
+            where "FWA_WATERSHED_CODE" = fwa_code
+            and
+            (CASE
+              WHEN "DOWNSTREAM_ROUTE_MEASURE" = 0
+              THEN "DOWNSTREAM_ROUTE_MEASURE" <= watershed_code_stats.downstream_route_measure
+              ELSE "DOWNSTREAM_ROUTE_MEASURE" < watershed_code_stats.downstream_route_measure
+            END)
+        )
+        select
+            ST_AsGeoJSON(ST_Union("GEOMETRY"))
+        from    (
+            select ST_MakeValid("GEOMETRY") "GEOMETRY" from watershed_code_stats, selected_stream
+        ) subq   
+        """
+
+    return db.execute(
+        q,
+        {
+            "linear_feature_id": linear_feature_id,
+            "buffer": buffer,
+        }).fetchone()
+
+
+def get_upstream_area(
         db: Session,
         linear_feature_id: int,
         buffer: float,
         full_upstream_area: bool):
-    """ returns the polygon area upstream and downstream from the selected stream feature
+    """ returns the polygon area upstream from the selected stream feature
     (using the linear_feature_id property of a Freshwater Atlas Stream Networks stream segment) """
 
     # Gather up the selected stream segments (from the stream's own headwaters
@@ -80,6 +174,7 @@ def get_upstream_downstream_area(
         SELECT DISTINCT
             "FWA_WATERSHED_CODE" as fwa_code,
             "LOCAL_WATERSHED_CODE" as loc_code,
+            "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
             (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
                 as loc_code_last_nonzero_code,
             left(
@@ -94,20 +189,19 @@ def get_upstream_downstream_area(
         FROM freshwater_atlas_stream_networks
         WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
     ),
-    sn as (
+    streams as (
         select  ST_Transform(
             ST_Buffer(
                 ST_Transform("GEOMETRY", 3005),
                 :buffer),
                 4326
             ) as "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-        where   "FWA_WATERSHED_CODE" = fwa_code
+        where   "FWA_WATERSHED_CODE" = fwa_code and "DOWNSTREAM_ROUTE_MEASURE" >= watershed_code_stats.downstream_route_measure
     )
     select
         ST_AsGeoJSON(ST_Union("GEOMETRY"))
     from    (
-
-        select ST_MakeValid("GEOMETRY") "GEOMETRY" from sn
+        select ST_MakeValid("GEOMETRY") "GEOMETRY" from streams 
         union all
         select  ST_MakeValid("GEOMETRY") "GEOMETRY" from freshwater_atlas_watersheds, watershed_code_stats
         where   "FWA_WATERSHED_CODE" like fwa_prefix
@@ -118,7 +212,6 @@ def get_upstream_downstream_area(
                     watershed_code_stats.loc_code, '-',
                     watershed_code_stats.loc_code_last_nonzero_code
                 )::int
-
     ) subq   
     """
 
@@ -133,6 +226,7 @@ def get_upstream_downstream_area(
             SELECT
                 "FWA_WATERSHED_CODE" as fwa_code,
                 "LOCAL_WATERSHED_CODE" as loc_code,
+                "DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
                 (FLOOR(((strpos(regexp_replace("LOCAL_WATERSHED_CODE", '000000', '%'), '%')) - 4) / 7) + 1)::int
                     as loc_code_last_nonzero_code,
                 left(
@@ -155,7 +249,7 @@ def get_upstream_downstream_area(
             )
         from    (
             select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
-            where   "FWA_WATERSHED_CODE" = fwa_code
+            where   "FWA_WATERSHED_CODE" = fwa_code and "DOWNSTREAM_ROUTE_MEASURE" >= downstream_route_measure
             union all
             select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
             where   "FWA_WATERSHED_CODE" like fwa_prefix
@@ -180,6 +274,8 @@ def get_upstream_downstream_area(
 def get_features_within_buffer(db: Session, line, distance: float, layer: str) -> FeatureCollection:
     """ List features within a buffer zone from a geometry
     """
+    if not line:
+        return None
 
     buf_simplified = line.minimum_rotated_rectangle
 
