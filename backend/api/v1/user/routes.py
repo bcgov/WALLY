@@ -17,28 +17,27 @@ logger = getLogger("catalogue")
 router = APIRouter()
 
 
-@router.post("/profile")
+@router.get("/profile")
 def get_create_user_profile(
-        req: User,
         x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):
     """
     Checks if user exists in the db first, if not then creates the user,
     then returns the existing or newly created user profile.
+    x_auth_userid holds the keycloack guid that is passed as a
+    header up from the proxy service (X-Auth-UserId)
     """
-    logger.warn("x_auth_userid")
-    logger.warn(x_auth_userid)
-    return controller.get_create_user(db, req.uuid)
+    return controller.get_create_user(db, x_auth_userid)
 
 
 @router.post("/maplayers")
 def update_default_map_layers(
-        req: User,
+        map_layers: List[str],
+        x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):
     """
     Updates the user profile with new default map layers.
     """
-
-    return controller.update_map_layers(db, req)
+    return controller.update_map_layers(db, x_auth_userid, map_layers)

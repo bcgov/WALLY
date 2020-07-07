@@ -8,14 +8,14 @@ from datetime import datetime
 logger = logging.getLogger("user")
 
 
-def get_create_user(db: Session, uuid):
+def get_create_user(db: Session, user_id):
     """ get or create user based on uuid pk """
 
-    user = db.query(User).filter(User.uuid == uuid).first()
+    user = db.query(User).filter(User.uuid == user_id).first()
     if not user:
         date = datetime.now()
         user = User(
-            uuid=uuid,
+            uuid=user_id,
             create_date=date,
             update_date=date
         )
@@ -26,10 +26,10 @@ def get_create_user(db: Session, uuid):
     return user
 
 
-def update_map_layers(db: Session, user):
+def update_map_layers(db: Session, user_id, map_layers):
     """ updates user default map layers from string array """
-    db.query(User).filter(User.uuid == user.uuid) \
-      .update({User.default_map_layers: user.map_layers})
+    db.query(User).filter(User.uuid == user_id) \
+      .update({User.default_map_layers: map_layers})
     db.commit()
-    
+
     return True

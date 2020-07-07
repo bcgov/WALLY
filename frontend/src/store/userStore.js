@@ -1,5 +1,9 @@
 import ApiService from '../services/ApiService.js'
-import Vue from 'vue'
+
+var config = {}
+if (process.env.VUE_APP_ENV === 'dev') {
+  config = { headers: { 'X-Auth-UserId': '00000000-0000-0000-0000-00000' } }
+}
 
 export default {
   namespaced: true,
@@ -8,18 +12,15 @@ export default {
   },
   actions: {
     getUserProfile ({ commit, dispatch }, uuid) {
-      ApiService.post(`/api/v1/user/profile`, {
-        uuid: Vue.prototype.$auth.uuid
-      }).then((r) => {
+      ApiService.getApi(`/user/profile`, config).then((r) => {
         commit('setUserProfile', r.data)
         console.log('User profile captured')
       })
     },
     updateDefaultMapLayers ({ commit }, payload) {
       ApiService.post(`/api/v1/user/maplayers`, {
-        uuid: Vue.prototype.$auth.uuid,
         map_layers: payload
-      }).then((r) => {
+      }, config).then((r) => {
         console.log('updated user default map layers: ' + r.data)
       })
     }
