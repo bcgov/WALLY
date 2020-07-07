@@ -21,8 +21,8 @@ def get_create_user(db: Session, uuid):
         )
         db.add(user)
         db.commit()
-
-    logger.warning(user)
+    # TODO Test whether on creation is actually sending back
+    # a properly formed user
     return user
 
 
@@ -31,5 +31,5 @@ def update_map_layers(db: Session, user):
     db.query(User).filter(User.uuid == user.uuid) \
       .update({User.default_map_layers: user.map_layers})
     db.commit()
-    logger.warning(user)
+    
     return True

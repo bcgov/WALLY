@@ -26,6 +26,7 @@ def get_create_user_profile(
     Checks if user exists in the db first, if not then creates the user,
     then returns the existing or newly created user profile.
     """
+    
     return controller.get_create_user(db, req.uuid)
 
 
@@ -37,4 +38,5 @@ def update_default_map_layers(
     """
     Updates the user profile with new default map layers.
     """
+
     return controller.update_map_layers(db, req)
