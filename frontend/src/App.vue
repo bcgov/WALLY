@@ -44,7 +44,7 @@ export default {
   },
   mounted () {
     this.getAppInfo()
-    this.getUserProfile(this.$auth.uuid)
+    this.getUserProfile()
   },
   watch: {
     isMapReady (value) {
