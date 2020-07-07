@@ -1,22 +1,19 @@
 import ApiService from '../services/ApiService.js'
-import AuthService from '../services/AuthService.js'
 
 export default {
+  namespaced: true,
   state: {
     profile: {}
   },
   actions: {
-    getUserProfile ({ commit }) {
-      ApiService.post(`/api/v1/user/profile`, { uuid: AuthService.uuid }).then((r) => {
+    getUserProfile ({ commit, dispatch }, uuid) {
+      ApiService.post(`/api/v1/user/profile`, { uuid: uuid }).then((r) => {
         commit('setUserProfile', r.data)
-        console.log("User profile captured: " + r.data)
+        console.log("User profile captured")
       })
     },
-    updateDefaultMapLayers (mapLayers) {
-      ApiService.post(`/api/v1/user/maplayers`, { 
-        uuid: AuthService.uuid, 
-        map_layers: mapLayers 
-      }).then((r) => {
+    updateDefaultMapLayers ({}, payload) {
+      ApiService.post(`/api/v1/user/maplayers`, payload).then((r) => {
         console.log("updated user default map layers: " + r.data)
       })
     }
@@ -28,6 +25,6 @@ export default {
   },
   getters: {
     profile: state => state.profile,
-    defaultMapLayers: state => state.profile.map_layers,
+    defaultMapLayers: state => state.profile.default_map_layers,
   }
 }

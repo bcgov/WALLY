@@ -6,7 +6,7 @@ Create Date: 2020-07-06 15:30:22.044190
 
 """
 from alembic import op
-from sqlalchemy import Column, String, ARRAY, TEXT
+from sqlalchemy import Column, String, ARRAY, TEXT, DateTime
 
 
 # revision identifiers, used by Alembic.
@@ -21,6 +21,8 @@ def upgrade():
         'user',
         Column('uuid', String, primary_key=True),
         Column('default_map_layers', ARRAY(TEXT), nullable=True),
+        Column('create_date', DateTime, nullable=False),
+        Column('update_date', DateTime, nullable=False)
     )
 
 

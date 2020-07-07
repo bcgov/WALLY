@@ -34,15 +34,24 @@ export default {
   data: () => ({
   }),
   computed: {
-    ...mapGetters(['app'])
+    ...mapGetters(['app']),
+    ...mapGetters('map', ['isMapReady'])
   },
   methods: {
     ...mapActions(['getAppInfo']),
-    ...mapActions('user', ['getUserProfile'])
+    ...mapActions('user', ['getUserProfile']),
+    ...mapGetters('user', ['defaultMapLayers'])
   },
   mounted () {
     this.getAppInfo()
     this.getUserProfile(this.$auth.uuid)
+  },
+  watch: {
+    isMapReady (value) {
+      if (value) {
+        this.$store.dispatch('map/updateActiveMapLayers', this.defaultMapLayers() || [])
+      }
+    }
   }
 }
 </script>

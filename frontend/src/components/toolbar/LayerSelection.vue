@@ -128,7 +128,7 @@ export default {
     },
     handleSelectLayer (selectedLayers) {
       this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
-      this.$store.dispatch('user/updateDefaultMapLayers', selectedLayers)
+      this.$store.dispatch('user/updateDefaultMapLayers', { uuid: this.$auth.uuid, map_layers: selectedLayers })
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)
@@ -137,8 +137,8 @@ export default {
       return this.featureSelectionExists
     }
   },
-  mounted () {
-    this.$store.dispatch('map/updateActiveMapLayers', this.defaultMapLayers)
+  created () {
+    // this.$store.dispatch('map/updateActiveMapLayers', this.defaultMapLayers || [])
   }
 }
 </script>

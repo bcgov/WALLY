@@ -18,6 +18,7 @@ Base = declarative_base(cls=Base, metadata=BaseTable.metadata)
 
 class User(Base):
     __tablename__ = 'user'
+    __table_args__ = {'schema': 'public'}
 
     uuid = Column(String, primary_key=True,
                   comment='The keycloak uuid that is returned after oauth login. '
