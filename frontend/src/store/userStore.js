@@ -1,5 +1,5 @@
 import ApiService from '../services/ApiService.js'
-import Vue from 'vue';
+import Vue from 'vue'
 
 export default {
   namespaced: true,
@@ -8,7 +8,9 @@ export default {
   },
   actions: {
     getUserProfile ({ commit, dispatch }, uuid) {
-      ApiService.post(`/api/v1/user/profile`, { uuid: Vue.prototype.$auth.uuid }).then((r) => {
+      ApiService.post(`/api/v1/user/profile`, {
+        uuid: Vue.prototype.$auth.uuid
+      }).then((r) => {
         commit('setUserProfile', r.data)
         console.log('User profile captured')
       })
