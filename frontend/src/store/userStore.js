@@ -11,7 +11,7 @@ export default {
     profile: {}
   },
   actions: {
-    getUserProfile ({ commit, dispatch }, uuid) {
+    getUserProfile ({ commit, dispatch }) {
       ApiService.getApi(`/user/profile`, config).then((r) => {
         commit('setUserProfile', r.data)
         console.log('User profile captured')
@@ -20,7 +20,7 @@ export default {
     updateDefaultMapLayers ({ commit }, payload) {
       ApiService.post(`/api/v1/user/maplayers`, {
         map_layers: payload
-      }, config).then((r) => {
+      }).then((r) => {
         console.log('updated user default map layers: ' + r.data)
       })
     }

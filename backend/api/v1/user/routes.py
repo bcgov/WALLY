@@ -4,7 +4,7 @@ User management endpoints
 import os
 from logging import getLogger
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Body
 from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -33,11 +33,11 @@ def get_create_user_profile(
 
 @router.post("/maplayers")
 def update_default_map_layers(
-        map_layers: List[str],
+        user: User,
         x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):
     """
     Updates the user profile with new default map layers.
     """
-    return controller.update_map_layers(db, x_auth_userid, map_layers)
+    return controller.update_map_layers(db, x_auth_userid, user.map_layers)
