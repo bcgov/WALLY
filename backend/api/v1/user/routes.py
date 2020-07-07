@@ -3,8 +3,8 @@ User management endpoints
 """
 import os
 from logging import getLogger
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Header
 from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -20,13 +20,15 @@ router = APIRouter()
 @router.post("/profile")
 def get_create_user_profile(
         req: User,
+        x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):
     """
     Checks if user exists in the db first, if not then creates the user,
     then returns the existing or newly created user profile.
     """
-    
+    logger.warn("x_auth_userid")
+    logger.warn(x_auth_userid)
     return controller.get_create_user(db, req.uuid)
 
 
