@@ -93,8 +93,8 @@ export default {
         // set the point of interest to the section line to display it on app load.
         if (this.$route.query.section_line_A && this.$route.query.section_line_B) {
           const coords = [
-            this.$route.query.section_line_A.map(x => Number(x)),
-            this.$route.query.section_line_B.map(x => Number(x))
+            this.$route.query.section_line_A.map(Number),
+            this.$route.query.section_line_B.map(Number)
           ]
 
           const linestring =

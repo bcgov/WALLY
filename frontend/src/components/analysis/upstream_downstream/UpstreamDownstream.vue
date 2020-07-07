@@ -161,7 +161,6 @@ export default {
         }
       ).then((r) => {
         const data = r.data
-        console.log(data)
         this.upstreamNetworkMapFeature = 'upstreamNetwork'
         this.downstreamNetworkMapFeature = 'downstreamNetwork'
 

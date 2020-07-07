@@ -82,8 +82,36 @@ export default {
       this.buttonClicked = false
       this.clearSelections()
     },
+    startAnalysis () {
+      this.buttonClicked = false
+      this.selectedPoint = JSON.stringify(this.pointOfInterest.geometry.coordinates)
+      const params = {
+        point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
+        limit: 1,
+        get_all: true,
+        with_apportionment: false
+      }
+
+      this.$router.push({
+        query:
+          { ...this.$route.query,
+            coordinates: this.pointOfInterest.geometry.coordinates.map((x) => x)
+          }
+      })
+
+      ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
+        let geojson = r.data.streams[0].geojson
+        geojson.display_data_name = 'freshwater_atlas_stream_networks'
+        // the nearby endpoint returns values in lower snake case, we capatalize them for consistency
+        geojson.properties.LINEAR_FEATURE_ID = geojson.properties.linear_feature_id
+        geojson.properties.FWA_WATERSHED_CODE = geojson.properties.fwa_watershed_code
+        this.selectedStream = r.data.streams[0].geojson
+      }).catch((e) => {
+        console.error(e)
+      })
+    },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addPointOfInterest'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -95,6 +123,26 @@ export default {
   watch: {
     isMapReady (value) {
       if (value) {
+        // check if a point of interest was included in the URL query params,
+        // and load it as soon as the map is ready.
+        if (this.$route.query.coordinates) {
+          const coords = this.$route.query.coordinates.map(Number)
+
+          const pointOfInterest =
+            {
+              id: 'point_of_interest',
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: coords
+              },
+              properties: {
+              }
+            }
+
+          this.addPointOfInterest(pointOfInterest)
+        }
+
         if (!this.isStreamsLayerEnabled) {
           this.streamsLayerAutomaticallyEnabled = true
           this.enableStreamsLayer()
@@ -102,25 +150,8 @@ export default {
       }
     },
     pointOfInterest (value) {
-      if (value && value.geometry) {
-        this.buttonClicked = false
-        this.selectedPoint = JSON.stringify(value.geometry.coordinates)
-        const params = {
-          point: JSON.stringify(value.geometry.coordinates),
-          limit: 1,
-          get_all: true,
-          with_apportionment: false
-        }
-        ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
-          let geojson = r.data.streams[0].geojson
-          geojson.display_data_name = 'freshwater_atlas_stream_networks'
-          // the nearby endpoint returns values in lower snake case, we capatalize them for consistency
-          geojson.properties.LINEAR_FEATURE_ID = geojson.properties.linear_feature_id
-          geojson.properties.FWA_WATERSHED_CODE = geojson.properties.fwa_watershed_code
-          this.selectedStream = r.data.streams[0].geojson
-        }).catch((e) => {
-          console.error(e)
-        })
+      if (value && value.geometry && value.geometry.type === 'Point') {
+        this.startAnalysis()
       }
     }
   },
@@ -129,6 +160,10 @@ export default {
     if (!this.isStreamsLayerEnabled) {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()
+    }
+
+    if (this.pointOfInterest && this.pointOfInterest.geometry && this.pointOfInterest.geometry.type === 'Point') {
+      this.startAnalysis()
     }
   },
   beforeDestroy () {

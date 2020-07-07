@@ -96,7 +96,7 @@ export default {
       }
 
       // Update point of interest coordinates in URL
-      this.$router.push({ query: { ...this.$route.query, coordinates: this.coordinates.map((x) => x) } })
+      this.$router.push({ query: { ...this.$route.query, coordinates: this.coordinates } })
 
       ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
         this.streams = r.data.streams
