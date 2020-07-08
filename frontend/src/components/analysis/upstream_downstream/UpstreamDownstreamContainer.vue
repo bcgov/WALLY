@@ -23,6 +23,7 @@
     <UpstreamDownstream
       :record="selectedStream"
       :coordinates="selectedStream.geometry.coordinates"
+      :point="selectedPoint"
       v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
     <div v-else>
     <v-row class="mt-3">
@@ -62,6 +63,7 @@ export default {
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,
     selectedStream: { geometry: null },
+    selectedPoint: '',
     buttonClicked: false
   }),
   methods: {
@@ -102,6 +104,7 @@ export default {
     pointOfInterest (value) {
       if (value && value.geometry) {
         this.buttonClicked = false
+        this.selectedPoint = JSON.stringify(value.geometry.coordinates)
         const params = {
           point: JSON.stringify(value.geometry.coordinates),
           limit: 1,
