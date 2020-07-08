@@ -208,7 +208,7 @@ def get_upstream_area(
         AND     split_part(
                     "LOCAL_WATERSHED_CODE", '-',
                     watershed_code_stats.loc_code_last_nonzero_code
-                )::int >= split_part(
+                )::int > split_part(
                     watershed_code_stats.loc_code, '-',
                     watershed_code_stats.loc_code_last_nonzero_code
                 )::int
