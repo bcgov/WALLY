@@ -14,7 +14,6 @@ export default {
     getUserProfile ({ commit, dispatch }) {
       ApiService.getApi(`/user/profile`, config).then((r) => {
         commit('setUserProfile', r.data)
-        console.log('User profile captured')
       })
     },
     updateDefaultMapLayers ({ commit }, payload) {
