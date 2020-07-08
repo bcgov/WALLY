@@ -84,7 +84,7 @@ export default {
         disabled: false,
         to: {
           path: '/point-of-interest',
-          query: { coordinates: this.$route.query.coordinates.map((x) => x) }
+          query: { coordinates: this.$route.query.coordinates }
         }
       }, {
         text: 'Water Rights Licences Nearby',
