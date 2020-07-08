@@ -25,7 +25,7 @@ def get_create_user_profile(
     """
     Checks if user exists in the db first, if not then creates the user,
     then returns the existing or newly created user profile.
-    x_auth_userid holds the keycloack guid that is passed as a
+    x_auth_userid holds the keycloak guid that is passed as a
     header up from the proxy service (X-Auth-UserId)
     """
     return controller.get_create_user(db, x_auth_userid)
