@@ -154,9 +154,9 @@ export default {
         properties: {
         }
       }
-      dispatch('addPointOfInterest', point)
+      dispatch('addSelectedFeature', point)
     },
-    async addPointOfInterest ({ state, dispatch }, feature) {
+    async addSelectedFeature ({ state, dispatch }, feature) {
       if (!state.isMapReady) {
         return
       }

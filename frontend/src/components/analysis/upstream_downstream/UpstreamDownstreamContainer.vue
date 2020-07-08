@@ -111,7 +111,7 @@ export default {
       })
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addPointOfInterest'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -140,7 +140,7 @@ export default {
               }
             }
 
-          this.addPointOfInterest(pointOfInterest)
+          this.addSelectedFeature(pointOfInterest)
         }
 
         if (!this.isStreamsLayerEnabled) {

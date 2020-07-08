@@ -77,7 +77,7 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addPointOfInterest'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
   },
   computed: {
     isWellsLayerEnabled () {
@@ -109,7 +109,7 @@ export default {
               }
             }
 
-          this.addPointOfInterest(linestring)
+          this.addSelectedFeature(linestring)
         }
         if (!this.isWellsLayerEnabled) {
           this.wellsLayerAutomaticallyEnabled = true
