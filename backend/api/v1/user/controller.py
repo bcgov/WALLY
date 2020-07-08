@@ -21,8 +21,7 @@ def get_create_user(db: Session, user_id):
         )
         db.add(user)
         db.commit()
-    # TODO Test whether on creation is actually sending back
-    # a properly formed user
+
     return user
 
 
