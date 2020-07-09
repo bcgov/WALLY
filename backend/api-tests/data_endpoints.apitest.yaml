@@ -258,6 +258,15 @@ requests:
     method: get
     expect:
       status: 200
+  - name: Streamflow Inventory report at point
+    url: "{{host}}/api/v1/watersheds/streamflow_inventory?point=%5B-123.1688685736714%2C49.87612710876371%5D"
+    method: get
+    expect:
+      status: 200
+      values:
+        report_link: https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344
+        report_name: Inventory of Streamflow in the South Coast and West Coast Regions
+        hydrologic_zone: 26
   # - name: Watershed licences
   #   url: "{{host}}/api/v1/watersheds/366533/licences"
   #   method: get
@@ -268,3 +277,4 @@ requests:
   #   method: get
   #   expect:
   #     status: 200
+
