@@ -148,12 +148,10 @@ export default {
       this.loadingMapFeatures = true
 
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
-      const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
 
       ApiService.query(
         '/api/v1/stream/features',
         {
-          code: fwaCode,
           linear_feature_id: linearFeatID,
           buffer: this.buffer,
           full_upstream_area: this.searchFullUpstreamArea,
@@ -212,12 +210,10 @@ export default {
 
       this.resetStreamData()
 
-      const fwaCode = this.record.properties['FWA_WATERSHED_CODE']
       const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
 
       const params = {
         buffer: parseFloat(this.buffer),
-        code: fwaCode,
         linear_feature_id: linearFeatID,
         layer: this.selectedLayer,
         full_upstream_area: this.searchFullUpstreamArea,
@@ -262,6 +258,7 @@ export default {
     //   }
     //   return counts
     // },
+    ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['isMapReady', 'map'])
   },
   watch: {
@@ -290,7 +287,8 @@ export default {
     selectedLayer () {
       this.updateStreamBuffers()
     },
-    record (value) {
+    pointOfInterest (value) {
+      console.log(value)
       global.config.debug && console.log('[wally] record changed')
       this.drawStreamNetwork()
       this.updateStreamBuffers()
