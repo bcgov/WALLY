@@ -21,7 +21,7 @@
     <v-row>
       <v-col cols=12 md=6>
         <div class="title my-3">
-          Selected Stream: {{streamName}}
+          Selected Stream: {{cleanStreamName}}
         </div>
       </v-col>
       <v-col class="text-right">
@@ -65,7 +65,7 @@
       </v-row>
 
       <v-row no-gutters>
-        <UpstreamDownstreamData :loading="loading" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
+        <UpstreamDownstreamData :loading="loadingData" :bufferData="streamData" :segmentType="'upstream'" :layerId="selectedLayer" />
       </v-row>
   </v-sheet>
 </template>
@@ -83,7 +83,7 @@ export default {
     UpstreamDownstreamData,
     UpstreamDownstreamInstructions
   },
-  props: ['record', 'point'],
+  props: ['point'],
   data: () => ({
     buffer: 50,
     loadingData: false,
@@ -94,6 +94,7 @@ export default {
     upstreamNetworkMapFeature: null,
     downstreamNetworkMapFeature: null,
     streamData: null,
+    streamName: '',
     selectedLayer: '',
     inputRules: {
       required: value => !!value || 'Required',
@@ -116,9 +117,6 @@ export default {
       this.setDrawMode('draw_point')
       this.buttonClicked = true
     },
-    updateStreamBuffers () {
-      this.fetchStreamBufferInformation()
-    },
     resetGeoJSONLayers () {
       if (this.upstreamNetworkMapFeature) {
         this.map.removeLayer(this.upstreamNetworkMapFeature)
@@ -136,39 +134,39 @@ export default {
     },
     updateStreams: debounce(function () {
       this.drawStreamNetwork()
-      this.updateStreamBuffers()
     }, 250),
     drawStreamNetwork () {
-      if (!this.record || this.buffer < 0) {
+      if (this.buffer < 0) {
         return
       }
 
       this.resetGeoJSONLayers()
-
-      this.loadingMapFeatures = true
-
-      const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
+      this.resetStreamData()
+      this.loadingData = true
 
       ApiService.query(
         '/api/v1/stream/features',
         {
-          linear_feature_id: linearFeatID,
+          layer: this.selectedLayer,
           buffer: this.buffer,
           full_upstream_area: this.searchFullUpstreamArea,
           point: this.point
         }
       ).then((r) => {
         const data = r.data
-        console.log(data)
         this.upstreamNetworkMapFeature = 'upstreamNetwork'
         this.downstreamNetworkMapFeature = 'downstreamNetwork'
+
+        this.streamData = data
+        this.streamName = data.gnis_name
+        this.loadingData = false
 
         this.map.addLayer({
           id: this.upstreamNetworkMapFeature,
           type: 'fill',
           source: {
             type: 'geojson',
-            data: data.upstream
+            data: data.upstream_poly
           },
           layout: {
             visibility: 'visible'
@@ -185,7 +183,7 @@ export default {
           type: 'fill',
           source: {
             type: 'geojson',
-            data: data.downstream
+            data: data.downstream_poly
           },
           layout: {
             visibility: 'visible'
@@ -196,39 +194,9 @@ export default {
             'fill-opacity': 0.5
           }
         }, 'water_rights_licences')
-
-        this.loadingMapFeatures = false
       }).catch(() => {
-        this.loadingMapFeatures = false
+        this.loadingData = false
       })
-    },
-    fetchStreamBufferInformation () {
-      if (this.buffer < 0 || !this.selectedLayer) {
-        return
-      }
-      this.loadingData = true
-
-      this.resetStreamData()
-
-      const linearFeatID = this.record.properties['LINEAR_FEATURE_ID']
-
-      const params = {
-        buffer: parseFloat(this.buffer),
-        linear_feature_id: linearFeatID,
-        layer: this.selectedLayer,
-        full_upstream_area: this.searchFullUpstreamArea,
-        point: this.point
-      }
-      ApiService.query('/api/v1/stream/features', params)
-        .then((response) => {
-          let data = response.data
-          this.streamData = data
-          this.loadingData = false
-        })
-        .catch((error) => {
-          console.error(error)
-          this.loadingData = false
-        })
     },
     resetStreamData () {
       this.streamData = null
@@ -243,37 +211,16 @@ export default {
         return x.value === this.selectedLayer
       }).text
     },
-    loading () {
-      return this.loadingData || this.loadingMapFeatures
+    cleanStreamName () {
+      return this.streamName != null ? this.streamName : ''
     },
-    streamName () {
-      let gnis = this.record.properties.GNIS_NAME
-      return gnis !== 'None' ? gnis : this.record.properties.FEATURE_CODE
-    },
-    // resultCounts () {
-    //   let counts = {}
-    //   // loop through the results, and count the number in each layer
-    //   for (const key of Object.keys(this.layerOptions)) {
-    //     counts[key] = this.results.filter(x => x.display_data_name === key).length
-    //   }
-    //   return counts
-    // },
     ...mapGetters(['pointOfInterest']),
     ...mapGetters('map', ['isMapReady', 'map'])
   },
   watch: {
-    // panelOpen () {
-    //   if (this.panelOpen.length > 0) {
-    //     this.$store.commit('setStreamAnalysisPanel', true)
-    //     this.$store.commit('setUpstreamDownstreamData', this.buffer)
-    //   } else {
-    //     this.$store.commit('setStreamAnalysisPanel', false)
-    //     this.$store.commit('resetUpstreamDownstreamData')
-    //   }
-    // },
     isMapReady (value) {
       if (value) {
-        this.updateStreamBuffers()
+        this.drawStreamNetwork()
       }
     },
     buffer (value) {
@@ -285,13 +232,12 @@ export default {
       this.updateStreams()
     },
     selectedLayer () {
-      this.updateStreamBuffers()
+      this.drawStreamNetwork()
     },
     pointOfInterest (value) {
-      console.log(value)
+      console.log("Point of Intereset seen")
       global.config.debug && console.log('[wally] record changed')
       this.drawStreamNetwork()
-      this.updateStreamBuffers()
       if (value && value.geometry) {
         this.buttonClicked = false
       }
@@ -300,12 +246,12 @@ export default {
   mounted () {
     if (this.isMapReady) {
       this.drawStreamNetwork()
-      this.updateStreamBuffers()
     }
   },
   beforeDestroy () {
     this.setMode({ type: 'interactive', name: 'upstream_downstream' })
     this.resetGeoJSONLayers()
+    this.resetStreamData()
   }
 }
 </script>

@@ -101,21 +101,22 @@ def get_streams_by_watershed_code(
     # down_poly = down_poly.difference(junction_lines[-1])
     up_poly = up_poly.difference(down_poly)
 
-    # if a layer was not specified, return the stream network polys that we generated.
+    # if a layer was not specified, skip the feature collection
     if not layer:
-        return {
-            "upstream": mapping(up_poly),
-            "downstream": mapping(down_poly)
-        }
-
-    features_upstream = stream_controller. \
-      get_features_within_buffer(db, up_poly, buffer, layer)
-    features_downstream = stream_controller \
-      .get_features_within_buffer(db, down_poly, buffer, layer)
+        features_upstream = None
+        features_downstream = None
+    else:
+        features_upstream = stream_controller. \
+          get_features_within_buffer(db, up_poly, buffer, layer)
+        features_downstream = stream_controller \
+          .get_features_within_buffer(db, down_poly, buffer, layer)
 
     return {
-        "upstream": features_upstream,
-        "downstream": features_downstream
+        "gnis_name": closest_segment["gnis_name"],
+        "upstream_features": features_upstream,
+        "upstream_poly": mapping(up_poly),
+        "downstream_features": features_downstream,
+        "downstream_poly": mapping(down_poly)
     }
 
 

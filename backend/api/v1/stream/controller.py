@@ -56,6 +56,7 @@ def to_3005(from_proj, feat):
 def get_closest_stream_segment(db: Session, point: Point):
     sql = text("""
       SELECT
+        streams."GNIS_NAME" as gnis_name,
         streams."LINEAR_FEATURE_ID" as linear_feature_id,
         ST_AsGeoJSON(ST_ClosestPoint(
         streams."GEOMETRY", 
