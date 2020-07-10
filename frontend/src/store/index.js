@@ -8,6 +8,7 @@ import stream from './streamStore'
 import feature from './featureStore'
 import crossSection from './crossSection'
 import surfaceWater from './surfaceWaterStore'
+import user from './userStore'
 
 Vue.use(Vuex)
 
@@ -20,6 +21,7 @@ export default new Vuex.Store({
     stream,
     feature,
     crossSection,
-    surfaceWater
+    surfaceWater,
+    user
   }
 })
