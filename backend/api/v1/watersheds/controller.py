@@ -817,8 +817,59 @@ def known_fish_observations(polygon: Polygon):
     )
 
 
-# cleans up life state strings such as 'egg,juvenile'
+def get_stream_inventory_report_link_for_region(point: Point):
+    """ Returns Fish Inventory Data Query (FIDQ) links for streams within this
+        watershed area.
+    """
+    point_3005 = transform(transform_4326_3005, point)
+
+    # look up region that this point is in
+    cql_filter = f"""INTERSECTS(SHAPE, {point_3005.wkt})"""
+    region = databc_feature_search(
+        'WHSE_ADMIN_BOUNDARIES.ADM_NR_REGIONS_SPG', cql_filter=cql_filter)
+
+    # a point in BC should match with a region.
+    # We also expect any given point to be within at most 1 region.
+    if len(region['features']) != 1:
+        return None
+
+    region_code = region['features'][0]['properties'].get('ORG_UNIT', None)
+
+    if not region_code:
+        return None
+
+    # if reports need to be added or updated, a database table might be required.
+    # for now, we only have to keep track of these 7 report links.
+    report_map = {
+        "RNO":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=48460",
+             "Inventory of Streamflow in the Omineca and Northeast Regions"),
+        "ROM":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=48460",
+             "Inventory of Streamflow in the Omineca and Northeast Regions"),
+        "RSC":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344",
+             "Inventory of Streamflow in the South Coast and West Coast Regions"),
+        "RWC":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344",
+             "Inventory of Streamflow in the South Coast and West Coast Regions"),
+        "RCB":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=52707",
+             "Inventory of Streamflow in the Cariboo Region"),
+        "RTO":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=58628",
+             "Inventory of Streamflow in the Thompson Okanagan Region"),
+        "RSK":
+            ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=40801",
+             "Inventory of Streamflow in the Skeena Region"),
+    }
+
+    return report_map.get(region_code, None)
+
+
 def parse_fish_life_stages(stages):
+    """ cleans up life stage strings such as 'egg,juvenile'"""
+
     split_list = [item.split(',') for item in stages]
     flat_list = [item for sublist in split_list for item in sublist]
 

@@ -122,6 +122,9 @@
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
+            <StreamflowInventory
+              :coordinates="this.pointOfInterest.geometry.coordinates"
+            ></StreamflowInventory>
             <FishObservations :watershedID="selectedWatershed"/>
             <FishInventories :watershedID="selectedWatershed"/>
             <WatershedAvailability :allWatersheds="watersheds"
@@ -148,6 +151,7 @@ import WatershedDemand from './watershed_demand/WatershedDemand'
 import ShortTermDemand from './watershed_demand/ShortTermDemand'
 import FishInventories from './fish_inventories/FishInventories'
 import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
+import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -160,7 +164,8 @@ export default {
     WatershedDemand,
     ShortTermDemand,
     AvailabilityVsDemand,
-    FishInventories
+    FishInventories,
+    StreamflowInventory
   },
   data: () => ({
     infoTabs: null,
