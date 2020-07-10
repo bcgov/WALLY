@@ -11,7 +11,9 @@
             <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
                 target="_blank">Known BC Fish Observations and BC Fish Distributions (DataBC)</a>
         </div>
-        <div class="my-5" v-if="fishData.fish_species_data.length > 0">
+        <div class="my-5" v-if="fishData && 
+          fishData.fish_species_data && 
+          fishData.fish_species_data.length > 0">
           <v-data-table
             :items="fishData.fish_species_data"
             :headers="fishObservationHeaders"
