@@ -12,7 +12,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Assign demand from a well to nearby streams
+          Assign demand from a well to hydraulically connected streams
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>

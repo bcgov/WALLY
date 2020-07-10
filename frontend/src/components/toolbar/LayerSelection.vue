@@ -125,6 +125,7 @@ export default {
     },
     handleSelectLayer (selectedLayers) {
       this.$store.dispatch('map/updateActiveMapLayers', selectedLayers)
+      this.$store.dispatch('user/updateDefaultMapLayers', selectedLayers)
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)

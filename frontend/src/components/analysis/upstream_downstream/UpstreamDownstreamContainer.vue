@@ -21,10 +21,8 @@
     </v-toolbar>
 
     <UpstreamDownstream
-      :record="selectedStream"
-      :coordinates="selectedStream.geometry.coordinates"
       :point="selectedPoint"
-      v-if="selectedStream && selectedStream.display_data_name === 'freshwater_atlas_stream_networks'"/>
+      v-if="selectedPoint"/>
     <div v-else>
     <v-row class="mt-3">
       <v-col class="text-right">
@@ -51,8 +49,6 @@ import { mapGetters, mapActions } from 'vuex'
 
 import UpstreamDownstream from './UpstreamDownstream'
 import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
-import ApiService from '../../../services/ApiService'
-import qs from 'querystring'
 
 export default {
   name: 'UpstreamDownstreamContainer',
@@ -62,7 +58,6 @@ export default {
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,
-    selectedStream: { geometry: null },
     selectedPoint: '',
     buttonClicked: false
   }),
@@ -76,39 +71,6 @@ export default {
     },
     disableStreamsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
-    },
-    resetSelectedStream () {
-      this.selectedStream = { geometry: null }
-      this.buttonClicked = false
-      this.clearSelections()
-    },
-    startAnalysis () {
-      this.buttonClicked = false
-      this.selectedPoint = JSON.stringify(this.pointOfInterest.geometry.coordinates)
-      const params = {
-        point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
-        limit: 1,
-        get_all: true,
-        with_apportionment: false
-      }
-
-      this.$router.push({
-        query:
-          { ...this.$route.query,
-            coordinates: this.pointOfInterest.geometry.coordinates
-          }
-      })
-
-      ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
-        let geojson = r.data.streams[0].geojson
-        geojson.display_data_name = 'freshwater_atlas_stream_networks'
-        // the nearby endpoint returns values in lower snake case, we capatalize them for consistency
-        geojson.properties.LINEAR_FEATURE_ID = geojson.properties.linear_feature_id
-        geojson.properties.FWA_WATERSHED_CODE = geojson.properties.fwa_watershed_code
-        this.selectedStream = r.data.streams[0].geojson
-      }).catch((e) => {
-        console.error(e)
-      })
     },
     ...mapActions(['exitFeature']),
     ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
@@ -150,8 +112,9 @@ export default {
       }
     },
     pointOfInterest (value) {
-      if (value && value.geometry && value.geometry.type === 'Point') {
-        this.startAnalysis()
+      if (value && value.geometry) {
+        this.buttonClicked = false
+        this.selectedPoint = JSON.stringify(value.geometry.coordinates)
       }
     }
   },
@@ -163,7 +126,7 @@ export default {
     }
 
     if (this.pointOfInterest && this.pointOfInterest.geometry && this.pointOfInterest.geometry.type === 'Point') {
-      this.startAnalysis()
+      this.selectedPoint = JSON.stringify(this.pointOfInterest.geometry.coordinates)
     }
   },
   beforeDestroy () {
