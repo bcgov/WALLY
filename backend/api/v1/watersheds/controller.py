@@ -718,9 +718,8 @@ def find_50k_watershed_codes(db: Session, geom: Polygon):
     formatted_codes = []
 
     for code in codes:
-
         segments = re.findall(re_pattern, code)[0]
-        logger.info(segments)
+        # truncate all-zero codes at end (e.g. 119-118400-00000-00000-00000 ....)
         fwa_20k_code = '-'.join([s for s in segments if s != len(s) * '0'])
         formatted_codes.append(fwa_20k_code)
 
