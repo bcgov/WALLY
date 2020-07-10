@@ -26,7 +26,6 @@ router = APIRouter()
 
 @router.get('/features')
 def get_streams_by_watershed_code(
-    linear_feature_id: int,
     full_upstream_area: bool = Query(
         None,
         title="Search full upstream area",
@@ -49,10 +48,17 @@ def get_streams_by_watershed_code(
     """ generates a stream network based on a FWA_WATERSHED_CODE and
     LINEAR_FEATURE_ID, and finds features from a given `layer`. """
 
+    point_parsed = json.loads(point)
+    point_shape = Point(point_parsed)
+
+    closest_segment = stream_controller.get_closest_stream_segment(db, point_shape)
+
+    logger.warning(closest_segment)
+
     up_geom = stream_controller.get_upstream_area(
-        db, linear_feature_id, buffer, full_upstream_area)
+        db, closest_segment["linear_feature_id"], buffer, full_upstream_area)
     down_geom = stream_controller.get_downstream_area(
-        db, linear_feature_id, buffer)
+        db, closest_segment["linear_feature_id"], buffer)
 
     if not up_geom or not down_geom:
         return None
@@ -63,13 +69,10 @@ def get_streams_by_watershed_code(
     if not up_geom_geojson and not down_geom_geojson:
         return None
 
-    point_parsed = json.loads(point)
-    point_shape = Point(point_parsed)
-
     # calculate the junction between up and down streams
     # and return the buffered line segments
     junction_lines = stream_controller \
-      .get_split_line_stream_buffers(db, linear_feature_id, buffer, point_shape)
+      .get_split_line_stream_buffers(db, closest_segment["linear_feature_id"], buffer, point_shape)
 
     # if either a up or down stream segment is not found,
     # it means we are at the last segment ie a final tributary
@@ -98,21 +101,22 @@ def get_streams_by_watershed_code(
     # down_poly = down_poly.difference(junction_lines[-1])
     up_poly = up_poly.difference(down_poly)
 
-    # if a layer was not specified, return the stream network polys that we generated.
+    # if a layer was not specified, skip the feature collection
     if not layer:
-        return {
-            "upstream": mapping(up_poly),
-            "downstream": mapping(down_poly)
-        }
-
-    features_upstream = stream_controller. \
-      get_features_within_buffer(db, up_poly, buffer, layer)
-    features_downstream = stream_controller \
-      .get_features_within_buffer(db, down_poly, buffer, layer)
+        features_upstream = None
+        features_downstream = None
+    else:
+        features_upstream = stream_controller. \
+          get_features_within_buffer(db, up_poly, buffer, layer)
+        features_downstream = stream_controller \
+          .get_features_within_buffer(db, down_poly, buffer, layer)
 
     return {
-        "upstream": features_upstream,
-        "downstream": features_downstream
+        "gnis_name": closest_segment["gnis_name"],
+        "upstream_features": features_upstream,
+        "upstream_poly": mapping(up_poly),
+        "downstream_features": features_downstream,
+        "downstream_poly": mapping(down_poly)
     }
 
 

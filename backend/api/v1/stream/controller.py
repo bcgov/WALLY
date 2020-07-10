@@ -2,7 +2,7 @@ import logging
 
 import geojson
 from geojson import Feature, FeatureCollection
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import Session
 from shapely.geometry import LineString, CAP_STYLE, JOIN_STYLE, shape, mapping, Point
 from shapely.ops import transform, split, snap
@@ -10,6 +10,7 @@ from api.v1.aggregator.controller import feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.wells.controller import create_line_buffer
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+import json
 
 logger = logging.getLogger("api")
 
@@ -50,6 +51,25 @@ def to_3005(from_proj, feat):
     logger.warn(
         'to_3005: from_proj must be either 4326 or 3005. Feature returned without transforming to 3005.')
     return feat
+
+
+def get_closest_stream_segment(db: Session, point: Point):
+    sql = text("""
+      SELECT
+        streams."GNIS_NAME" as gnis_name,
+        streams."LINEAR_FEATURE_ID" as linear_feature_id,
+        ST_AsGeoJSON(ST_ClosestPoint(
+        streams."GEOMETRY", 
+        ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
+      FROM
+      freshwater_atlas_stream_networks as streams
+      ORDER BY streams."GEOMETRY" <->
+        ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+      LIMIT 1
+    """)
+    segment = db.execute(sql, {'search_point': point.wkt}).fetchone()
+    return dict(segment,
+                closest_stream_point=json.loads(segment.closest_stream_point))
 
 
 def split_line_by_closest_point(
