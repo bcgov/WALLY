@@ -235,7 +235,7 @@ export default {
       this.drawStreamNetwork()
     },
     pointOfInterest (value) {
-      console.log("Point of Intereset seen")
+      console.log('Point of Intereset seen')
       global.config.debug && console.log('[wally] record changed')
       this.drawStreamNetwork()
       if (value && value.geometry) {

@@ -382,7 +382,6 @@ export default {
       } else {
         this.setAvailabilityPlotData(null)
       }
-      return
     },
     monthlyDistributionsLayout () {
       return {

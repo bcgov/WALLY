@@ -49,8 +49,6 @@ import { mapGetters, mapActions } from 'vuex'
 
 import UpstreamDownstream from './UpstreamDownstream'
 import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
-import ApiService from '../../../services/ApiService'
-import qs from 'querystring'
 
 export default {
   name: 'UpstreamDownstreamContainer',
