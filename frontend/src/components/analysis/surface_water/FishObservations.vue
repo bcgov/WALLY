@@ -11,7 +11,7 @@
             <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
                 target="_blank">Known BC Fish Observations and BC Fish Distributions (DataBC)</a>
         </div>
-        <div class="my-5">
+        <div class="my-5" v-if="fishData.fish_species_data.length > 0">
           <v-data-table
             :items="fishData.fish_species_data"
             :headers="fishObservationHeaders"
@@ -26,6 +26,7 @@
             <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isFishLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
           </v-col>
         </div>
+        <p v-else class="text--disabled mt-2">Unknown fish presence</p>
       </v-card>
     </div>
   </div>
