@@ -123,6 +123,7 @@
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
             <FishObservations :watershedID="selectedWatershed"/>
+            <FishInventories :watershedID="selectedWatershed"/>
             <WatershedAvailability :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
           </div>
@@ -145,6 +146,7 @@ import HydrometricStationsContainer from './hydrometric_stations/HydrometricStat
 import FishObservations from './FishObservations'
 import WatershedDemand from './watershed_demand/WatershedDemand'
 import ShortTermDemand from './watershed_demand/ShortTermDemand'
+import FishInventories from './fish_inventories/FishInventories'
 import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 
 export default {
@@ -157,7 +159,8 @@ export default {
     FishObservations,
     WatershedDemand,
     ShortTermDemand,
-    AvailabilityVsDemand
+    AvailabilityVsDemand,
+    FishInventories
   },
   data: () => ({
     infoTabs: null,

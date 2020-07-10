@@ -44,7 +44,8 @@ from api.v1.watersheds.controller import (
     get_slope_elevation_aspect,
     get_hillshade,
     export_summary_as_xlsx,
-    known_fish_observations
+    known_fish_observations,
+    find_50k_watershed_codes
 )
 from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.hydat.controller import (get_stations_in_area)
@@ -173,11 +174,12 @@ def watershed_stats(
 
     # slope elevation aspect
     try:
-        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(
+            watershed_poly)
         solar_exposure = get_hillshade(average_slope, aspect)
     except Exception:
         average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
-  
+
     # isoline model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
 
@@ -231,6 +233,20 @@ def watershed_stats(
     logger.warn("Watershed Details - Request Finished")
 
     return data
+
+
+@router.get('/{watershed_feature}/fwa_50k_codes')
+def get_50k_watershed_codes(
+    db: Session = Depends(get_db),
+    watershed_feature: str = Path(...,
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
+):
+    """ returns 50k (old) watershed codes. Useful for searching legacy applications """
+
+    watershed = get_watershed(db, watershed_feature)
+
+    return find_50k_watershed_codes(db, shape(watershed.geometry))
 
 
 @router.get('/{watershed_feature}/licences')

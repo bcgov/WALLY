@@ -8,6 +8,7 @@ import requests
 import geojson
 import json
 import math
+import re
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -23,6 +24,7 @@ from api.utils import normalize_quantity
 from api import config
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 
@@ -186,7 +188,7 @@ def surface_water_approval_points(polygon: Polygon):
         # skip approvals outside search area
         if not feature_shape.within(polygon_3005):
             continue
-        
+
         # skip approval if its not an active licence
         # other approval status' are associated with inactive licences
         if apr.properties['APPROVAL_STATUS'] != 'Current':
@@ -206,7 +208,7 @@ def surface_water_approval_points(polygon: Polygon):
         qty_unit = apr.properties['QUANTITY_UNITS']
 
         # null if approval is a works project, most of them are
-        if qty and qty_unit: 
+        if qty and qty_unit:
             qty = normalize_quantity(qty, qty_unit)
             total_qty_m3_yr += qty
             apr.properties['qty_m3_yr'] = qty
@@ -598,11 +600,11 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     except requests.exceptions.HTTPError as errh:
         logger.warn("(SEA) Http Error:" + errh)
     except requests.exceptions.ConnectionError as errc:
-        logger.warn ("(SEA) Error Connecting:" + errc)
+        logger.warn("(SEA) Error Connecting:" + errc)
     except requests.exceptions.Timeout as errt:
-        logger.warn ("(SEA) Timeout Error:" + errt)
+        logger.warn("(SEA) Timeout Error:" + errt)
     except requests.exceptions.RequestException as err:
-        logger.warn ("(SEA) OOps: Something Else" + err)
+        logger.warn("(SEA) OOps: Something Else" + err)
 
     result = response.json()
 
@@ -610,7 +612,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     logger.warn(result)
 
     if result["status"] != "SUCCESS":
-        logger.warn ("(SEA) Request Failed:" + result["message"])
+        logger.warn("(SEA) Request Failed:" + result["message"])
         raise Exception
 
     # response object from sea example
@@ -688,6 +690,41 @@ def export_summary_as_xlsx(data: dict):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
     )
+
+
+def find_50k_watershed_codes(db: Session, geom: Polygon):
+    """ returns an array of 50k watershed codes (older watershed codes) within the watershed area """
+
+    ws_wkt = geom.wkt
+
+    q = db.query(
+        func.distinct(FreshwaterAtlasStreamNetworks.WATERSHED_CODE_50K)) \
+        .filter(
+            func.st_intersects(
+                FreshwaterAtlasStreamNetworks.GEOMETRY,
+                func.ST_GeomFromText(ws_wkt, 4326)
+            )
+    ).filter(FreshwaterAtlasStreamNetworks.WATERSHED_CODE_50K.isnot(None))
+
+    codes = [code for sublist in q.all() for code in sublist]
+
+    # the Stream Networks layer returns codes as one long number, but the proper legacy
+    # format is 119-111111-22222-22222 .... (number of digits per segment: 3-6-5-5-5...)
+    # use regex to format the number groups.
+    # the last digit was arbitrarily set to 6 until documentation on the correct format for
+    # these legacy codes is found.
+    re_pattern = r"(\d{3})(\d{6})(\d{5})(\d{5})(\d{5})(\d{5})(\d{5})(\d{5})(\d{6})"
+
+    formatted_codes = []
+
+    for code in codes:
+
+        segments = re.findall(re_pattern, code)[0]
+        logger.info(segments)
+        fwa_20k_code = '-'.join([s for s in segments if s != len(s) * '0'])
+        formatted_codes.append(fwa_20k_code)
+
+    return sorted(formatted_codes, key=len)
 
 
 def known_fish_observations(polygon: Polygon):
