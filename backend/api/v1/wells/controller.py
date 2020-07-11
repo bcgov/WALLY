@@ -3,33 +3,33 @@ Functions for simple analysis of wells, including querying them using spatial fu
 along a profile line or in a given radius) and calculating values (such as available drawdown)
 using existing data.
 """
-import logging
-import requests
-import math
-import pyproj
 import json
-import time
-from typing import List, Optional
-from sqlalchemy import func, text
-from sqlalchemy.orm import Session
+import logging
+import math
+from typing import List, Optional, Dict, Union
+
+import requests
 from shapely.geometry import (
     Point,
     LineString,
     CAP_STYLE,
     JOIN_STYLE,
-    mapping,
     shape,
-    MultiPoint,
     MultiPolygon,
     Polygon)
 from shapely.ops import transform
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
 from api.config import GWELLS_API_URL
 from api.layers.ground_water_wells import GroundWaterWells
-from api.v1.aggregator.schema import ExternalAPIRequest, LayerResponse
-from api.v1.aggregator.controller import fetch_geojson_features, DATABC_GEOMETRY_FIELD, databc_feature_search
+from api.v1.aggregator.controller import fetch_geojson_features, databc_feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
-from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportApiParams, CrossSectionExport
+from api.v1.aggregator.schema import ExternalAPIRequest
 from api.v1.wells.excel import crossSectionXlsxExport
+from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportApiParams, \
+    CrossSectionExport
+
 logger = logging.getLogger("api")
 
 
@@ -46,13 +46,13 @@ def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> li
     # geometry columns are cast to geography to use metres as the base unit.
     q = db.query(GroundWaterWells) \
         .filter(
-            func.ST_DWithin(func.Geography(GroundWaterWells.GEOMETRY),
-                            func.ST_GeographyFromText(search_point.wkt), radius)
+        func.ST_DWithin(func.Geography(GroundWaterWells.GEOMETRY),
+                        func.ST_GeographyFromText(search_point.wkt), radius)
     ) \
         .with_entities(
-            GroundWaterWells.WELL_TAG_NO,
-            func.ST_Distance(func.Geography(GroundWaterWells.GEOMETRY),
-                             func.ST_GeographyFromText(search_point.wkt)).label('distance')
+        GroundWaterWells.WELL_TAG_NO,
+        func.ST_Distance(func.Geography(GroundWaterWells.GEOMETRY),
+                         func.ST_GeographyFromText(search_point.wkt)).label('distance')
     ).order_by('distance')
 
     return q.all()
@@ -101,16 +101,49 @@ def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
     return top_of_screen
 
 
-def get_screens(point, radius) -> List[WellDrawdown]:
-    """ calls GWELLS API to get well screen information. """
+def get_wells_by_aquifer(point, radius) -> Dict[Union[int, str], List[WellDrawdown]]:
+    """Get wells, grouped by aquifer number"""
+    wells = get_wells_with_drawdown(point, radius)
+
+    aquifers = set()
+
+    # Get aquifers
+    for well in wells:
+
+        if well.aquifer:
+            aquifers.add(well.aquifer.aquifer_id)
+        else:
+            aquifers.add(None)
+
+    wells_by_aquifer = {}
+
+    for a in aquifers:
+        wells_by_aquifer[a if a else ''] = [w for w in wells if
+                                            (w.aquifer and w.aquifer.aquifer_id == a) or (
+                                                        a is None and not w.aquifer)]
+    return wells_by_aquifer
+
+
+def get_wells_with_drawdown(point, radius, well_tag_numbers=None) -> List[WellDrawdown]:
+    """ Find wells near a given point, with a buffer radius,
+        or a list of wells (comma separated well tag numbers)
+        This function gets wells and their corresponding subsurface data using the GWELLS API
+        and then computes the distance of the point to the wells
+    """
+
+    if well_tag_numbers is None:
+        well_tag_numbers = ''
 
     wells_results = []
 
     done = False
 
-    buffer = create_circle_polygon(point, radius)
+    if well_tag_numbers:
+        url = f"{GWELLS_API_URL}/api/v2/wells/subsurface?wells={well_tag_numbers}"
+    else:
+        buffer = create_circle_polygon(point, radius)
+        url = f"{GWELLS_API_URL}/api/v2/wells/subsurface?within={buffer.wkt}&limit=100"
 
-    url = f"{GWELLS_API_URL}/api/v2/wells/subsurface?within={buffer.wkt}&limit=100"
     # helpers to prevent unbounded requests
     limit_requests = 100
     i = 0  # this i is for recording extra requests within each chunk, if necessary
@@ -132,12 +165,6 @@ def get_screens(point, radius) -> List[WellDrawdown]:
             well_point = transform(transform_4326_3005, Point(well["longitude"], well["latitude"]))
             distance = center_point.distance(well_point)
             well["distance"] = distance
-
-            # flatten pertinent aquifer information
-            if well["aquifer"]:
-                aquifer = well["aquifer"]
-                well["aquifer_id"] = aquifer["aquifer_id"]
-                well["aquifer_material"] = aquifer["material_desc"]
 
         # add results to a list.
         wells_results += [WellDrawdown(**well) for well in results]
@@ -265,7 +292,7 @@ def distance_along_line(line: LineString, point: Point, srid=4326):
     # note.  shapely's geom.distance calculates distance on a 2d plane
     c = point.distance(line.interpolate(0))
     b = point.distance(line)
-    return math.sqrt(abs(c**2 - b**2))
+    return math.sqrt(abs(c ** 2 - b ** 2))
 
 
 def elevation_along_line(profile, distance):
@@ -308,7 +335,7 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         # Separate the well aquifer info from the feature info
         well_aquifer = well.properties.pop('aquifer', None)
 
-        # Add (flattend) aquifer into feature info
+        # Add (flattened) aquifer into feature info
         well.properties['aquifer'] = well_aquifer.get('aquifer_id') if well_aquifer else None
 
         # Remove lithologydescription_set from well properties as it's not formatted properly

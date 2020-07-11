@@ -17,7 +17,8 @@ from api.v1.wells.controller import (
     get_waterbodies_along_line,
     merge_wells_datasources,
     create_line_buffer,
-    get_screens,
+    get_wells_with_drawdown,
+    get_wells_by_aquifer,
     get_wells_along_line,
     get_line_buffer_polygon,
     get_parallel_line_offset,
@@ -31,30 +32,43 @@ router = APIRouter()
 
 @router.get("/nearby", response_model=List[WellDrawdown])
 def get_nearby_wells(
-        db: Session = Depends(get_db),
         point: str = Query(..., title="Point of interest",
                            description="Point of interest to centre search at"),
         radius: float = Query(1000, title="Search radius",
                               description="Search radius from point", ge=0, le=10000),
-        format: str = Query('json', title="Format",
-                            description="Format that results will be returned in (json, xlsx)")
 ):
-    """ finds wells near to a point
-        fetches distance data using the Wally database, and combines
-        it with screen data from GWELLS
+    """ finds wells near a given point
+        gets wells and their corresponding subsurface data from GWELLS
+        and computes distance
     """
-    """ search for licences near a point """
     point_parsed = json.loads(point)
     point_shape = Point(point_parsed)
 
-    wells_drawdown_data = get_screens(point_shape, radius)
+    wells_nearby = get_wells_with_drawdown(point_shape, radius)
 
-    return wells_drawdown_data
+    return wells_nearby
+
+
+@router.get("/nearby/aquifers")
+def get_nearby_wells_by_aquifer(
+        point: str = Query(..., title="Point of interest",
+                           description="Point of interest to centre search at"),
+        radius: float = Query(1000, title="Search radius",
+                              description="Search radius from point", ge=0, le=10000),
+):
+    """ finds wells near to a point
+        fetches distance data using the Wally database, and combines
+        it with subsurface data from GWELLS
+    """
+    point_parsed = json.loads(point)
+    point_shape = Point(point_parsed)
+
+    return get_wells_by_aquifer(point_shape, radius)
 
 
 @router.post("/nearby/export")
 def export_nearby_wells(
-    req: WellsExport
+        req: WellsExport
 ):
     """ 
     finds wells near to a point
@@ -63,22 +77,29 @@ def export_nearby_wells(
     filters based on well list in request
     """
     point_parsed = json.loads(req.point)
-    point_shape = Point(point_parsed)
-    wells_drawdown_data = get_screens(point_shape, req.radius)
+    export_wells = req.export_wells
 
-    wells_subset = [w for w in wells_drawdown_data if w.well_tag_number in req.export_wells]
+    well_tag_numbers = ','.join([str(wtn) for wtn in export_wells])
+    point_shape = Point(point_parsed)
+
+    wells_drawdown_data = get_wells_with_drawdown(point_shape, req.radius, well_tag_numbers)
+    wells_copy = [well.dict(exclude={'screen_set'}) for well in wells_drawdown_data]
 
     # flatten pertinent aquifer information for export
-    # for well in wells_drawdown_data:
-    #     del well.aquifer
+    for well in wells_copy:
+        if well['aquifer']:
+            aquifer = well.get('aquifer')
+            well['aquifer_id'] = aquifer.get('aquifer_id')
+            well['aquifer_material'] = aquifer.get('material_desc')
+            del well['aquifer']
 
     return geojson_to_xlsx(
         [geojson.FeatureCollection(
             [
                 geojson.Feature(
-                    geometry=geojson.Point([x.longitude, x.latitude]),
-                    properties=x.dict(exclude={'screen_set'})
-                ) for x in wells_subset
+                    geometry=geojson.Point([x.get('longitude'), x.get('latitude')]),
+                    properties=x
+                ) for x in wells_copy
             ],
             properties={
                 "name": "Available drawdown"
@@ -101,9 +122,9 @@ def get_wells_section(
     line_shape = LineString(line_parsed)
 
     left = get_parallel_line_offset(db, line_shape, -radius)
-    left_half = get_parallel_line_offset(db, line_shape, -radius/2)
+    left_half = get_parallel_line_offset(db, line_shape, -radius / 2)
     right = get_parallel_line_offset(db, line_shape, radius)
-    right_half = get_parallel_line_offset(db, line_shape, radius/2)
+    right_half = get_parallel_line_offset(db, line_shape, radius / 2)
     lines = [left[0], left_half[0], line_shape.wkt, right_half[0], right[0]]
 
     # surface of 5 lines used for 3d display
@@ -139,7 +160,7 @@ def get_wells_section(
 
 @router.post("/section/export")
 def get_wells_section_export(
-    req: CrossSectionExport
+        req: CrossSectionExport
 ):
     """ gather well information for many wells and export an excel report """
 

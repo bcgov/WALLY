@@ -10,7 +10,7 @@
         ></v-text-field>
       </v-col>
       <v-col cols="12" md="3" align-self="center">
-        <v-btn v-if="!loading && wells != defaultWells" small v-on:click="resetWells" color="blue-grey lighten-4" class="ml-5 mb-1 mr-5">
+        <v-btn v-if="!loading && wellsByAquifer !== defaultWellsByAquifer" small v-on:click="resetWells" color="blue-grey lighten-4" class="ml-5 mb-1 mr-5">
           <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Reset Wells</span>
         </v-btn>
       </v-col>
@@ -25,75 +25,81 @@
       </v-col>
     </v-row>
     <v-row no-gutters>
-      <v-col>
-        <v-card outlined tile>
-          <v-card-text>
-            <v-row>
-              <v-col>
-                <div class="title">Wells <span v-if="!loading">&nbsp;({{ wells.length }} in area)</span>
-                </div>
-              </v-col>
-              <v-col class="text-right">
-                  <v-btn
-                    v-if="wells"
-                    outlined
-                    :disabled="loading"
-                    @click="exportDrawdownAsSpreadsheet"
-                    color="primary"
-                  >
-                    Excel
-                    <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
-                    <v-progress-circular
-                      v-if="spreadsheetLoading"
-                      indeterminate
-                      size=24
-                      class="ml-1"
-                      color="primary"
-                    ></v-progress-circular>
-                  </v-btn>
-              </v-col>
-            </v-row>
-            <v-card outlined width="1000px">
-              <v-data-table
-                :loading="loading"
-                :headers="headers"
-                :items="wells">
-                <template v-slot:item="{ item }">
-                  <tr @mouseenter="onMouseEnterWellItem(item)">
-                    <td class="text-left v-data-table__divider pa-2"><v-icon small @click="deleteWell(item)">delete</v-icon></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.distance ? item.distance.toFixed(1) : ''}}</span></td>
-                    <td class="text-left v-data-table__divider pa-2"><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.well_yield ? item.well_yield : ''}}</span></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.static_water_level ? item.static_water_level : ''}}</span></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.top_of_screen ? item.top_of_screen : ''}}</span></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
-                    <td class="text-right v-data-table__divider pa-2"><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
-                    <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer_id ? item.aquifer_id : ''}}</span></td>
-                    <td class="text-left v-data-table__divider pa-2"><span>{{item.aquifer_lithology ? item.aquifer_lithology : ''}}</span></td>
-                    <td class="text-left pa-2"><span>{{item.aquifer_material ? item.aquifer_material : ''}}</span></td>
-                  </tr>
-                </template>
-              </v-data-table>
-            </v-card>
-          </v-card-text>
-        </v-card>
-      </v-col>
+      <v-card outlined tile width="100%">
+        <v-card-text>
+          <v-row>
+            <v-col>
+              <div class="title">Wells <span v-if="!loading">&nbsp;({{ this.wellCount }} in area)</span>
+              </div>
+            </v-col>
+            <v-col class="text-right">
+              <v-btn
+                v-if="wellsByAquifer"
+                outlined
+                :disabled="loading"
+                @click="exportDrawdownAsSpreadsheet"
+                color="primary"
+              >
+                Excel
+                <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+                <v-progress-circular
+                  v-if="spreadsheetLoading"
+                  indeterminate
+                  size=24
+                  class="ml-1"
+                  color="primary"
+                ></v-progress-circular>
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row v-if="loading">
+            <v-progress-linear indeterminate></v-progress-linear>
+          </v-row>
+          <v-row>
+            <!-- Wells by aquifer-->
+            <v-expansion-panels
+              v-for="(wells, aquifer) in wellsByAquifer" v-bind:key="aquifer.aquifer_id"
+              :value=wellsByAquiferIndexes
+              tile focusable multiple>
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Aquifer: {{aquifer ? aquifer : 'None'}}
+                </v-expansion-panel-header>
+                <v-expansion-panel-content width="100%">
+                  <v-card outlined width="1000px" class="mt-5">
+                    <v-data-table
+                      :loading="loading"
+                      :headers="headers"
+                      :items="wells"
+                    >
+                      <template v-slot:item="{ item }">
+                        <tr @mouseenter="onMouseEnterWellItem(item)">
+                          <td class="text-left v-data-table__divider pa-2"><v-icon small @click="deleteWell(aquifer, item)">delete</v-icon></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.distance ? item.distance.toFixed(1) : ''}}</span></td>
+                          <td class="text-left v-data-table__divider pa-2"><a :href="`https://apps.nrs.gov.bc.ca/gwells/well/${Number(item.well_tag_number)}`" target="_blank"><span>{{item.well_tag_number}}</span></a></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.well_yield ? item.well_yield : ''}}</span></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.static_water_level ? item.static_water_level : ''}}</span></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.top_of_screen ? item.top_of_screen : ''}}</span></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.finished_well_depth ? item.finished_well_depth.toFixed(2) : ''}}</span></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.swl_to_screen ? item.swl_to_screen : ''}}</span></td>
+                          <td class="text-right v-data-table__divider pa-2"><span>{{item.swl_to_bottom_of_well ? item.swl_to_bottom_of_well : ''}}</span></td>
+                          <td class="text-center v-data-table__divider pa-2"><span>{{item.aquifer && item.aquifer.aquifer_id}}</span></td>
+                          <td class="text-left v-data-table__divider pa-2"><span>{{item.aquifer_lithology ? item.aquifer_lithology : ''}}</span></td>
+                          <td class="text-left pa-2"><span>{{item.aquifer && item.aquifer.material_desc}}</span></td>
+                        </tr>
+                      </template>
+                    </v-data-table>
+                  </v-card>
+                  <!-- Boxplot -->
+                  <WellsNearbyBoxPlot :wells="wells" v-if="aquifer"/>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-row>
+        </v-card-text>
+      </v-card>
     </v-row>
-    <v-row no-gutters v-if="wells.length > 0" class="mt-5">
-      <v-col cols="12">
-        <v-card :loading="loading" outlined tile class="charts">
-          <v-card-title>Insights ({{ wells.length }} wells):</v-card-title>
-          <v-card-text>
-            <div v-if="!loading" id="wells_charts">
-              <Plotly id="boxPlotYield" :data="boxPlotYieldData.data" :layout="boxPlotYieldData.layout" class="chart"></Plotly>
-              <Plotly id="boxPlotFinishedDepth" :data="boxPlotFinishedDepthData.data" :layout="boxPlotFinishedDepthData.layout" class="chart"></Plotly>
-              <Plotly id="boxPlotSWL" :data="boxPlotSWLData.data" :layout="boxPlotSWLData.layout" class="chart"></Plotly>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+
     <v-row no-gutters>
       <v-col>
         <v-expansion-panels class="mt-5 elevation-0" multiple>
