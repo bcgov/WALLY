@@ -322,6 +322,11 @@ export default {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
         include_self: this.includePOIPolygon
       }
+
+      this.$router.push({
+        query: { coordinates: this.pointOfInterest.geometry.coordinates }
+      })
+
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data

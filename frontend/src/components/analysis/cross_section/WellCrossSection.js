@@ -526,6 +526,17 @@ export default {
         line: JSON.stringify(this.coordinates)
       }
       this.resetCrossSectionData()
+
+      // Update the section line coordinates in the URL query params.
+      // This enables saving/sharing links.
+      if (this.coordinates.length && this.coordinates.length > 1) {
+        this.$router.push({ query: {
+          ...this.$route.query,
+          'section_line_A': this.coordinates[0],
+          'section_line_B': this.coordinates[1]
+        } })
+      }
+
       ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
         .then(r => {
           this.wells = r.data.wells

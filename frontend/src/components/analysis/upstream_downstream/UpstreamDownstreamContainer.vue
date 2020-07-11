@@ -73,7 +73,7 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -85,6 +85,26 @@ export default {
   watch: {
     isMapReady (value) {
       if (value) {
+        // check if a point of interest was included in the URL query params,
+        // and load it as soon as the map is ready.
+        if (this.$route.query.coordinates) {
+          const coords = this.$route.query.coordinates.map(Number)
+
+          const pointOfInterest =
+            {
+              id: 'point_of_interest',
+              type: 'Feature',
+              geometry: {
+                type: 'Point',
+                coordinates: coords
+              },
+              properties: {
+              }
+            }
+
+          this.addSelectedFeature(pointOfInterest)
+        }
+
         if (!this.isStreamsLayerEnabled) {
           this.streamsLayerAutomaticallyEnabled = true
           this.enableStreamsLayer()
@@ -103,6 +123,10 @@ export default {
     if (!this.isStreamsLayerEnabled) {
       this.streamsLayerAutomaticallyEnabled = true
       this.enableStreamsLayer()
+    }
+
+    if (this.pointOfInterest && this.pointOfInterest.geometry && this.pointOfInterest.geometry.type === 'Point') {
+      this.selectedPoint = JSON.stringify(this.pointOfInterest.geometry.coordinates)
     }
   },
   beforeDestroy () {

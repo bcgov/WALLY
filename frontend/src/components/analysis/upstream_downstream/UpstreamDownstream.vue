@@ -140,6 +140,13 @@ export default {
         return
       }
 
+      this.$router.push({
+        query:
+          { ...this.$route.query,
+            coordinates: this.pointOfInterest.geometry.coordinates
+          }
+      })
+
       this.resetGeoJSONLayers()
       this.resetStreamData()
       this.loadingData = true
