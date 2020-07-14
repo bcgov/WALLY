@@ -78,7 +78,7 @@ def get_streams_by_watershed_code(
     # it means we are at the last segment ie a final tributary
     # this means we can skip the union and just return the junction
     if not up_geom_geojson or not down_geom_geojson or \
-      up_geom_geojson == down_geom_geojson:
+      shape(up_geom_geojson).equals(shape(down_geom_geojson)):
         up_poly = junction_lines[-1]
         down_poly = junction_lines[0]
     else:

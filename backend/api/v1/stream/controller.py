@@ -210,7 +210,7 @@ def get_upstream_area(
         WHERE   "LINEAR_FEATURE_ID" = :linear_feature_id
     ),
     streams as (
-        select  ST_Transform(
+        select ST_Transform(
             ST_Buffer(
                 ST_Transform("GEOMETRY", 3005),
                 :buffer),
@@ -273,13 +273,26 @@ def get_upstream_area(
             union all
             select  "GEOMETRY" from freshwater_atlas_stream_networks, watershed_code_stats
             where   "FWA_WATERSHED_CODE" like fwa_prefix
-            AND     split_part(
-                        "FWA_WATERSHED_CODE", '-',
-                        watershed_code_stats.loc_code_last_nonzero_code
-                    )::int > split_part(
-                        watershed_code_stats.loc_code, '-',
-                        watershed_code_stats.loc_code_last_nonzero_code
-                    )::int
+            AND     
+            (CASE
+              WHEN watershed_code_stats.downstream_route_measure = 0
+              THEN 
+                split_part(
+                  "LOCAL_WATERSHED_CODE", '-',
+                  watershed_code_stats.loc_code_last_nonzero_code + 1
+                )::int > split_part(
+                    watershed_code_stats.loc_code, '-',
+                    watershed_code_stats.loc_code_last_nonzero_code + 1
+                )::int
+              ELSE 
+                split_part(
+                  "LOCAL_WATERSHED_CODE", '-',
+                  watershed_code_stats.loc_code_last_nonzero_code
+                )::int > split_part(
+                    watershed_code_stats.loc_code, '-',
+                    watershed_code_stats.loc_code_last_nonzero_code
+                )::int
+            END)
         ) subq
         """
 
