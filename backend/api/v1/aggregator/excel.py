@@ -6,7 +6,7 @@ from geojson import FeatureCollection
 from api.v1.aggregator.schema import LayerResponse
 
 
-def xlsxExport(features: List[LayerResponse]):
+def xlsx_export(features: List[LayerResponse]):
     """
     packages features into an excel workbook.  Returns an HTTP response object that has the saved workbook
     ready to be returned to the client (e.g. the calling http handler can return this object directly)

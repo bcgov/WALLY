@@ -3,7 +3,7 @@ from urllib.parse import parse_qs, urlparse
 
 from api.v1.aggregator.controller import build_api_query
 from api.v1.aggregator.schema import WMSGetMapQuery, ExternalAPIRequest
-from api.v1.aggregator.excel import xlsxExport, geojson_to_xlsx
+from api.v1.aggregator.excel import xlsx_export, geojson_to_xlsx
 from api.v1.aggregator.schema import LayerResponse
 
 OVERLAP_AQUIFERS_HYDAT_LAYER = [-123.0681610107422,
@@ -24,7 +24,7 @@ def test_xlsx_export():
         )
     ]
 
-    resp_object = xlsxExport(datasets)
+    resp_object = xlsx_export(datasets)
     assert resp_object.media_type == 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 
 

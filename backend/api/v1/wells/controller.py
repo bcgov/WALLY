@@ -26,7 +26,7 @@ from api.layers.ground_water_wells import GroundWaterWells
 from api.v1.aggregator.controller import fetch_geojson_features, databc_feature_search
 from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
 from api.v1.aggregator.schema import ExternalAPIRequest
-from api.v1.wells.excel import crossSectionXlsxExport
+from api.v1.wells.excel import cross_section_xlsx_export
 from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportApiParams, \
     CrossSectionExport
 
@@ -475,4 +475,4 @@ def get_cross_section_export(xs: CrossSectionExport):
 
     feature_collection = fetch_geojson_features(requests)
 
-    return crossSectionXlsxExport(feature_collection, xs.coordinates, xs.buffer)
+    return cross_section_xlsx_export(feature_collection, xs.coordinates, xs.buffer)

@@ -11,7 +11,7 @@ from api.v1.aggregator.schema import LayerResponse
 logger = logging.getLogger('well export')
 
 
-def crossSectionXlsxExport(features: List[LayerResponse], coordinates: list, buffer: int):
+def cross_section_xlsx_export(features: List[LayerResponse], coordinates: list, buffer: int):
     """
     packages features into an excel workbook.  Returns an HTTP response object that has the saved workbook
     ready to be returned to the client (e.g. the calling http handler can return this object directly)
