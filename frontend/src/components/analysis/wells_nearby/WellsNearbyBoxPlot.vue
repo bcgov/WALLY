@@ -1,5 +1,5 @@
 <template>
-  <v-card :elevation="0" v-if="wells.length > 0">
+  <v-card :elevation="0" v-if="wells.length > 0" class="charts">
     <v-card-subtitle>Insights ({{wells.length}} wells)</v-card-subtitle>
     <Plotly id="boxPlotYield" :data="boxPlotYieldData.data" :layout="boxPlotYieldData.layout" class="chart"></Plotly>
     <Plotly id="boxPlotFinishedDepth" :data="boxPlotFinishedDepthData.data" :layout="boxPlotFinishedDepthData.layout" class="chart"></Plotly>
