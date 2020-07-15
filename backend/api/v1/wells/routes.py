@@ -1,27 +1,21 @@
 import json
-import geojson
 from typing import List
 from logging import getLogger
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func
 from shapely.geometry import Point, LineString, mapping
 
 from api.db.utils import get_db
 from api.v1.wells.excel import wells_by_aquifer_xlsx_export
 from api.v1.wells.schema import WellDrawdown, CrossSection, CrossSectionExport, WellsExport
-from api.v1.aggregator.excel import geojson_to_xlsx
 from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
-    get_wells_by_distance,
     get_waterbodies_along_line,
-    merge_wells_datasources,
     create_line_buffer,
     get_wells_with_drawdown,
     get_wells_by_aquifer,
     get_wells_along_line,
-    get_line_buffer_polygon,
     get_parallel_line_offset,
     get_cross_section_export
 )

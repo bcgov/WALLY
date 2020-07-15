@@ -3,9 +3,8 @@ import logging
 import datetime
 import openpyxl
 from openpyxl.writer.excel import save_virtual_workbook
-from openpyxl.styles import PatternFill, Border, Side, Alignment, Protection, Font
+from openpyxl.styles import PatternFill, Border, Side, Font
 from starlette.responses import Response
-from geojson import FeatureCollection
 from api.v1.aggregator.schema import LayerResponse
 
 logger = logging.getLogger('well export')
