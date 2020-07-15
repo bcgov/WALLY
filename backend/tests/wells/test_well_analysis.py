@@ -1,4 +1,3 @@
-from api.v1.wells.routes import merge_wells_datasources
 from api.v1.wells.controller import calculate_available_drawdown, calculate_top_of_screen
 from api.v1.wells.schema import Screen, WellDrawdown
 import logging
