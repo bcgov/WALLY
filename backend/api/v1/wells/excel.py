@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 import logging
 import datetime
 import openpyxl
@@ -20,11 +20,11 @@ def cross_section_xlsx_export(features: List[LayerResponse], coordinates: list, 
     workbook = openpyxl.Workbook()
     ds = workbook.active
     ds.title = "details"
-    
+
     font_title = Font(size=20, bold=True, color='44546a')
     font_label = Font(bold=True)
     border_bottom = Border(bottom=Side(border_style="thick", color='4472c4'))
-    
+
     # styling config
     ds['A1'].font = font_title
     ds.column_dimensions['A'].width = 20
@@ -241,3 +241,88 @@ WELL_NUMBER_COLUMNS = [
     "well_yield",
     "artesian_flow"
 ]
+
+WELLS_NEARBY_HEADERS = [
+    "well_tag_number",
+    "latitude",
+    "longitude",
+    "well_yield",
+    "diameter",
+    "well_yield_unit",
+    "finished_well_depth",
+    "street_address",
+    "intended_water_use",
+    "aquifer_subtype",
+    "aquifer_hydraulically_connected",
+    "static_water_level",
+    "top_of_screen",
+    "top_of_screen_type",
+    "distance",
+    "swl_to_screen",
+    "swl_to_bottom_of_well",
+    "aquifer_id",
+    "aquifer_material",
+    "aquifer_lithology",
+]
+
+
+def wells_by_aquifer_xlsx_export(wells_by_aquifer: Dict):
+    """
+    Creates an excel file with a list of wells separated by aquifers
+    Each aquifer has its on worksheet with all the corresponding wells
+    Returns a response object with the excel data as content
+    """
+
+    aquifer_count = len(wells_by_aquifer)
+
+    # There is no data
+    if aquifer_count <= 0:
+        return None
+
+    workbook = openpyxl.Workbook()
+
+    # A workbook is automatically created with 1 sheet which is set as the active one.
+    # First aquifer wells goes into this sheet.
+    aquifer_1, aquifer_1_wells = next(iter(wells_by_aquifer.items()))
+    sheet1 = workbook.active
+    sheet1.title = f"Aquifer {aquifer_1}"
+
+    # Helper function to get row information
+    def get_well_values(a_well, headers):
+        well_dict = dict(a_well)
+
+        if a_well.aquifer:
+            del well_dict['aquifer']
+            well_dict['aquifer_id'] = a_well.aquifer.aquifer_id
+            well_dict['aquifer_material'] = a_well.aquifer.material_desc
+
+        well_values = [well_dict.get(x, None) for x in headers]
+        return well_values
+
+    sheet1.append(WELLS_NEARBY_HEADERS)
+    for well in wells_by_aquifer[aquifer_1]:
+        sheet1.append(get_well_values(well, WELLS_NEARBY_HEADERS))
+
+    sheets = {}
+
+    # Create worksheets
+    if aquifer_count > 1:
+        for aquifer in list(wells_by_aquifer)[1:]:
+
+            # Categorize unknown aquifers as 'Other'
+            aquifer_sheet = f"Aquifer {aquifer}" if aquifer else 'Other'
+
+            sheets[aquifer_sheet] = workbook.create_sheet(aquifer_sheet)
+            sheets[aquifer_sheet].append(WELLS_NEARBY_HEADERS)
+            for well in wells_by_aquifer[aquifer]:
+                sheets[aquifer_sheet].append(get_well_values(well, WELLS_NEARBY_HEADERS))
+
+    cur_date = datetime.datetime.now().strftime("%X-%Y-%m-%d")
+
+    filename = f"{cur_date}_WellsNearby"
+    response = Response(
+        content=save_virtual_workbook(workbook),
+        media_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        headers={'Content-Disposition': f'attachment; filename={filename}.xlsx'})
+
+    return response

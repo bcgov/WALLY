@@ -101,9 +101,9 @@ def calculate_top_of_screen(screen_set: List[Screen]) -> Optional[float]:
     return top_of_screen
 
 
-def get_wells_by_aquifer(point, radius) -> Dict[Union[int, str], List[WellDrawdown]]:
+def get_wells_by_aquifer(point, radius, well_tag_numbers=None) -> Dict[Union[int, str], List[WellDrawdown]]:
     """Get wells, grouped by aquifer number"""
-    wells = get_wells_with_drawdown(point, radius)
+    wells = get_wells_with_drawdown(point, radius, well_tag_numbers)
 
     aquifers = set()
 
@@ -120,7 +120,7 @@ def get_wells_by_aquifer(point, radius) -> Dict[Union[int, str], List[WellDrawdo
     for a in aquifers:
         wells_by_aquifer[a if a else ''] = [w for w in wells if
                                             (w.aquifer and w.aquifer.aquifer_id == a) or (
-                                                        a is None and not w.aquifer)]
+                                                    a is None and not w.aquifer)]
     return wells_by_aquifer
 
 
@@ -227,7 +227,8 @@ def merge_wells_datasources(wells: list, wells_with_distances: object) -> List[W
     for well in wells:
         well_map[str(well.pop('well_tag_number'))] = well
 
-    # create WellDrawdown data objects for every well we found nearby.  The last argument to WellDrawdown() is
+    # create WellDrawdown data objects for every well we found nearby.
+    # The last argument to WellDrawdown() is
     # the supplemental data that comes from GWELLS for each well.
     return calculate_available_drawdown([
         WellDrawdown(
@@ -347,8 +348,10 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
 
         well_data = {
             "well_tag_number": well.properties['well_tag_number'],
-            "finished_well_depth": float(well.properties['finished_well_depth']) * 0.3048 if well.properties['finished_well_depth'] else None,
-            "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties['static_water_level'] else None,
+            "finished_well_depth": float(well.properties['finished_well_depth']) * 0.3048
+            if well.properties['finished_well_depth'] else None,
+            "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties[
+                'static_water_level'] else None,
             "distance_from_origin": distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
             "aquifer": well_aquifer,
@@ -397,7 +400,8 @@ def get_waterbodies_along_line(section_line: LineString, profile: LineString):
     # check each point of intersection to make sure it doesn't lie on a lake (stream lines in
     # the Freshwater Atlas extend through lakes, but when we are over a lake, we want the lake
     # name not the stream name).
-    # the elevation for points comes from the Freshwater Atlas, so it's possible it could be slightly off
+    # the elevation for points comes from the Freshwater Atlas,
+    # so it's possible it could be slightly off
     # the CDEM value from the Canada GeoGratis DEM API.
     for stream in intersecting_streams.features:
         intersecting_points = line_3005.intersection(shape(stream.geometry))

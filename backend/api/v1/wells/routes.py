@@ -8,6 +8,7 @@ from sqlalchemy import func
 from shapely.geometry import Point, LineString, mapping
 
 from api.db.utils import get_db
+from api.v1.wells.excel import wells_by_aquifer_xlsx_export
 from api.v1.wells.schema import WellDrawdown, CrossSection, CrossSectionExport, WellsExport
 from api.v1.aggregator.excel import geojson_to_xlsx
 from api.v1.elevations.controllers.profile import get_profile_line_by_length
@@ -82,30 +83,9 @@ def export_nearby_wells(
     well_tag_numbers = ','.join([str(wtn) for wtn in export_wells])
     point_shape = Point(point_parsed)
 
-    wells_drawdown_data = get_wells_with_drawdown(point_shape, req.radius, well_tag_numbers)
-    wells_copy = [well.dict(exclude={'screen_set'}) for well in wells_drawdown_data]
+    wells_by_aquifer = get_wells_by_aquifer(point_shape, req.radius, well_tag_numbers)
 
-    # flatten pertinent aquifer information for export
-    for well in wells_copy:
-        if well['aquifer']:
-            aquifer = well.get('aquifer')
-            well['aquifer_id'] = aquifer.get('aquifer_id')
-            well['aquifer_material'] = aquifer.get('material_desc')
-            del well['aquifer']
-
-    return geojson_to_xlsx(
-        [geojson.FeatureCollection(
-            [
-                geojson.Feature(
-                    geometry=geojson.Point([x.get('longitude'), x.get('latitude')]),
-                    properties=x
-                ) for x in wells_copy
-            ],
-            properties={
-                "name": "Available drawdown"
-            }
-        )]
-    )
+    return wells_by_aquifer_xlsx_export(wells_by_aquifer)
 
 
 @router.get("/section", response_model=CrossSection)

@@ -6,6 +6,8 @@ import circle from '@turf/circle'
 
 import WellsNearbyBoxPlot from './WellsNearbyBoxPlot'
 
+import { downloadXlsx } from '../../../utils/exportUtils'
+
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })
@@ -133,16 +135,7 @@ export default {
       }
       ApiService.post(`/api/v1/wells/nearby/export`, params, { responseType: 'arraybuffer' }).then((r) => {
         global.config.debug && console.log('[wally]', r)
-        let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        let link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.download = 'WaterReport.xlsx'
-        document.body.appendChild(link)
-        link.click()
-        setTimeout(() => {
-          document.body.removeChild(link)
-          window.URL.revokeObjectURL(link.href)
-        }, 0)
+        downloadXlsx(r, 'WaterReport.xlsx')
       }).catch((e) => {
         console.error(e)
       }).finally(() => {

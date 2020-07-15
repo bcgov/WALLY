@@ -72,7 +72,7 @@ class WellDrawdown(BaseModel):
     aquifer_hydraulically_connected: Optional[bool]
     aquifer_id: Optional[int]
     # aquifer_material: Optional[str]
-    # aquifer_lithology: Optional[str]
+    aquifer_lithology: Optional[str]
     aquifer: Optional[WellAquifer]
     screen_set: Optional[List[Screen]]
     top_of_screen: Optional[float] = Schema(
