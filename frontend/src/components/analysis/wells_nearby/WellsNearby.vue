@@ -58,12 +58,12 @@
           <v-row>
             <!-- Wells by aquifer-->
             <v-expansion-panels
-              v-for="(wells, aquifer) in wellsByAquifer" v-bind:key="aquifer.aquifer_id"
+              v-for="(wells, aquifer) in wellsByAquifer" v-bind:key="aquifer"
               :value=wellsByAquiferIndexes
               tile focusable multiple>
               <v-expansion-panel>
                 <v-expansion-panel-header>
-                  Aquifer: {{aquifer ? aquifer : 'None'}}
+                  Aquifer: {{aquifer ? aquifer : 'None'}} ({{wells.length}} wells)
                 </v-expansion-panel-header>
                 <v-expansion-panel-content width="100%">
                   <v-card outlined width="1000px" class="mt-5">
