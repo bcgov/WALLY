@@ -12,7 +12,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Apportion demand to nearby streams
+          Assign demand from a well to hydraulically connected streams
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
@@ -91,7 +91,7 @@ export default {
           disabled: false,
           to: {
             path: '/point-of-interest',
-            query: { coordinates: this.$route.query.coordinates.map((x) => x) }
+            query: { coordinates: this.$route.query.coordinates }
           }
         }, {
           text: 'Stream apportionment',

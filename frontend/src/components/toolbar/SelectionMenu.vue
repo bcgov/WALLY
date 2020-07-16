@@ -90,7 +90,7 @@ export default {
         route: { name: 'upstream-downstream' }
       },
       {
-        title: 'Stream apportionment',
+        title: 'Demand analysis to hydraulically connected streams',
         route: { name: 'stream-apportionment' }
       },
       {

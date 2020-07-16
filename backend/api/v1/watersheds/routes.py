@@ -44,7 +44,8 @@ from api.v1.watersheds.controller import (
     get_slope_elevation_aspect,
     get_hillshade,
     export_summary_as_xlsx,
-    known_fish_observations
+    known_fish_observations,
+    get_stream_inventory_report_link_for_region
 )
 from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.hydat.controller import (get_stations_in_area)
@@ -70,6 +71,30 @@ watershed_feature_description = """
     'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY.1111111'
     'calculated.1111111'.
     """
+
+
+@router.get('/streamflow_inventory')
+def get_streamflow_inventory_report_link(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")):
+    """ returns a link to the streamflow inventory report for this watershed"""
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` in [long, lat] format")
+
+    point_parsed = json.loads(point)
+    point = Point(point_parsed)
+
+    report_link, report_name = get_stream_inventory_report_link_for_region(
+        point)
+
+    return {
+        "report_link": report_link,
+        "report_name": report_name,
+        "hydrologic_zone": get_hydrological_zone(point)
+    }
 
 
 @router.get('/')
@@ -173,11 +198,12 @@ def watershed_stats(
 
     # slope elevation aspect
     try:
-        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(
+            watershed_poly)
         solar_exposure = get_hillshade(average_slope, aspect)
     except Exception:
         average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
-  
+
     # isoline model outputs
     isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
 

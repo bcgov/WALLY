@@ -58,7 +58,7 @@ def aggregate_sources(
         ),
         bbox: List[float] = Query(
             [], title="Bounding box",
-            description="Bounding box to constrain search, in format x1,y1,x2,y2.", max_length=4),
+            description="Bounding box to constrain search, in format x1,y1,x2,y2."),
         width: float = Query(500, title="Width",
                              description="Width of area of interest"),
         height: float = Query(500, title="Height",

@@ -249,7 +249,7 @@ requests:
         wells.[0].aquifer:
           exists: true
   - name: Stream buffer data search (water_rights_licences)
-    url: "{{host}}/api/v1/stream/features?linear_feature_id=701707707&code=100-077501-955583-434180-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000&layer=water_rights_licences"
+    url: "{{host}}/api/v1/stream/features?code=100-077501-955583-434180-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000-000000&linear_feature_id=701707707&layer=water_rights_licences&full_upstream_area=true&point=[-122.6622306268275,50.296265469471535]&buffer=50"
     method: get
     expect:
       status: 200
@@ -258,6 +258,15 @@ requests:
     method: get
     expect:
       status: 200
+  - name: Streamflow Inventory report at point
+    url: "{{host}}/api/v1/watersheds/streamflow_inventory?point=%5B-123.1688685736714%2C49.87612710876371%5D"
+    method: get
+    expect:
+      status: 200
+      values:
+        report_link: https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344
+        report_name: Inventory of Streamflow in the South Coast and West Coast Regions
+        hydrologic_zone: 26
   # - name: Watershed licences
   #   url: "{{host}}/api/v1/watersheds/366533/licences"
   #   method: get
@@ -268,3 +277,4 @@ requests:
   #   method: get
   #   expect:
   #     status: 200
+

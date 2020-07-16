@@ -122,6 +122,9 @@
               v-if="watershedDetails && watershedDetails.hydrometric_stations"
               :stations="watershedDetails.hydrometric_stations"
             class="pt-8" />
+            <StreamflowInventory
+              :coordinates="this.pointOfInterest.geometry.coordinates"
+            ></StreamflowInventory>
             <FishObservations :watershedID="selectedWatershed"/>
             <WatershedAvailability :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
@@ -146,6 +149,7 @@ import FishObservations from './FishObservations'
 import WatershedDemand from './watershed_demand/WatershedDemand'
 import ShortTermDemand from './watershed_demand/ShortTermDemand'
 import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
+import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -157,7 +161,8 @@ export default {
     FishObservations,
     WatershedDemand,
     ShortTermDemand,
-    AvailabilityVsDemand
+    AvailabilityVsDemand,
+    StreamflowInventory
   },
   data: () => ({
     infoTabs: null,
@@ -317,6 +322,11 @@ export default {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
         include_self: this.includePOIPolygon
       }
+
+      this.$router.push({
+        query: { coordinates: this.pointOfInterest.geometry.coordinates }
+      })
+
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data

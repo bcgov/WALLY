@@ -38,6 +38,7 @@ export default {
     loading: true,
     xlsLoading: false,
     timeout: {},
+    displayWaterbodyAnnotations: true,
     ignoreButtons: [
       'toImage',
       'sendDataToCloud',
@@ -91,31 +92,37 @@ export default {
           ay: -30
         }
       })
-      let waterbodyAnnotations = this.waterbodies.map((s) => {
-        return {
-          xref: 'x',
-          yref: 'y',
-          x: s.distance,
-          y: s.elevation,
-          xanchor: 'left',
-          yanchor: 'center',
-          text: s.name,
-          textangle: -45,
-          align: 'center',
-          font: {
-            size: 12,
-            color: 'black'
-          },
-          opacity: 0.8,
-          showarrow: true,
-          standoff: 3,
-          arrowhead: 1,
-          arrowsize: 1,
-          arrowwidth: 1,
-          ax: 8,
-          ay: -70
-        }
-      })
+
+      // conditionally display water body annotations
+      let waterbodyAnnotations = []
+      if (this.displayWaterbodyAnnotations) {
+        waterbodyAnnotations = this.waterbodies.map((s) => {
+          return {
+            xref: 'x',
+            yref: 'y',
+            x: s.distance,
+            y: s.elevation,
+            xanchor: 'left',
+            yanchor: 'center',
+            text: s.name,
+            textangle: -45,
+            align: 'center',
+            font: {
+              size: 12,
+              color: 'black'
+            },
+            opacity: 0.8,
+            showarrow: true,
+            standoff: 3,
+            arrowhead: 1,
+            arrowsize: 1,
+            arrowwidth: 1,
+            ax: 8,
+            ay: -70
+          }
+        })
+      }
+
       const opts = {
         shapes: [],
         title: 'Groundwater Wells',
@@ -180,6 +187,7 @@ export default {
           ...wellAnnotations, ...waterbodyAnnotations
         ]
       }
+
       this.wells.forEach(w => {
         const rect = {
           type: 'rect',
@@ -519,6 +527,17 @@ export default {
         line: JSON.stringify(this.coordinates)
       }
       this.resetCrossSectionData()
+
+      // Update the section line coordinates in the URL query params.
+      // This enables saving/sharing links.
+      if (this.coordinates.length && this.coordinates.length > 1) {
+        this.$router.push({ query: {
+          ...this.$route.query,
+          'section_line_A': this.coordinates[0],
+          'section_line_B': this.coordinates[1]
+        } })
+      }
+
       ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
         .then(r => {
           this.wells = r.data.wells
@@ -588,6 +607,9 @@ export default {
           )
           if (well) {
             wellLithologySet.lithologydescription_set.forEach(w => {
+              // combine lithology_raw_data and lithology_observation
+              const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
+
               lithologyList.push({
                 well_tag_number: wellLithologySet.well_tag_number,
                 x: well.distance_from_origin ? well.distance_from_origin : 0,
@@ -595,7 +617,7 @@ export default {
                 y1: well.ground_elevation_from_dem - (w.end * 0.3048),
                 lat: wellLithologySet.latitude,
                 lon: wellLithologySet.longitude,
-                data: w.lithology_raw_data,
+                data: description,
                 color: w.lithology_colour,
                 hardness: w.lithology_hardness,
                 observation: w.lithology_observation,
@@ -625,6 +647,20 @@ export default {
         this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
         this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
         this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
+        this.$refs.crossPlot.$on('legendclick', (e) => {
+          // determine whether annotations should be visible for Surface Water.
+          // the `visible` field seems to show either "undefined" or "true" for when the
+          // trace/data should be hidden, and `legendonly` when the data trace should be visible
+          // on the plot.  This *might* have been intended to represent the "old" state before toggling...
+          // todo: implement a better solution, see https://github.com/plotly/plotly.js/issues/4680
+          if (e.data[e.curveNumber].name === 'Surface water') {
+            if (e.data[e.curveNumber].visible !== 'legendonly') {
+              this.displayWaterbodyAnnotations = false
+            } else {
+              this.displayWaterbodyAnnotations = true
+            }
+          }
+        })
       })
     },
     resetMarkerLabels () {
@@ -722,7 +758,7 @@ export default {
       })
 
       let screensArr = this.screens.filter(screen => {
-        return screen['well'] !== selectedWell['well_tag_number']
+        return screen['well_tag_number'] !== selectedWell['well_tag_number']
       })
 
       this.wells = [...wellsArr]

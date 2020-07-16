@@ -176,18 +176,19 @@
       </v-row>
 
       <v-divider class="my-5"/>
-      <Dialog v-bind="wmd.monthlyDischarge"/>
-      <div class="titleSub mb-8">Watershed Monthly Discharge</div>
-
-      <v-data-table
-        :items="getReverseMontlyDischargeItems"
-        :headers="unitColumnHeader.concat(monthHeaders)"
-        :hide-default-footer="true"
-      />
-      <Plotly v-if="monthlyDischargeData"
-        :layout="monthlyDischargeLayout()"
-        :data="monthlyDischargeData"
-      ></Plotly>
+      <div v-if="modelOutputs.monthlyDischarges.length > 0">
+        <Dialog v-bind="wmd.monthlyDischarge"/>
+        <div class="titleSub mb-8">Watershed Monthly Discharge</div>
+        <v-data-table
+          :items="getReverseMontlyDischargeItems"
+          :headers="unitColumnHeader.concat(monthHeaders)"
+          :hide-default-footer="true"
+        />
+        <Plotly v-if="monthlyDischargeData"
+          :layout="monthlyDischargeLayout()"
+          :data="monthlyDischargeData"
+        ></Plotly>
+      </div>
 
       </div>
     </div>
@@ -378,46 +379,8 @@ export default {
         }
         let availability = monthlyDischarges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
         this.setAvailabilityPlotData(availability)
-        return
-      }
-      // ISOLine Model Calculations as backup if Stewardship model doesn't exist
-      if (details &&
-          details.runoff_isoline_discharge_m3s != null &&
-          details.runoff_isoline_avg != null &&
-          this.watershedArea) {
-        const meanAnnualDischarge = details.runoff_isoline_discharge_m3s
-        const meanAnnualRunoff = details.runoff_isoline_avg
-        var discharges = []
-        var distributions = []
-        for (let i = 1; i < 13; i++) {
-          distributions.push({
-            month: i,
-            model_result: 1 / 12,
-            r2: 0,
-            adjusted_r2: 0,
-            steyx: 0
-          })
-          discharges.push({
-            month: i,
-            model_result: meanAnnualDischarge / 12,
-            r2: 0,
-            adjusted_r2: 0,
-            steyx: 0
-          })
-        }
-        this.modelOutputs = {
-          sourceDescription: 'Model output based on Normal Annual Runoff Isolines (1961-1990) from DataBC.',
-          sourceLink: 'https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical',
-          mar: meanAnnualRunoff.toFixed(2),
-          mad: meanAnnualDischarge.toFixed(2),
-          low7q2: null,
-          dry7q10: null,
-          monthlyDistributions: distributions,
-          monthlyDischarges: discharges
-        }
-
-        let availability = discharges.map((m) => { return m.model_result * this.months[m.month] * this.secondsInMonth })
-        this.setAvailabilityPlotData(availability)
+      } else {
+        this.setAvailabilityPlotData(null)
       }
     },
     monthlyDistributionsLayout () {

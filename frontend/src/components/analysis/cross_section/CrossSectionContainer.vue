@@ -77,7 +77,7 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
   },
   computed: {
     isWellsLayerEnabled () {
@@ -89,6 +89,28 @@ export default {
   watch: {
     isMapReady (value) {
       if (value) {
+        // Check if the URL params contain cross section coordinates. If so,
+        // set the point of interest to the section line to display it on app load.
+        if (this.$route.query.section_line_A && this.$route.query.section_line_B) {
+          const coords = [
+            this.$route.query.section_line_A.map(Number),
+            this.$route.query.section_line_B.map(Number)
+          ]
+
+          const linestring =
+            {
+              id: 'user_defined_line',
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: coords
+              },
+              properties: {
+              }
+            }
+
+          this.addSelectedFeature(linestring)
+        }
         if (!this.isWellsLayerEnabled) {
           this.wellsLayerAutomaticallyEnabled = true
           this.enableWellsLayer()

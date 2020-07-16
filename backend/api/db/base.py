@@ -21,3 +21,4 @@ import api.layers.normal_annual_runoff_isolines
 import api.layers.water_allocation_restrictions
 import api.layers.water_rights_applications
 import api.layers.water_rights_licences
+import api.v1.user.db_models

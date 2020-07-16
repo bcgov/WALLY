@@ -148,8 +148,7 @@ export default {
         // Update router
         global.config.debug && console.log('[wally] updating POI route')
         this.$router.push({
-          path: '/surface-water',
-          query: { coordinates: value.geometry.coordinates }
+          query: { ...this.$route.query, coordinates: value.geometry.coordinates }
         })
       }
     },

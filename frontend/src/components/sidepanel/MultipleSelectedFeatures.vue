@@ -29,7 +29,7 @@
           Using value=0 in v-list-group defaults the collapsable list item to "closed".
           In this case, keep the list items collapsed unless there is only one to display.
             -->
-          <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" :value="false">
+          <v-list-group v-for="(value, name) in dataMartFeature" :key="`layerGroup-${value}${name}`" v-model="value.active">
             <template v-slot:activator>
               <v-list-item-content>
                 <v-list-item-title>{{getMapLayer(name).display_name}} ({{value.length}} found in area)</v-list-item-title>
@@ -39,23 +39,15 @@
                 <v-list-item-content>
                     <v-data-table
                       dense
-                      :headers="[{ text: getMapLayer(name).label, value: 'col1' }]"
-                      :items="value.map((x,i) => ({col1: x.properties[getMapLayer(name).label_column], id: i}))"
+                      :headers="getHeaders(name)"
+                      :items="getItems(name, value)"
                       :items-per-page="10"
                       :hide-default-footer="value.length < 10"
                     >
-                      <template v-slot:item="{ item }">
-                        <v-hover v-slot:default="{ hover }" v-bind:key="`list-item-{$value}${item.id}`">
-                          <v-card
-                            class="px-2 py-3 mx-1 my-2"
-                            :elevation="hover ? 2 : 0"
-                            @mousedown="setSingleListFeature(value[item.id], name)"
-                            @mouseenter="onMouseEnterListItem(value[item.id], name)"
-                          >
-                            <span>{{ item.col1 }}</span>
-                          </v-card>
-                        </v-hover>
-                        <v-divider :key="`divider-${item.id}`"></v-divider>
+                      <template v-slot:item="{ item, index }">
+                        <tr @mouseenter="onMouseEnterListItem(value[index])" @mousedown="setSingleListFeature(value[index], name)">
+                          <td class="v-data-table__divider pa-2" v-for="header in getHeaders(name)" :key="`td-${name}-${header.value}`">{{ item[header.value] }}</td>
+                        </tr>
                       </template>
                     </v-data-table>
                 </v-list-item-content>
@@ -78,7 +70,20 @@ export default {
   name: 'MultipleSelectedFeatures',
   data: () => ({
     spreadsheetLoading: false,
-    pdfReportLoading: false
+    pdfReportLoading: false,
+    headers: {
+      'groundwater_wells': [
+        { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
+        { text: 'Well Identification Plate No.', value: 'identification_plate_number', align: 'start', divider: true },
+        { text: 'Street Address', value: 'street_address', align: 'start', divider: false }
+      ],
+      'aquifers': [
+        { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
+        { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
+        { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
+        { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: false }
+      ]
+    }
   }),
   computed: {
     ...mapGetters('map', ['getMapLayer']),
@@ -101,6 +106,14 @@ export default {
     }
   },
   methods: {
+    getHeaders (displayName) {
+      return displayName in this.headers ? this.headers[displayName]
+        : [{ text: this.getMapLayer(displayName).label, value: 'col1' }]
+    },
+    getItems (displayName, features) {
+      return displayName in this.headers ? features.map(f => f.properties)
+        : features.map((x, i) => ({ col1: x.properties[this.getMapLayer(displayName).label_column], id: i }))
+    },
     setSingleListFeature (item, displayName) {
       this.$store.commit('setDataMartFeatureInfo',
         {
