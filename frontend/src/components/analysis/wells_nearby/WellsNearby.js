@@ -4,6 +4,10 @@ import ApiService from '../../../services/ApiService'
 import debounce from 'lodash.debounce'
 import circle from '@turf/circle'
 
+import WellsNearbyBoxPlot from './WellsNearbyBoxPlot'
+
+import { downloadXlsx } from '../../../utils/exportUtils'
+
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })
@@ -11,7 +15,8 @@ const Plotly = () => import('vue-plotly').then(module => {
 export default {
   name: 'WellsNearby',
   components: {
-    Plotly
+    Plotly,
+    WellsNearbyBoxPlot
   },
   props: ['record'],
   data: () => ({
@@ -22,8 +27,8 @@ export default {
       max: value => value <= 10000 || 'Radius must be between 0 and 10000 m'
     },
     radius: 1000,
-    defaultWells: [],
-    wells: [],
+    wellsByAquifer: {},
+    defaultWellsByAquifer: {},
     loading: false,
     headers: [
       {
@@ -87,87 +92,20 @@ export default {
         text: 'Aquifer Material',
         value: 'aquifer_material',
         align: 'start' }
-    ],
-    boxPlotSWLData: {
-      data: [],
-      layout: {
-        font: {
-          family: 'BCSans, Noto Sans, Verdana, Arial'
-        },
-        yaxis: {
-          autorange: 'reversed',
-          fixedrange: true
-        },
-        xaxis: {
-          fixedrange: true
-        },
-        autosize: false,
-        width: 250,
-        margin: { // Margins for the chart without a title
-          l: 50,
-          r: 50,
-          b: 50,
-          t: 10,
-          pad: 4
-        }
-      }
-    },
-    boxPlotYieldData: {
-      data: [],
-      layout: {
-        font: {
-          family: 'BCSans, Noto Sans, Verdana, Arial'
-        },
-        yaxis: {
-          autorange: 'reversed',
-          fixedrange: true
-        },
-        xaxis: {
-          fixedrange: true
-        },
-        autosize: false,
-        width: 250,
-        margin: { // Margins for the chart without a title
-          l: 50,
-          r: 50,
-          b: 50,
-          t: 10,
-          pad: 4
-        }
-      }
-
-    },
-    boxPlotFinishedDepthData: {
-      data: [],
-      layout: {
-        font: {
-          family: 'BCSans, Noto Sans, Verdana, Arial'
-        },
-        yaxis: {
-          autorange: 'reversed',
-          fixedrange: true
-        },
-        xaxis: {
-          fixedrange: true
-        },
-        autosize: false,
-        width: 250,
-        margin: { // Margins for the chart without a title
-          l: 50,
-          r: 50,
-          b: 50,
-          t: 10,
-          pad: 4
-        }
-      }
-    }
+    ]
   }),
   computed: {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
+    wellCount () {
+      return Object.values(this.wellsByAquifer).reduce((a, b) => (a + b.length), 0)
+    },
     coordinates () {
       return (this.record && this.record.geometry && this.record.geometry.coordinates) || []
+    },
+    wellsByAquiferIndexes () {
+      return Object.entries(this.wellsByAquifer).map((entry, index) => index)
     },
     ...mapGetters('map', ['isMapLayerActive', 'isMapReady'])
   },
@@ -184,23 +122,20 @@ export default {
         'download'])
 
       this.spreadsheetLoading = true
+      let wellsExport = []
+
+      Object.values(this.wellsByAquifer).forEach(wells => {
+        wellsExport = wellsExport.concat(wells.map(w => w.well_tag_number))
+      })
+
       const params = {
         radius: parseFloat(this.radius),
         point: JSON.stringify(this.coordinates),
-        export_wells: this.wells.map(w => w.well_tag_number)
+        export_wells: wellsExport
       }
       ApiService.post(`/api/v1/wells/nearby/export`, params, { responseType: 'arraybuffer' }).then((r) => {
         global.config.debug && console.log('[wally]', r)
-        let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        let link = document.createElement('a')
-        link.href = window.URL.createObjectURL(blob)
-        link.download = 'WaterReport.xlsx'
-        document.body.appendChild(link)
-        link.click()
-        setTimeout(() => {
-          document.body.removeChild(link)
-          window.URL.revokeObjectURL(link.href)
-        }, 0)
+        downloadXlsx(r, 'WaterReport.xlsx')
       }).catch((e) => {
         console.error(e)
       }).finally(() => {
@@ -212,15 +147,13 @@ export default {
     },
     fetchWells () {
       this.loading = true
-      this.wells = []
-      this.defaultWells = []
+      this.wellsByAquifer = []
+      this.defaultWellsByAquifer = []
       this.wellRequest()
     },
     wellRequest: debounce(function () {
       this.showCircle()
-      this.boxPlotSWLData.data = []
-      this.boxPlotYieldData.data = []
-      this.boxPlotFinishedDepthData.data = []
+
       if (!this.radiusIsValid(this.radius)) {
         return
       }
@@ -229,10 +162,9 @@ export default {
         radius: parseFloat(this.radius),
         point: JSON.stringify(this.coordinates)
       }
-      ApiService.query(`/api/v1/wells/nearby?${qs.stringify(params)}`).then((r) => {
-        this.wells = r.data
-        this.defaultWells = r.data
-        this.populateBoxPlotData(this.wells)
+      ApiService.query(`/api/v1/wells/nearby/aquifers?${qs.stringify(params)}`).then((r) => {
+        this.wellsByAquifer = r.data
+        this.defaultWellsByAquifer = { ...this.wellsByAquifer }
       }).catch((e) => {
         console.error(e)
       }).finally(() => {
@@ -259,31 +191,6 @@ export default {
       // add the new one
       this.$store.commit('map/addShape', shape)
     },
-    populateBoxPlotData (wells) {
-      let yieldY = []
-      let depthY = []
-      let swlY = []
-      wells.forEach(well => {
-        yieldY.push(Number(well.well_yield))
-        depthY.push(Number(well.finished_well_depth))
-        swlY.push(Number(well.static_water_level))
-      })
-      this.boxPlotYieldData.data.push({
-        y: yieldY,
-        type: 'box',
-        name: 'Well Yields (USGPM)'
-      })
-      this.boxPlotFinishedDepthData.data.push({
-        y: depthY,
-        type: 'box',
-        name: 'Finished Well Depth (ft bgl)'
-      })
-      this.boxPlotSWLData.data.push({
-        y: swlY,
-        type: 'box',
-        name: 'Static Water Level Depth (ft)'
-      })
-    },
     loadFeature () {
       global.config.debug && console.log('[wally] load feature')
       // Load Point of Interest feature from query
@@ -298,24 +205,18 @@ export default {
         this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
       }
     },
-    deleteWell (selectedWell) {
+    deleteWell (aquifer, selectedWell) {
+      console.log(selectedWell)
       // delete selected well from well list
-      let wellsArr = this.wells.filter(well => {
+      let newWellsByAquifer = this.wellsByAquifer[aquifer].filter(well => {
         return well['well_tag_number'] !== selectedWell['well_tag_number']
       })
-      this.wells = [...wellsArr]
-      this.updateBoxPlotData()
+
+      this.wellsByAquifer[aquifer] = newWellsByAquifer
       this.$store.dispatch('map/clearHighlightLayer')
     },
     resetWells () {
-      this.wells = this.defaultWells
-      this.updateBoxPlotData()
-    },
-    updateBoxPlotData () {
-      this.boxPlotSWLData.data = []
-      this.boxPlotYieldData.data = []
-      this.boxPlotFinishedDepthData.data = []
-      this.populateBoxPlotData(this.wells)
+      this.wellsByAquifer = this.defaultWellsByAquifer
     },
     handleRedraw () {
       this.$emit('crossSection:redraw')
@@ -323,7 +224,7 @@ export default {
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
       // hovered list item in the nearby wells table
-      var feature = {
+      let feature = {
         'id': well.well_tag_number,
         'type': 'Feature',
         'geometry': {

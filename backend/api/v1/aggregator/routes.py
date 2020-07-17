@@ -19,8 +19,9 @@ from api.v1.aggregator.controller import (
     API_DATASOURCES,
     DATABC_GEOMETRY_FIELD,
     DATABC_LAYER_IDS)
-from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
-from api.v1.aggregator.excel import xlsxExport
+from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, \
+    LayerResponse
+from api.v1.aggregator.excel import xlsx_export
 
 logger = getLogger("aggregator")
 
@@ -76,7 +77,8 @@ def aggregate_sources(
 
     if not polygon and not bbox:
         raise HTTPException(
-            status_code=400, detail="No search bounds. Supply either a `polygon` or set of 4 `bbox` values")
+            status_code=400,
+            detail="No search bounds. Supply either a `polygon` or set of 4 `bbox` values")
 
     # the polygon search area comes formatted the same way a MultiPolygon would be.
     # (e.g., an array of polygons).  Here we process it by creating a MultiPolygon
@@ -92,7 +94,7 @@ def aggregate_sources(
 
     # if xlsx format was requested, package the response as xlsx and return the xlsx notebook.
     if format == 'xlsx':
-        return xlsxExport(feature_list)
+        return xlsx_export(feature_list)
 
     response = {
         'display_data': feature_list
