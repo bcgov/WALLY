@@ -3,9 +3,9 @@
     <p class="title font-weight-bold">Inventory of Streamflow Report</p>
     <div v-if="reportLink">
       <p>
-        <a :href="reportLink" target="_blank">{{ reportName }}</a>
+        Visit EcoCat to access the <a :href="reportLink" target="_blank">{{ reportName }}</a> information and its associated data files for this area.
       </p>
-      <p>Hydrologic zone (at point of interest): {{ this.hydrologicZone }}</p>
+      <p>Read the associated <a :href="pdfLink" target="_blank">PDF report.</a></p>
     </div>
     <p v-else class="text--disabled">No streamflow inventory report found for this region.</p>
   </v-card>
@@ -22,6 +22,7 @@ export default {
   data: () => ({
     reportLink: null,
     reportName: null,
+    pdfLink: null,
     hydrologicZone: null
   }),
   methods: {
@@ -33,6 +34,7 @@ export default {
         const data = r.data
         this.reportLink = data.report_link
         this.reportName = data.report_name
+        this.pdfLink = data.pdf_link
         this.hydrologicZone = data.hydrologic_zone
       })
     }
