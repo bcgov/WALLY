@@ -126,6 +126,7 @@
               :coordinates="this.pointOfInterest.geometry.coordinates"
             ></StreamflowInventory>
             <FishObservations :watershedID="selectedWatershed"/>
+            <FishInventories :watershedID="selectedWatershed"/>
             <WatershedAvailability :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
           </div>
@@ -148,6 +149,7 @@ import HydrometricStationsContainer from './hydrometric_stations/HydrometricStat
 import FishObservations from './FishObservations'
 import WatershedDemand from './watershed_demand/WatershedDemand'
 import ShortTermDemand from './watershed_demand/ShortTermDemand'
+import FishInventories from './fish_inventories/FishInventories'
 import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
@@ -162,6 +164,7 @@ export default {
     WatershedDemand,
     ShortTermDemand,
     AvailabilityVsDemand,
+    FishInventories,
     StreamflowInventory
   },
   data: () => ({

@@ -45,6 +45,7 @@ from api.v1.watersheds.controller import (
     get_hillshade,
     export_summary_as_xlsx,
     known_fish_observations,
+    find_50k_watershed_codes,
     get_stream_inventory_report_link_for_region
 )
 from api.v1.watersheds.prism import mean_annual_precipitation
@@ -257,6 +258,20 @@ def watershed_stats(
     logger.warn("Watershed Details - Request Finished")
 
     return data
+
+
+@router.get('/{watershed_feature}/fwa_50k_codes')
+def get_50k_watershed_codes(
+    db: Session = Depends(get_db),
+    watershed_feature: str = Path(...,
+                                  title="The watershed feature ID at the point of interest",
+                                  description=watershed_feature_description)
+):
+    """ returns 50k (old) watershed codes. Useful for searching legacy applications """
+
+    watershed = get_watershed(db, watershed_feature)
+
+    return find_50k_watershed_codes(db, shape(watershed.geometry))
 
 
 @router.get('/{watershed_feature}/licences')

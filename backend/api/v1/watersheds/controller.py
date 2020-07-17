@@ -8,6 +8,7 @@ import requests
 import geojson
 import json
 import math
+import re
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -23,6 +24,7 @@ from api.utils import normalize_quantity
 from api import config
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 
@@ -688,6 +690,40 @@ def export_summary_as_xlsx(data: dict):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
     )
+
+
+def find_50k_watershed_codes(db: Session, geom: Polygon):
+    """ returns an array of 50k watershed codes (older watershed codes) within the watershed area """
+
+    ws_wkt = geom.wkt
+
+    q = db.query(
+        func.distinct(FreshwaterAtlasStreamNetworks.WATERSHED_CODE_50K)) \
+        .filter(
+            func.st_intersects(
+                FreshwaterAtlasStreamNetworks.GEOMETRY,
+                func.ST_GeomFromText(ws_wkt, 4326)
+            )
+    ).filter(FreshwaterAtlasStreamNetworks.WATERSHED_CODE_50K.isnot(None))
+
+    codes = [code for sublist in q.all() for code in sublist]
+
+    # the Stream Networks layer returns codes as one long number, but the proper legacy
+    # format is 119-111111-22222-22222 .... (number of digits per segment: 3-6-5-5-5...)
+    # use regex to format the number groups.
+    # the last digit was arbitrarily set to 6 until documentation on the correct format for
+    # these legacy codes is found.
+    re_pattern = r"(\d{3})(\d{6})(\d{5})(\d{5})(\d{5})(\d{5})(\d{5})(\d{5})(\d{6})"
+
+    formatted_codes = []
+
+    for code in codes:
+        segments = re.findall(re_pattern, code)[0]
+        # truncate all-zero codes at end (e.g. 119-118400-00000-00000-00000 ....)
+        fwa_20k_code = '-'.join([s for s in segments if s != len(s) * '0'])
+        formatted_codes.append(fwa_20k_code)
+
+    return sorted(formatted_codes, key=len)
 
 
 def known_fish_observations(polygon: Polygon):
