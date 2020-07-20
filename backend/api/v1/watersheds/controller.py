@@ -8,6 +8,7 @@ import requests
 import geojson
 import json
 import math
+import re
 from typing import Tuple
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
@@ -23,6 +24,7 @@ from api.utils import normalize_quantity
 from api import config
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 
@@ -690,6 +692,40 @@ def export_summary_as_xlsx(data: dict):
     )
 
 
+def find_50k_watershed_codes(db: Session, geom: Polygon):
+    """ returns an array of 50k watershed codes (older watershed codes) within the watershed area """
+
+    ws_wkt = geom.wkt
+
+    q = db.query(
+        func.distinct(FreshwaterAtlasStreamNetworks.WATERSHED_CODE_50K)) \
+        .filter(
+            func.st_intersects(
+                FreshwaterAtlasStreamNetworks.GEOMETRY,
+                func.ST_GeomFromText(ws_wkt, 4326)
+            )
+    ).filter(FreshwaterAtlasStreamNetworks.WATERSHED_CODE_50K.isnot(None))
+
+    codes = [code for sublist in q.all() for code in sublist]
+
+    # the Stream Networks layer returns codes as one long number, but the proper legacy
+    # format is 119-111111-22222-22222 .... (number of digits per segment: 3-6-5-5-5...)
+    # use regex to format the number groups.
+    # the last digit was arbitrarily set to 6 until documentation on the correct format for
+    # these legacy codes is found.
+    re_pattern = r"(\d{3})(\d{6})(\d{5})(\d{5})(\d{5})(\d{5})(\d{5})(\d{5})(\d{6})"
+
+    formatted_codes = []
+
+    for code in codes:
+        segments = re.findall(re_pattern, code)[0]
+        # truncate all-zero codes at end (e.g. 119-118400-00000-00000-00000 ....)
+        fwa_20k_code = '-'.join([s for s in segments if s != len(s) * '0'])
+        formatted_codes.append(fwa_20k_code)
+
+    return sorted(formatted_codes, key=len)
+
+
 def known_fish_observations(polygon: Polygon):
     """ returns fish observation data from within a watershed polygon"""
     fish_observations_layer = 'fish_observations'
@@ -807,25 +843,32 @@ def get_stream_inventory_report_link_for_region(point: Point):
     report_map = {
         "RNO":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=48460",
-             "Inventory of Streamflow in the Omineca and Northeast Regions"),
+             "Inventory of Streamflow in the Omineca and Northeast Regions",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r48460/OminecaNEReport_Final_May2015_1430753815248_0753468720.pdf"),
         "ROM":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=48460",
-             "Inventory of Streamflow in the Omineca and Northeast Regions"),
+             "Inventory of Streamflow in the Omineca and Northeast Regions",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r48460/OminecaNEReport_Final_May2015_1430753815248_0753468720.pdf"),
         "RSC":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344",
-             "Inventory of Streamflow in the South Coast and West Coast Regions"),
+             "Inventory of Streamflow in the South Coast and West Coast Regions",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r53344/SouthCoast_WestCoastReport_1582824976404_2823170721.pdf"),
         "RWC":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344",
-             "Inventory of Streamflow in the South Coast and West Coast Regions"),
+             "Inventory of Streamflow in the South Coast and West Coast Regions",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r53344/SouthCoast_WestCoastReport_1582824976404_2823170721.pdf"),
         "RCB":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=52707",
-             "Inventory of Streamflow in the Cariboo Region"),
+             "Inventory of Streamflow in the Cariboo Region",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r52707/CaribooReport_1506126645100_6126442730.pdf"),
         "RTO":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=58628",
-             "Inventory of Streamflow in the Thompson Okanagan Region"),
+             "Inventory of Streamflow in the Thompson Okanagan Region",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r58628/ThompsonOkanaganReportMarch2020-updated_1594244548963_4243881993.pdf"),
         "RSK":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=40801",
-             "Inventory of Streamflow in the Skeena Region"),
+             "Inventory of Streamflow in the Skeena Region",
+             "http://a100.gov.bc.ca/appsdata/acat/documents/r40801/SkeenaReport_June2014_1403809855038_3809357571.pdf"),
     }
 
     return report_map.get(region_code, None)
