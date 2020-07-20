@@ -2,6 +2,9 @@
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
+import area from '@turf/area';
+import lineDistance from '@turf/line-distance';
+import lineToPolygon from '@turf/line-to-polygon';
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
@@ -38,6 +41,7 @@ export default {
     map: null,
     isMapReady: false,
     draw: {},
+    drawnMeasurements: {},
     geocoder: {},
     activeSelection: null,
     layerSelectTriggered: false,
@@ -86,6 +90,7 @@ export default {
       const modes = MapboxDraw.modes
       modes.simple_select.onTrash = this.clearSelections
       modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_line_string.onTrash = this.clearSelections
       modes.draw_point.onTrash = this.clearSelections
       modes.direct_select.onTrash = this.clearSelections
 
@@ -333,6 +338,7 @@ export default {
     clearSelections ({ state, commit, dispatch }) {
       dispatch('clearHighlightLayer')
       commit('replaceOldFeatures')
+      commit('clearMeasurements')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('removeShapes')
       commit('resetPointOfInterest', {}, { root: true })
@@ -612,6 +618,49 @@ export default {
     },
     resetMode (state, payload) {
       state.mode = defaultMode
+    },
+    handleMeasurements (state, payload) {
+      const features = state.draw.getAll().features;
+
+      if (features.length > 0) {
+        const feature = features[0];
+        // metric calculations
+        const drawnLength = (lineDistance(feature) * 1000); // meters
+        const drawnArea = area(feature); // square meters
+
+        let distanceUnits = 'm';
+        let areaUnits = 'm²';
+
+        let distanceMeasurement = drawnLength
+        let areaMeasurement = drawnArea
+        
+        console.log(feature)
+
+        if (feature.geometry.coordinates.length > 2) {
+          distanceMeasurement = drawnLength
+          areaMeasurement = area(lineToPolygon(feature))
+
+          if (drawnLength >= 1000) { // if over 1000 meters, upgrade metric
+            distanceMeasurement = distanceMeasurement / 1000;
+            distanceUnits = 'km';
+          }
+          if (areaMeasurement >= 100000) { // if over 100,000 meters, upgrade metric
+            areaMeasurement = areaMeasurement / 100000;
+            areaUnits = 'km²';
+          }
+
+          const drawnMeasurements = {
+            features: features,
+            distance: `${distanceMeasurement.toFixed(2)} ${distanceUnits}`,
+            area: `${areaMeasurement.toFixed(2)} ${areaUnits}`
+          };
+          console.log(drawnMeasurements)
+          state.drawnMeasurements = drawnMeasurements
+        }
+      }
+    },
+    clearMeasurements (state, payload) {
+      state.drawnMeasurements = {}
     }
   },
   getters: {
@@ -638,6 +687,7 @@ export default {
     map: state => state.map,
     draw: state => state.draw,
     geocoder: state => state.geocoder,
-    layerSelectTriggered: state => state.layerSelectTriggered
+    layerSelectTriggered: state => state.layerSelectTriggered,
+    drawnMeasurements: state => state.drawnMeasurements
   }
 }

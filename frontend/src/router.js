@@ -8,6 +8,7 @@ import SingleSelectedFeature from './components/sidepanel/SingleSelectedFeature'
 import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFeatures'
 import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
 import PolygonTool from './components/sidepanel/cards/PolygonTool'
+import MeasuringTool from './components/sidepanel/cards/MeasuringTool'
 import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
 import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
 import UpstreamDownstream from './components/analysis/upstream_downstream/UpstreamDownstreamContainer'
@@ -126,6 +127,19 @@ const router = new Router({
       component: PolygonTool,
       meta: {
         title: `Polygon Selection - ${global.config.title}`,
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/measuring',
+      name: 'measuring-tool',
+      component: MeasuringTool,
+      meta: {
+        title: `Measuring - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
