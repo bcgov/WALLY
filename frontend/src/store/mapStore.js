@@ -2,13 +2,14 @@
 import ApiService from '../services/ApiService'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
-import area from '@turf/area';
-import lineDistance from '@turf/line-distance';
-import lineToPolygon from '@turf/line-to-polygon';
+import area from '@turf/area'
+import lineDistance from '@turf/line-distance'
+import lineToPolygon from '@turf/line-to-polygon'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
 import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
+import { polygon } from 'leaflet'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -286,6 +287,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
+              dispatch('initMeasurementHighlight')
               commit('initVectorLayerSources', response.data.layers)
             })
             .catch((error) => {
@@ -339,6 +341,7 @@ export default {
       dispatch('clearHighlightLayer')
       commit('replaceOldFeatures')
       commit('clearMeasurements')
+      dispatch('clearMeasurementHighlight')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('removeShapes')
       commit('resetPointOfInterest', {}, { root: true })
@@ -418,7 +421,7 @@ export default {
         })
 
         global.config.debug && console.log('[wally] map is now ready')
-        // End of cascade; map is now ready
+        // End of cascade map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
       })
@@ -452,6 +455,28 @@ export default {
       while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0])
       }
+    },
+    async initMeasurementHighlight ({ state }, payload) {
+      await state.map.on('load', () => {
+        // initialize measurement highlight layer
+        state.map.addSource('measurementHighlight', { type: 'geojson', data: emptyPolygon })
+        state.map.addLayer({
+          'id': 'measurementHighlight',
+          'type': 'fill',
+          'source': 'measurementHighlight',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(26, 193, 244, 0.1)',
+            'fill-outline-color': 'rgb(8, 159, 205)'
+          }
+        })
+      })
+    },
+    updateMeasurementHighlight ({ state, commit, dispatch }, data) {
+      state.map.getSource('measurementHighlight').setData(data)
+    },
+    clearMeasurementHighlight ({ state }, payload) {
+      state.map.getSource('measurementHighlight').setData(emptyPolygon)
     }
   },
   mutations: {
@@ -484,7 +509,7 @@ export default {
           const wmsOpts = {
             service: 'WMS',
             request: 'GetMap',
-            format: 'application/x-protobuf;type=mapbox-vector',
+            format: 'application/x-protobuftype=mapbox-vector',
             layers: 'pub:' + layer.wms_name,
             styles: layer.wms_style,
             transparent: true,
@@ -620,41 +645,41 @@ export default {
       state.mode = defaultMode
     },
     handleMeasurements (state, payload) {
-      const features = state.draw.getAll().features;
+      const features = state.draw.getAll().features
 
       if (features.length > 0) {
-        const feature = features[0];
+        const feature = features[0]
         // metric calculations
-        const drawnLength = (lineDistance(feature) * 1000); // meters
-        const drawnArea = area(feature); // square meters
+        const drawnLength = (lineDistance(feature) * 1000) // meters
+        const drawnArea = area(feature) // square meters
 
-        let distanceUnits = 'm';
-        let areaUnits = 'm²';
+        let distanceUnits = 'm'
+        let areaUnits = 'm²'
 
         let distanceMeasurement = drawnLength
         let areaMeasurement = drawnArea
         
-        console.log(feature)
-
         if (feature.geometry.coordinates.length > 2) {
           distanceMeasurement = drawnLength
-          areaMeasurement = area(lineToPolygon(feature))
+          var polygonFeature = lineToPolygon(feature)
+          areaMeasurement = area(polygonFeature)
 
           if (drawnLength >= 1000) { // if over 1000 meters, upgrade metric
-            distanceMeasurement = distanceMeasurement / 1000;
-            distanceUnits = 'km';
+            distanceMeasurement = distanceMeasurement / 1000
+            distanceUnits = 'km'
           }
           if (areaMeasurement >= 100000) { // if over 100,000 meters, upgrade metric
-            areaMeasurement = areaMeasurement / 100000;
-            areaUnits = 'km²';
+            areaMeasurement = areaMeasurement / 100000
+            areaUnits = 'km²'
           }
 
           const drawnMeasurements = {
             features: features,
+            polygon: polygonFeature,
             distance: `${distanceMeasurement.toFixed(2)} ${distanceUnits}`,
             area: `${areaMeasurement.toFixed(2)} ${areaUnits}`
-          };
-          console.log(drawnMeasurements)
+          }
+          // console.log(drawnMeasurements)
           state.drawnMeasurements = drawnMeasurements
         }
       }

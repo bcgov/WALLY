@@ -46,7 +46,7 @@ export default {
     clearLine() {
       this.clearSelections()
     },
-    ...mapActions("map", ["setDrawMode", "clearSelections"])
+    ...mapActions("map", ["setDrawMode", "clearSelections", "updateMeasurementHighlight"])
   },
   computed: {
     ...mapGetters("map", ["draw", "drawnMeasurements"]),
@@ -55,7 +55,7 @@ export default {
   watch: {
     drawnMeasurements (value) {
       if (value && value.features && value.features.length > 0) {
-        console.log(value)
+        this.updateMeasurementHighlight(value.polygon)
       }
     }
   },
