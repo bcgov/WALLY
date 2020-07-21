@@ -70,7 +70,7 @@ def export_stream_apportionment(
 
     cur_date = datetime.datetime.now().strftime("%Y%m%d")
 
-    filename = f"{cur_date}_StreamApportionment"
+    filename = f"{cur_date}_HydraulicConnectivityAnalysis"
 
     excel_file = docgen_export_to_xlsx(
         req, STREAM_APPORTIONMENT_EXPORT_TEMPLATE, filename)
