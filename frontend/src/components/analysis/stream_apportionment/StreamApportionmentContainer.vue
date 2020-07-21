@@ -94,7 +94,7 @@ export default {
             query: { coordinates: this.$route.query.coordinates }
           }
         }, {
-          text: 'Stream apportionment',
+          text: 'Hydraulic Connectivity Analysis',
           disabled: true
         }]
       }

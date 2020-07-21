@@ -34,6 +34,9 @@ export default {
       { text: 'GNIS Name', value: 'gnis_name' },
       { text: 'Length of reach (m)', value: 'length_metre', align: 'end' },
       { text: 'Distance (m)', value: 'distance', align: 'end' },
+      /* The apportioned demand value.
+      This was previously called 'apportionment' but has been changed to
+       'demand' */
       { text: 'Demand', value: 'apportionment', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ]

@@ -181,11 +181,18 @@
               <dl>
                 <dt>Distance</dt>
                 <dd>Computed distance of the closest point of the stream to the selected point of interest.</dd>
-                <dt>Apportionment</dt>
-                <dd>Apportioned demand from diversion of groundwater on streams.</dd>
+                <dt>Demand</dt>
+                <dd>
+                  Assign demand from a well to hydraulically connected streams;
+                  also known as stream apportionment.
+                </dd>
                 <dt>Weighting Factor</dt>
-                <dd>A weighting factor of 1 (linear) or 2 (squared) is usually set when calculating apportionment. A larger weighting factor results in a greater contribution from the nearest stream. A weighting factor of 2 is recommended for general applications.</dd>
-
+                <dd>
+                  A weighting factor of 1 (linear) or 2 (squared) is usually set when assigning demand from a well.
+                  A larger weighting factor results in a greater contribution from the nearest stream.
+                  A weighting factor of 2 is recommended for general applications as per
+                  the guidance document for 'Determining the Likelihood of Hydraulic Connection'.
+                </dd>
               </dl>
             </v-expansion-panel-content>
           </v-expansion-panel>
