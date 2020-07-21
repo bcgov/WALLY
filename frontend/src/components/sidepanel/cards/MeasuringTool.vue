@@ -7,7 +7,8 @@
     </v-toolbar>
     <v-row class="pa-5">
       <v-col cols="12" lg="8">
-        <p>Zoom into an area of interest on the map and draw a line to view the distance or perimeter and area.</p>
+        <p>Zoom into an area of interest on the map and draw a line to view the distance.</p>
+        <p>To view the perimeter and area, finish your polygon by making sure your last click point is near your first click point.</p>
       </v-col>
       <v-col class="text-right">
         <v-btn @click="selectDrawLine" color="primary" outlined :disabled="buttonClicked">Draw line</v-btn>
