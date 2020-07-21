@@ -7,21 +7,22 @@
     </v-toolbar>
     <v-row class="pa-5">
       <v-col cols="12" lg="8">
-        <p>Zoom into an area of interest on the map and draw a line to view the distance and area.</p>
+        <p>Zoom into an area of interest on the map and draw a line to view the distance or perimeter and area.</p>
       </v-col>
       <v-col class="text-right">
         <v-btn @click="selectDrawLine" color="primary" outlined :disabled="buttonClicked">Draw line</v-btn>
         <v-btn @click="clearLine" class="mx-2" color="primary" outlined>Clear</v-btn>
       </v-col>
     </v-row>
-    <v-row v-if="drawnMeasurements.distance">
+    <v-row v-if="drawnMeasurements">
       <v-col cols="12">
       <v-card>
         <v-card-title class="subheading font-weight-bold">Measurements</v-card-title>
         <v-divider></v-divider>
         <v-card-text>
-          <p><b>Distance:</b> {{drawnMeasurements.distance}}</p>
-          <p><b>Area:</b> {{drawnMeasurements.area}}</p>
+          <p v-if="drawnMeasurements.distance"><b>Distance:</b> {{drawnMeasurements.distance}}</p>
+          <p v-if="drawnMeasurements.perimeter"><b>Perimeter:</b> {{drawnMeasurements.perimeter}}</p>
+          <p v-if="drawnMeasurements.area"><b>Area:</b> {{drawnMeasurements.area}}</p>
         </v-card-text>
       </v-card>
       </v-col>
@@ -54,8 +55,8 @@ export default {
   },
   watch: {
     drawnMeasurements (value) {
-      if (value && value.features && value.features.length > 0) {
-        this.updateMeasurementHighlight(value.polygon)
+      if (value && value.feature) {
+        this.updateMeasurementHighlight(value.feature)
       }
     }
   },
