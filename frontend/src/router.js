@@ -147,7 +147,12 @@ const router = new Router({
       }
     },
     {
-      path: '/apportion-demand', // TODO: should refactor to be under /features/<feature_id>
+      // Retired path; 'apportion' is now is "assign demand"
+      path: '/apportion-demand',
+      redirect: '/assign-demand'
+    },
+    {
+      path: '/assign-demand',
       name: 'stream-apportionment',
       component: StreamApportionmentContainer,
       meta: {
@@ -160,7 +165,7 @@ const router = new Router({
       }
     },
     {
-      path: '/upstream-downstream', // TODO: should refactor to be under /features/<feature_id>
+      path: '/upstream-downstream',
       name: 'upstream-downstream',
       component: UpstreamDownstream,
       meta: {
