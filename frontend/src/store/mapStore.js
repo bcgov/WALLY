@@ -539,7 +539,7 @@ export default {
           const wmsOpts = {
             service: 'WMS',
             request: 'GetMap',
-            format: 'application/x-protobuftype=mapbox-vector',
+            format: 'application/x-protobuf;type=mapbox-vector',
             layers: 'pub:' + layer.wms_name,
             styles: layer.wms_style,
             transparent: true,
