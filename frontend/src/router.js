@@ -156,7 +156,7 @@ const router = new Router({
       name: 'stream-apportionment',
       component: StreamApportionmentContainer,
       meta: {
-        title: `Stream Apportionment - ${global.config.title}`,
+        title: `Hydraulic Connectivity Analysis - ${global.config.title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
