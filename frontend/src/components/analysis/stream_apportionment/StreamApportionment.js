@@ -34,7 +34,7 @@ export default {
       { text: 'GNIS Name', value: 'gnis_name' },
       { text: 'Length of reach (m)', value: 'length_metre', align: 'end' },
       { text: 'Distance (m)', value: 'distance', align: 'end' },
-      { text: 'Apportionment', value: 'apportionment', align: 'end' },
+      { text: 'Demand', value: 'apportionment', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ]
   }),
