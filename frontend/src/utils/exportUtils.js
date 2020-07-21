@@ -19,4 +19,5 @@ export function downloadXlsx (r, defaultFilename) {
   setTimeout(() => {
     document.body.removeChild(link)
     window.URL.revokeObjectURL(link.href)
-  }, 0)}
+  }, 0)
+}

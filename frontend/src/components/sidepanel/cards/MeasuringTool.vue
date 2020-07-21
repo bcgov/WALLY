@@ -31,27 +31,27 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters } from 'vuex'
 export default {
-  name: "MeasuringTool",
+  name: 'MeasuringTool',
   data: () => ({
     buttonClicked: false,
     distance: 0,
     area: 0
   }),
   methods: {
-    selectDrawLine() {
-      this.setDrawMode("draw_line_string");
+    selectDrawLine () {
+      this.setDrawMode('draw_line_string')
       // this.buttonClicked = true;
     },
-    clearLine() {
+    clearLine () {
       this.clearSelections()
     },
-    ...mapActions("map", ["setDrawMode", "clearSelections", "updateMeasurementHighlight"])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'updateMeasurementHighlight'])
   },
   computed: {
-    ...mapGetters("map", ["draw", "drawnMeasurements"]),
-    ...mapGetters(["dataMartFeatures"])
+    ...mapGetters('map', ['draw', 'drawnMeasurements']),
+    ...mapGetters(['dataMartFeatures'])
   },
   watch: {
     drawnMeasurements (value) {
@@ -60,9 +60,9 @@ export default {
       }
     }
   },
-  mounted() {},
-  beforeDestroy() {}
-};
+  mounted () {},
+  beforeDestroy () {}
+}
 </script>
 
 <style>

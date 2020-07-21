@@ -11,9 +11,7 @@ import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
 import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
-import { polygon } from 'leaflet'
 import MapScale from '../components/map/MapScale'
-
 
 const emptyPoint = {
   'type': 'Feature',
@@ -79,7 +77,7 @@ export default {
     }]
   },
   actions: {
-    async initMapAndDraw({ commit, dispatch }) {
+    async initMapAndDraw ({ commit, dispatch }) {
       const mapConfig = await ApiService.get('api/v1/config/map')
       mapboxgl.accessToken = mapConfig.data.mapbox_token
 
@@ -123,7 +121,7 @@ export default {
         dispatch('resizeMap')
       })
     },
-    resizeMap({ state }) {
+    resizeMap ({ state }) {
       // MapboxGL's resize function gets the canvas container div's dimensions
       // and repaints the canvas accordingly.
       // https://github.com/mapbox/mapbox-gl-js/blob/0412fdb247f0f0c0bdb46d1e1465a848e1eea7dc/src/ui/map.js#L558
@@ -146,19 +144,19 @@ export default {
         state.map.resize()
       }, 300)
     },
-    loadMap({ state, dispatch }) {
+    loadMap ({ state, dispatch }) {
       state.map.on('style.load', () => {
         dispatch('getMapLayers')
         dispatch('initStreamHighlights')
       })
     },
-    setDrawMode({ state }, drawMode) {
+    setDrawMode ({ state }, drawMode) {
       if (state.draw && state.draw.changeMode) {
         state.isDrawingToolActive = drawMode !== 'simple_select'
         state.draw.changeMode(drawMode)
       }
     },
-    addFeaturePOIFromCoordinates({ state, dispatch }, data) {
+    addFeaturePOIFromCoordinates ({ state, dispatch }, data) {
       const point = {
         type: 'Feature',
         id: 'point_of_interest',
@@ -173,7 +171,7 @@ export default {
       }
       dispatch('addSelectedFeature', point)
     },
-    async addSelectedFeature({ state, dispatch }, feature) {
+    async addSelectedFeature ({ state, dispatch }, feature) {
       if (!state.isMapReady) {
         return
       }
@@ -181,7 +179,7 @@ export default {
       state.draw.add(feature)
       dispatch('addActiveSelection', { featureCollection: { features: [feature] } })
     },
-    addActiveSelection({ commit, dispatch, state }, { featureCollection, options = {} }) {
+    addActiveSelection ({ commit, dispatch, state }, { featureCollection, options = {} }) {
       // options:
       // alwaysReplaceFeatures: indicates that features should always be cleared (even if
       // there are no new features to replace them).  Toggling this is useful for
@@ -239,7 +237,7 @@ export default {
       dispatch('getMapObjects', { bounds: newFeature, options: { alwaysReplaceFeatures: options.alwaysReplaceFeatures } })
       commit('setSelectionBoundingBox', newFeature, { root: true })
     },
-    updateActiveMapLayers({ commit, state, dispatch }, selectedLayers) {
+    updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
       // accepts an array of layer names and sets the active map layers accordingly
       state.selectedMapLayerNames = selectedLayers
 
@@ -264,7 +262,7 @@ export default {
       // redraw any current features and update selection.
       dispatch('addActiveSelection', { featureCollection: state.draw.getAll(), options: { showFeatureList: false } })
     },
-    addMapLayer({ commit, dispatch, state }, displayDataName) {
+    addMapLayer ({ commit, dispatch, state }, displayDataName) {
       let mapLayer = state.mapLayers.find((layer) => {
         return layer.display_data_name === displayDataName
       })
@@ -282,14 +280,14 @@ export default {
         commit('activateLayer', displayDataName)
       }
     },
-    removeMapLayer({ state, dispatch, commit }, payload) {
+    removeMapLayer ({ state, dispatch, commit }, payload) {
       state.activeMapLayers = state.activeMapLayers.filter((layer) => {
         return layer.display_data_name !== payload
       })
       dispatch('clearHighlightLayer')
       commit('deactivateLayer', payload)
     },
-    async getMapLayers({ state, commit, dispatch }) {
+    async getMapLayers ({ state, commit, dispatch }) {
       // We only fetch maplayers if we don't have a copy cached
       if (state.mapLayers === undefined || state.mapLayers.length === 0) {
         return new Promise((resolve, reject) => {
@@ -307,7 +305,7 @@ export default {
         })
       }
     },
-    async getMapObjects({ commit, dispatch, state, getters }, { bounds, options = {} }) {
+    async getMapObjects ({ commit, dispatch, state, getters }, { bounds, options = {} }) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
       // options:
       // alwaysReplaceFeatures: indicates that features should always be cleared (even if
@@ -348,7 +346,7 @@ export default {
         }, { root: true })
       }
     },
-    clearSelections({ state, commit, dispatch }) {
+    clearSelections ({ state, commit, dispatch }) {
       dispatch('clearHighlightLayer')
       commit('replaceOldFeatures')
       commit('clearMeasurements')
@@ -358,7 +356,7 @@ export default {
       commit('resetPointOfInterest', {}, { root: true })
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
-    clearHighlightLayer({ commit, state, dispatch }) {
+    clearHighlightLayer ({ commit, state, dispatch }) {
       const pointData = state.map.getSource('highlightPointData')
       const layerData = state.map.getSource('highlightLayerData')
 
@@ -373,18 +371,18 @@ export default {
       dispatch('clearStreamHighlights')
       commit('resetStreamData', {}, { root: true })
     },
-    clearStreamHighlights({ rootGetters, state }) {
+    clearStreamHighlights ({ rootGetters, state }) {
       rootGetters.getStreamSources.forEach((s) => {
         state.map.getSource(s.name).setData(emptyFeatureCollection)
       })
     },
-    setActiveBaseMapLayers({ state, commit }, payload) {
+    setActiveBaseMapLayers ({ state, commit }, payload) {
       let prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
     },
-    initStreamHighlights({ state, rootGetters }) {
+    initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
       rootGetters.getStreamSources.forEach((s) => {
         state.map.addSource(s.name, { type: 'geojson', data: s.options })
@@ -393,7 +391,7 @@ export default {
         state.map.addLayer(l)
       })
     },
-    async initHighlightLayers({ state, commit }) {
+    async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {
         // initialize highlight layer
         state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
@@ -437,14 +435,14 @@ export default {
         commit('setMapReady', true)
       })
     },
-    updateMapLayerData({ state, commit, dispatch }, data) {
+    updateMapLayerData ({ state, commit, dispatch }, data) {
       let { source, featureData } = data
       state.map.getSource(source).setData(featureData)
     },
     /*
       Highlights a single Feature dataset
      */
-    updateHighlightLayerData({ state, commit, dispatch }, data) {
+    updateHighlightLayerData ({ state, commit, dispatch }, data) {
       // For stream networks layer we add custom highlighting and reset poly/point highlight layering
       if (data.display_data_name === 'freshwater_atlas_stream_networks') {
         state.map.getSource('highlightPointData').setData(emptyPoint)
@@ -461,13 +459,13 @@ export default {
         state.map.getSource('highlightLayerData').setData(data)
       }
     },
-    removeElementsByClass({ state }, payload) {
+    removeElementsByClass ({ state }, payload) {
       let elements = document.getElementsByClassName(payload)
       while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0])
       }
     },
-    async initMeasurementHighlight({ state }, payload) {
+    async initMeasurementHighlight ({ state }, payload) {
       await state.map.on('load', () => {
         // initialize measurement highlight layer
         state.map.addSource('measurementPolygonHighlight', { type: 'geojson', data: emptyPolygon })
@@ -497,8 +495,8 @@ export default {
         })
       })
     },
-    updateMeasurementHighlight({ state, commit, dispatch }, data) {
-      if (data.geometry.type == "LineString") {
+    updateMeasurementHighlight ({ state, commit, dispatch }, data) {
+      if (data.geometry.type === 'LineString') {
         state.map.getSource('measurementPolygonHighlight').setData(emptyPolygon)
         state.map.getSource('measurementLineHighlight').setData(data)
       } else {
@@ -506,33 +504,33 @@ export default {
         state.map.getSource('measurementLineHighlight').setData(emptyLine)
       }
     },
-    clearMeasurementHighlights({ state }, payload) {
+    clearMeasurementHighlights ({ state }, payload) {
       state.map.getSource('measurementPolygonHighlight').setData(emptyPolygon)
       state.map.getSource('measurementLineHighlight').setData(emptyLine)
     }
   },
   mutations: {
-    activateLayer(state, displayDataName) {
+    activateLayer (state, displayDataName) {
       state.map.setLayoutProperty(displayDataName, 'visibility', 'visible')
     },
-    deactivateLayer(state, displayDataName) {
+    deactivateLayer (state, displayDataName) {
       state.map.setLayoutProperty(displayDataName, 'visibility', 'none')
     },
-    activateBaseLayer(state, layerId) {
+    activateBaseLayer (state, layerId) {
       state.map.setLayoutProperty(layerId, 'visibility', 'visible')
     },
-    deactivateBaseLayer(state, layerId) {
+    deactivateBaseLayer (state, layerId) {
       state.map.setLayoutProperty(layerId, 'visibility', 'none')
     },
-    removeLayer(state, layerId) {
+    removeLayer (state, layerId) {
       state.map.removeLayer(layerId)
     },
-    setDrawToolInActive(state) {
+    setDrawToolInActive (state) {
       setTimeout(() => { // delay to let other draw actions finish
         state.isDrawingToolActive = false
       }, 500)
     },
-    initVectorLayerSources(state, allLayers) {
+    initVectorLayerSources (state, allLayers) {
       // This mutation replaces the mapbox composite source with DataBC sources
       // this way we always have the most up to date data from DataBC
       allLayers.forEach((layer) => {
@@ -572,7 +570,7 @@ export default {
         }
       })
     },
-    addWMSLayer(state, layer) {
+    addWMSLayer (state, layer) {
       // this mutation adds wms layers to the map
       const layerID = layer.display_data_name
       if (!layerID) {
@@ -614,69 +612,69 @@ export default {
         'paint': {}
       })
     },
-    addShape(state, shape) {
+    addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map
       state.map.getSource('customShapeData').setData(shape)
     },
-    removeShapes(state) {
+    removeShapes (state) {
       state.map.getSource('customShapeData').setData(emptyPolygon)
     },
-    replaceOldFeatures(state, newFeature = null) {
+    replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.
       // this has the effect of only allowing one selection box to be drawn at a time.
       const old = state.draw.getAll().features.filter((f) => f.id !== newFeature)
       state.draw.delete(old.map((feature) => feature.id))
     },
-    setMap(state, payload) {
+    setMap (state, payload) {
       state.map = payload
     },
-    setDraw(state, payload) {
+    setDraw (state, payload) {
       state.draw = payload
     },
-    setGeocoder(state, payload) {
+    setGeocoder (state, payload) {
       state.geocoder = payload
     },
-    setLayerSelectTriggered(state, payload) {
+    setLayerSelectTriggered (state, payload) {
       state.layerSelectTriggered = payload
     },
-    setLayerSelectionActiveState(state, payload) {
+    setLayerSelectionActiveState (state, payload) {
       state.layerSelectionActive = payload
     },
-    setLayerCategories(state, payload) {
+    setLayerCategories (state, payload) {
       state.layerCategories = payload
     },
-    setActiveMapLayers(state, payload) {
+    setActiveMapLayers (state, payload) {
       // TODO: See if this is actually used anywhere else
       // Could have been deprecated by updateActiveMapLayers
       state.activeMapLayers = state.mapLayers.filter((l) => {
         return payload.includes(l.display_data_name)
       })
     },
-    setMapLayers(state, payload) {
+    setMapLayers (state, payload) {
       state.mapLayers = payload
     },
-    updateHighlightFeatureData(state, payload) {
+    updateHighlightFeatureData (state, payload) {
       state.highlightFeatureData = payload
     },
-    updateHighlightFeatureCollectionData(state, payload) {
+    updateHighlightFeatureCollectionData (state, payload) {
       state.highlightFeatureCollectionData = payload
     },
-    setCursorPointer(state) {
+    setCursorPointer (state) {
       state.map.getCanvas().style.cursor = 'pointer'
     },
-    resetCursor(state) {
+    resetCursor (state) {
       state.map.getCanvas().style.cursor = ''
     },
-    setMapReady(state, payload) {
+    setMapReady (state, payload) {
       state.isMapReady = payload
     },
-    setMode(state, payload) {
+    setMode (state, payload) {
       state.mode = payload
     },
-    resetMode(state, payload) {
+    resetMode (state, payload) {
       state.mode = defaultMode
     },
-    handleMeasurements(state, payload) {
+    handleMeasurements (state, payload) {
       const features = state.draw.getAll().features
 
       if (features.length > 0) {
@@ -695,7 +693,7 @@ export default {
         // metric calculations
         var drawnMeasurements = {}
 
-        // calculate area and perimeter and highlight polygon shape 
+        // calculate area and perimeter and highlight polygon shape
         if (coordinates.length > 3 && lineConnects) {
           // set last coordinate equal to the first
           // because the click point is within the minimum bounds
@@ -717,12 +715,13 @@ export default {
           })
 
           var areaUnits = 'm²'
+          var perimeterUnits = 'm'
           var polygonFeature = lineToPolygon(lineFeature)
           var areaMeasurement = area(polygonFeature)
 
           if (perimeterMeasurement >= 1000) { // if over 1000 meters, upgrade metric
             perimeterMeasurement = perimeterMeasurement / 1000
-            distanceUnits = 'km'
+            perimeterUnits = 'km'
           }
           if (areaMeasurement >= 100000) { // if over 100,000 meters, upgrade metric
             areaMeasurement = areaMeasurement / 100000
@@ -732,11 +731,11 @@ export default {
           drawnMeasurements = {
             features: features,
             feature: polygonFeature,
-            perimeter: `${perimeterMeasurement.toFixed(2)} ${distanceUnits}`,
+            perimeter: `${perimeterMeasurement.toFixed(2)} ${perimeterUnits}`,
             area: `${areaMeasurement.toFixed(2)} ${areaUnits}`
           }
         // calculate line distance and highlight line shape
-        } else { 
+        } else {
           var distanceUnits = 'm'
           var distance = drawnLength
 
@@ -750,12 +749,11 @@ export default {
             feature: feature,
             distance: `${distance.toFixed(2)} ${distanceUnits}`
           }
-
         }
         state.drawnMeasurements = drawnMeasurements
       }
     },
-    clearMeasurements(state, payload) {
+    clearMeasurements (state, payload) {
       state.drawnMeasurements = null
     }
   },
