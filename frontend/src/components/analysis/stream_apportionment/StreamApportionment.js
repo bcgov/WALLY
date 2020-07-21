@@ -57,7 +57,7 @@ export default {
       ApiService.post(`/api/v1/streams/apportionment/export`, params, {
         responseType: 'arraybuffer'
       }).then((res) => {
-        downloadXlsx(res, 'StreamApportionment.xlsx')
+        downloadXlsx(res, 'HydraulicConnectivityAnalysis.xlsx')
         this.spreadsheetLoading = false
       }).catch((error) => {
         console.error(error)
