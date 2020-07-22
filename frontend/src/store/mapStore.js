@@ -1,5 +1,6 @@
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
+import router from '../router'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import area from '@turf/area'
@@ -479,6 +480,17 @@ export default {
             'fill-outline-color': 'rgb(8, 159, 205)'
           }
         })
+        state.map.addSource('measurementSnapCircle', { type: 'geojson', data: emptyPolygon })
+        state.map.addLayer({
+          'id': 'measurementSnapCircle',
+          'type': 'fill',
+          'source': 'measurementSnapCircle',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(255, 255, 255, 0.65)',
+            'fill-outline-color': 'rgb(155, 155, 155)'
+          }
+        })
         state.map.addSource('measurementLineHighlight', { type: 'geojson', data: emptyPolygon })
         state.map.addLayer({
           'id': 'measurementLineHighlight',
@@ -496,16 +508,19 @@ export default {
       })
     },
     updateMeasurementHighlight ({ state, commit, dispatch }, data) {
-      if (data.geometry.type === 'LineString') {
+      if (data.feature.geometry.type === 'LineString') {
         state.map.getSource('measurementPolygonHighlight').setData(emptyPolygon)
-        state.map.getSource('measurementLineHighlight').setData(data)
+        state.map.getSource('measurementSnapCircle').setData(data.snapPoint)
+        state.map.getSource('measurementLineHighlight').setData(data.feature)
       } else {
-        state.map.getSource('measurementPolygonHighlight').setData(data)
+        state.map.getSource('measurementPolygonHighlight').setData(data.feature)
+        state.map.getSource('measurementSnapCircle').setData(emptyPolygon)
         state.map.getSource('measurementLineHighlight').setData(emptyLine)
       }
     },
     clearMeasurementHighlights ({ state }, payload) {
       state.map.getSource('measurementPolygonHighlight').setData(emptyPolygon)
+      state.map.getSource('measurementSnapCircle').setData(emptyPolygon)
       state.map.getSource('measurementLineHighlight').setData(emptyLine)
     }
   },
@@ -675,6 +690,10 @@ export default {
       state.mode = defaultMode
     },
     handleMeasurements (state, payload) {
+      if (router.currentRoute.name !== "measuring-tool") {
+        return
+      }
+
       const features = state.draw.getAll().features
 
       if (features.length > 0) {
@@ -747,6 +766,7 @@ export default {
           drawnMeasurements = {
             features: features,
             feature: feature,
+            snapPoint: bounds,
             distance: `${distance.toFixed(2)} ${distanceUnits}`
           }
         }

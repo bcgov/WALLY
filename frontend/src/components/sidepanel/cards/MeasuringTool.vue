@@ -7,12 +7,16 @@
     </v-toolbar>
     <v-row class="pa-5">
       <v-col cols="12" lg="8">
-        <p>Zoom into an area of interest on the map and draw a line to view the distance.</p>
-        <p>To view the perimeter and area, finish your polygon by making sure your last click point is near your first click point.</p>
+        <p>Zoom into an area of interest on the map. To measure distance, click once to start to draw a line and then double click to complete the line.</p>
+        <p>To measure perimeter and area, ensure your last double click point is near your first click point to finish your polygon.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectDrawLine" color="primary" outlined :disabled="buttonClicked">Draw line</v-btn>
-        <v-btn @click="clearLine" class="mx-2" color="primary" outlined>Clear</v-btn>
+        <v-col>
+          <v-btn @click="selectDrawLine" color="primary" outlined>Draw line</v-btn>
+        </v-col>
+        <v-col>
+          <v-btn @click="clearLine" color="primary" outlined>Clear</v-btn>
+        </v-col>
       </v-col>
     </v-row>
     <v-row v-if="drawnMeasurements">
@@ -43,7 +47,6 @@ export default {
   methods: {
     selectDrawLine () {
       this.setDrawMode('draw_line_string')
-      // this.buttonClicked = true;
     },
     clearLine () {
       this.clearSelections()
@@ -57,7 +60,7 @@ export default {
   watch: {
     drawnMeasurements (value) {
       if (value && value.feature) {
-        this.updateMeasurementHighlight(value.feature)
+        this.updateMeasurementHighlight(value)
       }
     }
   },

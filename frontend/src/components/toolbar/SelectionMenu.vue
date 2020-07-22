@@ -80,7 +80,7 @@ export default {
         icon: 'mdi-shape-polygon-plus'
       },
       {
-        title: 'Mesaure distance and area',
+        title: 'Measure distance and area',
         route: { name: 'measuring-tool' },
         icon: 'mdi-ruler'
       }
