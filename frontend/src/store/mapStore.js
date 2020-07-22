@@ -431,7 +431,7 @@ export default {
         })
 
         global.config.debug && console.log('[wally] map is now ready')
-        // End of cascade map is now ready
+        // End of cascade; map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
       })
