@@ -86,7 +86,7 @@ export default {
       { text: 'Works', value: 'WORKS_DESCRIPTION' },
       { text: 'Start Date', value: 'APPROVAL_START_DATE' },
       { text: 'Expiry Date', value: 'APPROVAL_EXPIRY_DATE' },
-      { text: 'Quantity (m³/year)', value: 'qty_m³_yr', align: 'end' },
+      { text: 'Quantity (m³/year)', value: 'qty_m3_yr', align: 'end' },
       { text: '', value: 'action', sortable: false }
     ],
     show: {
