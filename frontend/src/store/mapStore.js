@@ -690,7 +690,7 @@ export default {
       state.mode = defaultMode
     },
     handleMeasurements (state, payload) {
-      if (router.currentRoute.name !== "measuring-tool") {
+      if (router.currentRoute.name !== 'measuring-tool') {
         return
       }
 
