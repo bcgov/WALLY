@@ -36,7 +36,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 export default {
   name: 'MeasuringTool',
   data: () => ({
@@ -51,7 +51,8 @@ export default {
     clearLine () {
       this.clearSelections()
     },
-    ...mapActions('map', ['setDrawMode', 'clearSelections', 'updateMeasurementHighlight'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'updateMeasurementHighlight']),
+    ...mapMutations('map', ['setMode']),
   },
   computed: {
     ...mapGetters('map', ['draw', 'drawnMeasurements']),
@@ -64,8 +65,12 @@ export default {
       }
     }
   },
-  mounted () {},
-  beforeDestroy () {}
+  mounted () {
+    this.setMode({ type: 'analyze', name: 'measuring_tool' })
+  },
+  beforeDestroy () {
+    this.setMode({ type: 'interactive', name: '' })
+  }
 }
 </script>
 
