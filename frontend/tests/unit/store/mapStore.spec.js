@@ -1,5 +1,6 @@
 import { createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
+// eslint-disable-next-line no-use-before-define
 import router from '../../../src/router'
 import * as map from '../../../src/store/mapStore'
 
