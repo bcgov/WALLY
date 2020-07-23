@@ -88,13 +88,12 @@ def get_streamflow_inventory_report_link(
     point_parsed = json.loads(point)
     point = Point(point_parsed)
 
-    report_link, report_name, pdf_link = get_stream_inventory_report_link_for_region(
+    report_link, report_name = get_stream_inventory_report_link_for_region(
         point)
 
     return {
         "report_link": report_link,
         "report_name": report_name,
-        "pdf_link":  pdf_link,
         "hydrologic_zone": get_hydrological_zone(point)
     }
 
