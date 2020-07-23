@@ -52,7 +52,7 @@ export default {
       this.clearSelections()
     },
     ...mapActions('map', ['setDrawMode', 'clearSelections', 'updateMeasurementHighlight']),
-    ...mapMutations('map', ['setMode']),
+    ...mapMutations('map', ['setMode'])
   },
   computed: {
     ...mapGetters('map', ['draw', 'drawnMeasurements']),
