@@ -72,7 +72,14 @@ def calculate_mean_annual_runoff(db: Session,
             "month": model.month,
             "r2": model.r2,
             "adjusted_r2": model.adjusted_r2,
-            "steyx": model.steyx
+            "steyx": model.steyx,
+            "glacial_coverage_co": model.glacial_coverage_co,
+            "precipitation_co": model.precipitation_co,
+            "potential_evapo_transpiration_co": model.potential_evapo_transpiration_co,
+            "drainage_area_co": model.drainage_area_co,
+            "solar_exposure_co": model.solar_exposure_co,
+            "average_slope_co": model.average_slope_co,
+            "intercept_co": model.intercept_co
         })
 
         # this is a helper ouput that calculates MAD from MAR
