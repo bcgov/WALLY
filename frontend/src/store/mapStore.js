@@ -1,16 +1,30 @@
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
+import router from '../router'
 import baseMapDescriptions from '../utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
+import area from '@turf/area'
+import circle from '@turf/circle'
+import lineDistance from '@turf/line-distance'
+import lineToPolygon from '@turf/line-to-polygon'
+import pointInPolygon from '@turf/boolean-point-in-polygon'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
 import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
+import MapScale from '../components/map/MapScale'
 
 const emptyPoint = {
   'type': 'Feature',
   'geometry': {
     'type': 'Point',
+    'coordinates': [[]]
+  }
+}
+const emptyLine = {
+  'type': 'Feature',
+  'geometry': {
+    'type': 'LineString',
     'coordinates': [[]]
   }
 }
@@ -38,6 +52,7 @@ export default {
     map: null,
     isMapReady: false,
     draw: {},
+    drawnMeasurements: null,
     geocoder: {},
     activeSelection: null,
     layerSelectTriggered: false,
@@ -86,6 +101,7 @@ export default {
       const modes = MapboxDraw.modes
       modes.simple_select.onTrash = this.clearSelections
       modes.draw_polygon.onTrash = this.clearSelections
+      modes.draw_line_string.onTrash = this.clearSelections
       modes.draw_point.onTrash = this.clearSelections
       modes.direct_select.onTrash = this.clearSelections
 
@@ -281,6 +297,7 @@ export default {
               commit('setMapLayers', response.data.layers)
               commit('setLayerCategories', response.data.categories)
               dispatch('initHighlightLayers')
+              dispatch('initMeasurementHighlight')
               commit('initVectorLayerSources', response.data.layers)
             })
             .catch((error) => {
@@ -333,6 +350,8 @@ export default {
     clearSelections ({ state, commit, dispatch }) {
       dispatch('clearHighlightLayer')
       commit('replaceOldFeatures')
+      commit('clearMeasurements')
+      dispatch('clearMeasurementHighlights')
       commit('clearDataMartFeatures', {}, { root: true })
       commit('removeShapes')
       commit('resetPointOfInterest', {}, { root: true })
@@ -446,6 +465,63 @@ export default {
       while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0])
       }
+    },
+    async initMeasurementHighlight ({ state }, payload) {
+      await state.map.on('load', () => {
+        // initialize measurement highlight layer
+        state.map.addSource('measurementPolygonHighlight', { type: 'geojson', data: emptyPolygon })
+        state.map.addLayer({
+          'id': 'measurementPolygonHighlight',
+          'type': 'fill',
+          'source': 'measurementPolygonHighlight',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(26, 193, 244, 0.1)',
+            'fill-outline-color': 'rgb(8, 159, 205)'
+          }
+        })
+        state.map.addSource('measurementSnapCircle', { type: 'geojson', data: emptyPolygon })
+        state.map.addLayer({
+          'id': 'measurementSnapCircle',
+          'type': 'fill',
+          'source': 'measurementSnapCircle',
+          'layout': {},
+          'paint': {
+            'fill-color': 'rgba(255, 255, 255, 0.65)',
+            'fill-outline-color': 'rgb(155, 155, 155)'
+          }
+        })
+        state.map.addSource('measurementLineHighlight', { type: 'geojson', data: emptyPolygon })
+        state.map.addLayer({
+          'id': 'measurementLineHighlight',
+          'type': 'line',
+          'source': 'measurementLineHighlight',
+          'layout': {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          'paint': {
+            'line-color': 'rgba(26, 193, 244, 0.7)',
+            'line-width': 2
+          }
+        })
+      })
+    },
+    updateMeasurementHighlight ({ state, commit, dispatch }, data) {
+      if (data.feature.geometry.type === 'LineString') {
+        state.map.getSource('measurementPolygonHighlight').setData(emptyPolygon)
+        state.map.getSource('measurementSnapCircle').setData(data.snapPoint)
+        state.map.getSource('measurementLineHighlight').setData(data.feature)
+      } else {
+        state.map.getSource('measurementPolygonHighlight').setData(data.feature)
+        state.map.getSource('measurementSnapCircle').setData(emptyPolygon)
+        state.map.getSource('measurementLineHighlight').setData(emptyLine)
+      }
+    },
+    clearMeasurementHighlights ({ state }, payload) {
+      state.map.getSource('measurementPolygonHighlight').setData(emptyPolygon)
+      state.map.getSource('measurementSnapCircle').setData(emptyPolygon)
+      state.map.getSource('measurementLineHighlight').setData(emptyLine)
     }
   },
   mutations: {
@@ -497,7 +573,7 @@ export default {
           // replace source with DataBC supported vector layer
           state.map.addSource(`${layerID}-source`, {
             'type': 'vector',
-            'tiles': [ url ],
+            'tiles': [url],
             'source-layer': layer.wms_name,
             'minzoom': 3,
             'maxzoom': 20
@@ -612,6 +688,93 @@ export default {
     },
     resetMode (state, payload) {
       state.mode = defaultMode
+    },
+    handleMeasurements (state, payload) {
+      if (router.currentRoute.name !== 'measuring-tool') {
+        return
+      }
+
+      const features = state.draw.getAll().features
+
+      if (features.length > 0) {
+        const feature = features[0]
+        const drawnLength = (lineDistance(feature) * 1000) // meters
+        const coordinates = feature.geometry.coordinates
+
+        // Calculate if last click point is close to the first click point
+        // to determine whether to draw a line or an area.
+        const scale = MapScale(state.map)
+        const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
+        const options = { steps: 10, units: 'kilometers', properties: {} }
+        const bounds = circle(coordinates[0], radius, options)
+        const lineConnects = pointInPolygon(coordinates[coordinates.length - 1], bounds)
+
+        // metric calculations
+        var drawnMeasurements = {}
+
+        // calculate area and perimeter and highlight polygon shape
+        if (coordinates.length > 3 && lineConnects) {
+          // set last coordinate equal to the first
+          // because the click point is within the minimum bounds
+          var lineFeature = feature
+          var ac = lineFeature.geometry.coordinates
+          ac[ac.length - 1] = ac[0]
+          lineFeature.geometry.coordinates = ac
+          var perimeterMeasurement = (lineDistance(lineFeature) * 1000)
+
+          // update draw feature collection with connected lines
+          state.draw.set({
+            type: 'FeatureCollection',
+            features: [{
+              type: 'Feature',
+              properties: {},
+              id: feature.id,
+              geometry: lineFeature.geometry
+            }]
+          })
+
+          var areaUnits = 'm²'
+          var perimeterUnits = 'm'
+          var polygonFeature = lineToPolygon(lineFeature)
+          var areaMeasurement = area(polygonFeature)
+
+          if (perimeterMeasurement >= 1000) { // if over 1000 meters, upgrade metric
+            perimeterMeasurement = perimeterMeasurement / 1000
+            perimeterUnits = 'km'
+          }
+          if (areaMeasurement >= 100000) { // if over 100,000 meters, upgrade metric
+            areaMeasurement = areaMeasurement / 100000
+            areaUnits = 'km²'
+          }
+
+          drawnMeasurements = {
+            features: features,
+            feature: polygonFeature,
+            perimeter: `${perimeterMeasurement.toFixed(2)} ${perimeterUnits}`,
+            area: `${areaMeasurement.toFixed(2)} ${areaUnits}`
+          }
+        // calculate line distance and highlight line shape
+        } else {
+          var distanceUnits = 'm'
+          var distance = drawnLength
+
+          if (distance >= 1000) { // if over 1000 meters, upgrade metric
+            distance = distance / 1000
+            distanceUnits = 'km'
+          }
+
+          drawnMeasurements = {
+            features: features,
+            feature: feature,
+            snapPoint: bounds,
+            distance: `${distance.toFixed(2)} ${distanceUnits}`
+          }
+        }
+        state.drawnMeasurements = drawnMeasurements
+      }
+    },
+    clearMeasurements (state, payload) {
+      state.drawnMeasurements = null
     }
   },
   getters: {
@@ -638,6 +801,7 @@ export default {
     map: state => state.map,
     draw: state => state.draw,
     geocoder: state => state.geocoder,
-    layerSelectTriggered: state => state.layerSelectTriggered
+    layerSelectTriggered: state => state.layerSelectTriggered,
+    drawnMeasurements: state => state.drawnMeasurements
   }
 }

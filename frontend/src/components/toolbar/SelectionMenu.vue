@@ -78,6 +78,11 @@ export default {
         title: 'Draw a polygon and search for water data',
         route: { name: 'polygon-tool' },
         icon: 'mdi-shape-polygon-plus'
+      },
+      {
+        title: 'Measure distance and area',
+        route: { name: 'measuring-tool' },
+        icon: 'mdi-ruler'
       }
     ],
     toolOptions: [

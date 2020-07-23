@@ -13,8 +13,11 @@ const vuetify = new Vuetify()
 let wrapper
 
 describe('Wells Nearby', () => {
-  let mutations, getters, store
+  let actions, mutations, getters, store
   beforeEach(() => {
+    actions = {
+      clearHighlightLayer: jest.fn()
+    }
     mutations = {
       setActiveMapLayers: jest.fn(),
       removeMapLayer: jest.fn(),
@@ -33,6 +36,7 @@ describe('Wells Nearby', () => {
     }
     let map = {
       namespaced: true,
+      actions,
       getters,
       mutations
     }
