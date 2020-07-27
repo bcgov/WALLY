@@ -116,6 +116,9 @@ export default {
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.setDrawToolInActive)
 
+      this.map.on('draw.create', this.handleMeasurements)
+      this.map.on('draw.update', this.handleMeasurements)
+
       // Show layer selection sidebar
       // this.$store.commit('toggleInfoPanelVisibility')
     },
@@ -225,7 +228,8 @@ export default {
       'activateLayer',
       'setCursorPointer',
       'resetCursor',
-      'setDrawToolInActive'
+      'setDrawToolInActive',
+      'handleMeasurements'
     ]),
     ...mapActions('map', [
       'clearHighlightLayer',

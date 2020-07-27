@@ -8,6 +8,7 @@ import SingleSelectedFeature from './components/sidepanel/SingleSelectedFeature'
 import MultipleSelectedFeatures from './components/sidepanel/MultipleSelectedFeatures'
 import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
 import PolygonTool from './components/sidepanel/cards/PolygonTool'
+import MeasuringTool from './components/sidepanel/cards/MeasuringTool'
 import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
 import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
 import UpstreamDownstream from './components/analysis/upstream_downstream/UpstreamDownstreamContainer'
@@ -27,6 +28,8 @@ const mapResize = (to, from, next) => {
   }
 }
 
+const title = global ? global.config ? global.config.title : '' : ''
+
 const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
@@ -44,7 +47,7 @@ const router = new Router({
       name: 'layer-selection',
       component: LayerSelection,
       meta: {
-        title: `Layers - ${global.config.title}`,
+        title: `Layers - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 4,
@@ -57,7 +60,7 @@ const router = new Router({
       name: 'single-feature',
       component: SingleSelectedFeature,
       meta: {
-        title: `Feature - ${global.config.title}`,
+        title: `Feature - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -71,7 +74,7 @@ const router = new Router({
       name: 'point-of-interest',
       component: PointOfInterest,
       meta: {
-        title: `Point of Interest - ${global.config.title}`,
+        title: `Point of Interest - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -86,7 +89,7 @@ const router = new Router({
       name: 'water-rights-licences-nearby',
       component: WaterRightsLicencesNearbyContainer,
       meta: {
-        title: `Water Rights Licences Nearby - ${global.config.title}`,
+        title: `Water Rights Licences Nearby - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -99,7 +102,7 @@ const router = new Router({
       name: 'wells-nearby',
       component: WellsNearbyContainer,
       meta: {
-        title: `Wells Nearby - ${global.config.title}`,
+        title: `Wells Nearby - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -112,7 +115,7 @@ const router = new Router({
       name: 'first-nations-areas-nearby',
       component: FirstNationsAreasNearbyContainer,
       meta: {
-        title: `First Nations Areas Nearby - ${global.config.title}`,
+        title: `First Nations Areas Nearby - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -125,7 +128,20 @@ const router = new Router({
       name: 'polygon-tool',
       component: PolygonTool,
       meta: {
-        title: `Polygon Selection - ${global.config.title}`,
+        title: `Polygon Selection - ${title}`,
+        sidebarColumns: {
+          md: 6,
+          lg: 6,
+          xl: 5
+        }
+      }
+    },
+    {
+      path: '/measuring',
+      name: 'measuring-tool',
+      component: MeasuringTool,
+      meta: {
+        title: `Measuring - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -138,7 +154,7 @@ const router = new Router({
       name: 'cross-section',
       component: CrossSectionContainer,
       meta: {
-        title: `Cross Section - ${global.config.title}`,
+        title: `Cross Section - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -156,7 +172,7 @@ const router = new Router({
       name: 'stream-apportionment',
       component: StreamApportionmentContainer,
       meta: {
-        title: `Hydraulic Connectivity Analysis - ${global.config.title}`,
+        title: `Hydraulic Connectivity Analysis - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -169,7 +185,7 @@ const router = new Router({
       name: 'upstream-downstream',
       component: UpstreamDownstream,
       meta: {
-        title: `Upstream and Downstream - ${global.config.title}`,
+        title: `Upstream and Downstream - ${title}`,
         sidebarColumns: {
           md: 6,
           lg: 6,
@@ -182,7 +198,7 @@ const router = new Router({
       name: 'multiple-features',
       component: MultipleSelectedFeatures,
       meta: {
-        title: `Multiple Selected Features - ${global.config.title}`,
+        title: `Multiple Selected Features - ${title}`,
         sidebarColumns: {}
       }
     },
@@ -191,7 +207,7 @@ const router = new Router({
       name: 'surface-water',
       component: SurfaceWaterAnalysis,
       meta: {
-        title: `Surface Water Analysis - ${global.config.title}`,
+        title: `Surface Water Analysis - ${title}`,
         sidebarColumns: {}
       }
     }
@@ -206,7 +222,7 @@ router.afterEach(mapResize)
 router.afterEach((to, from) => {
   Vue.nextTick(() => {
     // Change the page title in the browser
-    document.title = to.meta.title ? to.meta.title : global.config.title
+    document.title = to.meta.title ? to.meta.title : title
 
     window._paq && window._paq.push(['setReferrerUrl', from.fullPath])
     window._paq && window._paq.push(['setCustomUrl', to.fullPath])

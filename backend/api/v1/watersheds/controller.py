@@ -843,32 +843,25 @@ def get_stream_inventory_report_link_for_region(point: Point):
     report_map = {
         "RNO":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=48460",
-             "Inventory of Streamflow in the Omineca and Northeast Regions",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r48460/OminecaNEReport_Final_May2015_1430753815248_0753468720.pdf"),
+             "Inventory of Streamflow in the Omineca and Northeast Regions"),
         "ROM":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=48460",
-             "Inventory of Streamflow in the Omineca and Northeast Regions",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r48460/OminecaNEReport_Final_May2015_1430753815248_0753468720.pdf"),
+             "Inventory of Streamflow in the Omineca and Northeast Regions"),
         "RSC":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344",
-             "Inventory of Streamflow in the South Coast and West Coast Regions",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r53344/SouthCoast_WestCoastReport_1582824976404_2823170721.pdf"),
+             "Inventory of Streamflow in the South Coast and West Coast Regions"),
         "RWC":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344",
-             "Inventory of Streamflow in the South Coast and West Coast Regions",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r53344/SouthCoast_WestCoastReport_1582824976404_2823170721.pdf"),
+             "Inventory of Streamflow in the South Coast and West Coast Regions"),
         "RCB":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=52707",
-             "Inventory of Streamflow in the Cariboo Region",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r52707/CaribooReport_1506126645100_6126442730.pdf"),
+             "Inventory of Streamflow in the Cariboo Region"),
         "RTO":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=58628",
-             "Inventory of Streamflow in the Thompson Okanagan Region",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r58628/ThompsonOkanaganReportMarch2020-updated_1594244548963_4243881993.pdf"),
+             "Inventory of Streamflow in the Thompson Okanagan Region"),
         "RSK":
             ("https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=40801",
-             "Inventory of Streamflow in the Skeena Region",
-             "http://a100.gov.bc.ca/appsdata/acat/documents/r40801/SkeenaReport_June2014_1403809855038_3809357571.pdf"),
+             "Inventory of Streamflow in the Skeena Region"),
     }
 
     return report_map.get(region_code, None)
