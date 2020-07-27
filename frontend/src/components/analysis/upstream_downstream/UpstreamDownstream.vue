@@ -14,8 +14,7 @@
       border="left"
     >
       <p>
-        This river system appears to be too large for our server to handle! 
-        <br/>Please choose a smaller segment.
+        {{apiError}}
       </p>
     </v-alert>
     <v-row>
@@ -105,7 +104,7 @@ export default {
   data: () => ({
     buffer: 50,
     loadingData: false,
-    apiError: false,
+    apiError: null,
     loadingMapFeatures: false,
     buttonClicked: false,
     panelOpen: [],
@@ -169,7 +168,7 @@ export default {
       this.resetGeoJSONLayers()
       this.resetStreamData()
       this.loadingData = true
-      this.apiError = false
+      this.apiError = null
 
       ApiService.query(
         '/api/v1/stream/features',
@@ -223,8 +222,11 @@ export default {
         }, 'water_rights_licences')
       }).catch((e) => {
         this.loadingData = false
-        this.apiError = true
-        console.log(e)
+        if(e.code == 408 || e.code == 502) {
+          this.apiError = "This river system appears to be too large for our server to handle! Please choose a smaller segment."
+        } else {
+          this.apiError = "There was an error getting the stream information: " + e.message
+        }
       })
     },
     resetStreamData () {
