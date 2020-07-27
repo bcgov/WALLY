@@ -63,7 +63,7 @@
               tile focusable multiple>
               <v-expansion-panel class="wells-by-aquifer">
                 <v-expansion-panel-header>
-                  Aquifer: {{aquifer ? aquifer : 'None'}} ({{wells.length}} wells)
+                  Aquifer: {{aquifer ? aquifer : 'Uncorrelated'}} ({{wells.length}} wells)
                 </v-expansion-panel-header>
                 <v-expansion-panel-content width="100%">
                   <v-card outlined width="1000px" class="mt-5">
