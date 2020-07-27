@@ -147,8 +147,8 @@ export default {
     },
     fetchWells () {
       this.loading = true
-      this.wellsByAquifer = []
-      this.defaultWellsByAquifer = []
+      this.wellsByAquifer = {}
+      this.defaultWellsByAquifer = {}
       this.wellRequest()
     },
     wellRequest: debounce(function () {
