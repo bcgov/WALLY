@@ -7,6 +7,7 @@
         Source Link: <a :href="modelOutputs.sourceLink" target="_blank">{{modelOutputs.sourceLink}}</a>
       </div>
     </div>
+    <ModelExplanations/>
 
     <v-btn small v-on:click="downloadWatershedInfo()" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
       <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Watershed Info</span>
@@ -201,6 +202,7 @@ import moment from 'moment'
 
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
+import ModelExplanations from './ModelExplanations'
 
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
@@ -210,7 +212,8 @@ export default {
   name: 'MeanAnnualRunoff',
   components: {
     Plotly,
-    Dialog
+    Dialog,
+    ModelExplanations
   },
   props: ['record'],
   data: () => ({
