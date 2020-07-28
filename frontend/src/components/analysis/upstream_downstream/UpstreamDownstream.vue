@@ -1,5 +1,22 @@
 <template>
   <v-sheet class="pa-5">
+    <v-row v-if="loadingData">
+      <v-col>
+        <v-progress-linear show indeterminate></v-progress-linear>
+      </v-col>
+    </v-row>
+    <v-alert
+      v-if="apiError"
+      class="my-5 mx-5"
+      outlined
+      type="warning"
+      prominent
+      border="left"
+    >
+      <p>
+        {{apiError}}
+      </p>
+    </v-alert>
     <v-row>
       <v-col cols="12" md="12">
         <v-expansion-panels>
@@ -25,7 +42,7 @@
         </div>
       </v-col>
       <v-col class="text-right">
-        <v-btn class="ml-3" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
+        <v-btn class="ml-3 my-2" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
       </v-col>
     </v-row>
 
@@ -87,6 +104,7 @@ export default {
   data: () => ({
     buffer: 50,
     loadingData: false,
+    apiError: null,
     loadingMapFeatures: false,
     buttonClicked: false,
     panelOpen: [],
@@ -150,6 +168,7 @@ export default {
       this.resetGeoJSONLayers()
       this.resetStreamData()
       this.loadingData = true
+      this.apiError = null
 
       ApiService.query(
         '/api/v1/stream/features',
@@ -201,8 +220,13 @@ export default {
             'fill-opacity': 0.5
           }
         }, 'water_rights_licences')
-      }).catch(() => {
+      }).catch((e) => {
         this.loadingData = false
+        if (e.code === 408 || e.code === 502) {
+          this.apiError = 'This river system appears to be too large for our server to handle! Please choose a smaller segment.'
+        } else {
+          this.apiError = 'There was an error getting the stream information: ' + e.message
+        }
       })
     },
     resetStreamData () {
