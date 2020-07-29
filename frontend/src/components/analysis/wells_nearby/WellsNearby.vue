@@ -61,9 +61,9 @@
               v-for="(wells, aquifer) in wellsByAquifer" v-bind:key="aquifer"
               :value=wellsByAquiferIndexes
               tile focusable multiple>
-              <v-expansion-panel>
+              <v-expansion-panel class="wells-by-aquifer">
                 <v-expansion-panel-header>
-                  Aquifer: {{aquifer ? aquifer : 'None'}} ({{wells.length}} wells)
+                  Aquifer: {{aquifer ? aquifer : 'Uncorrelated'}} ({{wells.length}} wells)
                 </v-expansion-panel-header>
                 <v-expansion-panel-content width="100%">
                   <v-card outlined width="1000px" class="mt-5">
@@ -90,8 +90,14 @@
                       </template>
                     </v-data-table>
                   </v-card>
-                  <!-- Boxplot -->
-                  <WellsNearbyBoxPlot :wells="wells" v-if="aquifer"/>
+                  <!-- Boxplot Whisker graphs.
+                       Aquifer 1143 contains wells that have been attempted to be correlated to an aquifer-->
+                  <v-alert v-if="aquifer && Number(aquifer) === 1143" type="info" text class="alert mt-5">
+                    <p>
+                      Wells not correlated to an aquifer at time of interpretation due to insufficient information.
+                    </p>
+                  </v-alert>
+                  <WellsNearbyBoxPlot :wells="wells" v-if="aquifer && Number(aquifer) !== 1143"/>
                 </v-expansion-panel-content>
               </v-expansion-panel>
             </v-expansion-panels>

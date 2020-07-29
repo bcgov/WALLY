@@ -309,7 +309,8 @@ def wells_by_aquifer_xlsx_export(wells_by_aquifer: Dict):
         for aquifer in list(wells_by_aquifer)[1:]:
 
             # Categorize unknown aquifers as 'Other'
-            aquifer_sheet = f"Aquifer {aquifer}" if aquifer else 'Other'
+            other = 'Uncorrelated'
+            aquifer_sheet = f"Aquifer {aquifer}" if aquifer else other
 
             sheets[aquifer_sheet] = workbook.create_sheet(aquifer_sheet)
             sheets[aquifer_sheet].append(WELLS_NEARBY_HEADERS)

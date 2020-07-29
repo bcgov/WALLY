@@ -66,4 +66,82 @@ describe('Wells Nearby', () => {
 
     expect(store.commit).toHaveBeenCalledWith('map/addShape', shape)
   })
+
+  it('Doesn\'t display a boxplot for Aquifer 1143', async () => {
+    wrapper.setData({
+      wellsByAquifer: {
+        '1143': [{
+          'well_tag_number': 111,
+          'latitude': 1,
+          'longitude': -1,
+          'well_yield': 1,
+          'diameter': '1.0',
+          'well_yield_unit': 'GPM',
+          'finished_well_depth': 111,
+          'street_address': '',
+          'intended_water_use': 'Unknown Well Use',
+          'aquifer_subtype': null,
+          'aquifer_hydraulically_connected': null,
+          'aquifer_id': null,
+          'aquifer_lithology': 'Unconsolidated',
+          'aquifer': {
+            'aquifer_id': 1143,
+            'subtype': null,
+            'subtype_desc': null,
+            'material': null,
+            'material_desc': null
+          },
+          'screen_set': [],
+          'top_of_screen': null,
+          'top_of_screen_type': null,
+          'distance': 500,
+          'static_water_level': 10,
+          'swl_to_screen': null,
+          'swl_to_bottom_of_well': 10
+        }],
+        57: [{
+          'well_tag_number': 111,
+          'latitude': 1,
+          'longitude': -1,
+          'well_yield': 1,
+          'diameter': '1.0',
+          'well_yield_unit': 'GPM',
+          'finished_well_depth': 111,
+          'street_address': '',
+          'intended_water_use': 'Unknown Well Use',
+          'aquifer_subtype': null,
+          'aquifer_hydraulically_connected': true,
+          'aquifer_id': null,
+          'aquifer_lithology': 'Unconsolidated',
+          'aquifer': {
+            'aquifer_id': 57,
+            'subtype': 'aa',
+            'subtype_desc': 'Gravel',
+            'material': 'SG',
+            'material_desc': 'Sand and Gravel'
+          },
+          'screen_set': [],
+          'top_of_screen': null,
+          'top_of_screen_type': null,
+          'distance': 500,
+          'static_water_level': 10,
+          'swl_to_screen': null,
+          'swl_to_bottom_of_well': 10
+        }]
+      }
+    })
+    await wrapper.vm.$nextTick()
+    const wellsByAquifer = wrapper.findAll('#wells_nearby .wells-by-aquifer')
+
+    const aquifer57 = wellsByAquifer.at(0)
+    expect(aquifer57.html()).toContain('Aquifer: 57')
+    expect(aquifer57.find('.alert').exists()).toBe(false)
+
+    const aquifer1143 = wellsByAquifer.at(1)
+    expect(aquifer1143.find('p').text()).toContain(
+      'Wells not correlated to an aquifer at time of interpretation ' +
+      'due to insufficient information.'
+    )
+    expect(aquifer1143.html()).toContain('Aquifer: 1143')
+  })
 })
