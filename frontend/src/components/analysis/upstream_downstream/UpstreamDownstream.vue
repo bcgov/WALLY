@@ -222,11 +222,11 @@ export default {
         }, 'water_rights_licences')
       }).catch((e) => {
         this.loadingData = false
-        if (e.code === 408 || e.code === 502) {
-          this.apiError = 'This river system appears to be too large for our server to handle! Please choose a smaller segment.'
-        } else {
-          this.apiError = 'There was an error getting the stream information: ' + e.message
+        if (!e.response) {
+          this.apiError = 'The selected stream segement was too large to process, please choose a smaller segment. (' + e.message + ')'
+          return
         }
+        this.apiError = 'There was an error getting the stream information: ' + e.message
       })
     },
     resetStreamData () {
