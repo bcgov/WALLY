@@ -223,7 +223,7 @@ export default {
       }).catch((e) => {
         this.loadingData = false
         if (!e.response) {
-          this.apiError = 'There was an error getting the stream information: The selected stream segement was too large to process, please choose a smaller segment.'
+          this.apiError = 'The selected stream segement was too large to process, please choose a smaller segment. (' + e.message + ')'
           return
         }
         this.apiError = 'There was an error getting the stream information: ' + e.message
