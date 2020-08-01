@@ -19,7 +19,10 @@
                 <p>Currently we have model co-efficients for hydrological zones 25, 26, 27 which cover the south coast region.</p>
                 <p>
                   Below is the co-efficients table being used for the current dropped point in Hydrological Zone {{this.defaultWatershedDetails.hydrological_zone}}.
-                  The error r2, adjusted r2, and steyx values for each model are shown in the far right of the table.
+                  The error r2, adjusted r2, and steyx values for each model are shown in the beginning of the table.
+                </p>
+                <p>
+                  Steyx represents the standard error in the estimate of the hydrological variable (Y) as a function of the regression model (X).
                 </p>
 
                 Co-Efficients Table
@@ -46,6 +49,9 @@
                     <tr>
                       <td class="text-left v-data-table__divider"><span>{{item.output_type}}</span></td>
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.month}}</span></td>
+                      <td class="text-center v-data-table__divider pa-2"><span>{{item.r2}}</span></td>
+                      <td class="text-left v-data-table__divider pa-2">{{item.adjusted_r2}}</td>
+                      <td class="text-left v-data-table__divider pa-2"><span>{{item.steyx}}</span></td>
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.median_elevation_co}}</span></td>
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.glacial_coverage_co}}</span></td>
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.precipitation_co}}</span></td>
@@ -54,9 +60,7 @@
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.solar_exposure_co}}</span></td>
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.average_slope_co}}</span></td>
                       <td class="text-right v-data-table__divider pa-2" style="margin-left: auto; margin-right: auto;"><span>{{item.intercept_co}}</span></td>
-                      <td class="text-center v-data-table__divider pa-2"><span>{{item.r2}}</span></td>
-                      <td class="text-left v-data-table__divider pa-2">{{item.adjusted_r2}}</td>
-                      <td class="text-left v-data-table__divider pa-2"><span>{{item.steyx}}</span></td>
+                      
                     </tr>
                   </template>
                 </v-data-table>
