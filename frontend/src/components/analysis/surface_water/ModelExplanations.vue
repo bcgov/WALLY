@@ -23,6 +23,10 @@
                 </p>
                 <p>
                   Steyx represents the standard error in the estimate of the hydrological variable (Y) as a function of the regression model (X).
+                  You can find more information on what standard error is here: 
+                  <a href="https://en.wikipedia.org/wiki/Standard_error" target="_blank">
+                    Standard Error - Wikipedia
+                  </a>
                 </p>
 
                 Co-Efficients Table
