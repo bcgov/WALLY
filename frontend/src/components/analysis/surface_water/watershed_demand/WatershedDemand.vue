@@ -32,7 +32,7 @@
 
         <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year
 
-        <Dialog v-bind="wmd.availabilityVsDemand"/>
+        <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
 
         <div class="my-5">
           <div class="mb-3">Annual licenced quantity by use type:</div>
@@ -142,7 +142,8 @@ export default {
         let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
         let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
         let sourceName = e.features[0].properties['SOURCE_NAME']
-        let qty = e.features[0].properties['qty_m3_yr'].toFixed(1)
+        let qty = e.features[0].properties['qty_m3_yr']
+        if(qty) { qty = qty.toFixed(1) } // fix on null value
         let purpose = e.features[0].properties['PURPOSE_USE']
 
         // Ensure that if the map is zoomed out such that multiple

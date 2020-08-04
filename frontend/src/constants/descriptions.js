@@ -71,6 +71,13 @@ export const WatershedModelDescriptions = {
     description: '',
     url: ''
   },
+  waterRightsLicenceDemand: {
+    name: 'Water Rights Licences',
+    description: 'This section shows all the water rights licences found within the watershed. Water rights ' +
+    'licences are sourced from the DataBC layer "Water Rights Licences - Public" linked below. Licences ' +
+    'associated with a groundwater point of diversion have not been included as part of this calculation.',
+    url: 'https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public'
+  },
   availabilityVsDemand: {
     name: 'Availability vs Licenced Quantity',
     description: 'This section shows all the water rights licences found within the watershed, ' +
