@@ -19,7 +19,9 @@ import WaterRightsLicencesNearbyContainer
   from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
 import FirstNationsAreasNearbyContainer
   from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
-
+import WatershedDesign from './components/analysis/surface_water/mockup/WatershedDesign'
+import WatershedDesignH
+  from './components/analysis/surface_water/mockup/WatershedDesignH'
 Vue.use(Router)
 
 const mapResize = (to, from, next) => {
@@ -209,6 +211,23 @@ const router = new Router({
       meta: {
         title: `Surface Water Analysis - ${title}`,
         sidebarColumns: {}
+      }
+    },
+    {
+      path: '/watershed-design',
+      name: 'watershed-design',
+      component: WatershedDesign,
+      meta: {
+
+      }
+    },
+    {
+      // Horizontal Tabs
+      path: '/watershed-designh',
+      name: 'watershed-designh',
+      component: WatershedDesignH,
+      meta: {
+
       }
     }
   ]
