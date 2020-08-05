@@ -9,7 +9,7 @@
             text
             v-on="on"
           >
-            Selection <v-icon>keyboard_arrow_down</v-icon>
+            Tools <v-icon>keyboard_arrow_down</v-icon>
           </v-btn>
         </template>
         <v-list>
@@ -46,7 +46,7 @@
             text
             v-on="on"
           >
-            Tools <v-icon>keyboard_arrow_down</v-icon>
+            Analysis <v-icon>keyboard_arrow_down</v-icon>
           </v-btn>
         </template>
         <v-list>
@@ -87,19 +87,19 @@ export default {
     ],
     toolOptions: [
       {
-        title: 'Cross section plot analysis',
+        title: 'Cross section plot',
         route: { name: 'cross-section' }
       },
       {
-        title: 'Upstream downstream analysis',
+        title: 'Upstream downstream feature search',
         route: { name: 'upstream-downstream' }
       },
       {
-        title: 'Demand analysis to hydraulically connected streams',
+        title: 'Hydraulic connectivity analysis',
         route: { name: 'stream-apportionment' }
       },
       {
-        title: 'Surface water availability analysis',
+        title: 'Surface water availability',
         route: { name: 'surface-water' }
       }
 
