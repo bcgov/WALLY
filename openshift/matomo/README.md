@@ -16,6 +16,7 @@ labels:
 # Matomo OpenShift
 Matomo is a fully featured web analytics server and is a great alternative to Google Analytics when data ownership and privacy compliance are a concern.
 
+Version: 3.13.5
 [Matomo OpenShift](https://github.com/BCDevOps/matomo-openshift) provides a set of OpenShift configurations to set up an instance of the Matomo web analytics server. See: [matomo.org](https://matomo.org/) for additional details regarding Matomo.
 
 ## Architecture
