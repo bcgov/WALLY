@@ -36,7 +36,7 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import SurfaceWater from '../../analysis/surface_water/SurfaceWater'
+import SurfaceWater from './SurfaceWater'
 
 export default {
   name: 'SurfaceWaterAnalysis',

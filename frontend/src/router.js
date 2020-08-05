@@ -12,7 +12,7 @@ import MeasuringTool from './components/sidepanel/cards/MeasuringTool'
 import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
 import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
 import UpstreamDownstream from './components/analysis/upstream_downstream/UpstreamDownstreamContainer'
-import SurfaceWaterAnalysis from './components/sidepanel/cards/SurfaceWaterAnalysis'
+import SurfaceWaterContainer from './components/analysis/surface_water/SurfaceWaterContainer'
 import Start from './components/sidepanel/Start'
 import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
 import WaterRightsLicencesNearbyContainer
@@ -207,7 +207,7 @@ const router = new Router({
     {
       path: '/surface-water',
       name: 'surface-water',
-      component: SurfaceWaterAnalysis,
+      component: SurfaceWaterContainer,
       meta: {
         title: `Surface Water Analysis - ${title}`,
         sidebarColumns: {}
