@@ -93,7 +93,13 @@ def get_streams_by_watershed_code(
           isinstance(down_shape, MultiPolygon) else down_shape
         # join the junction calculations with the existing up and down polys
         up_poly = cascaded_union([up_poly, junction_lines[-1]])
-        down_poly = cascaded_union([down_poly, junction_lines[0]])
+        # if we're at the bottom of a stream junction then set
+        # the down_poly to be the down junction line, to avoid
+        # an overlapping downstream result
+        if closest_segment["downstream_route_measure"] == 0:
+            down_poly = junction_lines[0]
+        else:
+            down_poly = cascaded_union([down_poly, junction_lines[0]])
 
     # remove overlapping geometry at the up/down stream junction point
     # the selected point will always be upstream from this junction
