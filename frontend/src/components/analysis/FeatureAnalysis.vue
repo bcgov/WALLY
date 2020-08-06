@@ -1,7 +1,7 @@
 <template>
       <v-expansion-panels class="mt-5" multiple>
         <!-- Single point analysis options -->
-        <template v-if="record && record.geometry && record.geometry.type === 'Point'">
+        <template v-if="pointOfInterest && pointOfInterest.geometry && pointOfInterest.geometry.type === 'Point'">
           <v-card>
             <v-card-title>
               Near this point
@@ -15,7 +15,7 @@
                 text
                 color="deep-purple accent-4"
                 class="analysisButton"
-                :to="{ path: 'wells-nearby', query: { coordinates: record.geometry.coordinates }}"
+                :to="{ path: 'wells-nearby', query: { coordinates: pointOfInterest.geometry.coordinates }}"
               >
                Find Groundwater Wells
                 <v-icon>mdi-chevron-right</v-icon>
@@ -27,7 +27,7 @@
                 text
                 color="deep-purple accent-4"
                 class="analysisButton"
-                :to="{ path: 'water-rights-licences-nearby', query: { coordinates: record.geometry.coordinates }}"
+                :to="{ path: 'water-rights-licences-nearby', query: { coordinates: pointOfInterest.geometry.coordinates }}"
               >
                 Find Water rights licences
                 <v-icon>mdi-chevron-right</v-icon>
@@ -39,7 +39,7 @@
                 text
                 color="deep-purple accent-4"
                 class="analysisButton"
-                :to="{ path: 'first-nations-areas-nearby', query: { coordinates: record.geometry.coordinates }}"
+                :to="{ path: 'first-nations-areas-nearby', query: { coordinates: pointOfInterest.geometry.coordinates }}"
               >
                 Find First Nations communities, treaty areas, and lands
                 <v-icon>mdi-chevron-right</v-icon>
@@ -55,11 +55,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'FeatureAnalysis',
-  props: ['record'],
+  props: [],
   data: () => ({
-  })
+  }),
+  computed: {
+    ...mapGetters(['pointOfInterest'])
+  }
 }
 </script>
 
