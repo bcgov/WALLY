@@ -1,12 +1,4 @@
 import { mapGetters } from 'vuex'
-// import conduit from '@/assets/images/lines/conduit'
-// import ditch from '@/assets/images/lines/ditch'
-// import flume from '@/assets/images/lines/flume'
-// import pipeline from '@/assets/images/lines/pipeline'
-// import releasechannel from '@/assets/images/lines/releasechannel'
-// import spillway from '@/assets/images/lines/spillway'
-// import tailrace from '@/assets/images/lines/tailrace'
-// import transmission from '@/assets/images/lines/transmission'
 
 export default {
   name: 'MapLegend',
