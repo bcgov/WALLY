@@ -5,7 +5,8 @@
           <h4 v-if="layer.plenty" :key='i' class="layerName">{{layer.name}}</h4>
           <div v-for="(item, j) in layer.legendItems" v-bind:key="`legendItem${j}`" v-bind:class="layer.className">
             <div v-if="!item.wmsIconUrl">
-              <v-icon v-if="!item.wmsIconUrl" :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
+              <v-icon v-if="!item.wmsIconUrl && !item.image" :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
+              <img v-if="item.image" class="" width="20" :src="require(`../../assets/images/lines/` + item.image)"/>
               <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
               <span class="layerName" v-else>{{layer.name}}</span>
             </div>

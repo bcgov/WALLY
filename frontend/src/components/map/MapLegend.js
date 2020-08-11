@@ -1,4 +1,12 @@
 import { mapGetters } from 'vuex'
+// import conduit from '@/assets/images/lines/conduit'
+// import ditch from '@/assets/images/lines/ditch'
+// import flume from '@/assets/images/lines/flume'
+// import pipeline from '@/assets/images/lines/pipeline'
+// import releasechannel from '@/assets/images/lines/releasechannel'
+// import spillway from '@/assets/images/lines/spillway'
+// import tailrace from '@/assets/images/lines/tailrace'
+// import transmission from '@/assets/images/lines/transmission'
 
 export default {
   name: 'MapLegend',
@@ -21,8 +29,9 @@ export default {
           // Add legend items for dashed licensed works layers
           if (layerID === 'water_licensed_works') {
             for (let i = 0; i < 5; i++) {
-              mapLayerPaint = this.getPaint(mapLayerType, i === 0 ? layerID : 'water_licensed_works_dash' + i)
-              legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, 'water_licensed_works_dash' + i)
+              let layerName = i === 0 ? layerID : 'water_licensed_works_dash' + i
+              mapLayerPaint = this.getPaint(mapLayerType, layerName)
+              legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerName)
               var layerLegend = {
                 name: i === 0 ? 'Water Licensed Works - Lines' : '',
                 legendItems,
@@ -150,13 +159,15 @@ export default {
           global.config.debug && console.log('[wally]', paint.color[i].constructor)
           if (paint.color[i].constructor === Array) {
             text = this.replaceLabelCode(paint.color[i].join(', '))
+            let image = this.lineImage(text)
             color = paint.color[i + 1]
             legendItems.push({
               text,
               color,
               outlineColor: paint.outlineColor,
               icon,
-              iconSize
+              iconSize,
+              image
             })
           }
         }
@@ -253,6 +264,28 @@ export default {
           return 'Penstock, Pond, Channel-Rearing, Pond-Rearing'
         default:
           return code
+      }
+    },
+    lineImage (name) {
+      switch (name) {
+        case 'Conduit - Water':
+          return 'conduit.png'
+        case 'Ditch':
+          return 'ditch.png'
+        case 'Flume':
+          return 'flume.png'
+        case 'Pipeline - Water':
+          return 'pipeline.png'
+        case 'Channel-Release':
+          return 'releasechannel.png'
+        case 'Spillway':
+          return 'spillway.png'
+        case 'Tailrace':
+          return 'tailrace.png'
+        case 'Line (Transmission) - Electrical':
+          return 'transmission.png'
+        default:
+          return null
       }
     },
     toggle () {
