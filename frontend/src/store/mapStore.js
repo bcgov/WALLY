@@ -247,7 +247,14 @@ export default {
 
       // get list of layers that were deselected (they were in `prev`, but are not in payload),
       // and sent an event to remove them.
-      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => dispatch('removeMapLayer', l))
+      prev.filter((l) => !selectedLayers.includes(l)).forEach((l) => {
+        dispatch('removeMapLayer', l)
+        if (l === 'water_licensed_works') {
+          for (let i = 1; i < 5; i++) {
+            commit('deactivateLayer', 'water_licensed_works_dash' + i)
+          }
+        }
+      })
 
       // similarly, now get a list of layers that are in payload but weren't in the previous active layers.
       selectedLayers.filter((l) => !prev.includes(l)).forEach((l) => {
@@ -255,6 +262,11 @@ export default {
         const layerName = state.mapLayers.find(e => e.display_data_name === l).display_name
         window._paq && window._paq.push(['trackEvent', 'Layer', 'Activate Layer', layerName])
         commit('activateLayer', l)
+        if (l === 'water_licensed_works') {
+          for (let i = 1; i < 5; i++) {
+            commit('activateLayer', 'water_licensed_works_dash' + i)
+          }
+        }
       })
 
       // reset the list of active layers
