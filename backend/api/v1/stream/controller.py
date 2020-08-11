@@ -58,6 +58,7 @@ def get_closest_stream_segment(db: Session, point: Point):
       SELECT
         streams."GNIS_NAME" as gnis_name,
         streams."LINEAR_FEATURE_ID" as linear_feature_id,
+        streams."DOWNSTREAM_ROUTE_MEASURE" as downstream_route_measure,
         ST_AsGeoJSON(ST_ClosestPoint(
         streams."GEOMETRY", 
         ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point

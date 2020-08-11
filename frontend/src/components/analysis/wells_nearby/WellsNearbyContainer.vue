@@ -119,6 +119,17 @@ export default {
       if (value) {
         this.loadWellsNearby()
       }
+    },
+    pointOfInterest (value) {
+      if (value && value.geometry) {
+        // Update router
+        global.config.debug && console.log('[wally] updating POI route')
+        this.$router.push({
+          path: '/wells-nearby',
+          query: { coordinates: value.geometry.coordinates }
+        })
+        this.setBreadcrumbs()
+      }
     }
   },
   mounted () {
