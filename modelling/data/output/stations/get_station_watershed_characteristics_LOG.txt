@@ -1,0 +1,435 @@
+row count: 0
+station: 07EA004, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5147
+station: 07EA005, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3663
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3609
+station: 07EB002, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12675
+station: 07EC002, slope: 9.04373750359, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9369
+station: 07EC003, slope: 14.5200694799, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10379
+station: 07EC004, slope: 17.6202881565, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9322
+station: 07ED003, slope: 6.98101881344, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11891
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13054
+station: 07EE009, slope: 1.70800082063, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2650
+station: 07EE010, slope: 0.620837234076, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1654
+station: 07EF001, slope: 7.54680177071, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19065
+station: 07EF004, slope: 14.0803515879, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13090
+station: 07FA003, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18168
+station: 07FA004, slope: 3.80234502494, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19055
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8391
+station: 07FA006, slope: 0.714602674084, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8401
+station: 07FA007, slope: 1.73011433402, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18140
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13314
+station: 07FB002, slope: 8.01002545009, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11399
+station: 07FB003, slope: 12.4543094252, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13255
+station: 07FB004, slope: 4.60707893436, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13207
+station: 07FB005, slope: 3.00243552634, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11331
+station: 07FB006, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11406
+station: 07FB008, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18977
+station: 07FB009, slope: 1.81616068818, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11350
+station: 07FC001, slope: 1.13417972165, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7759
+station: 07FC003, slope: 2.38012779389, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7746
+station: 07FD001, slope: 1.66391487109, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6162
+station: 07FD002, slope: 3.87191303731, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9444
+station: 07FD004, slope: 1.57486715043, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9427
+station: 07FD007, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9407
+station: 07FD010, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9440
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17225
+station: 08CE001, slope: 12.053166928, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15299
+station: 08CG001, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8744
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6084
+station: 08DA012, slope: 15.8273441329, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7606
+station: 08DB001, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9043
+station: 08DB013, slope: 16.8654798362, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8958
+station: 08DB014, slope: 12.3450607681, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8950
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6257
+station: 08EB005, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11140
+station: 08EB006, slope: 17.1018131528, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6229
+station: 08EC004, slope: 2.83280722797, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.367
+station: 08EC013, slope: 5.24444355945, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.501
+station: 08EC014, slope: 3.36368609124, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.361
+station: 08ED001, slope: 5.47894859376, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10951
+station: 08ED002, slope: 1.75300416971, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10985
+station: 08ED004, slope: 9.09317781313, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10940
+station: 08EE003, slope: 6.0318802168, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1426
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1423
+station: 08EE005, slope: 6.38805234265, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1422
+station: 08EE008, slope: 6.15685518687, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1336
+station: 08EE012, slope: 18.7192970672, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1330
+station: 08EE013, slope: 5.14646671051, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1376
+station: 08EE020, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1356
+station: 08EE025, slope: 18.7098767141, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1269
+row count: 50
+station: 08EF001, slope: 17.7963145189, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6747
+station: 08EF005, slope: 28.0113424071, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19840
+station: 08EF006, slope: 2.16416366127, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19849
+station: 08EG012, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9878
+station: 08EG016, slope: 2.29130586942, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19719
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6661
+station: 08EG018, slope: 8.65879488856, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6682
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12789
+station: 08FB004, slope: 16.0413153204, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.813
+station: 08FB006, slope: 18.1082702889, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.235
+station: 08FB007, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.853
+station: 08FB011, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.807
+station: 08FC003, slope: 1.47960772403, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8045
+station: 08FC005, slope: 0.857571983418, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17781
+station: 08FE002, slope: 7.05516096855, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.16819
+station: 08FE003, slope: 10.3275616156, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.16829
+station: 08FF001, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6396
+station: 08FF002, slope: 8.32593609882, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6397
+station: 08FF003, slope: 10.4124294076, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6404
+station: 08FF005, slope: 2.13837189601, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6430
+station: 08FF006, slope: 4.62113029854, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6435
+station: 08GA010, slope: 2.73413637965, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10009461
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9987945
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10004948
+station: 08GA027, slope: 8.32229161899, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10009432
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10009909
+station: 08GA043, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9987135
+station: 08GA047, slope: 12.1700092331, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046283
+station: 08GA061, slope: 46.3434621479, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10009410
+station: 08GA062, slope: 25.0013545687, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10005264
+station: 08GA071, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9980299
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9981256
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9975847
+station: 08GA076, slope: 9.0778258795, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9972864
+station: 08GA077, slope: 4.38279242124, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10005191
+station: 08GA078, slope: 6.65042809655, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10045892
+station: 08GA079, slope: 3.48878329742, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10005377
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9975130
+station: 08GB014, slope: 2.4481578721, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10039844
+station: 08GC005, slope: 5.21992338257, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10027600
+station: 08GC006, slope: 5.48667519274, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10038851
+station: 08GC007, slope: 5.48667519274, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10038851
+station: 08GC008, slope: 5.71452463631, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10038933
+station: 08GD008, slope: 9.57390897599, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4997
+station: 08GE002, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6631
+station: 08GE003, slope: 29.1657549254, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6555
+station: 08GF005, slope: 5.11693611086, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14171
+station: 08GF006, slope: 7.29827081694, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6797
+station: 08GF007, slope: 7.62590149861, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14169
+station: 08GF008, slope: 3.17656963247, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6827
+station: 08HA001, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10012003
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10012211
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2567
+station: 08HA010, slope: 8.75775165543, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13920
+station: 08HA011, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2566
+station: 08HA016, slope: 7.81567327045, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2575
+station: 08HA033, slope: 2.1337319397, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19630
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19636
+station: 08HA068, slope: 0.412609285647, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13929
+station: 08HA069, slope: 9.95308440016, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13921
+station: 08HA070, slope: 2.70830736089, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13922
+row count: 100
+station: 08HA071, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19637
+station: 08HA072, slope: 18.0894831501, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10014458
+station: 08HA073, slope: 9.04111774705, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10011986
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10044255
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10045233
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046798
+station: 08HB008, slope: 4.00167804017, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10043919
+station: 08HB011, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046541
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10063430
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10045312
+station: 08HB022, slope: 10.6810746065, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10044967
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10043554
+station: 08HB024, slope: 12.3154841104, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10043266
+station: 08HB025, slope: 4.89428938356, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046592
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10045278
+station: 08HB032, slope: 7.73877809191, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046263
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10012565
+station: 08HB041, slope: 8.05832923558, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10013964
+station: 08HB048, slope: 20.0653044076, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10063544
+station: 08HB074, slope: 6.66943041549, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2441
+station: 08HB075, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046681
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10046789
+station: 08HB086, slope: 2.97516151091, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1946
+station: 08HB088, slope: 17.2069955372, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1939
+station: 08HB089, slope: 6.7326507857, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2455
+station: 08HB092, slope: 3.20478975798, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10013555
+station: 08HC001, slope: 8.93713483258, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4404
+station: 08HC002, slope: 4.68786035547, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4405
+station: 08HC005, slope: 4.40838464079, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4408
+station: 08HC006, slope: 11.5150532348, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1531
+station: 08HC007, slope: 4.40838464079, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4408
+station: 08HD003, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1519
+station: 08HD005, slope: 2.55402740772, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1520
+station: 08HD006, slope: 8.6842963392, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13832
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13856
+station: 08HD011, slope: 2.63993778491, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2458
+station: 08HD015, slope: 2.53756719005, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13857
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1527
+station: 08HD020, slope: 5.75756748167, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13858
+station: 08HD021, slope: 3.83021188545, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1523
+station: 08HD023, slope: 3.45438152457, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2459
+station: 08HD026, slope: 3.83021188545, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1523
+station: 08HD027, slope: 2.55402740772, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1520
+station: 08HD030, slope: 5.89824979886, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2461
+station: 08HD032, slope: 5.75756748167, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13858
+station: 08HE006, slope: 2.72218722228, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4440
+station: 08HE007, slope: 5.62285129295, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15648
+station: 08HE008, slope: 2.72218722228, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4440
+station: 08HE009, slope: 4.19862901072, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1230
+station: 08HE010, slope: 11.8362867655, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4437
+station: 08HF004, slope: 11.5144822308, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.16969
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12470
+station: 08HF006, slope: 3.14608532606, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4828
+station: 08HF011, slope: 20.4485159332, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12469
+station: 08HF012, slope: 2.99242790688, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12298
+station: 08HF013, slope: 3.41277694485, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4824
+station: 08HF014, slope: 3.02131544507, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12473
+station: 08JA013, slope: 2.05453851276, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1766
+station: 08JA014, slope: 3.94016933036, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17792
+station: 08JA015, slope: 6.67653846231, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18666
+station: 08JA017, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1767
+station: 08JA028, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17877
+row count: 150
+station: 08JA029, slope: 9.7889038027, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18651
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4046
+station: 08JB003, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3924
+station: 08JB008, slope: 2.16986833472, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4043
+station: 08JB012, slope: 0.79584436803, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3973
+station: 08JB013, slope: 4.3337676186, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4005
+station: 08JB014, slope: 4.31120456426, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3979
+station: 08JC001, slope: 0.870749887556, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12278
+station: 08JC002, slope: 2.17787206134, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7827
+station: 08JC017, slope: 4.7045885291, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12239
+station: 08JD006, slope: 3.17173607674, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2989
+station: 08JE001, slope: 0.573608552975, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15403
+station: 08JE004, slope: 0.974991053887, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15320
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10866
+station: 08KA004, slope: 1.98658251346, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10880
+station: 08KA005, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10898
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18027
+station: 08KA009, slope: 8.85828628359, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10857
+station: 08KA013, slope: 5.83730304368, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10811
+station: 08KB001, slope: 2.20577469071, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15586
+station: 08KB003, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10168
+station: 08KB006, slope: 8.06373065571, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4792
+station: 08KC001, slope: 1.00529767235, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9676
+station: 08KD006, slope: 0.949175377481, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19647
+station: 08KD007, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1176
+station: 08KE016, slope: 2.56668044978, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11707
+station: 08KE024, slope: 2.97667896934, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2510
+station: 08KG001, slope: 4.44252923474, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.908
+station: 08KH001, slope: 3.41899062089, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13496
+station: 08KH006, slope: 7.35681097831, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13492
+station: 08KH010, slope: 11.0457287841, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5045
+station: 08KH019, slope: 1.35377325206, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5010
+station: 08KH020, slope: 3.03559562949, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5024
+station: 08KH028, slope: 1.78144056054, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13445
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13458
+station: 08KH030, slope: 12.5792383646, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13458
+station: 08KH031, slope: 0.216170574473, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5044
+station: 08LA001, slope: 13.7285402629, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2158
+station: 08LA027, slope: 1.05952748831, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1220
+station: 08LA028, slope: 3.68946802166, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10059
+station: 08LA029, slope: 3.57560569627, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1209
+station: 08LB012, slope: 3.69856231948, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9197
+station: 08LB020, slope: 14.2129157073, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9806070
+station: 08LB024, slope: 4.91819899577, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9837282
+station: 08LB038, slope: 8.09253836751, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18755
+station: 08LB047, slope: 24.9976946702, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.18802
+station: 08LB064, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9838265
+station: 08LB069, slope: 2.73868925408, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9224
+station: 08LB076, slope: 15.0490432676, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9233
+station: 08LB078, slope: 9.40518221974, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9252
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19285
+station: 08LC003, slope: 11.4350181296, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19298
+station: 08LC018, slope: 9.44444191941, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19299
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19238
+station: 08LC040, slope: 7.72690260889, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19240
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19238
+station: 08LD001, slope: 5.70948293003, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1
+row count: 200
+station: 08LD002, slope: 9.96632950826, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2
+station: 08LE020, slope: 17.7023260049, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15229
+station: 08LE021, slope: 6.01727806604, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15204
+station: 08LE024, slope: 23.5329688633, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14430
+station: 08LE027, slope: 15.3367929776, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14386
+station: 08LE031, slope: 12.9382790625, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15240
+station: 08LE075, slope: 7.77535432937, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15233
+station: 08LE077, slope: 11.6496186424, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14363
+station: 08LE108, slope: 6.51131643613, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14441
+station: 08LE112, slope: 4.4529258918, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15198
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9843562
+station: 08LF027, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9843794
+station: 08LF094, slope: 2.35925323705, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9844027
+station: 08LF099, slope: 6.5066095731, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9799653
+station: 08LF100, slope: 12.7803118073, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9872562
+station: 08LG006, slope: 32.9164781731, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9877887
+station: 08LG007, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9816183
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9893570
+station: 08LG010, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9879957
+station: 08LG016, slope: 3.58647636455, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9819459
+station: 08LG041, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9834520
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9881190
+station: 08LG049, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9830536
+station: 08LG056, slope: 4.34553394683, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9835099
+station: 08LG064, slope: 1.3303425917, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12356
+station: 08LG065, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9815892
+station: 08LG067, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9816183
+station: 08LG068, slope: 11.1190564093, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9881851
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1859
+station: 08MA002, slope: 21.8891980591, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1867
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9731122
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1824
+station: 08MB005, slope: 11.7088279829, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7949
+station: 08MB006, slope: 1.41791342384, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.903
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9740212
+station: 08MC018, slope: 10.4691537828, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17338
+station: 08MC039, slope: 2.11604570568, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13767
+station: 08MC040, slope: 4.33928528691, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13765
+station: 08MC045, slope: 1.42276585408, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17308
+station: 08MD035, slope: 2.12121629958, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9740653
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9772043
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9959725
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9764908
+station: 08ME028, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9768335
+station: 08MF062, slope: 3.41133557608, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9857340
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9895760
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9861447
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9910979
+station: 08MG025, slope: 13.1214767116, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10002127
+station: 08MG026, slope: 9.01536563646, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9981035
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10010518
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9912441
+station: 08MH006, slope: 11.9335582153, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9912428
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9863980
+station: 08MH029, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9915928
+station: 08MH056, slope: 6.81386821019, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9866960
+station: 08MH058, slope: 2.17183259994, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9913172
+station: 08MH076, slope: 8.46729342276, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9913523
+station: 08MH090, slope: 0.656946568283, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9916689
+station: 08MH098, slope: 0.55251310331, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9916540
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9864754
+station: 08MH141, slope: 5.44476345719, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9967196
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9907335
+station: 08MH150, slope: 1.41160010415, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9913101
+station: 08MH152, slope: 0.639442612188, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9916410
+station: 08MH153, slope: 1.50742997548, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9916284
+station: 08MH155, slope: 0.705941612225, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9916767
+station: 08MH156, slope: 1.50870382709, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9916429
+row count: 250
+station: 08MH166, slope: 15.2459085952, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10010060
+station: 08MH168, slope: 7.77680534426, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.10010193
+station: 08NA002, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5966
+station: 08NA006, slope: 20.1219754975, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5890
+station: 08NA011, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5960
+station: 08NB005, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5966
+station: 08NB012, slope: 8.0462324281, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5866
+station: 08NB014, slope: 7.79723975251, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2089
+station: 08NB016, slope: 8.57498035613, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5870
+station: 08NB019, slope: 14.1015446435, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2100
+station: 08NB020, slope: 5.53492550728, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2102
+station: 08NC004, slope: 6.93647799855, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1568
+station: 08ND012, slope: 10.2685048162, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13550
+station: 08ND013, slope: 8.92786951516, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17425
+station: 08ND019, slope: 6.66294726856, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13569
+station: 08ND025, slope: 35.1340943444, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.13608
+station: 08NE006, slope: 8.3107157045, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17351
+station: 08NE008, slope: 6.66112447021, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17383
+station: 08NE039, slope: 13.7026877619, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7409
+station: 08NE049, slope: 21.3110990878, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7535
+station: 08NE074, slope: 8.97795405784, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7443
+station: 08NE077, slope: 6.10644264913, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7510
+station: 08NE087, slope: 11.7495454902, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7479
+station: 08NE110, slope: 5.67093510182, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7504
+station: 08NE114, slope: 7.10435050119, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7434
+station: 08NE123, slope: 12.1830684466, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17409
+station: 08NE126, slope: 11.9532733055, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7536
+station: 08NF001, slope: 12.6387302194, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7169
+station: 08NG002, slope: 11.6684702704, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.1476
+station: 08NG065, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14851
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14785
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14779
+station: 08NH005, slope: 19.1800978119, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6891
+station: 08NH007, slope: 21.4071248506, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3005
+station: 08NH016, slope: 10.6080412557, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6950
+station: 08NH084, slope: 5.47711787594, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6965
+station: 08NH115, slope: 7.80851669445, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6963
+station: 08NH118, slope: 10.6950636233, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2991
+station: 08NH119, slope: 31.5385170304, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3077
+station: 08NH120, slope: 3.74377819369, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7020
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3074
+station: 08NH130, slope: 22.1086309176, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6902
+station: 08NH131, slope: 8.18637884715, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6909
+station: 08NH132, slope: 12.4107500115, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6894
+station: 08NH138, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3036
+station: 08NJ013, slope: 20.770136761, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14644
+station: 08NJ026, slope: 10.0415385151, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6879
+station: 08NJ061, slope: 14.9493473301, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6885
+station: 08NJ130, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7038
+station: 08NJ158, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.7035
+station: 08NJ160, slope: 17.0812083102, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14665
+station: 08NJ168, slope: 7.26290982793, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6878
+station: 08NJ172, slope: 12.6482068796, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.6871
+row count: 300
+station: 08NK002, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3250
+station: 08NK016, slope: 23.585928141, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3332
+station: 08NK018, slope: 25.6578814415, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3296
+station: 08NK022, slope: 3.65359440421, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3297
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3329
+station: 08NK030, slope: 13.9717666545, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3327
+station: 08NL004, slope: 28.1623270453, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14473
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9821798
+station: 08NL045, slope: 3.19073615957, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14468
+station: 08NL050, slope: 5.6870391419, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14500
+station: 08NL069, slope: 2.69387305509, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9812787
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9813346
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/generated.9851192
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.14475
+station: 08NM002, slope: 4.14879045942, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12615
+station: 08NM037, slope: 6.98206127007, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12507
+station: 08NM041, slope: 5.30596822415, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12542
+station: 08NM050, slope: 15.9218483883, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12618
+station: 08NM065, slope: 5.03999762206, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12587
+station: 08NM085, slope: 17.6914233468, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12613
+station: 08NM116, slope: 7.11354723895, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12555
+station: 08NM134, slope: 9.68562391362, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12523
+station: 08NM142, slope: 7.49415400328, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12592
+station: 08NM145, slope: 6.41248047044, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12575
+station: 08NM146, slope: 13.0684558463, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12595
+station: 08NM149, slope: 4.14879045942, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12615
+station: 08NM171, slope: 6.637558001, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12492
+station: 08NM173, slope: 4.30359881158, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12540
+station: 08NM174, slope: 4.4646045566, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12601
+station: 08NM200, slope: 6.70400015428, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12482
+station: 08NM232, slope: 2.53384152733, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12563
+station: 08NM240, slope: 3.78111776186, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12515
+station: 08NM241, slope: 3.78111776186, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12515
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12515
+station: 08NM246, slope: 6.637558001, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12492
+station: 08NM247, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.12616
+station: 08NN002, slope: 11.877783116, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5682
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5756
+station: 08NN015, slope: 6.68435427748, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5795
+station: 08NN019, slope: 4.84059650973, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5783
+station: 08NN023, slope: 12.2963945376, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5707
+station: 08NN026, slope: 10.8976656947, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5843
+station: 08NN028, slope: 14.886594412, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.5802
+station: 08NP004, slope: 4.69513088515, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3225
+station: 08OA002, slope: 2.91700894379, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4543
+station: 08OA003, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4568
+station: 08OA004, slope: 1.4463816093, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4480
+station: 08OA005, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.4568
+station: 08OB002, slope: 4.65216772953, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10684
+station: 09AA006, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.142
+station: 09AA013, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17160
+station: 09AA018, slope: 0.351931278857, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.17155
+station: 09AE003, slope: 3.9927616747, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.15537
+station: 10AC005, slope: 2.42738699251, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.2770
+station: 10BE001, slope: 3.06349134451, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8566
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.16542
+station: 10BE007, slope: 4.52193588437, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8449
+station: 10BE009, slope: 2.75440096077, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8480
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8520
+row count: 350
+station: 10CA001, slope: 1.33569217335, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.3825
+station: 10CB001, slope: 4.376776365, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.19425
+error url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.10502
+station: 10CD001, slope: 2.92752269579, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8916
+station: 10CD003, slope: 0.737165698976, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.8881
+station: 10CD004, slope: 1.00658709554, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11025
+station: 10CD005, slope: 2.40065911498, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.11022
+station: 10DA001, slope: None, url: https://wally-staging.pathfinder.gov.bc.ca/api/v1/watersheds/WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY.9526
+process took: 2211.39039803 seconds
