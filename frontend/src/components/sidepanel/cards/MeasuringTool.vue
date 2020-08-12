@@ -12,7 +12,7 @@
       </v-col>
       <v-col class="text-right">
         <v-col>
-          <v-btn @click="selectDrawLine" color="primary" outlined>Draw line</v-btn>
+          <v-btn @click="selectDrawLine" color="primary" outlined>Draw a line or polygon</v-btn>
         </v-col>
         <v-col>
           <v-btn @click="clearLine" color="primary" outlined>Clear</v-btn>
