@@ -34,7 +34,28 @@
 
         <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
 
-        <div class="my-5">
+        <v-data-table
+          :headers="licencePurposeHeaders"
+          :items="licenceData.total_qty_by_purpose"
+          :single-expand="singleExpand"
+          :expanded.sync="expanded"
+          item-key="useTypes"
+          show-expand
+          class="elevation-1"
+        >
+          <template v-slot:top>
+            <v-toolbar flat>
+            <h4>Annual licenced quantity by use type</h4>
+            </v-toolbar>
+          </template>
+          <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+              <WatershedIndividualLicences licences="licenseData"/>
+  <!--            More info about {{ item.useType }}-->
+            </td>
+          </template>
+        </v-data-table>
+        <!-- <div class="my-5">
           <div class="mb-3">Annual licenced quantity by use type:</div>
           <v-data-table
             :items="licenceData.total_qty_by_purpose"
@@ -49,7 +70,7 @@
           <v-col class="text-right">
              <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
           </v-col>
-        </div>
+        </div> -->
       </v-card>
     </div>
 
@@ -66,6 +87,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
+import WatershedIndividualLicences from './WatershedIndividualLicences.vue'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -77,6 +99,7 @@ export default {
   mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
+    WatershedIndividualLicences,
     Dialog
   },
   props: ['watershedID'],
