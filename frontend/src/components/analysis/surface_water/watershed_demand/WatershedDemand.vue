@@ -50,6 +50,12 @@
           <template v-slot:[`item.qty`]="{ item }">
             {{ item.qty.toFixed(0) }}
           </template>
+          <template v-slot:[`item.min`]="{ item }">
+            {{ Math.min.apply(Math, item.licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) }}
+          </template>
+          <template v-slot:[`item.max`]="{ item }">
+            {{ Math.max.apply(Math, item.licences.map((o) => o.properties.quantityPerYear )).toFixed(0) }}
+          </template>
           <template v-slot:[`item.count`]="{ item }">
             {{ item.licences.length }}
           </template>
@@ -97,7 +103,9 @@ export default {
     approvalsData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
+      { text: 'Total Quantity (m³/year)', value: 'qty', align: 'end' },
+      { text: 'Min Use (m³/year)', value: 'min', align: 'end' },
+      { text: 'Max Use (m³/year)', value: 'max', align: 'end' },
       { text: '# Licences', value: 'count', align: 'center' },
       { text: '', value: 'data-table-expand' }
     ],
