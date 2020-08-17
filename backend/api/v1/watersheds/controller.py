@@ -19,7 +19,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-from api.utils import normalize_quantity
 
 from api import config
 from api.utils import normalize_quantity
@@ -139,16 +138,36 @@ def surface_water_rights_licences(polygon: Polygon):
         lic.properties['qty_m3_yr'] = qty
 
         if purpose is not None and qty is not None:
-            if not licenced_qty_by_use_type.get(purpose, None):
-                licenced_qty_by_use_type[purpose] = 0
-            licenced_qty_by_use_type[purpose] += qty
+            # move id to back of purpose name
+            idx = purpose.index(' - ')
+            purpose_edit = purpose[idx+3:] + ' - ' + purpose[0:idx]
+            # format licences for each purpose type
+            licenced_qty_by_use_type.setdefault(purpose_edit, {
+                "qty": 0,
+                "licences": []
+            })["qty"] += qty
+            licenced_qty_by_use_type[purpose_edit]["licences"].append(
+                Feature(
+                    geometry=transform(transform_3005_4326,
+                                       shape(lic.geometry)),
+                    id=lic.id,
+                    properties={
+                        "fileNumber": lic.properties["FILE_NUMBER"],
+                        "status": lic.properties["LICENCE_STATUS"],
+                        "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
+                        "source": lic.properties["SOURCE_NAME"],
+                        "quantityPerSec": qty / 31536000,
+                        "quantityPerYear": qty
+                    }
+                ))
 
     licence_purpose_type_list = []
 
-    for purpose, qty in licenced_qty_by_use_type.items():
+    for purpose, obj in licenced_qty_by_use_type.items():
         licence_purpose_type_list.append({
             "purpose": purpose,
-            "qty": qty,
+            "qty": obj["qty"],
+            "licences": obj["licences"],
             "units": "m3/year"
         })
 

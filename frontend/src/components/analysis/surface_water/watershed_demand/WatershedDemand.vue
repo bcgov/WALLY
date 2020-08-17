@@ -39,7 +39,7 @@
           :items="licenceData.total_qty_by_purpose"
           :single-expand="singleExpand"
           :expanded.sync="expanded"
-          item-key="useTypes"
+          item-key="purpose"
           show-expand
           class="elevation-1"
         >
@@ -48,29 +48,15 @@
             <h4>Annual licenced quantity by use type</h4>
             </v-toolbar>
           </template>
+          <template v-slot:item.qty="{ item }">
+            {{ item.qty.toFixed(0) }}
+          </template>
           <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length">
-              <WatershedIndividualLicences licences="licenseData"/>
-  <!--            More info about {{ item.useType }}-->
+              <WatershedIndividualLicences :licences="item.licences"/>
             </td>
           </template>
         </v-data-table>
-        <!-- <div class="my-5">
-          <div class="mb-3">Annual licenced quantity by use type:</div>
-          <v-data-table
-            :items="licenceData.total_qty_by_purpose"
-            :headers="licencePurposeHeaders"
-            sort-by="qty"
-            sort-desc
-          >
-            <template v-slot:item.qty="{ item }">
-              {{ item.qty.toFixed(1) | formatNumber }}
-            </template>
-          </v-data-table>
-          <v-col class="text-right">
-             <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
-          </v-col>
-        </div> -->
       </v-card>
     </div>
 
@@ -110,14 +96,16 @@ export default {
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
-      { text: '', value: 'action', sortable: false }
+      { text: '', value: 'data-table-expand' }
     ],
     show: {
       editingAllocationValues: false
     },
     purposeTypes: [],
     wmd: WatershedModelDescriptions,
-    isLicencesLayerVisible: true
+    isLicencesLayerVisible: true,
+    singleExpand: false,
+    expanded: []
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -166,7 +154,7 @@ export default {
         let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
         let sourceName = e.features[0].properties['SOURCE_NAME']
         let qty = e.features[0].properties['qty_m3_yr']
-        if(qty) { qty = qty.toFixed(1) } // fix on null value
+        if (qty) { qty = qty.toFixed(1) } // fix on null value
         let purpose = e.features[0].properties['PURPOSE_USE']
 
         // Ensure that if the map is zoomed out such that multiple

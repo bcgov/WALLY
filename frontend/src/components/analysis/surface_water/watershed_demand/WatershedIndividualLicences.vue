@@ -13,17 +13,17 @@
       </tr>
       </thead>
       <tbody>
-      <tr v-for="item in licences" :key="item.name">
+      <tr @mouseenter="onMouseEnterListItem(item)" v-for="item in licences" :key="uniqueKey(item)">
         <td>
-          <a href="https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&PosseObjectDef=o_ATIS_DocumentSearch&PosseMenuName=WS_Main&Criteria_LicenceNumber=C116806">
-          {{ item.number }}
+          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`" target="_blank">
+          {{ item.properties.fileNumber }}
           </a>
         </td>
-        <td>{{ item.status }}</td>
-        <td>{{ item.licensee }}</td>
-        <td>{{ item.source }}</td>
-        <td>{{ item.quantity_s }}</td>
-        <td>{{ item.quantity_y }}</td>
+        <td>{{ item.properties.status }}</td>
+        <td>{{ item.properties.licensee }}</td>
+        <td>{{ item.properties.source }}</td>
+        <td>{{ item.properties.quantityPerSec.toFixed(6) }}</td>
+        <td>{{ item.properties.quantityPerYear.toFixed(0) }}</td>
       </tr>
       </tbody>
     </template>
@@ -38,6 +38,17 @@ export default {
   props: ['licences'],
   data: () => ({
   }),
+  methods: {
+    onMouseEnterListItem (feature, layerName) {
+      feature['display_data_name'] = 'water_rights_licences'
+      this.$store.commit('map/updateHighlightFeatureData', feature)
+    },
+    uniqueKey (lic) {
+      return lic.properties.fileNumber +
+        lic.properties.source +
+        lic.properties.quantityPerSec
+    }
+  },
   mounted () {
   },
   beforeDestroy () {
@@ -46,9 +57,4 @@ export default {
 </script>
 
 <style>
-  #surfaceWaterDesign .v-card__title.title{
-    background-color: teal;
-    border-radius: 0;
-    color: white;
-  }
 </style>
