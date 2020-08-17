@@ -102,8 +102,8 @@ export default {
   computed: {
     ...mapGetters('surfaceWater', ['defaultWatershedDetails']),
     modelOutputs () {
-      if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_model 
-        && !this.defaultWatershedDetails.scsb2016_model.error) {
+      if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_model &&
+        !this.defaultWatershedDetails.scsb2016_model.error) {
         // console.log(this.defaultWatershedDetails.scsb2016_model)
         return this.defaultWatershedDetails.scsb2016_model.filter((x) => {
           return x.output_type !== 'MAD'
@@ -112,7 +112,7 @@ export default {
       return []
     },
     linearModelExample () {
-      if(this.defaultWatershedDetails.scsb2016_model.error) { return }
+      if (this.defaultWatershedDetails.scsb2016_model.error) { return }
 
       let mc = this.defaultWatershedDetails.scsb2016_model.find((x) => { return x.output_type === 'MAR' })
       if (mc) {
