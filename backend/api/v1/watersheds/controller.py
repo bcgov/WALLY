@@ -140,7 +140,7 @@ def surface_water_rights_licences(polygon: Polygon):
         if purpose is not None and qty is not None:
             # move id to back of purpose name
             idx = purpose.index(' - ')
-            purpose_edit = purpose[idx+3:] + ' - ' + purpose[0:idx]
+            purpose_edit = purpose[idx+3:] + ' (' + purpose[0:idx] + ')'
             # format licences for each purpose type
             licenced_qty_by_use_type.setdefault(purpose_edit, {
                 "qty": 0,

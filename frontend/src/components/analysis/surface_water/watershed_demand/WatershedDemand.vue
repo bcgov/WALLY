@@ -30,8 +30,6 @@
             @close="closeEditAllocationTableDialog"/>
         </v-dialog>
 
-        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year
-
         <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
 
         <v-data-table
@@ -45,11 +43,14 @@
         >
           <template v-slot:top>
             <v-toolbar flat>
-            <h4>Annual licenced quantity by use type</h4>
+            <h4>Total annual licenced quantity: {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year </h4>
             </v-toolbar>
           </template>
-          <template v-slot:item.qty="{ item }">
+          <template v-slot:[`item.qty`]="{ item }">
             {{ item.qty.toFixed(0) }}
+          </template>
+          <template v-slot:[`item.count`]="{ item }">
+            {{ item.licences.length }}
           </template>
           <template v-slot:expanded-item="{ headers, item }">
             <td :colspan="headers.length">
@@ -96,6 +97,7 @@ export default {
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
+      { text: '# Licences', value: 'count', align: 'end' },
       { text: '', value: 'data-table-expand' }
     ],
     show: {
