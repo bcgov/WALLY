@@ -40,6 +40,7 @@
           item-key="purpose"
           show-expand
           class="elevation-1"
+          @click:row="clearLicenceHighlight"
         >
           <template v-slot:top>
             <v-toolbar flat>
@@ -97,7 +98,7 @@ export default {
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
-      { text: '# Licences', value: 'count', align: 'end' },
+      { text: '# Licences', value: 'count', align: 'center' },
       { text: '', value: 'data-table-expand' }
     ],
     show: {
@@ -117,6 +118,7 @@ export default {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
     ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
+    ...mapMutations('map', ['updateHighlightFeatureData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
       global.config.debug && console.log('licence data')
       global.config.debug && console.log(data)
@@ -260,6 +262,9 @@ export default {
         this.map.removeSource('waterLicences')
       }
       this.fetchDemandData()
+    },
+    clearLicenceHighlight (value) {
+      this.updateHighlightFeatureData({})
     }
   },
   watch: {
@@ -279,6 +284,7 @@ export default {
       this.map.removeLayer('waterLicences')
       this.map.removeSource('waterLicences')
     }
+    this.updateHighlightFeatureData({})
   }
 }
 </script>

@@ -8,8 +8,8 @@
         <th class="text-left">Licence Status</th>
         <th class="text-left">Primary Licensee</th>
         <th class="text-left">Source</th>
-        <th class="text-left">Quantity (m³/s)</th>
-        <th class="text-left">Quantity (m³/year)</th>
+        <th class="text-right">Quantity (m³/s)</th>
+        <th class="text-right">Quantity (m³/year)</th>
       </tr>
       </thead>
       <tbody>
@@ -22,8 +22,8 @@
         <td>{{ item.properties.status }}</td>
         <td>{{ item.properties.licensee }}</td>
         <td>{{ item.properties.source }}</td>
-        <td>{{ item.properties.quantityPerSec.toFixed(6) }}</td>
-        <td>{{ item.properties.quantityPerYear.toFixed(0) }}</td>
+        <td class="text-right">{{ item.properties.quantityPerSec.toFixed(6) }}</td>
+        <td class="text-right">{{ item.properties.quantityPerYear.toFixed(0) }}</td>
       </tr>
       </tbody>
     </template>
