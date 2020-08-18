@@ -22,8 +22,8 @@
         <td>{{ item.properties.status }}</td>
         <td>{{ item.properties.licensee }}</td>
         <td>{{ item.properties.source }}</td>
-        <td class="text-right">{{ item.properties.quantityPerSec.toFixed(6) }}</td>
-        <td class="text-right">{{ item.properties.quantityPerYear.toFixed(0) }}</td>
+        <td class="text-right">{{ item.properties.quantityPerSec.toFixed(6) | formatNumber }}</td>
+        <td class="text-right">{{ item.properties.quantityPerYear.toFixed(0) | formatNumber  }}</td>
       </tr>
       </tbody>
     </template>

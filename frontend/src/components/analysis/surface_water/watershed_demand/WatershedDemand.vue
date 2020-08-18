@@ -48,13 +48,13 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.qty`]="{ item }">
-            {{ item.qty.toFixed(0) }}
+            {{ item.qty.toFixed(0) | formatNumber }}
           </template>
           <template v-slot:[`item.min`]="{ item }">
-            {{ Math.min.apply(Math, item.licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) }}
+            {{ Math.min.apply(Math, item.licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
           </template>
           <template v-slot:[`item.max`]="{ item }">
-            {{ Math.max.apply(Math, item.licences.map((o) => o.properties.quantityPerYear )).toFixed(0) }}
+            {{ Math.max.apply(Math, item.licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
           </template>
           <template v-slot:[`item.count`]="{ item }">
             {{ item.licences.length }}
