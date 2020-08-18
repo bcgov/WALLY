@@ -143,7 +143,7 @@ export default {
         let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
         let sourceName = e.features[0].properties['SOURCE_NAME']
         let qty = e.features[0].properties['qty_m3_yr']
-        if(qty) { qty = qty.toFixed(1) } // fix on null value
+        if (qty) { qty = qty.toFixed(1) } // fix on null value
         let purpose = e.features[0].properties['PURPOSE_USE']
 
         // Ensure that if the map is zoomed out such that multiple

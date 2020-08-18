@@ -6,13 +6,13 @@
       </v-banner>
     </v-toolbar>
     <v-row class="pa-5">
-      <v-col cols="12" lg="8">
+      <v-col>
         <p>Zoom into an area of interest on the map. To measure distance, click once to start to draw a line and then double click to complete the line.</p>
         <p>To measure perimeter and area, ensure your last double click point is near your first click point to finish your polygon.</p>
       </v-col>
       <v-col class="text-right">
         <v-col>
-          <v-btn @click="selectDrawLine" color="primary" outlined>Draw line</v-btn>
+          <v-btn @click="selectDrawLine" color="primary" outlined>Draw a line or polygon</v-btn>
         </v-col>
         <v-col>
           <v-btn @click="clearLine" color="primary" outlined>Clear</v-btn>
