@@ -23,12 +23,11 @@ There are two steps to getting the data from wally.
 
 Once you have the data from wally, you need to merge it with the station information using the scripts in the data folder. This data is then used as the training data set for use in the modelling scripts.
 
-Some generated datasets have been left in the ouput folder as an example, but flow data and the training data sets are not included in the repo due to size. This means it needs to be generated locally before modelling can occur. With more effort this process can be automated but currently requires manual running of the download and merging scripts.
+Some generated datasets have been left in the output folder as an example, but flow data and the training data sets are not included in the repo due to size. This means it needs to be generated locally before modelling can occur. With more effort this process can be automated but currently requires manual running of the download and merging scripts.
 
 ### Modelling
 
 Under the models directory there are annual and monthly modelling scripts that are primarily made up of pytorch modules. 
 The annual model attempts to predict mean annual discharge by using a small 2 layer neural network. This should be scaled up with better hardware for training.
-
 
 
