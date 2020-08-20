@@ -39,7 +39,6 @@
           :expanded.sync="expanded"
           item-key="purpose"
           show-expand
-          class="elevation-1"
           @click:row="clearLicenceHighlight"
         >
           <template v-slot:top>
