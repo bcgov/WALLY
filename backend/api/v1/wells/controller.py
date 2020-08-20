@@ -296,6 +296,21 @@ def distance_along_line(line: LineString, point: Point, srid=4326):
     return math.sqrt(abs(c ** 2 - b ** 2))
 
 
+def distance_from_line(line: LineString, point: Point, srid=4326):
+    """
+    calculates the shortest distance between the point and line.
+    """
+    if srid == 4326:
+        # transform to BC Albers, which has a base unit of metres
+        point = transform(transform_4326_3005, point)
+        line = transform(transform_4326_3005, line)
+
+    elif srid != 3005:
+        raise ValueError("SRID must be either 4326 or 3005")
+
+    return point.distance(line)
+
+
 def elevation_along_line(profile, distance):
     """ returns the elevation at `distance` metres along LineString Z `profile` """
     profile = transform(transform_4326_3005, profile)
@@ -322,16 +337,14 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
     )
     feature_collection = fetch_geojson_features([req])[0].geojson
 
-    logger.warn("feature_collection")
-    logger.warn(feature_collection)
-
     wells_results = []
 
     for well in feature_collection.features:
-        distance = distance_along_line(
-            LineString([coords[:2] for coords in list(profile.coords)]),
-            Point(shape(well.geometry))
-        )
+        line = LineString([coords[:2] for coords in list(profile.coords)])
+        point = Point(shape(well.geometry))
+
+        point_to_line_distance = distance_from_line(line, point)
+        distance = distance_along_line(line, point)
 
         # Separate the well aquifer info from the feature info
         well_aquifer = well.properties.pop('aquifer', None)
@@ -353,6 +366,7 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties[
                 'static_water_level'] else None,
             "distance_from_origin": distance,
+            "distance_from_line": point_to_line_distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
             "aquifer": well_aquifer,
             "aquifer_lithology": well.properties['aquifer_lithology'],
