@@ -1,0 +1,14 @@
+apiVersion: v1
+data:
+  prod.env: |
+    external_import=false
+    external_import_types=
+  staging.env: |
+    external_import=false
+    external_import_types=
+  dev.env: |
+    external_import=true
+    external_import_types=csv, kml, geojson
+kind: ConfigMap
+metadata:
+  name: wally-config

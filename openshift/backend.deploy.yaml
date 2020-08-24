@@ -200,6 +200,8 @@ objects:
           volumeMounts:
           - name: logging
             mountPath: /app/.log/
+          - name: wally-config
+            mountPath: /app/
         - name: promtail
           image: grafana/promtail:v1.3.0
           args:
