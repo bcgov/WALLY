@@ -201,7 +201,7 @@ objects:
           - name: logging
             mountPath: /app/.log/
           - name: wally-config
-            mountPath: /app/
+            mountPath: /app/.config/
         - name: promtail
           image: grafana/promtail:v1.3.0
           args:
