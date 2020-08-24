@@ -1,4 +1,6 @@
 import os
+from pydantic import BaseSettings
+from functools import lru_cache
 
 
 def getenv_boolean(var_name, default_value=False):
@@ -46,3 +48,21 @@ COMMON_DOCGEN_CLIENT_ID = os.getenv("COMMON_DOCGEN_CLIENT_ID", "")
 COMMON_DOCGEN_CLIENT_SECRET = os.getenv("COMMON_DOCGEN_CLIENT_SECRET", "")
 COMMON_DOCGEN_SSO_ENDPOINT = os.getenv("COMMON_DOCGEN_SSO_ENDPOINT", "")
 COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")
+
+BASE_DIR = '/app/'
+CONFIG_DIR = BASE_DIR + '.config/'
+
+
+# Use Pydantic's settings management
+class Settings(BaseSettings):
+    external_import = False
+    external_import_types = ""
+
+    class Config:
+        env_file = ".env"
+
+
+@lru_cache()
+def get_settings() -> Settings:
+    env_file = f"{CONFIG_DIR}/{WALLY_ENV.lower()}.env"
+    return Settings(_env_file=env_file)
