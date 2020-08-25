@@ -116,6 +116,7 @@ class WellSection(BaseModel):
     ground_elevation_from_dem: Optional[float]
     distance_from_origin: Optional[float]
     distance_from_line: Optional[float]
+    compass_direction: Optional[str]
     aquifer: Optional[WellAquifer]
     aquifer_lithology: Optional[str]
     feature: Optional[dict]

@@ -17,7 +17,7 @@ from shapely.geometry import (
     shape,
     MultiPolygon,
     Polygon)
-from shapely.ops import transform
+from shapely.ops import transform, nearest_points
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -31,6 +31,8 @@ from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportAp
     CrossSectionExport
 
 logger = logging.getLogger("api")
+
+COMPASS_BRACKETS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
 
 
 def get_wells_by_distance(db: Session, search_point: Point, radius: float) -> list:
@@ -311,6 +313,28 @@ def distance_from_line(line: LineString, point: Point, srid=4326):
     return point.distance(line)
 
 
+def compass_direction_point_to_line(line: LineString, point: Point, srid=4326):
+    """
+    calculates the azimuth from a point along a line to a point.
+    angle then used to lookup the compass direction
+    """
+    if srid == 4326:
+        # transform to BC Albers, which has a base unit of metres
+        point = transform(transform_4326_3005, point)
+        line = transform(transform_4326_3005, line)
+
+    elif srid != 3005:
+        raise ValueError("SRID must be either 4326 or 3005")
+
+    nearest_point = nearest_points(line, point)[0]
+    angle = math.atan2(point.x - nearest_point.x, point.y - nearest_point.y)
+    degrees = math.degrees(angle) if angle >= 0 else math.degrees(angle) + 360
+    compass_lookup = round(degrees / 45)
+    compass_direction = COMPASS_BRACKETS[compass_lookup]
+
+    return compass_direction
+
+
 def elevation_along_line(profile, distance):
     """ returns the elevation at `distance` metres along LineString Z `profile` """
     profile = transform(transform_4326_3005, profile)
@@ -343,14 +367,18 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         line = LineString([coords[:2] for coords in list(profile.coords)])
         point = Point(shape(well.geometry))
 
-        point_to_line_distance = distance_from_line(line, point)
+        shortest_line = distance_from_line(line, point)
         distance = distance_along_line(line, point)
+        compass_direction = compass_direction_point_to_line(line, point)
 
         # Separate the well aquifer info from the feature info
         well_aquifer = well.properties.pop('aquifer', None)
 
         # Add (flattened) aquifer into feature info
         well.properties['aquifer'] = well_aquifer.get('aquifer_id') if well_aquifer else None
+
+        well.properties['distance_from_line'] = shortest_line
+        well.properties['compass_direction'] = compass_direction
 
         # Remove lithologydescription_set from well properties as it's not formatted properly
         well.properties.pop('lithologydescription_set')
@@ -366,7 +394,6 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
             "water_depth": float(well.properties['static_water_level']) * 0.3048 if well.properties[
                 'static_water_level'] else None,
             "distance_from_origin": distance,
-            "distance_from_line": point_to_line_distance,
             "ground_elevation_from_dem": elevation_along_line(profile, distance),
             "aquifer": well_aquifer,
             "aquifer_lithology": well.properties['aquifer_lithology'],
