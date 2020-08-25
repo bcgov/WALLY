@@ -39,13 +39,15 @@
           :expanded.sync="expanded"
           item-key="purpose"
           show-expand
-          class="elevation-1"
           @click:row="clearLicenceHighlight"
         >
           <template v-slot:top>
             <v-toolbar flat>
             <h4>Total annual licenced quantity: {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year </h4>
             </v-toolbar>
+          </template>
+          <template v-slot:[`item.qty_sec`]="{ item }">
+            {{ (item.qty / secInYear).toFixed(6) | formatNumber }}
           </template>
           <template v-slot:[`item.qty`]="{ item }">
             {{ item.qty.toFixed(0) | formatNumber }}
@@ -103,7 +105,8 @@ export default {
     approvalsData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
-      { text: 'Total Quantity (m³/year)', value: 'qty', align: 'end' },
+      { text: 'Quantity (m³/sec)', value: 'qty_sec', align: 'end' },
+      { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
       { text: 'Min Use (m³/year)', value: 'min', align: 'end' },
       { text: 'Max Use (m³/year)', value: 'max', align: 'end' },
       { text: '# Licences', value: 'count', align: 'center' },
@@ -116,7 +119,8 @@ export default {
     wmd: WatershedModelDescriptions,
     isLicencesLayerVisible: true,
     singleExpand: false,
-    expanded: []
+    expanded: [],
+    secInYear: 31536000
   }),
   computed: {
     ...mapGetters('map', ['map']),
