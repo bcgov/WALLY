@@ -210,8 +210,27 @@ const router = new Router({
         title: `Surface Water Analysis - ${title}`,
         sidebarColumns: {}
       }
+    },
+    {
+      path: '/import-layer',
+      name: 'import-layer',
+      component: SurfaceWaterAnalysis,
+      meta: {
+        title: `Surface Water Analysis - ${title}`,
+        sidebarColumns: {}
+      }
     }
   ]
+})
+
+
+
+router.beforeEach((to, from, next) => {
+  // Check if feature is enabled
+  if (to.name === 'import-layer' &&
+    global && global.config && global.config.app &&
+    !global.config.app.external_import) next({ name: 'home' })
+  else next()
 })
 
 router.afterEach(mapResize)
