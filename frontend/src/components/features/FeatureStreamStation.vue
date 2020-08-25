@@ -4,21 +4,33 @@
       <div class="grey--text text--darken-4 headline" id="stationTitle">{{ record.properties.name }}</div>
       <div class="grey--text text--darken-2 title">Stream monitoring station</div>
       <v-divider></v-divider>
-      <v-list dense class="mx-0 px-0" v-if="station">
+      <v-list dense class="mx-0 px-0">
         <v-list-item class="feature-content">
           <v-list-item-content>Flow data:</v-list-item-content>
-          <v-list-item-content class="align-end">{{ formatYears(station.flow_years) }}</v-list-item-content>
+          <v-list-item-content class="align-end" v-if="station">{{ formatYears(station.flow_years) }}</v-list-item-content>
         </v-list-item>
-        <v-list-item v-if="station.flow_years && station.flow_years.length">
+        <v-list-item>
+          <v-list-item-content>Selected Year:</v-list-item-content>
+          <v-select
+            v-model="selectedYear"
+            :items="yearOptions"
+            :menu-props="{ maxHeight: '400' }"
+            label="Select year"
+            item-text="label"
+            item-value="value"
+            hint="Available data in this year"
+          ></v-select>
+        </v-list-item>
+        <v-list-item>
           <v-list-item-content class="mx-0 px-0">
             <Plotly id="flowPlot" :data="plotFlowData" :layout="plotFlowLayout" ref="flowPlot"></Plotly>
           </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Water levels:</v-list-item-content>
-          <v-list-item-content class="align-end">{{ formatYears(station.level_years) }}</v-list-item-content>
+          <v-list-item-content class="align-end" v-if="station">{{ formatYears(station.level_years) }}</v-list-item-content>
         </v-list-item>
-        <v-list-item v-if="station.level_years && station.level_years.length">
+        <v-list-item>
           <v-list-item-content>
             <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
           </v-list-item-content>
@@ -55,6 +67,7 @@ export default {
       station: {},
       flowData: [],
       levelData: [],
+      selectedYear: null,
       flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
@@ -64,6 +77,14 @@ export default {
   computed: {
     recordEndpoint () {
       return this.record.properties.url
+    },
+    yearOptions () {
+      if (!this.station) { return [] }
+      let allOption = [{ label: 'Average all years', value: null }]
+      return allOption.concat(this.station.flow_years.map((w, i) => ({
+        label: w,
+        value: w
+      })))
     },
     plotFlowData () {
       const mean = {
@@ -227,6 +248,13 @@ export default {
       })
     },
     fetchMonthlyData (flowURL, levelURL) {
+      if (this.selectedYear != null) {
+        flowURL = flowURL + '?year=' + this.selectedYear
+        levelURL = levelURL + '?year=' + this.selectedYear
+      }
+      console.log(flowURL)
+      console.log(levelURL)
+
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
         this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm³/s', this.flowData.map((x) => [x.max]))
@@ -284,7 +312,7 @@ export default {
     }
   },
   watch: {
-    recordEndpoint () {
+    selectedYear () {
       this.fetchRecord()
     }
   },
