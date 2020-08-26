@@ -4,13 +4,20 @@
       <div class="grey--text text--darken-4 headline" id="stationTitle">{{ record.properties.name }}</div>
       <div class="grey--text text--darken-2 title">Stream monitoring station</div>
       <v-divider></v-divider>
+      <div class="grey--text text--darken-4">
+        <div v-if="station">Flow data: {{ formatYears(station.flow_years) }}</div>
+        <div v-if="station">Station Status: {{ station.hyd_status ? station.hyd_status : 'None' }}</div>
+        <div v-if="station">Real-Time Data Available: {{ station.real_time === 1 ? 'Yes' : 'No' }}</div>
+        <div v-if="station">Gross drainage area: {{ station.drainage_area_gross }} km</div>
+        <div v-if="station">WSC Historical Link: <a :href="`https://wateroffice.ec.gc.ca/report/historical_e.html?stn=${station.station_number}`"
+          target="_blank"
+        >{{station.station_number}}</a></div>
+        <div v-if="station">WSC Realtime Link: <a :href="`https://wateroffice.ec.gc.ca/report/real_time_e.html?stn=${station.station_number}`"
+          target="_blank"
+        >{{station.station_number}}</a></div>
+      </div>
       <v-list dense class="mx-0 px-0">
-        <v-list-item class="feature-content">
-          <v-list-item-content>Flow data:</v-list-item-content>
-          <v-list-item-content class="align-end" v-if="station">{{ formatYears(station.flow_years) }}</v-list-item-content>
-        </v-list-item>
         <v-list-item>
-          <v-list-item-content>Selected Year:</v-list-item-content>
           <v-select
             v-model="selectedYear"
             :items="yearOptions"
@@ -64,7 +71,7 @@ export default {
   data () {
     return {
       loading: false,
-      station: {},
+      station: null,
       flowData: [],
       levelData: [],
       selectedYear: null,
