@@ -19,6 +19,7 @@ import WaterRightsLicencesNearbyContainer
   from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
 import FirstNationsAreasNearbyContainer
   from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
+import ImportLayer from './components/sidepanel/cards/ImportLayer'
 
 Vue.use(Router)
 
@@ -214,7 +215,7 @@ const router = new Router({
     {
       path: '/import-layer',
       name: 'import-layer',
-      component: SurfaceWaterAnalysis,
+      component: ImportLayer,
       meta: {
         title: `Surface Water Analysis - ${title}`,
         sidebarColumns: {}
@@ -223,13 +224,11 @@ const router = new Router({
   ]
 })
 
-
-
 router.beforeEach((to, from, next) => {
   // Check if feature is enabled
   if (to.name === 'import-layer' &&
-    global && global.config && global.config.app &&
-    !global.config.app.external_import) next({ name: 'home' })
+    store.getters.app &&
+    !store.getters.app.external_import) next({ name: 'home' })
   else next()
 })
 

@@ -2,10 +2,17 @@
 <div id="layerSelectionCard">
     <v-card class="pa-5" >
       <v-row>
-        <v-col class="title" cols=6>
+        <v-col class="title" cols=4>
           Categories
         </v-col>
-        <v-col cols=4 class="text-right"><v-btn @click.prevent="handleResetLayers" small color="grey lighten-2"><v-icon>refresh</v-icon>Reset all</v-btn></v-col>
+        <v-col cols=8 class="text-right">
+          <v-btn small color="grey darken-2" text v-if="app.config && app.config.external_import">
+            <v-icon small>mdi-plus-circle</v-icon> Import layer
+          </v-btn>
+          <v-btn @click.prevent="handleResetLayers" small color="grey darken-2" text>
+            <v-icon>refresh</v-icon> Reset all
+          </v-btn>
+        </v-col>
       </v-row>
       <v-treeview
         selectable
@@ -78,7 +85,8 @@ export default {
       'loadingFeature',
       'featureError',
       'dataMartFeatures',
-      'dataMartFeatureInfo'
+      'dataMartFeatureInfo',
+      'app'
     ]),
     layers () {
       return this.filterLayersByCategory(this.allMapLayers)

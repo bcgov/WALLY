@@ -116,14 +116,13 @@ export default {
         icon: 'mdi-cloud-upload'
       }
 
-      if (global && global.config && global.config.app &&
-        global.config.app.external_import) {
+      if (this.app && this.app.config.external_import) {
         newToolOptions.push(externalImport)
       }
       return newToolOptions
     },
     ...mapGetters('map', ['map']),
-    ...mapGetters(['infoPanelVisible'])
+    ...mapGetters(['infoPanelVisible', 'app'])
   },
   methods: {
     consoleLog () {
