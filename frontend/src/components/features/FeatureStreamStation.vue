@@ -5,14 +5,14 @@
       <div class="grey--text text--darken-2 title">Stream monitoring station</div>
       <v-divider></v-divider>
       <div class="grey--text text--darken-4">
+        <div v-if="station">Station Number: {{ station.station_number }}</div>
         <div v-if="station">Flow data: {{ formatYears(station.flow_years) }}</div>
-        <div v-if="station">Station Status: {{ station.hyd_status ? station.hyd_status : 'None' }}</div>
-        <div v-if="station">Real-Time Data Available: {{ station.real_time === 1 ? 'Yes' : 'No' }}</div>
+        <div v-if="station">Station Status: {{ stationStatus(station.hyd_status) }}</div>
         <div v-if="station">Gross drainage area: {{ station.drainage_area_gross }} km</div>
         <div v-if="station">WSC Historical Link: <a :href="`https://wateroffice.ec.gc.ca/report/historical_e.html?stn=${station.station_number}`"
           target="_blank"
         >{{station.station_number}}</a></div>
-        <div v-if="station">WSC Realtime Link: <a :href="`https://wateroffice.ec.gc.ca/report/real_time_e.html?stn=${station.station_number}`"
+        <div v-if="station && station.real_time === 1">WSC Realtime Link: <a :href="`https://wateroffice.ec.gc.ca/report/real_time_e.html?stn=${station.station_number}`"
           target="_blank"
         >{{station.station_number}}</a></div>
       </div>
@@ -87,7 +87,7 @@ export default {
     },
     yearOptions () {
       if (!this.station) { return [] }
-      let allOption = [{ label: 'Average all years', value: null }]
+      let allOption = [{ label: 'Monthly average all years', value: null }]
       return allOption.concat(this.station.flow_years.map((w, i) => ({
         label: w,
         value: w
@@ -99,7 +99,7 @@ export default {
         y: this.flowData.map(w => w.monthly_mean),
         text: this.flowData.map(w => w.monthly_mean),
         textposition: 'bottom',
-        name: 'Daily flow (average by month)',
+        name: 'Monthly flow (average by month)',
         hovertemplate:
           '<b>Mean</b>: %{text} m³/s',
         mode: 'markers+lines',
@@ -113,7 +113,7 @@ export default {
         y: this.flowData.map(w => w.max),
         text: this.flowData.map(w => w.max),
         textposition: 'bottom',
-        name: 'Daily flow (max recorded)',
+        name: 'Monthly flow (max recorded)',
         hovertemplate:
           '<b>Max</b>: %{text} m³/s',
         mode: 'markers+lines',
@@ -127,7 +127,7 @@ export default {
         y: this.flowData.map(w => w.min),
         text: this.flowData.map(w => w.min),
         textposition: 'bottom',
-        name: 'Daily flow (min recorded)',
+        name: 'Monthly flow (min recorded)',
         hovertemplate:
           '<b>Min</b>: %{text} m³/s',
         mode: 'markers+lines',
@@ -141,7 +141,7 @@ export default {
     plotFlowLayout () {
       const opts = {
         shapes: [],
-        title: 'Daily Flow',
+        title: 'Monthly Flow',
         height: 500,
         hovermode: 'closest',
         legend: {
@@ -150,7 +150,7 @@ export default {
         },
         yaxis: {
           title: {
-            text: 'Flow Rate (m³/s)'
+            text: 'Discharge (m³/s)'
           }
         },
         xaxis: {
@@ -231,6 +231,15 @@ export default {
     }
   },
   methods: {
+    stationStatus (status) {
+      if (status === 'A') {
+        return 'Active'
+      } else if (status === 'D') {
+        return 'Deactivated'
+      } else {
+        return 'Unknown'
+      }
+    },
     resetStation () {
       this.station = null
       this.flowChartReady = false
