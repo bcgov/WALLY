@@ -265,12 +265,20 @@ export default {
             ? w.ground_elevation_from_dem - w.finished_well_depth
             : w.ground_elevation_from_dem
         ),
-        text: this.wells.map(w => w.finished_well_depth),
+        text: this.wells.map(w => {
+          return {
+            fwd: w.finished_well_depth,
+            dfl: w.feature.properties.distance_from_line,
+            dir: w.feature.properties.compass_direction
+          }
+        }),
         textposition: 'bottom',
         showlegend: false,
         name: 'Finished well depth (reported)',
         hovertemplate:
-          '<b>Finished Depth: </b> %{text:.2f} m' + '<br><b>Elevation (asl):</b> %{y:.2f} m<br>',
+          '<b>Finished Depth: </b> %{text.fwd:.2f} m' +
+          '<br><b>Elevation (asl):</b> %{y:.2f} m' +
+          '<br><b>Well Offset:</b> %{text.dir} %{text.dfl:.2f} m<br>',
         mode: 'markers',
         type: 'scatter',
         marker: {
