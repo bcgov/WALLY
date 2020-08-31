@@ -1,4 +1,4 @@
-torch 
+torch
 torchvision
 matplotlib
 numpy
@@ -6,3 +6,5 @@ pandas
 matplotlib
 requests
 sklearn
+xgboost
+catboost
