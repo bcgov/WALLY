@@ -821,7 +821,6 @@ export default {
       if (this.map.getLayer('wellOffsetDistance')) {
         return
       }
-      console.log(data)
 
       this.map.addSource('wellOffsetDistance', {
         'type': 'geojson',
