@@ -14,7 +14,7 @@
         </template>
         <v-list>
           <v-list-item
-            v-for="(item, index) in selectionOptions"
+            v-for="(item, index) in toolOptions"
             :key="index"
             active-class="font-weight-bold"
             @click="openInfoPanelIfClosed"
@@ -51,7 +51,7 @@
         </template>
         <v-list>
           <v-list-item
-            v-for="(item, index) in toolOptions"
+            v-for="(item, index) in analysisOptions"
             :key="index"
             :to="item.route"
             active-class="font-weight-bold"
@@ -68,7 +68,7 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'SelectionMenu',
   data: () => ({
-    selectionOptions: [
+    defaultToolOptions: [
       {
         title: 'Place a point of interest',
         route: { name: 'point-of-interest' },
@@ -85,7 +85,7 @@ export default {
         icon: 'mdi-ruler'
       }
     ],
-    toolOptions: [
+    analysisOptions: [
       {
         title: 'Cross section plot',
         route: { name: 'cross-section' }
@@ -106,8 +106,23 @@ export default {
     ]
   }),
   computed: {
+    toolOptions () {
+      let newToolOptions = [...this.defaultToolOptions]
+
+      let externalImport =
+      {
+        title: 'Import a map layer',
+        route: { name: 'import-layer' },
+        icon: 'mdi-cloud-upload'
+      }
+
+      if (this.app && this.app.config.external_import) {
+        newToolOptions.push(externalImport)
+      }
+      return newToolOptions
+    },
     ...mapGetters('map', ['map']),
-    ...mapGetters(['infoPanelVisible'])
+    ...mapGetters(['infoPanelVisible', 'app'])
   },
   methods: {
     consoleLog () {

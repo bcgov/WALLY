@@ -12,7 +12,7 @@ const vuetify = new Vuetify()
 
 describe('LayerSelection', () => {
   let store
-  let getters
+  let getters, mapGetters
   let wrapper
   let mutations
   let map
@@ -22,7 +22,7 @@ describe('LayerSelection', () => {
       setActiveMapLayers: jest.fn(),
       removeMapLayer: jest.fn()
     }
-    getters = {
+    mapGetters = {
       isMapLayerActive: state => layerId => false,
       activeMapLayers: () => ([]),
       dataMartFeatureInfo: () => {
@@ -36,10 +36,21 @@ describe('LayerSelection', () => {
     }
     map = {
       namespaced: true,
-      getters,
+      getters: mapGetters,
       mutations
     }
-    store = new Vuex.Store({ modules: { map } })
+
+    getters = {
+      app: () => ({
+        config: {
+          'test prop': 'test value'
+        }
+      })
+
+    }
+
+    store = new Vuex.Store({ modules: { map }, getters })
+
     store.dispatch = jest.fn()
     wrapper = shallowMount(LayerSelection, {
       vuetify,

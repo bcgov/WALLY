@@ -5,6 +5,8 @@ from api.config import WALLY_VERSION, WALLY_ENV, API_VERSION
 import api.v1.catalogue.models as view_model
 import api.v1.config.schema as config_schema
 
+from api.config import get_settings
+
 logger = getLogger("config")
 
 router = APIRouter()
@@ -27,3 +29,8 @@ def get_wally_version():
         'wally_env': WALLY_ENV,
         'api_version': API_VERSION,
     }
+
+
+@router.get("/")
+def get_config():
+    return get_settings()

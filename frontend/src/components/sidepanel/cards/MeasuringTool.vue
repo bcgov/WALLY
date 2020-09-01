@@ -25,9 +25,9 @@
         <v-card-title class="subheading font-weight-bold">Measurements</v-card-title>
         <v-divider></v-divider>
         <v-card-text>
-          <p v-if="drawnMeasurements.distance"><b>Distance:</b> {{drawnMeasurements.distance}}</p>
-          <p v-if="drawnMeasurements.perimeter"><b>Perimeter:</b> {{drawnMeasurements.perimeter}}</p>
-          <p v-if="drawnMeasurements.area"><b>Area:</b> {{drawnMeasurements.area}}</p>
+          <p v-if="drawnMeasurements.distance"><strong>Distance:</strong> {{drawnMeasurements.distance}}</p>
+          <p v-if="drawnMeasurements.perimeter"><strong>Perimeter:</strong> {{drawnMeasurements.perimeter}}</p>
+          <p v-if="drawnMeasurements.area"><strong>Area:</strong> {{drawnMeasurements.area}}</p>
         </v-card-text>
       </v-card>
       </v-col>
