@@ -228,7 +228,8 @@ router.beforeEach((to, from, next) => {
   // Check if feature is enabled
   if (to.name === 'import-layer' &&
     store.getters.app &&
-    !store.getters.app.external_import) next({ name: 'home' })
+    store.getters.app.config &&
+    !store.getters.app.config.external_import) next({ name: 'home' })
   else next()
 })
 
