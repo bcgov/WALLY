@@ -268,8 +268,6 @@ export default {
         flowURL = flowURL + '?year=' + this.selectedYear
         levelURL = levelURL + '?year=' + this.selectedYear
       }
-      console.log(flowURL)
-      console.log(levelURL)
 
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
