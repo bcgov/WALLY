@@ -1,7 +1,7 @@
 <template>
   <v-container class="pt-5">
     <v-toolbar flat>
-      <v-banner color="indigo" icon="mdi-shape-polygon-plus" icon-color="white" width="100%">
+      <v-banner color="indigo" icon="mdi-cloud-upload" icon-color="white" width="100%">
         <v-toolbar-title>Import a map layer</v-toolbar-title>
       </v-banner>
     </v-toolbar>
