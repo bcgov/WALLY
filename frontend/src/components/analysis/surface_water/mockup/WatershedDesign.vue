@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Analyze surface water availability
+          Surface water availability
         </v-toolbar-title>
       </v-banner>
     </v-toolbar>
@@ -51,7 +51,8 @@
 
         </v-btn-toggle>
       </v-col>
-      <v-col></v-col>
+      <v-col>
+      </v-col>
       <v-col class="text-right">
         <v-btn-toggle>
         <v-btn outlined small
@@ -91,11 +92,21 @@
         </v-btn-toggle>
       </v-col>
     </v-row>
+    <v-card flat>
+      <v-select
+        :items="watershedSelect"
+        :menu-props="{ maxHeight: '400' }"
+        label="Watershed"
+        item-text="label"
+        item-value="value"
+        hint="Select from available watersheds at this location"
+      ></v-select>
+    </v-card>
     <v-card>
       <v-tabs
         vertical
         v-model="tab"
-        background-color="teal darken-3"
+        background-color="blue darken-4"
         dark
         show-arrows
       >

@@ -1,14 +1,6 @@
 <template>
   <v-card flat>
     <v-card-text>
-      <v-select
-        :items="watershedSelect"
-        :menu-props="{ maxHeight: '400' }"
-        label="Watershed"
-        item-text="label"
-        item-value="value"
-        hint="Select from available watersheds at this location"
-      ></v-select>
       <v-row>
         <v-alert tile color="" dense class="ma-3" width="100%" text>
             Model output based on South Coast Stewardship Baseline (Sentlinger, 2016).
