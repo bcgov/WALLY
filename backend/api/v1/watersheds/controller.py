@@ -19,7 +19,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-from api.utils import normalize_quantity
 
 from api import config
 from api.utils import normalize_quantity
@@ -36,6 +35,8 @@ from external.docgen.controller import docgen_export_to_xlsx
 from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logger = logging.getLogger('api')
+
+SEC_IN_YEAR = 31536000
 
 
 def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, float]:
@@ -139,16 +140,40 @@ def surface_water_rights_licences(polygon: Polygon):
         lic.properties['qty_m3_yr'] = qty
 
         if purpose is not None and qty is not None:
-            if not licenced_qty_by_use_type.get(purpose, None):
-                licenced_qty_by_use_type[purpose] = 0
-            licenced_qty_by_use_type[purpose] += qty
+            # move id to back of purpose name
+            try:
+                code, name = purpose.split(' - ')
+                purpose = f"{name} ({code})"
+            except ValueError:
+                logger.error(f"Error formatting {purpose}")
+
+            # format licences for each purpose type
+            licenced_qty_by_use_type.setdefault(purpose, {
+                "qty": 0,
+                "licences": []
+            })["qty"] += qty
+            licenced_qty_by_use_type[purpose]["licences"].append(
+                Feature(
+                    geometry=transform(transform_3005_4326,
+                                       shape(lic.geometry)),
+                    id=lic.id,
+                    properties={
+                        "fileNumber": lic.properties["FILE_NUMBER"],
+                        "status": lic.properties["LICENCE_STATUS"],
+                        "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
+                        "source": lic.properties["SOURCE_NAME"],
+                        "quantityPerSec": qty / SEC_IN_YEAR,
+                        "quantityPerYear": qty
+                    }
+                ))
 
     licence_purpose_type_list = []
 
-    for purpose, qty in licenced_qty_by_use_type.items():
+    for purpose, purpose_obj in licenced_qty_by_use_type.items():
         licence_purpose_type_list.append({
             "purpose": purpose,
-            "qty": qty,
+            "qty": purpose_obj["qty"],
+            "licences": purpose_obj["licences"],
             "units": "m3/year"
         })
 

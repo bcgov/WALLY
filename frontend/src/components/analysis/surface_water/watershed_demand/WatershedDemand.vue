@@ -30,26 +30,43 @@
             @close="closeEditAllocationTableDialog"/>
         </v-dialog>
 
-        <span>Total annual licenced quantity:</span> {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year
-
         <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
 
-        <div class="my-5">
-          <div class="mb-3">Annual licenced quantity by use type:</div>
-          <v-data-table
-            :items="licenceData.total_qty_by_purpose"
-            :headers="licencePurposeHeaders"
-            sort-by="qty"
-            sort-desc
-          >
-            <template v-slot:item.qty="{ item }">
-              {{ item.qty.toFixed(1) | formatNumber }}
-            </template>
-          </v-data-table>
-          <v-col class="text-right">
-             <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isLicencesLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
-          </v-col>
-        </div>
+        <v-data-table
+          :headers="licencePurposeHeaders"
+          :items="licenceData.total_qty_by_purpose"
+          :single-expand="singleExpand"
+          :expanded.sync="expanded"
+          item-key="purpose"
+          show-expand
+          @click:row="clearLicenceHighlight"
+        >
+          <template v-slot:top>
+            <v-toolbar flat>
+            <h4>Total annual licenced quantity: {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year </h4>
+            </v-toolbar>
+          </template>
+          <template v-slot:[`item.qty_sec`]="{ item }">
+            {{ (item.qty / secInYear).toFixed(6) | formatNumber }}
+          </template>
+          <template v-slot:[`item.qty`]="{ item }">
+            {{ item.qty.toFixed(0) | formatNumber }}
+          </template>
+          <template v-slot:[`item.min`]="{ item }">
+            {{ Math.min.apply(Math, item.licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+          </template>
+          <template v-slot:[`item.max`]="{ item }">
+            {{ Math.max.apply(Math, item.licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+          </template>
+          <template v-slot:[`item.count`]="{ item }">
+            {{ item.licences.length }}
+          </template>
+          <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+              <WatershedIndividualLicences :licences="item.licences"/>
+            </td>
+          </template>
+        </v-data-table>
       </v-card>
     </div>
 
@@ -66,6 +83,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
+import WatershedIndividualLicences from './WatershedIndividualLicences.vue'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -77,6 +95,7 @@ export default {
   mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
+    WatershedIndividualLicences,
     Dialog
   },
   props: ['watershedID'],
@@ -86,15 +105,22 @@ export default {
     approvalsData: null,
     licencePurposeHeaders: [
       { text: 'Use type', value: 'purpose', sortable: true },
+      { text: 'Quantity (m³/sec)', value: 'qty_sec', align: 'end' },
       { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
-      { text: '', value: 'action', sortable: false }
+      { text: 'Min Use (m³/year)', value: 'min', align: 'end' },
+      { text: 'Max Use (m³/year)', value: 'max', align: 'end' },
+      { text: '# Licences', value: 'count', align: 'center' },
+      { text: '', value: 'data-table-expand' }
     ],
     show: {
       editingAllocationValues: false
     },
     purposeTypes: [],
     wmd: WatershedModelDescriptions,
-    isLicencesLayerVisible: true
+    isLicencesLayerVisible: true,
+    singleExpand: false,
+    expanded: [],
+    secInYear: 31536000
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -104,6 +130,7 @@ export default {
     ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
     ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
+    ...mapMutations('map', ['updateHighlightFeatureData']),
     addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
       global.config.debug && console.log('licence data')
       global.config.debug && console.log(data)
@@ -143,7 +170,7 @@ export default {
         let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
         let sourceName = e.features[0].properties['SOURCE_NAME']
         let qty = e.features[0].properties['qty_m3_yr']
-        if(qty) { qty = qty.toFixed(1) } // fix on null value
+        if (qty) { qty = qty.toFixed(1) } // fix on null value
         let purpose = e.features[0].properties['PURPOSE_USE']
 
         // Ensure that if the map is zoomed out such that multiple
@@ -247,6 +274,9 @@ export default {
         this.map.removeSource('waterLicences')
       }
       this.fetchDemandData()
+    },
+    clearLicenceHighlight (value) {
+      this.updateHighlightFeatureData({})
     }
   },
   watch: {
@@ -266,6 +296,7 @@ export default {
       this.map.removeLayer('waterLicences')
       this.map.removeSource('waterLicences')
     }
+    this.updateHighlightFeatureData({})
   }
 }
 </script>

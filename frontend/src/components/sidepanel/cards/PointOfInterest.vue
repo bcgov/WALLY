@@ -40,9 +40,7 @@
       </v-col>
     </v-row>
 
-    <FeatureAnalysis
-      v-if="this.isPointSelected && pointOfInterest"
-      :record="pointOfInterest"/>
+    <FeatureAnalysis v-if="this.isPointSelected && pointOfInterest" />
 
   </v-container>
 </template>

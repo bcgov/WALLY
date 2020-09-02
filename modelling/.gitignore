@@ -1,0 +1,8 @@
+.vscode
+.mypy_cache
+docker-stack.yml
+.idea
+.tmp
+.env
+/venv/
+Hydat.sqlite3
