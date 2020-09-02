@@ -1,10 +1,22 @@
 <template>
-  <v-container class="pa-3 mt-3">
+  <div>
     <v-row v-if="watershedLoading">
       <v-col>
         <v-progress-linear show indeterminate></v-progress-linear>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col class="pb-0">
+        <v-alert type="info" dense class="mb-0" outlined dismissible>
+          This modelling output has not been peer reviewed and is still considered
+          experimental. Use the values generated with your own discretion.
+        </v-alert>
+      </v-col>
+    </v-row>
+    <SurfaceWaterHeaderButtons/>
+
+
+    <!-- old components -->
     <v-banner one-line>
       <v-avatar
         slot="icon"
@@ -133,7 +145,7 @@
         </div>
       </div>
     </template>
-  </v-container>
+  </div>
 </template>
 
 <script>
@@ -153,6 +165,8 @@ import FishInventories from './fish_inventories/FishInventories'
 import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
+import SurfaceWaterHeaderButtons from './SurfaceWaterHeaderButtons'
+
 export default {
   name: 'SurfaceWaterDetails',
   components: {
@@ -165,7 +179,8 @@ export default {
     ShortTermDemand,
     AvailabilityVsDemand,
     FishInventories,
-    StreamflowInventory
+    StreamflowInventory,
+    SurfaceWaterHeaderButtons
   },
   data: () => ({
     infoTabs: null,
@@ -406,5 +421,14 @@ export default {
 <style>
 .v-list-item__content, .v-select__selection{
   text-transform: capitalize;
+}
+#surfaceWaterDesign .info-blue .v-icon{
+  color: teal;
+}
+#surfaceWaterDesign .v-card__title{
+  font-size: 1rem
+}
+#surfaceWaterDesign .v-alert{
+  font-size: .9rem
 }
 </style>
