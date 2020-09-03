@@ -13,8 +13,20 @@
         </v-alert>
       </v-col>
     </v-row>
-    <SurfaceWaterHeaderButtons/>
 
+    <v-card flat v-if="watersheds && watersheds.length">
+
+      <SurfaceWaterHeaderButtons v-on:reset-watershed="resetWatershed"/>
+      <v-select
+        v-model="selectedWatershed"
+        :items="watershedOptions"
+        :menu-props="{ maxHeight: '400' }"
+        label="Select watershed"
+        item-text="label"
+        item-value="value"
+        hint="Available watersheds at this location"
+      ></v-select>
+    </v-card>
 
     <!-- old components -->
     <v-banner one-line>
@@ -305,6 +317,9 @@ export default {
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')
       this.clearWatershedDetailsAndDefaults()
+
+      // Clear URL params
+      this.$router.push('surface-water')
     },
     filterWatershed (id) {
       this.geojsonLayersAdded.forEach((layerID) => {

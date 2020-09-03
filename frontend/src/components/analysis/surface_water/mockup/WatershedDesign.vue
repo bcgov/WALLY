@@ -88,8 +88,11 @@
             </v-list-item>
           </v-list>
         </v-menu>
-
         </v-btn-toggle>
+        <v-btn outlined small color="primary" class="ml-1">
+          <v-icon small>refresh</v-icon>
+          Reset
+        </v-btn>
       </v-col>
     </v-row>
     <v-card flat>
