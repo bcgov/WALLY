@@ -35,6 +35,23 @@ export default {
             return
           }
 
+          // Add legend items for fish observation layers
+          if (layerID === 'fish_observations') {
+            ['fish_observations', 'fish_observations_summaries'].forEach((fishLayerID) =>{
+              mapLayerPaint = this.getPaint(mapLayerType, fishLayerID)
+              legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, fishLayerID)
+              var layerLegend = {
+                name: fishLayerID === 'fish_observations' ? 'Fish Observations' : '',
+                legendItems,
+                'plenty': true,
+                'className': 'grouped'
+              }
+              this.legend.push(layerLegend)
+            })
+            return
+          }
+          if(layerID === 'fish_observations_summaries') { return } // skip this layer because its added above
+          
           if (mapLayerType !== 'raster') {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
             legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerID)
