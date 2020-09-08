@@ -143,7 +143,7 @@
               >
                 <v-row align="center">
                   <v-col class="grow">
-                    Could not calculate watershed summary data (area, precipitation, glacial coverage) at this point.
+                    Could not calculate watershed summary data (area, precipitation, glacial coverage, estimated runoff) at this point.
                     Note: this can sometimes occur if the point of interest is in a very large watershed.
                     Please contact the Wally team for assistance.</v-col>
                   <v-col class="shrink">
