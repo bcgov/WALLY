@@ -25,6 +25,19 @@
       </p>
 
     </v-banner>
+    <v-alert
+      prominent
+      type="error"
+      outlined
+      v-if="watershedError"
+    >
+      <v-row align="center">
+        <v-col class="grow">Could not retrieve watershed data at this point. Note: this can sometimes occur if the point of interest is in a very large watershed. Please contact the Wally team for assistance.</v-col>
+        <v-col class="shrink">
+          <v-btn color="primary" @click="recalculateWatershed">Retry</v-btn>
+        </v-col>
+      </v-row>
+    </v-alert>
     <template v-if="watersheds && watersheds.length">
       <v-row>
         <v-col cols=12 md=12 class="text-right">
@@ -178,6 +191,7 @@ export default {
     includePOIPolygon: false,
     watershedDetailsLoading: false,
     spreadsheetLoading: false,
+    watershedError: true,
     show: {
       editingModelInputs: false
     }
@@ -320,6 +334,7 @@ export default {
       }, 'water_rights_licences')
     },
     fetchWatersheds () {
+      this.watershedError = false
       this.watershedLoading = true
       const params = {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
@@ -343,10 +358,12 @@ export default {
         })
         .catch(e => {
           console.error(e)
+          this.watershedError = true
           this.watershedLoading = false
         })
     },
     fetchWatershedDetails () {
+      this.watershedError = false
       this.watershedDetailsLoading = true
       ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
         .then(r => {
@@ -359,6 +376,7 @@ export default {
         })
         .catch(e => {
           this.watershedDetailsLoading = false
+          this.watershedError = true
           console.error(e)
         })
     },
