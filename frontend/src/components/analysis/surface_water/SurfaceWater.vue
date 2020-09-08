@@ -382,7 +382,6 @@ export default {
           this.watershedLoading = false
         })
         .catch(e => {
-          console.error(e)
           this.watershedListError = true
           this.watershedLoading = false
         })
@@ -402,7 +401,6 @@ export default {
         .catch(e => {
           this.watershedDetailsLoading = false
           this.watershedSummaryError = true
-          console.error(e)
         })
     },
     resetGeoJSONLayers () {
