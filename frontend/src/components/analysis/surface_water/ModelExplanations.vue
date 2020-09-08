@@ -1,7 +1,5 @@
 <template>
-  <v-row class="mx-1">
-    <v-col cols="12" md="12">
-      <v-expansion-panels>
+      <v-expansion-panels class="pl-3 pr-3 elevation-0" tile>
         <v-expansion-panel>
           <v-expansion-panel-header>
             Model Calculations and Error
@@ -73,8 +71,6 @@
           </v-expansion-panel-content>
         </v-expansion-panel>
       </v-expansion-panels>
-    </v-col>
-  </v-row>
 </template>
 
 <script>

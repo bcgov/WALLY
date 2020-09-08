@@ -1,10 +1,5 @@
 <template>
   <div>
-    <v-row v-if="watershedLoading">
-      <v-col>
-        <v-progress-linear show indeterminate></v-progress-linear>
-      </v-col>
-    </v-row>
     <v-row>
       <v-col class="pb-0">
         <v-alert type="info" dense class="mb-0" outlined dismissible>
@@ -21,12 +16,46 @@
         v-model="selectedWatershed"
         :items="watershedOptions"
         :menu-props="{ maxHeight: '400' }"
-        label="Select watershed"
+        label="Watershed"
         item-text="label"
         item-value="value"
-        hint="Available watersheds at this location"
+        hint="Select from available watersheds at this location"
       ></v-select>
     </v-card>
+
+    <template v-if="watersheds && watersheds.length">
+      <div v-if="selectedWatershed">
+        <div v-if="watershedDetailsLoading">
+          <v-progress-linear indeterminate show></v-progress-linear>
+        </div>
+        <div v-else>
+          <v-tabs
+            vertical
+            v-model="tab"
+            background-color="blue darken-4"
+            dark
+            show-arrows
+          >
+            <v-tab class="text-left">
+              Watershed
+            </v-tab>
+            <v-tab class="text-left">
+              Monthly Discharge
+            </v-tab>
+
+            <!-- Watershed -->
+            <v-tab-item>
+              <WatershedDetails></WatershedDetails>
+
+            </v-tab-item>
+            <!-- Licenced Quantity -->
+            <v-tab-item>
+              <WatershedMonthlyDischarge></WatershedMonthlyDischarge>
+            </v-tab-item>
+          </v-tabs>
+        </div>
+      </div>
+    </template>
 
     <!-- old components -->
     <v-banner one-line>
@@ -178,6 +207,8 @@ import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
 import SurfaceWaterHeaderButtons from './SurfaceWaterHeaderButtons'
+import WatershedDetails from './WatershedDetails'
+import WatershedMonthlyDischarge from './WatershedMonthlyDischarge'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -192,7 +223,9 @@ export default {
     AvailabilityVsDemand,
     FishInventories,
     StreamflowInventory,
-    SurfaceWaterHeaderButtons
+    SurfaceWaterHeaderButtons,
+    WatershedDetails,
+    WatershedMonthlyDischarge
   },
   data: () => ({
     infoTabs: null,
@@ -437,13 +470,16 @@ export default {
 .v-list-item__content, .v-select__selection{
   text-transform: capitalize;
 }
-#surfaceWaterDesign .info-blue .v-icon{
+#surfaceWater .info-blue .v-icon{
   color: teal;
 }
-#surfaceWaterDesign .v-card__title{
+#surfaceWater .info-blue {
+  color: #085599;
+}
+#surfaceWater .v-card__title{
   font-size: 1rem
 }
-#surfaceWaterDesign .v-alert{
+#surfaceWater .v-alert{
   font-size: .9rem
 }
 </style>

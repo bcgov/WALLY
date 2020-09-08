@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-if="name" width="650">
     <template v-slot:activator="{ on }">
-      <v-icon class="float-right" v-on="on">
+      <v-icon class="float-right ml-1" v-on="on" small>
         mdi-information-outline
       </v-icon>
     </template>
