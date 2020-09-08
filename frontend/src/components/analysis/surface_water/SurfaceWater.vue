@@ -80,22 +80,22 @@
               </v-tooltip>
           </div>
 
-        <v-alert
-          prominent
-          type="error"
-          outlined
-          v-if="watershedSummaryError"
-        >
-          <v-row align="center">
-            <v-col class="grow">
-              Could not calculate watershed summary data (area, precipitation, glacial coverage) at this point.
-              Note: this can sometimes occur if the point of interest is in a very large watershed.
-              Please contact the Wally team for assistance.</v-col>
-            <v-col class="shrink">
-              <v-btn color="primary" @click="recalculateWatershed">Retry</v-btn>
-            </v-col>
-          </v-row>
-
+          <v-alert
+            prominent
+            type="error"
+            outlined
+            v-if="watershedSummaryError"
+          >
+            <v-row align="center">
+              <v-col class="grow">
+                Could not calculate watershed summary data (area, precipitation, glacial coverage) at this point.
+                Note: this can sometimes occur if the point of interest is in a very large watershed.
+                Please contact the Wally team for assistance.</v-col>
+              <v-col class="shrink">
+                <v-btn color="primary" @click="recalculateWatershed">Retry</v-btn>
+              </v-col>
+            </v-row>
+          </v-alert>
           <v-alert
             v-if="customModelInputsActive"
             class="my-5"
