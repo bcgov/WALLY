@@ -17,6 +17,7 @@
         <p>
           Visit EcoCat to access the
           <v-btn v-on="on" small  depressed light class="ml-2"
+                 target="_blank"
                  href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344">
             <v-icon small>
               mdi-link-variant
