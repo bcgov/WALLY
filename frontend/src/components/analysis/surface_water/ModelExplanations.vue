@@ -68,6 +68,10 @@
                     </tr>
                   </template>
                 </v-data-table>
+
+                Model Relevancy
+                
+
               </v-card-text>
             </v-card>
           </v-expansion-panel-content>

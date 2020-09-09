@@ -899,3 +899,11 @@ def parse_fish_life_stages(stages):
     flat_list = [item for sublist in split_list for item in sublist]
 
     return list(set(flat_list))
+
+
+def get_scsb2016_input_stats(db: Session):
+    q = """
+    select * from scsb2016_model_input_stats;
+    """
+    res = db.execute(q)
+    return res

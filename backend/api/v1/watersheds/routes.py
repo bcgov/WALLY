@@ -46,7 +46,8 @@ from api.v1.watersheds.controller import (
     export_summary_as_xlsx,
     known_fish_observations,
     find_50k_watershed_codes,
-    get_stream_inventory_report_link_for_region
+    get_stream_inventory_report_link_for_region,
+    get_scsb2016_input_stats
 )
 from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.hydat.controller import (get_stations_in_area)
@@ -213,8 +214,11 @@ def watershed_stats(
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
+    scsb2016_input_stats = get_scsb2016_input_stats(db)
+
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
+
 
     data = {
         "watershed_name": watershed.properties.get("name", None),
@@ -237,7 +241,8 @@ def watershed_stats(
         "runoff_isoline_discharge_m3s": isoline_runoff['runoff'] / 365 / 24 / 60 / 60,
         "scsb2016_model": scsb2016_model,
         "scsb2016_output": model_output_as_dict(scsb2016_model),
-        "hydrometric_stations": hydrometric_stations
+        "scsb2016_input_stats": scsb2016_input_stats,
+        "hydrometric_stations": hydrometric_stations,
     }
 
     if format == 'xlsx':
