@@ -903,7 +903,8 @@ def parse_fish_life_stages(stages):
 
 def get_scsb2016_input_stats(db: Session):
     q = """
-    select * from scsb2016_model_input_stats;
+    select * from modeling.scsb2016_model_input_stats;
     """
-    res = db.execute(q)
-    return res
+    result = db.execute(q)
+    stats = [dict(row) for row in result]
+    return stats

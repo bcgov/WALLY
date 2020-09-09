@@ -69,7 +69,6 @@
                   </template>
                 </v-data-table>
 
-                Model Relevancy
                 <ModelRelevancyBoxPlots :stats="modelStats" :inputs="modelInputs"/>
 
               </v-card-text>
