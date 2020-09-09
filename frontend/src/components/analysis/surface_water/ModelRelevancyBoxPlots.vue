@@ -92,7 +92,7 @@ export default {
     }
   }),
   methods: {
-    populateBoxPlotData (inputs) {
+    populateBoxPlotData () {
       let input1 = []
       let input2 = []
       let input3 = []
@@ -100,7 +100,7 @@ export default {
       this.input2Chart.data = []
       this.input3Chart.data = []
       
-      wells.forEach(well => {
+      this.stats.forEach(stat => {
         yieldY.push(Number(well.well_yield))
         depthY.push(Number(well.finished_well_depth))
         swlY.push(Number(well.static_water_level))

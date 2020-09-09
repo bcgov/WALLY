@@ -70,7 +70,7 @@
                 </v-data-table>
 
                 Model Relevancy
-                
+                <ModelRelevancyBoxPlots :stats="modelStats" :inputs="modelInputs"/>
 
               </v-card-text>
             </v-card>
@@ -83,9 +83,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ModelRelevancyBoxPlots from './ModelRelevancyBoxPlots'
 
 export default {
   name: 'ModelExplanations',
+  components: {
+    ModelRelevancyBoxPlots
+  },
   data: () => ({
     modelHeaders: [
       { text: 'Output Type', value: 'output_type', tooltip: 'The type of value the model calculates.' },
@@ -112,6 +116,27 @@ export default {
         return this.defaultWatershedDetails.scsb2016_model.filter((x) => {
           return x.output_type !== 'MAD'
         })
+      }
+      return []
+    },
+    modelStats() {
+      if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_input_stats) {
+        return this.defaultWatershedDetails.scsb2016_input_stats
+      }
+      return []
+    },
+    modelInputs() {
+      if (this.defaultWatershedDetails) {
+        var wd = this.defaultWatershedDetails
+        return {
+          "drainage_area": wd.drainage_area,
+          "glacial_coverage": wd.glacial_coverage,
+          "annual_precipitation": wd.annual_precipitation,
+          "potential_evapotranspiration_thornthwaite": wd.potential_evapotranspiration_thornthwaite,
+          "average_slope": wd.average_slope,
+          "solar_exposure": wd.solar_exposure,
+          "median_elevation": wd.median_elevation
+        }
       }
       return []
     },
