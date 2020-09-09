@@ -4,6 +4,7 @@
       class="title mt-5 ml-3 mr-3 pa-1 mb-2"
       dark>
      Watershed Monthly Discharge
+      <v-icon small class="ml-1">mdi-information-outline</v-icon>
     </v-card-title>
     <v-card-text>
       <img src="mockups/watershed_monthly_discharge.png" width="800"/>

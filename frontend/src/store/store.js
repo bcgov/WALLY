@@ -3,6 +3,7 @@ import ApiService from '../services/ApiService'
 export default {
   state: {
     infoPanelVisible: true,
+    infoPanelWidth: 800,
     app: {
       api_version: null,
       wally_env: 'development',
@@ -24,6 +25,9 @@ export default {
     setInfoPanelVisibility (state, payload) {
       state.infoPanelVisible = payload
     },
+    setInfoPanelWidth (state, payload) {
+      state.infoPanelWidth = payload
+    },
     toggleInfoPanelVisibility (state, payload) {
       state.infoPanelVisible = payload !== undefined ? payload : !state.infoPanelVisible
     },
@@ -36,6 +40,7 @@ export default {
   },
   getters: {
     infoPanelVisible: state => state.infoPanelVisible,
+    infoPanelWidth: state => state.infoPanelWidth,
     app: state => state.app
   }
 }

@@ -143,17 +143,21 @@ export default {
     togglePanel () {
       this.$store.commit('toggleInfoPanelVisibility')
     },
-    setEvents () {
+    resizePanel (width) {
       const minSize = this.minPanelWidth
-      const infoPanelBorder = this.$el.querySelector('.draggableBorder')
       const infoPanel = this.$el.querySelector('#info-sheet .v-sheet')
 
-      let resize = (e) => {
-        const windowWidth = document.body.scrollWidth
-        const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
+      const windowWidth = document.body.scrollWidth
+      const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
 
-        infoPanel.style.width = (e.clientX > minSize && e.clientX < maxSize) && e.clientX + 'px'
-        this.$store.dispatch('map/resizeMap')
+      infoPanel.style.width = (width > minSize && width < maxSize) && width + 'px'
+      this.$store.dispatch('map/resizeMap')
+    },
+    setEvents () {
+      const infoPanelBorder = this.$el.querySelector('.draggableBorder')
+
+      let resize = (e) => {
+        this.resizePanel(e.clientX)
       }
 
       infoPanelBorder.addEventListener(

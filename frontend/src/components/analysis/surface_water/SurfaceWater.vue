@@ -42,15 +42,39 @@
             <v-tab class="text-left">
               Monthly Discharge
             </v-tab>
+            <v-tab class="text-left">
+              Licenced Quantity
+            </v-tab>
+            <v-tab class="text-left">
+              Hydrometric Stations
+            </v-tab>
+            <v-tab>
+              Streamflow Report
+            </v-tab>
+            <v-tab class="text-left">
+              Fish Observations
+            </v-tab>
+            <v-tab class="text-left">
+              FIDQ
+            </v-tab>
+            <v-tab>
+              Runoff Models
+            </v-tab>
 
             <!-- Watershed -->
             <v-tab-item>
-              <WatershedDetails></WatershedDetails>
-
+              <WatershedDetails :modelOutputs="modelOutputs"/>
             </v-tab-item>
+            <!-- Monthly Discharge -->
+            <v-tab-item>
+              <WatershedMonthlyDischarge :modelOutputs="modelOutputs"/>
+            </v-tab-item>
+
             <!-- Licenced Quantity -->
             <v-tab-item>
-              <WatershedMonthlyDischarge></WatershedMonthlyDischarge>
+              <WatershedLicencedQty :modelOutputs="modelOutputs"
+                                    :watershedID="selectedWatershed"/>
+              <WaterApprovalPoints :watershedID="selectedWatershed"/>
             </v-tab-item>
           </v-tabs>
         </div>
@@ -209,7 +233,10 @@ import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 import SurfaceWaterHeaderButtons from './SurfaceWaterHeaderButtons'
 import WatershedDetails from './WatershedDetails'
 import WatershedMonthlyDischarge from './WatershedMonthlyDischarge'
+import WatershedLicencedQty from './watershed_demand/WatershedLicencedQty'
+import WaterApprovalPoints from './watershed_demand/WaterApprovalPoints'
 
+import { months, secondsInMonth } from '../../../constants/months'
 export default {
   name: 'SurfaceWaterDetails',
   components: {
@@ -223,11 +250,15 @@ export default {
     AvailabilityVsDemand,
     FishInventories,
     StreamflowInventory,
+
     SurfaceWaterHeaderButtons,
     WatershedDetails,
-    WatershedMonthlyDischarge
+    WatershedMonthlyDischarge,
+    WatershedLicencedQty,
+    WaterApprovalPoints
   },
   data: () => ({
+    tab: null,
     infoTabs: null,
     watershedLoading: false,
     selectedWatershed: null,
@@ -240,6 +271,14 @@ export default {
     spreadsheetLoading: false,
     show: {
       editingModelInputs: false
+    },
+    modelOutputs: {
+      mad: 0,
+      mar: 0,
+      low7q2: 0,
+      dry7q10: 0,
+      monthlyDischarges: [],
+      monthlyDistributions: []
     }
   }),
   watch: {
@@ -249,9 +288,30 @@ export default {
     },
     includePOIPolygon () {
       this.recalculateWatershed()
+    },
+    watershedDetails: {
+      immediate: true,
+      handler (val, oldVal) {
+        this.updateModelData(val)
+      }
     }
   },
   computed: {
+    watershedName () {
+      if (!this.selectedWatershedRecord) {
+        return ''
+      }
+      let name = ''
+      let props = this.selectedWatershedRecord.properties
+      name = props.GNIS_NAME_1 ? props.GNIS_NAME_1
+        : props.SOURCE_NAME ? props.SOURCE_NAME
+          : props.name ? props.name
+            : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
+              : props.OBJECTID ? props.OBJECTID : ''
+      console.log('name')
+      console.log(name)
+      return name.toString()
+    },
     selectedWatershedRecord () {
       if (!this.selectedWatershed || !this.watersheds) {
         return null
@@ -272,6 +332,7 @@ export default {
     ...mapGetters('map', ['map'])
   },
   methods: {
+    ...mapMutations('surfaceWater', ['setAvailabilityPlotData']),
     exportWatershedXLSX () {
       // Custom metrics - Track Excel downloads
       window._paq && window._paq.push([
@@ -438,6 +499,35 @@ export default {
       this.resetGeoJSONLayers()
       this.fetchWatersheds()
     },
+    updateModelData (details) {
+      // MAD Model Calculations
+      if (!details) {
+        return
+      }
+
+      if (details && details.scsb2016_model && !details.scsb2016_model.error) {
+        let outputs = details.scsb2016_model
+        let mar = outputs.find((x) => x.output_type === 'MAR')
+        let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
+        let low7q2 = outputs.find((x) => x.output_type === '7Q2')
+        let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
+        let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
+        let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
+        this.modelOutputs = {
+          sourceDescription: 'Model output based on South Coast Stewardship Baseline (Sentlinger, 2016).',
+          mar: mar.model_result.toFixed(2),
+          mad: mad.model_result.toFixed(2),
+          low7q2: low7q2.model_result.toFixed(2),
+          dry7q10: dry7q10.model_result.toFixed(2),
+          monthlyDistributions: monthlyDistributions,
+          monthlyDischarges: monthlyDischarges
+        }
+        let availability = monthlyDischarges.map((m) => { return m.model_result * months[m.month] * secondsInMonth })
+        this.setAvailabilityPlotData(availability)
+      } else {
+        this.setAvailabilityPlotData(null)
+      }
+    },
     ...mapMutations('map', [
       'setMode'
     ]),
@@ -481,5 +571,10 @@ export default {
 }
 #surfaceWater .v-alert{
   font-size: .9rem
+}
+#surfaceWater .v-card__title.title{
+  background-color: #085599;
+  border-radius: 0;
+  color: white;
 }
 </style>
