@@ -40,7 +40,7 @@ export default {
             ['fish_observations', 'fish_observations_summaries'].forEach((fishLayerID) => {
               mapLayerPaint = this.getPaint(mapLayerType, fishLayerID)
               legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, fishLayerID)
-              var layerLegend = {
+              let layerLegend = {
                 name: fishLayerID === 'fish_observations' ? 'Fish Observations' : '',
                 legendItems: [{
                   text: fishLayerID === 'fish_observations' ? 'Observation Point' : 'Summary Point',
