@@ -1,41 +1,119 @@
 <template>
-  <div>
-    <div>
-      <div class="titleSub">Comparitive Runoff Models</div>
-      <div v-if="annualNormalizedRunoff">
-        <div>
-          Source:
-          <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries" target="_blank">
-            Hydrometric Watersheds (DataBC)
-          </a>
-        </div>
-        <div>Annual normalized runoff: {{ annualNormalizedRunoff }} mm</div>
-        <div>Watershed area (highlighted area): {{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</div>
-        <div>
-          Using normalized runoff from: {{ annualNormalizedRunoffSource }}
-        </div>
-        <Plotly v-if="normalizedRunoffByMonth"
-          :layout="runoffLayout"
-          :data="normalizedRunoffByMonth"
-        ></Plotly>
-      </div>
-      <div v-if="annualIsolineRunoff">
-        <div>
-          Source:
-          <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical" target="_blank">
-            Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical (DataBC)
-          </a>
-        </div>
-        <div>Average annual runoff (by isolines): {{ annualIsolineRunoff }} mm</div>
-        <div>Watershed area: {{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</div>
-        <Plotly v-if="isolineRunoffByMonth"
-          :layout="isolineRunoffLayout"
-          :data="isolineRunoffByMonth"
-        ></Plotly>
-      </div>
-    </div>
-    <div v-if="!annualIsolineRunoff && !annualNormalizedRunoff">No availability models available at this location.</div>
-  </div>
+  <v-card flat>
+    <v-card-title
+            class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+            dark>
+      Comparative Runoff Models
+    </v-card-title>
+    <v-card-text v-if="annualNormalizedRunoff">
+      <v-card-actions>
+        <v-card-subtitle class="pr-0 pl-2">
+          Source
+        </v-card-subtitle>
+        <v-btn v-on="on" small  depressed light class="ml-2"
+               target="_blank"
+               href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries">
+
+          <v-icon small>
+            mdi-link-variant
+          </v-icon>
+          Hydrometric Watersheds (DataBC)
+        </v-btn>
+      </v-card-actions>
+      <v-row class="pl-3 pr-3">
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Annual normalized runoff
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ annualNormalizedRunoff }} mm</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Watershed area (highlighted area)
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row class="pl-3 pr-3">
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Using normalized runoff from
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ annualNormalizedRunoffSource }}</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <Plotly v-if="normalizedRunoffByMonth"
+                  :layout="runoffLayout"
+                  :data="normalizedRunoffByMonth"
+                ></Plotly>
+    </v-card-text>
+    <v-card-text v-if="annualNormalizedRunoff && annualIsolineRunoff">
+      <v-divider class="mt-3 mb-3"></v-divider>
+    </v-card-text>
+    <v-card-text v-if="annualIsolineRunoff">
+      <v-card-actions>
+        <v-card-subtitle class="pr-0 pl-2">
+          Source
+        </v-card-subtitle>
+        <v-btn v-on="on" small  depressed light class="ml-2"
+               target="_blank"
+               href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical">
+
+          <v-icon small>
+            mdi-link-variant
+          </v-icon>
+          Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical (DataBC)
+        </v-btn>
+      </v-card-actions>
+      <v-row class="pl-3 pr-3">
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Average annual runoff (by isolines):
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ annualIsolineRunoff }} mm</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Watershed area
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <Plotly v-if="isolineRunoffByMonth"
+            :layout="isolineRunoffLayout"
+            :data="isolineRunoffByMonth">
+      </Plotly>
+
+    </v-card-text>
+    <v-card-text v-else-if="!fishLoading">
+      <p class="text--disabled mt-2">Unknown fish presence</p>
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>

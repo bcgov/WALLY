@@ -12,14 +12,18 @@
       <v-card-subtitle class="pr-0 pl-2">
         Search the Fish Inventory Data Queries database using the following watershed codes
       </v-card-subtitle>
-      <v-btn v-on="on" small  depressed light class="ml-2"
-             :href="`http://a100.gov.bc.ca/pub/fidq/viewSingleWaterbody.do?searchCriteria.watershedCode=${code}`">
+      <div v-for="(code, i) in watershed50kCodes" :key="`fidqLink${i}`">
+        <v-btn v-on="on" small  depressed light class="ml-2"
+               target="_blank"
+               :href="`http://a100.gov.bc.ca/pub/fidq/viewSingleWaterbody.do?searchCriteria.watershedCode=${code}`">
 
-        <v-icon small>
-          mdi-link-variant
-        </v-icon>
-        Query: {{code}}
-      </v-btn>
+          <v-icon small>
+            mdi-link-variant
+          </v-icon>
+          Query: {{code}}
+        </v-btn>
+      </div>
+
     </v-card-text>
     <v-card-text v-else-if="!loading">
       <p class="text--disabled mt-2">

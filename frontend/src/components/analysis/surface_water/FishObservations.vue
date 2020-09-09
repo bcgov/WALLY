@@ -11,6 +11,7 @@
 
       </v-card-subtitle>
       <v-btn v-on="on" small  depressed light class="ml-2"
+             target="_blank"
              href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions">
 
         <v-icon small>

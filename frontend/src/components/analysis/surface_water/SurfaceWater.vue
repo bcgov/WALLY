@@ -98,140 +98,146 @@
             <v-tab-item>
               <FishInventories :watershedID="selectedWatershed"/>
             </v-tab-item>
+
+            <!-- Comparative Runoff Models -->
+            <v-tab-item>
+              <WatershedAvailability :allWatersheds="watersheds"
+                                     :record="selectedWatershedRecord"/>
+            </v-tab-item>
           </v-tabs>
         </div>
       </div>
     </template>
 
     <!-- old components -->
-    <v-banner one-line>
-      <v-avatar
-        slot="icon"
-        color="blue accent-4"
-        size="40"
-      >
-        <v-icon
-          icon="mdi-exclamation"
-          color="white"
-        >
-          mdi-exclamation
-        </v-icon>
-      </v-avatar>
+<!--    <v-banner one-line>-->
+<!--      <v-avatar-->
+<!--        slot="icon"-->
+<!--        color="blue accent-4"-->
+<!--        size="40"-->
+<!--      >-->
+<!--        <v-icon-->
+<!--          icon="mdi-exclamation"-->
+<!--          color="white"-->
+<!--        >-->
+<!--          mdi-exclamation-->
+<!--        </v-icon>-->
+<!--      </v-avatar>-->
 
-      <p>
-        This modelling output has not been peer reviewed and is still considered
-        experimental. Use the values generated with your own discretion.
-      </p>
+<!--      <p>-->
+<!--        This modelling output has not been peer reviewed and is still considered-->
+<!--        experimental. Use the values generated with your own discretion.-->
+<!--      </p>-->
 
-    </v-banner>
-    <template v-if="watersheds && watersheds.length">
-      <v-row>
-        <v-col cols=12 md=12 class="text-right">
-          <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
-        </v-col>
-      </v-row>
-      <v-row align="center">
-        <v-col cols=12 md=12>
-          <v-select
-            v-model="selectedWatershed"
-            :items="watershedOptions"
-            :menu-props="{ maxHeight: '400' }"
-            label="Select watershed"
-            item-text="label"
-            item-value="value"
-            hint="Available watersheds at this location"
-          ></v-select>
-        </v-col>
-      </v-row>
+<!--    </v-banner>-->
+<!--    <template v-if="watersheds && watersheds.length">-->
+<!--      <v-row>-->
+<!--        <v-col cols=12 md=12 class="text-right">-->
+<!--          <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>-->
+<!--        </v-col>-->
+<!--      </v-row>-->
+<!--      <v-row align="center">-->
+<!--        <v-col cols=12 md=12>-->
+<!--          <v-select-->
+<!--            v-model="selectedWatershed"-->
+<!--            :items="watershedOptions"-->
+<!--            :menu-props="{ maxHeight: '400' }"-->
+<!--            label="Select watershed"-->
+<!--            item-text="label"-->
+<!--            item-value="value"-->
+<!--            hint="Available watersheds at this location"-->
+<!--          ></v-select>-->
+<!--        </v-col>-->
+<!--      </v-row>-->
 
-      <div v-if="selectedWatershed">
-        <div v-if="watershedDetailsLoading">
-          <v-progress-linear indeterminate show></v-progress-linear>
-        </div>
-        <div v-else>
-          <div>Watershed Details
-             <v-tooltip right v-if="this.scsb2016ModelInputs">
-                <template v-slot:activator="{ on }">
-                  <v-btn v-on="on" x-small fab depressed light
-                         @click="openEditableModelInputsDialog">
-                    <v-icon small color="primary">
-                      mdi-tune
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <span>Customize Model Inputs</span>
-              </v-tooltip>
-          </div>
+<!--      <div v-if="selectedWatershed">-->
+<!--        <div v-if="watershedDetailsLoading">-->
+<!--          <v-progress-linear indeterminate show></v-progress-linear>-->
+<!--        </div>-->
+<!--        <div v-else>-->
+<!--          <div>Watershed Details-->
+<!--             <v-tooltip right v-if="this.scsb2016ModelInputs">-->
+<!--                <template v-slot:activator="{ on }">-->
+<!--                  <v-btn v-on="on" x-small fab depressed light-->
+<!--                         @click="openEditableModelInputsDialog">-->
+<!--                    <v-icon small color="primary">-->
+<!--                      mdi-tune-->
+<!--                    </v-icon>-->
+<!--                  </v-btn>-->
+<!--                </template>-->
+<!--                <span>Customize Model Inputs</span>-->
+<!--              </v-tooltip>-->
+<!--          </div>-->
 
-          <v-alert
-            v-if="customModelInputsActive"
-            class="my-5"
-            outlined
-            type="warning"
-            prominent
-            border="left"
-          >
-            <p>
-              You are using custom model inputs and not the values supplied by the
-              Wally API.
-            </p>
-          </v-alert>
+<!--          <v-alert-->
+<!--            v-if="customModelInputsActive"-->
+<!--            class="my-5"-->
+<!--            outlined-->
+<!--            type="warning"-->
+<!--            prominent-->
+<!--            border="left"-->
+<!--          >-->
+<!--            <p>-->
+<!--              You are using custom model inputs and not the values supplied by the-->
+<!--              Wally API.-->
+<!--            </p>-->
+<!--          </v-alert>-->
 
-          <v-dialog v-model="show.editingModelInputs" persistent>
-            <EditableModelInputs
-              @close="closeEditableModelInputsDialog"/>
-          </v-dialog>
+<!--          <v-dialog v-model="show.editingModelInputs" persistent>-->
+<!--            <EditableModelInputs-->
+<!--              @close="closeEditableModelInputsDialog"/>-->
+<!--          </v-dialog>-->
 
-          <v-row>
-            <v-col class="text-right">
-              <v-btn outlined v-on:click="downloadWatershedInfo()"
-                     color="primary" class="mx-1">
-                <span class="hidden-sm-and-down">
-                  PDF
-                  <v-icon class="ml-1">cloud_download</v-icon>
-                  </span>
-              </v-btn>
-              <v-btn
-                  class="mx-1"
-                  outlined
-                  @click="exportWatershedXLSX"
-                  color="primary"
-                >
-                  Excel
-                  <v-icon class="ml-1" v-if="!spreadsheetLoading">
-                    cloud_download
-                  </v-icon>
-                  <v-progress-circular
-                    v-if="spreadsheetLoading"
-                    indeterminate
-                    size=24
-                    class="ml-1"
-                    color="primary"
-                  ></v-progress-circular>
-              </v-btn>
-            </v-col>
-          </v-row>
+<!--          <v-row>-->
+<!--            <v-col class="text-right">-->
+<!--              <v-btn outlined v-on:click="downloadWatershedInfo()"-->
+<!--                     color="primary" class="mx-1">-->
+<!--                <span class="hidden-sm-and-down">-->
+<!--                  PDF-->
+<!--                  <v-icon class="ml-1">cloud_download</v-icon>-->
+<!--                  </span>-->
+<!--              </v-btn>-->
+<!--              <v-btn-->
+<!--                  class="mx-1"-->
+<!--                  outlined-->
+<!--                  @click="exportWatershedXLSX"-->
+<!--                  color="primary"-->
+<!--                >-->
+<!--                  Excel-->
+<!--                  <v-icon class="ml-1" v-if="!spreadsheetLoading">-->
+<!--                    cloud_download-->
+<!--                  </v-icon>-->
+<!--                  <v-progress-circular-->
+<!--                    v-if="spreadsheetLoading"-->
+<!--                    indeterminate-->
+<!--                    size=24-->
+<!--                    class="ml-1"-->
+<!--                    color="primary"-->
+<!--                  ></v-progress-circular>-->
+<!--              </v-btn>-->
+<!--            </v-col>-->
+<!--          </v-row>-->
 
-          <div>
-            <MeanAnnualRunoff :record="selectedWatershedRecord"/>
-            <WatershedDemand :watershedID="selectedWatershed"/>
-            <ShortTermDemand :watershedID="selectedWatershed"/>
-            <AvailabilityVsDemand/>
-            <HydrometricStationsContainer
-              v-if="watershedDetails && watershedDetails.hydrometric_stations"
-              :stations="watershedDetails.hydrometric_stations"
-            class="pt-8" />
-            <StreamflowInventory
-              :coordinates="this.pointOfInterest.geometry.coordinates"
-            ></StreamflowInventory>
-            <FishObservations :watershedID="selectedWatershed"/>
-            <FishInventories :watershedID="selectedWatershed"/>
-            <WatershedAvailability :allWatersheds="watersheds"
-                                   :record="selectedWatershedRecord"/>
-          </div>
-        </div>
-      </div>
-    </template>
+<!--          <div>-->
+<!--            <MeanAnnualRunoff :record="selectedWatershedRecord"/>-->
+<!--            <WatershedDemand :watershedID="selectedWatershed"/>-->
+<!--            <ShortTermDemand :watershedID="selectedWatershed"/>-->
+<!--            <AvailabilityVsDemand/>-->
+<!--            <HydrometricStationsContainer-->
+<!--              v-if="watershedDetails && watershedDetails.hydrometric_stations"-->
+<!--              :stations="watershedDetails.hydrometric_stations"-->
+<!--            class="pt-8" />-->
+<!--            <StreamflowInventory-->
+<!--              :coordinates="this.pointOfInterest.geometry.coordinates"-->
+<!--            ></StreamflowInventory>-->
+<!--            <FishObservations :watershedID="selectedWatershed"/>-->
+<!--            <FishInventories :watershedID="selectedWatershed"/>-->
+<!--            <WatershedAvailability :allWatersheds="watersheds"-->
+<!--                                   :record="selectedWatershedRecord"/>-->
+<!--          </div>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </template>-->
   </div>
 </template>
 
