@@ -38,13 +38,15 @@ export default {
     ...mapGetters('map', ['isMapReady'])
   },
   methods: {
-    ...mapActions(['getAppInfo']),
+    ...mapActions(['getAppInfo', 'getAppConfig']),
     ...mapActions('user', ['getUserProfile']),
     ...mapGetters('user', ['defaultMapLayers'])
   },
   mounted () {
     this.getAppInfo()
+    this.getAppConfig()
     this.getUserProfile()
+    console.log('[wally]', this.app.config)
   },
   watch: {
     isMapReady (value) {

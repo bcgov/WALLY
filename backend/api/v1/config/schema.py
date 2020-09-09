@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from pyparsing import Optional
 
 
 class VersionConfig(BaseModel):

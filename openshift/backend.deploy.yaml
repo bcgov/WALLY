@@ -2,9 +2,9 @@ apiVersion: v1
 parameters:
 - name: NAME
   displayName: Name
-  description: The name assigned to all of the resources defined in this template.
+  description: The name (environment) assigned to all of the resources defined in this template.
   required: true
-  value: wally-test
+  value: test
 - name: HOST
   displayName: Host
   description: The hostname to deploy this template to.
@@ -200,6 +200,8 @@ objects:
           volumeMounts:
           - name: logging
             mountPath: /app/.log/
+          - name: wally-config
+            mountPath: /app/.config/
         - name: promtail
           image: grafana/promtail:v1.3.0
           args:
@@ -226,6 +228,9 @@ objects:
         - name: promtail-config
           configMap:
             name: promtail-config
+        - name: wally-config
+          configMap:
+            name: wally-config
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
