@@ -119,23 +119,23 @@ export default {
       }
       return []
     },
-    modelStats() {
+    modelStats () {
       if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_input_stats) {
         return this.defaultWatershedDetails.scsb2016_input_stats
       }
       return []
     },
-    modelInputs() {
+    modelInputs () {
       if (this.defaultWatershedDetails) {
         var wd = this.defaultWatershedDetails
         return {
-          "drainage_area": wd.drainage_area,
-          "glacial_coverage": wd.glacial_coverage,
-          "annual_precipitation": wd.annual_precipitation,
-          "potential_evapotranspiration_thornthwaite": wd.potential_evapotranspiration_thornthwaite,
-          "average_slope": wd.average_slope,
-          "solar_exposure": wd.solar_exposure,
-          "median_elevation": wd.median_elevation
+          'drainage_area': wd.drainage_area,
+          'glacial_coverage': wd.glacial_coverage,
+          'annual_precipitation': wd.annual_precipitation,
+          'potential_evapotranspiration_thornthwaite': wd.potential_evapotranspiration_thornthwaite,
+          'average_slope': wd.average_slope,
+          'solar_exposure': wd.solar_exposure,
+          'median_elevation': wd.median_elevation
         }
       }
       return []

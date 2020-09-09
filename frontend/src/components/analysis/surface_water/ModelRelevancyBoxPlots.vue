@@ -99,11 +99,11 @@ export default {
       this.input1Chart.data = []
       this.input2Chart.data = []
       this.input3Chart.data = []
-      
+
       this.stats.forEach(stat => {
-        yieldY.push(Number(well.well_yield))
-        depthY.push(Number(well.finished_well_depth))
-        swlY.push(Number(well.static_water_level))
+        input1.push(Number(stat))
+        input2.push(Number(stat))
+        input3.push(Number(stat))
       })
       this.boxPlotYieldData.data.push({
         y: yieldY,
