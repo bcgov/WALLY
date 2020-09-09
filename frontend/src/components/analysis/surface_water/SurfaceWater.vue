@@ -45,7 +45,7 @@
             <v-tab class="text-left">
               Licenced Quantity
             </v-tab>
-            <v-tab class="text-left">
+            <v-tab class="text-left" v-if="watershedDetails && watershedDetails.hydrometric_stations">
               Hydrometric Stations
             </v-tab>
             <v-tab>
@@ -74,7 +74,19 @@
             <v-tab-item>
               <WatershedLicencedQty :modelOutputs="modelOutputs"
                                     :watershedID="selectedWatershed"/>
+            </v-tab-item>
 
+            <!-- Hydrometric Stations -->
+            <v-tab-item>
+              <HydrometricStationsContainer v-if="watershedDetails && watershedDetails.hydrometric_stations"
+                :stations="watershedDetails.hydrometric_stations"/>
+            </v-tab-item>
+
+            <!-- Streamflow Report -->
+            <v-tab-item>
+              <StreamflowInventory
+                :coordinates="this.pointOfInterest.geometry.coordinates"
+              ></StreamflowInventory>
             </v-tab-item>
           </v-tabs>
         </div>

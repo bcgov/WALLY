@@ -1,13 +1,42 @@
 <template>
-  <v-card flat class="my-5 py-5">
-    <p class="title font-weight-bold">Inventory of Streamflow Report</p>
-    <div v-if="reportLink">
-      <p>
-        Visit EcoCat to access the <a :href="reportLink" target="_blank">{{ reportName }}</a> information and its associated data files for this area.
-      </p>
-    </div>
-    <p v-else class="text--disabled">No streamflow inventory report found for this region.</p>
+  <v-card flat>
+    <v-card-title
+      class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+      dark>
+      Inventory of Streamflow Report
+    </v-card-title>
+    <v-card-text v-if="reportLink">
+      <div>
+        <p>
+          Visit EcoCat to access the
+          <a href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344" target="_blank">
+            Inventory of Streamflow in the South Coast and West Coast Regions
+          </a> information and its associated data files for this area.
+        </p>
+
+        <p>
+          Visit EcoCat to access the
+          <v-btn v-on="on" small  depressed light class="ml-2"
+                 href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344">
+            <v-icon small>
+              mdi-link-variant
+            </v-icon>
+            Inventory of Streamflow in the South Coast and West Coast Regions
+          </v-btn>
+          information and its associated data files for this area
+          </p>
+      </div>
+    </v-card-text>
   </v-card>
+<!--  <v-card flat class="my-5 py-5">-->
+<!--    <p class="title font-weight-bold">Inventory of Streamflow Report</p>-->
+<!--    <div v-if="reportLink">-->
+<!--      <p>-->
+<!--        Visit EcoCat to access the <a :href="reportLink" target="_blank">{{ reportName }}</a> information and its associated data files for this area.-->
+<!--      </p>-->
+<!--    </div>-->
+<!--    <p v-else class="text&#45;&#45;disabled">No streamflow inventory report found for this region.</p>-->
+<!--  </v-card>-->
 </template>
 <script>
 import qs from 'querystring'
