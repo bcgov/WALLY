@@ -253,6 +253,9 @@ export default {
           for (let i = 1; i < 5; i++) {
             commit('deactivateLayer', 'water_licensed_works_dash' + i)
           }
+        } else if (l === 'fish_observations') {
+          commit('deactivateLayer', 'fish_observations')
+          commit('deactivateLayer', 'fish_observations_summaries')
         }
       })
 
@@ -266,6 +269,9 @@ export default {
           for (let i = 1; i < 5; i++) {
             commit('activateLayer', 'water_licensed_works_dash' + i)
           }
+        } else if (l === 'fish_observations') {
+          commit('activateLayer', 'fish_observations')
+          commit('activateLayer', 'fish_observations_summaries')
         }
       })
 
