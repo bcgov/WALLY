@@ -2,10 +2,15 @@ from typing import List, Dict
 import logging
 import datetime
 import openpyxl
+import math
 from openpyxl.writer.excel import save_virtual_workbook
 from openpyxl.styles import PatternFill, Border, Side, Font
 from starlette.responses import Response
 from api.v1.aggregator.schema import LayerResponse
+from shapely.geometry import Point, LineString, shape
+from shapely.ops import transform, nearest_points
+from api.v1.aggregator.helpers import transform_3005_4326, transform_4326_3005
+from api.v1.wells.helpers import distance_from_line, compass_direction_point_to_line
 
 logger = logging.getLogger('well export')
 
@@ -59,6 +64,8 @@ def cross_section_xlsx_export(features: List[LayerResponse], coordinates: list, 
     lith_sheet.append(LITHOLOGY_HEADERS)
     screen_sheet.append(SCREEN_HEADERS)
 
+    line = LineString([coords[:2] for coords in list(coordinates)])
+
     for dataset in features:
         # avoid trying to process layers if they have no features.
         if not dataset.geojson:
@@ -69,8 +76,13 @@ def cross_section_xlsx_export(features: List[LayerResponse], coordinates: list, 
             props = dataset.geojson.features[0].properties
             well_tag_number = props["well_tag_number"]
 
-            well_values = [props.get(x, None) for x in WELL_HEADERS]
-            well_sheet.append(well_values)
+            point = Point(shape(dataset.geojson.features[0].geometry))
+            well_offset = round(distance_from_line(line, point), 2)
+            well_offset_direction = compass_direction_point_to_line(line, point)
+
+            well_values = [props.get(x, None) for x in WELL_HEADERS[3:]]
+            well_sheet.append([well_tag_number] + [well_offset] \
+              + [well_offset_direction] + well_values)
 
             lith_set = props["lithologydescription_set"]
 
@@ -166,7 +178,9 @@ LITHOLOGY_HEADERS = [
 ]
 
 WELL_HEADERS = [
-    "well_tag_number",
+    'well_tag_number',
+    "well_offset",
+    "well_offset_direction",
     "identification_plate_number",
     "well_identification_plate_attached",
     "well_status",
