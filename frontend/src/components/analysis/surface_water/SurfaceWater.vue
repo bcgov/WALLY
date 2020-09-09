@@ -74,7 +74,7 @@
             <v-tab-item>
               <WatershedLicencedQty :modelOutputs="modelOutputs"
                                     :watershedID="selectedWatershed"/>
-              <WaterApprovalPoints :watershedID="selectedWatershed"/>
+
             </v-tab-item>
           </v-tabs>
         </div>

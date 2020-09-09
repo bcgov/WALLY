@@ -1,36 +1,38 @@
 <template>
   <v-card flat>
-
+    <v-card-text class="pb-0">
+      <h3>Water Approval Points (Short Term Licences)</h3>
+    </v-card-text>
     <v-card-text v-if="approvalsLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </v-card-text>
     <v-card-text v-if="shortTermLicenceData">
-      <v-divider class="mt-8 mb-8"></v-divider>
-      <!-- Water approval points -->
-      <h3>Water Approval Points (Short Term Licences)</h3>
       <v-row>
         <v-col>
           <v-card flat outlined tile>
             <v-card-title>
               Total annual approved quantity
-              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+              <Dialog v-bind="wmd.shortTermDemand"/>
             </v-card-title>
             <v-card-text class="info-blue">
-              <strong>000000.00 m³/year</strong>
+              <strong> {{ shortTermLicenceData.total_qty | formatNumber }} m³/year</strong>
             </v-card-text>
           </v-card>
         </v-col>
       </v-row>
       <v-data-table
-        :headers="approvalHeaders"
-        :items="approvalPoints"
-        item-key="useType"
-        class="elevation-1"
+        :items="shortTermFeatures"
+        :headers="shortTermPurposeHeaders"
+        sort-by="qty"
+        sort-desc
       >
         <template v-slot:top>
           <v-toolbar flat>
             <h4>Short Term Water Approval Points</h4>
           </v-toolbar>
+        </template>
+        <template v-slot:item.qty="{ item }">
+          {{ item.qty | formatNumber }}
         </template>
       </v-data-table>
 
@@ -66,52 +68,6 @@
         </v-tooltip>
       </v-card-actions>
 
-      <v-divider class="mt-8 mb-8"></v-divider>
-      <!-- Availability vs Licensed Quantity -->
-      <h3>Availability vs Licensed Quantity</h3>
-      <v-row>
-        <v-col>
-          <v-card flat outlined tile>
-            <v-card-title>
-              How to read this graph
-              <!--              <v-icon small class="ml-1">mdi-information-outline</v-icon>-->
-            </v-card-title>
-            <v-card-text class="info-blue">
-              <strong>
-                This graph shows available water after allocation from existing surface water licences, as determined by subtracting licensed quantities (including any adjusted monthly allocation values) from the estimated discharge for each month.
-              </strong>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <img src="mockups/available_vs_monthly.png" width="800" />
-      </v-row>
-
-      <!--      <v-card-actions>-->
-      <!--        <v-tooltip bottom>-->
-      <!--          <template v-slot:activator="{ on }">-->
-      <!--            <v-btn v-on="on" small depressed light>-->
-      <!--              <v-icon small color="primary">-->
-      <!--                mdi-tune-->
-      <!--              </v-icon>-->
-      <!--              Monthly allocation coefficients-->
-      <!--            </v-btn>-->
-      <!--          </template>-->
-      <!--          <span>Configure short term monthly allocation coefficients</span>-->
-      <!--        </v-tooltip>-->
-      <!--        <v-tooltip bottom>-->
-      <!--          <template v-slot:activator="{ on }">-->
-      <!--            <v-btn v-on="on" small  depressed light class="ml-2">-->
-      <!--              <v-icon small>-->
-      <!--                layers-->
-      <!--              </v-icon>-->
-      <!--              Hide points on map-->
-      <!--            </v-btn>-->
-      <!--          </template>-->
-      <!--          <span>Hide Water Approval Points Layer</span>-->
-      <!--        </v-tooltip>-->
-      <!--      </v-card-actions>-->
     </v-card-text>
   </v-card>
 </template>
