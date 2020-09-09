@@ -29,7 +29,7 @@
       prominent
       type="error"
       outlined
-      v-if="watershedListError"
+      v-if="error.watershedList"
     >
       <v-row align="center">
         <v-col class="grow">
@@ -132,7 +132,7 @@
           <div>
             <div>
               <MeanAnnualRunoff
-                v-if="!watershedSummaryError"
+                v-if="!error.watershedSummary"
                 :record="selectedWatershedRecord"/>
 
               <v-alert
@@ -214,9 +214,11 @@ export default {
     geojsonLayersAdded: [],
     includePOIPolygon: false,
     watershedDetailsLoading: false,
+    error: {
+      watershedList: false,
+      watershedSummary: false
+    },
     spreadsheetLoading: false,
-    watershedListError: false,
-    watershedSummaryError: false,
     show: {
       editingModelInputs: false
     }
@@ -359,7 +361,7 @@ export default {
       }, 'water_rights_licences')
     },
     fetchWatersheds () {
-      this.watershedListError = false
+      this.error.watershedList = false
       this.watershedLoading = true
       const params = {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
@@ -382,12 +384,12 @@ export default {
           this.watershedLoading = false
         })
         .catch(e => {
-          this.watershedListError = true
+          this.error.watershedList = true
           this.watershedLoading = false
         })
     },
     fetchWatershedDetails () {
-      this.watershedSummaryError = false
+      this.error.watershedSummary = false
       this.watershedDetailsLoading = true
       ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
         .then(r => {
@@ -400,7 +402,7 @@ export default {
         })
         .catch(e => {
           this.watershedDetailsLoading = false
-          this.watershedSummaryError = true
+          this.error.watershedSummary = true
         })
     },
     resetGeoJSONLayers () {
