@@ -169,6 +169,10 @@
                   Elevations for well data (depth to water, finished well depth, etc.) are calculated by subtracting
                   the reported depth below ground level from the CDEM elevation at the location of the well.
                 </dd>
+                <dt>Well offset</dt>
+                <dd>
+                  The offset distance (in meters) and compass direction between the well head and the drawn cross section line.
+                </dd>
               </dl>
             </v-expansion-panel-content>
           </v-expansion-panel>

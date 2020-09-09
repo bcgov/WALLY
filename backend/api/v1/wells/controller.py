@@ -17,7 +17,7 @@ from shapely.geometry import (
     shape,
     MultiPolygon,
     Polygon)
-from shapely.ops import transform
+from shapely.ops import transform, nearest_points
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -29,6 +29,7 @@ from api.v1.aggregator.schema import ExternalAPIRequest
 from api.v1.wells.excel import cross_section_xlsx_export
 from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportApiParams, \
     CrossSectionExport
+from api.v1.wells.helpers import distance_from_line, compass_direction_point_to_line
 
 logger = logging.getLogger("api")
 
@@ -322,22 +323,24 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
     )
     feature_collection = fetch_geojson_features([req])[0].geojson
 
-    logger.warn("feature_collection")
-    logger.warn(feature_collection)
-
     wells_results = []
 
     for well in feature_collection.features:
-        distance = distance_along_line(
-            LineString([coords[:2] for coords in list(profile.coords)]),
-            Point(shape(well.geometry))
-        )
+        line = LineString([coords[:2] for coords in list(profile.coords)])
+        point = Point(shape(well.geometry))
+
+        shortest_line = distance_from_line(line, point)
+        distance = distance_along_line(line, point)
+        compass_direction = compass_direction_point_to_line(line, point)
 
         # Separate the well aquifer info from the feature info
         well_aquifer = well.properties.pop('aquifer', None)
 
         # Add (flattened) aquifer into feature info
         well.properties['aquifer'] = well_aquifer.get('aquifer_id') if well_aquifer else None
+
+        well.properties['distance_from_line'] = shortest_line
+        well.properties['compass_direction'] = compass_direction
 
         # Remove lithologydescription_set from well properties as it's not formatted properly
         well.properties.pop('lithologydescription_set')
