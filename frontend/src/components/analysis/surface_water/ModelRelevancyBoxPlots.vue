@@ -55,13 +55,5 @@ export default {
       }]
     }
   }
-  // watch: {
-  //   inputs (value) {
-  //     this.populateBoxPlotData()
-  //   }
-  // },
-  // mounted () {
-  //   this.populateBoxPlotData()
-  // }
 }
 </script>
