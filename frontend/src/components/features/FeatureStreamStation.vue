@@ -4,21 +4,40 @@
       <div class="grey--text text--darken-4 headline" id="stationTitle">{{ record.properties.name }}</div>
       <div class="grey--text text--darken-2 title">Stream monitoring station</div>
       <v-divider></v-divider>
-      <v-list dense class="mx-0 px-0" v-if="station">
-        <v-list-item class="feature-content">
-          <v-list-item-content>Flow data:</v-list-item-content>
-          <v-list-item-content class="align-end">{{ formatYears(station.flow_years) }}</v-list-item-content>
+      <div class="grey--text text--darken-4">
+        <div v-if="station">Station Number: {{ station.station_number }}</div>
+        <div v-if="station">Flow data: {{ formatYears(station.flow_years) }}</div>
+        <div v-if="station">Station Status: {{ stationStatus(station.hyd_status) }}</div>
+        <div v-if="station">Gross drainage area: {{ station.drainage_area_gross }} km</div>
+        <div v-if="station">WSC Historical Link: <a :href="`https://wateroffice.ec.gc.ca/report/historical_e.html?stn=${station.station_number}`"
+          target="_blank"
+        >{{station.station_number}}</a></div>
+        <div v-if="station && station.real_time === 1">WSC Realtime Link: <a :href="`https://wateroffice.ec.gc.ca/report/real_time_e.html?stn=${station.station_number}`"
+          target="_blank"
+        >{{station.station_number}}</a></div>
+      </div>
+      <v-list dense class="mx-0 px-0">
+        <v-list-item>
+          <v-select
+            v-model="selectedYear"
+            :items="yearOptions"
+            :menu-props="{ maxHeight: '400' }"
+            label="Select year"
+            item-text="label"
+            item-value="value"
+            hint="Available data in this year"
+          ></v-select>
         </v-list-item>
-        <v-list-item v-if="station.flow_years && station.flow_years.length">
+        <v-list-item>
           <v-list-item-content class="mx-0 px-0">
             <Plotly id="flowPlot" :data="plotFlowData" :layout="plotFlowLayout" ref="flowPlot"></Plotly>
           </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Water levels:</v-list-item-content>
-          <v-list-item-content class="align-end">{{ formatYears(station.level_years) }}</v-list-item-content>
+          <v-list-item-content class="align-end" v-if="station">{{ formatYears(station.level_years) }}</v-list-item-content>
         </v-list-item>
-        <v-list-item v-if="station.level_years && station.level_years.length">
+        <v-list-item>
           <v-list-item-content>
             <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
           </v-list-item-content>
@@ -52,9 +71,10 @@ export default {
   data () {
     return {
       loading: false,
-      station: {},
+      station: null,
       flowData: [],
       levelData: [],
+      selectedYear: null,
       flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
@@ -65,13 +85,21 @@ export default {
     recordEndpoint () {
       return this.record.properties.url
     },
+    yearOptions () {
+      if (!this.station) { return [] }
+      let allOption = [{ label: 'Monthly average all years', value: null }]
+      return allOption.concat(this.station.flow_years.map((w, i) => ({
+        label: w,
+        value: w
+      })))
+    },
     plotFlowData () {
       const mean = {
         x: this.flowData.map(w => w.month),
         y: this.flowData.map(w => w.monthly_mean),
         text: this.flowData.map(w => w.monthly_mean),
         textposition: 'bottom',
-        name: 'Daily flow (average by month)',
+        name: 'Monthly flow (average by month)',
         hovertemplate:
           '<b>Mean</b>: %{text} m³/s',
         mode: 'markers+lines',
@@ -85,7 +113,7 @@ export default {
         y: this.flowData.map(w => w.max),
         text: this.flowData.map(w => w.max),
         textposition: 'bottom',
-        name: 'Daily flow (max recorded)',
+        name: 'Monthly flow (max recorded)',
         hovertemplate:
           '<b>Max</b>: %{text} m³/s',
         mode: 'markers+lines',
@@ -99,7 +127,7 @@ export default {
         y: this.flowData.map(w => w.min),
         text: this.flowData.map(w => w.min),
         textposition: 'bottom',
-        name: 'Daily flow (min recorded)',
+        name: 'Monthly flow (min recorded)',
         hovertemplate:
           '<b>Min</b>: %{text} m³/s',
         mode: 'markers+lines',
@@ -113,7 +141,7 @@ export default {
     plotFlowLayout () {
       const opts = {
         shapes: [],
-        title: 'Daily Flow',
+        title: 'Monthly Flow',
         height: 500,
         hovermode: 'closest',
         legend: {
@@ -122,7 +150,7 @@ export default {
         },
         yaxis: {
           title: {
-            text: 'Flow Rate (m³/s)'
+            text: 'Discharge (m³/s)'
           }
         },
         xaxis: {
@@ -203,6 +231,15 @@ export default {
     }
   },
   methods: {
+    stationStatus (status) {
+      if (status === 'A') {
+        return 'Active'
+      } else if (status === 'D') {
+        return 'Deactivated'
+      } else {
+        return 'Unknown'
+      }
+    },
     resetStation () {
       this.station = null
       this.flowChartReady = false
@@ -227,6 +264,11 @@ export default {
       })
     },
     fetchMonthlyData (flowURL, levelURL) {
+      if (this.selectedYear != null) {
+        flowURL = flowURL + '?year=' + this.selectedYear
+        levelURL = levelURL + '?year=' + this.selectedYear
+      }
+
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
         this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm³/s', this.flowData.map((x) => [x.max]))
@@ -284,7 +326,7 @@ export default {
     }
   },
   watch: {
-    recordEndpoint () {
+    selectedYear () {
       this.fetchRecord()
     }
   },
