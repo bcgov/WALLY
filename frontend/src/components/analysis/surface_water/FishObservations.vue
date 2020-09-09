@@ -1,37 +1,93 @@
 <template>
-  <div>
-    <div class="titleSub my-5">Watershed Fish Observations</div>
-    <div v-if="fishLoading">
+  <v-card flat>
+    <v-card-title
+      class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+      dark>
+      Watershed Fish Observations
+    </v-card-title>
+    <v-card-actions>
+      <v-card-subtitle class="pr-0 pl-2">
+        Source
+
+      </v-card-subtitle>
+      <v-btn v-on="on" small  depressed light class="ml-2"
+             href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions">
+
+        <v-icon small>
+          mdi-link-variant
+        </v-icon>
+        Known BC Fish Observations and BC Fish Distributions (DataBC)
+      </v-btn>
+    </v-card-actions>
+    <v-card-text v-if="fishLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
-    </div>
-    <div v-if="fishData">
-      <v-card flat>
-        <div>
-            Source:
-            <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
-                target="_blank">Known BC Fish Observations and BC Fish Distributions (DataBC)</a>
-        </div>
-        <div class="my-5" v-if="fishData &&
-          fishData.fish_species_data &&
-          fishData.fish_species_data.length > 0">
-          <v-data-table
-            :items="fishData.fish_species_data"
-            :headers="fishObservationHeaders"
-            sort-by="qty"
-            sort-desc
-          >
-            <template v-slot:item.qty="{ item }">
-              {{ item.qty.toFixed(1) | formatNumber }}
-            </template>
-          </v-data-table>
-          <v-col class="text-right">
-            <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isFishLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>
-          </v-col>
-        </div>
-        <p v-else class="text--disabled mt-2">Unknown fish presence</p>
-      </v-card>
-    </div>
-  </div>
+    </v-card-text>
+    <v-card-text v-if="fishData &&
+                fishData.fish_species_data &&
+                fishData.fish_species_data.length > 0">
+      <v-data-table
+        :items="fishData.fish_species_data"
+        :headers="fishObservationHeaders"
+        sort-by="qty"
+        sort-desc
+      >
+        <template v-slot:item.qty="{ item }">
+          {{ item.qty.toFixed(1) | formatNumber }}
+        </template>
+      </v-data-table>
+
+      <v-card-actions>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" small  depressed light class="ml-2" @click="toggleLayerVisibility">
+              <v-icon small>
+                layers
+              </v-icon>
+              {{ isFishLayerVisible ? 'Hide' : 'Show'}} points on map
+            </v-btn>
+          </template>
+          <span>{{ isFishLayerVisible ? 'Hide' : 'Show'}} Known BC Fish Observations & Distributions Layer</span>
+        </v-tooltip>
+      </v-card-actions>
+
+    </v-card-text>
+    <v-card-text v-else-if="!fishLoading">
+      <p class="text--disabled mt-2">Unknown fish presence</p>
+    </v-card-text>
+  </v-card>
+<!--  <div>-->
+<!--    <div class="titleSub my-5">Watershed Fish Observations</div>-->
+<!--    <div v-if="fishLoading">-->
+<!--      <v-progress-linear show indeterminate></v-progress-linear>-->
+<!--    </div>-->
+<!--    <div v-if="fishData">-->
+<!--      <v-card flat>-->
+<!--        <div>-->
+<!--            Source:-->
+<!--            <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"-->
+<!--                target="_blank">Known BC Fish Observations and BC Fish Distributions (DataBC)</a>-->
+<!--        </div>-->
+<!--        <div class="my-5" v-if="fishData &&-->
+<!--          fishData.fish_species_data &&-->
+<!--          fishData.fish_species_data.length > 0">-->
+<!--          <v-data-table-->
+<!--            :items="fishData.fish_species_data"-->
+<!--            :headers="fishObservationHeaders"-->
+<!--            sort-by="qty"-->
+<!--            sort-desc-->
+<!--          >-->
+<!--            <template v-slot:item.qty="{ item }">-->
+<!--              {{ item.qty.toFixed(1) | formatNumber }}-->
+<!--            </template>-->
+<!--          </v-data-table>-->
+<!--          <v-col class="text-right">-->
+<!--            <v-btn @click="toggleLayerVisibility" color="primary" outlined>{{isFishLayerVisible ? 'Hide Points' : 'Show Points'}}</v-btn>-->
+<!--          </v-col>-->
+<!--        </div>-->
+<!--        <p v-else class="text&#45;&#45;disabled mt-2">Unknown fish presence</p>-->
+<!--      </v-card>-->
+<!--    </div>-->
+<!--  </div>-->
 </template>
 
 <script>
@@ -137,9 +193,17 @@ export default {
       })
     },
     toggleLayerVisibility () {
+
+      if (this.isFishLayerVisible) {
+        this.$store.dispatch('map/removeMapLayer', 'fish_observations')
+      } else {
+        this.$store.dispatch('map/addMapLayer', 'fish_observations')
+      }
       this.isFishLayerVisible = !this.isFishLayerVisible
-      this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
+
+      // TODO: Can we take this out? This code just hides the layer points on the map but keeps it in the map legend
+      // this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
+      // this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
     }
   },
   mounted () {

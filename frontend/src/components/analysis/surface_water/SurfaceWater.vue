@@ -88,6 +88,16 @@
                 :coordinates="this.pointOfInterest.geometry.coordinates"
               ></StreamflowInventory>
             </v-tab-item>
+
+            <!-- Known BC Fish Observations -->
+            <v-tab-item>
+              <FishObservations :watershedID="selectedWatershed"/>
+            </v-tab-item>
+
+            <!-- FIDQ -->
+            <v-tab-item>
+              <FishInventories :watershedID="selectedWatershed"/>
+            </v-tab-item>
           </v-tabs>
         </div>
       </div>
