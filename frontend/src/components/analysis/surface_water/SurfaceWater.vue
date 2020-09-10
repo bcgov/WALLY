@@ -270,12 +270,12 @@ export default {
   components: {
     HydrometricStationsContainer,
     WatershedAvailability,
-    MeanAnnualRunoff,
-    EditableModelInputs,
+    // MeanAnnualRunoff,
+    // EditableModelInputs,
     FishObservations,
-    WatershedDemand,
-    ShortTermDemand,
-    AvailabilityVsDemand,
+    // WatershedDemand,
+    // ShortTermDemand,
+    // AvailabilityVsDemand,
     FishInventories,
     StreamflowInventory,
 
@@ -283,7 +283,7 @@ export default {
     WatershedDetails,
     WatershedMonthlyDischarge,
     WatershedLicencedQty,
-    WaterApprovalPoints
+    // WaterApprovalPoints
   },
   data: () => ({
     tab: null,
