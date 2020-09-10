@@ -248,21 +248,21 @@ import html2canvas from 'html2canvas'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
-import MeanAnnualRunoff from './MeanAnnualRunoff'
-import EditableModelInputs from './EditableModelInputs'
+// import MeanAnnualRunoff from './MeanAnnualRunoff'
+// import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
-import WatershedDemand from './watershed_demand/WatershedDemand'
-import ShortTermDemand from './watershed_demand/ShortTermDemand'
+// import WatershedDemand from './watershed_demand/WatershedDemand'
+// import ShortTermDemand from './watershed_demand/ShortTermDemand'
 import FishInventories from './fish_inventories/FishInventories'
-import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
+// import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
 import SurfaceWaterHeaderButtons from './SurfaceWaterHeaderButtons'
 import WatershedDetails from './WatershedDetails'
 import WatershedMonthlyDischarge from './WatershedMonthlyDischarge'
 import WatershedLicencedQty from './watershed_demand/WatershedLicencedQty'
-import WaterApprovalPoints from './watershed_demand/WaterApprovalPoints'
+// import WaterApprovalPoints from './watershed_demand/WaterApprovalPoints'
 
 import { months, secondsInMonth } from '../../../constants/months'
 export default {
@@ -270,20 +270,20 @@ export default {
   components: {
     HydrometricStationsContainer,
     WatershedAvailability,
-    MeanAnnualRunoff,
-    EditableModelInputs,
+    // MeanAnnualRunoff,
+    // EditableModelInputs,
     FishObservations,
-    WatershedDemand,
-    ShortTermDemand,
-    AvailabilityVsDemand,
+    // WatershedDemand,
+    // ShortTermDemand,
+    // AvailabilityVsDemand,
     FishInventories,
     StreamflowInventory,
 
     SurfaceWaterHeaderButtons,
     WatershedDetails,
     WatershedMonthlyDischarge,
-    WatershedLicencedQty,
-    WaterApprovalPoints
+    WatershedLicencedQty
+    // WaterApprovalPoints
   },
   data: () => ({
     tab: null,
