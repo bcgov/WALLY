@@ -38,7 +38,7 @@
 
         <v-data-table
           :headers="licencePurposeHeaders"
-          :items="licenceData.total_qty_by_purpose"
+          :items="licenceData.total_qty_by_purpose.filter(x => x.licences && x.licences.length)"
           :single-expand="singleExpandLicences"
           :expanded.sync="expandedActiveLicences"
           item-key="purpose"
@@ -79,7 +79,7 @@
           :items="licenceData.total_qty_by_purpose.filter(x => x.inactive_licences && x.inactive_licences.length)"
           :single-expand="singleExpandInactiveLicences"
           :expanded.sync="expandedInactiveLicences"
-          item-key="inactive_purpose"
+          item-key="purpose"
           show-expand
         >
           <template v-slot:[`item.qty_sec`]="{ item }">

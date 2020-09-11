@@ -227,8 +227,6 @@ def surface_water_rights_licences(polygon: Polygon):
     licence_purpose_type_list = []
 
     for purpose, purpose_obj in licenced_qty_by_use_type.items():
-        if not len(purpose_obj["licences"]):
-            continue
         licence_purpose_type_list.append({
             "purpose": purpose,
             "qty": purpose_obj["qty"],
