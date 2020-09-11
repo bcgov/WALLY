@@ -9,7 +9,7 @@ import geojson
 import json
 import math
 import re
-from typing import Tuple
+from typing import Tuple, List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from operator import add
@@ -99,21 +99,14 @@ def pcic_data_request(
     return resp.json()
 
 
-def surface_water_rights_licences(polygon: Polygon):
-    """ returns surface water rights licences (filtered by POD subtype)"""
-    water_rights_layer = 'water_rights_licences'
+def water_licences_summary(licences: List[Feature], polygon: Polygon) -> LicenceDetails:
+    """ takes a list of licences and the search polygon, and returns a
+        summary of the licences that fall within the search area.
 
-    # search with a simplified rectangle representing the polygon.
-    # we will do an intersection on the more precise polygon after
-    polygon_rect = polygon.minimum_rotated_rectangle
-    licences = databc_feature_search(
-        water_rights_layer, search_area=polygon_rect)
+    """
 
     total_licenced_qty_m3_yr = 0
     licenced_qty_by_use_type = {}
-
-    polygon_3005 = transform(transform_4326_3005, polygon)
-
     features_within_search_area = []
 
     # max_quantity_by_licence tracks quantities for licences
@@ -131,11 +124,11 @@ def surface_water_rights_licences(polygon: Polygon):
     # for the official quantity flag definitions.
     max_quantity_by_licence = {}
 
-    for lic in licences.features:
+    for lic in licences:
         feature_shape = shape(lic.geometry)
 
         # skip licences outside search area
-        if not feature_shape.within(polygon_3005):
+        if not feature_shape.within(polygon):
             continue
 
         # skip licence if not a surface water point of diversion (POD)
@@ -246,8 +239,24 @@ def surface_water_rights_licences(polygon: Polygon):
         total_qty=sum(max_quantity_by_licence.values()),
         total_qty_by_purpose=licence_purpose_type_list,
         projected_geometry_area=polygon.area,
-        projected_geometry_area_simplified=polygon_rect.area
     )
+
+
+def surface_water_rights_licences(polygon: Polygon):
+    """ returns surface water rights licences (filtered by POD subtype)"""
+    water_rights_layer = 'water_rights_licences'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    licences = databc_feature_search(
+        water_rights_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    licence_summary = water_licences_summary(licences.features, polygon_3005)
+    licence_summary.projected_geometry_area_simplified = polygon_rect.area
+    return licence_summary
 
 
 def surface_water_approval_points(polygon: Polygon):
