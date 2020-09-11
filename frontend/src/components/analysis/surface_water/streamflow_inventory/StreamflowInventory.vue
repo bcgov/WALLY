@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card flat class="watershedInfo">
     <v-card-title
       class="title mt-5 ml-3 mr-3 pa-1 mb-2"
       dark>

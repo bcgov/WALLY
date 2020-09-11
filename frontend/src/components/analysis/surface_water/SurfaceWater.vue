@@ -10,9 +10,9 @@
     </v-row>
 
     <v-card flat v-if="watersheds && watersheds.length">
-
-      <SurfaceWaterHeaderButtons v-on:reset-watershed="resetWatershed"/>
+      <SurfaceWaterHeaderButtons v-if="selectedWatershed" :layers="layers"/>
       <v-select
+        class="watershedInfo"
         v-model="selectedWatershed"
         :items="watershedOptions"
         :menu-props="{ maxHeight: '400' }"
@@ -24,7 +24,7 @@
     </v-card>
 
     <template v-if="watersheds && watersheds.length">
-      <div v-if="selectedWatershed">
+      <div class="watershedInfo" v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
@@ -264,6 +264,8 @@ import WatershedMonthlyDischarge from './WatershedMonthlyDischarge'
 import WatershedLicencedQty from './watershed_demand/WatershedLicencedQty'
 // import WaterApprovalPoints from './watershed_demand/WaterApprovalPoints'
 
+import EventBus from '../../../services/EventBus'
+
 import { months, secondsInMonth } from '../../../constants/months'
 export default {
   name: 'SurfaceWaterDetails',
@@ -307,6 +309,14 @@ export default {
       dry7q10: 0,
       monthlyDischarges: [],
       monthlyDistributions: []
+    },
+    // These are the layers that are turned on by default for Surface Water Analysis
+    layers: {
+      'hydrometric_stations': 'Hydrometric Stations',
+      'water_rights_licences': 'Water Rights Licences',
+      'water_approval_points': 'Water Approval Points',
+      'fish_observation': 'Known BC Fish Observations & Distributions',
+      'water_rights_applications': 'Water Rights Applications'
     }
   }),
   watch: {
@@ -413,22 +423,35 @@ export default {
       //     return true
       //   }
       // }
-      let doc = jsPDF('p', 'in', [230, 900])
+      console.log('download start')
+      let doc = jsPDF('p', 'in', [230, 200])
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
       let filename = 'watershed--'.concat(this.watershedName) +
         '--'.concat(new Date().toISOString()) + '.pdf'
-      // doc.fromHTML(document.getElementById("watershedInfo"), 15, 0.5, { 'width': 180, 'elementHandlers': elementHandler})
-      // doc.save(filename)
-      html2canvas(document.getElementById('watershedInfo'))
-        .then(canvas => {
-          let img = canvas.toDataURL('image/png')
-          const imgProps = doc.getImageProperties(img)
-          let size = this.scaleImageToFit(width, height, imgProps.width,
-            imgProps.height)
-          doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
-          doc.save(filename)
-        })
+
+      let watershedContainers = [...document.getElementsByClassName('watershedInfo')]
+
+      let myPromises = []
+      watershedContainers.forEach((container) => {
+        myPromises.push(
+          html2canvas(container)
+            .then(canvas => {
+              let img = canvas.toDataURL('image/png')
+              const imgProps = doc.getImageProperties(img)
+              let size = this.scaleImageToFit(width, height, imgProps.width,
+                imgProps.height)
+              doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
+              doc.addPage()
+            })
+        )
+      })
+
+      // Save file and download
+      Promise.all(myPromises).then(() => {
+        doc.save(filename)
+      })
+
     },
     scaleImageToFit (ws, hs, wi, hi) {
       let ri = wi / hi
@@ -575,6 +598,9 @@ export default {
   mounted () {
     this.setMode({ type: 'analyze', name: 'surface_water' })
     this.fetchWatersheds()
+    EventBus.$on('watershed:reset', this.resetWatershed)
+    EventBus.$on('watershed:export:pdf', this.downloadWatershedInfo)
+    EventBus.$on('watershed:export:excel', this.exportWatershedXLSX)
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()

@@ -2,17 +2,18 @@
   <v-row>
     <v-col>
       <v-btn-toggle>
-        <v-btn outlined small
-               color="primary" class="">
+        <v-menu open-on-hover offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn outlined small
+                   color="primary" class=""
+                   v-bind="attrs"
+                   v-on="on">
             <span class="hidden-sm-and-down">
             See on map
             </span>
-        </v-btn>
-        <v-menu bottom right>
-          <template v-slot:activator="{ on, attrs }">
+            </v-btn>
             <v-btn
               small
-              dark
               icon
               v-bind="attrs"
               v-on="on"
@@ -21,11 +22,8 @@
             </v-btn>
           </template>
           <v-card class="pa-5">
-            <v-checkbox small label="Hydrometric Stations" class="mt-0"/>
-            <v-checkbox small label="Water Rights Applications" class="mt-0"/>
-            <v-checkbox small label="Water Rights Licences" class="mt-0"/>
-            <v-checkbox small label="Known BC Fish Observations & Distributions" class="mt-0"/>
-            <v-checkbox small label="Water Approval Points" class="mt-0"/>
+            <v-checkbox small class="mt-0"
+                        v-for="(name, id) in layers" :label="name" :key="id"/>
           </v-card>
         </v-menu>
 
@@ -35,14 +33,18 @@
     </v-col>
     <v-col class="text-right">
       <v-btn-toggle>
-        <v-btn outlined small
-               color="primary" class="">
+
+        <v-menu open-on-hover offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn outlined small
+                   color="blue" class=""
+                   v-bind="attrs"
+                   v-on="on"
+            >
             <span class="hidden-sm-and-down">
             Export
             </span>
-        </v-btn>
-        <v-menu bottom right>
-          <template v-slot:activator="{ on, attrs }">
+            </v-btn>
             <v-btn
               small
               dark
@@ -53,17 +55,17 @@
               <v-icon>expand_more</v-icon>
             </v-btn>
           </template>
-          <v-list>
-            <v-list-item>
+          <v-list >
+            <v-list-item @click="exportPDF">
               <v-list-item-title>
+                <v-icon class="mr-1">cloud_download</v-icon>
                 PDF
-                <v-icon class="ml-1">cloud_download</v-icon>
               </v-list-item-title>
             </v-list-item>
-            <v-list-item>
-              <v-list-item-title>
+            <v-list-item @click="exportExcel">
+              <v-list-item-title >
+                <v-icon class="mr-1">cloud_download</v-icon>
                 Excel
-                <v-icon class="ml-1">cloud_download</v-icon>
               </v-list-item-title>
             </v-list-item>
           </v-list>
@@ -71,7 +73,7 @@
 
       </v-btn-toggle>
       <v-btn outlined small color="primary" class="ml-1"
-             v-on:click="$emit('reset-watershed')">
+             @click="resetWatershed">
         <v-icon small>refresh</v-icon>
         Reset
       </v-btn>
@@ -79,7 +81,22 @@
   </v-row>
 </template>
 <script>
+import EventBus from '../../../services/EventBus'
+
 export default {
-  name: 'SurfaceWaterHeaderButtons'
+  name: 'SurfaceWaterHeaderButtons',
+  props: ['layers'],
+  methods: {
+    resetWatershed () {
+      EventBus.$emit('watershed:reset')
+    },
+    exportPDF () {
+      console.log('calling?')
+      EventBus.$emit('watershed:export:pdf')
+    },
+    exportExcel () {
+      EventBus.$emit('watershed:export:excel')
+    }
+  }
 }
 </script>
