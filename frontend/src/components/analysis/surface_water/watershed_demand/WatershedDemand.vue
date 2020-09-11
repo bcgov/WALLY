@@ -75,7 +75,7 @@
         <div class="subtitle font-weight-bold">Canceled, Expired and Inactive Licences</div>
 
         <v-data-table
-          :headers="licencePurposeHeaders"
+          :headers="inactiveLicencePurposeHeaders"
           :items="licenceData.total_qty_by_purpose.filter(x => x.inactive_licences && x.inactive_licences.length)"
           :single-expand="singleExpandInactiveLicences"
           :expanded.sync="expandedInactiveLicences"
@@ -144,6 +144,13 @@ export default {
       { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Quantity (m³/sec)', value: 'qty_sec', align: 'end' },
       { text: 'Quantity (m³/year)', value: 'qty', align: 'end' },
+      { text: 'Min Use (m³/year)', value: 'min', align: 'end' },
+      { text: 'Max Use (m³/year)', value: 'max', align: 'end' },
+      { text: '# Licences', value: 'count', align: 'center' },
+      { text: '', value: 'data-table-expand' }
+    ],
+    inactiveLicencePurposeHeaders: [
+      { text: 'Use type', value: 'purpose', sortable: true },
       { text: 'Min Use (m³/year)', value: 'min', align: 'end' },
       { text: 'Max Use (m³/year)', value: 'max', align: 'end' },
       { text: '# Licences', value: 'count', align: 'center' },
