@@ -179,43 +179,30 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                 "inactive_licences": []
             })
 
+            licence = Feature(
+                geometry=transform(transform_3005_4326,
+                                   shape(lic.geometry)),
+                id=lic.id,
+                properties={
+                    "fileNumber": lic.properties["FILE_NUMBER"],
+                    "status": lic.properties["LICENCE_STATUS"],
+                    "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
+                    "source": lic.properties["SOURCE_NAME"],
+                    "quantityPerSec": qty / SEC_IN_YEAR,
+                    "quantityPerYear": qty,
+                    "quantityFlag": lic.properties["QUANTITY_FLAG"]
+                }
+            )
+            
             # add licenced quantity if the licence is not canceled.
             if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
                 purpose_data["qty"] = licence_qty_action_function(
                     purpose_data["qty"], qty)
 
-                licenced_qty_by_use_type[purpose]["licences"].append(
-                    Feature(
-                        geometry=transform(transform_3005_4326,
-                                           shape(lic.geometry)),
-                        id=lic.id,
-                        properties={
-                            "fileNumber": lic.properties["FILE_NUMBER"],
-                            "status": lic.properties["LICENCE_STATUS"],
-                            "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
-                            "source": lic.properties["SOURCE_NAME"],
-                            "quantityPerSec": qty / SEC_IN_YEAR,
-                            "quantityPerYear": qty,
-                            "quantityFlag": lic.properties["QUANTITY_FLAG"]
-                        }
-                    ))
+                licenced_qty_by_use_type[purpose]["licences"].append(licence)
 
             else:
-                licenced_qty_by_use_type[purpose]["inactive_licences"].append(
-                    Feature(
-                        geometry=transform(transform_3005_4326,
-                                           shape(lic.geometry)),
-                        id=lic.id,
-                        properties={
-                            "fileNumber": lic.properties["FILE_NUMBER"],
-                            "status": lic.properties["LICENCE_STATUS"],
-                            "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
-                            "source": lic.properties["SOURCE_NAME"],
-                            "quantityPerSec": qty / SEC_IN_YEAR,
-                            "quantityPerYear": qty,
-                            "quantityFlag": lic.properties["QUANTITY_FLAG"]
-                        }
-                    ))
+                licenced_qty_by_use_type[purpose]["inactive_licences"].append(licence)
 
     licence_purpose_type_list = []
 
