@@ -1,5 +1,6 @@
 import geojson
 import pytest
+import unittest
 from shapely.geometry import Polygon, shape
 from shapely.ops import transform
 from api.v1.watersheds.controller import water_licences_summary
@@ -9,23 +10,25 @@ import logging
 logger = logging.getLogger('test')
 
 
-class TestWaterLicencesSummary:
+class TestWaterLicencesSummary(unittest.TestCase):
+    def setUp(self):
+        """
+        load test data for water licence calculation tests        
+        """
+        with open('./tests/watersheds/test_watershed_area.geojson') as test_area_geojson:
+            test_area_fc = geojson.load(test_area_geojson)
+            self.test_area = shape(test_area_fc.features[0].geometry)
+
+        with open('./tests/watersheds/test_licences.geojson') as test_licences_geojson:
+            self.data = geojson.load(test_licences_geojson)
+
     def test_calculate_quantities(self):
         """
         Test case for calculating water rights licences quantities.
         The test loads a snapshot of licences in the Alta Lake area of Whistler
         from the public water rights licences dataset.
         """
-
-        with open('./tests/watersheds/test_watershed_area.geojson') as test_area_geojson:
-            test_area_fc = geojson.load(test_area_geojson)
-
-        test_area = shape(test_area_fc.features[0].geometry)
-
-        with open('./tests/watersheds/test_licences.geojson') as test_licences_geojson:
-            data = geojson.load(test_licences_geojson)
-
-        summary = water_licences_summary(data.features, test_area)
+        summary = water_licences_summary(self.data.features, self.test_area)
 
         assert round(summary.total_qty) == 8740332
 
@@ -34,15 +37,7 @@ class TestWaterLicencesSummary:
             and put in a separate inactive_licences list.
         """
 
-        with open('./tests/watersheds/test_watershed_area.geojson') as test_area_geojson:
-            test_area_fc = geojson.load(test_area_geojson)
-
-        test_area = shape(test_area_fc.features[0].geometry)
-
-        with open('./tests/watersheds/test_licences.geojson') as test_licences_geojson:
-            data = geojson.load(test_licences_geojson)
-
-        summary = water_licences_summary(data.features, test_area)
+        summary = water_licences_summary(self.data.features, self.test_area)
         test_purpose = next(
             (purpose for purpose in summary.total_qty_by_purpose if purpose["purpose"] == "Domestic  (01A)"), None)
 
@@ -55,15 +50,7 @@ class TestWaterLicencesSummary:
             See https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public
         """
 
-        with open('./tests/watersheds/test_watershed_area.geojson') as test_area_geojson:
-            test_area_fc = geojson.load(test_area_geojson)
-
-        test_area = shape(test_area_fc.features[0].geometry)
-
-        with open('./tests/watersheds/test_licences.geojson') as test_licences_geojson:
-            data = geojson.load(test_licences_geojson)
-
-        summary = water_licences_summary(data.features, test_area)
+        summary = water_licences_summary(self.data.features, self.test_area)
 
         # use the "Land Improve: General (04A)" category, since it contains licences with the flag "M"
         test_purpose = next(
