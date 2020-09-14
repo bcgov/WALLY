@@ -35,6 +35,26 @@ export default {
             return
           }
 
+          // Add legend items for fish observation layers
+          if (layerID === 'fish_observations') {
+            ['fish_observations', 'fish_observations_summaries'].forEach((fishLayerID) => {
+              mapLayerPaint = this.getPaint(mapLayerType, fishLayerID)
+              legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, fishLayerID)
+              let layerLegend = {
+                name: fishLayerID === 'fish_observations' ? 'Fish Observations' : '',
+                legendItems: [{
+                  text: fishLayerID === 'fish_observations' ? 'Observation Point' : 'Summary Point',
+                  image: fishLayerID === 'fish_observations' ? 'fish-orange.png' : 'fish-red.png'
+                }],
+                'plenty': true,
+                'className': 'grouped'
+              }
+              this.legend.push(layerLegend)
+            })
+            return
+          }
+          if (layerID === 'fish_observations_summaries') { return } // skip this layer because its added above
+
           if (mapLayerType !== 'raster') {
             mapLayerPaint = this.getPaint(mapLayerType, layerID)
             legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerID)
@@ -260,6 +280,7 @@ export default {
     },
     lineImage (name) {
       switch (name) {
+        // water licenced works
         case 'Conduit - Water':
           return 'conduit.png'
         case 'Ditch':
@@ -276,6 +297,12 @@ export default {
           return 'tailrace.png'
         case 'Line (Transmission) - Electrical':
           return 'transmission.png'
+        default:
+          return null
+      }
+    },
+    fishImage (name) {
+      switch (name) {
         default:
           return null
       }

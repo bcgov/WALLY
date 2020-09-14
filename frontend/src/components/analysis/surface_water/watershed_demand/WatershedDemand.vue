@@ -47,7 +47,7 @@
             </v-toolbar>
           </template>
           <template v-slot:[`item.qty_sec`]="{ item }">
-            {{ (item.qty / secInYear).toFixed(6) | formatNumber }}
+            {{ (item.qty / secInYear).toFixed(6) }}
           </template>
           <template v-slot:[`item.qty`]="{ item }">
             {{ item.qty.toFixed(0) | formatNumber }}

@@ -6,6 +6,22 @@
           This modelling output has not been peer reviewed and is still considered
           experimental. Use the values generated with your own discretion.
         </v-alert>
+        <v-alert
+          prominent
+          type="error"
+          outlined
+          v-if="error.watershedList"
+        >
+          <v-row align="center">
+            <v-col class="grow">
+              Could not retrieve watershed data at this point.
+              Note: this can sometimes occur if the point of interest is in a very large watershed.
+              Please contact the Wally team for assistance.</v-col>
+            <v-col class="shrink">
+              <v-btn color="primary" @click="recalculateWatershed">Retry</v-btn>
+            </v-col>
+          </v-row>
+        </v-alert>
       </v-col>
     </v-row>
 
@@ -63,7 +79,26 @@
 
             <!-- Watershed -->
             <v-tab-item>
-              <WatershedDetails :modelOutputs="modelOutputs"/>
+              <WatershedDetails :modelOutputs="modelOutputs" v-if="!error.watershedSummary"/>
+              <v-card v-else flat>
+                <v-card-text>
+                  <v-alert
+                    prominent
+                    type="error"
+                    outlined
+                  >
+                    <v-row align="center">
+                      <v-col class="grow">
+                        Could not calculate watershed summary data (area, precipitation, glacial coverage, estimated runoff) at this point.
+                        Note: this can sometimes occur if the point of interest is in a very large watershed.
+                        Please contact the Wally team for assistance.</v-col>
+                      <v-col class="shrink">
+                        <v-btn color="primary" @click="recalculateWatershed">Retry</v-btn>
+                      </v-col>
+                    </v-row>
+                  </v-alert>
+                </v-card-text>
+              </v-card>
             </v-tab-item>
             <!-- Monthly Discharge -->
             <v-tab-item>
@@ -298,6 +333,10 @@ export default {
     geojsonLayersAdded: [],
     includePOIPolygon: false,
     watershedDetailsLoading: false,
+    error: {
+      watershedList: false,
+      watershedSummary: false
+    },
     spreadsheetLoading: false,
     show: {
       editingModelInputs: false
@@ -495,6 +534,7 @@ export default {
       }, 'water_rights_licences')
     },
     fetchWatersheds () {
+      this.error.watershedList = false
       this.watershedLoading = true
       const params = {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
@@ -517,11 +557,12 @@ export default {
           this.watershedLoading = false
         })
         .catch(e => {
-          console.error(e)
+          this.error.watershedList = true
           this.watershedLoading = false
         })
     },
     fetchWatershedDetails () {
+      this.error.watershedSummary = false
       this.watershedDetailsLoading = true
       ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
         .then(r => {
@@ -534,7 +575,7 @@ export default {
         })
         .catch(e => {
           this.watershedDetailsLoading = false
-          console.error(e)
+          this.error.watershedSummary = true
         })
     },
     resetGeoJSONLayers () {

@@ -12,6 +12,11 @@ import { downloadXlsx } from '../../../utils/exportUtils'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
+const popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false
+})
+
 export default {
   name: 'WellsCrossSection',
   components: {
@@ -62,6 +67,7 @@ export default {
     }
   }),
   computed: {
+    ...mapGetters('map', ['map']),
     coordinates () {
       return this.record && this.record.geometry && this.record.geometry.coordinates
     },
@@ -259,12 +265,20 @@ export default {
             ? w.ground_elevation_from_dem - w.finished_well_depth
             : w.ground_elevation_from_dem
         ),
-        text: this.wells.map(w => w.finished_well_depth),
+        text: this.wells.map(w => {
+          return {
+            fwd: w.finished_well_depth,
+            dfl: w.feature.properties.distance_from_line,
+            dir: w.feature.properties.compass_direction
+          }
+        }),
         textposition: 'bottom',
         showlegend: false,
         name: 'Finished well depth (reported)',
         hovertemplate:
-          '<b>Finished Depth: </b> %{text:.2f} m' + '<br><b>Elevation (asl):</b> %{y:.2f} m<br>',
+          '<b>Finished Depth: </b> %{text.fwd:.2f} m' +
+          '<br><b>Elevation (asl):</b> %{y:.2f} m' +
+          '<br><b>Well Offset:</b> %{text.dir} %{text.dfl:.2f} m<br>',
         mode: 'markers',
         type: 'scatter',
         marker: {
@@ -380,8 +394,6 @@ export default {
         }
       }
 
-      console.log(screens)
-
       return [elevProfile, waterDepth, wells, lithology, streams, screens, screensIcon]
     },
     surfaceData () {
@@ -489,12 +501,8 @@ export default {
     }
   },
   methods: {
-    ...mapGetters('map', [
-      'map'
-    ]),
-    ...mapActions('map', [
-      'removeElementsByClass'
-    ]),
+    ...mapGetters('map', ['isMapReady']),
+    ...mapActions('map', ['removeElementsByClass']),
     handleRedraw () {
       this.$emit('crossSection:redraw')
     },
@@ -527,6 +535,7 @@ export default {
         line: JSON.stringify(this.coordinates)
       }
       this.resetCrossSectionData()
+      this.resetWellOffsetDistanceLayer()
 
       // Update the section line coordinates in the URL query params.
       // This enables saving/sharing links.
@@ -548,6 +557,11 @@ export default {
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
+          this.addWellOffsetDistanceLayer('wellOffsetDistance', {
+            type: 'FeatureCollection',
+            features: r.data.wells.map(x => x.feature)
+          },
+          '#FFE41A', 0.5)
         })
         .catch(e => {
           console.error(e)
@@ -580,7 +594,7 @@ export default {
           }
         }
       ]
-      let mapObj = this.map()
+      let mapObj = this.map
       // delete any existing markers
       this.removeElementsByClass('annotationMarker')
       // add markers to map
@@ -748,6 +762,9 @@ export default {
       this.screens = []
     },
     deleteWell (selectedWell) {
+      if (!this.isMapReady()) {
+        return
+      }
       // delete selected well from well list
       let wellsArr = this.wells.filter(well => {
         return well['well_tag_number'] !== selectedWell['well_tag_number']
@@ -799,6 +816,69 @@ export default {
       var feature = well.feature
       feature['display_data_name'] = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
+    },
+    addWellOffsetDistanceLayer (id = 'wellOffsetDistance', data, color = '#FFE41A', opacity = 0.5) {
+      if (this.map.getLayer('wellOffsetDistance')) {
+        return
+      }
+
+      this.map.addSource('wellOffsetDistance', {
+        'type': 'geojson',
+        'data': data
+      })
+
+      this.map.addLayer({
+        id: id,
+        type: 'circle',
+        source: 'wellOffsetDistance',
+        paint: {
+          'circle-color': color,
+          'circle-radius': 5,
+          'circle-opacity': opacity,
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      })
+
+      this.map.on('mouseenter', id, (e) => {
+      // Change the cursor style as a UI indicator.
+        this.map.getCanvas().style.cursor = 'pointer'
+
+        let coordinates = e.features[0].geometry.coordinates.slice()
+        let offsetDistance = e.features[0].properties['distance_from_line']
+        let compassDirection = e.features[0].properties['compass_direction']
+
+        // Ensure that if the map is zoomed out such that multiple
+        // copies of the feature are visible, the popup appears
+        // over the copy being pointed to.
+        while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+          coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360
+        }
+
+        // Populate the popup and set its coordinates
+        // based on the feature found.
+        popup
+          .setLngLat(coordinates)
+          .setHTML(`
+            <dl>
+              <dt>Well Offset</dt> <dd>${compassDirection} ${offsetDistance.toFixed(2)} m</dd>
+            </dl>
+          `)
+          .addTo(this.map)
+      })
+
+      this.map.on('mouseleave', id, () => {
+        this.map.getCanvas().style.cursor = ''
+        popup.remove()
+      })
+    },
+    resetWellOffsetDistanceLayer () {
+      if (this.map.getLayer('wellOffsetDistance')) {
+        this.map.removeLayer('wellOffsetDistance')
+      }
+      if (this.map.getSource('wellOffsetDistance')) {
+        this.map.removeSource('wellOffsetDistance')
+      }
     }
   },
   watch: {
@@ -812,7 +892,9 @@ export default {
     },
     record: {
       handler () {
-        this.fetchWellsAlongLine()
+        if (this.isMapReady()) {
+          this.fetchWellsAlongLine()
+        }
       },
       deep: true
     },
@@ -822,6 +904,12 @@ export default {
       this.timeout = setTimeout(() => {
         this.fetchWellsAlongLine()
       }, 750)
+    },
+    isMapReady (value) {
+      if (value) {
+        // this.getWaterApprovals()
+        this.fetchWellsAlongLine()
+      }
     }
   },
   beforeDestroy () {
@@ -829,5 +917,6 @@ export default {
     this.$store.commit('map/resetMode')
     this.$store.dispatch('map/clearSelections')
     this.$store.commit('resetSectionLine')
+    this.resetWellOffsetDistanceLayer()
   }
 }

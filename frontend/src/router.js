@@ -22,6 +22,8 @@ import FirstNationsAreasNearbyContainer
 import WatershedDesign from './components/analysis/surface_water/mockup/WatershedDesign'
 import WatershedDesignH
   from './components/analysis/surface_water/mockup/WatershedDesignH'
+import ImportLayer from './components/sidepanel/cards/ImportLayer'
+
 Vue.use(Router)
 
 const mapResize = (to, from, next) => {
@@ -227,10 +229,27 @@ const router = new Router({
       name: 'watershed-designh',
       component: WatershedDesignH,
       meta: {
-
+      }
+    },
+    {
+      path: '/import-layer',
+      name: 'import-layer',
+      component: ImportLayer,
+      meta: {
+        title: `Surface Water Analysis - ${title}`,
+        sidebarColumns: {}
       }
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  // Check if feature is enabled
+  if (to.name === 'import-layer' &&
+    store.getters.app &&
+    store.getters.app.config &&
+    !store.getters.app.config.external_import) next({ name: 'home' })
+  else next()
 })
 
 router.afterEach(mapResize)
