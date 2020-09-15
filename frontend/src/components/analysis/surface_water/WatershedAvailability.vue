@@ -7,18 +7,13 @@
     </v-card-title>
     <v-card-text v-if="annualNormalizedRunoff">
       <v-card-actions>
-        <v-card-subtitle class="pr-0 pl-2">
-          Source
+        <v-card-subtitle class="pr-0 pl-2 pr-2">
+          Source:
         </v-card-subtitle>
-        <v-btn v-on="on" small  depressed light class="ml-2"
-               target="_blank"
-               href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries">
-
-          <v-icon small>
-            mdi-link-variant
-          </v-icon>
+        <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries"
+           target="_blank" ref="external">
           Hydrometric Watersheds (DataBC)
-        </v-btn>
+        </a>
       </v-card-actions>
       <v-row class="pl-3 pr-3">
         <v-col>

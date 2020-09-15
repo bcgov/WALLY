@@ -56,7 +56,7 @@
             </v-btn>
           </template>
           <v-list >
-            <v-list-item @click="exportPDF">
+            <v-list-item @click="exportPDF" disabled>
               <v-list-item-title>
                 <v-icon class="mr-1">cloud_download</v-icon>
                 PDF

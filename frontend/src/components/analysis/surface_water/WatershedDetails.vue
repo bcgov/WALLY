@@ -185,6 +185,17 @@
             </template>
             <span>Customize model inputs</span>
           </v-tooltip>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" small depressed light @click="openEditableModelInputsDialog">
+                <v-icon small color="primary">
+                  cloud_download
+                </v-icon>
+                Download Watershed Info
+              </v-btn>
+            </template>
+            <span>Download Watershed Info</span>
+          </v-tooltip>
         </v-card-actions>
       </v-row>
     </v-card-text>
@@ -198,6 +209,8 @@ import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 import ModelExplanations from './ModelExplanations'
 import EditableModelInputs from './EditableModelInputs'
+import jsPDF from "jspdf"
+import html2canvas from "html2canvas"
 
 export default {
   name: 'WatershedDetails',
@@ -227,7 +240,36 @@ export default {
     },
     closeEditableModelInputsDialog () {
       this.show.editingModelInputs = false
-    }
+    },
+    downloadWatershedInfo () {
+      let doc = jsPDF('p', 'in', [230, 200])
+      let width = doc.internal.pageSize.getWidth()
+      let height = doc.internal.pageSize.getHeight()
+      let filename = 'watershed--'.concat(this.watershedName) +
+        '--'.concat(new Date().toISOString()) + '.pdf'
+
+      let watershedContainers = [...document.getElementsByClassName('watershedInfo')]
+
+      let myPromises = []
+      watershedContainers.forEach((container) => {
+        myPromises.push(
+          html2canvas(container)
+            .then(canvas => {
+              let img = canvas.toDataURL('image/png')
+              const imgProps = doc.getImageProperties(img)
+              let size = this.scaleImageToFit(width, height, imgProps.width,
+                imgProps.height)
+              doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
+              doc.addPage()
+            })
+        )
+      })
+
+      // Save file and download
+      Promise.all(myPromises).then(() => {
+        doc.save(filename)
+      })
+    },
   },
   mounted () {
   },

@@ -6,19 +6,14 @@
       Watershed Fish Observations
     </v-card-title>
     <v-card-actions>
-      <v-card-subtitle class="pr-0 pl-2">
-        Source
-
+      <v-card-subtitle class="pr-0 pl-2 pr-2">
+        Source:
       </v-card-subtitle>
-      <v-btn v-on="on" small  depressed light class="ml-2"
-             target="_blank"
-             href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions">
-
-        <v-icon small>
-          mdi-link-variant
-        </v-icon>
+      <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
+         target="_blank"
+         rel="external">
         Known BC Fish Observations and BC Fish Distributions (DataBC)
-      </v-btn>
+      </a>
     </v-card-actions>
     <v-card-text v-if="fishLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
@@ -69,18 +64,15 @@
       <v-card-subtitle class="pr-0 pl-2">
         Search the Fish Inventory Data Queries database using the following watershed codes
       </v-card-subtitle>
-      <div v-for="(code, i) in watershed50kCodes" :key="`fidqLink${i}`">
-        <v-btn v-on="on" small  depressed light class="ml-2"
-               target="_blank"
-               :href="`http://a100.gov.bc.ca/pub/fidq/viewSingleWaterbody.do?searchCriteria.watershedCode=${code}`">
-
-          <v-icon small>
-            mdi-link-variant
-          </v-icon>
-          Query: {{code}}
-        </v-btn>
-      </div>
-
+      <ul>
+        <template v-for="(code, i) in watershed50kCodes">
+          <li :key="`fidqLink${i}`">
+            <a target="_blank" :href="`http://a100.gov.bc.ca/pub/fidq/viewSingleWaterbody.do?searchCriteria.watershedCode=${code}`">
+              {{code}}
+            </a>
+          </li>
+        </template>
+      </ul>
     </v-card-text>
     <v-card-text v-else-if="!loading">
       <p class="text--disabled mt-2">

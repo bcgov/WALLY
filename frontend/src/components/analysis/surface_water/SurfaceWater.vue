@@ -300,35 +300,6 @@ export default {
         this.spreadsheetLoading = false
       })
     },
-    downloadWatershedInfo () {
-      let doc = jsPDF('p', 'in', [230, 200])
-      let width = doc.internal.pageSize.getWidth()
-      let height = doc.internal.pageSize.getHeight()
-      let filename = 'watershed--'.concat(this.watershedName) +
-        '--'.concat(new Date().toISOString()) + '.pdf'
-
-      let watershedContainers = [...document.getElementsByClassName('watershedInfo')]
-
-      let myPromises = []
-      watershedContainers.forEach((container) => {
-        myPromises.push(
-          html2canvas(container)
-            .then(canvas => {
-              let img = canvas.toDataURL('image/png')
-              const imgProps = doc.getImageProperties(img)
-              let size = this.scaleImageToFit(width, height, imgProps.width,
-                imgProps.height)
-              doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
-              doc.addPage()
-            })
-        )
-      })
-
-      // Save file and download
-      Promise.all(myPromises).then(() => {
-        doc.save(filename)
-      })
-    },
     scaleImageToFit (ws, hs, wi, hi) {
       let ri = wi / hi
       let rs = ws / hs

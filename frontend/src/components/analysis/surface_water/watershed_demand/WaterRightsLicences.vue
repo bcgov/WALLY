@@ -16,7 +16,6 @@
             </v-card-title>
             <v-card-text class="info-blue">
               <strong>{{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year</strong>
-              <span class="caption ml-1 disabled">(**note: change to m³/s?)</span>
             </v-card-text>
           </v-card>
         </v-col>
