@@ -123,7 +123,7 @@ export default {
       if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_input_stats) {
         var stats = this.defaultWatershedDetails.scsb2016_input_stats
         stats.forEach(stat => {
-          modelInfo.push({...stat, ...{ inputValue: this.defaultWatershedDetails[stat.name] }})
+          modelInfo.push({ ...stat, ...{ inputValue: this.defaultWatershedDetails[stat.name] } })
         })
       }
       return modelInfo

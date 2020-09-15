@@ -24,16 +24,12 @@
 </template>
 
 <script>
-const Plotly = () => import('vue-plotly').then(module => {
-  return module.Plotly
-})
 import ModelRelevancyBoxPlot from './ModelRelevancyBoxPlot'
 import { humanReadable } from './../../../helpers/index'
 
 export default {
   name: 'ModelRelevancyTable',
   components: {
-    Plotly,
     ModelRelevancyBoxPlot
   },
   props: ['modelInfo'],
@@ -50,7 +46,7 @@ export default {
       { text: 'Standard Deviation', value: 'standard_deviation', align: 'end' },
       { text: 'Quartile 3', value: 'quartile_3', align: 'end' },
       { text: 'Max', value: 'maximum', align: 'center' },
-      { text: 'Watershed Value', value: 'inputValue'},
+      { text: 'Watershed Value', value: 'inputValue' },
       { text: '', value: 'data-table-expand' }
     ]
   }),
