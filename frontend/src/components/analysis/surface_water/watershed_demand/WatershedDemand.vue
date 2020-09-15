@@ -32,11 +32,15 @@
 
         <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
 
+        <div class="subtitle font-weight-bold">Current Licences</div>
+
+        <p>Total quantities and individual licence data in this table only reflect current licences. See "Canceled, Expired and Inactive Licences" below for inactive licences.</p>
+
         <v-data-table
           :headers="licencePurposeHeaders"
-          :items="licenceData.total_qty_by_purpose"
-          :single-expand="singleExpand"
-          :expanded.sync="expanded"
+          :items="licenceData.total_qty_by_purpose.filter(x => x.licences && x.licences.length)"
+          :single-expand="singleExpandLicences"
+          :expanded.sync="expandedActiveLicences"
           item-key="purpose"
           show-expand
           @click:row="clearLicenceHighlight"
@@ -67,6 +71,39 @@
             </td>
           </template>
         </v-data-table>
+
+        <div class="subtitle font-weight-bold">Canceled, Expired and Inactive Licences</div>
+
+        <v-data-table
+          :headers="inactiveLicencePurposeHeaders"
+          :items="licenceData.total_qty_by_purpose.filter(x => x.inactive_licences && x.inactive_licences.length)"
+          :single-expand="singleExpandInactiveLicences"
+          :expanded.sync="expandedInactiveLicences"
+          item-key="purpose"
+          show-expand
+        >
+          <template v-slot:[`item.qty_sec`]="{ item }">
+            {{ (item.qty / secInYear).toFixed(6) }}
+          </template>
+          <template v-slot:[`item.qty`]="{ item }">
+            {{ item.qty.toFixed(0) | formatNumber }}
+          </template>
+          <template v-slot:[`item.min`]="{ item }">
+            {{ Math.min.apply(Math, item.inactive_licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+          </template>
+          <template v-slot:[`item.max`]="{ item }">
+            {{ Math.max.apply(Math, item.inactive_licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+          </template>
+          <template v-slot:[`item.count`]="{ item }">
+            {{ item.inactive_licences.length }}
+          </template>
+          <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length">
+              <WatershedIndividualLicences :licences="item.inactive_licences"/>
+            </td>
+          </template>
+        </v-data-table>
+
       </v-card>
     </div>
 
@@ -112,14 +149,23 @@ export default {
       { text: '# Licences', value: 'count', align: 'center' },
       { text: '', value: 'data-table-expand' }
     ],
+    inactiveLicencePurposeHeaders: [
+      { text: 'Use type', value: 'purpose', sortable: true },
+      { text: 'Min Use (m³/year)', value: 'min', align: 'end' },
+      { text: 'Max Use (m³/year)', value: 'max', align: 'end' },
+      { text: '# Licences', value: 'count', align: 'center' },
+      { text: '', value: 'data-table-expand' }
+    ],
     show: {
       editingAllocationValues: false
     },
     purposeTypes: [],
     wmd: WatershedModelDescriptions,
     isLicencesLayerVisible: true,
-    singleExpand: false,
-    expanded: [],
+    singleExpandLicences: false,
+    singleExpandInactiveLicences: false,
+    expandedActiveLicences: [],
+    expandedInactiveLicences: [],
     secInYear: 31536000
   }),
   computed: {

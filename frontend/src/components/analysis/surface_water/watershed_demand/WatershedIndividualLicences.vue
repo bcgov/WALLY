@@ -10,10 +10,11 @@
         <th class="text-left">Source</th>
         <th class="text-right">Quantity (m³/s)</th>
         <th class="text-right">Quantity (m³/year)</th>
+        <th class="text-right">Quantity Flag</th>
       </tr>
       </thead>
       <tbody>
-      <tr @mouseenter="onMouseEnterListItem(item)" v-for="item in licences" :key="uniqueKey(item)">
+      <tr @mouseenter="onMouseEnterListItem(item)" v-for="(item, i) in licences" :key="uniqueKey(item, i)">
         <td>
           <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`" target="_blank">
           {{ item.properties.fileNumber }}
@@ -24,6 +25,7 @@
         <td>{{ item.properties.source }}</td>
         <td class="text-right">{{ item.properties.quantityPerSec.toFixed(6)  }}</td>
         <td class="text-right">{{ item.properties.quantityPerYear.toFixed(0) | formatNumber  }}</td>
+        <td class="text-right">{{ item.properties.quantityFlag }}</td>
       </tr>
       </tbody>
     </template>
@@ -43,10 +45,10 @@ export default {
       feature['display_data_name'] = 'water_rights_licences'
       this.$store.commit('map/updateHighlightFeatureData', feature)
     },
-    uniqueKey (lic) {
+    uniqueKey (lic, i) {
       return lic.properties.fileNumber +
         lic.properties.source +
-        lic.properties.quantityPerSec
+        lic.properties.quantityPerSec + i
     }
   },
   mounted () {

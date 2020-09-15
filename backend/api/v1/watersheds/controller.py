@@ -9,9 +9,10 @@ import geojson
 import json
 import math
 import re
-from typing import Tuple
+from typing import Tuple, List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
+from operator import add
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform
 from starlette.responses import Response
@@ -98,28 +99,36 @@ def pcic_data_request(
     return resp.json()
 
 
-def surface_water_rights_licences(polygon: Polygon):
-    """ returns surface water rights licences (filtered by POD subtype)"""
-    water_rights_layer = 'water_rights_licences'
+def water_licences_summary(licences: List[Feature], polygon: Polygon) -> LicenceDetails:
+    """ takes a list of licences and the search polygon, and returns a
+        summary of the licences that fall within the search area.
 
-    # search with a simplified rectangle representing the polygon.
-    # we will do an intersection on the more precise polygon after
-    polygon_rect = polygon.minimum_rotated_rectangle
-    licences = databc_feature_search(
-        water_rights_layer, search_area=polygon_rect)
+    """
 
     total_licenced_qty_m3_yr = 0
     licenced_qty_by_use_type = {}
-
-    polygon_3005 = transform(transform_4326_3005, polygon)
-
     features_within_search_area = []
 
-    for lic in licences.features:
+    # max_quantity_by_licence tracks quantities for licences
+    # that have multiple points of diversion (PODs). The quantity
+    # is treated differently based on the QUANTITY_FLAG attribute:
+    #
+    # M       - QUANTITY is the max quantity for the licence, shared across multiple
+    #             points of diversion. QUANTITY should be the same for all
+    #             records under a licence with this flag and will not be summed.
+    # T, D, P - QUANTITY is the quantity per POD record and will be summed
+    #             to determine the total quantity for the licence.
+    #
+    # note: the above is the explanation of how this is handled here in this function,
+    # refer to https://catalogue.data.gov.bc.ca/dataset/5549cae0-c2b1-4b96-9777-529d9720803c
+    # for the official quantity flag definitions.
+    max_quantity_by_licence = {}
+
+    for lic in licences:
         feature_shape = shape(lic.geometry)
 
         # skip licences outside search area
-        if not feature_shape.within(polygon_3005):
+        if not feature_shape.within(polygon):
             continue
 
         # skip licence if not a surface water point of diversion (POD)
@@ -129,15 +138,30 @@ def surface_water_rights_licences(polygon: Polygon):
 
         features_within_search_area.append(lic)
 
+        licence_number = lic.properties['LICENCE_NUMBER']
         qty = lic.properties['QUANTITY']
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
         purpose = lic.properties['PURPOSE_USE']
 
         qty = normalize_quantity(qty, qty_unit)
 
-        if qty is not None:
-            total_licenced_qty_m3_yr += qty
         lic.properties['qty_m3_yr'] = qty
+
+        LICENCE_STATUSES_TO_SKIP = [
+            'Abandoned', 'Canceled', 'Cancelled', 'Expired', 'Inactive'
+        ]
+
+        # by default, add licence quantities together
+        licence_qty_action_function = add
+
+        if lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
+            licence_qty_action_function = max
+
+        if qty is not None and lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
+            max_quantity_by_licence[licence_number] = licence_qty_action_function(
+                max_quantity_by_licence.get(licence_number, 0),
+                qty
+            )
 
         if purpose is not None and qty is not None:
             # move id to back of purpose name
@@ -148,24 +172,37 @@ def surface_water_rights_licences(polygon: Polygon):
                 logger.error(f"Error formatting {purpose}")
 
             # format licences for each purpose type
-            licenced_qty_by_use_type.setdefault(purpose, {
+
+            purpose_data = licenced_qty_by_use_type.setdefault(purpose, {
                 "qty": 0,
-                "licences": []
-            })["qty"] += qty
-            licenced_qty_by_use_type[purpose]["licences"].append(
-                Feature(
-                    geometry=transform(transform_3005_4326,
-                                       shape(lic.geometry)),
-                    id=lic.id,
-                    properties={
-                        "fileNumber": lic.properties["FILE_NUMBER"],
-                        "status": lic.properties["LICENCE_STATUS"],
-                        "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
-                        "source": lic.properties["SOURCE_NAME"],
-                        "quantityPerSec": qty / SEC_IN_YEAR,
-                        "quantityPerYear": qty
-                    }
-                ))
+                "licences": [],
+                "inactive_licences": []
+            })
+
+            licence = Feature(
+                geometry=transform(transform_3005_4326,
+                                   shape(lic.geometry)),
+                id=lic.id,
+                properties={
+                    "fileNumber": lic.properties["FILE_NUMBER"],
+                    "status": lic.properties["LICENCE_STATUS"],
+                    "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
+                    "source": lic.properties["SOURCE_NAME"],
+                    "quantityPerSec": qty / SEC_IN_YEAR,
+                    "quantityPerYear": qty,
+                    "quantityFlag": lic.properties["QUANTITY_FLAG"]
+                }
+            )
+            
+            # add licenced quantity if the licence is not canceled.
+            if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
+                purpose_data["qty"] = licence_qty_action_function(
+                    purpose_data["qty"], qty)
+
+                licenced_qty_by_use_type[purpose]["licences"].append(licence)
+
+            else:
+                licenced_qty_by_use_type[purpose]["inactive_licences"].append(licence)
 
     licence_purpose_type_list = []
 
@@ -174,6 +211,7 @@ def surface_water_rights_licences(polygon: Polygon):
             "purpose": purpose,
             "qty": purpose_obj["qty"],
             "licences": purpose_obj["licences"],
+            "inactive_licences": purpose_obj["inactive_licences"],
             "units": "m3/year"
         })
 
@@ -185,11 +223,27 @@ def surface_water_rights_licences(polygon: Polygon):
                 properties=feat.properties
             ) for feat in features_within_search_area
         ]),
-        total_qty=total_licenced_qty_m3_yr,
+        total_qty=sum(max_quantity_by_licence.values()),
         total_qty_by_purpose=licence_purpose_type_list,
         projected_geometry_area=polygon.area,
-        projected_geometry_area_simplified=polygon_rect.area
     )
+
+
+def surface_water_rights_licences(polygon: Polygon):
+    """ returns surface water rights licences (filtered by POD subtype)"""
+    water_rights_layer = 'water_rights_licences'
+
+    # search with a simplified rectangle representing the polygon.
+    # we will do an intersection on the more precise polygon after
+    polygon_rect = polygon.minimum_rotated_rectangle
+    licences = databc_feature_search(
+        water_rights_layer, search_area=polygon_rect)
+
+    polygon_3005 = transform(transform_4326_3005, polygon)
+
+    licence_summary = water_licences_summary(licences.features, polygon_3005)
+    licence_summary.projected_geometry_area_simplified = polygon_rect.area
+    return licence_summary
 
 
 def surface_water_approval_points(polygon: Polygon):
