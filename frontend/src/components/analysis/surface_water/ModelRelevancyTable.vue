@@ -25,7 +25,7 @@
 
 <script>
 import ModelRelevancyBoxPlot from './ModelRelevancyBoxPlot'
-import { humanReadable } from './../../../helpers/index'
+import { humanReadable } from '../../../helpers/index'
 
 export default {
   name: 'ModelRelevancyTable',
@@ -38,13 +38,13 @@ export default {
     expanded: [],
     tableHeaders: [
       { text: 'Name', value: 'name', sortable: true },
-      { text: 'Units', value: 'units' },
-      { text: 'Min', value: 'minimum', sortable: true },
-      { text: 'Quartile 1', value: 'quartile_1', align: 'end' },
+      { text: 'Units', value: 'units', align: 'end' },
+      { text: 'Min', value: 'minimum', sortable: true, align: 'end' },
+      { text: 'Quartile1', value: 'quartile_1', align: 'end' },
       { text: 'Median', value: 'median', align: 'end' },
       { text: 'Mean', value: 'average', align: 'end' },
       { text: 'Standard Deviation', value: 'standard_deviation', align: 'end' },
-      { text: 'Quartile 3', value: 'quartile_3', align: 'end' },
+      { text: 'Quartile3', value: 'quartile_3', align: 'end' },
       { text: 'Max', value: 'maximum', align: 'center' },
       { text: 'Watershed Value', value: 'inputValue' },
       { text: '', value: 'data-table-expand' }
@@ -65,7 +65,8 @@ export default {
         x: [0, 1],
         line: { color: '#17BECF' }
       }]
-    }
+    },
+    humanReadable: (val) => humanReadable(val)
   }
 }
 </script>
