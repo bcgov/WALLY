@@ -145,21 +145,14 @@ import html2canvas from 'html2canvas'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
 import WatershedAvailability from './WatershedAvailability'
-// import MeanAnnualRunoff from './MeanAnnualRunoff'
-// import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
-// import WatershedDemand from './watershed_demand/WatershedDemand'
-// import ShortTermDemand from './watershed_demand/ShortTermDemand'
-import FishInventories from './fish_inventories/FishInventories'
-// import AvailabilityVsDemand from './watershed_demand/AvailabilityVsDemand'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
 
 import SurfaceWaterHeaderButtons from './SurfaceWaterHeaderButtons'
 import WatershedDetails from './WatershedDetails'
 import WatershedMonthlyDischarge from './WatershedMonthlyDischarge'
 import WatershedLicencedQty from './watershed_demand/WatershedLicencedQty'
-// import WaterApprovalPoints from './watershed_demand/WaterApprovalPoints'
 
 import EventBus from '../../../services/EventBus'
 
@@ -169,19 +162,12 @@ export default {
   components: {
     HydrometricStationsContainer,
     WatershedAvailability,
-    // MeanAnnualRunoff,
-    // EditableModelInputs,
     FishObservations,
-    // WatershedDemand,
-    // ShortTermDemand,
-    // AvailabilityVsDemand,
     StreamflowInventory,
-
     SurfaceWaterHeaderButtons,
     WatershedDetails,
     WatershedMonthlyDischarge,
     WatershedLicencedQty
-    // WaterApprovalPoints
   },
   data: () => ({
     tab: null,
@@ -199,9 +185,6 @@ export default {
       watershedSummary: false
     },
     spreadsheetLoading: false,
-    show: {
-      editingModelInputs: false
-    },
     modelOutputs: {
       mad: 0,
       mar: 0,
@@ -317,13 +300,7 @@ export default {
         this.spreadsheetLoading = false
       })
     },
-    downloadWatershedInfo (plotType) {
-      // var elementHandler = {
-      //   '#ignorePDF': function (element, renderer) {
-      //     return true
-      //   }
-      // }
-      console.log('download start')
+    downloadWatershedInfo () {
       let doc = jsPDF('p', 'in', [230, 200])
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
@@ -351,7 +328,6 @@ export default {
       Promise.all(myPromises).then(() => {
         doc.save(filename)
       })
-
     },
     scaleImageToFit (ws, hs, wi, hi) {
       let ri = wi / hi
@@ -489,13 +465,7 @@ export default {
     ]),
     ...mapActions('surfaceWater', [
       'initWatershedDetailsAndInputs'
-    ]),
-    openEditableModelInputsDialog () {
-      this.show.editingModelInputs = true
-    },
-    closeEditableModelInputsDialog () {
-      this.show.editingModelInputs = false
-    }
+    ])
   },
   mounted () {
     this.setMode({ type: 'analyze', name: 'surface_water' })

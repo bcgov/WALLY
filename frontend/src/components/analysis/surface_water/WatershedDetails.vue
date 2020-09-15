@@ -1,6 +1,25 @@
 <template>
   <v-card flat>
     <v-card-text>
+      <v-dialog v-model="show.editingModelInputs" persistent>
+        <EditableModelInputs
+          @close="closeEditableModelInputsDialog"/>
+      </v-dialog>
+      <v-row v-if="customModelInputsActive">
+        <v-col>
+          <v-alert
+            outlined
+            type="warning"
+            prominent
+            border="left"
+          >
+            <p>
+              You are using custom model inputs and not the values supplied by the
+              Wally API.
+            </p>
+          </v-alert>
+        </v-col>
+      </v-row>
       <v-row>
         <v-alert tile color="" dense class="ma-3" width="100%" text
           v-if="modelOutputs && modelOutputs.sourceDescription">
@@ -153,6 +172,21 @@
           </v-card-text>
         </v-card>
       </v-row>
+      <v-row>
+        <v-card-actions>
+          <v-tooltip bottom v-if="this.scsb2016ModelInputs">
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" small depressed light @click="openEditableModelInputsDialog">
+                <v-icon small color="primary">
+                  mdi-tune
+                </v-icon>
+                Model Inputs
+              </v-btn>
+            </template>
+            <span>Customize model inputs</span>
+          </v-tooltip>
+        </v-card-actions>
+      </v-row>
     </v-card-text>
   </v-card>
 </template>
@@ -163,25 +197,38 @@ import { mapGetters } from 'vuex'
 import Dialog from '../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 import ModelExplanations from './ModelExplanations'
+import EditableModelInputs from './EditableModelInputs'
 
 export default {
   name: 'WatershedDetails',
   components: {
     Dialog,
-    ModelExplanations
+    ModelExplanations,
+    EditableModelInputs
   },
   props: ['modelOutputs'],
   data: () => ({
     watershedLoading: false,
     error: null,
     noValueText: 'No info available',
-    wmd: WatershedModelDescriptions
+    wmd: WatershedModelDescriptions,
+    show: {
+      editingModelInputs: false
+    }
   }),
   computed: {
     ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['availabilityPlotData', 'watershedDetails']),
+    ...mapGetters('surfaceWater', ['availabilityPlotData', 'watershedDetails', 'customModelInputsActive',
+      'scsb2016ModelInputs'])
   },
-
+  methods: {
+    openEditableModelInputsDialog () {
+      this.show.editingModelInputs = true
+    },
+    closeEditableModelInputsDialog () {
+      this.show.editingModelInputs = false
+    }
+  },
   mounted () {
   },
   beforeDestroy () {
