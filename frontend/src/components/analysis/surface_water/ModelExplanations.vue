@@ -69,7 +69,7 @@
                   </template>
                 </v-data-table>
 
-                <ModelRelevancyBoxPlots :stats="modelStats" :inputs="modelInputs"/>
+                <ModelRelevancyTable :modelInfo="modelInformation" />
 
               </v-card-text>
             </v-card>
@@ -82,12 +82,12 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import ModelRelevancyBoxPlots from './ModelRelevancyBoxPlots'
+import ModelRelevancyTable from './ModelRelevancyTable'
 
 export default {
   name: 'ModelExplanations',
   components: {
-    ModelRelevancyBoxPlots
+    ModelRelevancyTable
   },
   data: () => ({
     modelHeaders: [
@@ -118,31 +118,20 @@ export default {
       }
       return []
     },
-    modelStats () {
+    modelInformation () {
+      var modelInfo = []
       if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_input_stats) {
-        return this.defaultWatershedDetails.scsb2016_input_stats
+        var stats = this.defaultWatershedDetails.scsb2016_input_stats
+        stats.forEach(stat => {
+          modelInfo.push({...stat, ...{ inputValue: this.defaultWatershedDetails[stat.name] }})
+        })
       }
-      return []
-    },
-    modelInputs () {
-      if (this.defaultWatershedDetails) {
-        var wd = this.defaultWatershedDetails
-        return {
-          'drainage_area': wd.drainage_area,
-          'glacial_coverage': wd.glacial_coverage,
-          'annual_precipitation': wd.annual_precipitation,
-          'potential_evapotranspiration_thornthwaite': wd.potential_evapotranspiration_thornthwaite,
-          'average_slope': wd.average_slope,
-          'solar_exposure': wd.solar_exposure,
-          'median_elevation': wd.median_elevation
-        }
-      }
-      return []
+      return modelInfo
     },
     linearModelExample () {
       if (this.defaultWatershedDetails.scsb2016_model.error) { return }
 
-      let mc = this.defaultWatershedDetails.scsb2016_model.find((x) => { return x.output_type === 'MAR' })
+      var mc = this.defaultWatershedDetails.scsb2016_model.find((x) => { return x.output_type === 'MAR' })
       if (mc) {
         console.log(mc.precipitation_co)
         var modelText =

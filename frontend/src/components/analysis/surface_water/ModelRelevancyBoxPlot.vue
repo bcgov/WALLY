@@ -1,9 +1,6 @@
 <template>
-  <v-card :elevation="0" v-if="stats.length > 0" class="charts">
-    <v-card-subtitle>Model Relevancy</v-card-subtitle>
-      <div v-for="(stat, i) in stats" v-bind:key="`stat${i}`">
-        <Plotly :id="`bxplt-${stat.name}`" :data="parseStat(stat)" :layout="defaultLayout" class="chart"></Plotly>
-      </div>
+  <v-card :elevation="0" class="charts">
+    <Plotly :id="`bxplt-${statInfo.name}`" :data="statData()" :layout="defaultLayout" class="chart"></Plotly>
   </v-card>
 </template>
 <script>
@@ -12,11 +9,11 @@ const Plotly = () => import('vue-plotly').then(module => {
 })
 
 export default {
-  name: 'ModelRelevancyBoxPlots',
+  name: 'ModelRelevancyBoxPlot',
   components: {
     Plotly
   },
-  props: ['stats', 'inputs'],
+  props: ['statInfo'],
   data: () => ({
     defaultLayout: {
       font: {
@@ -28,7 +25,7 @@ export default {
       xaxis: {
         fixedrange: true
       },
-      autosize: true,
+      autosize: false,
       margin: { // Margins for the chart without a title
         l: 50,
         r: 50,
@@ -39,8 +36,9 @@ export default {
     }
   }),
   methods: {
-    parseStat (stat) {
-      var input = this.inputs[stat.name]
+    statData () {
+      var stat = this.statInfo
+      var input = this.statInfo.inputValue
       return [{
         type: 'box',
         name: stat.name,
