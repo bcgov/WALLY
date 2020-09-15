@@ -55,6 +55,39 @@
     <v-card-text v-else-if="!fishLoading">
       <p class="text--disabled mt-2">Unknown fish presence</p>
     </v-card-text>
+
+    <!--FIDQ-->
+    <v-card-title
+      class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+      dark>
+      Fish Inventory Data Queries
+    </v-card-title>
+    <v-card-text v-if="loading">
+      <v-progress-linear show indeterminate></v-progress-linear>
+    </v-card-text>
+    <v-card-text v-if="watershed50kCodes && watershed50kCodes.length">
+      <v-card-subtitle class="pr-0 pl-2">
+        Search the Fish Inventory Data Queries database using the following watershed codes
+      </v-card-subtitle>
+      <div v-for="(code, i) in watershed50kCodes" :key="`fidqLink${i}`">
+        <v-btn v-on="on" small  depressed light class="ml-2"
+               target="_blank"
+               :href="`http://a100.gov.bc.ca/pub/fidq/viewSingleWaterbody.do?searchCriteria.watershedCode=${code}`">
+
+          <v-icon small>
+            mdi-link-variant
+          </v-icon>
+          Query: {{code}}
+        </v-btn>
+      </div>
+
+    </v-card-text>
+    <v-card-text v-else-if="!loading">
+      <p class="text--disabled mt-2">
+        WALLY's FIDQ search links are based on 1:20k watershed codes. No 1:20k watershed codes found in this area.
+        If you believe this to be an error, please contact the Wally team to report a bug.
+      </p>
+    </v-card-text>
   </v-card>
 <!--  <div>-->
 <!--    <div class="titleSub my-5">Watershed Fish Observations</div>-->
@@ -116,7 +149,9 @@ export default {
       { text: 'First Observation Date', value: 'observation_date_min', align: 'center' },
       { text: 'Last Observation Date', value: 'observation_date_max', align: 'center' }
     ],
-    isFishLayerVisible: true
+    isFishLayerVisible: true,
+    watershed50kCodes: [],
+    fidqLoading: false
   }),
   computed: {
     ...mapGetters('map', ['map'])
@@ -194,7 +229,6 @@ export default {
       })
     },
     toggleLayerVisibility () {
-
       if (this.isFishLayerVisible) {
         this.$store.dispatch('map/removeMapLayer', 'fish_observations')
       } else {
@@ -205,10 +239,21 @@ export default {
       // TODO: Can we take this out? This code just hides the layer points on the map but keeps it in the map legend
       // this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
       // this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
+    },
+    fetchFishInventorySearchCodes () {
+      this.fidqLoading = true
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fwa_50k_codes`).then((r) => {
+        this.watershed50kCodes = r.data
+        this.fidqLoading = false
+      }).catch(e => {
+        this.fidqLoading = false
+        console.error(e)
+      })
     }
   },
   mounted () {
     this.fetchFishObservations()
+    this.fetchFishInventorySearchCodes()
   },
   beforeDestroy () {
     this.map.removeLayer('fishObservations')

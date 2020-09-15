@@ -70,9 +70,6 @@
             <v-tab class="text-left">
               Fish Observations
             </v-tab>
-            <v-tab class="text-left">
-              FIDQ
-            </v-tab>
             <v-tab>
               Runoff Models
             </v-tab>
@@ -129,11 +126,6 @@
               <FishObservations :watershedID="selectedWatershed"/>
             </v-tab-item>
 
-            <!-- FIDQ -->
-            <v-tab-item>
-              <FishInventories :watershedID="selectedWatershed"/>
-            </v-tab-item>
-
             <!-- Comparative Runoff Models -->
             <v-tab-item>
               <WatershedAvailability :allWatersheds="watersheds"
@@ -183,7 +175,6 @@ export default {
     // WatershedDemand,
     // ShortTermDemand,
     // AvailabilityVsDemand,
-    FishInventories,
     StreamflowInventory,
 
     SurfaceWaterHeaderButtons,
