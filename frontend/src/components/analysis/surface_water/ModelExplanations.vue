@@ -119,9 +119,9 @@ export default {
       return []
     },
     modelInformation () {
-      var modelInfo = []
+      let modelInfo = []
       if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_input_stats) {
-        var stats = this.defaultWatershedDetails.scsb2016_input_stats
+        const stats = this.defaultWatershedDetails.scsb2016_input_stats
         stats.forEach(stat => {
           modelInfo.push({ ...stat, ...{ inputValue: this.defaultWatershedDetails[stat.name] } })
         })
@@ -131,10 +131,10 @@ export default {
     linearModelExample () {
       if (this.defaultWatershedDetails.scsb2016_model.error) { return }
 
-      var mc = this.defaultWatershedDetails.scsb2016_model.find((x) => { return x.output_type === 'MAR' })
+      let mc = this.defaultWatershedDetails.scsb2016_model.find((x) => { return x.output_type === 'MAR' })
       if (mc) {
         console.log(mc.precipitation_co)
-        var modelText =
+        let modelText =
           (mc.median_elevation_co !== 0 ? 'median_elevation * ' + mc.median_elevation_co + ' + ' : '') +
           (mc.glacial_coverage_co !== 0 ? 'glacial_coverage * ' + mc.glacial_coverage_co + ' + ' : '') +
           (mc.precipitation_co !== 0 ? 'precipitation * ' + mc.precipitation_co + ' + ' : '') +

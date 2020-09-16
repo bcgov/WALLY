@@ -52,7 +52,7 @@ export default {
   }),
   methods: {
     parseStat (stat) {
-      var input = this.inputs[stat.name]
+      const input = this.inputs[stat.name]
       return [{
         type: 'box',
         name: stat.name,

@@ -37,8 +37,8 @@ export default {
   }),
   methods: {
     statData () {
-      var stat = this.statInfo
-      var input = this.statInfo.inputValue
+      const stat = this.statInfo
+      const input = this.statInfo.inputValue
       return [{
         type: 'box',
         name: stat.name,
