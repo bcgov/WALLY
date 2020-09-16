@@ -154,7 +154,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         # by default, add licence quantities together
         licence_qty_action_function = add
 
-        if lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
+        if lic.properties.get("QUANTITY_FLAG", None) and lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
             licence_qty_action_function = max
 
         if qty is not None and lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
