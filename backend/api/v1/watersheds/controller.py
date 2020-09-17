@@ -157,6 +157,9 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         # by default, add licence quantities together
         licence_qty_action_function = add
 
+        # licences with a QUANTITY_FLAG of "M" need to be handled separately (see above note
+        # for `max_quantity_by_licence`). The `max` function is used.
+        # Some QUANTITY_FLAG values are null, so check for that before we process the value as a string.
         if lic.properties.get("QUANTITY_FLAG", None) and lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
             licence_qty_action_function = max
 
