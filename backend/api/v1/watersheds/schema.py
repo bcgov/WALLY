@@ -20,6 +20,7 @@ class WatershedDetails(BaseModel):
 class LicenceDetails(BaseModel):
     """ statistics about licences in a given area """
     licences: FeatureCollection
+    inactive_licences: FeatureCollection
     total_qty: float
     total_qty_by_purpose: List
     projected_geometry_area: Optional[float]

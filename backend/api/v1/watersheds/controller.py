@@ -107,7 +107,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
 
     total_licenced_qty_m3_yr = 0
     licenced_qty_by_use_type = {}
-    features_within_search_area = []
+    active_licences_within_search_area = []
+    inactive_licences_within_search_area = []
 
     # max_quantity_by_licence tracks quantities for licences
     # that have multiple points of diversion (PODs). The quantity
@@ -136,8 +137,6 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         if lic.properties['POD_SUBTYPE'] != 'POD':
             continue
 
-        features_within_search_area.append(lic)
-
         licence_number = lic.properties['LICENCE_NUMBER']
         qty = lic.properties['QUANTITY']
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
@@ -157,13 +156,16 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         if lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
             licence_qty_action_function = max
 
-        if qty is not None and lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
+        if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
             max_quantity_by_licence[licence_number] = licence_qty_action_function(
                 max_quantity_by_licence.get(licence_number, 0),
                 qty
             )
+            active_licences_within_search_area.append(lic)
+        else:
+            inactive_licences_within_search_area.append(lic)
 
-        if purpose is not None and qty is not None:
+        if purpose is not None:
             # move id to back of purpose name
             try:
                 code, name = purpose.split(' - ')
@@ -193,7 +195,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                     "quantityFlag": lic.properties["QUANTITY_FLAG"]
                 }
             )
-            
+
             # add licenced quantity if the licence is not canceled.
             if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
                 purpose_data["qty"] = licence_qty_action_function(
@@ -202,7 +204,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                 licenced_qty_by_use_type[purpose]["licences"].append(licence)
 
             else:
-                licenced_qty_by_use_type[purpose]["inactive_licences"].append(licence)
+                licenced_qty_by_use_type[purpose]["inactive_licences"].append(
+                    licence)
 
     licence_purpose_type_list = []
 
@@ -221,7 +224,14 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                 geometry=transform(transform_3005_4326, shape(feat.geometry)),
                 id=feat.id,
                 properties=feat.properties
-            ) for feat in features_within_search_area
+            ) for feat in active_licences_within_search_area
+        ]),
+        inactive_licences=FeatureCollection([
+            Feature(
+                geometry=transform(transform_3005_4326, shape(feat.geometry)),
+                id=feat.id,
+                properties=feat.properties
+            ) for feat in inactive_licences_within_search_area
         ]),
         total_qty=sum(max_quantity_by_licence.values()),
         total_qty_by_purpose=licence_purpose_type_list,
