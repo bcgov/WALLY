@@ -34,7 +34,7 @@
 
         <div class="subtitle font-weight-bold">Current Licences</div>
 
-        <p>Total quantities and individual licence data in this table only reflect current licences. See "Canceled, Expired and Inactive Licences" below for inactive licences.</p>
+        <p>Total quantities and individual licence data in this table only reflect current licences. See "cancelled, Expired and Inactive Licences" below for inactive licences.</p>
 
         <v-data-table
           :headers="licencePurposeHeaders"
@@ -72,7 +72,7 @@
           </template>
         </v-data-table>
 
-        <div class="subtitle font-weight-bold">Canceled, Expired and Inactive Licences</div>
+        <div class="subtitle font-weight-bold">cancelled, Expired and Inactive Licences</div>
 
         <v-data-table
           :headers="inactiveLicencePurposeHeaders"
