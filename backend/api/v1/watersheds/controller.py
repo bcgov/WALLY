@@ -149,14 +149,21 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         LICENCE_STATUSES_TO_SKIP = [
             'Abandoned', 'Canceled', 'Cancelled', 'Expired', 'Inactive'
         ]
+        POD_STATUSES_TO_SKIP = [
+            'Inactive'
+        ]
 
         # by default, add licence quantities together
         licence_qty_action_function = add
 
-        if lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
+        # licences with a QUANTITY_FLAG of "M" need to be handled separately (see above note
+        # for `max_quantity_by_licence`). The `max` function is used.
+        # Some QUANTITY_FLAG values are null, so check for that before we process the value as a string.
+        if lic.properties.get("QUANTITY_FLAG", None) and lic.properties.get("QUANTITY_FLAG", "").strip() == "M":
             licence_qty_action_function = max
 
-        if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
+        if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP and \
+                lic.properties["POD_STATUS"] not in POD_STATUSES_TO_SKIP:
             max_quantity_by_licence[licence_number] = licence_qty_action_function(
                 max_quantity_by_licence.get(licence_number, 0),
                 qty
@@ -197,7 +204,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
             )
 
             # add licenced quantity if the licence is not canceled.
-            if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP:
+            if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP and \
+                    lic.properties["POD_STATUS"] not in POD_STATUSES_TO_SKIP:
                 purpose_data["qty"] = licence_qty_action_function(
                     purpose_data["qty"], qty)
 
