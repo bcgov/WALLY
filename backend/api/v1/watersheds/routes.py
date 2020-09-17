@@ -191,6 +191,7 @@ def watershed_stats(
             watershed_poly, temperature_data
         )
     except Exception:
+        temperature_data = None
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
 
