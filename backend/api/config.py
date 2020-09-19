@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     external_import = False
     external_import_types = ""
 
+    surface_water_design_v2 = False
+
     class Config:
         env_file = ".env"
 
