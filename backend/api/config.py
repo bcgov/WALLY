@@ -55,7 +55,7 @@ CONFIG_DIR = BASE_DIR + '.config/'
 
 # Use Pydantic's settings management
 class Settings(BaseSettings):
-    external_import = False
+    external_import = True
     external_import_types = ""
 
     class Config:
