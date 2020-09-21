@@ -128,13 +128,14 @@
               <ComparativeRunoffModels :allWatersheds="watersheds"
                                        :record="selectedWatershedRecord"
                                        :surface_water_design_v2="true"/>
+            </v-tab-item>
+
             <!-- Known BC Fish Observations -->
             <v-tab-item>
               <FishObservations :watershedID="selectedWatershed"
                                 :surface_water_design_v2="true"/>
             </v-tab-item>
 
-            </v-tab-item>
           </v-tabs>
         </div>
       </div>
