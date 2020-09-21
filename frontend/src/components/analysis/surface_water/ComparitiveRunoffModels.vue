@@ -17,7 +17,7 @@
       </v-card-actions>
       <v-row class="pl-3 pr-3">
         <v-col>
-          <v-card flat outlined tile>
+          <v-card flat outlined tile height="100%">
             <v-card-title>
               Annual normalized runoff
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
@@ -28,7 +28,7 @@
           </v-card>
         </v-col>
         <v-col>
-          <v-card flat outlined tile>
+          <v-card flat outlined tile height="100%">
             <v-card-title>
               Watershed area (highlighted area)
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
@@ -73,7 +73,7 @@
       </v-card-actions>
       <v-row class="pl-3 pr-3">
         <v-col>
-          <v-card flat outlined tile>
+          <v-card flat outlined tile height="100%">
             <v-card-title>
               Average annual runoff (by isolines):
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
@@ -84,7 +84,7 @@
           </v-card>
         </v-col>
         <v-col>
-          <v-card flat outlined tile>
+          <v-card flat outlined tile height="100%">
             <v-card-title>
               Watershed area
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
