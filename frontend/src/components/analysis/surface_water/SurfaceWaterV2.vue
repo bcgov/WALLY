@@ -48,7 +48,6 @@
           <v-tabs
             vertical
             v-model="tab"
-            background-color="blue darken-4"
             dark
             show-arrows
           >
@@ -470,5 +469,8 @@ export default {
   background-color: #085599;
   border-radius: 0;
   color: white;
+}
+#surfaceWater .v-tabs .v-item-group.v-tabs-bar {
+  background-color: #085599;
 }
 </style>
