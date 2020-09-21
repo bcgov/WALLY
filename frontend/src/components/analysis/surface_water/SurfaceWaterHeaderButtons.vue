@@ -33,10 +33,8 @@
         </v-menu>
       </v-btn-toggle>
     </v-col>
-    <v-col>
-    </v-col>
     <v-col class="text-right">
-      <v-btn-toggle>
+      <v-btn-toggle class="mb-1">
 
         <v-menu open-on-hover offset-y>
           <template v-slot:activator="{ on, attrs }">
