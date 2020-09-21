@@ -1,7 +1,113 @@
 <template>
-  <div>
+  <v-card flat v-if="this.surface_water_design_v2">
+    <v-card-title
+      class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+      dark>
+      Comparative Runoff Models
+    </v-card-title>
+    <v-card-text v-if="annualNormalizedRunoff">
+      <v-card-actions>
+        <v-card-subtitle class="pr-0 pl-2 pr-2">
+          Source:
+        </v-card-subtitle>
+        <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries"
+           target="_blank" ref="external">
+          Hydrometric Watersheds (DataBC)
+        </a>
+      </v-card-actions>
+      <v-row class="pl-3 pr-3">
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Annual normalized runoff
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ annualNormalizedRunoff }} mm</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Watershed area (highlighted area)
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row class="pl-3 pr-3">
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Using normalized runoff from
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ annualNormalizedRunoffSource }}</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <Plotly v-if="normalizedRunoffByMonth"
+              :layout="runoffLayout"
+              :data="normalizedRunoffByMonth"
+      ></Plotly>
+    </v-card-text>
+    <v-card-text v-if="annualNormalizedRunoff && annualIsolineRunoff">
+      <v-divider class="mt-3 mb-3"></v-divider>
+    </v-card-text>
+    <v-card-text v-if="annualIsolineRunoff">
+      <v-card-actions>
+        <v-card-subtitle class="pr-0 pl-2 pr-2">
+          Source:
+        </v-card-subtitle>
+        <a rel="noopener external"
+           target="_blank"
+           href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical">
+          Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical (DataBC)
+        </a>
+      </v-card-actions>
+      <v-row class="pl-3 pr-3">
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Average annual runoff (by isolines):
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ annualIsolineRunoff }} mm</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Watershed area
+              <v-icon small class="ml-1">mdi-information-outline</v-icon>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ record.properties['FEATURE_AREA_SQM'].toFixed(2) }} sq. m</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <Plotly v-if="isolineRunoffByMonth"
+              :layout="isolineRunoffLayout"
+              :data="isolineRunoffByMonth">
+      </Plotly>
+
+    </v-card-text>
+    <v-card-text v-else-if="!fishLoading">
+      <p class="text--disabled mt-2">Unknown fish presence</p>
+    </v-card-text>
+  </v-card>
+  <div v-else>
     <div>
-      <div class="titleSub">Comparitive Runoff Models</div>
+      <div class="titleSub">Comparative Runoff Models</div>
       <div v-if="annualNormalizedRunoff">
         <div>
           Source:
@@ -60,7 +166,7 @@ const months = [
 ]
 
 export default {
-  name: 'WatershedAvailability',
+  name: 'ComparativeRunoffModels',
   components: {
     Plotly
   },
@@ -69,7 +175,8 @@ export default {
     allWatersheds: {
       type: Array,
       default: () => ([])
-    }
+    },
+    surface_water_design_v2: null
   },
   data: () => ({
     monthlyRunoffCoefficients: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],

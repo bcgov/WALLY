@@ -20,9 +20,8 @@
           </v-alert>
         </v-col>
       </v-row>
-      <v-row>
-        <v-alert tile color="" dense class="ma-3" width="100%" text
-          v-if="modelOutputs && modelOutputs.sourceDescription">
+      <v-row v-if="modelOutputs && modelOutputs.sourceDescription">
+        <v-alert tile color="" dense class="ma-3" width="100%" text>
           {{ modelOutputs.sourceDescription }}
         </v-alert>
         <ModelExplanations/>
@@ -202,7 +201,7 @@
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
               <v-btn v-on="on" small depressed light @click="downloadWatershedInfo" class="ml-2">
-                <v-icon small>
+                <v-icon small class="mr-1">
                   cloud_download
                 </v-icon>
                 Download Watershed Info

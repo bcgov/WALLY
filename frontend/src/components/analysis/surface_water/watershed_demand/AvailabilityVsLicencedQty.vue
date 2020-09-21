@@ -26,6 +26,9 @@
         ></Plotly>
       </v-row>
     </v-card-text>
+    <v-card-text v-else>
+      No data to display
+    </v-card-text>
   </v-card>
 </template>
 

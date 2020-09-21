@@ -1,11 +1,8 @@
 <template>
   <v-row>
     <v-col>
-      <v-card-text v-for="layer in layerSelection" :key="layer.name">
-        test
-        {{layer.name}}
-      </v-card-text>
-      <v-btn-toggle>
+      <!-- TODO: Implement Layer selection -->
+      <v-btn-toggle v-if="false">
         <v-menu offset-y
                 :close-on-content-click="false">
           <template v-slot:activator="{ on, attrs }">
@@ -34,7 +31,6 @@
             />
           </v-card>
         </v-menu>
-
       </v-btn-toggle>
     </v-col>
     <v-col>

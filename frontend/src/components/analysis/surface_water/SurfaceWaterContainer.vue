@@ -19,9 +19,6 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
-    <div>
-      [redesign] New design? {{this.app.config && this.app.config.surface_water_design_v2}}
-    </div>
     <div
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <SurfaceWaterV2 v-if="this.app.config && this.app.config.surface_water_design_v2"></SurfaceWaterV2>

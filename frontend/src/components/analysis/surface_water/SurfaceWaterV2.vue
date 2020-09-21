@@ -111,25 +111,30 @@
             <!-- Hydrometric Stations -->
             <v-tab-item>
               <HydrometricStationsContainer v-if="watershedDetails && watershedDetails.hydrometric_stations"
-                :stations="watershedDetails.hydrometric_stations"/>
+                :stations="watershedDetails.hydrometric_stations"
+                :surface_water_design_v2="true"
+              />
             </v-tab-item>
 
             <!-- Streamflow Report -->
             <v-tab-item>
               <StreamflowInventory
                 :coordinates="this.pointOfInterest.geometry.coordinates"
+                :surface_water_design_v2="true"
               ></StreamflowInventory>
             </v-tab-item>
 
             <!-- Known BC Fish Observations -->
             <v-tab-item>
-              <FishObservations :watershedID="selectedWatershed"/>
+              <FishObservations :watershedID="selectedWatershed"
+                                :surface_water_design_v2="true"/>
             </v-tab-item>
 
             <!-- Comparative Runoff Models -->
             <v-tab-item>
-              <WatershedAvailability :allWatersheds="watersheds"
-                                     :record="selectedWatershedRecord"/>
+              <ComparativeRunoffModels :allWatersheds="watersheds"
+                                       :record="selectedWatershedRecord"
+                                       :surface_water_design_v2="true"/>
             </v-tab-item>
           </v-tabs>
         </div>
@@ -142,7 +147,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
-import WatershedAvailability from './WatershedAvailability'
+import ComparativeRunoffModels from './ComparitiveRunoffModels'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'
@@ -159,7 +164,7 @@ export default {
   name: 'SurfaceWaterDetails',
   components: {
     HydrometricStationsContainer,
-    WatershedAvailability,
+    ComparativeRunoffModels,
     FishObservations,
     StreamflowInventory,
     SurfaceWaterHeaderButtons,
@@ -297,12 +302,6 @@ export default {
         console.error(error)
         this.spreadsheetLoading = false
       })
-    },
-    scaleImageToFit (ws, hs, wi, hi) {
-      let ri = wi / hi
-      let rs = ws / hs
-      let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
-      return size
     },
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')

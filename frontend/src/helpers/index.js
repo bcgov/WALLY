@@ -15,3 +15,9 @@ export function humanReadable (str) {
 export function getArrayDepth (value) {
   return Array.isArray(value) ? 1 + Math.max(...value.map(getArrayDepth)) : 0
 }
+
+export function scaleImageToFit (ws, hs, wi, hi) {
+  let ri = wi / hi
+  let rs = ws / hs
+  return rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
+}

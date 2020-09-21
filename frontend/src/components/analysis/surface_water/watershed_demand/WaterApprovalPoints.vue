@@ -61,13 +61,12 @@
               <v-icon small>
                 layers
               </v-icon>
-              {{ isLayerVisible ? 'Hide' : 'Show'}} points on map
+              {{ isWaterApprovalPointsLayerVisible ? 'Hide' : 'Show'}} points on map
             </v-btn>
           </template>
-          <span>{{ isLayerVisible ? 'Hide' : 'Show'}} Water Approval Points Layer</span>
+          <span>{{ isWaterApprovalPointsLayerVisible ? 'Hide' : 'Show'}} Water Approval Points Layer</span>
         </v-tooltip>
       </v-card-actions>
-
     </v-card-text>
   </v-card>
 </template>
@@ -111,7 +110,7 @@ export default {
       shortTermAllocationTable: false
     },
     wmd: WatershedModelDescriptions,
-    isLayerVisible: true
+    isWaterApprovalPointsLayerVisible: true
   }),
   computed: {
     ...mapGetters('map', ['map']),
@@ -226,10 +225,9 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/approvals`)
         .then(r => {
           this.shortTermLicenceData = r.data
-          // console.log(r.data)
           const max = Math.max(...r.data.approvals.features.map(x => Number(x.properties.qty_m3_yr)))
-          // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.approvals) {
+          // An empty feature array can't be interpolated by mapbox-gl
+          if (r.data && r.data.approvals && r.data.approvals.features.length > 0) {
             this.addApprovalsLayer('waterApprovals', r.data.approvals, '#FFE41A', 0.5, max)
           }
           this.approvalsLoading = false
@@ -273,10 +271,21 @@ export default {
       this.setShortTermLicencePlotData(shortTermAllocationY) // update store so availability vs demand graph gets new plot values
     },
     toggleLayerVisibility () {
-      this.isLayerVisible = !this.isLayerVisible
-      this.map.setLayoutProperty('waterApprovals', 'visibility', this.isLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('waterApprovalsCoverPoints', 'visibility', this.isLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('water_approval_points', 'visibility', this.isLayerVisible ? 'visible' : 'none')
+      if (this.isWaterApprovalPointsLayerVisible) {
+        this.$store.dispatch('map/removeMapLayer', 'water_approval_points')
+      } else {
+        this.$store.dispatch('map/addMapLayer', 'water_approval_points')
+      }
+
+      // Toggle highlight layers for approval points
+      if (this.shortTermFeatures.length > 0) {
+        this.map.setLayoutProperty(
+          'waterApprovals', 'visibility', this.isWaterApprovalPointsLayerVisible ? 'none' : 'visible')
+        this.map.setLayoutProperty(
+          'waterApprovalsCoverPoints', 'visibility', this.isWaterApprovalPointsLayerVisible ? 'none' : 'visible')
+      }
+
+      this.isWaterApprovalPointsLayerVisible = !this.isWaterApprovalPointsLayerVisible
     },
     getWaterApprovals () {
       this.shortTermLicenceData = null

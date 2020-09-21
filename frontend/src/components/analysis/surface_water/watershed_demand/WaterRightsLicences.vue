@@ -139,7 +139,6 @@ export default {
     purposeTypes: [],
     wmd: WatershedModelDescriptions,
     isLicencesLayerVisible: true,
-    isWaterApprovalPointsLayerVisible: true,
     singleExpand: false,
     expanded: [],
     secInYear: 31536000
@@ -225,7 +224,6 @@ export default {
       })
     },
     openEditAllocationTableDialog () {
-      console.log('eh?')
       this.show.editingAllocationValues = true
     },
     closeEditAllocationTableDialog () {
@@ -240,8 +238,8 @@ export default {
           // console.log('adding data to map')
           // console.log(r.data.licences)
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.licences) {
+          // An empty feature array can't be interpolated by mapbox-gl
+          if (r.data && r.data.licences && r.data.licences.length > 0) {
             this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
           }
           // resets purposeTypes array and re-populates if any entries in list
@@ -284,26 +282,14 @@ export default {
     toggleWaterLicenceLayerVisibility () {
       if (this.isLicencesLayerVisible) {
         this.$store.dispatch('map/removeMapLayer', 'water_rights_licences')
-        this.$store.dispatch('map/removeMapLayer', 'waterLicences')
       } else {
         this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
-        this.$store.dispatch('map/addMapLayer', 'waterLicences')
       }
 
+      if (this.licenceData && this.licenceData.total_qty_by_purpose && this.licenceData.total_qty_by_purpose.length > 0) {
+        this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'none' : 'visible')
+      }
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
-
-      // TODO: Can we take this out? This code just hides the layer points on the map but keeps it in the map legend
-      // this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
-      // this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
-    },
-    toggleWaterApprovalPointsLayerVisibility () {
-      if (this.isWaterApprovalPointsLayerVisible) {
-        this.$store.dispatch('map/removeMapLayer', 'water_approval_points')
-      } else {
-        this.$store.dispatch('map/addMapLayer', 'water_approval_points')
-      }
-
-      this.isWaterApprovalPointsLayerVisible = !this.isWaterApprovalPointsLayerVisible
     },
     getDemandData () {
       this.licenceData = null
