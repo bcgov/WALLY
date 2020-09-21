@@ -57,20 +57,20 @@
             <v-tab class="text-left">
               Monthly Discharge
             </v-tab>
-            <v-tab class="text-left">
-              Licenced Quantity
-            </v-tab>
             <v-tab class="text-left" v-if="watershedDetails && watershedDetails.hydrometric_stations">
               Hydrometric Stations
+            </v-tab>
+            <v-tab class="text-left">
+              Licenced Quantity
             </v-tab>
             <v-tab>
               Streamflow Report
             </v-tab>
-            <v-tab class="text-left">
-              Fish Observations
-            </v-tab>
             <v-tab>
               Runoff Models
+            </v-tab>
+            <v-tab class="text-left">
+              Fish Observations
             </v-tab>
 
             <!-- Watershed -->
@@ -101,18 +101,18 @@
               <WatershedMonthlyDischarge :modelOutputs="modelOutputs"/>
             </v-tab-item>
 
+            <!-- Hydrometric Stations -->
+            <v-tab-item>
+              <HydrometricStationsContainer v-if="watershedDetails && watershedDetails.hydrometric_stations"
+                                            :stations="watershedDetails.hydrometric_stations"
+                                            :surface_water_design_v2="true"
+              />
+            </v-tab-item>
+
             <!-- Licenced Quantity -->
             <v-tab-item>
               <WatershedLicencedQty :modelOutputs="modelOutputs"
                                     :watershedID="selectedWatershed"/>
-            </v-tab-item>
-
-            <!-- Hydrometric Stations -->
-            <v-tab-item>
-              <HydrometricStationsContainer v-if="watershedDetails && watershedDetails.hydrometric_stations"
-                :stations="watershedDetails.hydrometric_stations"
-                :surface_water_design_v2="true"
-              />
             </v-tab-item>
 
             <!-- Streamflow Report -->
@@ -123,17 +123,17 @@
               ></StreamflowInventory>
             </v-tab-item>
 
+            <!-- Comparative Runoff Models -->
+            <v-tab-item>
+              <ComparativeRunoffModels :allWatersheds="watersheds"
+                                       :record="selectedWatershedRecord"
+                                       :surface_water_design_v2="true"/>
             <!-- Known BC Fish Observations -->
             <v-tab-item>
               <FishObservations :watershedID="selectedWatershed"
                                 :surface_water_design_v2="true"/>
             </v-tab-item>
 
-            <!-- Comparative Runoff Models -->
-            <v-tab-item>
-              <ComparativeRunoffModels :allWatersheds="watersheds"
-                                       :record="selectedWatershedRecord"
-                                       :surface_water_design_v2="true"/>
             </v-tab-item>
           </v-tabs>
         </div>
