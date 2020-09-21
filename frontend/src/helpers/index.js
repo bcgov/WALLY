@@ -15,3 +15,11 @@ export function humanReadable (str) {
 export function getArrayDepth (value) {
   return Array.isArray(value) ? 1 + Math.max(...value.map(getArrayDepth)) : 0
 }
+
+export function getFiletype (filetype) {
+  const geojsonTypes = [
+    'application/vnd.geo+json',
+    'application/json',
+    'application/geojson', 'application/geo+json'
+  ]
+}
