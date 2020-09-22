@@ -17,6 +17,5 @@ def normalize_quantity(qty, qty_unit: str):
         return qty * 365
     elif qty_unit == 'm3/sec':
         return qty * 60 * 60 * 24 * 365
-
     else:
         return None
