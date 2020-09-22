@@ -168,7 +168,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
             # use the action function (either `add` or `max`, as above).
             # some licences have a quantity of 0 and a unit of "total flow",
             # these will be skipped here.
-            if qty:
+            if qty is not None:
                 max_quantity_by_licence[licence_number] = licence_qty_action_function(
                     max_quantity_by_licence.get(licence_number, 0),
                     qty
@@ -213,7 +213,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
             # add licenced quantity if the licence is not canceled.
             if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP and \
                     lic.properties["POD_STATUS"] not in POD_STATUSES_TO_SKIP:
-                if qty:
+                if qty is not None:
                     purpose_data["qty"] = licence_qty_action_function(
                         purpose_data["qty"], qty)
 
