@@ -164,10 +164,15 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
 
         if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP and \
                 lic.properties["POD_STATUS"] not in POD_STATUSES_TO_SKIP:
-            max_quantity_by_licence[licence_number] = licence_qty_action_function(
-                max_quantity_by_licence.get(licence_number, 0),
-                qty
-            )
+            # if the licence has a quantity that we can convert to m3/year,
+            # use the action function (either `add` or `max`, as above).
+            # some licences have a quantity of 0 and a unit of "total flow",
+            # these will be skipped here.
+            if qty:
+                max_quantity_by_licence[licence_number] = licence_qty_action_function(
+                    max_quantity_by_licence.get(licence_number, 0),
+                    qty
+                )
             active_licences_within_search_area.append(lic)
         else:
             inactive_licences_within_search_area.append(lic)
@@ -197,17 +202,20 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                     "status": lic.properties["LICENCE_STATUS"],
                     "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
                     "source": lic.properties["SOURCE_NAME"],
-                    "quantityPerSec": qty / SEC_IN_YEAR,
+                    "quantityPerSec": qty / SEC_IN_YEAR if qty else None,
                     "quantityPerYear": qty,
-                    "quantityFlag": lic.properties["QUANTITY_FLAG"]
+                    "quantityFlag": lic.properties["QUANTITY_FLAG"],
+                    "quantity": lic.properties["QUANTITY"],
+                    "quantityUnits": lic.properties["QUANTITY_UNITS"]
                 }
             )
 
             # add licenced quantity if the licence is not canceled.
             if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP and \
                     lic.properties["POD_STATUS"] not in POD_STATUSES_TO_SKIP:
-                purpose_data["qty"] = licence_qty_action_function(
-                    purpose_data["qty"], qty)
+                if qty:
+                    purpose_data["qty"] = licence_qty_action_function(
+                        purpose_data["qty"], qty)
 
                 licenced_qty_by_use_type[purpose]["licences"].append(licence)
 
