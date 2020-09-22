@@ -163,7 +163,7 @@
             ></StreamflowInventory>
             <FishObservations :watershedID="selectedWatershed"/>
             <FishInventories :watershedID="selectedWatershed"/>
-            <WatershedAvailability :allWatersheds="watersheds"
+            <ComparativeRunoffModels :allWatersheds="watersheds"
                                    :record="selectedWatershedRecord"/>
           </div>
         </div>
@@ -178,7 +178,7 @@ import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
-import WatershedAvailability from './WatershedAvailability'
+import ComparativeRunoffModels from './ComparitiveRunoffModels'
 import MeanAnnualRunoff from './MeanAnnualRunoff'
 import EditableModelInputs from './EditableModelInputs'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
@@ -193,7 +193,7 @@ export default {
   name: 'SurfaceWaterDetails',
   components: {
     HydrometricStationsContainer,
-    WatershedAvailability,
+    ComparativeRunoffModels,
     MeanAnnualRunoff,
     EditableModelInputs,
     FishObservations,

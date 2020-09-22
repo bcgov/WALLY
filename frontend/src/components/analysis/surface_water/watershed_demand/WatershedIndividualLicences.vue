@@ -16,7 +16,9 @@
       <tbody>
       <tr @mouseenter="onMouseEnterListItem(item)" v-for="(item, i) in licences" :key="uniqueKey(item, i)">
         <td>
-          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`" target="_blank">
+          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`"
+             target="_blank"
+             rel="noopener">
           {{ item.properties.fileNumber }}
           </a>
         </td>

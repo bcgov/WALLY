@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-if="name" width="650">
     <template v-slot:activator="{ on }">
-      <v-icon class="float-right" v-on="on">
+      <v-icon class="float-right ml-1" v-on="on" small :dark="dark">
         mdi-information-outline
       </v-icon>
     </template>
@@ -37,7 +37,8 @@ export default {
   props: {
     name: String,
     description: String,
-    url: String
+    url: String,
+    dark: Boolean
   }
 }
 </script>
