@@ -12,7 +12,7 @@
           <v-card flat outlined tile>
             <v-card-title>
               Total annual approved quantity
-              <Dialog v-bind="wmd.shortTermDemand"/>
+              <Dialog v-bind="wmd.shortTermDemand" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <strong> {{ shortTermLicenceData.total_qty | formatNumber }} m³/year</strong>

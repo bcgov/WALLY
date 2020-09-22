@@ -4,7 +4,7 @@
       class="title mt-5 ml-3 mr-3 pa-1 mb-2"
       dark>
       Watershed Monthly Discharge
-      <Dialog dark v-bind="wmd.monthlyDischarge"/>
+      <Dialog dark v-bind="wmd.monthlyDischarge" smallIcon/>
     </v-card-title>
     <v-card-text>
       <v-data-table

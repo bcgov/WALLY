@@ -32,7 +32,7 @@
           <v-card flat outlined tile>
             <v-card-title>
               Drainage area
-              <Dialog v-bind="wmd.drainageArea"/>
+              <Dialog v-bind="wmd.drainageArea" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="watershedDetails.drainage_area">
@@ -51,7 +51,7 @@
           <v-card flat >
             <v-card-title>
               Mean Annual Discharge
-              <Dialog v-bind="wmd.meanAnnualDischarge"/>
+              <Dialog v-bind="wmd.meanAnnualDischarge" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="modelOutputs.mad">
@@ -69,7 +69,7 @@
           <v-card flat >
             <v-card-title>
               Total Annual Quantity
-              <Dialog v-bind="wmd.totalAnnualQuantity"/>
+              <Dialog v-bind="wmd.totalAnnualQuantity" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="availabilityPlotData">
@@ -90,7 +90,7 @@
         <v-card flat >
           <v-card-title>
             Mean Annual Runoff
-            <Dialog v-bind="wmd.meanAnnualRunoff"/>
+            <Dialog v-bind="wmd.meanAnnualRunoff" smallIcon/>
           </v-card-title>
           <v-card-text class="info-blue">
             <span v-if="modelOutputs.mar">
@@ -108,7 +108,7 @@
           <v-card flat>
             <v-card-title>
               Low7Q2
-              <Dialog v-bind="wmd.low7Q2"/>
+              <Dialog v-bind="wmd.low7Q2" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="modelOutputs.low7q2">
@@ -124,7 +124,7 @@
           <v-card flat >
             <v-card-title>
               Dry7Q10
-              <Dialog v-bind="wmd.dry7Q10"/>
+              <Dialog v-bind="wmd.dry7Q10" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="modelOutputs.dry7q10">
@@ -142,7 +142,7 @@
           <v-card flat>
             <v-card-title>
               Annual Precipitation
-              <Dialog v-bind="wmd.annualPrecipitation"/>
+              <Dialog v-bind="wmd.annualPrecipitation" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="watershedDetails.annual_precipitation">
@@ -158,7 +158,7 @@
           <v-card flat >
             <v-card-title>
               Glacial Coverage
-              <Dialog v-bind="wmd.glacialCoverage"/>
+              <Dialog v-bind="wmd.glacialCoverage" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="watershedDetails.glacial_coverage">
@@ -173,7 +173,7 @@
           <v-card flat >
             <v-card-title>
               Median Elevation
-              <Dialog v-bind="wmd.medianElevation"/>
+              <Dialog v-bind="wmd.medianElevation" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <span v-if="watershedDetails.median_elevation">
@@ -187,7 +187,7 @@
       </v-row>
       <v-row>
         <v-card-actions>
-          <v-tooltip bottom v-if="this.scsb2016ModelInputs">
+          <v-tooltip bottom v-if="this.scsb2016ModelInputs" smallIcon>
             <template v-slot:activator="{ on }">
               <v-btn v-on="on" small depressed light @click="openEditableModelInputsDialog">
                 <v-icon small color="primary">

@@ -12,7 +12,7 @@
           <v-card flat outlined tile>
             <v-card-title>
               Total annual licenced quantity
-              <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
+              <Dialog v-bind="wmd.waterRightsLicenceDemand" smallIcon/>
             </v-card-title>
             <v-card-text class="info-blue">
               <strong>{{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year</strong>
