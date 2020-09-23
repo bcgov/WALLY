@@ -47,6 +47,7 @@ function geojsonSource ({ id, featureCollection }) {
 }
 
 export default {
+  namespaced: true,
   state: {
     customLayers: [],
     activeCustomLayers: []
@@ -81,7 +82,7 @@ export default {
     }
   },
   actions: {
-    loadCustomLayer ({ commit, dispatch }, { map, featureCollection, geomType, color }) {
+    loadCustomGeoJSONLayer ({ commit, dispatch }, { map, featureCollection, geomType, color }) {
       commit('addCustomGeoJSONLayer', { map, featureCollection, geomType, color })
     },
     unloadCustomLayer ({ commit, dispatch }, id) {
