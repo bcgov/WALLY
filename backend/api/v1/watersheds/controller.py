@@ -142,10 +142,21 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
         purpose = lic.properties['PURPOSE_USE']
 
-        qty = normalize_quantity(qty, qty_unit)
+        # normalize the quantity units to m3/year. This function returns None
+        # if the quantity cannot be normalized; for example, there is an invalid
+        # unit (or the unit is "total flow"). In this case, the original quantity
+        # will still be available for users to view, but the normalized m3/year
+        # table column will be empty. The licence will also not be considered
+        # in the sum total if the quantity cannot be converted due to invalid input.
+        normalized_qty = normalize_quantity(qty, qty_unit)
 
-        lic.properties['qty_m3_yr'] = qty
+        lic.properties['qty_m3_yr'] = normalized_qty
 
+        # List of statuses to watch for when deciding whether or not
+        # to consider the licenced quantity for the total licenced usage.
+        # It may be possible to only consider POD_STATUS but we should assume
+        # there may be data discrepancies, so skip if either POD_STATUS or LICENCE_STATUS
+        # is an inactive code.
         LICENCE_STATUSES_TO_SKIP = [
             'Abandoned', 'Canceled', 'Cancelled', 'Expired', 'Inactive'
         ]
@@ -168,15 +179,17 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
             # use the action function (either `add` or `max`, as above).
             # some licences have a quantity of 0 and a unit of "total flow",
             # these will be skipped here.
-            if qty is not None:
+            if normalized_qty is not None:
                 max_quantity_by_licence[licence_number] = licence_qty_action_function(
                     max_quantity_by_licence.get(licence_number, 0),
-                    qty
+                    normalized_qty
                 )
             active_licences_within_search_area.append(lic)
         else:
             inactive_licences_within_search_area.append(lic)
 
+        # organize the licence by purpose use.The WALLY web app will primary display
+        # licences broken down by purpose use.
         if purpose is not None:
             # move id to back of purpose name
             try:
@@ -186,7 +199,6 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                 logger.error(f"Error formatting {purpose}")
 
             # format licences for each purpose type
-
             purpose_data = licenced_qty_by_use_type.setdefault(purpose, {
                 "qty": 0,
                 "licences": [],
@@ -202,8 +214,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                     "status": lic.properties["LICENCE_STATUS"],
                     "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
                     "source": lic.properties["SOURCE_NAME"],
-                    "quantityPerSec": qty / SEC_IN_YEAR if qty else None,
-                    "quantityPerYear": qty,
+                    "quantityPerSec": normalized_qty / SEC_IN_YEAR if normalized_qty else None,
+                    "quantityPerYear": normalized_qty,
                     "quantityFlag": lic.properties["QUANTITY_FLAG"],
                     "quantity": lic.properties["QUANTITY"],
                     "quantityUnits": lic.properties["QUANTITY_UNITS"]
@@ -213,9 +225,9 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
             # add licenced quantity if the licence is not canceled.
             if lic.properties["LICENCE_STATUS"] not in LICENCE_STATUSES_TO_SKIP and \
                     lic.properties["POD_STATUS"] not in POD_STATUSES_TO_SKIP:
-                if qty is not None:
+                if normalized_qty is not None:
                     purpose_data["qty"] = licence_qty_action_function(
-                        purpose_data["qty"], qty)
+                        purpose_data["qty"], normalized_qty)
 
                 licenced_qty_by_use_type[purpose]["licences"].append(licence)
 
@@ -223,8 +235,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                 licenced_qty_by_use_type[purpose]["inactive_licences"].append(
                     licence)
 
+    # create the list of purpose types.
     licence_purpose_type_list = []
-
     for purpose, purpose_obj in licenced_qty_by_use_type.items():
         licence_purpose_type_list.append({
             "purpose": purpose,
@@ -234,6 +246,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
             "units": "m3/year"
         })
 
+    # Create the LicenceDetails summary and populate it with the licences (separated by
+    # active/inactive), and statistics for the WALLY web client to display.
     return LicenceDetails(
         licences=FeatureCollection([
             Feature(
