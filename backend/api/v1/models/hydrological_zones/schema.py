@@ -20,6 +20,7 @@ class HydroZoneModelInputs(BaseModel):
 class ModelOutput(BaseModel):
     """ output values of the wally hydrological zone model """
     mean_annual_flow: float
-
+    r_squared: float
+    
     class Config:
         orm_mode = True

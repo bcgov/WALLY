@@ -180,11 +180,25 @@
         <v-row class="borderBlock">
           <v-col cols=6 class="colSub">
             <div class="titleBlock">Wally Hydro Zone Model</div>
-            <div v-if="wally_model_estimate">
+            <div v-if="wally_model_mar">
               <div class="infoBlock">
-                {{ wally_model_estimate }}
+                {{ wally_model_mar }}
               </div>
               <div class="unitBlock">m³/s</div>
+            </div>
+            <div class="unitSub" v-else>
+              {{ noValueText }}
+            </div>
+          </v-col>
+
+          <v-col cols=6 class="colSubInner">
+            <Dialog v-bind="wmd.totalAnnualQuantity"/>
+            <div class="titleBlock">Model R Squared</div>
+            <div v-if="wally_model_r2">
+              <div class="infoBlock">
+                {{wally_model_r2}}
+              </div>
+              <div class="unitBlock">Model Fit</div>
             </div>
             <div class="unitSub" v-else>
               {{ noValueText }}
@@ -245,7 +259,8 @@ export default {
       monthlyDischarges: [],
       monthlyDistributions: []
     },
-    wally_model_estimate: 0,
+    wally_model_mar: 0,
+    wally_model_r2: 0,
     monthlydistributionHeaders: [
       { text: 'Month', value: 'month' },
       { text: 'MD(%)', value: 'model_result' },
@@ -382,7 +397,8 @@ export default {
       }
 
       if (details.wally_hydro_zone_model_output && !details.wally_hydro_zone_model_output.error) {
-        this.wally_model_estimate = details.wally_hydro_zone_model_output.mean_annual_flow.toFixed(2)
+        this.wally_model_mar = details.wally_hydro_zone_model_output.mean_annual_flow.toFixed(2)
+        this.wally_model_r2 = details.wally_hydro_zone_model_output.r_squared.toFixed(2)
       }
 
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {

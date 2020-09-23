@@ -47,10 +47,11 @@ for filename in sorted(os.listdir(directory)):
         zone_name = filename.split('_')[1].split('.')[0]
 
         # rfr.save_model('./model_io/rfr/zone_{}.json'.format(zone_name))
-        xgb.save_model('./model_io/xgb/zone_{}.json'.format(zone_name))
+        # xgb.save_model('./model_io/xgb/zone_{}.json'.format(zone_name))
 
         # print('zone {}: r2: {} stn_count: {}'.format(zone_name, round(max_score, 3), len(X)))
-        print('{}'.format(round(max_score, 6)))
+        # print('{}'.format(round(max_score, 6)))
+        print('{' + '{}: {}'.format(zone_name, round(max_score, 4)) + '}')
         continue
     else:
         continue
