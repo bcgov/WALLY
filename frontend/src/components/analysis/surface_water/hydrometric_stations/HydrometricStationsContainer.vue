@@ -23,7 +23,7 @@
       <p class="text--disabled">No hydrometric stream flow stations found in this area</p>
     </v-card-text>
   </v-card>
-  <v-card v-else>
+  <v-card flat v-else>
     <p class="title font-weight-bold">Hydrometric Stations</p>
     <v-expansion-panels accordion multiple hover flat
                         v-if="stations && stations.length > 0">
