@@ -58,6 +58,8 @@ from api.v1.watersheds.schema import (
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
+from api.v1.models.hydrological_zones.controller import hydrological_zone_model 
+from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs 
 
 logger = getLogger("aggregator")
 
@@ -213,6 +215,9 @@ def watershed_stats(
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
+    wally_model_inputs = HydroZoneModelInputs(drainage_area, median_elevation, annual_precipitation)
+    wally_hydrological_zone_model_mar = hydrological_zone_model(hydrological_zone, wally_model_inputs)
+
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
 
@@ -237,6 +242,7 @@ def watershed_stats(
         "runoff_isoline_discharge_m3s": isoline_runoff['runoff'] / 365 / 24 / 60 / 60,
         "scsb2016_model": scsb2016_model,
         "scsb2016_output": model_output_as_dict(scsb2016_model),
+        "wally_hydro_zone_model_output": wally_hydrological_zone_model_mar,
         "hydrometric_stations": hydrometric_stations
     }
 

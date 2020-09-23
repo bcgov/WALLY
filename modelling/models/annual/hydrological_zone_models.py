@@ -17,7 +17,11 @@ dependant_variable = 'MEAN'
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
         zone_df = pd.read_csv(os.path.join(directory, filename))
-        features_df = zone_df[['median_elevation', 'glacial_coverage', 'annual_precipitation', 'average_slope', 'potential_evapotranspiration_thornthwaite', dependant_variable]]
+
+        indexNames = zone_df[ zone_df['YEAR'] > 2017 ].index
+        zone_df.drop(indexNames, inplace=True)
+
+        features_df = zone_df[['drainage_area', 'median_elevation', 'annual_precipitation', dependant_variable]]
         X = features_df.drop([dependant_variable], axis=1)
         
         # print(X.isna().sum())
@@ -42,7 +46,11 @@ for filename in sorted(os.listdir(directory)):
         max_score = max(dtr_score, rft_score, xgb_score)
         zone_name = filename.split('_')[1].split('.')[0]
 
-        print('zone {}: r2: {} stn_count: {}'.format(zone_name, round(max_score, 3), len(X)))
+        # rfr.save_model('./model_io/rfr/zone_{}.json'.format(zone_name))
+        xgb.save_model('./model_io/xgb/zone_{}.json'.format(zone_name))
+
+        # print('zone {}: r2: {} stn_count: {}'.format(zone_name, round(max_score, 3), len(X)))
+        print('{}'.format(round(max_score, 6)))
         continue
     else:
         continue
