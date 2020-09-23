@@ -215,8 +215,7 @@ def watershed_stats(
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
-    wally_model_inputs = HydroZoneModelInputs(drainage_area, median_elevation, annual_precipitation)
-    wally_hydrological_zone_model_mar = hydrological_zone_model(hydrological_zone, wally_model_inputs)
+    wally_hydrological_zone_model_mar = hydrological_zone_model(hydrological_zone, drainage_area, median_elevation, annual_precipitation)
 
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))

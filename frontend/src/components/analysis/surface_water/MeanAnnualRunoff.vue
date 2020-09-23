@@ -176,6 +176,23 @@
         </v-col>
       </v-row>
 
+      <div v-if="showWallyModelFeatureFlag" class="modelOutputBorder">
+        <v-row class="borderBlock">
+          <v-col cols=6 class="colSub">
+            <div class="titleBlock">Wally Hydro Zone Model</div>
+            <div v-if="wally_model_estimate">
+              <div class="infoBlock">
+                {{ wally_model_estimate }}
+              </div>
+              <div class="unitBlock">m³/s</div>
+            </div>
+            <div class="unitSub" v-else>
+              {{ noValueText }}
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+
       <v-divider class="my-5"/>
       <div v-if="modelOutputs.monthlyDischarges.length > 0">
         <Dialog v-bind="wmd.monthlyDischarge"/>
@@ -228,6 +245,7 @@ export default {
       monthlyDischarges: [],
       monthlyDistributions: []
     },
+    wally_model_estimate: 0,
     monthlydistributionHeaders: [
       { text: 'Month', value: 'month' },
       { text: 'MD(%)', value: 'model_result' },
@@ -363,6 +381,10 @@ export default {
         return
       }
 
+      if (details.wally_hydro_zone_model_output && !details.wally_hydro_zone_model_output.error) {
+        this.wally_model_estimate = details.wally_hydro_zone_model_output.mean_annual_flow.toFixed(2)
+      }
+
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {
         let outputs = details.scsb2016_model
         let mar = outputs.find((x) => x.output_type === 'MAR')
@@ -408,6 +430,9 @@ export default {
           }
         }
       }
+    },
+    showWallyModelFeatureFlag () {
+      return global.config.isDevelopment || global.config.isStaging
     }
   },
   mounted () {
