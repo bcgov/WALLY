@@ -11,50 +11,39 @@
       </v-col>
     </v-row>
 
-      <div id="file-drag-drop">
-        <form ref="fileform">
-          <span class="drop-files"><v-icon>mdi-cloud-upload</v-icon> Drop the files here, or <a>browse</a></span>
-        </form>
+    <FileDrop :file="file" @loadFiles="this.files=$event"></FileDrop>
+    <v-file-input label="File" v-model="file"></v-file-input>
+    <div v-if="file && fileStats">
+      <div>
+        Size: {{ fileStats.size }}
       </div>
-          <v-file-input label="File" v-model="file"></v-file-input>
-          <div v-if="file && fileStats">
-            <div>
-              Size: {{ fileStats.size }}
-            </div>
-            <div>
-              Geometry type: {{ fileStats.geomType }}
-            </div>
-            <div v-if="fileStats.propertyFields">
-              Available properties for each feature: {{ fileStats.propertyFields.join(', ') }}
-            </div>
-          </div>
-          <v-btn v-if="file" @click="importLayer" :loading="loading">Import</v-btn>
-          <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
+      <div>
+        Geometry type: {{ fileStats.geomType }}
+      </div>
+      <div v-if="fileStats.propertyFields">
+        Available properties for each feature: {{ fileStats.propertyFields.join(', ') }}
+      </div>
+    </div>
+    <v-btn v-if="file" @click="importLayer" :loading="loading">Import</v-btn>
+    <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
   </v-container>
 </template>
 <style>
-  #file-drag-drop form{
-    display: block;
-    height: 200px;
-    width: 400px;
-    background: #ccc;
-    margin: auto;
-    margin-top: 40px;
-    text-align: center;
-    line-height: 200px;
-    border-radius: 4px;
-  }
+
 </style>
 <script>
 import { mapGetters } from 'vuex'
+import FileDrop from '../../tools/FileDrop'
 
 export default {
   name: 'ImportLayer',
+  components: { FileDrop },
   data: () => ({
     buttonClicked: false,
     distance: 0,
     area: 0,
     loading: false,
+    files: [],
     file: null, // the uploaded file from the form input
     fileData: null, // the file data object after being read by FileReader
     fileStats: {}, // statistics about the file from generateFileStats()
@@ -137,7 +126,11 @@ export default {
     ...mapGetters('map', ['map'])
   },
   watch: {
+    files (files) {
+      console.log('files are', files)
+    },
     file (newFile, prevFile) {
+      console.log(newFile)
       if (!newFile) {
         return this.resetFile()
       }
