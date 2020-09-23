@@ -297,10 +297,10 @@ export default {
         return null
       }
       let mds = this.modelOutputs.monthlyDischarges
-      var discharge = []
-      var volume = []
-      var percent = []
-      var hoverText = []
+      let discharge = []
+      let volume = []
+      let percent = []
+      let hoverText = []
       for (let i = 0; i < mds.length; i++) {
         discharge.push((mds[i].model_result).toFixed(2))
         volume.push((mds[i].model_result * this.months[i + 1] * this.secondsInMonth).toFixed(0))

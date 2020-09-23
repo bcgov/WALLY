@@ -68,6 +68,9 @@
                     </tr>
                   </template>
                 </v-data-table>
+
+                <ModelRelevancyTable :modelInfo="modelInformation" />
+
               </v-card-text>
             </v-card>
           </v-expansion-panel-content>
@@ -79,9 +82,13 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ModelRelevancyTable from './ModelRelevancyTable'
 
 export default {
   name: 'ModelExplanations',
+  components: {
+    ModelRelevancyTable
+  },
   data: () => ({
     modelHeaders: [
       { text: 'Output Type', value: 'output_type', tooltip: 'The type of value the model calculates.' },
@@ -111,13 +118,23 @@ export default {
       }
       return []
     },
+    modelInformation () {
+      let modelInfo = []
+      if (this.defaultWatershedDetails && this.defaultWatershedDetails.scsb2016_input_stats) {
+        const stats = this.defaultWatershedDetails.scsb2016_input_stats
+        stats.forEach(stat => {
+          modelInfo.push({ ...stat, ...{ inputValue: this.defaultWatershedDetails[stat.name] } })
+        })
+      }
+      return modelInfo
+    },
     linearModelExample () {
       if (this.defaultWatershedDetails.scsb2016_model.error) { return }
 
       let mc = this.defaultWatershedDetails.scsb2016_model.find((x) => { return x.output_type === 'MAR' })
       if (mc) {
         console.log(mc.precipitation_co)
-        var modelText =
+        let modelText =
           (mc.median_elevation_co !== 0 ? 'median_elevation * ' + mc.median_elevation_co + ' + ' : '') +
           (mc.glacial_coverage_co !== 0 ? 'glacial_coverage * ' + mc.glacial_coverage_co + ' + ' : '') +
           (mc.precipitation_co !== 0 ? 'precipitation * ' + mc.precipitation_co + ' + ' : '') +

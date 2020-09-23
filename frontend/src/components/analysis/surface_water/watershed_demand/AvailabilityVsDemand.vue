@@ -49,7 +49,7 @@ export default {
       if (!this.availabilityPlotData) {
         return null
       }
-      var plotConfig = []
+      let plotConfig = []
       let mar = this.availabilityPlotData.reduce((a, b) => a + b, 0) / 12
 
       const availabilityData = {
