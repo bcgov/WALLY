@@ -64,7 +64,7 @@ export default {
 
         geojsonFc.properties.name = this.file.name.split('.')[0]
 
-        this.$store.dispatch('loadCustomLayer', { map: this.map, featureCollection: geojsonFc, geomType: this.fileStats.geomType, color: 'blue' })
+        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: this.fileStats.geomType, color: 'blue' })
         this.loading = true
         setTimeout(() => {
           this.map.once('idle', () => {
@@ -80,18 +80,27 @@ export default {
     readFile () {
       // read file from form input, store the result of FileReader() and generate statistics about the file.
       const reader = new FileReader()
+
+      // set the onload function. this will be triggered when the file is read below.
       reader.onload = () => {
         this.fileData = reader.result
         this.fileStats = this.generateFileStats()
       }
-      reader.readAsText(this.file)
+
+      // select read method and then read file, triggering the onload function.
+      // shapefiles are read as arrayBuffers but most other filetypes are text.
+      const readMethod = this.determineFileReadMethod(this.determineFileType(this.file.name))
+      if (readMethod === 'text') {
+        reader.readAsText(this.file)
+      } else if (readMethod === 'arrayBuffer') {
+        reader.readAsArrayBuffer(this.file)
+      } else {
+        console.error(`could not determine method for reading file ${this.file.name}`)
+      }
     },
     generateFileStats () {
-      const mediatypes = {
-        geojson: ['application/json', 'application/geojson', 'application/geo+json']
-      }
       // handling for GeoJSON types
-      if (mediatypes['geojson'].includes(this.file.type)) {
+      if (this.determineFileType(this.file.name) === 'geojson') {
         const geojsonFc = JSON.parse(this.fileData)
 
         const geojsonStats = {
@@ -103,6 +112,40 @@ export default {
         }
         return Object.assign({}, this.defaultFileStats, geojsonStats)
       }
+    },
+    determineFileReadMethod (filetype) {
+      const methods = {
+        'geojson': 'text',
+        'csv': 'text',
+        'shp': 'arrayBuffer',
+        'kml': 'text'
+      }
+      return methods[filetype]
+    },
+    determineFileType (filename) {
+      if (!filename || !filename.length) {
+        // basic check for validity before trying to parse filename
+        console.warn(`invalid filename ${filename}`)
+        return null
+      }
+      const types = {
+        'geojson': ['geojson', 'json'],
+        'shp': ['shp', 'zip'],
+        'csv': ['csv'],
+        'kml': ['kml']
+      }
+
+      const filenameParts = filename.split('.')
+      const extension = filenameParts[filenameParts.length - 1]
+      const typeOptions = Object.keys(types)
+      for (let i = 0; i < typeOptions.length; i++) {
+        const k = typeOptions[i]
+        if (types[k].includes(extension)) {
+          // filetype extension matched- return filetype key (geojson, shp, etc.)
+          return k
+        }
+      }
+      return null // could not determine file type
     },
     resetFile () {
       this.file = null
