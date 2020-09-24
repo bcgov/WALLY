@@ -62,7 +62,9 @@ export default {
 
       const template = {
         id: featureCollection.id,
-        name: featureCollection.properties.name
+        name: featureCollection.properties.name,
+        geomType: geomType,
+        color: color
       }
 
       state.customLayers.children.push(template)
