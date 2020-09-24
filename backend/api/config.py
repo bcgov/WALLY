@@ -58,6 +58,8 @@ class Settings(BaseSettings):
     external_import = False
     external_import_types = ""
 
+    wally_model = False
+
     class Config:
         env_file = ".env"
 
