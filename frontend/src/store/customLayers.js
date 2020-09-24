@@ -98,8 +98,8 @@ export default {
     },
     setActiveCustomLayers ({ state, commit }, payload) {
       let prev = state.selectedCustomLayers
-      prev.filter((l) => !payload.includes(l)).forEach((l) => commit('map/deactivateLayer', l))
-      payload.filter((l) => !prev.includes(l)).forEach((l) => commit('map/activateLayer', l))
+      prev.filter((l) => !payload.includes(l)).forEach((l) => commit('map/deactivateLayer', l, { root: true }))
+      payload.filter((l) => !prev.includes(l)).forEach((l) => commit('map/activateLayer', l, { root: true }))
       state.selectedCustomLayers = payload
     }
   },
