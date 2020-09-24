@@ -17,6 +17,9 @@
         </form>
       </div>
           <v-file-input label="File" v-model="file"></v-file-input>
+          <div v-if="fileLoading">
+            <v-progress-linear show indeterminate></v-progress-linear>
+          </div>
           <div v-if="file && fileStats">
             <div>
               Size: {{ fileStats.size }}
@@ -28,7 +31,7 @@
               Available properties for each feature: {{ fileStats.propertyFields.join(', ') }}
             </div>
           </div>
-          <v-btn v-if="file" @click="importLayer" :loading="loading">Import</v-btn>
+          <v-btn v-if="file" @click="importLayer" :loading="layerLoading">Import</v-btn>
           <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
   </v-container>
 </template>
@@ -54,7 +57,8 @@ export default {
     buttonClicked: false,
     distance: 0,
     area: 0,
-    loading: false,
+    fileLoading: false,
+    layerLoading: false,
     file: null, // the uploaded file from the form input
     fileData: null, // the file data object after being read by FileReader
     fileStats: {}, // statistics about the file from generateFileStats()
@@ -62,8 +66,7 @@ export default {
     status: null
   }),
   methods: {
-    importLayer () {
-      // after user has confirmed the selected file (including properties/options), import it into the map.
+    handleLoadLayer () {
       if (this.fileStats.fileType === 'geojson') {
         const geojsonFc = JSON.parse(this.fileData)
 
@@ -76,10 +79,9 @@ export default {
         geojsonFc.properties.name = this.file.name.split('.')[0]
 
         this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: this.fileStats.geomType, color: 'blue' })
-        this.loading = true
         setTimeout(() => {
           this.map.once('idle', () => {
-            this.loading = false
+            this.layerLoading = false
             this.resetFile()
 
             this.status = 'success'
@@ -88,7 +90,18 @@ export default {
         })
       }
     },
+    importLayer () {
+      this.layerLoading = true
+      // after user has confirmed the selected file (including properties/options), import it into the map.
+      // setTimeout calls the handleLoadLayer function after the UI has had a chance to render (progress bar shown
+      // before app starts trying to load the layer, possibly causing some lag/delays)
+      setTimeout(() => {
+        this.handleLoadLayer()
+      }, 0)
+    },
     readFile () {
+      this.fileLoading = true
+
       // read file from form input, store the result of FileReader() and generate statistics about the file.
       const reader = new FileReader()
 
@@ -96,6 +109,7 @@ export default {
       reader.onload = () => {
         this.fileData = reader.result
         this.fileStats = this.generateFileStats()
+        this.fileLoading = false
       }
 
       // select read method and then read file, triggering the onload function.
