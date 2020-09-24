@@ -54,6 +54,27 @@
           </div>
         </template>
       </v-treeview>
+      <v-treeview
+        selectable
+        selected-color="grey darken-2"
+        v-if="layers && categories"
+        hoverable
+        open-on-click
+        @input="handleSelectCustomLayer"
+        :items="[customLayers]"
+        :value="selectedCustomLayers"
+      >
+        <template v-slot:label="{ item }">
+          <div>
+            <span>{{item.name}}</span>
+            <Dialog
+              v-if="item.description"
+              :name="item.name"
+              :description="item.description"
+              :url="item.source_url" />
+          </div>
+        </template>
+      </v-treeview>
     </v-card>
   </div>
 </template>
@@ -80,6 +101,9 @@ export default {
       'selectedBaseLayers',
       'baseMapLayers'
     ]),
+    ...mapGetters('customLayers',
+      ['customLayers', 'selectedCustomLayers']
+    ),
     ...mapGetters([
       'isDataMartActive',
       'loadingFeature',
@@ -137,6 +161,9 @@ export default {
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)
+    },
+    handleSelectCustomLayer (selectedCustomLayers) {
+      this.$store.dispatch('customLayers/setActiveCustomLayers', selectedCustomLayers)
     },
     allowDisableLayerSelection () {
       return this.featureSelectionExists
