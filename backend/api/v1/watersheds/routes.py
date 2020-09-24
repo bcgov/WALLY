@@ -192,6 +192,7 @@ def watershed_stats(
             watershed_poly, temperature_data
         )
     except Exception:
+        temperature_data = None
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
 
@@ -255,7 +256,8 @@ def watershed_stats(
         if licence_data.licences and licence_data.licences.features:
             data['licences'] = [dict(**x.properties)
                                 for x in licence_data.licences.features]
-
+            data['inactive_licences'] = [dict(**x.properties)
+                                         for x in licence_data.inactive_licences.features]
             data['licences_count_pod'] = len(licence_data.licences.features)
 
         return export_summary_as_xlsx(jsonable_encoder(data))
