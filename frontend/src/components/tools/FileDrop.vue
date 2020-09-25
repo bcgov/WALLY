@@ -1,32 +1,27 @@
 <template>
   <div id="fileDragDrop">
     <form class="drop-files">
-      <span class="drop-files"><v-icon>mdi-cloud-upload</v-icon> Drop the files here, or <a>browse</a>!</span>
+      <label class="drop-files" for="file"><v-icon>mdi-cloud-upload</v-icon> Drop the files here, or <a>browse</a>!</label>
       <input type="file" name="files[]" id="file" class="box__file" data-multiple-caption="x files selected" multiple />
     </form>
   </div>
 </template>
 
 <script>
+import EventBus from '../../services/EventBus'
+
 export default {
   name: 'FileDrop',
-  props: ['file'],
+  props: [],
   data: () => ({
+    files: [],
     dragOver: false,
     insideBox: false
   }),
   methods: {
-    filesSelected (filesList) {
-      console.log(filesList)
-      this.dragOver = false
-    },
-    showFiles (files) {
-      // let input= this.$el.querySelector('input[type="file"]')
-      console.log(files.length, files[ 0 ].name)
-      // let label = files.length > 1 ? (input.getAttribute('data-multiple-caption') || '').replace('{count}', files.length) : files[ 0 ].name
-    },
     setEvents () {
       const dropZone = this.$el.querySelector('form')
+      const input = this.$el.querySelector('input[type="file"]')
       // const fileUpload = this.$el.firstElementChild
 
       const allEvents = ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop']
@@ -53,14 +48,18 @@ export default {
         })
       })
 
-      dropZone.addEventListener('drop', function (e) {
+      dropZone.addEventListener('drop', (e) => {
         let droppedFiles = e.dataTransfer.files // the files that were dropped
 
         console.log(droppedFiles)
-        this.showFiles(droppedFiles)
-        this.$emit('load-files', droppedFiles)
+        // this.showFiles(droppedFiles)
+        EventBus.$emit('import:load-files', droppedFiles)
 
         // triggerFormSubmit();
+      })
+
+      input.addEventListener('change', (e) => {
+        EventBus.$emit('import:load-files', e.target.files)
       })
     }
   },

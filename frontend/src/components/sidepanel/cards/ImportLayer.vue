@@ -11,17 +11,19 @@
       </v-col>
     </v-row>
 
-    <FileDrop :file="file" @loadFiles="this.files=$event"></FileDrop>
-    <v-file-input label="File" v-model="file"></v-file-input>
-    <div v-if="file && fileStats">
-      <div>
-        Size: {{ fileStats.size }}
-      </div>
-      <div>
-        Geometry type: {{ fileStats.geomType }}
-      </div>
-      <div v-if="fileStats.propertyFields">
-        Available properties for each feature: {{ fileStats.propertyFields.join(', ') }}
+    <FileDrop :file="file"></FileDrop>
+    <v-file-input label="File" v-model="files[0]"></v-file-input>
+    <div v-for="file in files" v-bind:key="file">
+      <div v-if="file && file.name && fileStats[file.name]">
+        <div>
+          Size: {{ fileStats[file.name].size }}
+        </div>
+        <div>
+          Geometry type: {{ fileStats[file.name].geomType }}
+        </div>
+        <div v-if="fileStats[file.name].propertyFields">
+          Available properties for each feature: {{ fileStats[file.name].propertyFields.join(', ') }}
+        </div>
       </div>
     </div>
     <v-btn v-if="file" @click="importLayer" :loading="loading">Import</v-btn>
@@ -34,6 +36,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import FileDrop from '../../tools/FileDrop'
+import EventBus from '../../../services/EventBus'
 
 export default {
   name: 'ImportLayer',
@@ -43,9 +46,9 @@ export default {
     distance: 0,
     area: 0,
     loading: false,
-    files: [],
+    files: [null],
     file: null, // the uploaded file from the form input
-    fileData: null, // the file data object after being read by FileReader
+    fileData: {}, // the file data object after being read by FileReader
     fileStats: {}, // statistics about the file from generateFileStats()
     message: null,
     status: null
@@ -77,40 +80,51 @@ export default {
         })
       }
     },
-    readFile () {
+    loadFiles (files) {
+      console.log('load files', files)
+      this.files = files
+    },
+    readFiles () {
+      console.log(this.files)
+      Array.from(this.files).forEach(file => {
+        this.readFile(file)
+      })
+    },
+    readFile (file) {
       // read file from form input, store the result of FileReader() and generate statistics about the file.
       const reader = new FileReader()
 
       // set the onload function. this will be triggered when the file is read below.
       reader.onload = () => {
-        this.fileData = reader.result
-        this.fileStats = this.generateFileStats()
+        console.log('reader?', reader.result)
+        this.fileData[file.name] = reader.result
+        this.fileStats[file.name] = this.generateFileStats(file)
       }
 
       // select read method and then read file, triggering the onload function.
       // shapefiles are read as arrayBuffers but most other filetypes are text.
-      const readMethod = this.determineFileReadMethod(this.determineFileType(this.file.name))
+      const readMethod = this.determineFileReadMethod(this.determineFileType(file.name))
       if (readMethod === 'text') {
-        reader.readAsText(this.file)
+        reader.readAsText(file)
       } else if (readMethod === 'arrayBuffer') {
-        reader.readAsArrayBuffer(this.file)
+        reader.readAsArrayBuffer(file)
       } else {
-        console.error(`could not determine method for reading file ${this.file.name}`)
+        console.error(`could not determine method for reading file ${file.name}`)
       }
     },
-    generateFileStats () {
+    generateFileStats (file) {
       // handling for GeoJSON types
-      if (this.determineFileType(this.file.name) === 'geojson') {
-        const geojsonFc = JSON.parse(this.fileData)
+      if (this.determineFileType(file.name) === 'geojson') {
+        const geojsonFc = JSON.parse(this.fileData[file.name])
 
         const geojsonStats = {
-          id: `${this.file.name}.${this.file.lastModified}`,
+          id: `${file.name}.${file.lastModified}`,
           fileType: 'geojson',
           numFeatures: geojsonFc.features.length,
           geomType: geojsonFc.features[0].geometry.type,
           propertyFields: Object.keys(geojsonFc.features[0].properties)
         }
-        return Object.assign({}, this.defaultFileStats, geojsonStats)
+        return Object.assign({}, this.getDefaultFileStats(file), geojsonStats)
       }
     },
     determineFileReadMethod (filetype) {
@@ -147,30 +161,30 @@ export default {
       }
       return null // could not determine file type
     },
+    getDefaultFileStats (file) {
+      if (!file) {
+        return null
+      }
+
+      return {
+        size: file.size,
+        name: file.name,
+        type: file.type
+      }
+    },
     resetFile () {
-      this.file = null
-      this.fileData = null
+      // this.file = null
+      this.fileData = {}
       this.fileStats = {}
     }
   },
   computed: {
-    defaultFileStats () {
-      if (!this.file) {
-        return null
-      }
 
-      const defaults = {
-        size: this.file.size,
-        name: this.file.name,
-        type: this.file.type
-      }
-      return defaults
-    },
     ...mapGetters('map', ['map'])
   },
   watch: {
     files (files) {
-      console.log('files are', files)
+      this.readFiles()
     },
     file (newFile, prevFile) {
       console.log(newFile)
@@ -181,6 +195,7 @@ export default {
     }
   },
   mounted () {
+    EventBus.$on('import:load-files', this.loadFiles)
   }
 
 }
