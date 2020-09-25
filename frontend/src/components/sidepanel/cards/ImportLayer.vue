@@ -31,6 +31,7 @@
               Available properties for each feature: {{ fileStats.propertyFields.join(', ') }}
             </div>
           </div>
+          <v-alert class="my-3" v-if="file && fileStats.size > warnFileSizeThreshold" type="warning">Warning: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
           <v-btn v-if="file" @click="importLayer" :loading="layerLoading">Import</v-btn>
           <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
   </v-container>
@@ -54,6 +55,7 @@ import { mapGetters } from 'vuex'
 export default {
   name: 'ImportLayer',
   data: () => ({
+    warnFileSizeThreshold: 1e7, // 10 mb
     buttonClicked: false,
     distance: 0,
     area: 0,
@@ -176,6 +178,10 @@ export default {
       this.file = null
       this.fileData = null
       this.fileStats = {}
+    },
+    resetStatus () {
+      this.message = null
+      this.status = null
     }
   },
   computed: {
@@ -198,6 +204,7 @@ export default {
       if (!newFile) {
         return this.resetFile()
       }
+      this.resetStatus()
       this.readFile()
     }
   },
