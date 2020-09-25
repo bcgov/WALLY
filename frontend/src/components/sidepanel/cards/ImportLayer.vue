@@ -29,7 +29,7 @@
       </div>
       <v-alert class="my-3" v-if="file && fileStats[file.name].size > warnFileSizeThreshold" type="warning">Warning: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
     </div>
-    <v-btn v-if="files.length > 0" @click="importLayer" :loading="layerLoading">Import</v-btn>
+    <v-btn v-if="files.length > 0" @click="importLayers" :loading="layerLoading">Import</v-btn>
     <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
   </v-container>
 </template>
@@ -49,7 +49,7 @@ export default {
     buttonClicked: false,
     distance: 0,
     area: 0,
-    files: [null],
+    files: [],
     fileLoading: false,
     layerLoading: false,
     file: null, // the uploaded file from the form input
@@ -59,23 +59,23 @@ export default {
     status: null
   }),
   methods: {
-    handleLoadLayer () {
-      if (this.fileStats.fileType === 'geojson') {
-        const geojsonFc = JSON.parse(this.fileData)
+    handleLoadLayer (file) {
+      if (this.fileStats[file.name].fileType === 'geojson') {
+        const geojsonFc = JSON.parse(this.fileData[file.name])
 
-        geojsonFc.id = `${this.file.name}.${this.file.lastModified}`
+        geojsonFc.id = `${file.name}.${file.lastModified}`
 
         if (!geojsonFc.properties) {
           geojsonFc.properties = {}
         }
 
-        geojsonFc.properties.name = this.file.name.split('.')[0]
+        geojsonFc.properties.name = file.name.split('.')[0]
 
-        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: this.fileStats.geomType, color: 'blue' })
+        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: this.fileStats[file.name].geomType, color: 'blue' })
         setTimeout(() => {
           this.map.once('idle', () => {
             this.layerLoading = false
-            this.resetFile()
+            this.resetFiles()
 
             this.status = 'success'
             this.message = `Loaded file ${geojsonFc.properties.name}`
@@ -93,14 +93,18 @@ export default {
         this.readFile(file)
       })
     },
-
-    importLayer () {
+    importLayers () {
+      Array.from(this.files).forEach(file => {
+        this.importLayer(file)
+      })
+    },
+    importLayer (file) {
       this.layerLoading = true
       // after user has confirmed the selected file (including properties/options), import it into the map.
       // setTimeout calls the handleLoadLayer function after the UI has had a chance to render (progress bar shown
       // before app starts trying to load the layer, possibly causing some lag/delays)
       setTimeout(() => {
-        this.handleLoadLayer()
+        this.handleLoadLayer(file)
       }, 0)
     },
     readFile (file) {
@@ -111,7 +115,6 @@ export default {
 
       // set the onload function. this will be triggered when the file is read below.
       reader.onload = () => {
-        console.log('reader?', reader.result)
         this.fileData[file.name] = reader.result
         this.fileStats[file.name] = this.generateFileStats(file)
         this.fileLoading = false
@@ -187,6 +190,11 @@ export default {
         name: file.name,
         type: file.type
       }
+    },
+    resetFiles () {
+      this.files = []
+      this.fileData = {}
+      this.fileStats = {}
     },
     resetFile () {
       // this.file = null

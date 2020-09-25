@@ -1,7 +1,7 @@
 <template>
   <div id="fileDragDrop">
     <form class="drop-files">
-      <label class="drop-files" for="file"><v-icon>mdi-cloud-upload</v-icon> Drop the files here, or <a>browse</a>!</label>
+      <label class="drop-files" for="file"><v-icon>mdi-cloud-upload</v-icon> Drop the files here, or <a>browse</a></label>
       <input type="file" name="files[]" id="file" class="box__file" data-multiple-caption="x files selected" multiple />
     </form>
   </div>
