@@ -1,113 +1,134 @@
 <template>
-  <div>
-    <div class="titleSub my-5">Watershed Licenced Quantity</div>
-    <div v-if="licencesLoading">
+  <v-card flat>
+    <v-card-text class="pb-0">
+      <h3>Water Rights Licences</h3>
+    </v-card-text>
+    <v-card-text v-if="licencesLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
-    </div>
+    </v-card-text>
+    <v-card-text v-if="licenceData" class="pt-0">
+      <v-row>
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              Total annual licenced quantity
+              <Dialog v-bind="wmd.waterRightsLicenceDemand" smallIcon/>
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>{{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year</strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <div class="subtitle font-weight-bold">Current Licences</div>
+      <p>
+        Total quantities and individual licence data in this table only reflect current licences.
+        See "Canceled, Expired and Inactive Licences" below for inactive licences.
+      </p>
+      <v-data-table
+        :headers="licencePurposeHeaders"
+        :items="licenceData.total_qty_by_purpose.filter(x => x.licences && x.licences.length)"
+        :single-expand="singleExpandLicences"
+        :expanded.sync="expandedActiveLicences"
+        item-key="purpose"
+        show-expand
+        @click:row="clearLicenceHighlight"
+      >
+        <!--        <template v-slot:top>-->
+        <!--          <v-toolbar flat>-->
+        <!--            <h4>Total annual licenced quantity: {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year </h4>-->
+        <!--          </v-toolbar>-->
+        <!--        </template>-->
+        <template v-slot:[`item.qty_sec`]="{ item }">
+          {{ (item.qty / secInYear).toFixed(6) | formatNumber }}
+        </template>
+        <template v-slot:[`item.qty`]="{ item }">
+          {{ item.qty.toFixed(0) | formatNumber }}
+        </template>
+        <template v-slot:[`item.min`]="{ item }">
+          {{ Math.min.apply(Math, item.licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+        </template>
+        <template v-slot:[`item.max`]="{ item }">
+          {{ Math.max.apply(Math, item.licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+        </template>
+        <template v-slot:[`item.count`]="{ item }">
+          {{ item.licences.length }}
+        </template>
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+            <WatershedIndividualLicences :licences="item.licences"/>
+          </td>
+        </template>
+      </v-data-table>
 
-    <div v-if="licenceData">
-      <v-card flat>
-        <v-card-title class="pl-0">
-          Water Rights Licences
-          <v-card-actions>
-            <v-tooltip right>
-              <template v-slot:activator="{ on }">
-                <v-btn v-on="on" x-small fab depressed light @click="openEditAllocationTableDialog">
-                  <v-icon small color="primary">
-                    mdi-tune
-                  </v-icon>
-                </v-btn>
-              </template>
-              <span>Configure monthly allocation coefficients</span>
-            </v-tooltip>
-          </v-card-actions>
+      <div class="subtitle font-weight-bold">Canceled, Expired and Inactive Licences</div>
 
-        </v-card-title>
-        <v-dialog v-model="show.editingAllocationValues" persistent>
-          <MonthlyAllocationTable
-            :allocation-items="licenceData.total_qty_by_purpose"
-            key-field="purpose"
-            @close="closeEditAllocationTableDialog"/>
-        </v-dialog>
+      <v-data-table
+        :headers="inactiveLicencePurposeHeaders"
+        :items="licenceData.total_qty_by_purpose.filter(x => x.inactive_licences && x.inactive_licences.length)"
+        :single-expand="singleExpandInactiveLicences"
+        :expanded.sync="expandedInactiveLicences"
+        item-key="purpose"
+        show-expand
+      >
+        <template v-slot:[`item.qty_sec`]="{ item }">
+          {{ (item.qty / secInYear).toFixed(6) }}
+        </template>
+        <template v-slot:[`item.qty`]="{ item }">
+          {{ item.qty.toFixed(0) | formatNumber }}
+        </template>
+        <template v-slot:[`item.min`]="{ item }">
+          {{ Math.min.apply(Math, item.inactive_licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+        </template>
+        <template v-slot:[`item.max`]="{ item }">
+          {{ Math.max.apply(Math, item.inactive_licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
+        </template>
+        <template v-slot:[`item.count`]="{ item }">
+          {{ item.inactive_licences.length }}
+        </template>
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+            <WatershedIndividualLicences :licences="item.inactive_licences"/>
+          </td>
+        </template>
+      </v-data-table>
 
-        <Dialog v-bind="wmd.waterRightsLicenceDemand"/>
+      <v-dialog v-model="show.editingAllocationValues" persistent>
+        <MonthlyAllocationTable
+          :allocation-items="licenceData.total_qty_by_purpose"
+          key-field="purpose"
+          @close="closeEditAllocationTableDialog"/>
+      </v-dialog>
 
-        <div class="subtitle font-weight-bold">Current Licences</div>
-
-        <p>Total quantities and individual licence data in this table only reflect current licences. See "Cancelled, Expired and Inactive Licences" below for inactive licences.</p>
-
-        <v-data-table
-          :headers="licencePurposeHeaders"
-          :items="licenceData.total_qty_by_purpose.filter(x => x.licences && x.licences.length)"
-          :single-expand="singleExpandLicences"
-          :expanded.sync="expandedActiveLicences"
-          item-key="purpose"
-          show-expand
-          @click:row="clearLicenceHighlight"
-        >
-          <template v-slot:top>
-            <v-toolbar flat>
-            <h4>Total annual licenced quantity: {{ licenceData.total_qty.toFixed(1) | formatNumber }} m³/year </h4>
-            </v-toolbar>
+      <v-card-actions>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" small depressed light @click="openEditAllocationTableDialog">
+              <v-icon small color="primary">
+                mdi-tune
+              </v-icon>
+              Monthly allocation coefficients
+            </v-btn>
           </template>
-          <template v-slot:[`item.qty_sec`]="{ item }">
-            {{ (item.qty / secInYear).toFixed(6) }}
+          <span>Configure monthly allocation coefficients</span>
+        </v-tooltip>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" small  depressed light class="ml-2" @click="toggleWaterLicenceLayerVisibility">
+              <v-icon small>
+                layers
+              </v-icon>
+              {{ isLicencesLayerVisible ? 'Hide' : 'Show'}} points on map
+            </v-btn>
           </template>
-          <template v-slot:[`item.qty`]="{ item }">
-            {{ item.qty.toFixed(0) | formatNumber }}
-          </template>
-          <template v-slot:[`item.min`]="{ item }">
-            {{ Math.min.apply(Math, item.licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
-          </template>
-          <template v-slot:[`item.max`]="{ item }">
-            {{ Math.max.apply(Math, item.licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
-          </template>
-          <template v-slot:[`item.count`]="{ item }">
-            {{ item.licences.length }}
-          </template>
-          <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length">
-              <WatershedIndividualLicences :licences="item.licences"/>
-            </td>
-          </template>
-        </v-data-table>
-
-        <div class="subtitle font-weight-bold">Cancelled, Expired and Inactive Licences</div>
-
-        <v-data-table
-          :headers="inactiveLicencePurposeHeaders"
-          :items="licenceData.total_qty_by_purpose.filter(x => x.inactive_licences && x.inactive_licences.length)"
-          :single-expand="singleExpandInactiveLicences"
-          :expanded.sync="expandedInactiveLicences"
-          item-key="purpose"
-          show-expand
-        >
-          <template v-slot:[`item.qty_sec`]="{ item }">
-            {{ (item.qty / secInYear).toFixed(6) }}
-          </template>
-          <template v-slot:[`item.qty`]="{ item }">
-            {{ item.qty.toFixed(0) | formatNumber }}
-          </template>
-          <template v-slot:[`item.min`]="{ item }">
-            {{ Math.min.apply(Math, item.inactive_licences.map((o) =>  o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
-          </template>
-          <template v-slot:[`item.max`]="{ item }">
-            {{ Math.max.apply(Math, item.inactive_licences.map((o) => o.properties.quantityPerYear )).toFixed(0) | formatNumber }}
-          </template>
-          <template v-slot:[`item.count`]="{ item }">
-            {{ item.inactive_licences.length }}
-          </template>
-          <template v-slot:expanded-item="{ headers, item }">
-            <td :colspan="headers.length">
-              <WatershedIndividualLicences :licences="item.inactive_licences"/>
-            </td>
-          </template>
-        </v-data-table>
-
-      </v-card>
-    </div>
-
-  </div>
+          <span>{{ isLicencesLayerVisible ? 'Hide' : 'Show'}} Water Rights Licences Layer</span>
+        </v-tooltip>
+      </v-card-actions>
+    </v-card-text>
+    <v-card-text v-else-if="!licencesLoading">
+      No licences found
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -128,7 +149,7 @@ const popup = new mapboxgl.Popup({
 })
 
 export default {
-  name: 'WatershedDemand',
+  name: 'WaterRightsLicences',
   mixins: [surfaceWaterMixin],
   components: {
     MonthlyAllocationTable,
@@ -208,7 +229,7 @@ export default {
       }, 'water_rights_licences')
 
       this.map.on('mouseenter', id, (e) => {
-      // Change the cursor style as a UI indicator.
+        // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
         let coordinates = e.features[0].geometry.coordinates.slice()
@@ -252,7 +273,6 @@ export default {
       this.show.editingAllocationValues = true
     },
     closeEditAllocationTableDialog () {
-      // TODO: Distribute quantity based on alloc values
       this.show.editingAllocationValues = false
       this.setDemandPlotData()
     },
@@ -264,8 +284,8 @@ export default {
           // console.log('adding data to map')
           // console.log(r.data.licences)
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
-          // adding null feature array breaks interpolation in layer setup
-          if (r.data && r.data.licences) {
+          // An empty feature array can't be interpolated by mapbox-gl
+          if (r.data && r.data.licences && r.data.licences.length > 0) {
             this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
           }
           // resets purposeTypes array and re-populates if any entries in list
@@ -305,10 +325,17 @@ export default {
       }
       this.setLicencePlotData(allocationY) // update store so availability vs demand graph gets new plot values
     },
-    toggleLayerVisibility () {
+    toggleWaterLicenceLayerVisibility () {
+      if (this.isLicencesLayerVisible) {
+        this.$store.dispatch('map/removeMapLayer', 'water_rights_licences')
+      } else {
+        this.$store.dispatch('map/addMapLayer', 'water_rights_licences')
+      }
+
+      if (this.licenceData && this.licenceData.total_qty_by_purpose && this.licenceData.total_qty_by_purpose.length > 0) {
+        this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'none' : 'visible')
+      }
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
-      this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
     },
     getDemandData () {
       this.licenceData = null
@@ -346,11 +373,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.titleSub {
-  color: #202124;
-  font-weight: bold;
-  font-size: 20px;
-}
-</style>

@@ -4,14 +4,17 @@ data:
     external_import=false
     external_import_types=
     wally_model=false
+    surface_water_design_v2=false
   staging.env: |
     external_import=false
     external_import_types=
     wally_model=true
+    surface_water_design_v2=true
   dev.env: |
     external_import=true
     external_import_types=csv, kml, geojson
     wally_model=true
+    surface_water_design_v2=true
 kind: ConfigMap
 metadata:
   name: wally-config

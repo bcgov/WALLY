@@ -7,6 +7,7 @@ def normalize_quantity(qty, qty_unit: str):
         m3/sec
         m3/day
         m3/year
+        Returns None if QUANTITY_UNITS doesn't match one of the options.
     """
 
     qty_unit = qty_unit.strip()
@@ -18,4 +19,5 @@ def normalize_quantity(qty, qty_unit: str):
     elif qty_unit == 'm3/sec':
         return qty * 60 * 60 * 24 * 365
     else:
+        # could not interpret QUANTITY_UNIT value
         return None

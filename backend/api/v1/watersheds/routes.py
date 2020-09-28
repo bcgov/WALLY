@@ -46,7 +46,8 @@ from api.v1.watersheds.controller import (
     export_summary_as_xlsx,
     known_fish_observations,
     find_50k_watershed_codes,
-    get_stream_inventory_report_link_for_region
+    get_stream_inventory_report_link_for_region,
+    get_scsb2016_input_stats
 )
 from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.hydat.controller import (get_stations_in_area)
@@ -193,6 +194,7 @@ def watershed_stats(
             watershed_poly, temperature_data
         )
     except Exception:
+        temperature_data = None
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
 
@@ -215,10 +217,13 @@ def watershed_stats(
                                                   glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
                                                   drainage_area, solar_exposure, average_slope)
 
+    scsb2016_input_stats = get_scsb2016_input_stats(db)
+    
     wally_hydrological_zone_model_mar = hydrological_zone_model(hydrological_zone, drainage_area, median_elevation, annual_precipitation)
 
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
+
 
     data = {
         "watershed_name": watershed.properties.get("name", None),
@@ -242,7 +247,8 @@ def watershed_stats(
         "scsb2016_model": scsb2016_model,
         "scsb2016_output": model_output_as_dict(scsb2016_model),
         "wally_hydro_zone_model_output": wally_hydrological_zone_model_mar,
-        "hydrometric_stations": hydrometric_stations
+        "scsb2016_input_stats": scsb2016_input_stats,
+        "hydrometric_stations": hydrometric_stations,
     }
 
     if format == 'xlsx':
@@ -255,7 +261,8 @@ def watershed_stats(
         if licence_data.licences and licence_data.licences.features:
             data['licences'] = [dict(**x.properties)
                                 for x in licence_data.licences.features]
-
+            data['inactive_licences'] = [dict(**x.properties)
+                                         for x in licence_data.inactive_licences.features]
             data['licences_count_pod'] = len(licence_data.licences.features)
 
         return export_summary_as_xlsx(jsonable_encoder(data))

@@ -1,16 +1,35 @@
 <template>
-  <div v-if="demandAvailabilityData">
-      <div class="subtitle-1 my-3 font-weight-bold">Availability vs Licensed Quantity</div>
-      <div class="my-3"><span class="font-weight-bold">How to read this graph:</span>
-        this graph shows available water after allocation from existing surface water licences,
-        as determined by subtracting licensed quantities (including any adjusted monthly allocation
-        values) from the estimated discharge for each month.
-      </div>
-      <Plotly v-if="availabilityPlotData && licencePlotData && shortTermLicencePlotData"
-              :layout="demandAvailabilityLayout()"
-              :data="demandAvailabilityData"
-      ></Plotly>
-  </div>
+  <v-card flat>
+    <v-card-text class="pb-0">
+      <h3>Availability vs Licensed Quantity</h3>
+    </v-card-text>
+
+    <v-card-text v-if="demandAvailabilityData">
+      <v-row>
+        <v-col>
+          <v-card flat outlined tile>
+            <v-card-title>
+              How to read this graph
+            </v-card-title>
+            <v-card-text class="info-blue">
+              <strong>
+                This graph shows available water after allocation from existing surface water licences, as determined by subtracting licensed quantities (including any adjusted monthly allocation values) from the estimated discharge for each month.
+              </strong>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row>
+        <Plotly v-if="availabilityPlotData && licencePlotData && shortTermLicencePlotData"
+                :layout="demandAvailabilityLayout()"
+                :data="demandAvailabilityData"
+        ></Plotly>
+      </v-row>
+    </v-card-text>
+    <v-card-text v-else>
+      No data to display
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -49,7 +68,7 @@ export default {
       if (!this.availabilityPlotData) {
         return null
       }
-      let plotConfig = []
+      var plotConfig = []
       let mar = this.availabilityPlotData.reduce((a, b) => a + b, 0) / 12
 
       const availabilityData = {
@@ -57,7 +76,7 @@ export default {
         name: 'Available Water',
         y: this.availabilityPlotData.map((val, i) => {
           return val - (this.licencePlotData ? this.licencePlotData[i] : 0) -
-          (this.shortTermLicencePlotData ? this.shortTermLicencePlotData[i] : 0)
+              (this.shortTermLicencePlotData ? this.shortTermLicencePlotData[i] : 0)
         }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³'

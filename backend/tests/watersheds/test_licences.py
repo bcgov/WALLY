@@ -60,7 +60,7 @@ class TestWaterLicencesSummary(unittest.TestCase):
         # however, the quantity for licences with flag M can't be added. All records share one max quantity.
         # this assert is just to show that "sum" produces a different result than the water_licences_summary function.
         assert round(sum([x.properties['quantityPerYear']
-                          for x in test_purpose["licences"]])) == 486182
+                          for x in test_purpose["licences"] if x.properties['quantityPerYear']])) == 486182
 
         # the proper quantity is 127768.
         assert round(test_purpose["qty"]) == 127768
