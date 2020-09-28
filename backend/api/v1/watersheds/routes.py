@@ -59,7 +59,7 @@ from api.v1.watersheds.schema import (
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
-from api.v1.models.hydrological_zones.controller import hydrological_zone_model 
+from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model 
 from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs 
 
 logger = getLogger("aggregator")
@@ -210,7 +210,7 @@ def watershed_stats(
         average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
 
     # isoline model outputs
-    isoline_runoff = calculate_runoff_in_area(db, watershed_poly)
+    isoline_runoff_model = calculate_runoff_in_area(db, watershed_poly)
 
     # custom linear mad model outputs
     scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation,
@@ -219,7 +219,7 @@ def watershed_stats(
 
     scsb2016_input_stats = get_scsb2016_input_stats(db)
     
-    wally_hydrological_zone_model_mar = hydrological_zone_model(hydrological_zone, drainage_area, median_elevation, annual_precipitation)
+    wally_hydrological_zone_model = get_hydrological_zone_model(hydrological_zone, drainage_area, median_elevation, annual_precipitation)
 
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
@@ -241,12 +241,12 @@ def watershed_stats(
         "solar_exposure": solar_exposure,
         "median_elevation": median_elevation,
         "aspect": aspect,
-        "runoff_isoline_avg": (isoline_runoff['runoff'] /
-                               isoline_runoff['area'] * 1000) if isoline_runoff['area'] else 0,
-        "runoff_isoline_discharge_m3s": isoline_runoff['runoff'] / 365 / 24 / 60 / 60,
+        "runoff_isoline_avg": (isoline_runoff_model['runoff'] /
+                               isoline_runoff_model['area'] * 1000) if isoline_runoff_model['area'] else 0,
+        "runoff_isoline_discharge_m3s": isoline_runoff_model['runoff'] / 365 / 24 / 60 / 60,
         "scsb2016_model": scsb2016_model,
         "scsb2016_output": model_output_as_dict(scsb2016_model),
-        "wally_hydro_zone_model_output": wally_hydrological_zone_model_mar,
+        "wally_hydro_zone_model_output": wally_hydrological_zone_model,
         "scsb2016_input_stats": scsb2016_input_stats,
         "hydrometric_stations": hydrometric_stations,
     }

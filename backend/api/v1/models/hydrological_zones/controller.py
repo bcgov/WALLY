@@ -1,3 +1,4 @@
+import json
 import logging
 from sqlalchemy.orm import Session
 from api.v1.aggregator.controller import feature_search
@@ -34,7 +35,6 @@ def get_hydrological_zone_model(
     inputs = [drainage_area, median_elevation, annual_precipitation]
     inputs = np.array(inputs).reshape((1, -1))
     mean_annual_flow_prediction = xgb.predict(inputs)
-    logger.warning(mean_annual_flow_prediction)
     result = ModelOutput(
         mean_annual_flow=mean_annual_flow_prediction,
         r_squared=get_zone_info(hydrological_zone),
@@ -46,36 +46,8 @@ def get_zone_info(zone):
     """
     Returns model fit in r^2 value based on hydrological zone
     """
-    r_squares = {
-        1: 0.5505,
-        2: 0.7847,
-        3: 0.9471,
-        4: 0.9256,
-        5: -0.2123,
-        6: 0.7902,
-        7: 0.582,
-        8: 0.9487,
-        9: 0.3911,
-        10: 0.983,
-        11: 0.5981,
-        12: 0.8577,
-        13: 0.6475,
-        14: 0.8629,
-        15: 0.6826,
-        16: 0.6963,
-        17: 0.4159,
-        18: 0.9905,
-        19: 0.5956,
-        20: 0.5565,
-        21: 0.8606,
-        22: 0.7755,
-        23: 0.6376,
-        24: 0.2729,
-        25: 0.9048,
-        26: 0.654,
-        27: 0.827,
-        28: 0.8762,
-        29: 0.806,
-    }
+    with open(MODEL_STATE_DIRECTORY + 'zone_models_r2.json') as zone_models_r2_file:
+        zone_r_squares = json.load(zone_models_r2_file)
+        return zone_r_squares[str(zone)]
 
-    return r_squares[zone]
+    return None
