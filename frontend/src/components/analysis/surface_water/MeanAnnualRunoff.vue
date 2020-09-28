@@ -448,7 +448,7 @@ export default {
       }
     },
     showWallyModelFeatureFlag () {
-      return global.config.isDevelopment || global.config.isStaging
+      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   mounted () {
