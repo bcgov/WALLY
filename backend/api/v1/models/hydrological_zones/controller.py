@@ -12,7 +12,7 @@ logger = logging.getLogger("hydrological_zones")
 MODEL_STATE_DIRECTORY = "./api/v1/models/hydrological_zones/xgb_model_states/"
 
 
-def hydrological_zone_model(
+def get_hydrological_zone_model(
     hydrological_zone: str,
     drainage_area: float,
     median_elevation: float,
