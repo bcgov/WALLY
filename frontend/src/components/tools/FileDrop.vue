@@ -8,8 +8,6 @@
 </template>
 
 <script>
-import EventBus from '../../services/EventBus'
-
 export default {
   name: 'FileDrop',
   props: [],
@@ -53,13 +51,13 @@ export default {
 
         console.log(droppedFiles)
         // this.showFiles(droppedFiles)
-        EventBus.$emit('import:load-files', droppedFiles)
+        this.$emit('import:load-files', droppedFiles)
 
         // triggerFormSubmit();
       })
 
       input.addEventListener('change', (e) => {
-        EventBus.$emit('import:load-files', e.target.files)
+        this.$emit('import:load-files', e.target.files)
       })
     }
   },

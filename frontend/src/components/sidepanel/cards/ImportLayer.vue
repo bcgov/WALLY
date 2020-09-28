@@ -13,7 +13,7 @@
     <div v-if="fileLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </div>
-    <FileDrop :file="file"></FileDrop>
+    <FileDrop :file="file" @import:load-files="this.loadFiles"></FileDrop>
     <v-file-input label="File" v-model="files[0]"></v-file-input>
     <div v-for="file in files" v-bind:key="file">
       <div v-if="file && file.name && fileStats[file.name]">
@@ -224,7 +224,6 @@ export default {
     }
   },
   mounted () {
-    EventBus.$on('import:load-files', this.loadFiles)
   }
 
 }
