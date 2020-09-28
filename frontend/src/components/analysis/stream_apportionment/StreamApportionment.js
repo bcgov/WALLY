@@ -42,6 +42,10 @@ export default {
     ]
   }),
   methods: {
+    selectPoint () {
+      this.setDrawMode('draw_point')
+    },
+    ...mapActions('map', ['setDrawMode', 'clearSelections']),
     submitStreamsForExport () {
       // Custom metrics - Track Excel downloads
       window._paq && window._paq.push([
