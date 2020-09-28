@@ -37,12 +37,12 @@ def hydrological_zone_model(
     logger.warning(mean_annual_flow_prediction)
     result = ModelOutput(
         mean_annual_flow=mean_annual_flow_prediction,
-        r_squared=zone_info(hydrological_zone),
+        r_squared=get_zone_info(hydrological_zone),
     )
     return result
 
 
-def zone_info(zone):
+def get_zone_info(zone):
     """
     Returns model fit in r^2 value based on hydrological zone
     """
