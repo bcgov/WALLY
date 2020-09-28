@@ -86,7 +86,7 @@ export default {
       this.allocItems = []
       // we only want to see one allocation row
       // for each approval file number (keyField)
-      var seen = []
+      let seen = []
       this.allocationItems.forEach(item => {
         let allocItemKey = item[this.keyField].trim()
         if (!seen.includes(allocItemKey)) {

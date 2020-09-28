@@ -3,12 +3,15 @@ data:
   prod.env: |
     external_import=false
     external_import_types=
+    surface_water_design_v2=false
   staging.env: |
     external_import=false
     external_import_types=
+    surface_water_design_v2=true
   dev.env: |
     external_import=true
     external_import_types=csv, kml, geojson
+    surface_water_design_v2=true
 kind: ConfigMap
 metadata:
   name: wally-config

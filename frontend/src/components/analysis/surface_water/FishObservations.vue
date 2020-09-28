@@ -1,5 +1,88 @@
 <template>
-  <div>
+  <v-card v-if="this.surface_water_design_v2" flat>
+    <v-card-title
+      class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+      dark>
+      Watershed Fish Observations
+    </v-card-title>
+    <v-card-actions>
+      <v-card-subtitle class="pr-0 pl-2 pr-2">
+        Source:
+      </v-card-subtitle>
+      <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
+         target="_blank"
+         rel="external noopener">
+        Known BC Fish Observations and BC Fish Distributions (DataBC)
+      </a>
+    </v-card-actions>
+    <v-card-text v-if="fishLoading">
+      <v-progress-linear show indeterminate></v-progress-linear>
+    </v-card-text>
+    <v-card-text v-if="fishData &&
+                fishData.fish_species_data &&
+                fishData.fish_species_data.length > 0">
+      <v-data-table
+        :items="fishData.fish_species_data"
+        :headers="fishObservationHeaders"
+        sort-by="qty"
+        sort-desc
+      >
+        <template v-slot:item.qty="{ item }">
+          {{ item.qty.toFixed(1) | formatNumber }}
+        </template>
+      </v-data-table>
+
+      <v-card-actions>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on" small  depressed light class="ml-2" @click="toggleLayerVisibility">
+              <v-icon small>
+                layers
+              </v-icon>
+              {{ isFishLayerVisible ? 'Hide' : 'Show'}} points on map
+            </v-btn>
+          </template>
+          <span>{{ isFishLayerVisible ? 'Hide' : 'Show'}} Known BC Fish Observations & Distributions Layer</span>
+        </v-tooltip>
+      </v-card-actions>
+
+    </v-card-text>
+    <v-card-text v-else-if="!fishLoading">
+      <p class="text--disabled mt-2">Unknown fish presence</p>
+    </v-card-text>
+
+    <!--FIDQ-->
+    <v-card-title
+      class="title mt-5 ml-3 mr-3 pa-1 mb-2"
+      dark>
+      Fish Inventory Data Queries
+    </v-card-title>
+    <v-card-text v-if="fidqLoading">
+      <v-progress-linear show indeterminate></v-progress-linear>
+    </v-card-text>
+    <v-card-text v-if="watershed50kCodes && watershed50kCodes.length">
+      <v-card-subtitle class="pr-0 pl-2">
+        Search the Fish Inventory Data Queries database using the following watershed codes
+      </v-card-subtitle>
+      <ul>
+        <template v-for="(code, i) in watershed50kCodes">
+          <li :key="`fidqLink${i}`">
+            <a target="_blank" :href="`http://a100.gov.bc.ca/pub/fidq/viewSingleWaterbody.do?searchCriteria.watershedCode=${code}`"
+               rel="noopener">
+              {{code}}
+            </a>
+          </li>
+        </template>
+      </ul>
+    </v-card-text>
+    <v-card-text v-else-if="!fidqLoading">
+      <p class="text--disabled mt-2">
+        WALLY's FIDQ search links are based on 1:20k watershed codes. No 1:20k watershed codes found in this area.
+        If you believe this to be an error, please contact the Wally team to report a bug.
+      </p>
+    </v-card-text>
+  </v-card>
+  <div v-else>
     <div class="titleSub my-5">Watershed Fish Observations</div>
     <div v-if="fishLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
@@ -9,7 +92,9 @@
         <div>
             Source:
             <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions"
-                target="_blank">Known BC Fish Observations and BC Fish Distributions (DataBC)</a>
+                target="_blank" rel="noopener external">
+              Known BC Fish Observations and BC Fish Distributions (DataBC)
+            </a>
         </div>
         <div class="my-5" v-if="fishData &&
           fishData.fish_species_data &&
@@ -48,7 +133,7 @@ export default {
   name: 'FishObservations',
   components: {
   },
-  props: ['watershedID'],
+  props: ['watershedID', 'surface_water_design_v2'],
   data: () => ({
     fishLoading: false,
     fishData: null,
@@ -59,7 +144,9 @@ export default {
       { text: 'First Observation Date', value: 'observation_date_min', align: 'center' },
       { text: 'Last Observation Date', value: 'observation_date_max', align: 'center' }
     ],
-    isFishLayerVisible: true
+    isFishLayerVisible: true,
+    watershed50kCodes: [],
+    fidqLoading: false
   }),
   computed: {
     ...mapGetters('map', ['map'])
@@ -137,13 +224,27 @@ export default {
       })
     },
     toggleLayerVisibility () {
+      if (this.isFishLayerVisible) {
+        this.$store.dispatch('map/removeMapLayer', 'fish_observations')
+      } else {
+        this.$store.dispatch('map/addMapLayer', 'fish_observations')
+      }
       this.isFishLayerVisible = !this.isFishLayerVisible
-      this.map.setLayoutProperty('fishObservations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
-      this.map.setLayoutProperty('fish_observations', 'visibility', this.isFishLayerVisible ? 'visible' : 'none')
+    },
+    fetchFishInventorySearchCodes () {
+      this.fidqLoading = true
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fwa_50k_codes`).then((r) => {
+        this.watershed50kCodes = r.data
+        this.fidqLoading = false
+      }).catch(e => {
+        this.fidqLoading = false
+        console.error(e)
+      })
     }
   },
   mounted () {
     this.fetchFishObservations()
+    this.fetchFishInventorySearchCodes()
   },
   beforeDestroy () {
     this.map.removeLayer('fishObservations')

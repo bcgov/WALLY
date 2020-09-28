@@ -8,6 +8,8 @@
         <th class="text-left">Licence Status</th>
         <th class="text-left">Primary Licensee</th>
         <th class="text-left">Source</th>
+        <th class="text-left">Licence Quantity</th>
+        <th class="text-left">Quantity Unit</th>
         <th class="text-right">Quantity (m³/s)</th>
         <th class="text-right">Quantity (m³/year)</th>
         <th class="text-right">Quantity Flag</th>
@@ -16,15 +18,19 @@
       <tbody>
       <tr @mouseenter="onMouseEnterListItem(item)" v-for="(item, i) in licences" :key="uniqueKey(item, i)">
         <td>
-          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`" target="_blank">
+          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`"
+             target="_blank"
+             rel="noopener">
           {{ item.properties.fileNumber }}
           </a>
         </td>
         <td>{{ item.properties.status }}</td>
         <td>{{ item.properties.licensee }}</td>
         <td>{{ item.properties.source }}</td>
-        <td class="text-right">{{ item.properties.quantityPerSec.toFixed(6)  }}</td>
-        <td class="text-right">{{ item.properties.quantityPerYear.toFixed(0) | formatNumber  }}</td>
+        <td>{{ item.properties.quantity }}</td>
+        <td>{{ item.properties.quantityUnits }}</td>
+        <td class="text-right">{{ item.properties.quantityPerSec ? item.properties.quantityPerSec.toFixed(6) : null }}</td>
+        <td class="text-right">{{ item.properties.quantityPerYear ? item.properties.quantityPerYear.toFixed(0) : null }}</td>
         <td class="text-right">{{ item.properties.quantityFlag }}</td>
       </tr>
       </tbody>

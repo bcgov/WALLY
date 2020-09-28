@@ -1,5 +1,5 @@
 <template>
-  <v-container class="pt-3">
+  <v-container>
     <v-toolbar flat>
       <v-banner color="indigo"
                 icon="mdi-chart-bar"
@@ -21,7 +21,8 @@
     </v-toolbar>
     <div
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
-      <SurfaceWater></SurfaceWater>
+      <SurfaceWaterV2 v-if="this.app.config && this.app.config.surface_water_design_v2"></SurfaceWaterV2>
+      <SurfaceWater v-else></SurfaceWater>
     </div>
     <v-row class="mt-3" v-else>
       <v-col cols=12 lg=8>
@@ -36,12 +37,14 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import SurfaceWater from '../../analysis/surface_water/SurfaceWater'
+import SurfaceWater from './SurfaceWater'
+import SurfaceWaterV2 from './SurfaceWaterV2'
 
 export default {
-  name: 'SurfaceWaterAnalysis',
+  name: 'SurfaceWaterContainer',
   components: {
-    SurfaceWater
+    SurfaceWater,
+    SurfaceWaterV2
   },
   data: () => ({
     licencesLayerAutomaticallyEnabled: false,
@@ -140,7 +143,7 @@ export default {
       return this.isMapLayerActive('water_approval_points')
     },
     ...mapGetters('map', ['isMapLayerActive', 'isMapReady']),
-    ...mapGetters(['pointOfInterest'])
+    ...mapGetters(['pointOfInterest', 'app'])
   },
   watch: {
     pointOfInterest (value) {
