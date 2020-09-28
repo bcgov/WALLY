@@ -1,6 +1,8 @@
 // Mapbox style config code borrowed from
 // https://github.com/CrunchyData/pg_tileserv
 
+import mapboxgl from 'mapbox-gl'
+
 function layerConfig ({ id, geomType, color }) {
   const paints = {
     'circle': {
@@ -38,6 +40,11 @@ function layerConfig ({ id, geomType, color }) {
   }
 }
 
+function popupText (properties) {
+  const props = Object.entries(properties).map(prop => `${prop[0]}: ${prop[1]}`)
+  return props.join('\n')
+}
+
 function geojsonSource ({ id, featureCollection }) {
   console.log(featureCollection)
   return {
@@ -71,6 +78,21 @@ export default {
       map.addSource(featureCollection.id, geojsonSource({ id: featureCollection.id, featureCollection }))
       map.addLayer(layerConfig({ id: featureCollection.id, geomType, color }))
       state.selectedCustomLayers.push(featureCollection.id)
+
+      // create popup on click, and have cursor change on hover
+      map.on('click', featureCollection.id, function (e) {
+        new mapboxgl.Popup({ className: 'custom-layer-popup' })
+          .setMaxWidth('300px')
+          .setLngLat(e.lngLat)
+          .setText(popupText(e.features[0].properties))
+          .addTo(map)
+      })
+      map.on('mouseenter', featureCollection.id, function (e) {
+        map.getCanvas().style.cursor = 'pointer'
+      })
+      map.on('mouseleave', featureCollection.id, function (e) {
+        map.getCanvas().style.cursor = ''
+      })
     },
     removeCustomLayer (state, { map, id }) {
       // removes a custom layer by layer ID

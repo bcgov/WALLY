@@ -16,17 +16,24 @@
     <FileDrop :file="file" @import:load-files="this.loadFiles"></FileDrop>
     <v-file-input label="File" v-model="files[0]"></v-file-input>
     <div v-for="file in files" v-bind:key="file">
-      <div v-if="file && file.name && fileStats[file.name]">
-        <div>
-          Size: {{ fileStats[file.name].size }}
-        </div>
-        <div>
-          Geometry type: {{ fileStats[file.name].geomType }}
-        </div>
-        <div v-if="fileStats[file.name].propertyFields">
-          Available properties for each feature: {{ fileStats[file.name].propertyFields.join(', ') }}
-        </div>
-      </div>
+      <dl v-if="file && file.name && fileStats[file.name]">
+        <dt>
+          Size:
+        </dt>
+        <dd>
+          {{ fileStats[file.name].size ? `${(fileStats[file.name].size / 1e6).toFixed(2)} mb` : '' }}
+        </dd>
+        <dt>
+          Geometry type:
+        </dt>
+        <dd> {{ fileStats[file.name].geomType }}</dd>
+        <dt v-if="fileStats[file.name].propertyFields">
+          Available properties for each feature:
+        </dt>
+        <dd>
+          <div v-for="prop in fileStats[file.name].propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
+        </dd>
+      </dl>
       <v-alert class="my-3" v-if="file && fileStats[file.name].size > warnFileSizeThreshold" type="warning">Warning: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
     </div>
     <v-btn v-if="files.length > 0" @click="importLayers" :loading="layerLoading">Import</v-btn>
@@ -39,7 +46,6 @@
 <script>
 import { mapGetters } from 'vuex'
 import FileDrop from '../../tools/FileDrop'
-import EventBus from '../../../services/EventBus'
 
 export default {
   name: 'ImportLayer',

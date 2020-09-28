@@ -40,5 +40,13 @@
       border-width: 2px 2px medium;
       margin-top: -2px;
     }
+    .mapboxgl-popup.custom-layer-popup {
+      max-height: 400px;
+    }
+    .mapboxgl-popup.custom-layer-popup > .mapboxgl-popup-content {
+      white-space: pre-line;
+      overflow-y: scroll;
+      overflow-x: scroll;
+    }
 </style>
 <script src="./Map.js"></script>
