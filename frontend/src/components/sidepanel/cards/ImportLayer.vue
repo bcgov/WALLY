@@ -2,12 +2,14 @@
   <v-container class="pt-5">
     <v-toolbar flat>
       <v-banner color="indigo" icon="mdi-cloud-upload" icon-color="white" width="100%">
-        <v-toolbar-title>Import a map layer</v-toolbar-title>
+        <v-toolbar-title>Upload file or data</v-toolbar-title>
       </v-banner>
     </v-toolbar>
     <v-row class="pa-5">
       <v-col>
-        <p>Import a map layer</p>
+        <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
+        <p>Supported files types include: <em>.geojson</em></p>
+        <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
     </v-row>
     <div v-if="fileLoading">
