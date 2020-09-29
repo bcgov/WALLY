@@ -12,38 +12,74 @@
         <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
     </v-row>
-    <div v-if="fileLoading">
-      <v-progress-linear show indeterminate></v-progress-linear>
-    </div>
-    <FileDrop :file="file" @import:load-files="this.loadFiles"></FileDrop>
-    <v-file-input label="File" v-model="files[0]"></v-file-input>
-    <div v-for="file in files" v-bind:key="file">
-      <dl v-if="file && file.name && fileStats[file.name]">
+    <v-row class="pl-5 pr-5">
+     <v-col>
+       <div v-if="fileLoading">
+         <v-progress-linear show indeterminate></v-progress-linear>
+       </div>
+       <FileDrop :file="file" @import:load-files="this.loadFiles"></FileDrop>
+     </v-col>
+    </v-row>
+<!--    <v-file-input label="File" v-model="files[0]"></v-file-input>-->
+<!--    <div v-if="files.length > 0">-->
+<!--      {{files.length}}-->
+<!--      {{files}}-->
+<!--    </div>-->
+    <div v-for="(file, index) in files" v-bind:key="index" id="fileList">
+      <dl v-if="file && file.name && file.stats">
+        <dt>
+          Filename:
+        </dt>
+        <dd>
+          {{file.name}}
+        </dd>
         <dt>
           Size:
         </dt>
         <dd>
-          {{ fileStats[file.name].size ? `${(fileStats[file.name].size / 1e6).toFixed(2)} mb` : '' }}
+          {{ file.stats.size ? `${(file.stats.size / 1e6).toFixed(2)} mb` : '' }}
         </dd>
         <dt>
           Geometry type:
         </dt>
-        <dd> {{ fileStats[file.name].geomType }}</dd>
-        <dt v-if="fileStats[file.name].propertyFields">
+        <dd> {{ file.stats.geomType }}</dd>
+        <dt v-if="file.stats.propertyFields">
           Available properties for each feature:
         </dt>
         <dd>
-          <div v-for="prop in fileStats[file.name].propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
+          <div v-for="prop in file.stats.propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
         </dd>
       </dl>
-      <v-alert class="my-3" v-if="file && fileStats[file.name].size > warnFileSizeThreshold" type="warning">Warning: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
+      <v-alert class="my-3" v-if="file && file.stats && file.stats.size > warnFileSizeThreshold" type="warning">Warning: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
     </div>
     <v-btn v-if="files.length > 0" @click="importLayers" :loading="layerLoading">Import</v-btn>
     <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
   </v-container>
 </template>
-<style>
+<style lang="scss">
+  #fileList {
+    dl {
+      display: flex;
+      flex-wrap: wrap;
+      padding-bottom: 10px;
+    }
 
+    dt {
+      width: 33%;
+      margin-top: 0;
+      border-bottom: 1px solid lightgrey;
+    }
+
+    dd {
+      padding-left: 10px;
+      width: 66%;
+      border-bottom: 1px solid lightgrey;
+    }
+
+    dt:nth-last-child(2), dd:last-child{
+      border-bottom: none;
+    }
+  }
 </style>
 <script>
 import { mapGetters } from 'vuex'
@@ -58,6 +94,7 @@ export default {
     distance: 0,
     area: 0,
     files: [],
+    fileList: [],
     fileLoading: false,
     layerLoading: false,
     file: null, // the uploaded file from the form input
@@ -68,8 +105,9 @@ export default {
   }),
   methods: {
     handleLoadLayer (file) {
-      if (this.fileStats[file.name].fileType === 'geojson') {
-        const geojsonFc = JSON.parse(this.fileData[file.name])
+      // if (this.fileStats[file.name].fileType === 'geojson') {
+      if (file.stats.fileType === 'geojson') {
+        const geojsonFc = JSON.parse(file.data)
 
         geojsonFc.id = `${file.name}.${file.lastModified}`
 
@@ -79,7 +117,7 @@ export default {
 
         geojsonFc.properties.name = file.name.split('.')[0]
 
-        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: this.fileStats[file.name].geomType, color: 'blue' })
+        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: 'blue' })
         setTimeout(() => {
           this.map.once('idle', () => {
             this.layerLoading = false
@@ -91,18 +129,20 @@ export default {
         })
       }
     },
-    loadFiles (files) {
-      console.log('load files', files)
-      this.files = files
+    loadFiles (fileList) {
+      console.log('load files', fileList)
+      this.fileList = fileList
     },
     readFiles () {
       console.log(this.files)
-      Array.from(this.files).forEach(file => {
+      // Reset files
+      this.files = []
+      Array.from(this.fileList).forEach(file => {
         this.readFile(file)
       })
     },
     importLayers () {
-      Array.from(this.files).forEach(file => {
+      this.files.forEach(file => {
         this.importLayer(file)
       })
     },
@@ -123,13 +163,32 @@ export default {
 
       // set the onload function. this will be triggered when the file is read below.
       reader.onload = () => {
-        this.fileData[file.name] = reader.result
-        this.fileStats[file.name] = this.generateFileStats(file)
+        console.log('read file', file.name)
+        // let fileInfo = Object.assign({}, file)
+
+        let fileInfo = {
+          name: file.name || '',
+          size: file.size || 0,
+          lastModified: file.lastModified || null,
+          lastModifiedDate: file.lastModifiedDate || null,
+          type: file.type || null,
+          webkitRelativePath: file.webkitRelativePath || null
+        }
+        console.log(file, fileInfo, 'copy')
+        fileInfo['data'] = reader.result
+        fileInfo['stats'] = this.generateFileStats(fileInfo)
+        console.log('final', fileInfo)
+        this.files.push(fileInfo)
+
+        // this.fileData[file.name] = reader.result
+        // this.fileStats[file.name] = this.generateFileStats(file)
+        // console.log('file stats', this.fileStats[file.name])
         this.fileLoading = false
       }
 
       // select read method and then read file, triggering the onload function.
       // shapefiles are read as arrayBuffers but most other filetypes are text.
+      console.log(file, file.name)
       const readMethod = this.determineFileReadMethod(this.determineFileType(file.name))
       if (readMethod === 'text') {
         reader.readAsText(file)
@@ -142,7 +201,8 @@ export default {
     generateFileStats (file) {
       // handling for GeoJSON types
       if (this.determineFileType(file.name) === 'geojson') {
-        const geojsonFc = JSON.parse(this.fileData[file.name])
+        // const geojsonFc = JSON.parse(this.fileData[file.name])
+        const geojsonFc = JSON.parse(file['data'])
 
         const geojsonStats = {
           id: `${file.name}.${file.lastModified}`,
@@ -201,13 +261,13 @@ export default {
     },
     resetFiles () {
       this.files = []
-      this.fileData = {}
-      this.fileStats = {}
+      // this.fileData = {}
+      // this.fileStats = {}
     },
     resetFile () {
       // this.file = null
-      this.fileData = {}
-      this.fileStats = {}
+      // this.fileData = {}
+      // this.fileStats = {}
     },
     resetStatus () {
       this.message = null
@@ -215,20 +275,13 @@ export default {
     }
   },
   computed: {
-
     ...mapGetters('map', ['map'])
   },
   watch: {
-    files (files) {
-      this.readFiles()
-    },
-    file (newFile, prevFile) {
-      console.log(newFile)
-      if (!newFile) {
-        return this.resetFile()
+    fileList (fileList) {
+      if (fileList.length > 0) {
+        this.readFiles()
       }
-      this.resetStatus()
-      this.readFile()
     }
   },
   mounted () {

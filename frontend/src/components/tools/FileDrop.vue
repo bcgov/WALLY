@@ -20,7 +20,6 @@ export default {
     setEvents () {
       const dropZone = this.$el.querySelector('form')
       const input = this.$el.querySelector('input[type="file"]')
-      // const fileUpload = this.$el.firstElementChild
 
       const allEvents = ['drag', 'dragstart', 'dragend', 'dragover', 'dragenter', 'dragleave', 'drop']
       const dragEnteredEvents = ['dragover', 'dragenter']
@@ -86,8 +85,8 @@ export default {
   }
   form.drop-files {
     display: block;
-    height: 200px;
-    width: 400px;
+    height: 80%;
+    width: 100%;
     background: #ccc;
     margin: auto;
     /*margin-top: 40px;*/
