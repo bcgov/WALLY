@@ -42,7 +42,7 @@ export default {
     selected: [],
     loading: true,
     xlsLoading: false,
-    plotLoading: false,
+    downloadImageLoading: false,
     timeout: {},
     displayWaterbodyAnnotations: true,
     ignoreButtons: [
@@ -711,7 +711,7 @@ export default {
       })
     },
     downloadMergedImage (plotType) {
-      this.plotLoading = true
+      this.downloadImageLoading = true
       // Custom Metrics - Screen capture
       window._paq && window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
       let doc = jsPDF()
@@ -732,7 +732,7 @@ export default {
           crossDoc.addPage(size2[0], size2[1]) // add new page for next image
           crossDoc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
           crossDoc.save(filename)
-          this.plotLoading = false
+          this.downloadImageLoading = false
         })
       })
     },
