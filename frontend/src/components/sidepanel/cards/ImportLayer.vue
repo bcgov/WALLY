@@ -20,11 +20,6 @@
        <FileDrop :file="file" @import:load-files="this.loadFiles"></FileDrop>
      </v-col>
     </v-row>
-<!--    <v-file-input label="File" v-model="files[0]"></v-file-input>-->
-<!--    <div v-if="files.length > 0">-->
-<!--      {{files.length}}-->
-<!--      {{files}}-->
-<!--    </div>-->
     <div v-for="(file, index) in files" v-bind:key="index" id="fileList">
       <dl v-if="file && file.name && file.stats">
         <dt>
@@ -130,11 +125,11 @@ export default {
       }
     },
     loadFiles (fileList) {
-      console.log('load files', fileList)
+      global.config.debug && console.log('[wally] loading files', fileList)
       this.fileList = fileList
     },
     readFiles () {
-      console.log(this.files)
+      global.config.debug && console.log('[wally] reading files', this.files)
       // Reset files
       this.files = []
       Array.from(this.fileList).forEach(file => {
@@ -163,9 +158,6 @@ export default {
 
       // set the onload function. this will be triggered when the file is read below.
       reader.onload = () => {
-        console.log('read file', file.name)
-        // let fileInfo = Object.assign({}, file)
-
         let fileInfo = {
           name: file.name || '',
           size: file.size || 0,
@@ -174,15 +166,12 @@ export default {
           type: file.type || null,
           webkitRelativePath: file.webkitRelativePath || null
         }
-        console.log(file, fileInfo, 'copy')
         fileInfo['data'] = reader.result
         fileInfo['stats'] = this.generateFileStats(fileInfo)
-        console.log('final', fileInfo)
+        global.config.debug && console.log('[wally] fileInfo ', fileInfo)
         this.files.push(fileInfo)
 
-        // this.fileData[file.name] = reader.result
-        // this.fileStats[file.name] = this.generateFileStats(file)
-        // console.log('file stats', this.fileStats[file.name])
+        // TODO: change this loading flag to handle multiple files
         this.fileLoading = false
       }
 
@@ -261,13 +250,6 @@ export default {
     },
     resetFiles () {
       this.files = []
-      // this.fileData = {}
-      // this.fileStats = {}
-    },
-    resetFile () {
-      // this.file = null
-      // this.fileData = {}
-      // this.fileStats = {}
     },
     resetStatus () {
       this.message = null

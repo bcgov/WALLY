@@ -24,7 +24,7 @@ export default {
               let layerName = i === 0 ? layerID : 'water_licensed_works_dash' + i
               mapLayerPaint = this.getPaint(mapLayerType, layerName)
               legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerName)
-              var layerLegend = {
+              let layerLegend = {
                 name: i === 0 ? 'Water Licensed Works - Lines' : '',
                 legendItems,
                 'plenty': true,
@@ -314,8 +314,8 @@ export default {
       if (this.customLayers.children.length <= 0) {
         return
       }
-      var existingLegendNames = this.legend.map(l => l.name)
-      console.log(this.customLayers.children)
+      let existingLegendNames = this.legend.map(l => l.name)
+      global.config.debug && console.log('[wally]', this.customLayers.children)
       // loop all currently uploaded custom layers
       this.customLayers.children.forEach(layer => {
         // check if custom layer has been selected
