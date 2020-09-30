@@ -27,7 +27,7 @@
         </div>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Draw new point</v-btn>
+        <v-btn @click="selectPoint" color="primary" outlined>Draw a New Point</v-btn>
         <v-btn
           v-if="streams && streams.length"
           outlined
