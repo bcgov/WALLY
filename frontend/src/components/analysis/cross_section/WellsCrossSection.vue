@@ -63,7 +63,15 @@
             <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>
           </v-btn>
           <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">archive</v-icon>Download Plot</span>
+            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18" v-if="!downloadImageLoading">archive</v-icon>
+            <v-progress-circular
+              v-if="downloadImageLoading"
+              indeterminate
+              size=16
+              class="mr-1"
+              color="secondary"
+            ></v-progress-circular>
+            Download Plot</span>
           </v-btn>
         </v-row>
         <v-card-text v-if="loading" class="text-center">

@@ -42,6 +42,7 @@ export default {
     selected: [],
     loading: true,
     xlsLoading: false,
+    downloadImageLoading: false,
     timeout: {},
     displayWaterbodyAnnotations: true,
     ignoreButtons: [
@@ -710,13 +711,14 @@ export default {
       })
     },
     downloadMergedImage (plotType) {
+      this.downloadImageLoading = true
       // Custom Metrics - Screen capture
       window._paq && window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
       let doc = jsPDF()
       let width = doc.internal.pageSize.getWidth()
       let height = doc.internal.pageSize.getHeight()
       let filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
-      html2canvas(this.map()._container).then(canvas1 => {
+      html2canvas(this.map._container).then(canvas1 => {
         let img1 = canvas1.toDataURL('image/png')
         const imgProps1 = doc.getImageProperties(img1)
         let size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
@@ -730,6 +732,7 @@ export default {
           crossDoc.addPage(size2[0], size2[1]) // add new page for next image
           crossDoc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
           crossDoc.save(filename)
+          this.downloadImageLoading = false
         })
       })
     },
