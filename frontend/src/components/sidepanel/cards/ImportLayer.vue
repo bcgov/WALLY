@@ -31,7 +31,16 @@
 
       <v-progress-linear v-if="fileLoading[file.name]" show indeterminate></v-progress-linear>
       <dl v-if="file && file.name && file.stats">
-
+        <dt>
+          Colour:
+        </dt>
+        <dd>
+          <v-color-picker
+            hide-canvas
+            hide-inputs
+            v-model="file.color"
+          ></v-color-picker>
+        </dd>
         <dt>
           Size:
         </dt>
@@ -149,7 +158,7 @@ export default {
           name: file.name
         }
 
-        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: 'blue' })
+        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
           .then(() => {
             fileStatus.status = 'success'
             fileStatus.message = `Loaded file ${file.name}`
@@ -207,6 +216,7 @@ export default {
         let fileInfo = {
           name: file.name || '',
           size: file.size || 0,
+          color: '#' + Math.floor(Math.random() * 16777215).toString(16),
           lastModified: file.lastModified || null,
           lastModifiedDate: file.lastModifiedDate || null,
           type: file.type || null,

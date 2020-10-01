@@ -7,7 +7,9 @@ function layerConfig ({ id, geomType, color }) {
   const paints = {
     'circle': {
       'circle-color': color,
-      'circle-radius': 3
+      'circle-radius': 3,
+      'circle-stroke-width': 1,
+      'circle-stroke-color': '#333333'
     },
     'line': {
       'line-color': color,
@@ -15,8 +17,8 @@ function layerConfig ({ id, geomType, color }) {
     },
     'fill': {
       'fill-color': color,
-      'fill-outline-color': color,
-      'fill-opacity': 0.1
+      'fill-outline-color': '#333333',
+      'fill-opacity': 0.33
     }
   }
 
@@ -30,7 +32,7 @@ function layerConfig ({ id, geomType, color }) {
   }
 
   const paint = painttypes[geomType]
-
+  console.log(paints[paint])
   return {
     'id': id,
     'source': id,
@@ -57,7 +59,8 @@ export default {
   namespaced: true,
   state: {
     customLayers: {
-      id: 'imported-map-layers',
+      id: '_imported-map-layers',
+      type: 'category',
       name: 'Imported Layers',
       children: []
     },
@@ -125,14 +128,18 @@ export default {
         }
       })
     },
-    unloadCustomLayer ({ commit, dispatch }, id) {
+    unloadCustomLayer ({ commit, dispatch }, { map, id }) {
       commit('deselectCustomLayer', id)
-      commit('removeCustomLayer', id)
+      commit('removeCustomLayer', { map, id })
     },
     setActiveCustomLayers ({ state, commit }, payload) {
       let prev = state.selectedCustomLayers
-      prev.filter((l) => !payload.includes(l)).forEach((l) => commit('map/deactivateLayer', l, { root: true }))
-      payload.filter((l) => !prev.includes(l)).forEach((l) => commit('map/activateLayer', l, { root: true }))
+      prev
+        .filter((l) => l.type !== 'category')
+        .filter((l) => !payload.includes(l)).forEach((l) => commit('map/deactivateLayer', l, { root: true }))
+      payload
+        .filter((l) => l.type !== 'category')
+        .filter((l) => !prev.includes(l)).forEach((l) => commit('map/activateLayer', l, { root: true }))
       state.selectedCustomLayers = payload
     }
   },

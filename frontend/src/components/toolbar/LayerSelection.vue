@@ -67,11 +67,14 @@
         <template v-slot:label="{ item }">
           <div>
             <span>{{item.name}}</span>
-            <Dialog
-              v-if="item.description"
-              :name="item.name"
-              :description="item.description"
-              :url="item.source_url" />
+            <v-btn
+              class="float-right"
+              v-if="item.type !=='category'"
+              text
+              small
+              @click="removeCustomLayer(item.id)">
+              <v-icon small>mdi-trash-can-outline</v-icon>
+            </v-btn>
           </div>
         </template>
       </v-treeview>
@@ -99,7 +102,8 @@ export default {
       'featureSelectionExists',
       'activeMapLayers',
       'selectedBaseLayers',
-      'baseMapLayers'
+      'baseMapLayers',
+      'map'
     ]),
     ...mapGetters('customLayers',
       ['customLayers', 'selectedCustomLayers']
@@ -128,6 +132,9 @@ export default {
     }
   },
   methods: {
+    removeCustomLayer (id) {
+      this.$store.dispatch('customLayers/unloadCustomLayer', { map: this.map, id })
+    },
     filterLayersByCategory (layers) {
       let catMap = {}
 
