@@ -14,41 +14,61 @@
     </v-row>
     <v-row class="pl-5 pr-5">
      <v-col>
-       <div v-if="fileLoading">
-         <v-progress-linear show indeterminate></v-progress-linear>
-       </div>
-       <FileDrop :file="file" @import:load-files="this.loadFiles"></FileDrop>
+
+       <FileDrop @import:load-files="this.loadFiles"></FileDrop>
      </v-col>
     </v-row>
-    <div v-for="(file, index) in files" v-bind:key="index" id="fileList">
-      <dl v-if="file && file.name && file.stats">
+    <div v-for="(file, index) in files" class="mb-5" v-bind:key="index" id="fileList">
+
+      <dl>
         <dt>
           Filename:
         </dt>
         <dd>
           {{file.name}}
         </dd>
+      </dl>
+
+      <v-progress-linear v-if="fileLoading[file.name]" show indeterminate></v-progress-linear>
+      <dl v-if="file && file.name && file.stats">
+
         <dt>
           Size:
         </dt>
         <dd>
           {{ file.stats.size ? `${(file.stats.size / 1e6).toFixed(2)} mb` : '' }}
+          <v-icon
+            v-if="file && file.stats && file.stats.size > warnFileSizeThreshold"
+            color="orange"
+            small
+          >mdi-alert</v-icon>
         </dd>
         <dt>
           Geometry type:
         </dt>
         <dd> {{ file.stats.geomType }}</dd>
         <dt v-if="file.stats.propertyFields">
-          Available properties for each feature:
+          Feature properties:
         </dt>
         <dd>
-          <div v-for="prop in file.stats.propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
+          <v-row>
+            <v-col>
+              <div v-if="!file.options.showAllProperties">{{file.stats.propertyFields.length}} properties</div>
+              <div v-else>
+                <div v-for="prop in file.stats.propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
+              </div>
+            </v-col>
+          <v-btn dense @click="file.options.showAllProperties = !file.options.showAllProperties">{{file.options.showAllProperties ? 'Hide' : 'Show'}}</v-btn>
+            <v-col cols="2"></v-col>
+          </v-row>
         </dd>
       </dl>
-      <v-alert class="my-3" v-if="file && file.stats && file.stats.size > warnFileSizeThreshold" type="warning">Warning: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
+      <v-alert class="my-3" v-if="file && file.size > warnFileSizeThreshold" type="warning">{{file.name}}: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
     </div>
-    <v-btn v-if="files.length > 0" @click="importLayers" :loading="layerLoading">Import</v-btn>
-    <v-alert v-if="message && status" :type="status">{{ message }}</v-alert>
+    <v-btn v-if="files.length > 0" @click="importLayers" :loading="Object.values(layerLoading).some(Boolean)">Import</v-btn>
+    <div v-for="(processedFile,i) in processedFiles.filter(x => x.status)" :key="`fileMsg${i}`">
+      <v-alert v-if="processedFile.message" :type="processedFile.status">{{ processedFile.message }}</v-alert>
+    </div>
   </v-container>
 </template>
 <style lang="scss">
@@ -90,13 +110,12 @@ export default {
     area: 0,
     files: [],
     fileList: [],
-    fileLoading: false,
-    layerLoading: false,
-    file: null, // the uploaded file from the form input
+    processedFiles: [],
+    fileLoading: {},
+    layerLoading: {},
     fileData: {}, // the file data object after being read by FileReader
     fileStats: {}, // statistics about the file from generateFileStats()
-    message: null,
-    status: null
+    message: null
   }),
   methods: {
     handleLoadLayer (file) {
@@ -113,15 +132,6 @@ export default {
         geojsonFc.properties.name = file.name.split('.')[0]
 
         this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: 'blue' })
-        setTimeout(() => {
-          this.map.once('idle', () => {
-            this.layerLoading = false
-            this.resetFiles()
-
-            this.status = 'success'
-            this.message = `Loaded file ${geojsonFc.properties.name}`
-          })
-        })
       }
     },
     loadFiles (fileList) {
@@ -133,7 +143,10 @@ export default {
       // Reset files
       this.files = []
       Array.from(this.fileList).forEach(file => {
-        this.readFile(file)
+        this.fileLoading[file.name] = true
+        setTimeout(() => {
+          this.readFile(file)
+        }, 0)
       })
     },
     importLayers () {
@@ -142,17 +155,41 @@ export default {
       })
     },
     importLayer (file) {
-      this.layerLoading = true
+      this.layerLoading[file.name] = true
       // after user has confirmed the selected file (including properties/options), import it into the map.
       // setTimeout calls the handleLoadLayer function after the UI has had a chance to render (progress bar shown
       // before app starts trying to load the layer, possibly causing some lag/delays)
       setTimeout(() => {
         this.handleLoadLayer(file)
+
+        setTimeout(() => {
+          this.map.once('idle', () => {
+            this.layerLoading[file.name] = false
+            this.resetFiles()
+
+            // create a fileStatus object to be filled in below
+            // based on whether the layer was successfully created or not
+            const fileStatus = {
+              name: file.name
+            }
+
+            // note: need a better way to manage this, based on errors
+            // that might have occured while loading.  this code just
+            // checks that the layer exists after everything has been loaded
+            // onto the map (will not be true if errors occured loading the layer).
+            if (this.map.getLayer(`${file.name}.${file.lastModified}`)) {
+              fileStatus.status = 'success'
+              fileStatus.message = `Loaded file ${file.name}`
+            } else {
+              fileStatus.status = 'error'
+              fileStatus.message = `Could not load file ${file.name}`
+            }
+            this.processedFiles.push(fileStatus)
+          })
+        })
       }, 0)
     },
     readFile (file) {
-      this.fileLoading = true
-
       // read file from form input, store the result of FileReader() and generate statistics about the file.
       const reader = new FileReader()
 
@@ -164,15 +201,17 @@ export default {
           lastModified: file.lastModified || null,
           lastModifiedDate: file.lastModifiedDate || null,
           type: file.type || null,
-          webkitRelativePath: file.webkitRelativePath || null
+          webkitRelativePath: file.webkitRelativePath || null,
+          options: {
+            showAllProperties: false
+          }
         }
         fileInfo['data'] = reader.result
         fileInfo['stats'] = this.generateFileStats(fileInfo)
         global.config.debug && console.log('[wally] fileInfo ', fileInfo)
         this.files.push(fileInfo)
 
-        // TODO: change this loading flag to handle multiple files
-        this.fileLoading = false
+        this.fileLoading[file.name] = false
       }
 
       // select read method and then read file, triggering the onload function.
@@ -252,8 +291,7 @@ export default {
       this.files = []
     },
     resetStatus () {
-      this.message = null
-      this.status = null
+      this.processedFiles = []
     }
   },
   computed: {
@@ -262,6 +300,7 @@ export default {
   watch: {
     fileList (fileList) {
       if (fileList.length > 0) {
+        this.resetStatus()
         this.readFiles()
       }
     }
