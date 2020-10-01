@@ -188,9 +188,7 @@ export default {
       this.files = []
       Array.from(this.fileList).forEach(file => {
         this.fileLoading[file.name] = true
-        setTimeout(() => {
-          this.readFile(file)
-        }, 0)
+        this.readFile(file)
       })
     },
     importLayers () {
