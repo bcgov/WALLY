@@ -27,22 +27,24 @@
         </div>
       </v-col>
       <v-col class="text-right">
+        <v-btn @click="selectPoint" color="primary" outlined>Draw a New Point</v-btn>
         <v-btn
-                    v-if="streams && streams.length"
-                    outlined
-                    :disabled="loading"
-                    @click="submitStreamsForExport"
-                    color="primary"
-                  >
-                    Excel
-                    <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
-                    <v-progress-circular
-                      v-if="spreadsheetLoading"
-                      indeterminate
-                      size=24
-                      class="ml-1"
-                      color="primary"
-                    ></v-progress-circular>
+          v-if="streams && streams.length"
+          outlined
+          :disabled="loading"
+          @click="submitStreamsForExport"
+          color="primary"
+          class="mx-1 my-2"
+        >
+          Excel
+          <v-icon class="ml-1" v-if="!spreadsheetLoading">cloud_download</v-icon>
+          <v-progress-circular
+            v-if="spreadsheetLoading"
+            indeterminate
+            size=24
+            class="ml-1"
+            color="primary"
+          ></v-progress-circular>
         </v-btn>
       </v-col>
     </v-row>
