@@ -64,35 +64,10 @@ export default {
     selectedCustomLayers: []
   },
   mutations: {
-    addCustomGeoJSONLayer (state, { map, featureCollection, geomType, color }) {
+    registerCustomLayer (state, { layerInfo }) {
       // featureCollection should have an ID field and a name in properties.name
-
-      const template = {
-        id: featureCollection.id,
-        name: featureCollection.properties.name,
-        geomType: geomType,
-        color: color
-      }
-
-      state.customLayers.children.push(template)
-      map.addSource(featureCollection.id, geojsonSource({ id: featureCollection.id, featureCollection }))
-      map.addLayer(layerConfig({ id: featureCollection.id, geomType, color }))
-      state.selectedCustomLayers.push(featureCollection.id)
-
-      // create popup on click, and have cursor change on hover
-      map.on('click', featureCollection.id, function (e) {
-        new mapboxgl.Popup({ className: 'custom-layer-popup' })
-          .setMaxWidth('300px')
-          .setLngLat(e.lngLat)
-          .setText(popupText(e.features[0].properties))
-          .addTo(map)
-      })
-      map.on('mouseenter', featureCollection.id, function (e) {
-        map.getCanvas().style.cursor = 'pointer'
-      })
-      map.on('mouseleave', featureCollection.id, function (e) {
-        map.getCanvas().style.cursor = ''
-      })
+      state.customLayers.children.push(layerInfo)
+      state.selectedCustomLayers.push(layerInfo.id)
     },
     removeCustomLayer (state, { map, id }) {
       // removes a custom layer by layer ID
@@ -114,7 +89,41 @@ export default {
   },
   actions: {
     loadCustomGeoJSONLayer ({ commit, dispatch }, { map, featureCollection, geomType, color }) {
-      commit('addCustomGeoJSONLayer', { map, featureCollection, geomType, color })
+      const layerInfo = {
+        id: featureCollection.id,
+        name: featureCollection.properties.name,
+        geomType: geomType,
+        color: color
+      }
+
+      // add the layer to the map within a promise. That way the component dispatching this action
+      // can have some visibility into errors that might have occured while loading the layer.
+      return new Promise((resolve, reject) => {
+        try {
+          map.addSource(featureCollection.id, geojsonSource({ id: featureCollection.id, featureCollection }))
+          map.addLayer(layerConfig({ id: featureCollection.id, geomType, color }))
+
+          // create popup on click, and have cursor change on hover
+          map.on('click', featureCollection.id, function (e) {
+            new mapboxgl.Popup({ className: 'custom-layer-popup' })
+              .setMaxWidth('300px')
+              .setLngLat(e.lngLat)
+              .setText(popupText(e.features[0].properties))
+              .addTo(map)
+          })
+          map.on('mouseenter', featureCollection.id, function (e) {
+            map.getCanvas().style.cursor = 'pointer'
+          })
+          map.on('mouseleave', featureCollection.id, function (e) {
+            map.getCanvas().style.cursor = ''
+          })
+
+          commit('registerCustomLayer', { layerInfo })
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      })
     },
     unloadCustomLayer ({ commit, dispatch }, id) {
       commit('deselectCustomLayer', id)

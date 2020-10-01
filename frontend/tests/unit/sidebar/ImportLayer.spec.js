@@ -53,45 +53,49 @@ describe('ImportLayer', () => {
   })
 
   it('determines filetype by extension', () => {
-    expect(wrapper.vm.determineFileType('test.geojson')).toBe('geojson')
-    expect(wrapper.vm.determineFileType('test.csv')).toBe('csv')
-    expect(wrapper.vm.determineFileType('test.test.shp')).toBe('shp')
-    expect(wrapper.vm.determineFileType('test.zip')).toBe('shp')
-    expect(wrapper.vm.determineFileType('test.json')).toBe('geojson')
+    expect(wrapper.vm.determineFileType('test.geojson').type).toBe('geojson')
+
+    // future support
+    // expect(wrapper.vm.determineFileType('test.csv').type).toBe('csv')
+    // expect(wrapper.vm.determineFileType('test.test.shp').type).toBe('shp')
+    // expect(wrapper.vm.determineFileType('test.zip').type).toBe('shp')
+    // expect(wrapper.vm.determineFileType('test.json').type).toBe('geojson')
   })
 
-  it('Only accepts valid file types', () => {
+  it('Only accepts valid file types', async () => {
     wrapper.vm.fileList = []
 
     let testFile = new File([''],
-      'test.geojson',
-      { type: 'application/geo+json' })
+      'test.txt',
+      { type: 'text/plain' })
 
     wrapper.vm.readFile(testFile)
-    expect(wrapper.find('v-alert').html().toLowerCase())
-      .toContain('unsupported file type')
+    await wrapper.vm.$nextTick()
+
+    expect(wrapper.find('#statusMessage0').text().toLowerCase())
+      .toContain('file of type txt not supported')
   })
 
-  it('Can load multiple files', () => {
-    wrapper.vm.fileList = []
+  it('Can load multiple files', async () => {
+    wrapper.vm.readFiles = jest.fn()
+
     let testFile = new File([''], 'test.geojson', { type: 'application/geo+json' })
     let testFile2 = new File([''], 'test2.geojson', { type: 'application/geo+json' })
-    wrapper.vm.fileList = [testFile, testFile2]
+
+    wrapper.vm.loadFiles([testFile, testFile2])
+    await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.readFiles).toHaveBeenCalled()
-    expect(wrapper.vm.files.length).toBe(2)
   })
 
-  it('Shows warning for files larger than 10mb', () => {
-    expect(1).toEqual(1)
+  it('Shows warning for files larger than the warning threshold (10mb)', async () => {
     let file = {
-      stats: {
-        size: 10 * 1e6
-      }
+      size: 1e7 + 1
     }
     wrapper.vm.files = [file]
+    await wrapper.vm.$nextTick()
 
-    expect(wrapper.find('v-alert').html().toLowerCase())
-      .toContain('file size greater than 10mb')
+    expect(wrapper.find('#fileSizeWarning0').text().toLowerCase())
+      .toContain('file size greater than 10 mb')
   })
 })

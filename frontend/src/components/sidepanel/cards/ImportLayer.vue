@@ -63,11 +63,24 @@
           </v-row>
         </dd>
       </dl>
-      <v-alert class="my-3" v-if="file && file.size > warnFileSizeThreshold" type="warning">{{file.name}}: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.</v-alert>
+      <v-alert
+        class="my-3"
+        :id="`fileSizeWarning${index}`"
+        v-if="file && file.size > warnFileSizeThreshold"
+        type="warning"
+      >
+        {{file.name}}: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.
+      </v-alert>
     </div>
     <v-btn v-if="files.length > 0" @click="importLayers" :loading="Object.values(layerLoading).some(Boolean)">Import</v-btn>
     <div v-for="(processedFile,i) in processedFiles.filter(x => x.status)" :key="`fileMsg${i}`">
-      <v-alert v-if="processedFile.message" :type="processedFile.status">{{ processedFile.message }}</v-alert>
+      <v-alert
+        :id="`statusMessage${i}`"
+        v-if="processedFile.message"
+        :type="processedFile.status"
+      >
+        {{ processedFile.message }}
+      </v-alert>
     </div>
   </v-container>
 </template>
@@ -119,6 +132,7 @@ export default {
   }),
   methods: {
     handleLoadLayer (file) {
+      this.layerLoading[file.name] = true
       // if (this.fileStats[file.name].fileType === 'geojson') {
       if (file.stats.fileType === 'geojson') {
         const geojsonFc = JSON.parse(file.data)
@@ -131,15 +145,35 @@ export default {
 
         geojsonFc.properties.name = file.name.split('.')[0]
 
+        const fileStatus = {
+          name: file.name
+        }
+
         this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: 'blue' })
+          .then(() => {
+            fileStatus.status = 'success'
+            fileStatus.message = `Loaded file ${file.name}`
+          }).catch((e) => {
+            fileStatus.status = 'error'
+            console.log(e)
+            fileStatus.message = `Error loading file ${file.name}: ${e}`
+          }).finally(() => {
+            this.processedFiles.push(fileStatus)
+            this.layerLoading[file.name] = false
+          })
       }
+      this.map.once('idle', () => {
+        this.resetFiles()
+      })
     },
     loadFiles (fileList) {
-      global.config.debug && console.log('[wally] loading files', fileList)
       this.fileList = fileList
+      if (fileList.length > 0) {
+        this.resetStatus()
+        this.readFiles()
+      }
     },
     readFiles () {
-      global.config.debug && console.log('[wally] reading files', this.files)
       // Reset files
       this.files = []
       Array.from(this.fileList).forEach(file => {
@@ -151,45 +185,20 @@ export default {
     },
     importLayers () {
       this.files.forEach(file => {
-        this.importLayer(file)
+        this.handleLoadLayer(file)
       })
     },
-    importLayer (file) {
-      this.layerLoading[file.name] = true
-      // after user has confirmed the selected file (including properties/options), import it into the map.
-      // setTimeout calls the handleLoadLayer function after the UI has had a chance to render (progress bar shown
-      // before app starts trying to load the layer, possibly causing some lag/delays)
-      setTimeout(() => {
-        this.handleLoadLayer(file)
-
-        setTimeout(() => {
-          this.map.once('idle', () => {
-            this.layerLoading[file.name] = false
-            this.resetFiles()
-
-            // create a fileStatus object to be filled in below
-            // based on whether the layer was successfully created or not
-            const fileStatus = {
-              name: file.name
-            }
-
-            // note: need a better way to manage this, based on errors
-            // that might have occured while loading.  this code just
-            // checks that the layer exists after everything has been loaded
-            // onto the map (will not be true if errors occured loading the layer).
-            if (this.map.getLayer(`${file.name}.${file.lastModified}`)) {
-              fileStatus.status = 'success'
-              fileStatus.message = `Loaded file ${file.name}`
-            } else {
-              fileStatus.status = 'error'
-              fileStatus.message = `Could not load file ${file.name}`
-            }
-            this.processedFiles.push(fileStatus)
-          })
-        })
-      }, 0)
-    },
     readFile (file) {
+      const fileType = this.determineFileType(file.name)
+      if (!fileType.supported) {
+        this.processedFiles.push({
+          name: file.name,
+          status: 'error',
+          message: `${file.name}: File of type ${fileType.type} not supported.`
+        })
+        return
+      }
+
       // read file from form input, store the result of FileReader() and generate statistics about the file.
       const reader = new FileReader()
 
@@ -216,8 +225,7 @@ export default {
 
       // select read method and then read file, triggering the onload function.
       // shapefiles are read as arrayBuffers but most other filetypes are text.
-      console.log(file, file.name)
-      const readMethod = this.determineFileReadMethod(this.determineFileType(file.name))
+      const readMethod = this.determineFileReadMethod(fileType.type)
       if (readMethod === 'text') {
         reader.readAsText(file)
       } else if (readMethod === 'arrayBuffer') {
@@ -228,7 +236,7 @@ export default {
     },
     generateFileStats (file) {
       // handling for GeoJSON types
-      if (this.determineFileType(file.name) === 'geojson') {
+      if (this.determineFileType(file.name).type === 'geojson') {
         // const geojsonFc = JSON.parse(this.fileData[file.name])
         const geojsonFc = JSON.parse(file['data'])
 
@@ -258,10 +266,10 @@ export default {
         return null
       }
       const types = {
-        'geojson': ['geojson', 'json'],
-        'shp': ['shp', 'zip'],
-        'csv': ['csv'],
-        'kml': ['kml']
+        'geojson': ['geojson', 'json']
+        // 'shp': ['shp', 'zip'],
+        // 'csv': ['csv'],
+        // 'kml': ['kml']
       }
 
       const filenameParts = filename.split('.')
@@ -271,10 +279,14 @@ export default {
         const k = typeOptions[i]
         if (types[k].includes(extension)) {
           // filetype extension matched- return filetype key (geojson, shp, etc.)
-          return k
+          return {
+            type: k,
+            supported: true
+          }
         }
       }
-      return null // could not determine file type
+
+      return { type: extension, supported: false } // could not determine file type
     },
     getDefaultFileStats (file) {
       if (!file) {
@@ -298,12 +310,6 @@ export default {
     ...mapGetters('map', ['map'])
   },
   watch: {
-    fileList (fileList) {
-      if (fileList.length > 0) {
-        this.resetStatus()
-        this.readFiles()
-      }
-    }
   },
   mounted () {
   }
