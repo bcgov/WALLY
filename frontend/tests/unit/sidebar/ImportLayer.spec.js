@@ -53,10 +53,12 @@ describe('ImportLayer', () => {
   })
 
   it('determines filetype by extension', () => {
-    expect(wrapper.vm.determineFileType('test.geojson').type).toBe('geojson')
+    expect(wrapper.vm.determineFileType('test.geojson').fileType).toBe('geojson')
+    expect(wrapper.vm.determineFileType('test.csv').fileType).toBe('csv')
+    expect(wrapper.vm.determineFileType('test.kml').fileType).toBe('kml')
+    expect(wrapper.vm.determineFileType('test.json').fileType).toBe('geojson')
 
-    // future support
-    // expect(wrapper.vm.determineFileType('test.csv').type).toBe('csv')
+    // future filetypes
     // expect(wrapper.vm.determineFileType('test.test.shp').type).toBe('shp')
     // expect(wrapper.vm.determineFileType('test.zip').type).toBe('shp')
     // expect(wrapper.vm.determineFileType('test.json').type).toBe('geojson')
