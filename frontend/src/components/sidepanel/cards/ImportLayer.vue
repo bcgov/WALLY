@@ -8,7 +8,8 @@
     <v-row class="pa-5">
       <v-col>
         <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
-        <p>Supported files types include: <em>.geojson</em></p>
+        <p>Supported files types include: <em>.geojson, csv</em></p>
+        <p>CSV files should have two columns with the headings "Latitude" and "Longitude", or "lat" and "long" (not case sensitive).</p>
         <p>Supported coordinate systems:  WGS84 - EPSG:4326 (Degrees Longitude/Latitude)</p>
         <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
@@ -57,6 +58,8 @@
           Geometry type:
         </dt>
         <dd> {{ file.stats.geomType }}</dd>
+        <dt>Total features:</dt>
+        <dd>{{file.stats.numFeatures}}</dd>
         <dt v-if="file.stats.propertyFields">
           Feature properties:
         </dt>
@@ -122,6 +125,8 @@
 <script>
 import { mapGetters } from 'vuex'
 import FileDrop from '../../tools/FileDrop'
+import csv2geojson from 'csv2geojson'
+import { kml } from '@tmcw/togeojson'
 
 export default {
   name: 'ImportLayer',
@@ -142,39 +147,53 @@ export default {
   }),
   methods: {
     handleLoadLayer (file) {
+      // file must be a GeoJSON FeatureCollection
       this.layerLoading[file.name] = true
-      // if (this.fileStats[file.name].fileType === 'geojson') {
-      if (file.stats.fileType === 'geojson') {
-        const geojsonFc = JSON.parse(file.data)
 
-        geojsonFc.id = `${file.name}.${file.lastModified}`
+      const geojsonFc = file.data
 
-        if (!geojsonFc.properties) {
-          geojsonFc.properties = {}
-        }
+      geojsonFc.id = `${file.name}.${file.lastModified}`
 
-        geojsonFc.properties.name = file.name.split('.')[0]
-
-        const fileStatus = {
-          name: file.name
-        }
-
-        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
-          .then(() => {
-            fileStatus.status = 'success'
-            fileStatus.message = `Loaded file ${file.name}`
-          }).catch((e) => {
-            fileStatus.status = 'error'
-            console.log(e)
-            fileStatus.message = `Error loading file ${file.name}: ${e}`
-          }).finally(() => {
-            this.processedFiles.push(fileStatus)
-            this.layerLoading[file.name] = false
-          })
+      if (!geojsonFc.properties) {
+        geojsonFc.properties = {}
       }
+
+      geojsonFc.properties.name = file.name.split('.')[0]
+
+      const fileStatus = {
+        name: file.name
+      }
+
+      this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
+        .then(() => {
+          fileStatus.status = 'success'
+          fileStatus.message = `Loaded file ${file.name}`
+        }).catch((e) => {
+          fileStatus.status = 'error'
+          console.log(e)
+          fileStatus.message = `Error loading file ${file.name}: ${e}`
+        }).finally(() => {
+          this.processedFiles.push(fileStatus)
+          this.layerLoading[file.name] = false
+        })
       this.map.once('idle', () => {
         this.resetFiles()
       })
+    },
+    csvToGeoJSON (file) {
+      console.log('converting csv to geojson')
+      return new Promise((resolve, reject) => {
+        csv2geojson.csv2geojson(file, (error, data) => {
+          if (!error) {
+            resolve(data)
+          } else {
+            reject(error)
+          }
+        })
+      })
+    },
+    kmlToGeoJSON (xml) {
+      return kml(new DOMParser().parseFromString(xml, 'text/xml'))
     },
     loadFiles (fileList) {
       this.fileList = fileList
@@ -197,12 +216,12 @@ export default {
       })
     },
     readFile (file) {
-      const fileType = this.determineFileType(file.name)
-      if (!fileType.supported) {
+      const { fileType, fileSupported } = this.determineFileType(file.name)
+      if (!fileSupported) {
         this.processedFiles.push({
           name: file.name,
           status: 'error',
-          message: `${file.name}: File of type ${fileType.type} not supported.`
+          message: `${file.name}: File of type ${fileType} not supported.`
         })
         return
       }
@@ -211,7 +230,7 @@ export default {
       const reader = new FileReader()
 
       // set the onload function. this will be triggered when the file is read below.
-      reader.onload = () => {
+      reader.onload = async () => {
         let fileInfo = {
           name: file.name || '',
           size: file.size || 0,
@@ -224,7 +243,15 @@ export default {
             showAllProperties: false
           }
         }
-        fileInfo['data'] = reader.result
+
+        if (fileType === 'csv') {
+          fileInfo['data'] = await this.csvToGeoJSON(reader.result)
+        } else if (fileType === 'kml') {
+          fileInfo['data'] = this.kmlToGeoJSON(reader.result)
+        } else {
+          fileInfo['data'] = JSON.parse(reader.result)
+        }
+
         fileInfo['stats'] = this.generateFileStats(fileInfo)
         global.config.debug && console.log('[wally] fileInfo ', fileInfo)
         this.files.push(fileInfo)
@@ -234,7 +261,7 @@ export default {
 
       // select read method and then read file, triggering the onload function.
       // shapefiles are read as arrayBuffers but most other filetypes are text.
-      const readMethod = this.determineFileReadMethod(fileType.type)
+      const readMethod = this.determineFileReadMethod(fileType)
       if (readMethod === 'text') {
         reader.readAsText(file)
       } else if (readMethod === 'arrayBuffer') {
@@ -244,20 +271,16 @@ export default {
       }
     },
     generateFileStats (file) {
-      // handling for GeoJSON types
-      if (this.determineFileType(file.name).type === 'geojson') {
-        // const geojsonFc = JSON.parse(this.fileData[file.name])
-        const geojsonFc = JSON.parse(file['data'])
+      const geojsonFc = file['data']
 
-        const geojsonStats = {
-          id: `${file.name}.${file.lastModified}`,
-          fileType: 'geojson',
-          numFeatures: geojsonFc.features.length,
-          geomType: geojsonFc.features[0].geometry.type,
-          propertyFields: Object.keys(geojsonFc.features[0].properties)
-        }
-        return Object.assign({}, this.getDefaultFileStats(file), geojsonStats)
+      const geojsonStats = {
+        id: `${file.name}.${file.lastModified}`,
+        fileType: file['type'],
+        numFeatures: geojsonFc.features.length,
+        geomType: geojsonFc.features[0].geometry.type,
+        propertyFields: Object.keys(geojsonFc.features[0].properties)
       }
+      return Object.assign({}, this.getDefaultFileStats(file), geojsonStats)
     },
     determineFileReadMethod (filetype) {
       const methods = {
@@ -275,10 +298,10 @@ export default {
         return null
       }
       const types = {
-        'geojson': ['geojson', 'json']
+        'geojson': ['geojson', 'json'],
         // 'shp': ['shp', 'zip'],
-        // 'csv': ['csv'],
-        // 'kml': ['kml']
+        'csv': ['csv'],
+        'kml': ['kml']
       }
 
       const filenameParts = filename.split('.')
@@ -289,13 +312,13 @@ export default {
         if (types[k].includes(extension)) {
           // filetype extension matched- return filetype key (geojson, shp, etc.)
           return {
-            type: k,
-            supported: true
+            fileType: k,
+            fileSupported: true
           }
         }
       }
 
-      return { type: extension, supported: false } // could not determine file type
+      return { fileType: extension, fileSupported: false } // could not determine file type
     },
     getDefaultFileStats (file) {
       if (!file) {
