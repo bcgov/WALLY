@@ -7,7 +7,7 @@
                 width="100%"
       >
         <v-toolbar-title>
-          Analyze surface water availability
+          Analyze surface water
         </v-toolbar-title>
       </v-banner>
       <v-tooltip bottom>
