@@ -122,7 +122,6 @@ export default {
       }
       // console.log(this.layerSelection[layerID])
     })
-    console.log(this.layerSelection)
   }
 }
 </script>

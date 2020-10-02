@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     external_import = False
     external_import_types = ""
 
+    wally_model = False
     surface_water_design_v2 = False
 
     class Config:

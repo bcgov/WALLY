@@ -176,6 +176,37 @@
         </v-col>
       </v-row>
 
+      <div v-if="showWallyModelFeatureFlag" class="modelOutputBorder">
+        <v-row class="borderBlock">
+          <v-col cols=6 class="colSub">
+            <div class="titleBlock">Wally Hydro Zone Model</div>
+            <div v-if="wally_model_mar">
+              <div class="infoBlock">
+                {{ wally_model_mar }}
+              </div>
+              <div class="unitBlock">m³/s</div>
+            </div>
+            <div class="unitSub" v-else>
+              {{ noValueText }}
+            </div>
+          </v-col>
+
+          <v-col cols=6 class="colSubInner">
+            <Dialog v-bind="wmd.totalAnnualQuantity"/>
+            <div class="titleBlock">Model R Squared</div>
+            <div v-if="wally_model_r2">
+              <div class="infoBlock">
+                {{wally_model_r2}}
+              </div>
+              <div class="unitBlock">Model Fit</div>
+            </div>
+            <div class="unitSub" v-else>
+              {{ noValueText }}
+            </div>
+          </v-col>
+        </v-row>
+      </div>
+
       <v-divider class="my-5"/>
       <div v-if="modelOutputs.monthlyDischarges.length > 0">
         <Dialog v-bind="wmd.monthlyDischarge"/>
@@ -228,6 +259,8 @@ export default {
       monthlyDischarges: [],
       monthlyDistributions: []
     },
+    wally_model_mar: 0,
+    wally_model_r2: 0,
     monthlydistributionHeaders: [
       { text: 'Month', value: 'month' },
       { text: 'MD(%)', value: 'model_result' },
@@ -363,6 +396,11 @@ export default {
         return
       }
 
+      if (details.wally_hydro_zone_model_output && !details.wally_hydro_zone_model_output.error) {
+        this.wally_model_mar = details.wally_hydro_zone_model_output.mean_annual_flow.toFixed(2)
+        this.wally_model_r2 = details.wally_hydro_zone_model_output.r_squared.toFixed(2)
+      }
+
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {
         let outputs = details.scsb2016_model
         let mar = outputs.find((x) => x.output_type === 'MAR')
@@ -408,6 +446,9 @@ export default {
           }
         }
       }
+    },
+    showWallyModelFeatureFlag () {
+      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   mounted () {
