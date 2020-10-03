@@ -18,7 +18,12 @@ def get_map_config():
     Get config for frontend web map (e.g. access tokens)
     """
 
-    return view_model.MapConfig(mapbox_token=MAPBOX_ACCESS_TOKEN, mapbox_style=MAPBOX_STYLE)
+    settings = get_settings()
+
+    access_token = settings.w_mapbox_token if settings.w_mapbox_token else MAPBOX_ACCESS_TOKEN
+    style = settings.w_mapbox_style if settings.w_mapbox_style else MAPBOX_STYLE
+
+    return view_model.MapConfig(mapbox_token=access_token, mapbox_style=style)
 
 
 # TODO: Debating on this being in config/version or system/info or system/version
