@@ -8,8 +8,9 @@
     <v-row class="pa-5">
       <v-col>
         <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
-        <p>Supported files types include: <em>.geojson, csv</em></p>
+        <p>Supported files types include: <em>.geojson, csv, kml</em></p>
         <p>CSV files should have two columns with the headings "Latitude" and "Longitude", or "lat" and "long" (not case sensitive).</p>
+        <p>Excel workbooks with a table on the first sheet (and no other cells filled in outside the table) are supported. The same column heading rules as CSV files apply.</p>
         <p>Supported coordinate systems:  WGS84 - EPSG:4326 (Degrees Longitude/Latitude)</p>
         <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
@@ -131,6 +132,7 @@ import FileDrop from '../../tools/FileDrop'
 import csv2geojson from 'csv2geojson'
 import { kml } from '@tmcw/togeojson'
 import centroid from '@turf/centroid'
+import XLSX from 'xlsx'
 
 export default {
   name: 'ImportLayer',
@@ -184,6 +186,21 @@ export default {
       this.map.once('idle', () => {
         this.resetFiles()
       })
+    },
+    xlsxToGeoJSON (file) {
+      // file should be of type Uint8Array
+      // returns a promise (via csvToGeoJSON)
+
+      const workbook = XLSX.read(file, { type: 'array' })
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
+
+      const csvData = XLSX.utils.sheet_to_csv(firstSheet)
+
+      // Converting from xlsx directly to geojson would be more efficient
+      // but we can only handle csv-like spreadsheets right now, so
+      // by converting to csv first we can take advantage of the csv2geojson
+      // library.
+      return this.csvToGeoJSON(csvData)
     },
     csvToGeoJSON (file) {
       console.log('converting csv to geojson')
@@ -299,6 +316,13 @@ export default {
           } catch (e) {
             return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
           }
+        } else if (fileType === 'xlsx') {
+          try {
+            const data = new Uint8Array(reader.result)
+            fileInfo['data'] = await this.xlsxToGeoJSON(data)
+          } catch (e) {
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+          }
         } else if (fileType === 'kml') {
           try {
             fileInfo['data'] = this.kmlToGeoJSON(reader.result)
@@ -370,6 +394,7 @@ export default {
       const methods = {
         'geojson': 'text',
         'csv': 'text',
+        'xlsx': 'arrayBuffer',
         'shp': 'arrayBuffer',
         'kml': 'text'
       }
@@ -385,6 +410,7 @@ export default {
         'geojson': ['geojson', 'json'],
         // 'shp': ['shp', 'zip'],
         'csv': ['csv'],
+        'xlsx': ['xls', 'xlsx'],
         'kml': ['kml']
       }
 
