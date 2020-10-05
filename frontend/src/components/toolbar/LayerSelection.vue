@@ -6,8 +6,13 @@
           Categories
         </v-col>
         <v-col cols=8 class="text-right">
-          <v-btn small color="grey darken-2" text v-if="this.app.config && this.app.config.external_import">
-            <v-icon small>mdi-plus-circle</v-icon> Upload file or data
+          <v-btn
+            small
+            color="grey darken-2"
+            text
+            :to="{ name: 'import-layer' }"
+            v-if="this.app.config && this.app.config.external_import">
+            <v-icon small>mdi-cloud-upload</v-icon> Upload file or data
           </v-btn>
           <v-btn @click.prevent="handleResetLayers" small color="grey darken-2" text>
             <v-icon>refresh</v-icon> Reset all

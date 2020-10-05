@@ -361,7 +361,8 @@ export default {
       this.processLayers(value)
       this.updateCustomLayerLegendItems()
     },
-    selectedCustomLayers () {
+    selectedCustomLayers (value) {
+      this.processLayers(value)
       this.updateCustomLayerLegendItems()
     }
   }
