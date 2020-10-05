@@ -202,13 +202,21 @@ export default {
       // library.
       return this.csvToGeoJSON(csvData)
     },
+    createMessageFromErrorArray (errors) {
+      if (!errors || !errors.length) {
+        return ''
+      }
+      const numErrs = errors.length
+      const firstErrRow = errors.map(e => e.index)[0]
+      const firstErrMsg = errors.map(e => e.message)[0]
+      return `error on row ${firstErrRow}: ${firstErrMsg} (${numErrs - 1} more ${numErrs === 2 ? 'row' : 'rows'} with errors)`
+    },
     csvToGeoJSON (file) {
       console.log('converting csv to geojson')
       return new Promise((resolve, reject) => {
-        csv2geojson.csv2geojson(file, (error, data) => {
-          if (!error) {
-            // after determining that no error occured, check
-            // to make sure that features were given a geometry.
+        csv2geojson.csv2geojson(file, (errors, data) => {
+          if (data && data.features && data.features.length) {
+            // check to make sure that features were given a geometry.
             // this can occur if the file was read but no lat/long columns were found.
             if (
               data.features &&
@@ -216,9 +224,15 @@ export default {
                 !data.features.map(f => f.geometry).filter(Boolean).length) {
               reject(new Error('could not find valid longitude and latitude headings in file.'))
             }
-            resolve(data)
+            resolve({ data, errors })
           } else {
-            reject(error)
+            console.error(errors)
+
+            const numErrs = errors && errors.length
+            if (numErrs && numErrs > 0) {
+              reject(new Error(this.createMessageFromErrorArray(errors)))
+            }
+            reject(new Error('An error occured loading file'))
           }
         })
       })
@@ -306,22 +320,41 @@ export default {
           }
         }
 
+        // place to store errors/warnings that some file handling libraries return (XLS, CSV)
+        // other libraries throw an exception, so not all file types need the errors var.
+        let errors
+        let data
+
         // check file type and call the handler to convert the file to GeoJSON.
         // each file type has a different handler.
         // a try/catch is used for each type in order to generate a user error
         // message if there are any issues converting.
         if (fileType === 'csv') {
           try {
-            fileInfo['data'] = await this.csvToGeoJSON(reader.result)
+            ({ data, errors } = await this.csvToGeoJSON(reader.result))
+            console.log(data)
+            fileInfo['data'] = data
+            if (errors && errors.length) {
+              const warnMsg = this.createMessageFromErrorArray(errors)
+              this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
+            }
           } catch (e) {
-            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
           }
         } else if (fileType === 'xlsx') {
           try {
-            const data = new Uint8Array(reader.result)
-            fileInfo['data'] = await this.xlsxToGeoJSON(data)
+            const fileData = new Uint8Array(reader.result);
+            ({ data, errors } = await this.xlsxToGeoJSON(fileData))
+            console.log(data)
+
+            fileInfo['data'] = data
+
+            if (errors && errors.length) {
+              const warnMsg = this.createMessageFromErrorArray(errors)
+              this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
+            }
           } catch (e) {
-            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
           }
         } else if (fileType === 'kml') {
           try {
@@ -347,6 +380,10 @@ export default {
         if (!fileInfo['data'].features) {
           return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
         }
+
+        console.log('-------------------------------')
+        console.log('Imported')
+        console.log('-------------------------------')
 
         // get the coordinates of the first feature.
         // this helps zoom to the dataset (if desired).
