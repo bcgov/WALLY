@@ -8,7 +8,7 @@
     <v-row class="pa-5">
       <v-col>
         <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
-        <p>Supported files types include: <em>.geojson</em></p>
+        <p>Supported file types include: <em>.geojson</em></p>
         <p>Supported coordinate systems: Degrees Longitude/Latitude (WGS84 - EPSG:4326). e.g. -127.10205, 51.81051</p>
         <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
