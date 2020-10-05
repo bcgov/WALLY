@@ -1,5 +1,5 @@
 import { createLocalVue, mount } from '@vue/test-utils'
-import MapLegend from '../../../src/components/map/MapLegend.vue'
+import MapLegend from '../../../src/components/map/MapLegend/MapLegend.vue'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'

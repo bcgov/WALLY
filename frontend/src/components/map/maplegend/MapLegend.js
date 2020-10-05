@@ -1,15 +1,54 @@
 import { mapGetters } from 'vuex'
+import LegendItem from './LegendItem'
 
 export default {
   name: 'MapLegend',
+  components: { LegendItem },
   data () {
     return {
-      legend: [],
       show: true
     }
   },
   props: ['map'],
   methods: {
+    getLegendItem (layer) {
+      var type = this.map.getLayer(layer.display_data_name).type
+      var paint = this.mapLayerPaint(type, layer.display_data_name)
+      return {
+        name: layer.name,
+        type: type,
+        ...paint
+      }
+    },
+    mapLayerPaint (type, id) {
+      let color = type !== 'symbol' && this.map.getPaintProperty(id, type + '-color')
+      let strokeWidth = type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-width')
+      // let strokeColor = type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-color')
+      let radius = type === 'circle' && this.map.getPaintProperty(id, type + '-radius')
+      let opacity = type === 'fill' && this.map.getPaintProperty(id, type + '-opacity')
+      let outlineColor = type === 'fill' ? this.map.getPaintProperty(id, type + '-outline-color')
+        : type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-color')
+      let width = type === 'line' && this.map.getPaintProperty(id, type + '-width')
+      let image = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-image')
+      let rotation = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-rotate')
+      let size = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-size')
+
+      return {
+        color,
+        strokeWidth,
+        radius,
+        opacity,
+        outlineColor,
+        width,
+        image,
+        rotation,
+        size
+      }
+    },
+
+
+
+
     processLayers (layers) {
       this.legend = []
       layers.forEach(layer => {
@@ -109,6 +148,31 @@ export default {
         iconSize
       }
     },
+    // circle (paint) {
+    //   var legendItem = {
+    //     'text': '',
+    //     'color': paint.color,
+    //     'outlineColor': paint.outlineColor,
+    //     'lineWidth': paint.width,
+    //     'strokeWidth': paint.strokeWidth ? paint.strokeWidth + 'px' : '1px',
+    //     'icon': 'lens',
+    //     'iconSize': 12
+    //   }
+    //   return legendItem
+    // },
+    // polygon (paint) {
+    //   var legendItem = {
+    //     'text': '',
+    //     'color': paint.color,
+    //     'outlineColor': paint.outlineColor,
+    //     'lineWidth': paint.width,
+    //     'strokeWidth': paint.strokeWidth ? paint.strokeWidth + 'px' : '1px',
+    //     'icon': 'signal_cellular_4_bar',
+    //     'iconSize': 20
+    //   }
+    //   return legendItem
+    // },
+
     getLegendItems (paint, lType, layerID) {
       let color, text
       // Skip first element
@@ -314,11 +378,14 @@ export default {
   computed: {
     ...mapGetters('map', [
       'activeMapLayers'
-    ])
+    ]),
+    legend () {
+      return this.activeMapLayers
+    }
   },
   watch: {
-    activeMapLayers (value) {
-      this.processLayers(value)
-    }
+    // activeMapLayers (value) {
+      // this.processLayers(value)
+    // }
   }
 }

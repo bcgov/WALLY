@@ -2,6 +2,23 @@
   <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
     <div class="legendItems" v-show="show">
       <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
+        <LegendItem :item="getLegendItem(layer)" />
+      </div>
+
+      
+      <!-- <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
+        <div v-if="layer.name === 't'">
+
+        </div>
+        <div v-else-if="layer.display_data_name === ''">
+
+        </div>
+        <div v-else>
+          <LegendItem :item="getLegendItem(layer)" />
+        </div>
+      </div> -->
+
+      <!-- <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
           <h4 v-if="layer.plenty" :key='i' class="layerName">{{layer.name}}</h4>
           <div v-for="(item, j) in layer.legendItems" v-bind:key="`legendItem${j}`" v-bind:class="layer.className">
             <div v-if="!item.wmsIconUrl">
@@ -15,7 +32,8 @@
               <span class="layerName">{{layer.name}}</span>
             </div>
           </div>
-      </div>
+      </div> -->
+
     </div>
     <v-tooltip left>
       <template v-slot:activator="{ on }">
