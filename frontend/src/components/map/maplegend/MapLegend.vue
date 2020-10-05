@@ -1,38 +1,30 @@
 <template>
   <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
     <div class="legendItems" v-show="show">
+
       <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
-        <LegendItem :item="getLegendItem(layer)" />
-      </div>
-
-      
-      <!-- <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
-        <div v-if="layer.name === 't'">
-
+        <div v-if="layer.display_data_name === 'fish_observations'">
+          <FishObservationsLegendItem :item="getLegendItem(layer)" />
         </div>
-        <div v-else-if="layer.display_data_name === ''">
-
+        <div v-else-if="layer.display_data_name === 'water_licensed_works'">
+          <WaterLicensedWorksLegendItem :item="getLegendItem(layer)" />
+        </div>
+        <div v-else-if="layer.display_data_name === 'water_rights_licences'">
+          <WaterRightsLicencesLegendItem :item="getLegendItem(layer)" />
+        </div>
+        <div v-else-if="layer.display_data_name === 'water_approval_points'">
+          <WaterApprovalPointsLegendItem :item="getLegendItem(layer)" />
+        </div>
+        <div v-else-if="layer.display_data_name === 'water_allocation_restrictions'">
+          <StreamAllocationRestrictionsLegendItem :item="getLegendItem(layer)" />
+        </div>
+        <div v-else-if="excludedLayers.includes(layer.display_data_name)">
+          <!-- render nothing for these layers -->
         </div>
         <div v-else>
           <LegendItem :item="getLegendItem(layer)" />
         </div>
-      </div> -->
-
-      <!-- <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
-          <h4 v-if="layer.plenty" :key='i' class="layerName">{{layer.name}}</h4>
-          <div v-for="(item, j) in layer.legendItems" v-bind:key="`legendItem${j}`" v-bind:class="layer.className">
-            <div v-if="!item.wmsIconUrl">
-              <v-icon v-if="!item.wmsIconUrl && !item.image" :color="item.color" :size="item.iconSize" v-bind:style="{webkitTextStrokeWidth: item.strokeWidth, webkitTextStrokeColor: item.outlineColor}">{{item.icon}}</v-icon>
-              <img v-if="item.image" class="" width="20" :src="require(`../../assets/images/legend/` + item.image)"/>
-              <span class="legendItem" v-if="layer.plenty">{{item.text}}</span>
-              <span class="layerName" v-else>{{layer.name}}</span>
-            </div>
-            <div v-else>
-              <img class="legendItem" :src="item.wmsIconUrl" />
-              <span class="layerName">{{layer.name}}</span>
-            </div>
-          </div>
-      </div> -->
+      </div>
 
     </div>
     <v-tooltip left>
@@ -47,6 +39,7 @@
     </v-tooltip>
   </div>
 </template>
+
 <style>
   .legend {
     background-color: #fff;

@@ -1,16 +1,16 @@
 <template>
   <div>
-    <v-icon v-if="!item.image" :color="color()" :size="size()" v-bind:style="{webkitTextStrokeWidth: 2, webkitTextStrokeColor: 'black'}">
+    <v-icon v-if="!item.image" :color="color()" :size="size()" v-bind:style="{webkitTextStrokeWidth: strokeWidth(), webkitTextStrokeColor: strokeColor()}">
       {{iconName()}}
     </v-icon>
-    <img v-if="item.image" class="" width="20" :src="require(`../../../assets/images/legend/` + item.image + '.png')"/>
-    <span class="layerName">{{item.name}}</span>
+    <img v-if="item.image" class="" width="16" :src="require(`../../../assets/images/legend/` + item.image + '.png')"/>
+    <span class="layerName">{{item.text}}</span>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'LegendIcon',
+  name: 'LegendItem',
   props: {
     item: {}
   },
@@ -30,9 +30,9 @@ export default {
       if (colorType === 'string') {
         return this.item.color
       } else if (colorType === 'object') {
-        if(this.item.color[0] === 'match') {
+        if (this.item.color[0] === 'match') {
           console.log(this.item.color)
-        } else if (paint.color[0] === 'interpolate') {
+        } else if (this.item.color[0] === 'interpolate') {
           return this.item.color[6]
         }
       }
@@ -43,6 +43,12 @@ export default {
       } else {
         return 12
       }
+    },
+    strokeWidth () {
+      return this.item.strokeWidth ? this.item.strokeWidth + 'px' : '1px'
+    },
+    strokeColor () {
+      return this.item.outlineColor
     }
   }
 }
