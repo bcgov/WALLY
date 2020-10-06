@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="legendItem">
     <v-icon v-if="!item.image" :color="color()" :size="size()" v-bind:style="{webkitTextStrokeWidth: strokeWidth(), webkitTextStrokeColor: strokeColor()}">
       {{iconName()}}
     </v-icon>
