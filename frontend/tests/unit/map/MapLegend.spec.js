@@ -52,29 +52,29 @@ describe('Map Legend Test', () => {
     let map = {
       namespaced: true,
       getters: {
-        activeMapLayers: () => [{ 
-          description: "A compendium of reports that provide information about aquatic and terrestrial animals and plants, soils, surface water, groundwater and their accompanying data files and maps",
-          display_data_name: "ecocat_water_related_reports",
-          display_name: "EcoCat Water-related Reports",
+        activeMapLayers: () => [{
+          description: 'A compendium of reports that provide information about aquatic and terrestrial animals and plants, soils, surface water, groundwater and their accompanying data files and maps',
+          display_data_name: 'ecocat_water_related_reports',
+          display_name: 'EcoCat Water-related Reports',
           highlight_columns: [
-            "REPORT_ID",
-            "TITLE",
-            "SHORT_DESCRIPTION",
-            "AUTHOR",
-            "DATE_PUBLISHED",
-            "REPORT_AUDIENCE",
-            "LONG_DESCRIPTION",
+            'REPORT_ID',
+            'TITLE',
+            'SHORT_DESCRIPTION',
+            'AUTHOR',
+            'DATE_PUBLISHED',
+            'REPORT_AUDIENCE',
+            'LONG_DESCRIPTION'
           ],
-          label: "Title",
-          label_column: "TITLE",
-          layer_category_code: "REPORTS",
-          name: "Ecological Catalogue (formerly AquaCat)",
-          source_url: "https://catalogue.data.gov.bc.ca/dataset/ecological-catalogue-formerly-aquacat",
-          url: "",
+          label: 'Title',
+          label_column: 'TITLE',
+          layer_category_code: 'REPORTS',
+          name: 'Ecological Catalogue (formerly AquaCat)',
+          source_url: 'https://catalogue.data.gov.bc.ca/dataset/ecological-catalogue-formerly-aquacat',
+          url: '',
           use_wms: true,
-          vector_name: "",
-          wms_name: "WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW",
-          wms_style: ""
+          vector_name: '',
+          wms_name: 'WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
+          wms_style: ''
         }]
       }
     }
@@ -113,50 +113,50 @@ describe('Map Legend Test', () => {
     let map = {
       namespaced: true,
       getters: {
-        activeMapLayers: () => [{ 
-          description: "A compendium of reports that provide information about aquatic and terrestrial animals and plants, soils, surface water, groundwater and their accompanying data files and maps",
-          display_data_name: "ecocat_water_related_reports",
-          display_name: "EcoCat Water-related Reports",
+        activeMapLayers: () => [{
+          description: 'A compendium of reports that provide information about aquatic and terrestrial animals and plants, soils, surface water, groundwater and their accompanying data files and maps',
+          display_data_name: 'ecocat_water_related_reports',
+          display_name: 'EcoCat Water-related Reports',
           highlight_columns: [
-            "REPORT_ID",
-            "TITLE",
-            "SHORT_DESCRIPTION",
-            "AUTHOR",
-            "DATE_PUBLISHED",
-            "REPORT_AUDIENCE",
-            "LONG_DESCRIPTION",
+            'REPORT_ID',
+            'TITLE',
+            'SHORT_DESCRIPTION',
+            'AUTHOR',
+            'DATE_PUBLISHED',
+            'REPORT_AUDIENCE',
+            'LONG_DESCRIPTION'
           ],
-          label: "Title",
-          label_column: "TITLE",
-          layer_category_code: "REPORTS",
-          name: "Ecological Catalogue (formerly AquaCat)",
-          source_url: "https://catalogue.data.gov.bc.ca/dataset/ecological-catalogue-formerly-aquacat",
-          url: "",
+          label: 'Title',
+          label_column: 'TITLE',
+          layer_category_code: 'REPORTS',
+          name: 'Ecological Catalogue (formerly AquaCat)',
+          source_url: 'https://catalogue.data.gov.bc.ca/dataset/ecological-catalogue-formerly-aquacat',
+          url: '',
           use_wms: true,
-          vector_name: "",
-          wms_name: "WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW",
-          wms_style: ""
+          vector_name: '',
+          wms_name: 'WHSE_FISH.ACAT_REPORT_POINT_PUB_SVW',
+          wms_style: ''
         },
         {
-          description: "Flow network arcs (observed, inferred and constructed). Contains no banks, coast or watershed bourdary arcs. Directionalized and connected. Contains heirarchial key and route identifier.",
-          display_data_name: "freshwater_atlas_stream_networks",
-          display_name: "Freshwater Atlas Stream Networks",
+          description: 'Flow network arcs (observed, inferred and constructed). Contains no banks, coast or watershed bourdary arcs. Directionalized and connected. Contains heirarchial key and route identifier.',
+          display_data_name: 'freshwater_atlas_stream_networks',
+          display_name: 'Freshwater Atlas Stream Networks',
           highlight_columns: [
-            "STREAM_ORDER",
-            "STREAM_MAGNITUDE",
-            "FEATURE_LENGTH_M",
-            "WATERSHED_GROUP_ID"
+            'STREAM_ORDER',
+            'STREAM_MAGNITUDE',
+            'FEATURE_LENGTH_M',
+            'WATERSHED_GROUP_ID'
           ],
-          label: "Feature ID",
-          label_column: "LINEAR_FEATURE_ID",
-          layer_category_code: "FRESHWATER_MARINE",
-          name: "Freshwater Atlas Stream Networks",
-          source_url: "https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network",
-          url: "",
+          label: 'Feature ID',
+          label_column: 'LINEAR_FEATURE_ID',
+          layer_category_code: 'FRESHWATER_MARINE',
+          name: 'Freshwater Atlas Stream Networks',
+          source_url: 'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network',
+          url: '',
           use_wms: true,
-          vector_name: "",
-          wms_name: "WHSE_BASEMAPPING.FWA_STREAM_NETWORKS_SP",
-          wms_style: "1853",
+          vector_name: '',
+          wms_name: 'WHSE_BASEMAPPING.FWA_STREAM_NETWORKS_SP',
+          wms_style: '1853'
         }]
       }
     }
