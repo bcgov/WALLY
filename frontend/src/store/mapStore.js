@@ -13,7 +13,6 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
 import { wmsBaseURL, setLayerSource } from '../common/utils/wmsUtils'
 import MapScale from '../components/map/MapScale'
-import mapboxStyle from '../../mapbox_styles/style.json'
 
 const emptyPoint = {
   'type': 'Feature',
