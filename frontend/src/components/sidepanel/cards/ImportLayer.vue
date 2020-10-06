@@ -207,9 +207,20 @@ export default {
         return ''
       }
       const numErrs = errors.length
+
+      // get the first error.
+      // some users spreadsheets have hundreds of rows so we won't
+      // be able to show all possible errors.
       const firstErrRow = errors.map(e => e.index)[0]
       const firstErrMsg = errors.map(e => e.message)[0]
-      return `error on row ${firstErrRow}: ${firstErrMsg} (${numErrs - 1} more ${numErrs === 2 ? 'row' : 'rows'} with errors)`
+
+      let msg = `error on row ${firstErrRow}: ${firstErrMsg}`
+
+      // show number of additional errors e.g. "and 2 more errors"
+      if (numErrs > 1) {
+        msg = `${msg} (and ${numErrs - 1} more ${numErrs === 2 ? 'error' : 'errors'})`
+      }
+      return msg
     },
     csvToGeoJSON (file) {
       console.log('converting csv to geojson')
