@@ -11,6 +11,7 @@
             color="grey darken-2"
             text
             :to="{ name: 'import-layer' }"
+            @click="$emit('closeDialog')"
             v-if="this.app.config && this.app.config.external_import">
             <v-icon small>mdi-cloud-upload</v-icon> Upload file or data
           </v-btn>
