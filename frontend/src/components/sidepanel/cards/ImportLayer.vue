@@ -11,7 +11,7 @@
         <p>Supported file types include: <strong>geojson, csv, xlsx, kml</strong></p>
         <p><strong>CSV</strong>: files should have two columns with the headings "Latitude" and "Longitude", or "lat" and "long" (not case sensitive).</p>
         <p><strong>Excel</strong>: workbooks with a table on the first sheet (and no other cells filled in outside the table) are supported. The same column heading rules as CSV files apply.</p>
-        <p><strong>Supported coordinate systems</strong>:  WGS84 - EPSG:4326 (Degrees Longitude/Latitude)</p>
+        <p><strong>Supported coordinate systems</strong>:  Degrees Longitude/Latitude (WGS84). e.g. -127.10205, 51.81051</p>
         <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
     </v-row>
