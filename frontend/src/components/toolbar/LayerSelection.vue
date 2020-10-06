@@ -6,8 +6,14 @@
           Categories
         </v-col>
         <v-col cols=8 class="text-right">
-          <v-btn small color="grey darken-2" text v-if="this.app.config && this.app.config.external_import">
-            <v-icon small>mdi-plus-circle</v-icon> Upload file or data
+          <v-btn
+            small
+            color="grey darken-2"
+            text
+            :to="{ name: 'import-layer' }"
+            @click="$emit('closeDialog')"
+            v-if="this.app.config && this.app.config.external_import">
+            <v-icon small>mdi-cloud-upload</v-icon> Upload file or data
           </v-btn>
           <v-btn @click.prevent="handleResetLayers" small color="grey darken-2" text>
             <v-icon>refresh</v-icon> Reset all
@@ -54,6 +60,30 @@
           </div>
         </template>
       </v-treeview>
+      <v-treeview
+        selectable
+        selected-color="grey darken-2"
+        v-if="layers && categories"
+        hoverable
+        open-on-click
+        @input="handleSelectCustomLayer"
+        :items="[customLayers]"
+        :value="selectedCustomLayers"
+      >
+        <template v-slot:label="{ item }">
+          <div>
+            <span>{{item.name}}</span>
+            <v-btn
+              class="float-right"
+              v-if="item.type !=='category'"
+              text
+              small
+              @click="removeCustomLayer(item.id)">
+              <v-icon small>mdi-trash-can-outline</v-icon>
+            </v-btn>
+          </div>
+        </template>
+      </v-treeview>
     </v-card>
   </div>
 </template>
@@ -78,8 +108,12 @@ export default {
       'featureSelectionExists',
       'activeMapLayers',
       'selectedBaseLayers',
-      'baseMapLayers'
+      'baseMapLayers',
+      'map'
     ]),
+    ...mapGetters('customLayers',
+      ['customLayers', 'selectedCustomLayers']
+    ),
     ...mapGetters([
       'isDataMartActive',
       'loadingFeature',
@@ -104,6 +138,9 @@ export default {
     }
   },
   methods: {
+    removeCustomLayer (id) {
+      this.$store.dispatch('customLayers/unloadCustomLayer', { map: this.map, id })
+    },
     filterLayersByCategory (layers) {
       let catMap = {}
 
@@ -137,6 +174,9 @@ export default {
     },
     handleSelectBaseLayer (selectedBaseLayers) {
       this.$store.dispatch('map/setActiveBaseMapLayers', selectedBaseLayers)
+    },
+    handleSelectCustomLayer (selectedCustomLayers) {
+      this.$store.dispatch('customLayers/setActiveCustomLayers', selectedCustomLayers)
     },
     allowDisableLayerSelection () {
       return this.featureSelectionExists
