@@ -1,4 +1,4 @@
-import * as config from '../utils/streamHighlights.config'
+import * as config from '../common/utils/streamHighlights.config'
 import buffer from '@turf/buffer'
 import unionBy from 'lodash.unionby'
 

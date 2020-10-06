@@ -224,7 +224,7 @@ import ModelExplanations from './ModelExplanations'
 import EditableModelInputs from './EditableModelInputs'
 import jsPDF from 'jspdf'
 import html2canvas from 'html2canvas'
-import { scaleImageToFit } from '../../../helpers'
+import { scaleImageToFit } from '../../../common/helpers'
 
 export default {
   name: 'WatershedDetails',

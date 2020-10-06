@@ -25,7 +25,7 @@
 
 <script>
 import ModelRelevancyBoxPlot from './ModelRelevancyBoxPlot'
-import { humanReadable } from '../../../helpers/index'
+import { humanReadable } from '../../../common/helpers/index'
 
 export default {
   name: 'ModelRelevancyTable',

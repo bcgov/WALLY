@@ -7,7 +7,7 @@ import MapScale from './MapScale'
 import circle from '@turf/circle'
 import coordinatesGeocoder from './localGeocoder'
 
-import { getArrayDepth } from '../../helpers'
+import { getArrayDepth } from '../../common/helpers'
 
 import ApiService from '../../services/ApiService'
 
