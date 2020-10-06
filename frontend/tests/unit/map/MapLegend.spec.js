@@ -18,21 +18,6 @@ describe('Map Legend Test', () => {
   let wrapper
   let store
 
-  // beforeEach(() => {
-  //   let map = {
-  //     namespaced: true,
-  //     getters: {
-  //       activeMapLayers: () => []
-  //     }
-  //   }
-  //   store = new Vuex.Store({ modules: { map } })
-  //   wrapper = mount(MapLegend, {
-  //     vuetify,
-  //     store,
-  //     localVue
-  //   })
-  // })
-
   it('Is hidden on start', () => {
     let map = {
       namespaced: true,
