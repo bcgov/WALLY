@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { streamDataHeaders } from '../../../utils/streamDataHeaders'
+import { streamDataHeaders } from '../../../common/utils/streamDataHeaders'
 
 export default {
   name: 'UpstreamDownstreamData',
