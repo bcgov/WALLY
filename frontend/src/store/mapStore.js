@@ -13,7 +13,7 @@ import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
 import { wmsBaseURL, setLayerSource } from '../common/utils/wmsUtils'
 import MapScale from '../components/map/MapScale'
-import mapboxStyle from '../../mapbox_styles/style.json'
+import mapboxStyle from '../common/mapbox/styles'
 
 const emptyPoint = {
   'type': 'Feature',
@@ -88,9 +88,10 @@ export default {
         zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
       }
 
+      let style = mapboxStyle
       commit('setMap', new mapboxgl.Map({
         container: 'map', // container id
-        style: mapConfig.data.mapbox_style, // dev or prod map style
+        style,
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
         attributionControl: false, // hide default and re-add to the top left
