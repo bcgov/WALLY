@@ -9,6 +9,7 @@ import feature from './featureStore'
 import crossSection from './crossSection'
 import surfaceWater from './surfaceWaterStore'
 import user from './userStore'
+import customLayers from './customLayers'
 
 Vue.use(Vuex)
 
@@ -22,6 +23,7 @@ export default new Vuex.Store({
     feature,
     crossSection,
     surfaceWater,
-    user
+    user,
+    customLayers
   }
 })

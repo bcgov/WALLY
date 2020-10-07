@@ -24,7 +24,7 @@ export default {
               let layerName = i === 0 ? layerID : 'water_licensed_works_dash' + i
               mapLayerPaint = this.getPaint(mapLayerType, layerName)
               legendItems = this.getLegendItems(mapLayerPaint, mapLayerType, layerName)
-              var layerLegend = {
+              let layerLegend = {
                 name: i === 0 ? 'Water Licensed Works - Lines' : '',
                 legendItems,
                 'plenty': true,
@@ -309,16 +309,61 @@ export default {
     },
     toggle () {
       this.show = !this.show
+    },
+    updateCustomLayerLegendItems () {
+      if (this.customLayers.children.length <= 0) {
+        return
+      }
+      let existingLegendNames = this.legend.map(l => l.name)
+      global.config.debug && console.log('[wally]', this.customLayers.children)
+      // loop all currently uploaded custom layers
+      this.customLayers.children.forEach(layer => {
+        // check if custom layer has been selected
+        if (this.selectedCustomLayers.includes(layer.id)) {
+          // check if custom layer is already visible
+          if (!existingLegendNames.includes(layer.name)) {
+            // if not visible, add custom layer to legend
+            this.legend.push({
+              name: layer.name,
+              legendItems: [{
+                'text': '',
+                'color': layer.color,
+                'outlineColor': layer.color,
+                'lineWidth': '1px',
+                'strokeWidth': '1px',
+                'icon': 'lens',
+                'iconSize': 12
+              }]
+            })
+          }
+        } else {
+          // need to remove custom layer from legend
+          if (existingLegendNames.includes(layer.name)) {
+            this.legend = this.legend.filter(l => {
+              return l.name !== layer.name
+            })
+          }
+        }
+      })
     }
   },
   computed: {
     ...mapGetters('map', [
       'activeMapLayers'
+    ]),
+    ...mapGetters('customLayers', [
+      'selectedCustomLayers',
+      'customLayers'
     ])
   },
   watch: {
     activeMapLayers (value) {
       this.processLayers(value)
+      this.updateCustomLayerLegendItems()
+    },
+    selectedCustomLayers (value) {
+      this.processLayers(value)
+      this.updateCustomLayerLegendItems()
     }
   }
 }

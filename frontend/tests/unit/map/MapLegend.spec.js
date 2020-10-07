@@ -25,7 +25,15 @@ describe('Map Legend Test', () => {
       }
     }
 
-    store = new Vuex.Store({ modules: { map } })
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => []
+      }
+    }
+
+    store = new Vuex.Store({ modules: { map, customLayers } })
     wrapper = mount(MapLegend, {
       vuetify,
       store,

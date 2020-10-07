@@ -46,10 +46,17 @@ describe('LayerSelection', () => {
           'test prop': 'test value'
         }
       })
-
     }
 
-    store = new Vuex.Store({ modules: { map }, getters })
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => []
+      }
+    }
+
+    store = new Vuex.Store({ modules: { map, customLayers }, getters })
 
     store.dispatch = jest.fn()
     wrapper = shallowMount(LayerSelection, {
