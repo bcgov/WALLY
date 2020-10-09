@@ -25,7 +25,14 @@ describe('Map Legend Test', () => {
         activeMapLayers: () => []
       }
     }
-    store = new Vuex.Store({ modules: { map } })
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => {return {children: []}}
+      }
+    }
+    store = new Vuex.Store({ modules: { map, customLayers } })
 
     wrapper = mount(MapLegend, {
       vuetify,
@@ -79,7 +86,14 @@ describe('Map Legend Test', () => {
         }]
       }
     }
-    store = new Vuex.Store({ modules: { map } })
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => {return {children: []}}
+      }
+    }
+    store = new Vuex.Store({ modules: { map, customLayers } })
     wrapper = mount(MapLegend, {
       vuetify,
       store,
@@ -161,7 +175,14 @@ describe('Map Legend Test', () => {
         }]
       }
     }
-    store = new Vuex.Store({ modules: { map } })
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => {return {children: []}}
+      }
+    }
+    store = new Vuex.Store({ modules: { map, customLayers } })
     wrapper = mount(MapLegend, {
       vuetify,
       store,
@@ -208,12 +229,18 @@ describe('Map Legend Test', () => {
     }
     let map = {
       namespaced: true,
-
       getters: {
         activeMapLayers: () => []
       }
     }
-    store = new Vuex.Store({ modules: { map } })
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => {return {children: []}}
+      }
+    }
+    store = new Vuex.Store({ modules: { map, customLayers } })
     var legendItem = shallowMount(StreamAllocationRestrictionsLegendItem, {
       vuetify,
       store,
