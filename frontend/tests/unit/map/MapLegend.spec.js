@@ -26,6 +26,7 @@ describe('Map Legend Test', () => {
       }
     }
     store = new Vuex.Store({ modules: { map } })
+
     wrapper = mount(MapLegend, {
       vuetify,
       store,

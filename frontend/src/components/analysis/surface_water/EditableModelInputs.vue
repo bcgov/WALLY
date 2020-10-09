@@ -63,7 +63,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
-import { humanReadable } from '../../../helpers'
+import { humanReadable } from '../../../common/helpers'
 
 export default {
   name: 'EditableModelInputs',

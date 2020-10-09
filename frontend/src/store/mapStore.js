@@ -1,7 +1,7 @@
 // TODO: change to api call, or create new array just for map layers
 import ApiService from '../services/ApiService'
 import router from '../router'
-import baseMapDescriptions from '../utils/baseMapDescriptions'
+import baseMapDescriptions from '../common/utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import area from '@turf/area'
 import circle from '@turf/circle'
@@ -11,7 +11,7 @@ import pointInPolygon from '@turf/boolean-point-in-polygon'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
-import { wmsBaseURL, setLayerSource } from '../utils/wmsUtils'
+import { wmsBaseURL, setLayerSource } from '../common/utils/wmsUtils'
 import MapScale from '../components/map/MapScale'
 
 const emptyPoint = {

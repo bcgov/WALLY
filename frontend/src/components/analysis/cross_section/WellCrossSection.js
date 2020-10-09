@@ -8,7 +8,7 @@ import jsPDF from 'jspdf'
 import PlotlyJS from 'plotly.js'
 
 import CrossSectionInstructions from './CrossSectionInstructions'
-import { downloadXlsx } from '../../../utils/exportUtils'
+import { downloadXlsx } from '../../../common/utils/exportUtils'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 

@@ -61,6 +61,10 @@ class Settings(BaseSettings):
     wally_model = False
     surface_water_design_v2 = False
 
+    # Wally mapbox settings, to differentiate from constant declaration above
+    w_mapbox_token = ""
+    w_mapbox_style = ""
+
     class Config:
         env_file = ".env"
 

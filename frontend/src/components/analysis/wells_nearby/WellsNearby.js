@@ -6,7 +6,7 @@ import circle from '@turf/circle'
 
 import WellsNearbyBoxPlot from './WellsNearbyBoxPlot'
 
-import { downloadXlsx } from '../../../utils/exportUtils'
+import { downloadXlsx } from '../../../common/utils/exportUtils'
 
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly

@@ -66,7 +66,7 @@
 <script>
 import { mapGetters } from 'vuex'
 
-import { humanReadable } from '../../helpers'
+import { humanReadable } from '../../common/helpers'
 
 import FeatureStreamStation from '../features/FeatureStreamStation'
 import FeatureWell from '../features/FeatureWell'
