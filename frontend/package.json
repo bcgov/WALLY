@@ -17,6 +17,7 @@
     "@mdi/font": "^4.4.95",
     "@sentry/browser": "^5.9.1",
     "@sentry/integrations": "^5.8.0",
+    "@tmcw/togeojson": "^4.2.0",
     "@turf/area": "^6.0.1",
     "@turf/bbox": "^6.0.1",
     "@turf/bbox-polygon": "^6.0.1",
@@ -29,6 +30,7 @@
     "@turf/union": "^6.0.3",
     "axios": "^0.19.0",
     "core-js": "^2.6.5",
+    "csv2geojson": "^5.1.1",
     "esri-leaflet": "^2.2.4",
     "file-saver": "^2.0.2",
     "html2canvas": "^1.0.0-rc.5",
@@ -50,7 +52,8 @@
     "vue-plotly": "^1.0.1",
     "vue-router": "^3.0.3",
     "vuetify": "^2.2.3",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "xlsx": "^0.16.7"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.8.0",
