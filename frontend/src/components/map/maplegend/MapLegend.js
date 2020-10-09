@@ -65,23 +65,17 @@ export default {
       }
     },
     getActiveCustomLayers () {
-      if (this.customLayers.children.length <= 0) {
-        return []
-      }
-      var activeCustomLayers = []
-      global.config.debug && console.log('[wally]', this.customLayers.children)
-      // loop all currently uploaded custom layers
-      this.customLayers.children.forEach(layer => {
-        // check if custom layer has been selected
-        if (this.selectedCustomLayers.includes(layer.id)) {
-          // push custom layer into layer object
-          activeCustomLayers.push({
+      return this.customLayers.children
+        .filter((layer) => {
+          return this.selectedCustomLayers.includes(layer.id) &&
+            layer.id !== '_imported-map-layers'
+        })
+        .map((layer) => {
+          return {
             display_data_name: layer.id,
             name: layer.name
-          })
-        }
-      })
-      return activeCustomLayers
+          }
+        })
     },
     toggle () {
       this.show = !this.show
@@ -96,8 +90,8 @@ export default {
       'customLayers'
     ]),
     legend () {
-      // merge together wally hosted layers and any custom
-      // layers that users upload
+      // merge together wally hosted layers
+      // and any custom layers that a user uploads
       let activeCustomLayers = this.getActiveCustomLayers()
       return this.activeMapLayers.concat(activeCustomLayers)
     }

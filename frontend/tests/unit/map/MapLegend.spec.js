@@ -29,7 +29,7 @@ describe('Map Legend Test', () => {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
-        customLayers: () => {return {children: []}}
+        customLayers: () => { return { children: [] } }
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
@@ -90,7 +90,7 @@ describe('Map Legend Test', () => {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
-        customLayers: () => {return {children: []}}
+        customLayers: () => { return { children: [] } }
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
@@ -179,7 +179,7 @@ describe('Map Legend Test', () => {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
-        customLayers: () => {return {children: []}}
+        customLayers: () => { return { children: [] } }
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
@@ -237,7 +237,7 @@ describe('Map Legend Test', () => {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
-        customLayers: () => {return {children: []}}
+        customLayers: () => { return { children: [] } }
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
