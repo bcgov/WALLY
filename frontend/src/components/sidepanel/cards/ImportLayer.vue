@@ -129,10 +129,13 @@
 <script>
 import { mapGetters } from 'vuex'
 import FileDrop from '../../tools/FileDrop'
-import csv2geojson from 'csv2geojson'
-import { kml } from '@tmcw/togeojson'
 import centroid from '@turf/centroid'
-import XLSX from 'xlsx'
+import {
+  createMessageFromErrorArray,
+  csvToGeoJSON,
+  kmlToGeoJSON,
+  xlsxToGeoJSON
+} from '../../../common/utils/customLayerUtils'
 
 export default {
   name: 'ImportLayer',
@@ -187,70 +190,7 @@ export default {
         this.resetFiles()
       })
     },
-    xlsxToGeoJSON (file) {
-      // file should be of type Uint8Array
-      // returns a promise (via csvToGeoJSON)
 
-      const workbook = XLSX.read(file, { type: 'array' })
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
-
-      const csvData = XLSX.utils.sheet_to_csv(firstSheet)
-
-      // Converting from xlsx directly to geojson would be more efficient
-      // but we can only handle csv-like spreadsheets right now, so
-      // by converting to csv first we can take advantage of the csv2geojson
-      // library.
-      return this.csvToGeoJSON(csvData)
-    },
-    createMessageFromErrorArray (errors) {
-      if (!errors || !errors.length) {
-        return ''
-      }
-      const numErrs = errors.length
-
-      // get the first error.
-      // some users spreadsheets have hundreds of rows so we won't
-      // be able to show all possible errors.
-      const firstErrRow = errors.map(e => e.index)[0]
-      const firstErrMsg = errors.map(e => e.message)[0]
-
-      let msg = `error on row ${firstErrRow}: ${firstErrMsg}`
-
-      // show number of additional errors e.g. "and 2 more errors"
-      if (numErrs > 1) {
-        msg = `${msg} (and ${numErrs - 1} more ${numErrs === 2 ? 'error' : 'errors'})`
-      }
-      return msg
-    },
-    csvToGeoJSON (file) {
-      console.log('converting csv to geojson')
-      return new Promise((resolve, reject) => {
-        csv2geojson.csv2geojson(file, (errors, data) => {
-          if (data && data.features && data.features.length) {
-            // check to make sure that features were given a geometry.
-            // this can occur if the file was read but no lat/long columns were found.
-            if (
-              data.features &&
-                data.features.length &&
-                !data.features.map(f => f.geometry).filter(Boolean).length) {
-              reject(new Error('could not find valid longitude and latitude headings in file.'))
-            }
-            resolve({ data, errors })
-          } else {
-            console.error(errors)
-
-            const numErrs = errors && errors.length
-            if (numErrs && numErrs > 0) {
-              reject(new Error(this.createMessageFromErrorArray(errors)))
-            }
-            reject(new Error('An error occured loading file'))
-          }
-        })
-      })
-    },
-    kmlToGeoJSON (xml) {
-      return kml(new DOMParser().parseFromString(xml, 'text/xml'))
-    },
     loadFiles (fileList) {
       this.fileList = fileList
       if (fileList.length > 0) {
@@ -342,11 +282,11 @@ export default {
         // message if there are any issues converting.
         if (fileType === 'csv') {
           try {
-            ({ data, errors } = await this.csvToGeoJSON(reader.result))
+            ({ data, errors } = await csvToGeoJSON(reader.result))
             console.log(data)
             fileInfo['data'] = data
             if (errors && errors.length) {
-              const warnMsg = this.createMessageFromErrorArray(errors)
+              const warnMsg = createMessageFromErrorArray(errors)
               this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
             }
           } catch (e) {
@@ -355,13 +295,13 @@ export default {
         } else if (fileType === 'xlsx') {
           try {
             const fileData = new Uint8Array(reader.result);
-            ({ data, errors } = await this.xlsxToGeoJSON(fileData))
+            ({ data, errors } = await xlsxToGeoJSON(fileData))
             console.log(data)
 
             fileInfo['data'] = data
 
             if (errors && errors.length) {
-              const warnMsg = this.createMessageFromErrorArray(errors)
+              const warnMsg = createMessageFromErrorArray(errors)
               this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
             }
           } catch (e) {
@@ -369,7 +309,7 @@ export default {
           }
         } else if (fileType === 'kml') {
           try {
-            fileInfo['data'] = this.kmlToGeoJSON(reader.result)
+            fileInfo['data'] = kmlToGeoJSON(reader.result)
           } catch (e) {
             return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
           }
