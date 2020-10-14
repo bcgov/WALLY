@@ -2,6 +2,20 @@ import csv2geojson from 'csv2geojson'
 import { kml } from '@tmcw/togeojson'
 import XLSX from 'xlsx'
 
+export function groupErrorsByRow (errors) {
+  // returns a new array containing a single object representing each row.
+  let rowMap = {}
+  let groupedErrors = []
+
+  errors.forEach(r => {
+    if (!rowMap[r.index]) {
+      groupedErrors.push(r)
+      rowMap[r.index] = true // mark row as seen
+    }
+  })
+  return groupedErrors
+}
+
 export function createMessageFromErrorArray (errors) {
   if (!errors || !errors.length) {
     return ''
@@ -30,7 +44,7 @@ export function xlsxToGeoJSON (file) {
   const workbook = XLSX.read(file, { type: 'array' })
   const firstSheet = workbook.Sheets[workbook.SheetNames[0]]
 
-  const csvData = XLSX.utils.sheet_to_csv(firstSheet)
+  const csvData = XLSX.utils.sheet_to_csv(firstSheet, { blankrows: false })
 
   // Converting from xlsx directly to geojson would be more efficient
   // but we can only handle csv-like spreadsheets right now, so

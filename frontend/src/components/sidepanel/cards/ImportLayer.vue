@@ -134,7 +134,8 @@ import {
   createMessageFromErrorArray,
   csvToGeoJSON,
   kmlToGeoJSON,
-  xlsxToGeoJSON
+  xlsxToGeoJSON,
+  groupErrorsByRow
 } from '../../../common/utils/customLayerUtils'
 
 export default {
@@ -286,6 +287,7 @@ export default {
             console.log(data)
             fileInfo['data'] = data
             if (errors && errors.length) {
+              errors = groupErrorsByRow(errors)
               const warnMsg = createMessageFromErrorArray(errors)
               this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
             }
@@ -301,6 +303,7 @@ export default {
             fileInfo['data'] = data
 
             if (errors && errors.length) {
+              errors = groupErrorsByRow(errors)
               const warnMsg = createMessageFromErrorArray(errors)
               this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
             }
