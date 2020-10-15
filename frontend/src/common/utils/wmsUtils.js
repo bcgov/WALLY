@@ -17,7 +17,8 @@ export function wmsParamString (payload) {
   return L.Util.getParamString(params)
 }
 
-export function setLayerSource (map, layerId, source, sourceLayer) {
+// TODO: More appropriate name for this is OverrideLayerSource
+export function replaceLayerSource (map, layerId, source, sourceLayer) {
   const oldLayers = map.getStyle().layers
   const layerIndex = oldLayers.findIndex(l => l.id === layerId)
   const layerDef = oldLayers[layerIndex]
