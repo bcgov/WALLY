@@ -588,7 +588,10 @@ export default {
           }
           const query = qs.stringify(wmsOpts)
           let url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
-
+          // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
+          if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
+            url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
+          }
           addMapboxVectorSource(state.map, layerID, url)
           addMapboxLayer(state.map, layerID, layer.wms_name)
         }
@@ -638,48 +641,6 @@ export default {
       //   }
       // })
       console.log('style is now', state.map.getStyle())
-    },
-    addWMSLayer (state, layer) {
-      // this mutation adds wms layers to the map
-      const layerID = layer.display_data_name
-      if (!layerID) {
-        return
-      }
-
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetMap',
-        format: 'image/png',
-        layers: 'pub:' + layer.wms_name,
-        styles: layer.wms_style,
-        transparent: true,
-        name: layer.name,
-        height: 256,
-        width: 256,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
-
-      state.map.addSource(`${layerID}-source`, {
-        'type': 'raster',
-        'tiles': [
-          url
-        ],
-        'tileSize': 256
-      })
-
-      state.map.addLayer({
-        'id': layerID,
-        'type': 'raster',
-        'source': `${layerID}-source`,
-        'layout': {
-          'visibility': 'none'
-        },
-        'paint': {}
-      })
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map
