@@ -78,6 +78,16 @@ describe('ImportLayer', () => {
       .toContain('file of type txt not supported')
   })
 
+  it('Displays an error message', async () => {
+    wrapper.vm.handleFileMessage({
+      message: 'test error message',
+      status: 'error'
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('#statusMessage0').text().toLowerCase())
+      .toContain('test error message')
+  })
+
   it('Can load multiple files', async () => {
     wrapper.vm.readFiles = jest.fn()
 
