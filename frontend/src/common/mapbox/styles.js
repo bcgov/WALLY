@@ -3,7 +3,7 @@ import layers from './layersDefault'
 
 let style = {
   'version': 8,
-  'name': 'Wally Production',
+  'name': 'Wally Mapbox Style',
   'metadata': {
     'mapbox:type': 'default',
     'mapbox:origin': 'outdoors-v11',
@@ -16,11 +16,6 @@ let style = {
         'name': 'Admin boundaries',
         'collapsed': true
       }
-    },
-    'mapbox:sdk-support': {
-      'js': '0.54.0',
-      'android': '7.4.0',
-      'ios': '4.11.0'
     },
     'mapbox:uiParadigm': 'layers'
   },
@@ -41,18 +36,12 @@ let style = {
 }
 
 export const getDefaultStyle = () => {
-  console.log('layers', layers)
-  console.log('config', global.config)
   if (global.config.isDevelopment) {
     style['sources'] = devSources
   }
-  if (global.config.isStaging) {
-    style['sources'] = prodSources
-  }
-  if (global.config.isProduction) {
+  if (global.config.isStaging || global.config.isProduction) {
     style['sources'] = prodSources
   }
   style['layers'] = layers
   return style
 }
-// }

@@ -764,17 +764,17 @@ export default {
         const lineConnects = pointInPolygon(coordinates[coordinates.length - 1], bounds)
 
         // metric calculations
-        var drawnMeasurements = {}
+        let drawnMeasurements = {}
 
         // calculate area and perimeter and highlight polygon shape
         if (coordinates.length > 3 && lineConnects) {
           // set last coordinate equal to the first
           // because the click point is within the minimum bounds
-          var lineFeature = feature
-          var ac = lineFeature.geometry.coordinates
+          let lineFeature = feature
+          let ac = lineFeature.geometry.coordinates
           ac[ac.length - 1] = ac[0]
           lineFeature.geometry.coordinates = ac
-          var perimeterMeasurement = (lineDistance(lineFeature) * 1000)
+          let perimeterMeasurement = (lineDistance(lineFeature) * 1000)
 
           // update draw feature collection with connected lines
           state.draw.set({
@@ -787,10 +787,10 @@ export default {
             }]
           })
 
-          var areaUnits = 'm²'
-          var perimeterUnits = 'm'
-          var polygonFeature = lineToPolygon(lineFeature)
-          var areaMeasurement = area(polygonFeature)
+          let areaUnits = 'm²'
+          let perimeterUnits = 'm'
+          let polygonFeature = lineToPolygon(lineFeature)
+          let areaMeasurement = area(polygonFeature)
 
           if (perimeterMeasurement >= 1000) { // if over 1000 meters, upgrade metric
             perimeterMeasurement = perimeterMeasurement / 1000
@@ -809,8 +809,8 @@ export default {
           }
         // calculate line distance and highlight line shape
         } else {
-          var distanceUnits = 'm'
-          var distance = drawnLength
+          let distanceUnits = 'm'
+          let distance = drawnLength
 
           if (distance >= 1000) { // if over 1000 meters, upgrade metric
             distance = distance / 1000
