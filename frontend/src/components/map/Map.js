@@ -57,7 +57,7 @@ export default {
       'getSelectedStreamData',
       'getUpstreamData',
       'getDownstreamData',
-      'getStreamSources',
+      // 'getStreamSources',
       // 'getStreamLayers',
       'getSelectedStreamBufferData',
       'getUpstreamBufferData',

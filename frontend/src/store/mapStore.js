@@ -20,6 +20,10 @@ import {
   pointFeature,
   polygonFeature
 } from '../common/mapbox/features'
+import {
+  highlightSources, SOURCE_CUSTOM_SHAPE_DATA,
+  streamHighlightSources
+} from '../common/mapbox/sourcesWally'
 
 const emptyPoint = pointFeature([])
 const emptyLine = lineStringFeature([])
@@ -384,7 +388,7 @@ export default {
       commit('resetStreamData', {}, { root: true })
     },
     clearStreamHighlights ({ rootGetters, state }) {
-      rootGetters.getStreamSources.forEach((source) => {
+      streamHighlightSources.forEach((source) => {
         state.map.getSource(source).setData(emptyFeatureCollection)
       })
     },
@@ -396,48 +400,57 @@ export default {
     },
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
-      rootGetters.getStreamSources.forEach((source) => {
+      streamHighlightSources.forEach((source) => {
         state.map.addSource(source, { type: 'geojson', data: emptyFeatureCollection })
         addMapboxLayer(state.map, source)
       })
     },
     async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {
-        // initialize highlight layer
-        state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'customShape',
-          'type': 'fill',
-          'source': 'customShapeData',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(26, 193, 244, 0.08)',
-            'fill-outline-color': 'rgb(8, 159, 205)'
-          }
-        })
-        state.map.addSource('highlightLayerData', {
-          type: 'geojson',
-          data: emptyPolygon
-        })
-        state.map.addLayer({
-          'id': 'highlightLayer',
-          'type': 'fill',
-          'source': 'highlightLayerData',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(154, 63, 202, 0.25)'
-          }
-        })
+        // initialize highlight layers
         state.map.addImage('highlight-point', HighlightPoint(state.map, 90), { pixelRatio: 2 })
-        state.map.addSource('highlightPointData', { type: 'geojson', data: emptyPoint })
-        state.map.addLayer({
-          'id': 'highlightPoint',
-          'type': 'symbol',
-          'source': 'highlightPointData',
-          'layout': {
-            'icon-image': 'highlight-point'
-          }
+        highlightSources.forEach((source) => {
+          console.log('hl layers', source, source.includes('Point'))
+          // if(source.includes(''))
+          const defaultData = source.includes('Point') ? emptyPoint : emptyPolygon
+          state.map.addSource(source, { type: 'geojson', data: defaultData })
+
+          addMapboxLayer(state.map, source)
         })
+        // state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
+        // state.map.addLayer({
+        //   'id': 'customShape',
+        //   'type': 'fill',
+        //   'source': 'customShapeData',
+        //   'layout': {},
+        //   'paint': {
+        //     'fill-color': 'rgba(26, 193, 244, 0.08)',
+        //     'fill-outline-color': 'rgb(8, 159, 205)'
+        //   }
+        // })
+        // state.map.addSource('highlightLayerData', {
+        //   type: 'geojson',
+        //   data: emptyPolygon
+        // })
+        // state.map.addLayer({
+        //   'id': 'highlightLayer',
+        //   'type': 'fill',
+        //   'source': 'highlightLayerData',
+        //   'layout': {},
+        //   'paint': {
+        //     'fill-color': 'rgba(154, 63, 202, 0.25)'
+        //   }
+        // })
+        // state.map.addImage('highlight-point', HighlightPoint(state.map, 90), { pixelRatio: 2 })
+        // state.map.addSource('highlightPointData', { type: 'geojson', data: emptyPoint })
+        // state.map.addLayer({
+        //   'id': 'highlightPoint',
+        //   'type': 'symbol',
+        //   'source': 'highlightPointData',
+        //   'layout': {
+        //     'icon-image': 'highlight-point'
+        //   }
+        // })
 
         global.config.debug && console.log('[wally] map is now ready')
         // End of cascade; map is now ready
@@ -584,10 +597,10 @@ export default {
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map
-      state.map.getSource('customShapeData').setData(shape)
+      state.map.getSource(SOURCE_CUSTOM_SHAPE_DATA).setData(shape)
     },
     removeShapes (state) {
-      state.map.getSource('customShapeData').setData(emptyPolygon)
+      state.map.getSource(SOURCE_CUSTOM_SHAPE_DATA).setData(emptyPolygon)
     },
     replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.

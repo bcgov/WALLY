@@ -3,6 +3,9 @@ This file contains layer styling information about Wally-injected layers.
 It is used as a reference lookup when adding a specific layer
  */
 import {
+  SOURCE_CUSTOM_SHAPE_DATA,
+  SOURCE_HIGHLIGHT_LAYER_DATA,
+  SOURCE_HIGHLIGHT_POINT_DATA,
   SOURCE_SELECTED_STREAM,
   SOURCE_STREAM_APPORTIONMENT
 } from './sourcesWally'
@@ -824,29 +827,29 @@ export default {
   /*
   Other layers not shown in layer list but used heavily within wally
    */
-  'customShape': {
+  [SOURCE_CUSTOM_SHAPE_DATA]: {
     'id': 'customShape',
     'type': 'fill',
-    'source': 'customShapeData',
+    'source': SOURCE_CUSTOM_SHAPE_DATA,
     'layout': {},
     'paint': {
       'fill-color': 'rgba(26, 193, 244, 0.08)',
       'fill-outline-color': 'rgb(8, 159, 205)'
     }
   },
-  'highlightLayer': {
+  [SOURCE_HIGHLIGHT_LAYER_DATA]: {
     'id': 'highlightLayer',
     'type': 'fill',
-    'source': 'highlightLayerData',
+    'source': SOURCE_HIGHLIGHT_LAYER_DATA,
     'layout': {},
     'paint': {
       'fill-color': 'rgba(154, 63, 202, 0.25)'
     }
   },
-  'highlightPoint': {
+  [SOURCE_HIGHLIGHT_POINT_DATA]: {
     'id': 'highlightPoint',
     'type': 'symbol',
-    'source': 'highlightPointData',
+    'source': SOURCE_HIGHLIGHT_POINT_DATA,
     'layout': {
       'icon-image': 'highlight-point'
     }
