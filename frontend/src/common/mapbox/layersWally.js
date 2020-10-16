@@ -11,7 +11,7 @@ import {
   SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
   SOURCE_STREAM_APPORTIONMENT,
-  SOURCE_WATER_LICENCES,
+  SOURCE_WATER_LICENCES, SOURCE_WATERSHEDS_AT_LOCATION,
   SOURCE_WELL_OFFSET_DISTANCE
 } from './sourcesWally'
 
@@ -958,19 +958,22 @@ export default {
       'circle-opacity': 0
     }
   },
-  'watershedsAtLocation': {
-    id: 'watershedsAtLocation',
+  [SOURCE_WATERSHEDS_AT_LOCATION]: (watershedID, data) => ({
+    id: watershedID,
     type: 'fill',
-    source: 'watershedsAtLocation',
+    source: {
+      type: 'geojson',
+      data: data
+    },
     layout: {
       visibility: 'none'
     },
     paint: {
       'fill-color': '#039be5',
       'fill-outline-color': '#003366',
-      'fill-opacity': 0
+      'fill-opacity': 0.3
     }
-  },
+  }),
   'upstreamNetwork': {
     id: 'upstreamNetwork',
     type: 'fill',
