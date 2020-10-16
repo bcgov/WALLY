@@ -13,24 +13,6 @@ export function getMapLayerItemValue (property) {
   return metadata.LAYER_PROPERTY_MAPPINGS[property]
 }
 
-// export function getMapLayerName (layerId) {
-//   console.log(layerId)
-//   let layer = metadata.DATA_MARTS.find(e => e.wmsLayer === layerId)
-//   if (layer) { return layer.name }
-// }
-
-// export function getMapSubheading (id) {
-//   let name = getMapLayerName(trimId(id))
-//   if (name) {
-//     name = name.slice(0, -1)
-//     return name
-//   }
-// }
-
-// export function trimId (id) {
-//   return typeof (id) === 'string' ? id.substr(0, id.lastIndexOf('.')) : ''
-// }
-
 // Returns an array of wally layers
 export const findWallyLayers = (id) => {
   // console.log('finding layer', id)
@@ -44,8 +26,6 @@ export const findWallyLayers = (id) => {
 
 // Helper function to set a layer style for a source
 export const addMapboxLayer = (map, id, sourceLayer, before) => {
-  // let layerStyles = layersWally[id]
-  // let layerToAdd = {}
 
   let layers = findWallyLayers(id)
 
@@ -60,27 +40,6 @@ export const addMapboxLayer = (map, id, sourceLayer, before) => {
       map.addLayer(layer, before)
     }
   })
-  //
-  // // Check if there are multiple layers for this source
-  // if (Array.isArray(layerStyles)) {
-  //   layerStyles.forEach((layer) => {
-  //     layer['source-layer'] = sourceLayer
-  //     global.config.debug && console.log('[wally] adding wally layer for', id, layer, sourceLayer)
-  //     layerToAdd = layer
-  //     // map.addLayer(layer)
-  //   })
-  // } else {
-  //   layerStyles['source-layer'] = sourceLayer
-  //   layerToAdd = layerStyles
-  //   global.config.debug && console.log('[wally] adding wally layer for', id, layerStyles, sourceLayer)
-  //   // map.addLayer(layerStyles)
-  // }
-  //
-  // if (before === undefined) {
-  //   map.addLayer(layerToAdd)
-  // } else {
-  //   map.addLayer(layerToAdd, before)
-  // }
 }
 
 // Helper function to create a vector source

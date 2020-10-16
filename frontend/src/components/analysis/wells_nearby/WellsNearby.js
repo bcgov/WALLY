@@ -224,20 +224,6 @@ export default {
     },
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
-      // hovered list item in the nearby wells table
-      // let feature = {
-      //   'id': well.well_tag_number,
-      //   'type': 'Feature',
-      //   'geometry': {
-      //     'type': 'Point',
-      //     'coordinates': [
-      //       well.longitude,
-      //       well.latitude
-      //     ]
-      //   },
-      //   'properties': {}
-      // }
-
       let feature = pointFeature([
         well.longitude,
         well.latitude
