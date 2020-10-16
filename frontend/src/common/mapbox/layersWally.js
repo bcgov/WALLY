@@ -2,6 +2,11 @@
 This file contains layer styling information about Wally-injected layers.
 It is used as a reference lookup when adding a specific layer
  */
+import {
+  SOURCE_SELECTED_STREAM,
+  SOURCE_STREAM_APPORTIONMENT
+} from './sourcesWally'
+
 export default {
   'aquifers': {
     'id': 'aquifers',
@@ -815,5 +820,279 @@ export default {
       'visibility': 'none'
     },
     'paint': { 'icon-opacity': 0.8 }
-  }
+  },
+  /*
+  Other layers not shown in layer list but used heavily within wally
+   */
+  'customShape': {
+    'id': 'customShape',
+    'type': 'fill',
+    'source': 'customShapeData',
+    'layout': {},
+    'paint': {
+      'fill-color': 'rgba(26, 193, 244, 0.08)',
+      'fill-outline-color': 'rgb(8, 159, 205)'
+    }
+  },
+  'highlightLayer': {
+    'id': 'highlightLayer',
+    'type': 'fill',
+    'source': 'highlightLayerData',
+    'layout': {},
+    'paint': {
+      'fill-color': 'rgba(154, 63, 202, 0.25)'
+    }
+  },
+  'highlightPoint': {
+    'id': 'highlightPoint',
+    'type': 'symbol',
+    'source': 'highlightPointData',
+    'layout': {
+      'icon-image': 'highlight-point'
+    }
+  },
+  'measurementPolygonHighlight': {
+    'id': 'measurementPolygonHighlight',
+    'type': 'fill',
+    'source': 'measurementPolygonHighlight',
+    'layout': {},
+    'paint': {
+      'fill-color': 'rgba(26, 193, 244, 0.1)',
+      'fill-outline-color': 'rgb(8, 159, 205)'
+    }
+  },
+  'measurementSnapCircle': {
+    'id': 'measurementSnapCircle',
+    'type': 'fill',
+    'source': 'measurementSnapCircle',
+    'layout': {},
+    'paint': {
+      'fill-color': 'rgba(255, 255, 255, 0.65)',
+      'fill-outline-color': 'rgb(155, 155, 155)'
+    }
+  },
+  'measurementLineHighlight': {
+    'id': 'measurementLineHighlight',
+    'type': 'line',
+    'source': 'measurementLineHighlight',
+    'layout': {
+      'line-join': 'round',
+      'line-cap': 'round'
+    },
+    'paint': {
+      'line-color': 'rgba(26, 193, 244, 0.7)',
+      'line-width': 2
+    }
+  },
+  'waterApprovals': [
+    {
+      id: 'waterApprovalsCoverPoints',
+      type: 'circle',
+      source: 'waterApprovals',
+      paint: {
+        'circle-color': '#FFE41A',
+        'circle-radius': 5,
+        'circle-opacity': 1,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#ffffff'
+      }
+    },
+    {
+      id: 'waterApprovals',
+      type: 'circle',
+      source: 'waterApprovals',
+      paint: {
+        'circle-color': '#FFE41A',
+        'circle-opacity': 0.5
+      }
+    }
+  ],
+  'wellOffsetDistance': {
+    id: 'wellOffsetDistance',
+    type: 'circle',
+    source: 'wellOffsetDistance',
+    paint: {
+      'circle-color': '#FFE41A',
+      'circle-radius': 5,
+      'circle-opacity': 0.5,
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#ffffff'
+    }
+  },
+  'fishObservations': {
+    id: 'fishObservations',
+    type: 'circle',
+    source: 'fishObservations',
+    paint: {
+      'circle-color': '#B22222',
+      'circle-radius': 5,
+      'circle-opacity': 0
+    }
+  },
+  'watershedsAtLocation': {
+    id: 'watershedsAtLocation',
+    type: 'fill',
+    source: 'watershedsAtLocation',
+    layout: {
+      visibility: 'none'
+    },
+    paint: {
+      'fill-color': '#039be5',
+      'fill-outline-color': '#003366',
+      'fill-opacity': 0
+    }
+  },
+  'waterLicences': {
+    id: 'waterLicences',
+    type: 'circle',
+    source: 'waterLicences',
+    paint: {
+      'circle-color': '#00796b',
+      'circle-opacity': 0.5
+    }
+  },
+  'upstreamNetwork': {
+    id: 'upstreamNetwork',
+    type: 'fill',
+    source: 'upstreamNetwork',
+    layout: {
+      visibility: 'visible'
+    },
+    paint: {
+      'fill-color': '#99CC99',
+      'fill-outline-color': '#002171',
+      'fill-opacity': 0.65
+    }
+  },
+  'downstreamNetwork': {
+    id: 'downstreamNetwork',
+    type: 'fill',
+    source: 'downstreamNetwork',
+    layout: {
+      visibility: 'visible'
+    },
+    paint: {
+      'fill-color': '#0d47a1',
+      'fill-outline-color': '#002171',
+      'fill-opacity': 0.5
+    }
+  },
+  // Stream sources
+  // 'selectedStream': {
+  //   'id': 'selectedStream',
+  //   'type': 'line',
+  //   'source': 'selectedStreamSource',
+  //   'layout': {
+  //     'line-join': 'round',
+  //     'line-cap': 'round'
+  //   },
+  //   'paint': {
+  //     'line-color': '#1500ff',
+  //     'line-width': 3
+  //   }
+  // },
+  'upstreamSource': {
+    'id': 'upstream',
+    'type': 'line',
+    'source': 'upstreamSource',
+    'layout': {
+      'line-join': 'round',
+      'line-cap': 'round'
+    },
+    'paint': {
+      'line-color': '#00ff26',
+      'line-width': 3
+    }
+  },
+  'downstreamSource': {
+    'id': 'downstream',
+    'type': 'line',
+    'source': 'downstreamSource',
+    'layout': {
+      'line-join': 'round',
+      'line-cap': 'round'
+    },
+    'paint': {
+      'line-color': '#ff4800',
+      'line-width': 3
+    }
+  },
+  'selectedStreamBufferSource': {
+    'id': 'selectedStreamBuffer',
+    'type': 'fill',
+    'source': 'selectedStreamBufferSource',
+    'layout': {
+    },
+    'paint': {
+      'fill-color': 'rgba(21, 0, 255, 0.25)'
+    }
+  },
+  'upstreamBufferSource': {
+    'id': 'upstreamBuffer',
+    'type': 'fill',
+    'source': 'upstreamBufferSource',
+    'layout': {
+    },
+    'paint': {
+      'fill-color': 'rgba(0, 255, 38, 0.25)'
+    }
+  },
+  'downstreamBufferSource': {
+    'id': 'downstreamBuffer',
+    'type': 'fill',
+    'source': 'downstreamBufferSource',
+    'layout': {
+    },
+    'paint': {
+      'fill-color': 'rgba(255, 72, 0, 0.25)'
+    }
+  },
+  [SOURCE_SELECTED_STREAM]: {
+    'id': 'selectedStream',
+    'type': 'line',
+    'source': SOURCE_SELECTED_STREAM,
+    'layout': {
+      'line-join': 'round',
+      'line-cap': 'round'
+    },
+    'paint': {
+      'line-color': '#1500ff',
+      'line-width': 3
+    }
+  },
+  [SOURCE_STREAM_APPORTIONMENT]: [
+    {
+      'id': 'closestPointsOnStream',
+      'type': 'circle',
+      'source': SOURCE_STREAM_APPORTIONMENT,
+      'layout': {},
+      'paint': {
+        'circle-color': 'rgb(255,83,212)',
+        'circle-radius': 2,
+        'circle-stroke-width': 1
+      }
+    },
+    {
+      'id': 'distanceLinesFromStream',
+      'type': 'line',
+      'source': SOURCE_STREAM_APPORTIONMENT,
+      'layout': {},
+      'paint': {
+        'line-color': 'rgb(55,184,228)',
+        'line-width': 3
+      }
+    },
+    {
+      'id': 'distanceLinesTextFromStream',
+      'type': 'symbol',
+      'source': SOURCE_STREAM_APPORTIONMENT,
+      'layout': {
+        'symbol-placement': 'line',
+        'text-font': ['Open Sans Regular'],
+        'text-field': '{title}',
+        'text-size': 12
+      }
+    }
+  ]
+
 }

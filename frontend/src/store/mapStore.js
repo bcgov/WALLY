@@ -15,28 +15,15 @@ import { wmsBaseURL } from '../common/utils/wmsUtils'
 import MapScale from '../components/map/MapScale'
 import { getDefaultStyle } from '../common/mapbox/styles'
 import { addMapboxLayer, addMapboxVectorSource } from '../common/utils/mapUtils'
+import {
+  lineStringFeature,
+  pointFeature,
+  polygonFeature
+} from '../common/mapbox/features'
 
-const emptyPoint = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'Point',
-    'coordinates': [[]]
-  }
-}
-const emptyLine = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'LineString',
-    'coordinates': [[]]
-  }
-}
-const emptyPolygon = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'Polygon',
-    'coordinates': [[]]
-  }
-}
+const emptyPoint = pointFeature([])
+const emptyLine = lineStringFeature([])
+const emptyPolygon = polygonFeature([[]])
 
 const emptyFeatureCollection = {
   type: 'FeatureCollection',
@@ -397,8 +384,8 @@ export default {
       commit('resetStreamData', {}, { root: true })
     },
     clearStreamHighlights ({ rootGetters, state }) {
-      rootGetters.getStreamSources.forEach((s) => {
-        state.map.getSource(s.name).setData(emptyFeatureCollection)
+      rootGetters.getStreamSources.forEach((source) => {
+        state.map.getSource(source).setData(emptyFeatureCollection)
       })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
@@ -409,12 +396,15 @@ export default {
     },
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
-      rootGetters.getStreamSources.forEach((s) => {
-        state.map.addSource(s.name, { type: 'geojson', data: s.options })
+      console.log('init stream highlights', rootGetters.getStreamSources)
+      rootGetters.getStreamSources.forEach((source) => {
+        console.log('adding source', source)
+        state.map.addSource(source, { type: 'geojson', data: emptyFeatureCollection })
+        addMapboxLayer(state.map, source)
       })
-      rootGetters.getStreamLayers.forEach((l) => {
-        state.map.addLayer(l)
-      })
+      // rootGetters.getStreamLayers.forEach((l) => {
+      //   state.map.addLayer(l)
+      // })
     },
     async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {
