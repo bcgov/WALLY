@@ -9,7 +9,7 @@ import {
   SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
   SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
-  SOURCE_STREAM_APPORTIONMENT
+  SOURCE_STREAM_APPORTIONMENT, SOURCE_WELL_OFFSET_DISTANCE
 } from './sourcesWally'
 
 export default {
@@ -912,10 +912,10 @@ export default {
       }
     }
   ],
-  'wellOffsetDistance': {
+  [SOURCE_WELL_OFFSET_DISTANCE]: {
     id: 'wellOffsetDistance',
     type: 'circle',
-    source: 'wellOffsetDistance',
+    source: SOURCE_WELL_OFFSET_DISTANCE,
     paint: {
       'circle-color': '#FFE41A',
       'circle-radius': 5,

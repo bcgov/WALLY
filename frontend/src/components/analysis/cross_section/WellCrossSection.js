@@ -9,6 +9,9 @@ import PlotlyJS from 'plotly.js'
 
 import CrossSectionInstructions from './CrossSectionInstructions'
 import { downloadXlsx } from '../../../common/utils/exportUtils'
+import { SOURCE_WELL_OFFSET_DISTANCE } from '../../../common/mapbox/sourcesWally'
+import { addMapboxLayer } from '../../../common/utils/mapUtils'
+import { featureCollection } from '../../../common/mapbox/features'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
@@ -558,11 +561,9 @@ export default {
           this.showBuffer(r.data.search_area)
           let wellIds = this.wells.map(w => w.well_tag_number).join()
           this.fetchWellsLithology(wellIds)
-          this.addWellOffsetDistanceLayer('wellOffsetDistance', {
-            type: 'FeatureCollection',
-            features: r.data.wells.map(x => x.feature)
-          },
-          '#FFE41A', 0.5)
+          this.addWellOffsetDistanceLayer(
+            featureCollection(r.data.wells.map(x => x.feature))
+          )
         })
         .catch(e => {
           console.error(e)
@@ -816,34 +817,18 @@ export default {
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
       // hovered list item in the cross section table
-      var feature = well.feature
+      const feature = well.feature
       feature['display_data_name'] = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
     },
-    addWellOffsetDistanceLayer (id = 'wellOffsetDistance', data, color = '#FFE41A', opacity = 0.5) {
-      if (this.map.getLayer('wellOffsetDistance')) {
+    addWellOffsetDistanceLayer (data) {
+      if (this.map.getLayer(SOURCE_WELL_OFFSET_DISTANCE)) {
         return
       }
+      this.map.addSource(SOURCE_WELL_OFFSET_DISTANCE, { 'type': 'geojson', data })
+      addMapboxLayer(this.map, SOURCE_WELL_OFFSET_DISTANCE)
 
-      this.map.addSource('wellOffsetDistance', {
-        'type': 'geojson',
-        'data': data
-      })
-
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: 'wellOffsetDistance',
-        paint: {
-          'circle-color': color,
-          'circle-radius': 5,
-          'circle-opacity': opacity,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
-      })
-
-      this.map.on('mouseenter', id, (e) => {
+      this.map.on('mouseenter', SOURCE_WELL_OFFSET_DISTANCE, (e) => {
       // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
@@ -870,7 +855,7 @@ export default {
           .addTo(this.map)
       })
 
-      this.map.on('mouseleave', id, () => {
+      this.map.on('mouseleave', SOURCE_WELL_OFFSET_DISTANCE, () => {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
