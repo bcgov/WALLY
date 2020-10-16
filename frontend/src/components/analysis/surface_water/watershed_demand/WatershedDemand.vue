@@ -121,6 +121,8 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
 import WatershedIndividualLicences from './WatershedIndividualLicences.vue'
+import { findWallyLayerArray } from '../../../../common/utils/mapUtils'
+import { SOURCE_WATER_LICENCES } from '../../../../common/mapbox/sourcesWally'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -177,37 +179,19 @@ export default {
     ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setLicencePlotData']),
     ...mapMutations('map', ['updateHighlightFeatureData']),
-    addLicencesLayer (id = 'waterLicences', data, color = '#00796b', opacity = 0.5, max = 100000000) {
+    addLicencesLayer (data, max = 100000000) {
       global.config.debug && console.log('licence data')
       global.config.debug && console.log(data)
 
-      if (this.map.getLayer('waterLicences')) {
+      if (this.map.getLayer(SOURCE_WATER_LICENCES)) {
         return
       }
 
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
-        paint: {
-          'circle-color': color,
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['number', ['get', 'qty_m3_yr'], 0],
-            0,
-            10,
-            max,
-            max > 1000000 ? 50 : 25
-          ],
-          'circle-opacity': opacity
-        }
-      }, 'water_rights_licences')
+      let waterLicencesLayer = findWallyLayerArray(SOURCE_WATER_LICENCES)(data, max)
+      console.log('licence layer', waterLicencesLayer)
+      this.map.addLayer(waterLicencesLayer, 'water_rights_licences')
 
-      this.map.on('mouseenter', id, (e) => {
+      this.map.on('mouseenter', SOURCE_WATER_LICENCES, (e) => {
       // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
@@ -243,7 +227,7 @@ export default {
           .addTo(this.map)
       })
 
-      this.map.on('mouseleave', id, () => {
+      this.map.on('mouseleave', SOURCE_WATER_LICENCES, () => {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
@@ -266,7 +250,7 @@ export default {
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))
           // adding null feature array breaks interpolation in layer setup
           if (r.data && r.data.licences) {
-            this.addLicencesLayer('waterLicences', r.data.licences, '#00796b', 0.5, max)
+            this.addLicencesLayer(r.data.licences, max)
           }
           // resets purposeTypes array and re-populates if any entries in list
           this.setPurposeTypes()
@@ -307,17 +291,17 @@ export default {
     },
     toggleLayerVisibility () {
       this.isLicencesLayerVisible = !this.isLicencesLayerVisible
-      this.map.setLayoutProperty('waterLicences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
+      this.map.setLayoutProperty(SOURCE_WATER_LICENCES, 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
       this.map.setLayoutProperty('water_rights_licences', 'visibility', this.isLicencesLayerVisible ? 'visible' : 'none')
     },
     getDemandData () {
       this.licenceData = null
       this.setLicencePlotData(null)
-      if (this.map.getLayer('waterLicences')) {
-        this.map.removeLayer('waterLicences')
+      if (this.map.getLayer(SOURCE_WATER_LICENCES)) {
+        this.map.removeLayer(SOURCE_WATER_LICENCES)
       }
-      if (this.map.getSource('waterLicences')) {
-        this.map.removeSource('waterLicences')
+      if (this.map.getSource(SOURCE_WATER_LICENCES)) {
+        this.map.removeSource(SOURCE_WATER_LICENCES)
       }
       this.fetchDemandData()
     },
@@ -338,9 +322,9 @@ export default {
     }
   },
   beforeDestroy () {
-    if (this.map.getLayer('waterLicences')) {
-      this.map.removeLayer('waterLicences')
-      this.map.removeSource('waterLicences')
+    if (this.map.getLayer(SOURCE_WATER_LICENCES)) {
+      this.map.removeLayer(SOURCE_WATER_LICENCES)
+      this.map.removeSource(SOURCE_WATER_LICENCES)
     }
     this.updateHighlightFeatureData({})
   }

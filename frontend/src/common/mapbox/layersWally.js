@@ -5,11 +5,14 @@ It is used as a reference lookup when adding a specific layer
 import {
   SOURCE_CUSTOM_SHAPE_DATA,
   SOURCE_HIGHLIGHT_LAYER_DATA,
-  SOURCE_HIGHLIGHT_POINT_DATA, SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
+  SOURCE_HIGHLIGHT_POINT_DATA,
+  SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
   SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
   SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
-  SOURCE_STREAM_APPORTIONMENT, SOURCE_WELL_OFFSET_DISTANCE
+  SOURCE_STREAM_APPORTIONMENT,
+  SOURCE_WATER_LICENCES,
+  SOURCE_WELL_OFFSET_DISTANCE
 } from './sourcesWally'
 
 export default {
@@ -829,6 +832,27 @@ export default {
   /*
   Other layers not shown in layer list but used heavily within wally
    */
+  [SOURCE_WATER_LICENCES]: (data, max) => ({
+    id: 'waterLicences',
+    type: 'circle',
+    source: {
+      type: 'geojson',
+      data: data
+    },
+    paint: {
+      'circle-color': '#00796b',
+      'circle-radius': [
+        'interpolate',
+        ['linear'],
+        ['number', ['get', 'qty_m3_yr'], 0],
+        0,
+        10,
+        max,
+        max > 1000000 ? 50 : 25
+      ],
+      'circle-opacity': 0.5
+    }
+  }),
   [SOURCE_CUSTOM_SHAPE_DATA]: {
     'id': 'customShape',
     'type': 'fill',
@@ -945,15 +969,6 @@ export default {
       'fill-color': '#039be5',
       'fill-outline-color': '#003366',
       'fill-opacity': 0
-    }
-  },
-  'waterLicences': {
-    id: 'waterLicences',
-    type: 'circle',
-    source: 'waterLicences',
-    paint: {
-      'circle-color': '#00796b',
-      'circle-opacity': 0.5
     }
   },
   'upstreamNetwork': {
@@ -1099,5 +1114,4 @@ export default {
       }
     }
   ]
-
 }

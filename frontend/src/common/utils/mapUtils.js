@@ -13,8 +13,16 @@ export function getMapLayerItemValue (property) {
   return metadata.LAYER_PROPERTY_MAPPINGS[property]
 }
 
+export const findWallyLayer = (id) => {
+  const layer = layersWally[id]
+  if (Array.isArray(layer)) {
+    console.error(`[wally] Cannot find a single layer ${id}`)
+  }
+  return layer
+}
+
 // Returns an array of wally layers
-export const findWallyLayers = (id) => {
+export const findWallyLayerArray = (id) => {
   // console.log('finding layer', id)
   // console.log(layersWally)
   const layers = layersWally[id]
@@ -26,8 +34,7 @@ export const findWallyLayers = (id) => {
 
 // Helper function to set a layer style for a source
 export const addMapboxLayer = (map, id, sourceLayer, before) => {
-
-  let layers = findWallyLayers(id)
+  let layers = findWallyLayerArray(id)
 
   layers.forEach((layer) => {
     // global.config.debug && console.log('[wally] padding wally layer for', id, layer, sourceLayer)
