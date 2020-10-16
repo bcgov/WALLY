@@ -5,7 +5,9 @@ It is used as a reference lookup when adding a specific layer
 import {
   SOURCE_CUSTOM_SHAPE_DATA,
   SOURCE_HIGHLIGHT_LAYER_DATA,
-  SOURCE_HIGHLIGHT_POINT_DATA,
+  SOURCE_HIGHLIGHT_POINT_DATA, SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
+  SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
+  SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
   SOURCE_STREAM_APPORTIONMENT
 } from './sourcesWally'
@@ -854,30 +856,30 @@ export default {
       'icon-image': 'highlight-point'
     }
   },
-  'measurementPolygonHighlight': {
+  [SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT]: {
     'id': 'measurementPolygonHighlight',
     'type': 'fill',
-    'source': 'measurementPolygonHighlight',
+    'source': SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
     'layout': {},
     'paint': {
       'fill-color': 'rgba(26, 193, 244, 0.1)',
       'fill-outline-color': 'rgb(8, 159, 205)'
     }
   },
-  'measurementSnapCircle': {
+  [SOURCE_MEASUREMENT_SNAP_CIRCLE]: {
     'id': 'measurementSnapCircle',
     'type': 'fill',
-    'source': 'measurementSnapCircle',
+    'source': SOURCE_MEASUREMENT_SNAP_CIRCLE,
     'layout': {},
     'paint': {
       'fill-color': 'rgba(255, 255, 255, 0.65)',
       'fill-outline-color': 'rgb(155, 155, 155)'
     }
   },
-  'measurementLineHighlight': {
+  [SOURCE_MEASUREMENT_LINE_HIGHLIGHT]: {
     'id': 'measurementLineHighlight',
     'type': 'line',
-    'source': 'measurementLineHighlight',
+    'source': SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
     'layout': {
       'line-join': 'round',
       'line-cap': 'round'

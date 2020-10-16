@@ -21,7 +21,7 @@ import {
   polygonFeature
 } from '../common/mapbox/features'
 import {
-  highlightSources, SOURCE_CUSTOM_SHAPE_DATA,
+  highlightSources, measurementSources, SOURCE_CUSTOM_SHAPE_DATA,
   streamHighlightSources
 } from '../common/mapbox/sourcesWally'
 
@@ -491,41 +491,9 @@ export default {
     async initMeasurementHighlight ({ state }, payload) {
       await state.map.on('load', () => {
         // initialize measurement highlight layer
-        state.map.addSource('measurementPolygonHighlight', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'measurementPolygonHighlight',
-          'type': 'fill',
-          'source': 'measurementPolygonHighlight',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(26, 193, 244, 0.1)',
-            'fill-outline-color': 'rgb(8, 159, 205)'
-          }
-        })
-        state.map.addSource('measurementSnapCircle', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'measurementSnapCircle',
-          'type': 'fill',
-          'source': 'measurementSnapCircle',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(255, 255, 255, 0.65)',
-            'fill-outline-color': 'rgb(155, 155, 155)'
-          }
-        })
-        state.map.addSource('measurementLineHighlight', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'measurementLineHighlight',
-          'type': 'line',
-          'source': 'measurementLineHighlight',
-          'layout': {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          'paint': {
-            'line-color': 'rgba(26, 193, 244, 0.7)',
-            'line-width': 2
-          }
+        measurementSources.forEach((source) => {
+          state.map.addSource(source, { type: 'geojson', data: emptyPolygon })
+          addMapboxLayer(state.map, source)
         })
       })
     },
