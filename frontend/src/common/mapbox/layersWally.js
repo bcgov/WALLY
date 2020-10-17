@@ -10,7 +10,7 @@ import {
   SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
   SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
-  SOURCE_STREAM_APPORTIONMENT,
+  SOURCE_STREAM_APPORTIONMENT, SOURCE_WATER_APPROVALS,
   SOURCE_WATER_LICENCES, SOURCE_WATERSHEDS_AT_LOCATION,
   SOURCE_WELL_OFFSET_DISTANCE
 } from './sourcesWally'
@@ -913,11 +913,29 @@ export default {
       'line-width': 2
     }
   },
-  'waterApprovals': [
+  [SOURCE_WATER_APPROVALS]: (max = 100000000) => ([
+    {
+      id: 'waterApprovals',
+      type: 'circle',
+      source: SOURCE_WATER_APPROVALS,
+      paint: {
+        'circle-color': '#FFE41A',
+        'circle-radius': [
+          'interpolate',
+          ['linear'],
+          ['number', ['get', 'qty_m³_yr'], 0],
+          0,
+          10,
+          max,
+          max > 1000000 ? 50 : 25
+        ],
+        'circle-opacity': 0.5
+      }
+    },
     {
       id: 'waterApprovalsCoverPoints',
       type: 'circle',
-      source: 'waterApprovals',
+      source: SOURCE_WATER_APPROVALS,
       paint: {
         'circle-color': '#FFE41A',
         'circle-radius': 5,
@@ -925,17 +943,8 @@ export default {
         'circle-stroke-width': 2,
         'circle-stroke-color': '#ffffff'
       }
-    },
-    {
-      id: 'waterApprovals',
-      type: 'circle',
-      source: 'waterApprovals',
-      paint: {
-        'circle-color': '#FFE41A',
-        'circle-opacity': 0.5
-      }
     }
-  ],
+  ]),
   [SOURCE_WELL_OFFSET_DISTANCE]: {
     id: 'wellOffsetDistance',
     type: 'circle',

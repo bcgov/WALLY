@@ -81,6 +81,8 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import ShortTermMonthlyAllocationTable from './ShortTermMonthlyAllocationTable.vue'
+import { SOURCE_WATER_APPROVALS } from '../../../../common/mapbox/sourcesWally'
+import { findWallyLayer } from '../../../../common/utils/mapUtils'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -129,49 +131,22 @@ export default {
     ...mapActions('surfaceWater', ['initShortTermAllocationItemIfNotExists']),
     ...mapGetters('map', ['isMapReady']),
     ...mapMutations('surfaceWater', ['setShortTermLicencePlotData']),
-    addApprovalsLayer (id = 'waterApprovals', data, color = '#FFE41A', opacity = 0.5, max = 100000000) {
-      if (this.map.getLayer('waterApprovals')) {
+    addApprovalsLayer (data, max = 100000000) {
+      if (this.map.getLayer(SOURCE_WATER_APPROVALS)) {
         return
       }
 
-      this.map.addSource('waterApprovals', {
+      this.map.addSource(SOURCE_WATER_APPROVALS, {
         'type': 'geojson',
         'data': data
       })
 
-      this.map.addLayer({
-        id: 'waterApprovalsCoverPoints',
-        type: 'circle',
-        source: 'waterApprovals',
-        paint: {
-          'circle-color': color,
-          'circle-radius': 5,
-          'circle-opacity': 1,
-          'circle-stroke-width': 2,
-          'circle-stroke-color': '#ffffff'
-        }
+      const waterApprovalsLayers = findWallyLayer(SOURCE_WATER_APPROVALS)(max)
+      waterApprovalsLayers.forEach(layer => {
+        this.map.addLayer(layer)
       })
 
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: 'waterApprovals',
-        paint: {
-          'circle-color': color,
-          'circle-radius': [
-            'interpolate',
-            ['linear'],
-            ['number', ['get', 'qty_m³_yr'], 0],
-            0,
-            10,
-            max,
-            max > 1000000 ? 50 : 25
-          ],
-          'circle-opacity': opacity
-        }
-      }, 'waterApprovalsCoverPoints')
-
-      this.map.on('mouseenter', id, (e) => {
+      this.map.on('mouseenter', SOURCE_WATER_APPROVALS, (e) => {
         // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
@@ -208,7 +183,7 @@ export default {
           .addTo(this.map)
       })
 
-      this.map.on('mouseleave', id, () => {
+      this.map.on('mouseleave', SOURCE_WATER_APPROVALS, () => {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
@@ -228,7 +203,7 @@ export default {
           const max = Math.max(...r.data.approvals.features.map(x => Number(x.properties.qty_m3_yr)))
           // An empty feature array can't be interpolated by mapbox-gl
           if (r.data && r.data.approvals && r.data.approvals.features.length > 0) {
-            this.addApprovalsLayer('waterApprovals', r.data.approvals, '#FFE41A', 0.5, max)
+            this.addApprovalsLayer(r.data.approvals, max)
           }
           this.approvalsLoading = false
           this.updateShortTermData()
@@ -290,16 +265,21 @@ export default {
     getWaterApprovals () {
       this.shortTermLicenceData = null
       this.setShortTermLicencePlotData(null)
-      if (this.map.getLayer('waterApprovals')) {
-        this.map.removeLayer('waterApprovals')
-      }
-      if (this.map.getLayer('waterApprovalsCoverPoints')) {
-        this.map.removeLayer('waterApprovalsCoverPoints')
-      }
-      if (this.map.getSource('waterApprovals')) {
-        this.map.removeSource('waterApprovals')
-      }
+
+      this.clearLayersAndSource()
       this.fetchShortTermLicenceData()
+    },
+    clearLayersAndSource () {
+      const waterApprovalsLayers = findWallyLayer(SOURCE_WATER_APPROVALS)()
+
+      waterApprovalsLayers.forEach(layer => {
+        if (this.map.getLayer(layer.id)) {
+          this.map.removeLayer(layer.id)
+        }
+      })
+      if (this.map.getSource(SOURCE_WATER_APPROVALS)) {
+        this.map.removeSource(SOURCE_WATER_APPROVALS)
+      }
     }
   },
   watch: {
@@ -315,15 +295,7 @@ export default {
     }
   },
   beforeDestroy () {
-    if (this.map.getLayer('waterApprovals')) {
-      this.map.removeLayer('waterApprovals')
-    }
-    if (this.map.getLayer('waterApprovalsCoverPoints')) {
-      this.map.removeLayer('waterApprovalsCoverPoints')
-    }
-    if (this.map.getSource('waterApprovals')) {
-      this.map.removeSource('waterApprovals')
-    }
+    this.clearLayersAndSource()
   }
 }
 </script>
