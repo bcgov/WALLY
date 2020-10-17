@@ -31,8 +31,8 @@ export default {
   props: ['map'],
   methods: {
     getLegendItem (layer) {
-      var type = this.map.getLayer(layer.display_data_name).type
-      var paint = this.mapLayerPaint(type, layer.display_data_name)
+      const type = this.map.getLayer(layer.display_data_name).type
+      const paint = this.mapLayerPaint(type, layer.display_data_name)
       return {
         text: layer.name,
         type: type,

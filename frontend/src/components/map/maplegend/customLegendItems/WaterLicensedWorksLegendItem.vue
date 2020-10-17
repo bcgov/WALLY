@@ -17,16 +17,16 @@ export default {
       // the line type and images
       // the type is set to line, but if an image exists
       // then that will be rendered by the LegendItem component
-      var childItems = []
-      console.log(this.item)
+      const childItems = []
+      global.config.debug && console.log(['wally'], this.item)
       for (let i = 2; i < this.item.color.length - 1; i += 2) {
         global.config.debug && console.log('[wally]', this.item.color[i].constructor)
         if (this.item.color[i].constructor === Array) {
-          var text = this.labelLookup(this.item.color[i].join(', '))
-          var image = this.lineImage(text)
-          console.log(text)
-          console.log(image)
-          var color = this.item.color[i + 1]
+          const text = this.labelLookup(this.item.color[i].join(', '))
+          const image = this.lineImage(text)
+          global.config.debug && console.log(['wally'], text)
+          global.config.debug && console.log(['wally'], image)
+          const color = this.item.color[i + 1]
           childItems.push({
             text,
             type: 'line',
