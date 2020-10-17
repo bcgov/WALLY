@@ -213,13 +213,18 @@ const router = new Router({
       }
     },
     {
-      path: '/import-layer',
-      name: 'import-layer',
+      path: '/upload-data-layer',
+      name: 'upload-data-layer',
       component: ImportLayer,
       meta: {
-        title: `Surface Water Analysis - ${title}`,
+        title: `Upload File - ${title}`,
         sidebarColumns: {}
       }
+    },
+    {
+      // Retired path; 'apportion' is now is "assign demand"
+      path: '/import-layer',
+      redirect: '/upload-data-layer'
     }
   ]
 })
