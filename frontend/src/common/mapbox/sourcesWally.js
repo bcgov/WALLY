@@ -7,6 +7,7 @@ export const SOURCE_SELECTED_STREAM_BUFFER = 'selectedStreamBufferSource'
 export const SOURCE_UPSTREAM_BUFFER = 'upstreamBufferSource'
 export const SOURCE_DOWNSTREAM_BUFFER = 'downstreamBufferSource'
 
+// TODO: SOURCE_UPSTREAM and SOURCE_DOWNSTREAM appear to be unused
 export const streamHighlightSources = [
   SOURCE_SELECTED_STREAM,
   SOURCE_UPSTREAM,
@@ -43,3 +44,6 @@ export const SOURCE_WATER_LICENCES = 'waterLicences'
 export const SOURCE_WATERSHEDS_AT_LOCATION = 'watershedsAtLocation'
 
 export const SOURCE_WATER_APPROVALS = 'waterApprovals'
+
+export const SOURCE_UPSTREAM_NETWORK = 'upstreamNetwork'
+export const SOURCE_DOWNSTREAM_NETWORK = 'downstreamNetwork'

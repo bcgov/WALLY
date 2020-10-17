@@ -3,14 +3,14 @@ This file contains layer styling information about Wally-injected layers.
 It is used as a reference lookup when adding a specific layer
  */
 import {
-  SOURCE_CUSTOM_SHAPE_DATA,
+  SOURCE_CUSTOM_SHAPE_DATA, SOURCE_DOWNSTREAM_NETWORK,
   SOURCE_HIGHLIGHT_LAYER_DATA,
   SOURCE_HIGHLIGHT_POINT_DATA,
   SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
   SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
   SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
-  SOURCE_STREAM_APPORTIONMENT, SOURCE_WATER_APPROVALS,
+  SOURCE_STREAM_APPORTIONMENT, SOURCE_UPSTREAM_NETWORK, SOURCE_WATER_APPROVALS,
   SOURCE_WATER_LICENCES, SOURCE_WATERSHEDS_AT_LOCATION,
   SOURCE_WELL_OFFSET_DISTANCE
 } from './sourcesWally'
@@ -983,10 +983,13 @@ export default {
       'fill-opacity': 0.3
     }
   }),
-  'upstreamNetwork': {
+  [SOURCE_UPSTREAM_NETWORK]: (data) => ({
     id: 'upstreamNetwork',
     type: 'fill',
-    source: 'upstreamNetwork',
+    source: {
+      type: 'geojson',
+      data: data.upstream_poly
+    },
     layout: {
       visibility: 'visible'
     },
@@ -995,11 +998,14 @@ export default {
       'fill-outline-color': '#002171',
       'fill-opacity': 0.65
     }
-  },
-  'downstreamNetwork': {
+  }),
+  [SOURCE_DOWNSTREAM_NETWORK]: (data) => ({
     id: 'downstreamNetwork',
     type: 'fill',
-    source: 'downstreamNetwork',
+    source: {
+      type: 'geojson',
+      data: data.downstream_poly
+    },
     layout: {
       visibility: 'visible'
     },
@@ -1008,7 +1014,7 @@ export default {
       'fill-outline-color': '#002171',
       'fill-opacity': 0.5
     }
-  },
+  }),
   // Stream sources
   // 'selectedStream': {
   //   'id': 'selectedStream',
