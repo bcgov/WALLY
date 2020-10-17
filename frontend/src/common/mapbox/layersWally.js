@@ -3,7 +3,7 @@ This file contains layer styling information about Wally-injected layers.
 It is used as a reference lookup when adding a specific layer
  */
 import {
-  SOURCE_CUSTOM_SHAPE_DATA, SOURCE_DOWNSTREAM_NETWORK,
+  SOURCE_CUSTOM_SHAPE_DATA, SOURCE_DOWNSTREAM_NETWORK, SOURCE_FISH_OBSERVATIONS,
   SOURCE_HIGHLIGHT_LAYER_DATA,
   SOURCE_HIGHLIGHT_POINT_DATA,
   SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
@@ -957,16 +957,19 @@ export default {
       'circle-stroke-color': '#ffffff'
     }
   },
-  'fishObservations': {
+  [SOURCE_FISH_OBSERVATIONS]: (data) => ({
     id: 'fishObservations',
     type: 'circle',
-    source: 'fishObservations',
+    source: {
+      type: 'geojson',
+      data: data
+    },
     paint: {
       'circle-color': '#B22222',
       'circle-radius': 5,
       'circle-opacity': 0
     }
-  },
+  }),
   [SOURCE_WATERSHEDS_AT_LOCATION]: (watershedID, data) => ({
     id: watershedID,
     type: 'fill',

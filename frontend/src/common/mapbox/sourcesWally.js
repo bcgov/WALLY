@@ -47,3 +47,5 @@ export const SOURCE_WATER_APPROVALS = 'waterApprovals'
 
 export const SOURCE_UPSTREAM_NETWORK = 'upstreamNetwork'
 export const SOURCE_DOWNSTREAM_NETWORK = 'downstreamNetwork'
+
+export const SOURCE_FISH_OBSERVATIONS = 'fishObservations'
