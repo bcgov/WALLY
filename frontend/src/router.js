@@ -222,7 +222,7 @@ const router = new Router({
       }
     },
     {
-      // Retired path; 'apportion' is now is "assign demand"
+      // Retired path
       path: '/import-layer',
       redirect: '/upload-data-layer'
     }
