@@ -14,11 +14,12 @@ import qs from 'querystring'
 import { wmsBaseURL } from '../common/utils/wmsUtils'
 import MapScale from '../components/map/MapScale'
 import { getDefaultStyle } from '../common/mapbox/styles'
-import { addMapboxLayer, addMapboxVectorSource } from '../common/utils/mapUtils'
+import { addMapboxLayer } from '../common/utils/mapUtils'
 import {
+  geojsonFC,
   lineStringFeature,
   pointFeature,
-  polygonFeature
+  polygonFeature, vectorSource
 } from '../common/mapbox/features'
 import {
   highlightSources, measurementSources, SOURCE_CUSTOM_SHAPE_DATA,
@@ -401,8 +402,8 @@ export default {
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
       streamHighlightSources.forEach((source) => {
-        state.map.addSource(source, { type: 'geojson', data: emptyFeatureCollection })
-        addMapboxLayer(state.map, source)
+        state.map.addSource(source, geojsonFC(emptyFeatureCollection))
+        addMapboxLayer(state.map, source, {})
       })
     },
     async initHighlightLayers ({ state, commit }) {
@@ -413,9 +414,8 @@ export default {
           console.log('hl layers', source, source.includes('Point'))
           // if(source.includes(''))
           const defaultData = source.includes('Point') ? emptyPoint : emptyPolygon
-          state.map.addSource(source, { type: 'geojson', data: defaultData })
-
-          addMapboxLayer(state.map, source)
+          state.map.addSource(source, geojsonFC(defaultData))
+          addMapboxLayer(state.map, source, {})
         })
         // state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
         // state.map.addLayer({
@@ -492,8 +492,8 @@ export default {
       await state.map.on('load', () => {
         // initialize measurement highlight layer
         measurementSources.forEach((source) => {
-          state.map.addSource(source, { type: 'geojson', data: emptyPolygon })
-          addMapboxLayer(state.map, source)
+          state.map.addSource(source, geojsonFC(emptyPolygon))
+          addMapboxLayer(state.map, source, {})
         })
       })
     },
@@ -558,8 +558,8 @@ export default {
           if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
             url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
           }
-          addMapboxVectorSource(state.map, layerID, url)
-          addMapboxLayer(state.map, layerID, layer.wms_name)
+          state.map.addSource(layerID, vectorSource(url, layerID))
+          addMapboxLayer(state.map, layerID, { sourceLayer: layer.wms_name })
         }
       })
     },

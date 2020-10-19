@@ -11,7 +11,7 @@ import CrossSectionInstructions from './CrossSectionInstructions'
 import { downloadXlsx } from '../../../common/utils/exportUtils'
 import { SOURCE_WELL_OFFSET_DISTANCE } from '../../../common/mapbox/sourcesWally'
 import { addMapboxLayer } from '../../../common/utils/mapUtils'
-import { featureCollection } from '../../../common/mapbox/features'
+import { featureCollection, geojsonFC } from '../../../common/mapbox/features'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
@@ -825,8 +825,8 @@ export default {
       if (this.map.getLayer(SOURCE_WELL_OFFSET_DISTANCE)) {
         return
       }
-      this.map.addSource(SOURCE_WELL_OFFSET_DISTANCE, { 'type': 'geojson', data })
-      addMapboxLayer(this.map, SOURCE_WELL_OFFSET_DISTANCE)
+      this.map.addSource(SOURCE_WELL_OFFSET_DISTANCE, geojsonFC(data))
+      addMapboxLayer(this.map, SOURCE_WELL_OFFSET_DISTANCE, {})
 
       this.map.on('mouseenter', SOURCE_WELL_OFFSET_DISTANCE, (e) => {
       // Change the cursor style as a UI indicator.

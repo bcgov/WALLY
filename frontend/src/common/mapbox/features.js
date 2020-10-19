@@ -42,3 +42,18 @@ export const featureCollection = (features) => {
     features: features
   }
 }
+
+export const geojsonFC = (data) => {
+  return {
+    type: 'geojson',
+    data: data
+  }
+}
+
+export const vectorSource = (url, id, minZoom = 3, maxZoom = 20) => ({
+  'type': 'vector',
+  'tiles': [url],
+  'source-layer': id,
+  'minzoom': minZoom,
+  'maxzoom': maxZoom
+})

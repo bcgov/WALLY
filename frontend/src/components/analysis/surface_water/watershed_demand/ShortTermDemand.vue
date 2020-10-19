@@ -64,6 +64,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
 import surfaceWaterMixin from '../mixins'
 import ShortTermMonthlyAllocationTable from './ShortTermMonthlyAllocationTable.vue'
+import { geojsonFC } from '../../../../common/mapbox/features'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -116,11 +117,7 @@ export default {
       if (this.map.getLayer('waterApprovals')) {
         return
       }
-
-      this.map.addSource('waterApprovals', {
-        'type': 'geojson',
-        'data': data
-      })
+      this.map.addSource('waterApprovals', geojsonFC(data))
 
       this.map.addLayer({
         id: 'waterApprovalsCoverPoints',

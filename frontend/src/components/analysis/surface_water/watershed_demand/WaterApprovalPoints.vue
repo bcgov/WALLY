@@ -83,6 +83,7 @@ import surfaceWaterMixin from '../mixins'
 import ShortTermMonthlyAllocationTable from './ShortTermMonthlyAllocationTable.vue'
 import { SOURCE_WATER_APPROVALS } from '../../../../common/mapbox/sourcesWally'
 import { findWallyLayer } from '../../../../common/utils/mapUtils'
+import { geojsonFC } from '../../../../common/mapbox/features'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -136,10 +137,7 @@ export default {
         return
       }
 
-      this.map.addSource(SOURCE_WATER_APPROVALS, {
-        'type': 'geojson',
-        'data': data
-      })
+      this.map.addSource(SOURCE_WATER_APPROVALS, geojsonFC(data))
 
       const waterApprovalsLayers = findWallyLayer(SOURCE_WATER_APPROVALS)(max)
       waterApprovalsLayers.forEach(layer => {

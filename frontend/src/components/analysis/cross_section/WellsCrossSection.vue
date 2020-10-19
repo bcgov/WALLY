@@ -190,7 +190,7 @@
   </v-container>
 </template>
 
-<script src="./WellCrossSection.js"></script>
+<script src="./WellsCrossSection.js"></script>
 
 <style>
 div.plotly-notifier {
