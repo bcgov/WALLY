@@ -213,20 +213,26 @@ const router = new Router({
       }
     },
     {
-      path: '/import-layer',
-      name: 'import-layer',
+      path: '/upload-data-layer',
+      name: 'upload-data-layer',
       component: ImportLayer,
       meta: {
-        title: `Surface Water Analysis - ${title}`,
+        title: `Upload File - ${title}`,
         sidebarColumns: {}
       }
+    },
+    {
+      // Retired path
+      path: '/import-layer',
+      name: 'import-layer',
+      redirect: '/upload-data-layer'
     }
   ]
 })
 
 router.beforeEach((to, from, next) => {
   // Check if feature is enabled
-  if (to.name === 'import-layer' &&
+  if (to.name === 'upload-data-layer' &&
     store.getters.app &&
     store.getters.app.config &&
     !store.getters.app.config.external_import) next({ name: 'home' })

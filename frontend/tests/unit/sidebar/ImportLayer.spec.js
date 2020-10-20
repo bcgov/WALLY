@@ -53,10 +53,12 @@ describe('ImportLayer', () => {
   })
 
   it('determines filetype by extension', () => {
-    expect(wrapper.vm.determineFileType('test.geojson').type).toBe('geojson')
+    expect(wrapper.vm.determineFileType('test.geojson').fileType).toBe('geojson')
+    expect(wrapper.vm.determineFileType('test.csv').fileType).toBe('csv')
+    expect(wrapper.vm.determineFileType('test.kml').fileType).toBe('kml')
+    expect(wrapper.vm.determineFileType('test.json').fileType).toBe('geojson')
 
-    // future support
-    // expect(wrapper.vm.determineFileType('test.csv').type).toBe('csv')
+    // future filetypes
     // expect(wrapper.vm.determineFileType('test.test.shp').type).toBe('shp')
     // expect(wrapper.vm.determineFileType('test.zip').type).toBe('shp')
     // expect(wrapper.vm.determineFileType('test.json').type).toBe('geojson')
@@ -74,6 +76,16 @@ describe('ImportLayer', () => {
 
     expect(wrapper.find('#statusMessage0').text().toLowerCase())
       .toContain('file of type txt not supported')
+  })
+
+  it('Displays an error message', async () => {
+    wrapper.vm.handleFileMessage({
+      message: 'test error message',
+      status: 'error'
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('#statusMessage0').text().toLowerCase())
+      .toContain('test error message')
   })
 
   it('Can load multiple files', async () => {

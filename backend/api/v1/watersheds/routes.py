@@ -59,8 +59,8 @@ from api.v1.watersheds.schema import (
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
-from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model 
-from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs 
+from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model
+from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs
 
 logger = getLogger("aggregator")
 
@@ -218,8 +218,12 @@ def watershed_stats(
                                                   drainage_area, solar_exposure, average_slope)
 
     scsb2016_input_stats = get_scsb2016_input_stats(db)
-    
-    wally_hydrological_zone_model = get_hydrological_zone_model(hydrological_zone, drainage_area, median_elevation, annual_precipitation)
+
+    try:
+        wally_hydrological_zone_model = get_hydrological_zone_model(
+            hydrological_zone, drainage_area, median_elevation, annual_precipitation)
+    except:
+        wally_hydrological_zone_model = None
 
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
