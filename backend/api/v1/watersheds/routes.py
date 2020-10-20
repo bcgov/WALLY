@@ -275,6 +275,81 @@ def watershed_stats(
     return data
 
 
+@router.get('/generated_characteristics/')
+def get_watershed_characteristics(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")
+):
+    """ returns generated watershed characteristics, used as source for modelling data """
+
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
+
+    if point:
+        point_parsed = json.loads(point)
+        point = Point(point_parsed)
+
+    watershed = calculate_watershed(db, point, include_self=True)
+
+    if not watershed:
+        raise HTTPException(
+            status_code=500, detail="Could not generate watershed.")
+
+    watershed_poly = shape(watershed.geometry)
+    watershed_area = transform(transform_4326_3005, watershed_poly).area
+    watershed_rect = watershed_poly.minimum_rotated_rectangle
+
+    drainage_area = watershed_area / 1e6
+
+    glacial_area_m, glacial_coverage = calculate_glacial_area(
+        db, watershed_rect)
+
+    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
+
+    try:
+        temperature_data = get_temperature(watershed_poly)
+        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+            watershed_poly, temperature_data)
+        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+            watershed_poly, temperature_data
+        )
+    except Exception:
+        temperature_data = None
+        potential_evapotranspiration_hamon = None
+        potential_evapotranspiration_thornthwaite = None
+
+    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+
+    try:
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(
+            watershed_poly)
+        solar_exposure = get_hillshade(average_slope, aspect)
+    except Exception:
+        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+
+    data = {
+        "watershed_id": watershed.id,
+        "watershed_area": watershed_area,
+        "drainage_area": drainage_area,
+        "glacial_area": glacial_area_m,
+        "glacial_coverage": glacial_coverage,
+        "temperature_data": temperature_data,
+        "annual_precipitation": annual_precipitation,
+        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
+        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
+        "hydrological_zone": hydrological_zone,
+        "average_slope": average_slope,
+        "solar_exposure": solar_exposure,
+        "median_elevation": median_elevation,
+        "aspect": aspect
+    }
+
+    return data
+
+
 @router.get('/{watershed_feature}/fwa_50k_codes')
 def get_50k_watershed_codes(
     db: Session = Depends(get_db),
