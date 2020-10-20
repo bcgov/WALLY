@@ -64,7 +64,19 @@ export default {
         size
       }
     },
-
+    getActiveCustomLayers () {
+      return this.customLayers.children
+        .filter((layer) => {
+          return this.selectedCustomLayers.includes(layer.id) &&
+            layer.id !== '_imported-map-layers'
+        })
+        .map((layer) => {
+          return {
+            display_data_name: layer.id,
+            name: layer.name
+          }
+        })
+    },
     toggle () {
       this.show = !this.show
     }
@@ -73,9 +85,15 @@ export default {
     ...mapGetters('map', [
       'activeMapLayers'
     ]),
+    ...mapGetters('customLayers', [
+      'selectedCustomLayers',
+      'customLayers'
+    ]),
     legend () {
-      // TODO add custom layers to this returned layers object
-      return this.activeMapLayers
+      // merge together wally hosted layers
+      // and any custom layers that a user uploads
+      let activeCustomLayers = this.getActiveCustomLayers()
+      return this.activeMapLayers.concat(activeCustomLayers)
     }
   }
 }

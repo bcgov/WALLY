@@ -1,5 +1,8 @@
 <template>
-  <LegendGroup :legendItems="legendItems()" :groupName="'Water Licensed Works - Lines'" />
+  <LegendGroup
+    :legendItems="legendItems()"
+    :groupName="'Water Licensed Works - Lines'"
+  />
 </template>
 
 <script>
@@ -11,6 +14,20 @@ export default {
   props: {
     item: {}
   },
+  data () {
+    return {
+      images: [
+        'Conduit - Water',
+        'Ditch',
+        'Flume',
+        'Pipeline - Water',
+        'Channel-Release',
+        'Spillway',
+        'Tailrace',
+        'Line (Transmission) - Electrical'
+      ]
+    }
+  },
   methods: {
     legendItems () {
       // This is a unique layer because it uses both
@@ -20,12 +37,11 @@ export default {
       const childItems = []
       global.config.debug && console.log(['wally'], this.item)
       for (let i = 2; i < this.item.color.length - 1; i += 2) {
-        global.config.debug && console.log('[wally]', this.item.color[i].constructor)
+        global.config.debug &&
+          console.log('[wally]', this.item.color[i].constructor)
         if (this.item.color[i].constructor === Array) {
           const text = this.labelLookup(this.item.color[i].join(', '))
           const image = this.lineImage(text)
-          global.config.debug && console.log(['wally'], text)
-          global.config.debug && console.log(['wally'], image)
           const color = this.item.color[i + 1]
           childItems.push({
             text,
@@ -36,6 +52,13 @@ export default {
           })
         }
       }
+      // add svg images to legend
+      this.images.forEach((img) => {
+        childItems.push({
+          text: img,
+          image: this.lineImage(img)
+        })
+      })
       return childItems
     },
     labelLookup (code) {
