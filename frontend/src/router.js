@@ -232,7 +232,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   // Check if feature is enabled
-  if (to.name === 'import-layer' &&
+  if (to.name === 'upload-data-layer' &&
     store.getters.app &&
     store.getters.app.config &&
     !store.getters.app.config.external_import) next({ name: 'home' })
