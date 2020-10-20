@@ -224,6 +224,7 @@ const router = new Router({
     {
       // Retired path
       path: '/import-layer',
+      name: 'import-layer',
       redirect: '/upload-data-layer'
     }
   ]
