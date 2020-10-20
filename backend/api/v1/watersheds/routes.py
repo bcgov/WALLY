@@ -271,7 +271,7 @@ def watershed_stats(
     return data
 
 
-@router.get('/generated_watershed_characteristics')
+@router.get('/generated_characteristics/')
 def get_watershed_characteristics(
     db: Session = Depends(get_db),
     point: str = Query(
