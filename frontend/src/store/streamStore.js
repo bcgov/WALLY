@@ -1,8 +1,5 @@
-// import * as config from '../common/utils/streamHighlights.config'
 import buffer from '@turf/buffer'
 import unionBy from 'lodash.unionby'
-
-// import { streamHighlightSources } from '../common/mapbox/sourcesWally'
 
 export default {
   state: {
@@ -10,8 +7,6 @@ export default {
       'type': 'FeatureCollection',
       'features': []
     },
-    // streamSources: streamHighlightSources,
-    // streamLayers: config.layers,
     upstreamData: {
       'type': 'FeatureCollection',
       'features': []
@@ -163,8 +158,6 @@ export default {
     getUpstreamData: state => state.upstreamData,
     getDownstreamData: state => state.downstreamData,
     getSelectedStreamData: state => state.selectedStreamData,
-    // getStreamSources: state => state.streamSources,
-    // getStreamLayers: state => state.streamLayers,
     getUpstreamBufferData: state => state.upstreamBufferData,
     getDownstreamBufferData: state => state.downstreamBufferData,
     getSelectedStreamBufferData: state => state.selectedStreamBufferData
