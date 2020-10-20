@@ -2,6 +2,7 @@
 // https://github.com/CrunchyData/pg_tileserv
 
 import mapboxgl from 'mapbox-gl'
+import { geojsonFC } from '../common/mapbox/features'
 
 function layerConfig ({ id, geomType, color }) {
   const paints = {
@@ -45,14 +46,6 @@ function layerConfig ({ id, geomType, color }) {
 function popupText (properties) {
   const props = Object.entries(properties).map(prop => `${prop[0]}: ${prop[1]}`)
   return props.join('\n')
-}
-
-function geojsonSource ({ id, featureCollection }) {
-  console.log(featureCollection)
-  return {
-    type: 'geojson',
-    data: featureCollection
-  }
 }
 
 export default {
@@ -103,7 +96,7 @@ export default {
       // can have some visibility into errors that might have occured while loading the layer.
       return new Promise((resolve, reject) => {
         try {
-          map.addSource(featureCollection.id, geojsonSource({ id: featureCollection.id, featureCollection }))
+          map.addSource(featureCollection.id, geojsonFC(featureCollection))
           map.addLayer(layerConfig({ id: featureCollection.id, geomType, color }))
 
           // create popup on click, and have cursor change on hover

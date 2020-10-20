@@ -5,19 +5,19 @@ export default (map, size) => {
     data: new Uint8Array(size * size * 4),
 
     onAdd: function () {
-      var canvas = document.createElement('canvas')
+      const canvas = document.createElement('canvas')
       canvas.width = this.width
       canvas.height = this.height
       this.context = canvas.getContext('2d')
     },
 
     render: function () {
-      var duration = 1750
-      var t = (performance.now() % duration) / duration
+      const duration = 1750
+      const t = (performance.now() % duration) / duration
 
-      var radius = size / 2 * 0.3
-      var outerRadius = size / 2 * 0.5 * t + radius
-      var context = this.context
+      const radius = size / 2 * 0.3
+      const outerRadius = size / 2 * 0.5 * t + radius
+      const context = this.context
 
       // draw outer circle
       context.clearRect(0, 0, this.width, this.height)

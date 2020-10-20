@@ -1,5 +1,6 @@
 import ApiService from '../services/ApiService'
 import qs from 'querystring'
+import { downloadXlsx } from '../common/utils/exportUtils'
 
 export default {
   state: {
@@ -17,16 +18,7 @@ export default {
         ApiService.getApi('/aggregate/?' + qs.stringify(payload), { responseType: 'arraybuffer' })
           .then((res) => {
             global.config.debug && console.log('[wally]', res)
-            let blob = new Blob([res.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-            let link = document.createElement('a')
-            link.href = window.URL.createObjectURL(blob)
-            link.download = 'WaterReport.xlsx'
-            document.body.appendChild(link)
-            link.click()
-            setTimeout(() => {
-              document.body.removeChild(link)
-              window.URL.revokeObjectURL(link.href)
-            }, 0)
+            downloadXlsx(res, 'WaterReport.xlsx')
             resolve(true)
           }).catch((error) => {
             reject(error)

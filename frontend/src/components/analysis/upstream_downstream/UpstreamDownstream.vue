@@ -93,6 +93,8 @@ import ApiService from '../../../services/ApiService'
 import UpstreamDownstreamData from './UpstreamDownstreamData'
 import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import debounce from 'lodash.debounce'
+import { findWallyLayer } from '../../../common/utils/mapUtils'
+import { SOURCE_DOWNSTREAM_NETWORK, SOURCE_UPSTREAM_NETWORK } from '../../../common/mapbox/sourcesWally'
 
 export default {
   name: 'StreamBufferIntersections',
@@ -136,15 +138,13 @@ export default {
       this.buttonClicked = true
     },
     resetGeoJSONLayers () {
-      if (this.upstreamNetworkMapFeature) {
-        this.map.removeLayer(this.upstreamNetworkMapFeature)
-        this.map.removeSource(this.upstreamNetworkMapFeature)
-        this.upstreamNetworkMapFeature = null
+      if (this.map.getLayer(SOURCE_UPSTREAM_NETWORK)) {
+        this.map.removeLayer(SOURCE_UPSTREAM_NETWORK)
+        this.map.removeSource(SOURCE_UPSTREAM_NETWORK)
       }
-      if (this.downstreamNetworkMapFeature) {
-        this.map.removeLayer(this.downstreamNetworkMapFeature)
-        this.map.removeSource(this.downstreamNetworkMapFeature)
-        this.downstreamNetworkMapFeature = null
+      if (this.map.getLayer(SOURCE_DOWNSTREAM_NETWORK)) {
+        this.map.removeLayer(SOURCE_DOWNSTREAM_NETWORK)
+        this.map.removeSource(SOURCE_DOWNSTREAM_NETWORK)
       }
     },
     enableMapLayer () {
@@ -180,46 +180,18 @@ export default {
         }
       ).then((r) => {
         const data = r.data
-        this.upstreamNetworkMapFeature = 'upstreamNetwork'
-        this.downstreamNetworkMapFeature = 'downstreamNetwork'
+        // this.upstreamNetworkMapFeature = 'upstreamNetwork'
+        // this.downstreamNetworkMapFeature = 'downstreamNetwork'
 
         this.streamData = data
         this.streamName = data.gnis_name
         this.loadingData = false
 
-        this.map.addLayer({
-          id: this.upstreamNetworkMapFeature,
-          type: 'fill',
-          source: {
-            type: 'geojson',
-            data: data.upstream_poly
-          },
-          layout: {
-            visibility: 'visible'
-          },
-          paint: {
-            'fill-color': '#99CC99',
-            'fill-outline-color': '#002171',
-            'fill-opacity': 0.65
-          }
-        }, 'water_rights_licences')
+        const upstreamNetworkLayer = findWallyLayer(SOURCE_UPSTREAM_NETWORK)
+        this.map.addLayer(upstreamNetworkLayer(data), 'water_rights_licences')
 
-        this.map.addLayer({
-          id: this.downstreamNetworkMapFeature,
-          type: 'fill',
-          source: {
-            type: 'geojson',
-            data: data.downstream_poly
-          },
-          layout: {
-            visibility: 'visible'
-          },
-          paint: {
-            'fill-color': '#0d47a1',
-            'fill-outline-color': '#002171',
-            'fill-opacity': 0.5
-          }
-        }, 'water_rights_licences')
+        const downstreamNetworkLayer = findWallyLayer(SOURCE_DOWNSTREAM_NETWORK)
+        this.map.addLayer(downstreamNetworkLayer(data), 'water_rights_licences')
       }).catch((e) => {
         this.loadingData = false
         if (!e.response) {

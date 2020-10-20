@@ -26,12 +26,12 @@ export default {
       }
     },
     color () {
-      var colorType = typeof this.item.color
+      const colorType = typeof this.item.color
       if (colorType === 'string') {
         return this.item.color
       } else if (colorType === 'object') {
         if (this.item.color[0] === 'match') {
-          console.log(this.item.color)
+          global.config.debug && console.log('[wally]', this.item.color)
         } else if (this.item.color[0] === 'interpolate') {
           return this.item.color[6]
         }
