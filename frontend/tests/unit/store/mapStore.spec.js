@@ -201,7 +201,7 @@ describe('Map Store', () => {
     expect(store.commit).toHaveBeenCalledWith('setSectionLine', testFeatureCollection.features[0], { root: true })
   })
 
-  it('Inits vector tiles', () => {
+  it('Inits vector tiles for layers with `use_wms` set to true', () => {
     const layers = [
       {
         use_wms: true,
@@ -212,6 +212,20 @@ describe('Map Store', () => {
       },
       {
         use_wms: true,
+        display_data_name: 'Test 1',
+        display_name: '',
+        wms_name: '',
+        wms_style: ''
+      },
+      {
+        use_wms: false,
+        display_data_name: 'Test 3',
+        display_name: '',
+        wms_name: '',
+        wms_style: ''
+      },
+      {
+        use_wms: false,
         display_data_name: 'Test 1',
         display_name: '',
         wms_name: '',
