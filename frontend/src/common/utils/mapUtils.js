@@ -34,10 +34,7 @@ export let findWallyLayerArray = (id) => {
 export const addMapboxLayer = (map, id, { sourceLayer, before }) => {
   let layers = findWallyLayerArray(id)
 
-  // console.log('addMapboxLayer', id, sourceLayer, before)
-  // console.log('layer info', layers)
   layers.forEach((layer) => {
-    // global.config.debug && console.log('[wally] padding wally layer for', id, layer, sourceLayer)
     if (sourceLayer) {
       layer['source-layer'] = sourceLayer
     }
