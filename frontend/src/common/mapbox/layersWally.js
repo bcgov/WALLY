@@ -289,17 +289,6 @@ export default {
       'fill-outline-color': 'hsla(0, 0%, 18%, 0.59)'
     }
   },
-  'normal_annual_runoff_isolines': {
-    'id': 'normal_annual_runoff_isolines',
-    'type': 'fill',
-    'source': 'composite',
-    'source-layer': 'normal_annual_runoff_isolines',
-    'layout': { 'visibility': 'none' },
-    'paint': {
-      'fill-color': 'hsla(205, 0%, 100%, 0.15)',
-      'fill-outline-color': 'hsl(242, 100%, 56%)'
-    }
-  },
   'freshwater_atlas_glaciers': {
     'id': 'freshwater_atlas_glaciers',
     'type': 'fill',
@@ -548,36 +537,6 @@ export default {
       ]
     }
   },
-  'hydrometric_stream_flow': {
-    'id': 'hydrometric_stream_flow',
-    'type': 'circle',
-    'source': 'composite',
-    'source-layer': 'hydat3',
-    'layout': { 'visibility': 'none' },
-    'paint': {
-      'circle-color': '#ff8f93',
-      'circle-stroke-width': 1,
-      'circle-stroke-color': '#ec555a',
-      'circle-radius': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        0,
-        1,
-        15,
-        5
-      ],
-      'circle-stroke-opacity': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        5,
-        0,
-        10,
-        1
-      ]
-    }
-  },
   'water_rights_applications': {
     'id': 'water_rights_applications',
     'type': 'circle',
@@ -677,45 +636,6 @@ export default {
       'fill-outline-color': 'hsl(250, 76%, 39%)'
     }
   },
-  // 'fish_observations_old': {
-  //   'id': 'fish_observations_old',
-  //   'type': 'circle',
-  //   'source': 'fish_observations',
-  //   'source-layer': 'fish_observations',
-  //   'layout': { 'visibility': 'none' },
-  //   'paint': {
-  //     'circle-color': 'hsl(0, 100%, 32%)',
-  //     'circle-stroke-width': 1,
-  //     'circle-stroke-color': 'hsl(0, 100%, 56%)',
-  //     'circle-radius': [
-  //       'interpolate',
-  //       ['linear'],
-  //       ['zoom'],
-  //       0,
-  //       1,
-  //       15,
-  //       5
-  //     ],
-  //     'circle-opacity': [
-  //       'interpolate',
-  //       ['linear'],
-  //       ['zoom'],
-  //       0,
-  //       0,
-  //       9,
-  //       1
-  //     ],
-  //     'circle-stroke-opacity': [
-  //       'interpolate',
-  //       ['linear'],
-  //       ['zoom'],
-  //       5,
-  //       0,
-  //       15,
-  //       1
-  //     ]
-  //   }
-  // },
   'fish_observations': [{
     'id': 'fish_observations_summaries',
     'type': 'symbol',
@@ -778,45 +698,6 @@ export default {
       ]
     }
   },
-  // 'fish_obstacles_old': {
-  //   'id': 'fish_obstacles_old',
-  //   'type': 'circle',
-  //   'source': 'fish_obstacles',
-  //   'source-layer': 'fish_obstacles',
-  //   'layout': { 'visibility': 'none' },
-  //   'paint': {
-  //     'circle-color': 'hsl(23, 100%, 29%)',
-  //     'circle-stroke-color': 'hsl(30, 100%, 79%)',
-  //     'circle-stroke-width': 1,
-  //     'circle-radius': [
-  //       'interpolate',
-  //       ['linear'],
-  //       ['zoom'],
-  //       0,
-  //       1,
-  //       15,
-  //       5
-  //     ],
-  //     'circle-opacity': [
-  //       'interpolate',
-  //       ['linear'],
-  //       ['zoom'],
-  //       0,
-  //       0,
-  //       9,
-  //       1
-  //     ],
-  //     'circle-stroke-opacity': [
-  //       'interpolate',
-  //       ['linear'],
-  //       ['zoom'],
-  //       5,
-  //       0,
-  //       15,
-  //       1
-  //     ]
-  //   }
-  // },
   'fish_obstacles': {
     'id': 'fish_obstacles',
     'type': 'symbol',

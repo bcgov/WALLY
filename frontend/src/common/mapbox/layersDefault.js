@@ -4,7 +4,7 @@ They also include the layer styles for tilesets we have hosted on mapbox
   - hydrometric_stream_flow
   - normal_annual_runoff_isolines
  */
-export default [
+export const defaultLayers = [
   {
     'id': 'land',
     'type': 'background',
@@ -5559,46 +5559,72 @@ export default [
       ],
       'text-halo-width': 1.25
     }
-  },
-  {
-    'id': 'normal_annual_runoff_isolines',
-    'type': 'fill',
-    'source': 'composite',
-    'source-layer': 'normal_annual_runoff_isolines',
-    'layout': { 'visibility': 'none' },
-    'paint': {
-      'fill-color': 'hsla(205, 0%, 100%, 0.15)',
-      'fill-outline-color': 'hsl(242, 100%, 56%)'
-    }
-  },
-  {
-    'id': 'hydrometric_stream_flow',
-    'type': 'circle',
-    'source': 'composite',
-    'source-layer': 'hydat3',
-    'layout': { 'visibility': 'none' },
-    'paint': {
-      'circle-color': '#ff8f93',
-      'circle-stroke-width': 1,
-      'circle-stroke-color': '#ec555a',
-      'circle-radius': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        0,
-        1,
-        15,
-        5
-      ],
-      'circle-stroke-opacity': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        5,
-        0,
-        10,
-        1
-      ]
-    }
   }
 ]
+
+const LAYER_NORMAL_ANNUAL_RUNOFF_ISOLINES = {
+  'id': 'normal_annual_runoff_isolines',
+  'type': 'fill',
+  'source': 'composite',
+  'layout': { 'visibility': 'none' },
+  'paint': {
+    'fill-color': 'hsla(205, 0%, 100%, 0.15)',
+    'fill-outline-color': 'hsl(242, 100%, 56%)'
+  }
+}
+
+const LAYER_HYDROMETRIC_STREAM_FLOW = {
+  'id': 'hydrometric_stream_flow',
+  'type': 'circle',
+  'source': 'composite',
+  'layout': { 'visibility': 'none' },
+  'paint': {
+    'circle-color': '#ff8f93',
+    'circle-stroke-width': 1,
+    'circle-stroke-color': '#ec555a',
+    'circle-radius': [
+      'interpolate',
+      ['linear'],
+      ['zoom'],
+      0,
+      1,
+      15,
+      5
+    ],
+    'circle-stroke-opacity': [
+      'interpolate',
+      ['linear'],
+      ['zoom'],
+      5,
+      0,
+      10,
+      1
+    ]
+  }
+}
+
+export const devLayers = [
+  ...defaultLayers,
+  {
+    ...LAYER_NORMAL_ANNUAL_RUNOFF_ISOLINES,
+    'source-layer': 'normal_annual_runoff_isolines_subset'
+  },
+  {
+    ...LAYER_HYDROMETRIC_STREAM_FLOW,
+    'source-layer': 'hydat-879a50'
+  }
+]
+
+export const prodLayers = [
+  ...defaultLayers,
+  {
+    ...LAYER_NORMAL_ANNUAL_RUNOFF_ISOLINES,
+    'source-layer': 'normal_annual_runoff_isolines'
+  },
+  {
+    ...LAYER_HYDROMETRIC_STREAM_FLOW,
+    'source-layer': 'hydat3'
+  }
+]
+
+export default defaultLayers

@@ -1,5 +1,5 @@
 import { devSources, prodSources } from './sources'
-import layers from './layersDefault'
+import { devLayers, prodLayers } from './layersDefault'
 
 let style = {
   'version': 8,
@@ -38,10 +38,11 @@ let style = {
 export const getDefaultStyle = () => {
   if (global.config.isDevelopment) {
     style['sources'] = devSources
+    style['layers'] = devLayers
   }
   if (global.config.isStaging || global.config.isProduction) {
     style['sources'] = prodSources
+    style['layers'] = prodLayers
   }
-  style['layers'] = layers
   return style
 }

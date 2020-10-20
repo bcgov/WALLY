@@ -73,7 +73,9 @@ export const devSources = {
   },
   'composite': {
     'url': 'mapbox://mapbox.mapbox-streets-v8,' +
-           'mapbox.mapbox-terrain-v2',
+           'mapbox.mapbox-terrain-v2,' +
+           'iit-water.bf1gc2mz,' + // hydat-879a50
+           'iit-water.8rt7ts1c', // glaciers_and_isolines-28fnv1
     'type': 'vector'
   }
 }
@@ -144,8 +146,7 @@ export const prodSources = {
     'url': 'mapbox://mapbox.mapbox-streets-v8,' +
       'mapbox.mapbox-terrain-v2,' +
       'iit-water.31epl7h1,' + // pk-hydat-6l5sgh
-      'iit-water.56s6dyhu', // wally_freshwater_atlas_stream-6ml1n5
+      'iit-water.0tsq064k', // 0tsq064k
     'type': 'vector'
   }
 }
-

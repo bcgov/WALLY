@@ -86,7 +86,6 @@ export default {
       global.config.debug && console.log('[wally] using style...', style)
       commit('setMap', new mapboxgl.Map({
         container: 'map', // container id
-        // style: mapConfig.data.mapbox_style, // dev or prod map style
         style,
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
