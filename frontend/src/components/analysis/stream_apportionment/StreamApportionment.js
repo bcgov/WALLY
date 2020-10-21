@@ -3,6 +3,11 @@ import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
 import StreamApportionmentInstructions from './StreamApportionmentInstructions'
 import { downloadXlsx } from '../../../common/utils/exportUtils'
+import { lineStringFeature, featureCollection } from '../../../common/mapbox/features'
+import {
+  SOURCE_SELECTED_STREAM,
+  SOURCE_STREAM_APPORTIONMENT
+} from '../../../common/mapbox/sourcesWally'
 
 export default {
   name: 'StreamApportionment',
@@ -108,47 +113,30 @@ export default {
       featureStream['display_data_name'] = 'freshwater_atlas_stream_networks'
       featureStream.properties['FWA_WATERSHED_CODE'] = featureStream.properties['fwa_watershed_code']
 
-      let featureDistanceLines = {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'LineString',
-          'coordinates': [
-            this.coordinates,
-            stream['closest_stream_point']['coordinates']
-          ]
-        },
-        'properties': {
-          'title': stream['distance'].toFixed(2) + 'm'
-        }
-      }
+      let featureDistanceLines = lineStringFeature(
+        [this.coordinates, stream['closest_stream_point']['coordinates']],
+        { 'title': stream['distance'].toFixed(2) + 'm' })
 
-      let featureClosestPoint = {
-        'type': 'Feature',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': stream['closest_stream_point']['coordinates']
-        },
-        'properties': {
-          'title': stream['distance'].toFixed(2) + 'm'
-        }
-      }
+      // let featureClosestPoint = pointFeature(stream['closest_stream_point']['coordinates'],
+      //   {
+      //     'title': stream['distance'].toFixed(2) + 'm'
+      //   })
 
       let streamData = {
         display_data_name: 'stream_apportionment',
-        feature_collection: {
-          type: 'FeatureCollection',
-          features: [featureClosestPoint, featureDistanceLines]
-        }
+        feature_collection: featureCollection(
+          [featureDistanceLines]
+        )
       }
 
       // Highlight the stream
       this.updateMapLayerData({
-        source: 'selectedStreamSource',
+        source: SOURCE_SELECTED_STREAM,
         featureData: featureStream
       })
       // Highlight the closest point & distance line to that stream
       this.updateMapLayerData({
-        source: 'streamApportionmentSource',
+        source: SOURCE_STREAM_APPORTIONMENT,
         featureData: streamData.feature_collection
       })
     },
@@ -225,60 +213,41 @@ export default {
     highlightAll () {
       let streamData = {
         display_data_name: 'freshwater_atlas_stream_networks',
-        feature_collection: {
-          type: 'FeatureCollection',
-          features: []
-        }
+        feature_collection: featureCollection([])
       }
       let distanceLines = []
-      let closestPoints = []
+      // let closestPoints = []
 
       this.streams.forEach((stream) => {
         streamData.feature_collection.features.push(stream.geojson)
 
-        let closestPoint = {
-          'type': 'Feature',
-          'geometry': stream['closest_stream_point'],
-          'properties': {
-            'title': ''
-          }
-        }
-        closestPoints.push(closestPoint)
+        // console.log(stream['closest_stream_point'])
+        // let closestPoint = pointFeature(stream['closest_stream_point'].coordinates)
+        // closestPoints.push(closestPoint)
 
         const distanceLineCoordinates = [this.coordinates,
           stream['closest_stream_point']['coordinates']
         ]
 
-        let distanceLine = {
-          'type': 'Feature',
-          'geometry': {
-            'type': 'LineString',
-            'coordinates': distanceLineCoordinates
-          },
-          'properties': {
-            'title': stream['distance'].toFixed(2) + 'm'
-          }
-        }
+        let distanceLine = lineStringFeature(distanceLineCoordinates, {
+          'title': stream['distance'].toFixed(2) + 'm'
+        })
         distanceLines.push(distanceLine)
       })
 
       const highlightData = {
         display_data_name: 'stream_apportionment',
-        feature_collection: {
-          type: 'FeatureCollection',
-          features: [
-            ...closestPoints,
-            ...distanceLines
-          ]
-        }
+        feature_collection: featureCollection([
+          // ...closestPoints,
+          ...distanceLines])
       }
 
       this.updateMapLayerData({
-        source: 'selectedStreamSource',
+        source: SOURCE_SELECTED_STREAM,
         featureData: streamData.feature_collection
       })
       this.updateMapLayerData({
-        source: 'streamApportionmentSource',
+        source: SOURCE_STREAM_APPORTIONMENT,
         featureData: highlightData.feature_collection
       })
     },

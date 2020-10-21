@@ -125,9 +125,6 @@ export default {
     ...mapGetters(['infoPanelVisible', 'app'])
   },
   methods: {
-    consoleLog () {
-      global.config.debug && console.log('[wally] a')
-    },
     resetSelections () {
       this.$store.dispatch('map/clearSelections')
       setTimeout(() => this.map.resize(), 0)

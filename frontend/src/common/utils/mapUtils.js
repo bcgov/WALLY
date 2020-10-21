@@ -1,4 +1,5 @@
 import * as metadata from './metadataUtils'
+import layersWally from '../mapbox/layersWally'
 
 export const API_URL = process.env.VUE_APP_AXIOS_BASE_URL
 
@@ -10,20 +11,37 @@ export function getMapLayerItemValue (property) {
   return metadata.LAYER_PROPERTY_MAPPINGS[property]
 }
 
-// export function getMapLayerName (layerId) {
-//   console.log(layerId)
-//   let layer = metadata.DATA_MARTS.find(e => e.wmsLayer === layerId)
-//   if (layer) { return layer.name }
-// }
+// Used to find a single layer, or a layer factory
+export const findWallyLayer = (id) => {
+  const layer = layersWally[id]
+  if (Array.isArray(layer)) {
+    console.error(`[wally] Cannot find a single layer ${id}`)
+    return
+  }
+  return layer
+}
 
-// export function getMapSubheading (id) {
-//   let name = getMapLayerName(trimId(id))
-//   if (name) {
-//     name = name.slice(0, -1)
-//     return name
-//   }
-// }
+// Returns an array of wally layers
+export let findWallyLayerArray = (id) => {
+  const layers = layersWally[id]
+  if (!Array.isArray(layers)) {
+    return [layers]
+  }
+  return layers
+}
 
-// export function trimId (id) {
-//   return typeof (id) === 'string' ? id.substr(0, id.lastIndexOf('.')) : ''
-// }
+// Helper function to set a layer style for a source
+export const addMapboxLayer = (map, id, { sourceLayer, before }) => {
+  let layers = findWallyLayerArray(id)
+
+  layers.forEach((layer) => {
+    if (sourceLayer) {
+      layer['source-layer'] = sourceLayer
+    }
+    if (before) {
+      map.addLayer(layer, before)
+    } else {
+      map.addLayer(layer)
+    }
+  })
+}

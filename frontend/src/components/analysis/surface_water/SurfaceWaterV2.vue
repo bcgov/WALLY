@@ -160,6 +160,8 @@ import WatershedLicencedQty from './watershed_demand/WatershedLicencedQty'
 import EventBus from '../../../services/EventBus'
 
 import { months, secondsInMonth } from '../../../constants/months'
+import { findWallyLayer } from '../../../common/utils/mapUtils'
+import { SOURCE_WATERSHEDS_AT_LOCATION } from '../../../common/mapbox/sourcesWally'
 export default {
   name: 'SurfaceWaterDetails',
   components: {
@@ -319,24 +321,9 @@ export default {
         )
       })
     },
-    addSingleWatershedLayer (id = 'watershedsAtLocation',
-      data, color = '#039be5', opacity = 0.3) {
-      this.map.addLayer({
-        id: id,
-        type: 'fill',
-        source: {
-          type: 'geojson',
-          data: data
-        },
-        layout: {
-          visibility: 'none'
-        },
-        paint: {
-          'fill-color': color,
-          'fill-outline-color': '#003366',
-          'fill-opacity': opacity
-        }
-      }, 'water_rights_licences')
+    addSingleWatershedLayer (id = 'watershedsAtLocation', data) {
+      const layer = findWallyLayer(SOURCE_WATERSHEDS_AT_LOCATION)(id, data)
+      this.map.addLayer(layer, 'water_rights_licences')
     },
     fetchWatersheds () {
       this.error.watershedList = false

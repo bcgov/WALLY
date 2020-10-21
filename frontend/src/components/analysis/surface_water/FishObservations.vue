@@ -123,6 +123,8 @@
 import { mapGetters } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
+import { findWallyLayer } from '../../../common/utils/mapUtils'
+import { SOURCE_FISH_OBSERVATIONS } from '../../../common/mapbox/sourcesWally'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -154,8 +156,7 @@ export default {
   watch: {
     watershedID () {
       this.fishData = null
-      this.map.removeLayer('fishObservations')
-      this.map.removeSource('fishObservations')
+      this.clearFishObservationsLayers()
       this.fetchFishObservations()
     }
   },
@@ -165,7 +166,7 @@ export default {
       ApiService.query(`/api/v1/watersheds/${this.watershedID}/fish_observations`)
         .then(r => {
           this.fishData = r.data
-          this.addFishObservationsLayer('fishObservations', r.data.fish_observations)
+          this.addFishObservationsLayer(r.data.fish_observations)
           this.fishLoading = false
         })
         .catch(e => {
@@ -173,22 +174,11 @@ export default {
           console.error(e)
         })
     },
-    addFishObservationsLayer (id = 'fishObservations', data, color = '#B22222', opacity = 0) {
-      this.map.addLayer({
-        id: id,
-        type: 'circle',
-        source: {
-          type: 'geojson',
-          data: data
-        },
-        paint: {
-          'circle-color': color,
-          'circle-radius': 5,
-          'circle-opacity': opacity
-        }
-      }, 'fish_observations')
+    addFishObservationsLayer (data) {
+      const fishLayer = findWallyLayer(SOURCE_FISH_OBSERVATIONS)
+      this.map.addLayer(fishLayer(data), 'fish_observations')
 
-      this.map.on('mouseenter', id, (e) => {
+      this.map.on('mouseenter', SOURCE_FISH_OBSERVATIONS, (e) => {
       // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
@@ -218,7 +208,7 @@ export default {
           .addTo(this.map)
       })
 
-      this.map.on('mouseleave', id, () => {
+      this.map.on('mouseleave', SOURCE_FISH_OBSERVATIONS, () => {
         this.map.getCanvas().style.cursor = ''
         popup.remove()
       })
@@ -240,6 +230,12 @@ export default {
         this.fidqLoading = false
         console.error(e)
       })
+    },
+    clearFishObservationsLayers () {
+      if (this.map.getLayer(SOURCE_FISH_OBSERVATIONS)) {
+        this.map.removeLayer(SOURCE_FISH_OBSERVATIONS)
+        this.map.removeSource(SOURCE_FISH_OBSERVATIONS)
+      }
     }
   },
   mounted () {
@@ -247,8 +243,7 @@ export default {
     this.fetchFishInventorySearchCodes()
   },
   beforeDestroy () {
-    this.map.removeLayer('fishObservations')
-    this.map.removeSource('fishObservations')
+    this.clearFishObservationsLayers()
   }
 }
 </script>
