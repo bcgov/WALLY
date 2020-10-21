@@ -8,8 +8,10 @@
     <v-row class="pa-5">
       <v-col>
         <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
-        <p>Supported file types include: <em>.geojson</em></p>
-        <p>Supported coordinate system: Degrees Longitude/Latitude (WGS84). e.g. -127.10205, 51.81051</p>
+        <p>Supported file types include: <strong>geojson, csv, xlsx, kml</strong></p>
+        <p><strong>CSV</strong>: files should have two columns with the headings "Latitude" and "Longitude", or "lat" and "long" (not case sensitive).</p>
+        <p><strong>Excel</strong>: workbooks with a table on the first sheet (and no other cells filled in outside the table) are supported. The same column heading rules as CSV files apply.</p>
+        <p><strong>Supported coordinate system</strong>:  Degrees Longitude/Latitude (WGS84). e.g. -127.10205, 51.81051</p>
         <p>Large or complex spatial data may impact browser performance.</p>
       </v-col>
     </v-row>
@@ -57,6 +59,8 @@
           Geometry type:
         </dt>
         <dd> {{ file.stats.geomType }}</dd>
+        <dt>Total features:</dt>
+        <dd>{{file.stats.numFeatures}}</dd>
         <dt v-if="file.stats.propertyFields">
           Feature properties:
         </dt>
@@ -82,7 +86,6 @@
         {{file.name}}: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.
       </v-alert>
     </div>
-    <v-btn v-if="files.length > 0" @click="importLayers" :loading="Object.values(layerLoading).some(Boolean)">Import</v-btn>
     <div v-for="(processedFile,i) in processedFiles.filter(x => x.status)" :key="`fileMsg${i}`">
       <v-alert
         :id="`statusMessage${i}`"
@@ -90,8 +93,12 @@
         :type="processedFile.status"
       >
         {{ processedFile.message }}
+        <span class="float-right" v-if="processedFile.firstFeatureCoords">
+          <v-btn text small @click="map.flyTo({center: processedFile.firstFeatureCoords})"><v-icon small>mdi-arrow-top-right</v-icon></v-btn>
+        </span>
       </v-alert>
     </div>
+    <v-btn class="my-5" v-if="files.length > 0" @click="importLayers" :loading="Object.values(layerLoading).some(Boolean)">Import</v-btn>
   </v-container>
 </template>
 <style lang="scss">
@@ -122,6 +129,14 @@
 <script>
 import { mapGetters } from 'vuex'
 import FileDrop from '../../tools/FileDrop'
+import centroid from '@turf/centroid'
+import {
+  createMessageFromErrorArray,
+  csvToGeoJSON,
+  kmlToGeoJSON,
+  xlsxToGeoJSON,
+  groupErrorsByRow
+} from '../../../common/utils/customLayerUtils'
 
 export default {
   name: 'ImportLayer',
@@ -142,40 +157,41 @@ export default {
   }),
   methods: {
     handleLoadLayer (file) {
+      // file must be a GeoJSON FeatureCollection
       this.layerLoading[file.name] = true
-      // if (this.fileStats[file.name].fileType === 'geojson') {
-      if (file.stats.fileType === 'geojson') {
-        const geojsonFc = JSON.parse(file.data)
 
-        geojsonFc.id = `${file.name}.${file.lastModified}`
+      const geojsonFc = file.data
 
-        if (!geojsonFc.properties) {
-          geojsonFc.properties = {}
-        }
+      geojsonFc.id = `${file.name}.${file.lastModified}`
 
-        geojsonFc.properties.name = file.name.split('.')[0]
-
-        const fileStatus = {
-          name: file.name
-        }
-
-        this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
-          .then(() => {
-            fileStatus.status = 'success'
-            fileStatus.message = `Loaded file ${file.name}`
-          }).catch((e) => {
-            fileStatus.status = 'error'
-            console.log(e)
-            fileStatus.message = `Error loading file ${file.name}: ${e}`
-          }).finally(() => {
-            this.processedFiles.push(fileStatus)
-            this.layerLoading[file.name] = false
-          })
+      if (!geojsonFc.properties) {
+        geojsonFc.properties = {}
       }
+
+      geojsonFc.properties.name = file.name.split('.')[0]
+
+      const fileStatus = {
+        filename: file.name
+      }
+
+      this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
+        .then(() => {
+          fileStatus.status = 'success'
+          fileStatus.message = `file loaded`
+          fileStatus.firstFeatureCoords = file.firstFeatureCoords
+        }).catch((e) => {
+          fileStatus.status = 'error'
+          console.log(e)
+          fileStatus.message = `error loading file ${file.name}: ${e}`
+        }).finally(() => {
+          this.handleFileMessage(fileStatus)
+          this.layerLoading[file.name] = false
+        })
       this.map.once('idle', () => {
         this.resetFiles()
       })
     },
+
     loadFiles (fileList) {
       this.fileList = fileList
       if (fileList.length > 0) {
@@ -196,13 +212,44 @@ export default {
         this.handleLoadLayer(file)
       })
     },
+    validateAndReturnFirstFeatureCoords (geojsonFc) {
+      const firstFeatureGeom = centroid(geojsonFc.features.filter(f => Boolean(f.geometry))[0].geometry).geometry
+      const firstFeature = [firstFeatureGeom.coordinates[0], firstFeatureGeom.coordinates[1]]
+
+      // basic test to assert that the first feature is near BC.
+      // this will only be a warning and will only be reliable if all the features are outside BC.
+      // the most common case will be when users upload data in non WGS84 coordinate systems.
+      // todo: investigate if better warnings are required based on user feedback.
+
+      // using [-139.06 48.30],  [-114.03  60.00] as extents of BC.
+      if (!(firstFeature[0] > -180 && firstFeature[0] < 180) || !(firstFeature[1] > -90 && firstFeature[1] < 90)) {
+        throw new Error('coordinates are not in degrees')
+      }
+      return firstFeature
+    },
+
+    handleFileMessage ({ filename, status, message, firstFeatureCoords }) {
+      // handles file loading success/error messages.
+      // takes an optional `firstFeatureCoords` that the user can zoom to.
+      // ideally in the future this could also be the extents of the data (zoom to show full dataset),
+      // for now, only the first available feature is shown.
+      if (!['success', 'warning', 'error'].includes(status)) {
+        throw new Error(`handleFileMessage called with invalid file status: ${status}`)
+      }
+      this.processedFiles.push({
+        name: filename,
+        status: status,
+        message: `${filename}: ${message}`,
+        firstFeatureCoords: firstFeatureCoords
+      })
+    },
     readFile (file) {
-      const fileType = this.determineFileType(file.name)
-      if (!fileType.supported) {
-        this.processedFiles.push({
-          name: file.name,
+      const { fileType, fileSupported } = this.determineFileType(file.name)
+      if (!fileSupported) {
+        this.handleFileMessage({
+          filename: file.name,
           status: 'error',
-          message: `${file.name}: File of type ${fileType.type} not supported.`
+          message: `file of type ${fileType} not supported.`
         })
         return
       }
@@ -211,7 +258,7 @@ export default {
       const reader = new FileReader()
 
       // set the onload function. this will be triggered when the file is read below.
-      reader.onload = () => {
+      reader.onload = async () => {
         let fileInfo = {
           name: file.name || '',
           size: file.size || 0,
@@ -224,7 +271,86 @@ export default {
             showAllProperties: false
           }
         }
-        fileInfo['data'] = reader.result
+
+        // place to store errors/warnings that some file handling libraries return (XLS, CSV)
+        // other libraries throw an exception, so not all file types need the errors var.
+        let errors
+        let data
+
+        // check file type and call the handler to convert the file to GeoJSON.
+        // each file type has a different handler.
+        // a try/catch is used for each type in order to generate a user error
+        // message if there are any issues converting.
+        if (fileType === 'csv') {
+          try {
+            ({ data, errors } = await csvToGeoJSON(reader.result))
+            console.log(data)
+            fileInfo['data'] = data
+            if (errors && errors.length) {
+              errors = groupErrorsByRow(errors)
+              const warnMsg = createMessageFromErrorArray(errors)
+              this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
+            }
+          } catch (e) {
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
+          }
+        } else if (fileType === 'xlsx') {
+          try {
+            const fileData = new Uint8Array(reader.result);
+            ({ data, errors } = await xlsxToGeoJSON(fileData))
+            console.log(data)
+
+            fileInfo['data'] = data
+
+            if (errors && errors.length) {
+              errors = groupErrorsByRow(errors)
+              const warnMsg = createMessageFromErrorArray(errors)
+              this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
+            }
+          } catch (e) {
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
+          }
+        } else if (fileType === 'kml') {
+          try {
+            fileInfo['data'] = kmlToGeoJSON(reader.result)
+          } catch (e) {
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+          }
+        } else if (fileType === 'geojson') {
+          try {
+            fileInfo['data'] = JSON.parse(reader.result)
+          } catch (e) {
+            return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file contains invalid JSON.' })
+          }
+        } else {
+          // Unknown file type
+          // this should not occur (an unsupported file error should have been caught earlier),
+          // but log an error here for good measure in case this ever comes up.
+
+          return console.error(`File ${file.name} does not have a -toGeoJSON handler and was not caught by file type check.`)
+        }
+
+        // check if there are any features in the dataset
+        if (!fileInfo['data'].features) {
+          return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
+        }
+
+        console.log('-------------------------------')
+        console.log('Imported')
+        console.log('-------------------------------')
+
+        // get the coordinates of the first feature.
+        // this helps zoom to the dataset (if desired).
+        // todo: in the future, zooming to the dataset extent might be nicer for users.
+        let firstFeatureCoords = null
+        try {
+          firstFeatureCoords = this.validateAndReturnFirstFeatureCoords(fileInfo['data'])
+        } catch (e) {
+          return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+        }
+
+        fileInfo['firstFeatureCoords'] = firstFeatureCoords
+
         fileInfo['stats'] = this.generateFileStats(fileInfo)
         global.config.debug && console.log('[wally] fileInfo ', fileInfo)
         this.files.push(fileInfo)
@@ -234,7 +360,7 @@ export default {
 
       // select read method and then read file, triggering the onload function.
       // shapefiles are read as arrayBuffers but most other filetypes are text.
-      const readMethod = this.determineFileReadMethod(fileType.type)
+      const readMethod = this.determineFileReadMethod(fileType)
       if (readMethod === 'text') {
         reader.readAsText(file)
       } else if (readMethod === 'arrayBuffer') {
@@ -244,25 +370,22 @@ export default {
       }
     },
     generateFileStats (file) {
-      // handling for GeoJSON types
-      if (this.determineFileType(file.name).type === 'geojson') {
-        // const geojsonFc = JSON.parse(this.fileData[file.name])
-        const geojsonFc = JSON.parse(file['data'])
+      const geojsonFc = file['data']
 
-        const geojsonStats = {
-          id: `${file.name}.${file.lastModified}`,
-          fileType: 'geojson',
-          numFeatures: geojsonFc.features.length,
-          geomType: geojsonFc.features[0].geometry.type,
-          propertyFields: Object.keys(geojsonFc.features[0].properties)
-        }
-        return Object.assign({}, this.getDefaultFileStats(file), geojsonStats)
+      const geojsonStats = {
+        id: `${file.name}.${file.lastModified}`,
+        fileType: file['type'],
+        numFeatures: geojsonFc.features.length,
+        geomType: geojsonFc.features[0].geometry.type,
+        propertyFields: Object.keys(geojsonFc.features[0].properties)
       }
+      return Object.assign({}, this.getDefaultFileStats(file), geojsonStats)
     },
     determineFileReadMethod (filetype) {
       const methods = {
         'geojson': 'text',
         'csv': 'text',
+        'xlsx': 'arrayBuffer',
         'shp': 'arrayBuffer',
         'kml': 'text'
       }
@@ -275,10 +398,11 @@ export default {
         return null
       }
       const types = {
-        'geojson': ['geojson', 'json']
+        'geojson': ['geojson', 'json'],
         // 'shp': ['shp', 'zip'],
-        // 'csv': ['csv'],
-        // 'kml': ['kml']
+        'csv': ['csv'],
+        'xlsx': ['xls', 'xlsx'],
+        'kml': ['kml']
       }
 
       const filenameParts = filename.split('.')
@@ -289,13 +413,13 @@ export default {
         if (types[k].includes(extension)) {
           // filetype extension matched- return filetype key (geojson, shp, etc.)
           return {
-            type: k,
-            supported: true
+            fileType: k,
+            fileSupported: true
           }
         }
       }
 
-      return { type: extension, supported: false } // could not determine file type
+      return { fileType: extension, fileSupported: false } // could not determine file type
     },
     getDefaultFileStats (file) {
       if (!file) {
