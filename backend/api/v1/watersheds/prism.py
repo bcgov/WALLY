@@ -11,8 +11,6 @@ import logging
 from sqlalchemy.orm import Session
 from shapely.geometry import Polygon
 
-from api.v1.watersheds.controller import get_annual_precipitation
-
 logger = logging.getLogger('prism')
 
 
@@ -50,11 +48,8 @@ def mean_annual_precipitation(db: Session, area: Polygon):
             raise Exception(
                 "mean precipitation could not be found using PRISM")
         mean_precip = mean_precip[0]
-    except:
-        # fall back on PCIC data
-        mean_precip = get_annual_precipitation(area)
-        logger.info("found PCIC annual precipitation: %s", mean_precip)
-    else:
         logger.info("found PRISM annual precipitation: %s", mean_precip)
+    except:
+        logger.info("no PRISM value found")
 
     return mean_precip
