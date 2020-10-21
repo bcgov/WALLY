@@ -52,7 +52,6 @@ export default {
     map: null,
     isMapReady: false,
     draw: {},
-    drawClickCount: 0,
     drawnMeasurements: null,
     geocoder: {},
     activeSelection: null,
@@ -156,22 +155,6 @@ export default {
       if (state.draw && state.draw.changeMode) {
         state.isDrawingToolActive = drawMode !== 'simple_select'
         state.draw.changeMode(drawMode)
-      }
-    },
-    mapClick ({ state, dispatch }, e) {
-      if (state.draw && state.draw.getMode) {
-        var mode = state.draw.getMode()
-        var count = state.drawClickCount
-        var route = router.currentRoute.name
-        // Auto-complete cross section line after 2 clicks
-        if (mode === 'draw_line_string' && route === 'cross-section') {
-          if (count === 0) {
-            state.drawClickCount += 1
-          } else if (count === 1) {
-            state.drawClickCount = 0
-            dispatch('setDrawMode', 'simple_select')
-          }
-        }
       }
     },
     addFeaturePOIFromCoordinates ({ state, dispatch }, data) {
@@ -391,7 +374,6 @@ export default {
       commit('removeShapes')
       commit('resetPointOfInterest', {}, { root: true })
       commit('resetDataMartFeatureInfo', {}, { root: true })
-      state.drawClickCount = 0
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
       const pointData = state.map.getSource('highlightPointData')

@@ -106,7 +106,6 @@ export default {
       // special handling for parcels because we may not want to have
       // users turn this layer on/off (it should always be on)
       this.map.on('click', this.setSingleFeature)
-      this.map.on('click', this.mapClick)
       // this.map.on('click', 'parcels', this.setSingleFeature)
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
@@ -242,8 +241,7 @@ export default {
       'initHighlightLayers',
       'updateHighlightLayerData',
       'updateHighlightsLayerData',
-      'setDrawMode',
-      'mapClick'
+      'setDrawMode'
     ])
   },
   watch: {
