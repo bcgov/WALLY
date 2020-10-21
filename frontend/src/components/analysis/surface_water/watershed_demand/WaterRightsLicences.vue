@@ -142,7 +142,7 @@ import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 import surfaceWaterMixin from '../mixins'
 import MonthlyAllocationTable from './MonthlyAllocationTable.vue'
 import WatershedIndividualLicences from './WatershedIndividualLicences.vue'
-import { findWallyLayer, findWallyLayerArray } from '../../../../common/utils/mapUtils'
+import { findWallyLayer } from '../../../../common/utils/mapUtils'
 import { SOURCE_WATER_LICENCES } from '../../../../common/mapbox/sourcesWally'
 
 const popup = new mapboxgl.Popup({

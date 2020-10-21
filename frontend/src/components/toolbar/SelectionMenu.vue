@@ -112,7 +112,7 @@ export default {
       let externalImport =
       {
         title: 'Upload file or data',
-        route: { name: 'import-layer' },
+        route: { name: 'upload-data-layer' },
         icon: 'mdi-cloud-upload'
       }
 
