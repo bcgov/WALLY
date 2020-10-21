@@ -51,7 +51,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import WellsCrossSection from './WellsCrossSection'
+import WellsCrossSection from './WellsCrossSection.vue'
 import CrossSectionInstructions from './CrossSectionInstructions'
 export default {
   name: 'CrossSectionContainer',
@@ -131,17 +131,20 @@ export default {
           this.wellsLayerAutomaticallyEnabled = true
           this.enableWellsLayer()
         }
+        this.map.on('click', this.mapClick)
       }
     }
   },
   mounted () {
-    this.clearSelections()
+    if (this.isMapReady) {
+      this.clearSelections()
+      this.map.on('click', this.mapClick)
+    }
     this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
       this.enableWellsLayer()
     }
-    this.map.on('click', this.mapClick)
   },
   beforeDestroy () {
     if (this.wellsLayerAutomaticallyEnabled) {
