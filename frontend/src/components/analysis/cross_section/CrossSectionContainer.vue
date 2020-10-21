@@ -79,8 +79,8 @@ export default {
     },
     mapClick (e) {
       if (this.draw && this.draw.getMode) {
-        var mode = this.draw.getMode()
-        var count = this.drawClickCount
+        let mode = this.draw.getMode()
+        let count = this.drawClickCount
         // Auto-complete cross section line after 2 clicks
         if (mode === 'draw_line_string') {
           if (count === 0) {
