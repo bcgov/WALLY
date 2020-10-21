@@ -13,12 +13,12 @@ export default {
   },
   methods: {
     legendItems () {
-      var childItems = []
+      const childItems = []
       for (let i = 2; i < this.item.color.length - 1; i += 2) {
         global.config.debug && console.log('[wally]', this.item.color[i].constructor)
         if (this.item.color[i].constructor === Array) {
-          var text = this.labelLookup(this.item.color[i].join(', '))
-          var color = this.item.color[i + 1]
+          const text = this.labelLookup(this.item.color[i].join(', '))
+          const color = this.item.color[i + 1]
           childItems.push({
             text,
             type: 'circle',
