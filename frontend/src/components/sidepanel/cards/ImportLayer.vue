@@ -58,7 +58,7 @@
         <dt>
           Geometry type:
         </dt>
-        <dd> {{ file.stats.geomType }}</dd>
+        <dd> {{ file.stats.geomTypes && file.stats.geomTypes.join(', ') }}</dd>
         <dt>Total features:</dt>
         <dd>{{file.stats.numFeatures}}</dd>
         <dt v-if="file.stats.propertyFields">
@@ -135,7 +135,8 @@ import {
   csvToGeoJSON,
   kmlToGeoJSON,
   xlsxToGeoJSON,
-  groupErrorsByRow
+  groupErrorsByRow,
+  layerGeometryTypes
 } from '../../../common/utils/customLayerUtils'
 
 export default {
@@ -174,7 +175,7 @@ export default {
         filename: file.name
       }
 
-      this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
+      this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomTypes: file.stats.geomTypes, color: file.color.substring(0, 7) })
         .then(() => {
           fileStatus.status = 'success'
           fileStatus.message = `file loaded`
@@ -212,9 +213,26 @@ export default {
         this.handleLoadLayer(file)
       })
     },
-    validateAndReturnFirstFeatureCoords (geojsonFc) {
-      const firstFeatureGeom = centroid(geojsonFc.features.filter(f => Boolean(f.geometry))[0].geometry).geometry
+    validateAndProcessFeatureCollection (geojsonFc, fileType) {
+      const featuresWithGeometries = geojsonFc.features.filter(f => Boolean(f.geometry))
+
+      if (!featuresWithGeometries || !featuresWithGeometries.length) {
+        let errMsg = 'Could not find any spatial data in file.'
+
+        // provide an extra hints for certain files (common issues)
+        if (fileType === 'kml') {
+          errMsg = errMsg + ' For KML files, ensure that the file is not a Network Link file.'
+        } else if (fileType === 'xlsx') {
+          errMsg = errMsg + ' For Excel files, data must be on the first sheet with headers along the first row.' +
+          ' Latitude and Longitude columns must be separated and must have decimal degree values.'
+        }
+        throw new Error(errMsg)
+      }
+
+      const firstFeatureGeom = centroid(featuresWithGeometries[0].geometry).geometry
       const firstFeature = [firstFeatureGeom.coordinates[0], firstFeatureGeom.coordinates[1]]
+
+      const geomTypes = layerGeometryTypes(geojsonFc)
 
       // basic test to assert that the first feature is near BC.
       // this will only be a warning and will only be reliable if all the features are outside BC.
@@ -225,7 +243,10 @@ export default {
       if (!(firstFeature[0] > -180 && firstFeature[0] < 180) || !(firstFeature[1] > -90 && firstFeature[1] < 90)) {
         throw new Error('coordinates are not in degrees')
       }
-      return firstFeature
+      return {
+        firstFeatureCoords: firstFeature,
+        geomTypes: geomTypes
+      }
     },
 
     handleFileMessage ({ filename, status, message, firstFeatureCoords }) {
@@ -298,7 +319,6 @@ export default {
           try {
             const fileData = new Uint8Array(reader.result);
             ({ data, errors } = await xlsxToGeoJSON(fileData))
-            console.log(data)
 
             fileInfo['data'] = data
 
@@ -330,21 +350,16 @@ export default {
           return console.error(`File ${file.name} does not have a -toGeoJSON handler and was not caught by file type check.`)
         }
 
-        // check if there are any features in the dataset
-        if (!fileInfo['data'].features) {
-          return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
-        }
-
         console.log('-------------------------------')
         console.log('Imported')
         console.log('-------------------------------')
 
-        // get the coordinates of the first feature.
-        // this helps zoom to the dataset (if desired).
+        // get the coordinates of the first feature and the geom types in the file.
+        // the coordinates help zoom to the dataset (if desired).
         // todo: in the future, zooming to the dataset extent might be nicer for users.
-        let firstFeatureCoords = null
+        let firstFeatureCoords, geomTypes
         try {
-          firstFeatureCoords = this.validateAndReturnFirstFeatureCoords(fileInfo['data'])
+          ({ firstFeatureCoords, geomTypes } = this.validateAndProcessFeatureCollection(fileInfo['data'], fileType))
         } catch (e) {
           return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
         }
@@ -353,6 +368,8 @@ export default {
 
         fileInfo['stats'] = this.generateFileStats(fileInfo)
         global.config.debug && console.log('[wally] fileInfo ', fileInfo)
+
+        fileInfo.stats.geomTypes = geomTypes
         this.files.push(fileInfo)
 
         this.fileLoading[file.name] = false
@@ -376,7 +393,6 @@ export default {
         id: `${file.name}.${file.lastModified}`,
         fileType: file['type'],
         numFeatures: geojsonFc.features.length,
-        geomType: geojsonFc.features[0].geometry.type,
         propertyFields: Object.keys(geojsonFc.features[0].properties)
       }
       return Object.assign({}, this.getDefaultFileStats(file), geojsonStats)

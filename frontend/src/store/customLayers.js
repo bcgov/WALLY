@@ -35,7 +35,7 @@ function layerConfig ({ id, geomType, color }) {
   const paint = painttypes[geomType]
   console.log(paints[paint])
   return {
-    'id': id,
+    'id': layerStyleId(id, geomType),
     'source': id,
     'type': paint,
     'paint': paints[paint],
@@ -46,6 +46,10 @@ function layerConfig ({ id, geomType, color }) {
 function popupText (properties) {
   const props = Object.entries(properties).map(prop => `${prop[0]}: ${prop[1]}`)
   return props.join('\n')
+}
+
+function layerStyleId (baseId, geomType) {
+  return `${baseId}-${geomType}`
 }
 
 export default {
@@ -68,10 +72,13 @@ export default {
     removeCustomLayer (state, { map, id }) {
       // removes a custom layer by layer ID
 
-      map.removeLayer(id)
+      const layerPos = state.customLayers.children.map(x => x.id).indexOf(id)
+
+      state.customLayers.children[layerPos].geomTypes.forEach(geomType => {
+        map.removeLayer(layerStyleId(id, geomType))
+      })
       map.removeSource(id)
 
-      const layerPos = state.customLayers.children.map(x => x.id).indexOf(id)
       if (layerPos > -1) {
         state.customLayers.children.splice(layerPos, 1)
       }
@@ -84,11 +91,12 @@ export default {
     }
   },
   actions: {
-    loadCustomGeoJSONLayer ({ commit, dispatch }, { map, featureCollection, geomType, color }) {
+    loadCustomGeoJSONLayer ({ commit, dispatch }, { map, featureCollection, geomTypes, color }) {
       const layerInfo = {
         id: featureCollection.id,
         name: featureCollection.properties.name,
-        geomType: geomType,
+        layerStyles: [],
+        geomType: geomTypes,
         color: color
       }
 
@@ -97,7 +105,9 @@ export default {
       return new Promise((resolve, reject) => {
         try {
           map.addSource(featureCollection.id, geojsonFC(featureCollection))
-          map.addLayer(layerConfig({ id: featureCollection.id, geomType, color }))
+          geomTypes.forEach(geomType => {
+            map.addLayer(layerConfig({ id: featureCollection.id, geomType, color }))
+          })
 
           // create popup on click, and have cursor change on hover
           map.on('click', featureCollection.id, function (e) {

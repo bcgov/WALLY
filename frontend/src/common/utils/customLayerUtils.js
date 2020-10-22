@@ -82,3 +82,41 @@ export function csvToGeoJSON (file) {
     })
   })
 }
+
+// from a FeatureCollection `fc`, return an array
+// of the geometry types contained within the FeatureCollection.
+export function layerGeometryTypes (fc) {
+  let typeMap = {}
+  let types = []
+
+  fc.features.forEach(f => {
+    // skip features with no geometry.
+    if (!f.geometry) {
+      return
+    }
+
+    const geomType = f.geometry.type
+
+    // special handling for GeometryCollections
+    // a GeometryCollection should have a `geometries` member which is an array
+    // of geometries.  Ideally, GeometryCollections won't be nested.
+    // this code block grabs the unique geometries and adds them to the type list (if
+    // they haven't already been seen)
+    if (geomType === 'GeometryCollection') {
+      const collectionTypes = [...new Set(f.geometry.geometries.map(g => g.type))]
+      collectionTypes.forEach(t => {
+        if (!typeMap[t]) {
+          typeMap[t] = true
+          types.push(t)
+        }
+      })
+      return
+    }
+
+    if (!typeMap[geomType]) {
+      typeMap[geomType] = true
+      types.push(geomType)
+    }
+  })
+  return types
+}
