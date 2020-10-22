@@ -41,15 +41,12 @@ def mean_annual_precipitation(db: Session, area: Polygon):
     from    precip;
     """
 
-    try:
-        mean_precip = db.execute(q, {"area": area.wkt})
-        mean_precip = mean_precip.fetchone()
-        if not mean_precip or not mean_precip[0]:
-            raise Exception(
-                "mean precipitation could not be found using PRISM")
-        mean_precip = mean_precip[0]
-        logger.info("found PRISM annual precipitation: %s", mean_precip)
-    except:
-        logger.info("no PRISM value found")
+    mean_precip = db.execute(q, {"area": area.wkt})
+    mean_precip = mean_precip.fetchone()
+    if not mean_precip or not mean_precip[0]:
+        raise Exception(
+            "mean precipitation could not be found using PRISM")
+    mean_precip = mean_precip[0]
+    logger.info("found PRISM annual precipitation: %s", mean_precip)
 
     return mean_precip
