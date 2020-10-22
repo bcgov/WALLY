@@ -218,7 +218,8 @@ const router = new Router({
       component: ImportLayer,
       meta: {
         title: `Upload File - ${title}`,
-        sidebarColumns: {}
+        sidebarColumns: {},
+        allowRedirect: true
       }
     },
     {
