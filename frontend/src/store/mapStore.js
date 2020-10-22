@@ -373,6 +373,10 @@ export default {
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
+      if (!state.isMapReady) {
+        return
+      }
+
       const pointData = state.map.getSource('highlightPointData')
       const layerData = state.map.getSource('highlightLayerData')
 

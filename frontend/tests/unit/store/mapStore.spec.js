@@ -244,6 +244,13 @@ describe('Map Store', () => {
     expect(addLayerSpy).toHaveBeenCalledTimes(2)
   })
 
+  it('clearHighlightLayer does not do anything ' +
+    'if highlight layers are not yet ready', () => {
+    store.actions.clearHighlightLayer(store)
+    expect(store.dispatch).not.toHaveBeenCalledWith('clearStreamHighlights')
+    expect(store.dispatch).not.toHaveBeenCalledWith('removeElementsByClass', 'annotationMarker')
+  })
+
   // note: these getter tests don't test much code,
   // but our app depends on these key map resources being accessible
   // through the store getters.
