@@ -8,11 +8,12 @@
     <v-row class="pa-5">
       <v-col>
         <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
-        <p>Supported file types include: <strong>geojson, csv, xlsx, kml</strong></p>
-        <p><strong>CSV</strong>: files should have two columns with the headings "Latitude" and "Longitude", or "lat" and "long" (not case sensitive).</p>
-        <p><strong>Excel</strong>: workbooks with a table on the first sheet (and no other cells filled in outside the table) are supported. The same column heading rules as CSV files apply.</p>
-        <p><strong>Supported coordinate system</strong>:  Degrees Longitude/Latitude (WGS84). e.g. -127.10205, 51.81051</p>
-        <p>Large or complex spatial data may impact browser performance.</p>
+        <p>Supported file types include: geojson, csv, xlsx, kml</p>
+        <p>Imported files require a location in order to be displayed. The supported coordinated system is decimal degrees longitude/latitude (WGS84).
+            For example, -127.10205, 51.81051</p>
+        <p>For CSV and Excel, the files should have two columns with the headings (not case sensitive): "Latitude" and "Longitude" or "lat" and "long".
+            It works best to upload an Excel workbook that has a table on the first sheet (and no other cells filled in outside the table).</p>
+        <p>Large or complex files may impact performance. A message will indicate if the file has been successfully uploaded.</p>
       </v-col>
     </v-row>
     <v-row class="pl-5 pr-5">
