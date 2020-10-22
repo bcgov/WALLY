@@ -51,7 +51,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import WellsCrossSection from './WellsCrossSection'
+import WellsCrossSection from './WellsCrossSection.vue'
 import CrossSectionInstructions from './CrossSectionInstructions'
 export default {
   name: 'CrossSectionContainer',
@@ -60,7 +60,8 @@ export default {
     WellsCrossSection
   },
   data: () => ({
-    wellsLayerAutomaticallyEnabled: false
+    wellsLayerAutomaticallyEnabled: false,
+    drawClickCount: 0
   }),
   methods: {
     drawLine (options = {}) {
@@ -76,6 +77,21 @@ export default {
     disableWellsLayer () {
       this.$store.dispatch('map/removeMapLayer', 'groundwater_wells')
     },
+    mapClick (e) {
+      if (this.draw && this.draw.getMode) {
+        let mode = this.draw.getMode()
+        let count = this.drawClickCount
+        // Auto-complete cross section line after 2 clicks
+        if (mode === 'draw_line_string') {
+          if (count === 0) {
+            this.drawClickCount += 1
+          } else if (count === 1) {
+            this.drawClickCount = 0
+            this.setDrawMode('simple_select')
+          }
+        }
+      }
+    },
     ...mapActions(['exitFeature']),
     ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
   },
@@ -83,7 +99,7 @@ export default {
     isWellsLayerEnabled () {
       return this.isMapLayerActive('groundwater_wells')
     },
-    ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
+    ...mapGetters('map', ['map', 'draw', 'isMapLayerActive', 'isMapReady']),
     ...mapGetters(['sectionLine'])
   },
   watch: {
@@ -115,11 +131,15 @@ export default {
           this.wellsLayerAutomaticallyEnabled = true
           this.enableWellsLayer()
         }
+        this.map.on('click', this.mapClick)
       }
     }
   },
   mounted () {
-    this.clearSelections()
+    if (this.isMapReady) {
+      this.clearSelections()
+      this.map.on('click', this.mapClick)
+    }
     this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isWellsLayerEnabled) {
       this.wellsLayerAutomaticallyEnabled = true
@@ -130,6 +150,8 @@ export default {
     if (this.wellsLayerAutomaticallyEnabled) {
       this.disableWellsLayer()
     }
+    this.map.off('click', this.mapClick)
+    this.drawClickCount = 0
   }
 }
 </script>
