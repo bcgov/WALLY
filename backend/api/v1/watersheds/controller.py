@@ -27,6 +27,8 @@ from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.models.isolines.controller import calculate_runoff_in_area
+from api.v1.models.scsb2016.controller import get_hydrological_zone
+from api.v1.watersheds.prism import mean_annual_precipitation
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
@@ -1002,3 +1004,65 @@ def get_scsb2016_input_stats(db: Session):
     result = db.execute(q)
     stats = [dict(row) for row in result]
     return stats
+
+
+def get_watershed_details(db: Session, watershed: Feature):
+    """ returns watershed inputs variables used in modelling """
+
+    watershed_poly = shape(watershed.geometry)
+    watershed_area = transform(transform_4326_3005, watershed_poly).area
+    watershed_rect = watershed_poly.minimum_rotated_rectangle
+
+    # watershed characteristics lookups
+    drainage_area = watershed_area / 1e6  # needs to be in km²
+    glacial_area_m, glacial_coverage = calculate_glacial_area(
+        db, watershed_rect)
+
+    # precipitation values from prism raster
+    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
+    if not annual_precipitation:
+        # fall back on PCIC data
+        annual_precipitation = get_annual_precipitation(watershed_poly)
+
+    # temperature and potential evapotranspiration values
+    try:
+        temperature_data = get_temperature(watershed_poly)
+        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
+            watershed_poly, temperature_data)
+        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
+            watershed_poly, temperature_data
+        )
+    except Exception:
+        temperature_data = None
+        potential_evapotranspiration_hamon = None
+        potential_evapotranspiration_thornthwaite = None
+
+    # hydro zone dictates which model values to use
+    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+
+    # slope elevation aspect
+    try:
+        average_slope, median_elevation, aspect = get_slope_elevation_aspect(
+            watershed_poly)
+        solar_exposure = get_hillshade(average_slope, aspect)
+    except Exception:
+        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+
+    data = {
+        "watershed_id": watershed.id,
+        "watershed_area": watershed_area,
+        "drainage_area": drainage_area,
+        "glacial_area": glacial_area_m,
+        "glacial_coverage": glacial_coverage,
+        "temperature_data": temperature_data,
+        "annual_precipitation": annual_precipitation,
+        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
+        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
+        "hydrological_zone": hydrological_zone,
+        "average_slope": average_slope,
+        "solar_exposure": solar_exposure,
+        "median_elevation": median_elevation,
+        "aspect": aspect
+    }
+
+    return data

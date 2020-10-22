@@ -29,27 +29,18 @@ from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, Externa
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 from api.v1.aggregator.excel import xlsx_export
 from api.v1.watersheds.controller import (
-    calculate_glacial_area,
-    pcic_data_request,
+    get_watershed_details,
     surface_water_rights_licences,
     surface_water_approval_points,
     calculate_watershed,
     get_watershed,
-    get_upstream_catchment_area,
     surficial_geology,
-    get_temperature,
-    get_annual_precipitation,
-    calculate_potential_evapotranspiration_thornthwaite,
-    calculate_potential_evapotranspiration_hamon,
-    get_slope_elevation_aspect,
-    get_hillshade,
     export_summary_as_xlsx,
     known_fish_observations,
     find_50k_watershed_codes,
     get_stream_inventory_report_link_for_region,
     get_scsb2016_input_stats
 )
-from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
     WatershedDetails,
@@ -60,7 +51,6 @@ from api.v1.watersheds.schema import (
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
 from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model
-from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs
 
 logger = getLogger("aggregator")
 
@@ -174,54 +164,23 @@ def watershed_stats(
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
     watershed_poly = shape(watershed.geometry)
-    watershed_area = transform(transform_4326_3005, watershed_poly).area
-    watershed_rect = watershed_poly.minimum_rotated_rectangle
 
-    # watershed characteristics lookups
-    drainage_area = watershed_area / 1e6  # needs to be in km²
-    glacial_area_m, glacial_coverage = calculate_glacial_area(
-        db, watershed_rect)
-
-    # precipitation values from prism raster
-    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
-
-    # temperature and potential evapotranspiration values
-    try:
-        temperature_data = get_temperature(watershed_poly)
-        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-            watershed_poly, temperature_data)
-        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-            watershed_poly, temperature_data
-        )
-    except Exception:
-        temperature_data = None
-        potential_evapotranspiration_hamon = None
-        potential_evapotranspiration_thornthwaite = None
-
-    # hydro zone dictates which model values to use
-    hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
-
-    # slope elevation aspect
-    try:
-        average_slope, median_elevation, aspect = get_slope_elevation_aspect(
-            watershed_poly)
-        solar_exposure = get_hillshade(average_slope, aspect)
-    except Exception:
-        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+    watershed_details = get_watershed_details(db, watershed)
+    wd = watershed_details # purely for shorthand below
 
     # isoline model outputs
     isoline_runoff_model = calculate_runoff_in_area(db, watershed_poly)
 
     # custom linear mad model outputs
-    scsb2016_model = calculate_mean_annual_runoff(db, hydrological_zone, median_elevation,
-                                                  glacial_coverage, annual_precipitation, potential_evapotranspiration_thornthwaite,
-                                                  drainage_area, solar_exposure, average_slope)
+    scsb2016_model = calculate_mean_annual_runoff(db, wd["hydrological_zone"], wd["median_elevation"],
+                                                  wd["glacial_coverage"], wd["annual_precipitation"], wd["potential_evapotranspiration_thornthwaite"],
+                                                  wd["drainage_area"], wd["solar_exposure"], wd["average_slope"])
 
     scsb2016_input_stats = get_scsb2016_input_stats(db)
 
     try:
         wally_hydrological_zone_model = get_hydrological_zone_model(
-            hydrological_zone, drainage_area, median_elevation, annual_precipitation)
+            wd["hydrological_zone"], wd["drainage_area"], wd["median_elevation"], wd["annual_precipitation"])
     except:
         wally_hydrological_zone_model = None
 
@@ -231,19 +190,7 @@ def watershed_stats(
     data = {
         "watershed_name": watershed.properties.get("name", None),
         "watershed_source": watershed.properties.get("watershed_source", None),
-        "watershed_area": watershed_area,
-        "drainage_area": drainage_area,
-        "glacial_area": glacial_area_m,
-        "glacial_coverage": glacial_coverage,
-        "temperature_data": temperature_data,
-        "annual_precipitation": annual_precipitation,
-        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
-        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
-        "hydrological_zone": hydrological_zone,
-        "average_slope": average_slope,
-        "solar_exposure": solar_exposure,
-        "median_elevation": median_elevation,
-        "aspect": aspect,
+        **watershed_details,
         "runoff_isoline_avg": (isoline_runoff_model['runoff'] /
                                isoline_runoff_model['area'] * 1000) if isoline_runoff_model['area'] else 0,
         "runoff_isoline_discharge_m3s": isoline_runoff_model['runoff'] / 365 / 24 / 60 / 60,
@@ -273,6 +220,34 @@ def watershed_stats(
     logger.warn("Watershed Details - Request Finished")
 
     return data
+
+
+@router.get('/details/')
+def get_generated_watershed_details(
+    db: Session = Depends(get_db),
+    point: str = Query(
+        "", title="Search point",
+        description="Point to search within")
+):
+    """ returns generated watershed characteristics, used as source for modelling data """
+
+    if not point:
+        raise HTTPException(
+            status_code=400, detail="No search point. Supply a `point` (geojson geometry)")
+
+    if point:
+        point_parsed = json.loads(point)
+        point = Point(point_parsed)
+
+    watershed = calculate_watershed(db, point, include_self=True)
+
+    if not watershed:
+        raise HTTPException(
+            status_code=500, detail="Could not generate watershed.")
+
+    watershed_details = get_watershed_details(db, watershed)
+
+    return watershed_details
 
 
 @router.get('/{watershed_feature}/fwa_50k_codes')
