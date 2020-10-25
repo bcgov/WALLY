@@ -15,12 +15,12 @@ tic = time.time()
 # Add Wally access token here
 headers = {'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtcGp0Z2tDT2dCVXgydFR2bUFRWFREbTRLLWNYdG5PWVVmM25HZ29OSU5vIn0.eyJleHAiOjE2MDM2ODA1NjYsImlhdCI6MTYwMzY0ODE2NiwiYXV0aF90aW1lIjoxNjAzNjQ4MTY2LCJqdGkiOiJiMjY5YWIwZS1mOTJmLTRmMjEtYTM5Ny05YWI5YjIyYzJkZDIiLCJpc3MiOiJodHRwczovL29pZGMuZ292LmJjLmNhL2F1dGgvcmVhbG1zL2llc3ltZG54IiwiYXVkIjpbIndhbGx5LWdhdGVrZWVwZXIiLCJyZWFsbS1tYW5hZ2VtZW50IiwiYWNjb3VudCJdLCJzdWIiOiJjOGFjM2YyNC04MzlkLTQyM2EtYTRhOS04N2FlZjYwZjI1Y2UiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3YWxseS1nYXRla2VlcGVyIiwic2Vzc2lvbl9zdGF0ZSI6IjkwOTdjY2QyLWI4ZDctNDU2NC1hNmNkLWE3MTkwYjVhYmE4YyIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsid2FsbHktbWV0cmljcyIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iLCJ3YWxseS12aWV3Il19LCJyZXNvdXJjZV9hY2Nlc3MiOnsicmVhbG0tbWFuYWdlbWVudCI6eyJyb2xlcyI6WyJ2aWV3LXJlYWxtIiwidmlldy1pZGVudGl0eS1wcm92aWRlcnMiLCJtYW5hZ2UtaWRlbnRpdHktcHJvdmlkZXJzIiwicmVhbG0tYWRtaW4iLCJjcmVhdGUtY2xpZW50IiwibWFuYWdlLXVzZXJzIiwicXVlcnktcmVhbG1zIiwidmlldy1hdXRob3JpemF0aW9uIiwicXVlcnktY2xpZW50cyIsInF1ZXJ5LXVzZXJzIiwibWFuYWdlLWV2ZW50cyIsIm1hbmFnZS1yZWFsbSIsInZpZXctZXZlbnRzIiwidmlldy11c2VycyIsInZpZXctY2xpZW50cyIsIm1hbmFnZS1hdXRob3JpemF0aW9uIiwibWFuYWdlLWNsaWVudHMiLCJxdWVyeS1ncm91cHMiXX0sImFjY291bnQiOnsicm9sZXMiOlsibWFuYWdlLWFjY291bnQiLCJtYW5hZ2UtYWNjb3VudC1saW5rcyIsInZpZXctcHJvZmlsZSJdfX0sInNjb3BlIjoib3BlbmlkIGVtYWlsIHByb2ZpbGUiLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsIm5hbWUiOiJBbGV4IFpvcmtpbiIsInByZWZlcnJlZF91c2VybmFtZSI6ImF6b3JraW5AaWRpciIsImdpdmVuX25hbWUiOiJBbGV4IiwiZmFtaWx5X25hbWUiOiJab3JraW4iLCJlbWFpbCI6ImFsZXhAYmlndGhpbmsuaW8ifQ.XaRUYxCzTg5watmWevQr-DbaeUhcq6zMBDpG32j3mSkcugp2_iuKiizv6-RYq5ZAeGF-vw44o7INvLb9ZWwBSR3niYTzywOGUF8i6pxtOCiRLm7-v4nbTqP6qO9dgCoZsXt_4OSnwtpL2pao4PvEoadeogu0IhZDFLKvi87dg6jt6i-TKvVur0HM-OqMUWt3g-oBobAwVfumx9Hl0V2anOqgc577t_A8ZmW_UqeYPYxFPpSdJWtGP-6YAOotgK7sJAcZG3yJsvJZLJdckHyix39RhUR6j2_gkZI70lgddkZ2OcYXV5hOsC4M-jzbW1Hhk-kp0jzGDek1CI49Ss_9sA'}
 # Read in station locations
-station_locations_df = pd.read_csv("../output/BC_STATION_LOCATIONS.csv")
+station_locations_df = pd.read_csv("../data/BC_STATION_LOCATIONS.csv")
 
 # setup output file
 date = datetime.datetime.now().strftime('%m-%d-%Y')
-filename = "watershed_info" + "_" + date + ".csv"
-filepath = "../output/{}".format(filename)
+filename = "station_watershed_info" + "_" + date + ".csv"
+filepath = "../data/{}".format(filename)
 
 watershed_info = []
 resp_error_count = 0
@@ -81,13 +81,6 @@ with open(filepath, "a") as outfile:
 
 # Loggin output info
 if len(watershed_info) > 0:
-    # write stations information to file
-    # df = pd.DataFrame(watershed_info)
-    # df.to_csv('../output/{}'.format(filename), index=False, header=True)
-
-    # with open("../output/" + filename, "w") as outfile:
-    #     json.dump(watershed_info, outfile)
-    
     toc = time.time()
     print("process took: {} minutes".format((toc-tic)/60))
 
