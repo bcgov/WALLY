@@ -1006,7 +1006,7 @@ def get_scsb2016_input_stats(db: Session):
     return stats
 
 
-def get_watershed_details(db: Session, watershed: Feature):
+def get_watershed_details(db: Session, watershed: Feature, skip_sea: bool = False):
     """ returns watershed inputs variables used in modelling """
 
     watershed_poly = shape(watershed.geometry)
