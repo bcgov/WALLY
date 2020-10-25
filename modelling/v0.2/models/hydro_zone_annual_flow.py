@@ -29,7 +29,7 @@ for filename in sorted(os.listdir(directory)):
         xgb_score = xgb.score(X_test, y_test)
 
         zone_name = filename.split('_')[1].split('.')[0]
-        xgb.save_model('../model_output/hydro_zone_annual_flow/xgb/zone_{}.json'.format(zone_name))
+        xgb.save_model('../model_output/hydro_zone_annual_flow/zone_{}.json'.format(zone_name))
 
         print('{' + '{}: {}'.format(zone_name, round(xgb_score, 4)) + '}')
         continue
