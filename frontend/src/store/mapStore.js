@@ -11,30 +11,24 @@ import pointInPolygon from '@turf/boolean-point-in-polygon'
 import mapboxgl from 'mapbox-gl'
 import MapboxDraw from '@mapbox/mapbox-gl-draw'
 import qs from 'querystring'
-import { wmsBaseURL, setLayerSource } from '../common/utils/wmsUtils'
+import { wmsBaseURL } from '../common/utils/wmsUtils'
 import MapScale from '../components/map/MapScale'
+import { getDefaultStyle } from '../common/mapbox/styles'
+import { addMapboxLayer } from '../common/utils/mapUtils'
+import {
+  geojsonFC,
+  lineStringFeature,
+  pointFeature,
+  polygonFeature, vectorSource
+} from '../common/mapbox/features'
+import {
+  highlightSources, measurementSources, SOURCE_CUSTOM_SHAPE_DATA,
+  streamHighlightSources
+} from '../common/mapbox/sourcesWally'
 
-const emptyPoint = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'Point',
-    'coordinates': [[]]
-  }
-}
-const emptyLine = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'LineString',
-    'coordinates': [[]]
-  }
-}
-const emptyPolygon = {
-  'type': 'Feature',
-  'geometry': {
-    'type': 'Polygon',
-    'coordinates': [[]]
-  }
-}
+const emptyPoint = pointFeature([])
+const emptyLine = lineStringFeature([])
+const emptyPolygon = polygonFeature([[]])
 
 const emptyFeatureCollection = {
   type: 'FeatureCollection',
@@ -87,9 +81,12 @@ export default {
         zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
       }
 
+      let style = getDefaultStyle()
+
+      global.config.debug && console.log('[wally] using style...', style)
       commit('setMap', new mapboxgl.Map({
         container: 'map', // container id
-        style: mapConfig.data.mapbox_style, // dev or prod map style
+        style,
         center: zoomConfig.center, // starting position
         zoom: zoomConfig.zoomLevel, // starting zoom
         attributionControl: false, // hide default and re-add to the top left
@@ -376,6 +373,10 @@ export default {
       commit('resetDataMartFeatureInfo', {}, { root: true })
     },
     clearHighlightLayer ({ commit, state, dispatch }) {
+      if (!state.isMapReady) {
+        return
+      }
+
       const pointData = state.map.getSource('highlightPointData')
       const layerData = state.map.getSource('highlightLayerData')
 
@@ -391,8 +392,8 @@ export default {
       commit('resetStreamData', {}, { root: true })
     },
     clearStreamHighlights ({ rootGetters, state }) {
-      rootGetters.getStreamSources.forEach((s) => {
-        state.map.getSource(s.name).setData(emptyFeatureCollection)
+      streamHighlightSources.forEach((source) => {
+        state.map.getSource(source).setData(emptyFeatureCollection)
       })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
@@ -403,49 +404,20 @@ export default {
     },
     initStreamHighlights ({ state, rootGetters }) {
       // Import sources and layers for stream segment highlighting
-      rootGetters.getStreamSources.forEach((s) => {
-        state.map.addSource(s.name, { type: 'geojson', data: s.options })
-      })
-      rootGetters.getStreamLayers.forEach((l) => {
-        state.map.addLayer(l)
+      streamHighlightSources.forEach((source) => {
+        state.map.addSource(source, geojsonFC(emptyFeatureCollection))
+        addMapboxLayer(state.map, source, {})
       })
     },
     async initHighlightLayers ({ state, commit }) {
       await state.map.on('load', () => {
-        // initialize highlight layer
-        state.map.addSource('customShapeData', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'customShape',
-          'type': 'fill',
-          'source': 'customShapeData',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(26, 193, 244, 0.08)',
-            'fill-outline-color': 'rgb(8, 159, 205)'
-          }
-        })
-        state.map.addSource('highlightLayerData', {
-          type: 'geojson',
-          data: emptyPolygon
-        })
-        state.map.addLayer({
-          'id': 'highlightLayer',
-          'type': 'fill',
-          'source': 'highlightLayerData',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(154, 63, 202, 0.25)'
-          }
-        })
+        // initialize highlight layers
         state.map.addImage('highlight-point', HighlightPoint(state.map, 90), { pixelRatio: 2 })
-        state.map.addSource('highlightPointData', { type: 'geojson', data: emptyPoint })
-        state.map.addLayer({
-          'id': 'highlightPoint',
-          'type': 'symbol',
-          'source': 'highlightPointData',
-          'layout': {
-            'icon-image': 'highlight-point'
-          }
+        highlightSources.forEach((source) => {
+          console.log('hl layers', source, source.includes('Point'))
+          const defaultData = source.includes('Point') ? emptyPoint : emptyPolygon
+          state.map.addSource(source, geojsonFC(defaultData))
+          addMapboxLayer(state.map, source, {})
         })
 
         global.config.debug && console.log('[wally] map is now ready')
@@ -487,41 +459,9 @@ export default {
     async initMeasurementHighlight ({ state }, payload) {
       await state.map.on('load', () => {
         // initialize measurement highlight layer
-        state.map.addSource('measurementPolygonHighlight', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'measurementPolygonHighlight',
-          'type': 'fill',
-          'source': 'measurementPolygonHighlight',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(26, 193, 244, 0.1)',
-            'fill-outline-color': 'rgb(8, 159, 205)'
-          }
-        })
-        state.map.addSource('measurementSnapCircle', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'measurementSnapCircle',
-          'type': 'fill',
-          'source': 'measurementSnapCircle',
-          'layout': {},
-          'paint': {
-            'fill-color': 'rgba(255, 255, 255, 0.65)',
-            'fill-outline-color': 'rgb(155, 155, 155)'
-          }
-        })
-        state.map.addSource('measurementLineHighlight', { type: 'geojson', data: emptyPolygon })
-        state.map.addLayer({
-          'id': 'measurementLineHighlight',
-          'type': 'line',
-          'source': 'measurementLineHighlight',
-          'layout': {
-            'line-join': 'round',
-            'line-cap': 'round'
-          },
-          'paint': {
-            'line-color': 'rgba(26, 193, 244, 0.7)',
-            'line-width': 2
-          }
+        measurementSources.forEach((source) => {
+          state.map.addSource(source, geojsonFC(emptyPolygon))
+          addMapboxLayer(state.map, source, {})
         })
       })
     },
@@ -564,8 +504,6 @@ export default {
       }, 500)
     },
     initVectorLayerSources (state, allLayers) {
-      // This mutation replaces the mapbox composite source with DataBC sources
-      // this way we always have the most up to date data from DataBC
       allLayers.forEach((layer) => {
         if (layer.use_wms) {
           const layerID = layer.display_data_name
@@ -583,74 +521,22 @@ export default {
             srs: 'EPSG:3857'
           }
           const query = qs.stringify(wmsOpts)
-          var url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
+          let url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
           // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
           if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
             url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
           }
-          // replace source with DataBC supported vector layer
-          state.map.addSource(`${layerID}-source`, {
-            'type': 'vector',
-            'tiles': [url],
-            'source-layer': layer.wms_name,
-            'minzoom': 3,
-            'maxzoom': 20
-          })
-          // This replaces the mapbox layer source with the DataBC source
-          // Allows us to use mapbox styles managed from the iit-water mapbox account
-          // but use DataBC vector data rather than the mapbox composite source
-          setLayerSource(state.map, layerID, `${layerID}-source`, layer.wms_name)
+          state.map.addSource(layerID, vectorSource(url, layerID))
+          addMapboxLayer(state.map, layerID, { sourceLayer: layer.wms_name })
         }
-      })
-    },
-    addWMSLayer (state, layer) {
-      // this mutation adds wms layers to the map
-      const layerID = layer.display_data_name
-      if (!layerID) {
-        return
-      }
-
-      const wmsOpts = {
-        service: 'WMS',
-        request: 'GetMap',
-        format: 'image/png',
-        layers: 'pub:' + layer.wms_name,
-        styles: layer.wms_style,
-        transparent: true,
-        name: layer.name,
-        height: 256,
-        width: 256,
-        overlay: true,
-        srs: 'EPSG:3857'
-      }
-
-      const query = qs.stringify(wmsOpts)
-      const url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
-
-      state.map.addSource(`${layerID}-source`, {
-        'type': 'raster',
-        'tiles': [
-          url
-        ],
-        'tileSize': 256
-      })
-
-      state.map.addLayer({
-        'id': layerID,
-        'type': 'raster',
-        'source': `${layerID}-source`,
-        'layout': {
-          'visibility': 'none'
-        },
-        'paint': {}
       })
     },
     addShape (state, shape) {
       // adds a mapbox-gl-draw shape to the map
-      state.map.getSource('customShapeData').setData(shape)
+      state.map.getSource(SOURCE_CUSTOM_SHAPE_DATA).setData(shape)
     },
     removeShapes (state) {
-      state.map.getSource('customShapeData').setData(emptyPolygon)
+      state.map.getSource(SOURCE_CUSTOM_SHAPE_DATA).setData(emptyPolygon)
     },
     replaceOldFeatures (state, newFeature = null) {
       // replace all previously drawn features with the new one.
@@ -728,17 +614,17 @@ export default {
         const lineConnects = pointInPolygon(coordinates[coordinates.length - 1], bounds)
 
         // metric calculations
-        var drawnMeasurements = {}
+        let drawnMeasurements = {}
 
         // calculate area and perimeter and highlight polygon shape
         if (coordinates.length > 3 && lineConnects) {
           // set last coordinate equal to the first
           // because the click point is within the minimum bounds
-          var lineFeature = feature
-          var ac = lineFeature.geometry.coordinates
+          let lineFeature = feature
+          let ac = lineFeature.geometry.coordinates
           ac[ac.length - 1] = ac[0]
           lineFeature.geometry.coordinates = ac
-          var perimeterMeasurement = (lineDistance(lineFeature) * 1000)
+          let perimeterMeasurement = (lineDistance(lineFeature) * 1000)
 
           // update draw feature collection with connected lines
           state.draw.set({
@@ -751,10 +637,10 @@ export default {
             }]
           })
 
-          var areaUnits = 'm²'
-          var perimeterUnits = 'm'
-          var polygonFeature = lineToPolygon(lineFeature)
-          var areaMeasurement = area(polygonFeature)
+          let areaUnits = 'm²'
+          let perimeterUnits = 'm'
+          let polygonFeature = lineToPolygon(lineFeature)
+          let areaMeasurement = area(polygonFeature)
 
           if (perimeterMeasurement >= 1000) { // if over 1000 meters, upgrade metric
             perimeterMeasurement = perimeterMeasurement / 1000
@@ -773,8 +659,8 @@ export default {
           }
         // calculate line distance and highlight line shape
         } else {
-          var distanceUnits = 'm'
-          var distance = drawnLength
+          let distanceUnits = 'm'
+          let distance = drawnLength
 
           if (distance >= 1000) { // if over 1000 meters, upgrade metric
             distance = distance / 1000

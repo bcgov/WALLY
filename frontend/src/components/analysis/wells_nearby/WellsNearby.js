@@ -7,6 +7,7 @@ import circle from '@turf/circle'
 import WellsNearbyBoxPlot from './WellsNearbyBoxPlot'
 
 import { downloadXlsx } from '../../../common/utils/exportUtils'
+import { pointFeature } from '../../../common/mapbox/features'
 
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
@@ -223,19 +224,11 @@ export default {
     },
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
-      // hovered list item in the nearby wells table
-      let feature = {
-        'id': well.well_tag_number,
-        'type': 'Feature',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
-            well.longitude,
-            well.latitude
-          ]
-        },
-        'properties': {}
-      }
+      let feature = pointFeature([
+        well.longitude,
+        well.latitude
+      ])
+      console.log('wells nearby')
       feature['display_data_name'] = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
     }

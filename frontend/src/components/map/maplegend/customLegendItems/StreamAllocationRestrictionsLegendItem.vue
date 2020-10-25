@@ -13,11 +13,11 @@ export default {
   },
   methods: {
     legendItems () {
-      var childItems = []
+      const childItems = []
       for (let i = 1; i < this.item.color.length; i += 2) {
         if (this.item.color[i].constructor === Array) {
-          var text = this.labelLookup(this.item.color[i][2].join(', '))
-          var color = this.item.color[i + 1]
+          const text = this.labelLookup(this.item.color[i][2].join(', '))
+          const color = this.item.color[i + 1]
           childItems.push({
             text,
             type: 'line',

@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 // eslint-disable-next-line
 import router from '../../../src/router'
 import * as map from '../../../src/store/mapStore'
+import * as mapUtils from '../../../src/common/utils/mapUtils'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -198,6 +199,56 @@ describe('Map Store', () => {
     store.actions.addActiveSelection(store, { featureCollection: testFeatureCollection })
     expect(testFeatureCollection.features[0].display_data_name).toBe('user_defined_line')
     expect(store.commit).toHaveBeenCalledWith('setSectionLine', testFeatureCollection.features[0], { root: true })
+  })
+
+  it('Inits vector tiles for layers with `use_wms` set to true', () => {
+    const layers = [
+      {
+        use_wms: true,
+        display_data_name: 'Test',
+        display_name: '',
+        wms_name: '',
+        wms_style: ''
+      },
+      {
+        use_wms: true,
+        display_data_name: 'Test 1',
+        display_name: '',
+        wms_name: '',
+        wms_style: ''
+      },
+      {
+        use_wms: false,
+        display_data_name: 'Test 3',
+        display_name: '',
+        wms_name: '',
+        wms_style: ''
+      },
+      {
+        use_wms: false,
+        display_data_name: 'Test 1',
+        display_name: '',
+        wms_name: '',
+        wms_style: ''
+      }
+    ]
+    store.state.map = {
+      addSource: jest.fn(),
+      addLayer: jest.fn()
+    }
+
+    const addLayerSpy = jest.spyOn(mapUtils, 'addMapboxLayer')
+
+    store.mutations.initVectorLayerSources(store.state, layers)
+    expect(store.state.map.addSource).toHaveBeenCalledTimes(2)
+    expect(addLayerSpy).toHaveBeenCalledTimes(2)
+  })
+
+  it('clearHighlightLayer does not do anything ' +
+    'if highlight layers are not yet ready', () => {
+    store.actions.clearHighlightLayer(store)
+    expect(store.dispatch).not.toHaveBeenCalledWith('clearStreamHighlights')
+    expect(store.dispatch).not.toHaveBeenCalledWith('removeElementsByClass', 'annotationMarker')
   })
 
   // note: these getter tests don't test much code,

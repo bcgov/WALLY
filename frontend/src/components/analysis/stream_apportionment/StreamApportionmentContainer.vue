@@ -125,12 +125,12 @@ export default {
   watch: {
     isMapReady (value) {
       if (value) {
+        this.clearSelections()
         this.loadApportionment()
       }
     }
   },
   mounted () {
-    this.clearSelections()
     this.$store.commit('setInfoPanelVisibility', true)
     this.loadApportionment()
   },

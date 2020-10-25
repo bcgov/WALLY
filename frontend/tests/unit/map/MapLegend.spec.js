@@ -48,7 +48,7 @@ describe('Map Legend Test', () => {
     let propsData = {
       map: {
         getLayer: (name) => {
-          var types = {
+          let types = {
             'ecocat_water_related_reports': 'circle',
             'freshwater_atlas_stream_networks': 'line'
           }
@@ -116,7 +116,7 @@ describe('Map Legend Test', () => {
     let propsData = {
       map: {
         getLayer: (name) => {
-          var types = {
+          let types = {
             'ecocat_water_related_reports': 'circle',
             'freshwater_atlas_stream_networks': 'line'
           }
@@ -233,6 +233,7 @@ describe('Map Legend Test', () => {
         activeMapLayers: () => []
       }
     }
+
     let customLayers = {
       namespaced: true,
       getters: {
@@ -241,7 +242,7 @@ describe('Map Legend Test', () => {
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
-    var legendItem = shallowMount(StreamAllocationRestrictionsLegendItem, {
+    const legendItem = shallowMount(StreamAllocationRestrictionsLegendItem, {
       vuetify,
       store,
       propsData,
