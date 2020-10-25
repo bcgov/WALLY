@@ -1042,6 +1042,8 @@ def get_watershed_details(db: Session, watershed: Feature, skip_sea: bool = Fals
 
     # slope elevation aspect
     try:
+        if skip_sea:
+            raise Exception('Skipping SEA')
         average_slope, median_elevation, aspect = get_slope_elevation_aspect(
             watershed_poly)
         solar_exposure = get_hillshade(average_slope, aspect)
