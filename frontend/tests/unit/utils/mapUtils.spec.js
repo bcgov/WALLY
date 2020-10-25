@@ -7,7 +7,7 @@
 // localVue.use(Vuex)
 
 import {
-  addMapboxLayer, addMapboxVectorSource,
+  addMapboxLayer,
   findWallyLayer,
   findWallyLayerArray
 } from '../../../src/common/utils/mapUtils'
@@ -15,7 +15,6 @@ import {
   SOURCE_CUSTOM_SHAPE_DATA, SOURCE_STREAM_APPORTIONMENT,
   SOURCE_WATER_LICENCES
 } from '../../../src/common/mapbox/sourcesWally'
-import { vectorSource } from '../../../src/common/mapbox/features'
 
 describe('Map Utils', () => {
   beforeEach(function () {
