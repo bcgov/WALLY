@@ -206,10 +206,7 @@ export default {
         })
       }
 
-      // todo: replace with route.meta option (e.g. "allowRedirect") to control automatically redirecting to feature cards.
-      // if (router.currentRoute.name === 'home' || router.currentRoute.name === 'point-of-interest' || router.currentRoute.name === 'multiple-features') {
-      if (router.currentRoute.name === 'home' || router.currentRoute.name === 'multiple-features' ||
-          (router.currentRoute.meta && router.currentRoute.meta.allowRedirect)) {
+      if (router.currentRoute.meta && router.currentRoute.meta.allowRedirect) {
         router.push({
           name: 'single-feature',
           query: {

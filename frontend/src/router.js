@@ -31,6 +31,15 @@ const mapResize = (to, from, next) => {
 
 const title = global ? global.config ? global.config.title : '' : ''
 
+// route meta options:
+// hide:            routes with the `hide` flag default to starting with the sidebar hidden.
+//                  default: false
+// allowRedirect:   allows user interactions like map clicks to redirect off this route.
+//                  e.g.: clicking on features should redirect away from the 'home' route to display
+//                  information about that feature, but not from the surface water analysis routes.
+//                  default: false
+// sidebarColumns:  indicates how many columns by default a sidebar feature should be allowed
+//                  to occupy.  todo: check that this is used consistently before relying on it.
 const router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
@@ -40,7 +49,8 @@ const router = new Router({
       name: 'home',
       component: Start,
       meta: {
-        hide: true
+        hide: true,
+        allowRedirect: true
       }
     },
     {
@@ -200,7 +210,8 @@ const router = new Router({
       component: MultipleSelectedFeatures,
       meta: {
         title: `Multiple Selected Features - ${title}`,
-        sidebarColumns: {}
+        sidebarColumns: {},
+        allowRedirect: true
       }
     },
     {
