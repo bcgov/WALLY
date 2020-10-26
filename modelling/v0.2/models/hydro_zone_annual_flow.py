@@ -4,8 +4,8 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 import math
 
-directory = '../data/hydro_zone_annual_flow/'
-dependant_variable = 'MEAN'
+directory = '../data/training_data_hydro_zone_annual_flow/'
+dependant_variable = 'mean'
 
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
@@ -15,13 +15,21 @@ for filename in sorted(os.listdir(directory)):
         # drop data from years above 2017
         # indexNames = zone_df[ zone_df['YEAR'] > 2017 ].index
         # zone_df.drop(indexNames, inplace=True)
+        temperature = [] 
+        for temps in zone_df["temperature_data"]:
+            temperature.append(sum([monthTemps[2] for monthTemps in temps])/12)
 
-        columns = ['drainage_area', 'median_elevation', 'annual_precipitation', dependant_variable]
+        zone_df["temperature_data(average field)"] = temperature
+
+        # test = zone_df.to_dict()
+        # print(sum([monthTemps[2] for monthTemps in test["temperature_data"]]) / 12)
+
+        columns = ['drainage_area', 'annual_precipitation', 'temperature_data(average field)', dependant_variable]
 
         features_df = zone_df[columns]
         X = features_df.dropna(subset=columns) # drop NaNs
+        y = X.get(dependant_variable) # dependant
         X = X.drop([dependant_variable], axis=1) # independant
-        y = features_df.get(dependant_variable) # dependant
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
 
         xgb = XGBRegressor(random_state=42)
