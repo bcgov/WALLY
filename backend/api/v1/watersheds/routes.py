@@ -50,7 +50,7 @@ from api.v1.watersheds.schema import (
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
-from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model
+from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model_v1, get_hydrological_zone_model_v2
 
 logger = getLogger("aggregator")
 
@@ -179,10 +179,17 @@ def watershed_stats(
     scsb2016_input_stats = get_scsb2016_input_stats(db)
 
     try:
-        wally_hydrological_zone_model = get_hydrological_zone_model(
+        wally_hydrological_zone_model_v1 = get_hydrological_zone_model_v1(
             wd["hydrological_zone"], wd["drainage_area"], wd["median_elevation"], wd["annual_precipitation"])
     except:
-        wally_hydrological_zone_model = None
+        wally_hydrological_zone_model_v1 = None
+
+    try:
+        wally_hydrological_zone_model_v2 = get_hydrological_zone_model_v2(
+            wd["hydrological_zone"], wd["drainage_area"], wd["annual_precipitation"], 
+            wd["glacial_coverage"], wd["glacial_area"])
+    except:
+        wally_hydrological_zone_model_v2 = None
 
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
@@ -196,7 +203,8 @@ def watershed_stats(
         "runoff_isoline_discharge_m3s": isoline_runoff_model['runoff'] / 365 / 24 / 60 / 60,
         "scsb2016_model": scsb2016_model,
         "scsb2016_output": model_output_as_dict(scsb2016_model),
-        "wally_hydro_zone_model_output": wally_hydrological_zone_model,
+        "wally_hydro_zone_model_output_v1": wally_hydrological_zone_model_v1,
+        "wally_hydro_zone_model_output_v2": wally_hydrological_zone_model_v2,
         "scsb2016_input_stats": scsb2016_input_stats,
         "hydrometric_stations": hydrometric_stations,
     }

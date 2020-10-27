@@ -7,7 +7,7 @@ import math
 parent_directory = '../data/training_data_hydro_zone_monthly_distributions'
 dependant_variable = 'monthly_mean'
 
-for zone in range(1, 29): # zones
+for zone in range(1, 30): # zones
     zone_name = 'zone_' + str(zone)
     for month in range(1, 13): # months
         file_path = parent_directory + '/' + zone_name + '/' + str(month) + '.csv'

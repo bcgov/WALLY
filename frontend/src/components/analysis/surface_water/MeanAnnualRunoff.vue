@@ -396,9 +396,9 @@ export default {
         return
       }
 
-      if (details.wally_hydro_zone_model_output && !details.wally_hydro_zone_model_output.error) {
-        this.wally_model_mar = details.wally_hydro_zone_model_output.mean_annual_flow.toFixed(2)
-        this.wally_model_r2 = details.wally_hydro_zone_model_output.r_squared.toFixed(2)
+      if (details.wally_hydro_zone_model_output_v1 && !details.wally_hydro_zone_model_output_v1.error) {
+        this.wally_model_mar = details.wally_hydro_zone_model_output_v1.mean_annual_flow.toFixed(2)
+        this.wally_model_r2 = details.wally_hydro_zone_model_output_v1.r_squared.toFixed(2)
       }
 
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {

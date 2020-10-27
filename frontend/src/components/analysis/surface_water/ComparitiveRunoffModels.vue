@@ -318,18 +318,18 @@ export default {
     },
     hydrologicalZoneModelRunoff () {
       console.log(this.watershedDetails)
-      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output ||
-        !this.watershedDetails.wally_hydro_zone_model_output.mean_annual_flow) {
+      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
+        !this.watershedDetails.wally_hydro_zone_model_output_v1.mean_annual_flow) {
         return null
       }
-      return (Number(this.watershedDetails.wally_hydro_zone_model_output.mean_annual_flow)).toFixed(2)
+      return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.mean_annual_flow)).toFixed(2)
     },
     hydrologicalZoneModelRSquared () {
-      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output ||
-        !this.watershedDetails.wally_hydro_zone_model_output.r_squared) {
+      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
+        !this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared) {
         return null
       }
-      return (Number(this.watershedDetails.wally_hydro_zone_model_output.r_squared)).toFixed(2)
+      return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared)).toFixed(2)
     },
     isolineRunoffByMonth () {
       if (!this.annualIsolineRunoff) {
