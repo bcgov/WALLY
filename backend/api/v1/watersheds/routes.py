@@ -228,7 +228,7 @@ def get_generated_watershed_details(
     point: str = Query(
         "", title="Search point",
         description="Point to search within"),
-    skip_sea: bool = False
+    use_sea: bool = True
 ):
     """ returns generated watershed characteristics, used as source for modelling data """
 
@@ -246,7 +246,7 @@ def get_generated_watershed_details(
         raise HTTPException(
             status_code=500, detail="Could not generate watershed.")
 
-    watershed_details = get_watershed_details(db, watershed, skip_sea)
+    watershed_details = get_watershed_details(db, watershed, use_sea)
 
     return watershed_details
 
