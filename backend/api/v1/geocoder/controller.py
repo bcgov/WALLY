@@ -28,7 +28,7 @@ WFS_SEARCH_FIELDS = {
     "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
     "water_rights_applications": ["FILE_NUMBER", "APPLICATION_JOB_NUMBER"],
     "aquifers": ["AQNAME", "AQUIFER_NAME"],
-    "ecocat_water_related_reports": ["REPORT_ID", "TITLE"],
+    "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
 }
 
 # searches will make a request to these external URLs, if available for the layer type
