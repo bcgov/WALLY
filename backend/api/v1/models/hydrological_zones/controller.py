@@ -66,12 +66,13 @@ def get_hydrological_zone_model_v2(
     Loads the respective zone's xgb model state and returns an estimated
     mean annual flow value for the hydrological zone.
     """
+    print(hydrological_zone, drainage_area, annual_precipitation, glacial_coverage, glacial_area)
     if (
         not hydrological_zone
         or not drainage_area
         or not annual_precipitation
-        or not glacial_coverage
-        or not glacial_area
+        # or not glacial_coverage
+        # or not glacial_area
     ):
         return {"error": "Missing wally zone model parameters."}
     
