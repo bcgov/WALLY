@@ -4,15 +4,13 @@ from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
 import math
 
-parent_directory = '../data/hydro_zone_monthly_distributions'
-dependant_variable = 'MONTHLY_MEAN'
+parent_directory = '../data/training_data_hydro_zone_monthly_distributions'
+dependant_variable = 'monthly_mean'
 
 for zone in range(1, 29): # zones
     zone_name = 'zone_' + str(zone)
-    for month in range(1, 12): # months
-        month_name = 'month_' + month
-
-        file_path = parent_directory + '/' + zone_name + '/' + month_name + '.csv'
+    for month in range(1, 13): # months
+        file_path = parent_directory + '/' + zone_name + '/' + str(month) + '.csv'
         zone_df = pd.read_csv(file_path)
 
         # feature engineering
@@ -20,10 +18,14 @@ for zone in range(1, 29): # zones
         # indexNames = zone_df[ zone_df['YEAR'] > 2017 ].index
         # zone_df.drop(indexNames, inplace=True)
 
-        columns = ['drainage_area', 'median_elevation', 'annual_precipitation', dependant_variable]
+        columns = ['drainage_area', 'annual_precipitation', 
+          'glacial_coverage', 'glacial_area', dependant_variable]
 
         features_df = zone_df[columns]
         X = features_df.dropna(subset=columns) # drop NaNs
+        if X.size <=0:
+            continue
+
         X = X.drop([dependant_variable], axis=1) # independant
         y = features_df.get(dependant_variable) # dependant
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
@@ -34,8 +36,8 @@ for zone in range(1, 29): # zones
 
         # save model output state
         save_directory = '../model_output/hydro_zone_monthly_distributions'
-        save_path = save_directory + '/' + zone_name + '/' + month_name + '.json'
+        save_path = save_directory + '/' + zone_name + '/' + str(month) + '.json'
         xgb.save_model(save_path)
 
-        print('{' + '{}:{}: {}'.format(zone_name, month_name, round(xgb_score, 4)) + '}')
+        print('{' + '{}:{}: {}'.format(zone_name, str(month), round(xgb_score, 4)) + '}')
         continue
