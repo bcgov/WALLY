@@ -28,6 +28,7 @@ export default {
       { text: 'Well tag number', value: 'groundwater_wells', placeholder: 'Search by well tag number' },
       { text: 'Coordinates', value: 'coordinates', placeholder: 'Find a location (example: -123, 51)' },
       { text: 'Water Licences', value: 'water_rights_licences', placeholder: 'Search by licence or file number' },
+      { text: 'Water Applications', value: 'water_rights_applications', placeholder: 'Search by job or file number' },
       { text: 'Aquifers', value: 'aquifers', placeholder: 'Search by aquifer number' },
       { text: 'EcoCat Reports', value: 'ecocat_water_related_reports', placeholder: 'Search by report title' }
     ]
