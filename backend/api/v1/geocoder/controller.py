@@ -31,13 +31,6 @@ WFS_SEARCH_FIELDS = {
     "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
 }
 
-# optional formatter functions that accept a GeoJSON feature and returns a formatted
-# search result that can reference feature properties.
-# e.g. "File number: 1234"
-SEARCH_RESULT_FORMATTERS = {
-    "water_rights_applications": lambda x: f"File number: {x.get('properties', {}).get('FILE_NUMBER', '')}"
-}
-
 # searches will make a request to these external URLs, if available for the layer type
 EXTERNAL_API_SEARCH_URLS = {
     "groundwater_wells": f"{GWELLS_API_URL}/api/v2/wells/locations?limit=5&search="
@@ -150,14 +143,8 @@ def wfs_search(db, query, feature_type):
         # for displaying and zooming to search results.
         new_feature['layer'] = feature_type
         new_feature['center'] = [geom.centroid.x, geom.centroid.y]
-
-        # check if a formatter function exists for this feature type; fall back on
-        # simply joining the fields that were searched (e.g. the fallback formatter is
-        # equivalent to `f'{LICENCE_NUMBER} {FILE_NUMBER}'` for water licences)
-        new_feature['place_name'] = SEARCH_RESULT_FORMATTERS.get(feature_type)(feature) if \
-            SEARCH_RESULT_FORMATTERS.get(feature_type, None) else \
-            ' '.join([str(feature.properties.get(field, ''))
-                      for field in WFS_SEARCH_FIELDS[feature_type]])
+        new_feature['place_name'] = ' '.join([str(feature.properties.get(field, ''))
+                                              for field in WFS_SEARCH_FIELDS[feature_type]])
         new_feature['id'] = feature['id']
         geocoder_features.append(new_feature)
 
