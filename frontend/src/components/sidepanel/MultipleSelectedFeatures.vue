@@ -82,6 +82,9 @@ export default {
         { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
         { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
         { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: false }
+      ],
+      'water_rights_applications': [
+        { text: 'File Number', value: 'FILE_NUMBER', align: 'center', divider: true }
       ]
     }
   }),
