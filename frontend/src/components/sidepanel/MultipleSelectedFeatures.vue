@@ -84,7 +84,7 @@ export default {
         { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: false }
       ],
       'water_rights_applications': [
-        { text: 'File Number', value: 'FILE_NUMBER', align: 'center', divider: true }
+        { text: 'File Number', value: 'FILE_NUMBER', align: 'start' }
       ]
     }
   }),
