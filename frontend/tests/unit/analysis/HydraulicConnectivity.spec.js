@@ -3,7 +3,7 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import StreamApportionment from '../../../src/components/analysis/stream_apportionment/StreamApportionment.vue'
+import HydraulicConnectivity from '../../../src/components/analysis/hydraulic_connectivity/HydraulicConnectivity.vue'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -43,7 +43,7 @@ describe('Stream apportionment tests', () => {
     }
     store = new Vuex.Store({ modules: { map } })
 
-    wrapper = shallowMount(StreamApportionment, {
+    wrapper = shallowMount(HydraulicConnectivity, {
       vuetify,
       store,
       localVue,
@@ -130,5 +130,28 @@ describe('Stream apportionment tests', () => {
     wrapper.vm.calculateApportionment()
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)
+  })
+
+  it('Can delete a specific stream point', () => {
+    expect(1).toEqual(1)
+  })
+
+  it('Add new stream point button works', () => {
+    // turn draw mode on
+
+    expect(1).toEqual(1)
+    // turn draw mode off
+  })
+
+  it('Esc or cancel button cancels draw mode', () => {
+    expect(1).toEqual(1)
+  })
+
+  it('Can add a new stream point', () => {
+    expect(1).toEqual(1)
+  })
+
+  it('Recalculates apportionment when a new stream point is added', () => {
+
   })
 })

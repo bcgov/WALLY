@@ -96,7 +96,7 @@ export default {
       },
       {
         title: 'Hydraulic connectivity analysis',
-        route: { name: 'stream-apportionment' }
+        route: { name: 'hydraulic-connectivity' }
       },
       {
         title: 'Surface water availability',

@@ -1,7 +1,7 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
-import StreamApportionmentInstructions from './StreamApportionmentInstructions'
+import HydraulicConnectivityInstructions from './HydraulicConnectivityInstructions'
 import { downloadXlsx } from '../../../common/utils/exportUtils'
 import { lineStringFeature, featureCollection } from '../../../common/mapbox/features'
 import {
@@ -10,9 +10,9 @@ import {
 } from '../../../common/mapbox/sourcesWally'
 
 export default {
-  name: 'StreamApportionment',
+  name: 'HydraulicConnectivity',
   components: {
-    StreamApportionmentInstructions
+    HydraulicConnectivityInstructions
   },
   props: ['record'],
   data: () => ({

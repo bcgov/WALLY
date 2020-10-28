@@ -27,7 +27,7 @@
     <div
       v-if="pointOfInterest &&
             pointOfInterest.display_data_name === 'point_of_interest'">
-      <StreamApportionment
+      <HydraulicConnectivity
         :record="pointOfInterest"
         />
     </div>
@@ -38,7 +38,7 @@
         <v-card>
           <v-card-title>Instructions</v-card-title>
           <v-card-text>
-            <StreamApportionmentInstructions></StreamApportionmentInstructions>
+            <HydraulicConnectivityInstructions></HydraulicConnectivityInstructions>
           </v-card-text>
         </v-card>
       </v-col>
@@ -49,13 +49,13 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 
-import StreamApportionment from './StreamApportionment.vue'
-import StreamApportionmentInstructions from './StreamApportionmentInstructions'
+import HydraulicConnectivity from './HydraulicConnectivity.vue'
+import HydraulicConnectivityInstructions from './HydraulicConnectivityInstructions'
 export default {
-  name: 'StreamApportionmentContainer',
+  name: 'HydraulicConnectivityContainer',
   components: {
-    StreamApportionment,
-    StreamApportionmentInstructions
+    HydraulicConnectivity,
+    HydraulicConnectivityInstructions
   },
   data: () => ({
     streamsLayerAutomaticallyEnabled: false,

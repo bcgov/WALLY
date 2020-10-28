@@ -10,7 +10,7 @@
             <v-expansion-panel-content>
               <v-card flat>
                 <v-card-text>
-                  <StreamApportionmentInstructions></StreamApportionmentInstructions>
+                  <HydraulicConnectivityInstructions></HydraulicConnectivityInstructions>
                 </v-card-text>
               </v-card>
             </v-expansion-panel-content>
@@ -204,7 +204,7 @@
   </v-container>
 </template>
 
-<script src="./StreamApportionment.js"></script>
+<script src="./HydraulicConnectivity.js"></script>
 
 <style>
 
