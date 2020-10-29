@@ -26,6 +26,12 @@ function coordinatesGeocoder (query) {
   const coord2 = Number(matches[2])
   let geocodes = []
 
+  if (Math.abs(coord1) > 180 || Math.abs(coord2) > 180 ||
+    (Math.abs(coord1) > 90 && Math.abs(coord2) > 90)) {
+    // probably not coordinates
+    return null
+  }
+
   if (coord1 < -90 || coord1 > 90) {
     // must be lng, lat
     geocodes.push(coordinateFeature(coord1, coord2))

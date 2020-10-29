@@ -26,7 +26,7 @@ search_spaces = re.compile(r'[ ]+')
 WFS_SEARCH_FIELDS = {
     "cadastral": ["PARCEL_NAME"],
     "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
-    "water_rights_applications": ["FILE_NUMBER", "APPLICATION_JOB_NUMBER"],
+    "water_rights_applications": ["FILE_NUMBER"],
     "aquifers": ["AQNAME", "AQUIFER_NAME"],
     "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
 }
@@ -143,8 +143,8 @@ def wfs_search(db, query, feature_type):
         # for displaying and zooming to search results.
         new_feature['layer'] = feature_type
         new_feature['center'] = [geom.centroid.x, geom.centroid.y]
-        new_feature['place_name'] = ' '.join(
-            [str(feature.properties.get(field, '')) for field in WFS_SEARCH_FIELDS[feature_type]])
+        new_feature['place_name'] = ' '.join([str(feature.properties.get(field, ''))
+                                              for field in WFS_SEARCH_FIELDS[feature_type]])
         new_feature['id'] = feature['id']
         geocoder_features.append(new_feature)
 
