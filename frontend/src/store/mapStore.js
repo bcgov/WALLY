@@ -5,7 +5,7 @@ import baseMapDescriptions from '../common/utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import area from '@turf/area'
 import circle from '@turf/circle'
-import lineDistance from '@turf/line-distance'
+import length from '@turf/length'
 import lineToPolygon from '@turf/line-to-polygon'
 import pointInPolygon from '@turf/boolean-point-in-polygon'
 import mapboxgl from 'mapbox-gl'
@@ -602,7 +602,7 @@ export default {
 
       if (features.length > 0) {
         const feature = features[0]
-        const drawnLength = (lineDistance(feature) * 1000) // meters
+        const drawnLength = (length(feature) * 1000) // meters
         const coordinates = feature.geometry.coordinates
 
         // Calculate if last click point is close to the first click point
@@ -624,7 +624,7 @@ export default {
           let ac = lineFeature.geometry.coordinates
           ac[ac.length - 1] = ac[0]
           lineFeature.geometry.coordinates = ac
-          let perimeterMeasurement = (lineDistance(lineFeature) * 1000)
+          let perimeterMeasurement = (length(lineFeature) * 1000)
 
           // update draw feature collection with connected lines
           state.draw.set({
