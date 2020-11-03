@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col>
-        <v-btn color="secondary" @click="selectPoint">Place a point of interest</v-btn>
+        <v-btn color="secondary" @click="selectPointOfInterest">Place a point of interest</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -16,10 +16,7 @@ export default {
 
   }),
   methods: {
-    selectPoint () {
-      this.setDrawMode('draw_point')
-    },
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'selectPointOfInterest'])
   }
 }
 </script>

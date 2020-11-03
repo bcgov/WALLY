@@ -36,7 +36,7 @@
         <p>Zoom into an area of interest on the map and place a point. The search radius defaults to 1000 m and can be updated after you’ve made your selection.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn>
+        <v-btn @click="selectPointOfInterest" color="primary" outlined>Draw point</v-btn>
       </v-col>
     </v-row>
 
@@ -77,9 +77,6 @@ export default {
     }
   },
   methods: {
-    selectPoint () {
-      this.setDrawMode('draw_point')
-    },
     loadFeature () {
       // Load Point of Interest feature from query
       if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
@@ -95,7 +92,7 @@ export default {
       }
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'selectPointOfInterest'])
   },
   computed: {
     isPointSelected () {

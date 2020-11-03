@@ -29,7 +29,7 @@
         <p class="pl-3">Select a point of interest to determine water availability.</p>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Select a point</v-btn>
+        <v-btn @click="selectPointOfInterest" color="primary" outlined>Select a point</v-btn>
       </v-col>
     </v-row>
   </v-container>
@@ -54,9 +54,6 @@ export default {
     approvalLayerAutomaticallyEnabled: false
   }),
   methods: {
-    selectPoint () {
-      this.setDrawMode('draw_point')
-    },
     enableApplicationsLayer () {
       this.$store.dispatch('map/addMapLayer', 'water_rights_applications')
     },
@@ -123,7 +120,7 @@ export default {
         this.$store.dispatch('map/addFeaturePOIFromCoordinates', data)
       }
     },
-    ...mapActions('map', ['setDrawMode', 'clearSelections']),
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'selectPointOfInterest']),
     ...mapActions(['exitFeature'])
   },
   computed: {

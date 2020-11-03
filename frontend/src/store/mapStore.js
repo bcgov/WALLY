@@ -59,6 +59,7 @@ export default {
     layerSelectionActive: true,
     isDrawingToolActive: false,
     mode: defaultMode,
+    drawPointOfInterest: false,
     selectedBaseLayers: [
       'national-park',
       'landuse',
@@ -177,6 +178,10 @@ export default {
       state.draw.add(feature)
       dispatch('addActiveSelection', { featureCollection: { features: [feature] } })
     },
+    selectPointOfInterest ({ commit, dispatch, state }) {
+      commit('setDrawPointOfInterest', true)
+      dispatch('setDrawMode', 'draw_point')
+    },
     addActiveSelection ({ commit, dispatch, state }, { featureCollection, options = {} }) {
       // options:
       // alwaysReplaceFeatures: indicates that features should always be cleared (even if
@@ -213,9 +218,10 @@ export default {
       const newFeature = featureCollection.features[0]
       commit('replaceOldFeatures', newFeature.id)
 
-      // Active selection is a Point
-      if (newFeature.geometry.type === 'Point') {
+      // Active selection is a Point, and we're drawing a point of interest
+      if (newFeature.geometry.type === 'Point' && state.drawPointOfInterest) {
         newFeature.display_data_name = 'point_of_interest'
+        commit('setDrawPointOfInterest', false)
         commit('setPointOfInterest', newFeature, { root: true })
         return
       }
@@ -589,6 +595,9 @@ export default {
     },
     setMode (state, payload) {
       state.mode = payload
+    },
+    setDrawPointOfInterest (state, payload) {
+      state.drawPointOfInterest = payload
     },
     resetMode (state, payload) {
       state.mode = defaultMode

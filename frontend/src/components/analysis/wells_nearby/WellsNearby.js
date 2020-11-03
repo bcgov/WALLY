@@ -111,10 +111,7 @@ export default {
     ...mapGetters('map', ['isMapLayerActive', 'isMapReady'])
   },
   methods: {
-    ...mapActions('map', ['setDrawMode']),
-    selectPoint () {
-      this.setDrawMode('draw_point')
-    },
+    ...mapActions('map', ['setDrawMode', 'selectPointOfInterest']),
     exportDrawdownAsSpreadsheet () {
       // Custom metrics - Track Excel downloads
       window._paq && window._paq.push([

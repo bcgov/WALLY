@@ -36,7 +36,7 @@
     </div>
     <v-row class="pa-5" v-else>
       <v-col cols=12 lg=8><p>Select a point of interest to find nearby First Nations Communities, Treaty Areas and Lands.</p></v-col>
-      <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw point</v-btn></v-col>
+      <v-col class="text-right"><v-btn @click="selectPointOfInterest" color="primary" outlined>Draw point</v-btn></v-col>
     </v-row>
   </v-container>
 </template>
@@ -55,9 +55,6 @@ export default {
     breadcrumbs: []
   }),
   methods: {
-    selectPoint () {
-      this.setDrawMode('draw_point')
-    },
     loadFirstNationsAreasNearby () {
       this.setBreadcrumbs()
       this.loadFeature()
@@ -94,7 +91,7 @@ export default {
       }
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode'])
+    ...mapActions('map', ['setDrawMode', 'selectPointOfInterest'])
   },
   computed: {
     ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),

@@ -21,7 +21,7 @@
         <v-spacer/>
       </v-col>
       <v-col cols="12" md="3" class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined class="mt-2">Draw new point</v-btn>
+        <v-btn @click="selectPointOfInterest" color="primary" outlined class="mt-2">Draw new point</v-btn>
       </v-col>
     </v-row>
     <v-row no-gutters>

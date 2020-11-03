@@ -63,7 +63,7 @@ export default {
   }),
   methods: {
     selectPoint () {
-      this.setDrawMode('draw_point')
+      this.selectPointOfInterest()
       this.buttonClicked = true
     },
     enableStreamsLayer () {
@@ -73,7 +73,7 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature', 'selectPointOfInterest'])
   },
   computed: {
     isStreamsLayerEnabled () {
