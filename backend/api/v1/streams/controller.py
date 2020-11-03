@@ -80,6 +80,7 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
     # Get the nearest 10 streams to the point
     sql = text("""
       SELECT
+        nearest_streams."OGC_FID" as id, 
         nearest_streams."OGC_FID" as ogc_fid,
         nearest_streams."LENGTH_METRE" as length_metre,
         nearest_streams."FEATURE_SOURCE" as feature_source,
