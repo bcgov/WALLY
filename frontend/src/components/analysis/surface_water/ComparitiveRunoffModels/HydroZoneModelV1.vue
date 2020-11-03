@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text v-if="showWallyModelFeatureFlag && hydrologicalZoneModelRunoff">
+    <v-card-text v-if="showWallyModelFeatureFlag && modelData">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -15,7 +15,7 @@
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
             </v-card-title>
             <v-card-text class="info-blue">
-              <strong>{{ hydrologicalZoneModelRunoff }} m^3/sec</strong>
+              <strong>{{ meanAnnualFlow }} m^3/sec</strong>
             </v-card-text>
           </v-card>
         </v-col>
@@ -26,7 +26,7 @@
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
             </v-card-title>
             <v-card-text class="info-blue">
-              <strong>{{ hydrologicalZoneModelRSquared }}</strong>
+              <strong>{{ meanAnnualFlowRSquared }}</strong>
             </v-card-text>
           </v-card>
         </v-col>
@@ -37,39 +37,67 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import qs from 'querystring'
+import ApiService from '../../../../services/ApiService'
 
 export default {
   name: 'HydroZoneModelV1',
   components: {
   },
   props: {
-    model_output: {}
   },
   data: () => ({
+    modelLoading: false,
+    modelData: {}
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails']),
-    hydrologicalZoneModelRunoff () {
-      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
-        !this.watershedDetails.wally_hydro_zone_model_output_v1.mean_annual_flow) {
-        return null
+    meanAnnualFlow () {
+      if (this.modelData && this.modelData.mean_annual_flow) {
+        return Number(this.modelData.mean_annual_flow).toFixed(2)
       }
-      return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.mean_annual_flow)).toFixed(2)
+      return null
     },
-    hydrologicalZoneModelRSquared () {
-      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
-        !this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared) {
-        return null
+    meanAnnualFlowRSquared () {
+      if (this.modelData && this.modelData.r_squared) {
+        return Number(this.modelData.r_squared).toFixed(2)
       }
-      return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared)).toFixed(2)
+      return null
     }
   },
   methods: {
+    fetchWatershedModel (details) {
+      this.modelLoading = true
+      const params = {
+        hydrological_zone: details.hydrological_zone,
+        drainage_area: details.drainage_area,
+        median_elevation: details.median_elevation,
+        annual_precipitation: details.annual_precipitation
+      }
+      console.log(params)
+      ApiService.query(`/api/v1/hydrological_zones/v1_watershed_drainage_model?${qs.stringify(params)}`)
+        .then(r => {
+          this.modelData = r.data
+          this.modelLoading = false
+        })
+        .catch(e => {
+          this.modelLoading = false
+          console.error(e)
+        })
+    },
     showWallyModelFeatureFlag () {
       return this.app && this.app.config && this.app.config.wally_model
     }
   },
   mounted () {
+  },
+  watch: {
+    watershedDetails: {
+      immediate: true,
+      handler (val, oldVal) {
+        this.fetchWatershedModel(val)
+      }
+    }
   }
 }
 </script>

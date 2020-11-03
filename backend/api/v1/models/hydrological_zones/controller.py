@@ -29,7 +29,7 @@ def get_hydrological_zone_model_v1(
     hydrological_zone: str,
     drainage_area: float,
     median_elevation: float,
-    annual_precipitation: float,
+    annual_precipitation: float
 ):
     """
     Loads the respective zone's xgb model state and returns an estimated
@@ -177,4 +177,4 @@ def get_set_model_data(minio_path: str, file_name: str):
         with open(file_name, "w") as local_file:
             local_file.write(content)
     except Exception as error:
-        print("minio: ", error)
+        logger.warning("minio: " + error)
