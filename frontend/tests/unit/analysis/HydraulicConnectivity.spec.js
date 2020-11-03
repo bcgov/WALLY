@@ -144,19 +144,13 @@ describe('Stream apportionment tests', () => {
   })
 
   it('Can delete a specific stream point', () => {
-    expect(1).toEqual(1)
+    const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
+    wrapper.vm.processNewStreamPoint(newPoint)
+    expect(wrapper.vm.streams.length).toEqual(1)
+    wrapper.vm.deleteStream(wrapper.vm.streams[0])
+    expect(wrapper.vm.streams.length).toEqual(0)
   })
 
-  it('Add new stream point button works', () => {
-    // turn draw mode on
-
-    expect(1).toEqual(1)
-    // turn draw mode off
-  })
-
-  it('Esc or cancel button cancels draw mode', () => {
-    expect(1).toEqual(1)
-  })
 
   it('Adds new stream point to streams', () => {
     const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
@@ -165,7 +159,13 @@ describe('Stream apportionment tests', () => {
   })
 
   it('Recalculates apportionment when a new stream point is added', () => {
-    expect(1).toEqual(1)
+    const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
+    wrapper.vm.processNewStreamPoint(newPoint)
+    expect(wrapper.vm.streams[0].apportionment).toBe(100)
+    const newPoint2 = pointFeature([-122.94303996939581, 50.12497963524882])
+    wrapper.vm.processNewStreamPoint(newPoint2)
+    console.log(wrapper.vm.streams[0].apportionment)
+    expect(wrapper.vm.streams[0].apportionment).toBeCloseTo(3.17, 2)
   })
 
   it('Gives a warning when you try to reload streams when there are added' +
