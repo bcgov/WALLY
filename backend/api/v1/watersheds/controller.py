@@ -1008,8 +1008,6 @@ def get_scsb2016_input_stats(db: Session):
 
 def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True):
     """ returns watershed inputs variables used in modelling """
-    logger.warning("skip_sea")
-    logger.warning(skip_sea)
 
     watershed_poly = shape(watershed.geometry)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
