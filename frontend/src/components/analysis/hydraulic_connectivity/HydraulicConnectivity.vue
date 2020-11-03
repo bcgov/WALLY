@@ -27,7 +27,7 @@
         </div>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPoint" color="primary" outlined>Draw a New Point</v-btn>
+        <v-btn @click="selectPointOfInterest" color="primary" outlined>Draw a New Point</v-btn>
         <v-btn
           v-if="streams && streams.length"
           outlined
@@ -92,7 +92,6 @@
           </v-tooltip>
       </v-col>
       <v-col cols="12" md="3">
-
         <v-text-field
           dense
           label="Weighting Factor"
@@ -100,6 +99,19 @@
           :rules="[weightingFactorValidation.number, weightingFactorValidation.values, weightingFactorValidation.required]"
         >
         </v-text-field>
+      </v-col>
+      <v-col>
+        <v-tooltip bottom>
+          <template v-slot:activator="{ on }">
+            <v-btn
+              v-if="app && app.config.hydraulic_connectivity_custom_stream_points"
+              small v-on:click="addNewStreamPoint" v-on="on"  class="blue-grey lighten-4">
+              <v-icon small>mdi-plus-circle-outline</v-icon>
+              New stream point
+            </v-btn>
+          </template>
+          <span>Add a new stream point</span>
+        </v-tooltip>
       </v-col>
       <v-col>
         <v-tooltip bottom>
@@ -123,41 +135,28 @@
             v-model="selected"
             :loading="loading"
             :headers="headers"
-            item-key="ogc_fid"
+            item-key="id"
+            disable-pagination
             :items="streams">
-            <template v-slot:item.length_metre="{ item }">
-              <span>{{item.length_metre.toFixed(2) | formatNumber}}</span>
-            </template>
-            <template v-slot:item.distance="{ item }">
-              <span>{{item.distance.toFixed(2) | formatNumber }}</span>
-            </template>
-            <template v-slot:item.apportionment="{ item }">
-              <span>{{item.apportionment.toFixed(2)}}%</span>
-            </template>
-            <template v-slot:item.action="{ item }">
-              <v-tooltip right>
-                <template v-slot:activator="{ on }">
-              <v-btn icon v-on="on"
-                     @mouseover="highlight(item)"
-                     @mouseout="highlightAll">
-                <v-icon small>
-                  mdi-eye
-                </v-icon>
-              </v-btn>
-                </template>
-                <span>Highlight</span>
-              </v-tooltip>
-              <v-tooltip right>
-                <template v-slot:activator="{ on }">
-                 <v-btn icon v-on="on" @click="deleteStream(item)">
-                  <v-icon small>
-                    delete
-                  </v-icon>
-                 </v-btn>
-                </template>
-                <span>Remove</span>
-              </v-tooltip>
-
+            <template v-slot:item="{item}">
+              <tr @mouseenter="highlight(item)" @mouseleave="highlightAll()">
+                <td>{{item.gnis_name}}</td>
+                <td class="text-right">{{item.length_metre.toFixed(2) | formatNumber}}</td>
+                <td class="text-right">{{item.distance.toFixed(2) | formatNumber}}</td>
+                <td class="text-right">{{item.apportionment.toFixed(2)}}%</td>
+                <td>
+                  <v-tooltip right>
+                    <template v-slot:activator="{ on }">
+                     <v-btn icon v-on="on" @click="deleteStream(item)">
+                      <v-icon small>
+                        delete
+                      </v-icon>
+                     </v-btn>
+                    </template>
+                    <span>Remove</span>
+                  </v-tooltip>
+                </td>
+              </tr>
             </template>
           </v-data-table>
       </v-col>

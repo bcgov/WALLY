@@ -155,7 +155,7 @@ export default {
         state.draw.changeMode(drawMode)
       }
     },
-    addFeaturePOIFromCoordinates ({ state, dispatch }, data) {
+    addFeaturePOIFromCoordinates ({ state, dispatch, commit }, data) {
       const point = {
         type: 'Feature',
         id: 'point_of_interest',
@@ -168,6 +168,7 @@ export default {
         properties: {
         }
       }
+      commit('setDrawPointOfInterest', true)
       dispatch('addSelectedFeature', point)
     },
     async addSelectedFeature ({ state, dispatch }, feature) {

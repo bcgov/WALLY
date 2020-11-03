@@ -33,7 +33,7 @@
     </div>
 
     <v-row v-else class="mt-3">
-      <v-col class="text-right"><v-btn @click="selectPoint" color="primary" outlined>Draw a Point</v-btn></v-col>
+      <v-col class="text-right"><v-btn @click="selectPointOfInterest" color="primary" outlined>Draw a Point</v-btn></v-col>
       <v-col cols=12>
         <v-card>
           <v-card-title>Instructions</v-card-title>
@@ -62,9 +62,6 @@ export default {
     breadcrumbs: []
   }),
   methods: {
-    selectPoint () {
-      this.setDrawMode('draw_point')
-    },
     enableStreamsLayer () {
       this.$store.dispatch('map/addMapLayer', 'freshwater_atlas_stream_networks')
     },
@@ -113,14 +110,14 @@ export default {
       }
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'selectPointOfInterest'])
   },
   computed: {
     isStreamsLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
     ...mapGetters('map', ['draw', 'isMapLayerActive', 'isMapReady']),
-    ...mapGetters(['pointOfInterest'])
+    ...mapGetters(['pointOfInterest', 'app'])
   },
   watch: {
     isMapReady (value) {

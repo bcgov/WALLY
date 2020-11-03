@@ -4,6 +4,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 
 import HydraulicConnectivity from '../../../src/components/analysis/hydraulic_connectivity/HydraulicConnectivity.vue'
+import { pointFeature } from '../../../src/common/mapbox/features'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -22,12 +23,15 @@ describe('Stream apportionment tests', () => {
 
   beforeEach(() => {
     getters = {
-      isMapLayerActive: state => layerId => false
+      isMapLayerActive: state => layerId => false,
+      isMapReady: jest.fn(),
+      map: () => {}
     }
     actions = {
       addMapLayer: jest.fn(),
       clearHighlightLayer: jest.fn(),
-      setMode: jest.fn()
+      setMode: jest.fn(),
+      updateMapLayerData: () => jest.fn()
     }
     mutations = {
       setMode: jest.fn()
@@ -47,7 +51,14 @@ describe('Stream apportionment tests', () => {
       vuetify,
       store,
       localVue,
-      methods
+      methods,
+      propsData: {
+        record: {
+          geometry: {
+            coordinates: [-122.94441367903971, 50.124911888584364]
+          }
+        }
+      }
     })
   })
 
@@ -147,11 +158,18 @@ describe('Stream apportionment tests', () => {
     expect(1).toEqual(1)
   })
 
-  it('Can add a new stream point', () => {
-    expect(1).toEqual(1)
+  it('Adds new stream point to streams', () => {
+    const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
+    wrapper.vm.processNewStreamPoint(newPoint)
+    expect(wrapper.vm.streams[0].distance).toBeCloseTo(542.88194)
   })
 
   it('Recalculates apportionment when a new stream point is added', () => {
+    expect(1).toEqual(1)
+  })
 
+  it('Gives a warning when you try to reload streams when there are added' +
+    ' custom stream points', () => {
+    expect(1).toBe(1)
   })
 })
