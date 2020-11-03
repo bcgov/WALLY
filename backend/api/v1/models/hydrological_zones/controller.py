@@ -8,11 +8,21 @@ from api.v1.aggregator.helpers import transform_4326_3005
 from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs, MeanAnnualFlow, MeanMonthlyFlow
 from xgboost import XGBRegressor, DMatrix
 import numpy as np
+from minio import Minio
+from minio.error import ResponseError
+from api.config import MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
+
+minioClient = Minio(MINIO_HOST_URL,
+                  access_key=MINIO_ACCESS_KEY,
+                  secret_key=MINIO_SECRET_KEY,
+                  secure=True)
 
 logger = logging.getLogger("hydrological_zones")
-V1_ANNUAL_FLOW_DIR = "./api/v1/models/hydrological_zones/model_states/v1_hydro_zone_annual_flow/"
-V2_ANNUAL_FLOW_DIR = "./api/v1/models/hydrological_zones/model_states/v2_hydro_zone_annual_flow/"
-V2_MONTHLY_DISTRIBUTIONS_DIR = "./api/v1/models/hydrological_zones/model_states/v2_hydro_zone_monthly_distributions/"
+
+WORKING_DIR = "./api/v1/models/hydrological_zones/working_files/"
+V1_ANNUAL_FLOW_BUCKET = "v1/hydro_zone_annual_flow/"
+V2_ANNUAL_FLOW_BUCKET = "v2/hydro_zone_annual_flow/"
+V2_MONTHLY_DISTRIBUTIONS_BUCKET = "v2/hydro_zone_monthly_distributions/"
 
 
 def get_hydrological_zone_model_v1(
@@ -32,24 +42,38 @@ def get_hydrological_zone_model_v1(
         or not annual_precipitation
     ):
         return {"error": "Missing wally zone model parameters."}
+
+    # Get model state file from minio storage
+    state_object_path = V1_ANNUAL_FLOW_BUCKET + "zone_{}.json".format(hydrological_zone)
+    state_file_name = WORKING_DIR + "v1_annual_model_state.json"
+    get_set_model_data(state_object_path, state_file_name)
+
     xgb = XGBRegressor(random_state=42)
-    xgb.load_model(V1_ANNUAL_FLOW_DIR + "zone_{}.json".format(hydrological_zone))
+    xgb.load_model(state_file_name)
     inputs = [drainage_area, median_elevation, annual_precipitation]
     inputs = np.array(inputs).reshape((1, -1))
     mean_annual_flow_prediction = xgb.predict(inputs)
-    result = MeanAnnualFlow(
+    mean_annual_flow = MeanAnnualFlow(
         mean_annual_flow=mean_annual_flow_prediction,
         r_squared=get_zone_info(hydrological_zone),
     )
-    return result
+
+    return mean_annual_flow
 
 
 def get_zone_info(zone):
     """
     Returns model fit in r^2 value based on hydrological zone
     """
-    with open(V1_ANNUAL_FLOW_DIR + 'zone_models_r2.json') as zone_models_r2_file:
-        zone_r_squares = json.load(zone_models_r2_file)
+    # Get model state file from minio storage
+    r2_file = None
+    try:
+        r2_file = minioClient.get_object('models', V1_ANNUAL_FLOW_BUCKET + "zone_models_r2.json")
+    except ResponseError as err:
+        print(err)
+
+    if r2_file:
+        zone_r_squares = json.load(r2_file)
         return zone_r_squares[str(zone)]
 
     return None
@@ -76,28 +100,62 @@ def get_hydrological_zone_model_v2(
     ):
         return {"error": "Missing wally zone model parameters."}
     
+    # ANNUAL FLOW
     xgb = XGBRegressor(random_state=42)
     inputs = [drainage_area, annual_precipitation, glacial_coverage, glacial_area]
     inputs = np.array(inputs).reshape((1, -1))
 
-    # ANNUAL FLOW
-    xgb.load_model(V2_ANNUAL_FLOW_DIR + "zone_{}.json".format(hydrological_zone))
+    # get annual_model state
+    state_object_path = V2_ANNUAL_FLOW_BUCKET + "zone_{}.json".format(hydrological_zone)
+    state_file_name = WORKING_DIR + "annual_model_state.json"
+    get_set_model_data(state_object_path, state_file_name)
+
+    # get annual_model score
+    score_object_path = V2_ANNUAL_FLOW_BUCKET + "annual_model_scores.json"
+    score_file_name = WORKING_DIR + "annual_model_scores.json"
+    get_set_model_data(score_object_path, score_file_name)
+
+    # Load model
+    try:
+        xgb.load_model(state_file_name)
+    except Exception as error:
+        print(error)
+
+    # load model score
+    with open(score_file_name) as json_file:
+        scores = json.load(json_file)
+        annual_model_score = scores[str(hydrological_zone)]
+
+    # make annual prediction
     mean_annual_flow_prediction = xgb.predict(inputs)
     mean_annual_flow = MeanAnnualFlow(
         mean_annual_flow=mean_annual_flow_prediction,
-        r_squared=get_zone_info(hydrological_zone),
+        r_squared=annual_model_score
     )
 
     # MONTHLY FLOW
+    zone_name = "zone_{}".format(hydrological_zone)
+    # get monthly model scores
+    monthly_scores_object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + 'monthly_model_scores.json'
+    monthly_scores_file_name = WORKING_DIR + "monthly_model_scores.json"
+    get_set_model_data(monthly_scores_object_path, monthly_scores_file_name)
+    
+    monthly_scores = {}
+    with open(monthly_scores_file_name) as json_file:
+        monthly_scores = json.load(json_file)
+
     monthly_predictions = []
     for month in range(1, 13): # months
-        zone_name = "zone_{}".format(hydrological_zone)
-        file_path = V2_MONTHLY_DISTRIBUTIONS_DIR + zone_name + '/' + str(month) + '.json'
-        xgb.load_model(file_path)
+        object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + str(month) + '.json'
+        file_name = WORKING_DIR + "monthly_model_state.json"
+        get_set_model_data(object_path, file_name)
+
+        xgb.load_model(file_name)
         mean_monthly_flow_prediction = xgb.predict(inputs)
+        month_model_score = monthly_scores[str(month)]
         mean_monthly_flow = MeanMonthlyFlow(
             mean_monthly_flow=mean_monthly_flow_prediction,
-            r_squared=0,
+            r_squared=month_model_score,
         )
         monthly_predictions.append(mean_monthly_flow)
 
@@ -107,3 +165,16 @@ def get_hydrological_zone_model_v2(
     }
 
     return result
+
+
+def get_set_model_data(minio_path: str, file_name: str):
+    """
+    Gets a model object from Minio and sets the file by file_name
+    """
+    try:
+        response = minioClient.get_object('models', minio_path)
+        content = response.read().decode('utf-8')
+        with open(file_name, "w") as local_file:
+            local_file.write(content)
+    except Exception as error:
+        print("minio: ", error)

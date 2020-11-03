@@ -1,4 +1,5 @@
 import os
+import json
 import pandas as pd
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
@@ -9,6 +10,7 @@ dependant_variable = 'monthly_mean'
 
 for zone in range(1, 30): # zones
     zone_name = 'zone_' + str(zone)
+    scores = {}
     for month in range(1, 13): # months
         file_path = parent_directory + '/' + zone_name + '/' + str(month) + '.csv'
         zone_df = pd.read_csv(file_path)
@@ -35,9 +37,17 @@ for zone in range(1, 30): # zones
         xgb_score = xgb.score(X_test, y_test)
 
         # save model output state
+        month = str(month)
         save_directory = '../model_output/hydro_zone_monthly_distributions'
-        save_path = save_directory + '/' + zone_name + '/' + str(month) + '.json'
+        save_path = save_directory + '/' + zone_name + '/' + month + '.json'
         xgb.save_model(save_path)
 
-        print('{' + '{}:{}: {}'.format(zone_name, str(month), round(xgb_score, 4)) + '}')
+        # print score value
+        score = round(xgb_score, 4)
+        scores[month] = score
+        score_text = '{}:{}: {}'.format(zone_name, month, score)
+        print(score_text)
         continue
+
+    with open(save_directory + '/' + zone_name + '/' + 'monthly_model_scores.json', "w") as outfile:
+        json.dump(scores, outfile)

@@ -91,6 +91,16 @@ objects:
               value: wally-psql-master-${NAME}
             - name: WALLY_ENV
               value: "${ENVIRONMENT}"
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioAccessKey
+                  name: minio
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioSecretKey
+                  name: minio
       type: Rolling
     template:
       metadata:

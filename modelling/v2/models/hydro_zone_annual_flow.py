@@ -1,4 +1,5 @@
 import os
+import json
 import pandas as pd
 from xgboost import XGBRegressor
 from sklearn.model_selection import train_test_split
@@ -7,7 +8,7 @@ from ast import literal_eval
 
 directory = '../data/training_data_hydro_zone_annual_flow/'
 dependant_variable = 'mean'
-scores = []
+scores = {}
 
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
@@ -46,11 +47,16 @@ for filename in sorted(os.listdir(directory)):
         zone_name = filename.split('_')[1].split('.')[0]
         xgb.save_model('../model_output/hydro_zone_annual_flow/zone_{}.json'.format(zone_name))
 
-        print('{}: {}'.format(zone_name, round(xgb_score, 4)))
-        score = '{' + '{}: {}'.format(zone_name, round(xgb_score, 4)) + '}'
-        scores.append(score)
+        # print score value
+        score = round(xgb_score, 4)
+        scores[zone_name] = score
+        score_text = '{}: {}'.format(zone_name, score)
+        print(score_text)
+        
         continue
     else:
         continue
 
-# print(scores)
+# create r2 scores
+with open('../model_output/hydro_zone_annual_flow/annual_model_scores.json', "w") as outfile:
+    json.dump(scores, outfile)

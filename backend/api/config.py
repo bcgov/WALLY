@@ -52,6 +52,9 @@ COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")
 BASE_DIR = '/app/'
 CONFIG_DIR = BASE_DIR + '.config/'
 
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 
 # Use Pydantic's settings management
 class Settings(BaseSettings):
