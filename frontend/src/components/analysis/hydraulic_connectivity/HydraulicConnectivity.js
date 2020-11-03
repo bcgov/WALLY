@@ -95,6 +95,7 @@ export default {
       }
       this.streams.push(stream)
       this.reloadStreams()
+      this.replaceOldFeatures()
     },
     submitStreamsForExport () {
       // Custom metrics - Track Excel downloads
@@ -297,13 +298,15 @@ export default {
       })
     },
     setDrawStreamHandlers () {
+      console.log('test')
       this.map.on('draw.create', this.addNewStreamPointHandler)
       this.map.on('draw.update', this.addNewStreamPointHandler)
     },
     ...mapMutations('map', [
       'updateHighlightFeatureData',
       'updateHighlightFeatureCollectionData',
-      'setMode'
+      'setMode',
+      'replaceOldFeatures'
     ]),
     ...mapActions('map', ['addMapLayer', 'updateMapLayerData', 'selectPointOfInterest'])
   },

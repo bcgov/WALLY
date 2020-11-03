@@ -151,7 +151,6 @@ describe('Stream apportionment tests', () => {
     expect(wrapper.vm.streams.length).toEqual(0)
   })
 
-
   it('Adds new stream point to streams', () => {
     const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
     wrapper.vm.processNewStreamPoint(newPoint)
