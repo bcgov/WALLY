@@ -164,7 +164,6 @@ describe('Stream apportionment tests', () => {
     expect(wrapper.vm.streams[0].apportionment).toBe(100)
     const newPoint2 = pointFeature([-122.94303996939581, 50.12497963524882])
     wrapper.vm.processNewStreamPoint(newPoint2)
-    console.log(wrapper.vm.streams[0].apportionment)
     expect(wrapper.vm.streams[0].apportionment).toBeCloseTo(3.17, 2)
   })
 
