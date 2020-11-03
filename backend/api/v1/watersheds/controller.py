@@ -1006,7 +1006,7 @@ def get_scsb2016_input_stats(db: Session):
     return stats
 
 
-def get_watershed_details(db: Session, watershed: Feature, skip_sea: bool = False):
+def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True):
     """ returns watershed inputs variables used in modelling """
     logger.warning("skip_sea")
     logger.warning(skip_sea)
@@ -1043,13 +1043,14 @@ def get_watershed_details(db: Session, watershed: Feature, skip_sea: bool = Fals
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
     # slope elevation aspect
-    try:
-        if skip_sea:
-            raise Exception('Skipping SEA')
-        average_slope, median_elevation, aspect = get_slope_elevation_aspect(watershed_poly)
-        solar_exposure = get_hillshade(average_slope, aspect)
-    except Exception:
-        average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+    average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
+    if use_sea:
+        try:
+            average_slope, median_elevation, aspect = get_slope_elevation_aspect(
+                watershed_poly)
+            solar_exposure = get_hillshade(average_slope, aspect)
+        except Exception:
+            logger.error("Error getting slope elevation aspect")
 
     data = {
         "watershed_id": watershed.id,
