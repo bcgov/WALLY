@@ -34,7 +34,8 @@ describe('Stream apportionment tests', () => {
       updateMapLayerData: () => jest.fn()
     }
     mutations = {
-      setMode: jest.fn()
+      setMode: jest.fn(),
+      replaceOldFeatures: jest.fn()
     }
     let map = {
       namespaced: true,

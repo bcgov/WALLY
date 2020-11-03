@@ -198,7 +198,11 @@ export default {
       })
 
       this.streams.forEach(stream => {
-        stream['apportionment'] = (stream['inverse_distance'] / total) * 100
+        const apportionment = (stream['inverse_distance'] / total) * 100
+        if (apportionment < 10 && this.show.removeLowApportionment === false) {
+          this.show.removeLowApportionment = true
+        }
+        stream['apportionment'] = apportionment
       })
     },
     reloadStreams () {
