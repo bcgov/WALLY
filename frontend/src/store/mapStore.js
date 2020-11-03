@@ -179,7 +179,7 @@ export default {
       state.draw.add(feature)
       dispatch('addActiveSelection', { featureCollection: { features: [feature] } })
     },
-    selectPointOfInterest ({ commit, dispatch, state }) {
+    selectPointOfInterest ({ commit, dispatch }) {
       commit('setDrawPointOfInterest', true)
       dispatch('setDrawMode', 'draw_point')
     },

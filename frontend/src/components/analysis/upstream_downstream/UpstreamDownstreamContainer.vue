@@ -73,7 +73,7 @@ export default {
       this.$store.dispatch('map/removeMapLayer', 'freshwater_atlas_stream_networks')
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addSelectedFeature', 'selectPointOfInterest'])
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'addFeaturePOIFromCoordinates', 'selectPointOfInterest'])
   },
   computed: {
     isStreamsLayerEnabled () {
@@ -90,19 +90,11 @@ export default {
         if (this.$route.query.coordinates) {
           const coords = this.$route.query.coordinates.map(Number)
 
-          const pointOfInterest =
-            {
-              id: 'point_of_interest',
-              type: 'Feature',
-              geometry: {
-                type: 'Point',
-                coordinates: coords
-              },
-              properties: {
-              }
-            }
-
-          this.addSelectedFeature(pointOfInterest)
+          const data = {
+            coordinates: coords,
+            layerName: 'point-of-interest'
+          }
+          this.addFeaturePOIFromCoordinates(data)
         }
 
         if (!this.isStreamsLayerEnabled) {
