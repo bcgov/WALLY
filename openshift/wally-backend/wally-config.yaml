@@ -1,20 +1,23 @@
 apiVersion: v1
 data:
   prod.env: |
-    external_import=false
+    external_import=true
     external_import_types=
     wally_model=false
-    surface_water_design_v2=false
+    surface_water_design_v2=true
+    hydraulic_connectivity_custom_stream_points=false
   staging.env: |
-    external_import=false
+    external_import=true
     external_import_types=
     wally_model=true
     surface_water_design_v2=true
+    hydraulic_connectivity_custom_stream_points=true
   dev.env: |
     external_import=true
     external_import_types=csv, kml, geojson
     wally_model=true
     surface_water_design_v2=true
+    hydraulic_connectivity_custom_stream_points=true
 kind: ConfigMap
 metadata:
   name: wally-config
