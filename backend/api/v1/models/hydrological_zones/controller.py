@@ -171,12 +171,8 @@ def get_set_model_data(minio_path: str, file_name: str):
     """
     Gets a model object from Minio and sets the file by file_name
     """
-    logger.warning(minio_path)
-    logger.warning(file_name)
     try:
-        logger.warning('getting minio object')
         response = minioClient.get_object('models', minio_path)
-        logger.warning(response)
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
