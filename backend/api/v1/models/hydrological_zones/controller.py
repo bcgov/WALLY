@@ -15,7 +15,7 @@ from api.config import MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
 minioClient = Minio(MINIO_HOST_URL,
                   access_key=MINIO_ACCESS_KEY,
                   secret_key=MINIO_SECRET_KEY,
-                  secure=True)
+                  secure=False)
 
 logger = logging.getLogger("hydrological_zones")
 
