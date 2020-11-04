@@ -162,6 +162,11 @@ objects:
               secretKeyRef:
                 key: minioSecretKey
                 name: minio
+          - name: MINIO_HOST_URL
+            valueFrom:
+              secretKeyRef:
+                key: minioHostUrl
+                name: minio
           - name: POSTGRES_SERVER
             value: wally-psql-master-${NAME}
           - name: WALLY_ENV
