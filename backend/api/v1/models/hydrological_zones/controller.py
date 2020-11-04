@@ -188,6 +188,7 @@ def get_set_model_data(minio_path: str, file_name: str):
     logger.warning(minio_path)
     logger.warning(file_name)
     try:
+        logger.warning('getting minio object')
         response = minioClient.get_object('models', minio_path)
         logger.warning(response)
 
@@ -196,5 +197,6 @@ def get_set_model_data(minio_path: str, file_name: str):
 
         with open(file_name, "w") as local_file:
             local_file.write(content)
+
     except Exception as error:
-        logger.warning("minio: " + error)
+        logger.warning(error)
