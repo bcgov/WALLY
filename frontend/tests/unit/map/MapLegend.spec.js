@@ -109,7 +109,7 @@ describe('Map Legend Test', () => {
     expect(
       wrapper.findAll('div#legend div').at(0)
         .find('.layerName').text()
-    ).toEqual('Ecological Catalogue (formerly AquaCat)')
+    ).toEqual('EcoCat Water-related Reports')
   })
 
   it('Shows the legend items for a layer that has multiple legend items', async () => {
@@ -144,7 +144,7 @@ describe('Map Legend Test', () => {
           label: 'Title',
           label_column: 'TITLE',
           layer_category_code: 'REPORTS',
-          name: 'Ecological Catalogue (formerly AquaCat)',
+          source_name: 'Ecological Catalogue (formerly AquaCat)',
           source_url: 'https://catalogue.data.gov.bc.ca/dataset/ecological-catalogue-formerly-aquacat',
           url: '',
           use_wms: true,
@@ -196,7 +196,7 @@ describe('Map Legend Test', () => {
     let legendItems = wrapper.findAll('div#legend').at(0)
       .findAll('.legendItem')
 
-    expect(layerName).toEqual('Ecological Catalogue (formerly AquaCat)')
+    expect(layerName).toEqual('EcoCat Water-related Reports')
     expect(legendItems.length).toEqual(2)
   })
 
