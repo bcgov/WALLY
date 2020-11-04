@@ -636,21 +636,28 @@ export default {
       'fill-outline-color': 'hsl(250, 76%, 39%)'
     }
   },
-  'fish_observations': [{
-    'id': 'fish_observations_summaries',
-    'type': 'symbol',
-    'source': 'fish_observations',
-    'source-layer': 'fish_observations',
-    'layout': { 'icon-image': 'fish-icon-red', 'visibility': 'none' },
-    'paint': { 'icon-opacity': 0.8 }
-  }, {
+  'fish_observations': {
     'id': 'fish_observations',
     'type': 'symbol',
     'source': 'fish_observations',
     'source-layer': 'fish_observations',
     'layout': { 'icon-image': 'fish-icon-orange', 'visibility': 'none' },
-    'paint': { 'icon-opacity': 0.8 }
-  }],
+    'paint': {
+      'icon-opacity': 0.8
+    },
+    'filter': ['==', 'POINT_TYPE_CODE', 'Observation']
+  },
+  'fish_observations_summaries': {
+    'id': 'fish_observations_summaries',
+    'type': 'symbol',
+    'source': 'fish_observations',
+    'source-layer': 'fish_observations',
+    'layout': { 'icon-image': 'fish-icon-red', 'visibility': 'none' },
+    'paint': {
+      'icon-opacity': 0.8
+    },
+    'filter': ['==', 'POINT_TYPE_CODE', 'Summary']
+  },
   'water_approval_points': {
     'id': 'water_approval_points',
     'type': 'circle',

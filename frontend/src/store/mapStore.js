@@ -250,9 +250,6 @@ export default {
           for (let i = 1; i < 5; i++) {
             commit('deactivateLayer', 'water_licensed_works_dash' + i)
           }
-        } else if (l === 'fish_observations') {
-          commit('deactivateLayer', 'fish_observations')
-          commit('deactivateLayer', 'fish_observations_summaries')
         }
       })
 
@@ -266,9 +263,6 @@ export default {
           for (let i = 1; i < 5; i++) {
             commit('activateLayer', 'water_licensed_works_dash' + i)
           }
-        } else if (l === 'fish_observations') {
-          commit('activateLayer', 'fish_observations')
-          commit('activateLayer', 'fish_observations_summaries')
         }
       })
 
@@ -506,6 +500,7 @@ export default {
     initVectorLayerSources (state, allLayers) {
       allLayers.forEach((layer) => {
         if (layer.use_wms) {
+          const sourceID = layer.source_layer
           const layerID = layer.display_data_name
           const wmsOpts = {
             service: 'WMS',
@@ -523,10 +518,12 @@ export default {
           const query = qs.stringify(wmsOpts)
           let url = wmsBaseURL + layer.wms_name + '/ows?' + query + '&BBOX={bbox-epsg-3857}'
           // GWELLS specific url because we get vector tiles directly from the GWELLS DB, not DataBC
-          if (layerID === 'groundwater_wells' || layerID === 'aquifers') {
+          if (sourceID === 'groundwater_wells' || sourceID === 'aquifers') {
             url = `https://apps.nrs.gov.bc.ca/gwells/tiles/${layer.wms_name}/{z}/{x}/{y}.pbf`
           }
-          state.map.addSource(layerID, vectorSource(url, layerID))
+          if (!state.map.getSource(sourceID)) {
+            state.map.addSource(sourceID, vectorSource(url, sourceID))
+          }
           addMapboxLayer(state.map, layerID, { sourceLayer: layer.wms_name })
         }
       })

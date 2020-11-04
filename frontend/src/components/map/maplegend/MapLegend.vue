@@ -1,10 +1,9 @@
 <template>
   <div v-if="Object.keys(legend).length > 0" id="legend" class="legend">
     <div class="legendItems" v-show="show">
-
       <div v-for="(layer, i) in legend" v-bind:key="`layer${i}`">
-        <div v-if="layer.display_data_name === 'fish_observations'">
-          <FishObservationsLegendItem :item="getLegendItem(layer)" />
+        <div v-if="layer.display_data_name.startsWith('fish_observations')">
+          <FishObservationsLegendItem :layer=layer.display_data_name />
         </div>
         <div v-else-if="layer.display_data_name === 'water_licensed_works'">
           <WaterLicensedWorksLegendItem :item="getLegendItem(layer)" />

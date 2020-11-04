@@ -57,7 +57,8 @@ class DataSource(Base):
     __tablename__ = 'data_source'
 
     data_source_id = Column(Integer, primary_key=True)
-
+    layer = Column(String(200), unique=False,
+                          comment='This is the name of the source used in the application')
     name = Column(String, comment='data source detail name', index=True)
     description = Column(
         String, comment='explanation behind data source and use case')
