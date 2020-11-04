@@ -168,7 +168,11 @@ describe('Map Store', () => {
     expect(store.commit).toHaveBeenCalledWith('setSelectionBoundingBox', testFeatureCollection.features[0], { root: true })
   })
 
-  it('addActiveSelection called with a Point creates new Point of Interest object', () => {
+  it('addActiveSelection called with a Point creates new Point of Interest' +
+    ' object when drawPointOfInterest is true', () => {
+    store.state = {
+      drawPointOfInterest: true
+    }
     const testFeatureCollection = { features: [
       {
         id: 'testFeature',
@@ -182,6 +186,26 @@ describe('Map Store', () => {
 
     store.actions.addActiveSelection(store, { featureCollection: testFeatureCollection })
     expect(store.commit).toHaveBeenCalledWith('setPointOfInterest', testFeatureCollection.features[0], { root: true })
+  })
+
+  it('addActiveSelection does not create a POI' +
+    ' when drawPointOfInterest is false', () => {
+    store.state = {
+      drawPointOfInterest: false
+    }
+    const testFeatureCollection = { features: [
+      {
+        id: 'testFeature',
+        geometry: {
+          type: 'Point'
+        }
+      }
+    ] }
+
+    store.commit = jest.fn()
+
+    store.actions.addActiveSelection(store, { featureCollection: testFeatureCollection })
+    expect(store.commit).not.toHaveBeenCalledWith('setPointOfInterest', testFeatureCollection.features[0], { root: true })
   })
 
   it('addActiveSelection called with a LineString creates a new cross section line', () => {

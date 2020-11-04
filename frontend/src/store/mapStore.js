@@ -5,7 +5,7 @@ import baseMapDescriptions from '../common/utils/baseMapDescriptions'
 import HighlightPoint from '../components/map/MapHighlightPoint'
 import area from '@turf/area'
 import circle from '@turf/circle'
-import lineDistance from '@turf/line-distance'
+import length from '@turf/length'
 import lineToPolygon from '@turf/line-to-polygon'
 import pointInPolygon from '@turf/boolean-point-in-polygon'
 import mapboxgl from 'mapbox-gl'
@@ -59,6 +59,7 @@ export default {
     layerSelectionActive: true,
     isDrawingToolActive: false,
     mode: defaultMode,
+    drawPointOfInterest: false,
     selectedBaseLayers: [
       'national-park',
       'landuse',
@@ -154,7 +155,7 @@ export default {
         state.draw.changeMode(drawMode)
       }
     },
-    addFeaturePOIFromCoordinates ({ state, dispatch }, data) {
+    addFeaturePOIFromCoordinates ({ state, dispatch, commit }, data) {
       const point = {
         type: 'Feature',
         id: 'point_of_interest',
@@ -167,6 +168,7 @@ export default {
         properties: {
         }
       }
+      commit('setDrawPointOfInterest', true)
       dispatch('addSelectedFeature', point)
     },
     async addSelectedFeature ({ state, dispatch }, feature) {
@@ -176,6 +178,10 @@ export default {
 
       state.draw.add(feature)
       dispatch('addActiveSelection', { featureCollection: { features: [feature] } })
+    },
+    selectPointOfInterest ({ commit, dispatch }) {
+      commit('setDrawPointOfInterest', true)
+      dispatch('setDrawMode', 'draw_point')
     },
     addActiveSelection ({ commit, dispatch, state }, { featureCollection, options = {} }) {
       // options:
@@ -213,9 +219,10 @@ export default {
       const newFeature = featureCollection.features[0]
       commit('replaceOldFeatures', newFeature.id)
 
-      // Active selection is a Point
-      if (newFeature.geometry.type === 'Point') {
+      // Active selection is a Point, and we're drawing a point of interest
+      if (newFeature.geometry.type === 'Point' && state.drawPointOfInterest) {
         newFeature.display_data_name = 'point_of_interest'
+        commit('setDrawPointOfInterest', false)
         commit('setPointOfInterest', newFeature, { root: true })
         return
       }
@@ -590,6 +597,9 @@ export default {
     setMode (state, payload) {
       state.mode = payload
     },
+    setDrawPointOfInterest (state, payload) {
+      state.drawPointOfInterest = payload
+    },
     resetMode (state, payload) {
       state.mode = defaultMode
     },
@@ -602,7 +612,7 @@ export default {
 
       if (features.length > 0) {
         const feature = features[0]
-        const drawnLength = (lineDistance(feature) * 1000) // meters
+        const drawnLength = (length(feature) * 1000) // meters
         const coordinates = feature.geometry.coordinates
 
         // Calculate if last click point is close to the first click point
@@ -624,7 +634,7 @@ export default {
           let ac = lineFeature.geometry.coordinates
           ac[ac.length - 1] = ac[0]
           lineFeature.geometry.coordinates = ac
-          let perimeterMeasurement = (lineDistance(lineFeature) * 1000)
+          let perimeterMeasurement = (length(lineFeature) * 1000)
 
           // update draw feature collection with connected lines
           state.draw.set({

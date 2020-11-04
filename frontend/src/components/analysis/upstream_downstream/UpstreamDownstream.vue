@@ -134,7 +134,7 @@ export default {
   }),
   methods: {
     selectPoint () {
-      this.setDrawMode('draw_point')
+      this.selectPointOfInterest()
       this.buttonClicked = true
     },
     resetGeoJSONLayers () {
@@ -205,7 +205,7 @@ export default {
       this.streamData = null
     },
     ...mapActions(['exitFeature']),
-    ...mapActions('map', ['setDrawMode', 'clearSelections']),
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'selectPointOfInterest']),
     ...mapMutations('map', ['setMode'])
   },
   computed: {

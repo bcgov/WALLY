@@ -10,6 +10,7 @@ from geojson import Feature
 class Stream(BaseModel):
     # search_point
 
+    id: int
     ogc_fid: int
     geojson: Feature
     linear_feature_id: Optional[int]

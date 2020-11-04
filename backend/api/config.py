@@ -65,6 +65,8 @@ class Settings(BaseSettings):
     w_mapbox_token = ""
     w_mapbox_style = ""
 
+    hydraulic_connectivity_custom_stream_points = False
+
     class Config:
         env_file = ".env"
 

@@ -10,7 +10,7 @@ import PointOfInterest from './components/sidepanel/cards/PointOfInterest'
 import PolygonTool from './components/sidepanel/cards/PolygonTool'
 import MeasuringTool from './components/sidepanel/cards/MeasuringTool'
 import CrossSectionContainer from './components/analysis/cross_section/CrossSectionContainer'
-import StreamApportionmentContainer from './components/analysis/stream_apportionment/StreamApportionmentContainer'
+import HydraulicConnectivityContainer from './components/analysis/hydraulic_connectivity/HydraulicConnectivityContainer'
 import UpstreamDownstream from './components/analysis/upstream_downstream/UpstreamDownstreamContainer'
 import SurfaceWaterContainer from './components/analysis/surface_water/SurfaceWaterContainer'
 import Start from './components/sidepanel/Start'
@@ -180,8 +180,8 @@ const router = new Router({
     },
     {
       path: '/assign-demand',
-      name: 'stream-apportionment',
-      component: StreamApportionmentContainer,
+      name: 'hydraulic-connectivity',
+      component: HydraulicConnectivityContainer,
       meta: {
         title: `Hydraulic Connectivity Analysis - ${title}`,
         sidebarColumns: {

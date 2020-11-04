@@ -3,7 +3,8 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-import StreamApportionment from '../../../src/components/analysis/stream_apportionment/StreamApportionment.vue'
+import HydraulicConnectivity from '../../../src/components/analysis/hydraulic_connectivity/HydraulicConnectivity.vue'
+import { pointFeature } from '../../../src/common/mapbox/features'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -22,15 +23,19 @@ describe('Stream apportionment tests', () => {
 
   beforeEach(() => {
     getters = {
-      isMapLayerActive: state => layerId => false
+      isMapLayerActive: state => layerId => false,
+      isMapReady: jest.fn(),
+      map: () => {}
     }
     actions = {
       addMapLayer: jest.fn(),
       clearHighlightLayer: jest.fn(),
-      setMode: jest.fn()
+      setMode: jest.fn(),
+      updateMapLayerData: () => jest.fn()
     }
     mutations = {
-      setMode: jest.fn()
+      setMode: jest.fn(),
+      replaceOldFeatures: jest.fn()
     }
     let map = {
       namespaced: true,
@@ -43,11 +48,18 @@ describe('Stream apportionment tests', () => {
     }
     store = new Vuex.Store({ modules: { map } })
 
-    wrapper = shallowMount(StreamApportionment, {
+    wrapper = shallowMount(HydraulicConnectivity, {
       vuetify,
       store,
       localVue,
-      methods
+      methods,
+      propsData: {
+        record: {
+          geometry: {
+            coordinates: [-122.94441367903971, 50.124911888584364]
+          }
+        }
+      }
     })
   })
 
@@ -130,5 +142,33 @@ describe('Stream apportionment tests', () => {
     wrapper.vm.calculateApportionment()
     wrapper.vm.removeStreamsWithLowApportionment(10)
     expect(wrapper.vm.streams).toEqual(result)
+  })
+
+  it('Can delete a specific stream point', () => {
+    const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
+    wrapper.vm.processNewStreamPoint(newPoint)
+    expect(wrapper.vm.streams.length).toEqual(1)
+    wrapper.vm.deleteStream(wrapper.vm.streams[0])
+    expect(wrapper.vm.streams.length).toEqual(0)
+  })
+
+  it('Adds new stream point to streams', () => {
+    const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
+    wrapper.vm.processNewStreamPoint(newPoint)
+    expect(wrapper.vm.streams[0].distance).toBeCloseTo(542.88194)
+  })
+
+  it('Recalculates apportionment when a new stream point is added', () => {
+    const newPoint = pointFeature([-122.94811212808108, 50.12917974111525])
+    wrapper.vm.processNewStreamPoint(newPoint)
+    expect(wrapper.vm.streams[0].apportionment).toBe(100)
+    const newPoint2 = pointFeature([-122.94303996939581, 50.12497963524882])
+    wrapper.vm.processNewStreamPoint(newPoint2)
+    expect(wrapper.vm.streams[0].apportionment).toBeCloseTo(3.17, 2)
+  })
+
+  it('Gives a warning when you try to reload streams when there are added' +
+    ' custom stream points', () => {
+    expect(1).toBe(1)
   })
 })

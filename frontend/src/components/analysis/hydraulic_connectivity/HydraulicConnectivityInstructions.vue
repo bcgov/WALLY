@@ -30,6 +30,6 @@
 </template>
 <script>
 export default {
-  name: 'StreamApportionmentInstructions'
+  name: 'HydraulicConnectivityInstructions'
 }
 </script>

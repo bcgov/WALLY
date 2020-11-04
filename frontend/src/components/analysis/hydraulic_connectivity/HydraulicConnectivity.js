@@ -1,7 +1,8 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import qs from 'querystring'
+import length from '@turf/length'
 import ApiService from '../../../services/ApiService'
-import StreamApportionmentInstructions from './StreamApportionmentInstructions'
+import HydraulicConnectivityInstructions from './HydraulicConnectivityInstructions'
 import { downloadXlsx } from '../../../common/utils/exportUtils'
 import { lineStringFeature, featureCollection } from '../../../common/mapbox/features'
 import {
@@ -10,12 +11,13 @@ import {
 } from '../../../common/mapbox/sourcesWally'
 
 export default {
-  name: 'StreamApportionment',
+  name: 'HydraulicConnectivity',
   components: {
-    StreamApportionmentInstructions
+    HydraulicConnectivityInstructions
   },
   props: ['record'],
   data: () => ({
+    streamIncrement: 0,
     loading: false,
     spreadsheetLoading: false,
     streams: [],
@@ -44,13 +46,57 @@ export default {
        'demand' */
       { text: 'Demand', value: 'apportionment', align: 'end' },
       { text: '', value: 'action', sortable: false }
-    ]
+    ],
+    addingNewStreamPoint: false
   }),
   methods: {
-    selectPoint () {
+    ...mapActions('map', ['setDrawMode', 'clearSelections', 'selectPointOfInterest']),
+    addNewStreamPoint () {
+      this.addingNewStreamPoint = true
       this.setDrawMode('draw_point')
     },
-    ...mapActions('map', ['setDrawMode', 'clearSelections']),
+    addNewStreamPointHandler () {
+      const features = this.draw.getAll().features
+      if (this.addingNewStreamPoint && features.length > 0) {
+        this.processNewStreamPoint(features[0])
+      }
+    },
+    processNewStreamPoint (feature) {
+      this.addingNewStreamPoint = false
+      this.streamIncrement++
+
+      // Add closest point and distance line
+      // Open popup and ask for a name
+      const newStreamDistanceLine = lineStringFeature(
+        [this.coordinates, feature.geometry.coordinates]
+      )
+
+      const distance = length(newStreamDistanceLine) * 1000 // km to metres
+      const stream = {
+        id: this.streamIncrement,
+        // apportionment: 0,
+        closest_stream_point: {
+          coordinates: feature.geometry.coordinates,
+          type: 'Point'
+        },
+        distance,
+        distance_degrees: 0,
+        feature_source: 0,
+        fwa_watershed_code: {},
+        geojson: feature,
+        geometry_length: 0,
+        gnis_name: 'Unnamed stream',
+        // inverse_distance: 0,
+        left_right_tributary: 0,
+        length_metre: 0,
+        linear_feature_id: 0,
+        ogc_fid: this.streamIncrement,
+        watershed_group_code: 0
+      }
+      this.streams.push(stream)
+      this.reloadStreams()
+      this.replaceOldFeatures()
+    },
     submitStreamsForExport () {
       // Custom metrics - Track Excel downloads
       window._paq && window._paq.push([
@@ -123,7 +169,7 @@ export default {
       //   })
 
       let streamData = {
-        display_data_name: 'stream_apportionment',
+        display_data_name: 'hydraulic_connectivity',
         feature_collection: featureCollection(
           [featureDistanceLines]
         )
@@ -152,7 +198,11 @@ export default {
       })
 
       this.streams.forEach(stream => {
-        stream['apportionment'] = (stream['inverse_distance'] / total) * 100
+        const apportionment = (stream['inverse_distance'] / total) * 100
+        if (apportionment < 10 && this.show.removeLowApportionment === false) {
+          this.show.removeLowApportionment = true
+        }
+        stream['apportionment'] = apportionment
       })
     },
     reloadStreams () {
@@ -165,7 +215,7 @@ export default {
     },
     deleteStream (selectedStream) {
       let newStreamArr = this.streams.filter(stream => {
-        return stream['ogc_fid'] !== selectedStream['ogc_fid']
+        return stream['id'] !== selectedStream['id']
       })
       this.streams = [...newStreamArr]
       this.show.reloadAll = true
@@ -251,12 +301,18 @@ export default {
         featureData: highlightData.feature_collection
       })
     },
+    setDrawStreamHandlers () {
+      console.log('test')
+      this.map.on('draw.create', this.addNewStreamPointHandler)
+      this.map.on('draw.update', this.addNewStreamPointHandler)
+    },
     ...mapMutations('map', [
       'updateHighlightFeatureData',
       'updateHighlightFeatureCollectionData',
-      'setMode'
+      'setMode',
+      'replaceOldFeatures'
     ]),
-    ...mapActions('map', ['addMapLayer', 'updateMapLayerData'])
+    ...mapActions('map', ['addMapLayer', 'updateMapLayerData', 'selectPointOfInterest'])
   },
   computed: {
     coordinates () {
@@ -265,7 +321,8 @@ export default {
     isFreshwaterAtlasStreamNetworksLayerEnabled () {
       return this.isMapLayerActive('freshwater_atlas_stream_networks')
     },
-    ...mapGetters('map', ['isMapLayerActive'])
+    ...mapGetters(['app']),
+    ...mapGetters('map', ['map', 'draw', 'isMapLayerActive', 'isMapReady'])
   },
   watch: {
     record: {
@@ -281,10 +338,16 @@ export default {
       if (parseFloat(value) === 1 || parseFloat(value) === 2) {
         this.calculateApportionment()
       }
+    },
+    isMapReady (value) {
+      if (value) {
+        this.setDrawStreamHandlers()
+      }
     }
   },
   mounted () {
-    this.setMode({ type: 'analyze', name: 'stream_apportionment' })
+    this.map && this.setDrawStreamHandlers()
+    this.setMode({ type: 'analyze', name: 'hydraulic_connectivity' })
     this.fetchStreams()
   },
   beforeDestroy () {
