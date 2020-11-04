@@ -30,8 +30,6 @@ def v1_watershed_drainage_model(
         raise HTTPException(
             status_code=400, detail="Missing model parameters.")
     
-    logger.warning("hydrological_zone")
-    logger.warning(hydrological_zone)
     model_output = get_hydrological_zone_model_v1(
       hydrological_zone,
       drainage_area,
@@ -60,9 +58,7 @@ def v2_watershed_drainage_model(
     ):
         raise HTTPException(
             status_code=400, detail="Missing model parameters.")
-    logger.warning("v2 watershed model")
-    logger.warning("hydrological_zone")
-    logger.warning(hydrological_zone)
+
     model_output = get_hydrological_zone_model_v2(
       hydrological_zone,
       drainage_area,
