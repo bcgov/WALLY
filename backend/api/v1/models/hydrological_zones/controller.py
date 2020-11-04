@@ -195,7 +195,7 @@ def get_set_model_data(minio_path: str, file_name: str):
         content = response.read().decode('utf-8')
         logger.warning(content)
 
-        with open(file_name, "w") as local_file:
+        with open(file_name, "w+") as local_file:
             local_file.write(content)
 
     except Exception as error:
