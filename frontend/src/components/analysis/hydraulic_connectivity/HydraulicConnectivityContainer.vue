@@ -36,7 +36,9 @@
       <v-col class="text-right"><v-btn @click="selectPointOfInterest" color="primary" outlined>Draw a Point</v-btn></v-col>
       <v-col cols=12>
         <v-card>
-          <v-card-title>Instructions</v-card-title>
+          <v-card-title>
+            Instructions, Methodology, and Data Sources
+          </v-card-title>
           <v-card-text>
             <HydraulicConnectivityInstructions></HydraulicConnectivityInstructions>
           </v-card-text>
