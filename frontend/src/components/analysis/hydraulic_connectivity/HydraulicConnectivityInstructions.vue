@@ -39,7 +39,7 @@
       button to reset the analysis to the initial results.
     </p>
     <p>
-      You can export results to Excel by selecting the “Excel" button.
+      You can export results to Excel by selecting the "Excel" button.
     </p>
     <p>
       If no analysis is produced, then go to the drop down Selection menu in the top navigation bar and
