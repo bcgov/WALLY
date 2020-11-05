@@ -120,7 +120,7 @@
               <v-icon >mdi-restore</v-icon>
             </v-btn>
           </template>
-          <span>Restore all streams</span>
+          <span>Reset all streams. WARNING: This will remove any custom-added stream points.</span>
         </v-tooltip>
       </v-col>
       <v-col align-self="center" v-if="!isFreshwaterAtlasStreamNetworksLayerEnabled">
