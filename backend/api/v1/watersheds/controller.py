@@ -729,8 +729,8 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
 
     result = response.json()
 
-    logger.warn("(SEA) Request Finished")
     logger.warn(result)
+    logger.warn("(SEA) Request Finished")
 
     if result["status"] != "SUCCESS":
         logger.warn("(SEA) Request Failed:" + result["message"])

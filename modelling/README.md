@@ -31,3 +31,16 @@ Under the models directory there are annual and monthly modelling scripts that a
 The annual model attempts to predict mean annual discharge by using a small 2 layer neural network. This should be scaled up with better hardware for training.
 
 
+### Minio Model State Storage
+
+The wally api backend pulls model state information from the cluster minio instance. This data is stored in the models bucket and structured using the follwing directories:
+
+    /models/v1/hydro_zone_annual_flow/
+    /models/v2/hydro_zone_annual_flow/
+    /models/v2/hydro_zone_monthly_distributions/
+
+The following commands are examples on how to upload the data from the wally/modelling/v2/model_output project directory:
+
+    mc cp --recursive hydro_zone_annual_flow/ wally-dev/models/v2/hydro_zone_annual_flow/
+    mc cp --recursive hydro_zone_monthly_distributions/ wally-dev/models/v2/hydro_zone_monthly_distributions/
+  

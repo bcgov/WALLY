@@ -152,6 +152,21 @@ objects:
               secretKeyRef:
                 key: app-db-name
                 name: wally-psql
+          - name: MINIO_ACCESS_KEY
+            valueFrom:
+              secretKeyRef:
+                key: minioAccessKey
+                name: minio
+          - name: MINIO_SECRET_KEY
+            valueFrom:
+              secretKeyRef:
+                key: minioSecretKey
+                name: minio
+          - name: MINIO_HOST_URL
+            valueFrom:
+              secretKeyRef:
+                key: minioHostUrl
+                name: minio
           - name: POSTGRES_SERVER
             value: wally-psql-master-${NAME}
           - name: WALLY_ENV

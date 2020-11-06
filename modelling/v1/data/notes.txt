@@ -1,0 +1,52 @@
+Generate Dataset from Hydat.sqlite3
+
+- get dly flows from 2000 onward
+- get stations, lat lon, then get other inputs like watershed, precip, glacial coverage, slope, pet
+- run multi-variate linear models and compare quality against test data set
+- run neural network with different inputs and network sizes to see if it can compete with mvlm
+- monthly mean annual dependant variable
+- only use full months
+- run monthly models for each month
+- try more recent data, or only last 5 years or 10 years, see what performs better
+- 80/20 split train test
+- build train dataset by taking this hydat and then hitting wally surface water endpoint for additional parameters, save to database, export to csv, possibly batch csv directly
+- could model water levels if interested
+
+Fields for training data set
+monthly_mean = month, no_days, hydro_zone, annual_precipitation, glacial_coverage, pet, slope, median_elevation, drainage_area, solar_exposure, year?
+
+Do we want to build a model that uses more than just BC stations? More general model
+2317 stations in Canada above year 2000, with full months, and monthly mean
+441 in BC
+
+sediment concentration could be another model - exists in hydat db
+
+STATIONS useful columns
+PROV_TERR_STATE_LOC - we are interested in just BC
+HYD_STATUS - active vs deactivated could be a useful filter
+LATITUDE/LONGITUDE - used in input lookup through Wally surface water tool
+DRAINAGE_AREA_GROSS - one of our inputs, may want to save both this value and Wally generated value for comparison
+REAL_TIME - may be useful later on for a time series models
+
+DLY_FLOWS useful columns
+YEAR - how recent is the data value
+MONTH - relevant month
+FULL_MONTH - we only use rows with full months or do we extrapolate? 
+do we need full years or models are for specific month estimates so data coverage will be varied accross months?
+NO_DAYS - useful in output value
+MONTHLY_MEAN - main dependant variable
+MONTHLY_TOTAL - possible secondary dependant variable
+MIN - useful for low flow estimates
+MAX - useful for high flow estimates
+
+
+curl -X GET -kL https://wally.pathfinder.gov.bc.ca/api/v1/watersheds/generated.6329718 --header "Authorization: Bearer <access_token>"
+
+Ways to increase dataset quality
+1. Find a more reliable way to get SEA (Slope, Elevation, Aspect) values so we aren't missing data entries for larger watersheds. The SEA endpoint has a max size of watershed that it accepts.
+We could set a max value for these watersheds?
+2. Lots of Calls to the surface water endpoint with the cached ID fail with a 502 error. Not sure why, worth looking into.
+
+Re-Run Annual station values lookup this evening to complete the scripts and round out the dataset
+
+

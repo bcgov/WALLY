@@ -5,38 +5,10 @@
       dark>
       Comparative Runoff Models
     </v-card-title>
-    <v-card-text v-if="showWallyModelFeatureFlag && hydrologicalZoneModelRunoff">
-      <v-card-actions>
-        <v-card-subtitle class="pr-0 pl-2 pr-2">
-          Source:
-        </v-card-subtitle>
-        Wally Hydrological Zone Model
-      </v-card-actions>
-      <v-row class="pl-3 pr-3">
-        <v-col>
-          <v-card flat outlined tile height="100%">
-            <v-card-title>
-              Mean Annual Runoff Estimate:
-              <v-icon small class="ml-1">mdi-information-outline</v-icon>
-            </v-card-title>
-            <v-card-text class="info-blue">
-              <strong>{{ hydrologicalZoneModelRunoff }} m^3/sec</strong>
-            </v-card-text>
-          </v-card>
-        </v-col>
-        <v-col>
-          <v-card flat outlined tile height="100%">
-            <v-card-title>
-              Model R Squared:
-              <v-icon small class="ml-1">mdi-information-outline</v-icon>
-            </v-card-title>
-            <v-card-text class="info-blue">
-              <strong>{{ hydrologicalZoneModelRSquared }}</strong>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-card-text>
+
+    <HydroZoneModelV1 />
+    <HydroZoneModelV2 />
+
     <v-card-text v-if="annualNormalizedRunoff">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
@@ -139,6 +111,8 @@
   <div v-else>
     <div>
       <div class="titleSub">Comparative Runoff Models</div>
+      <HydroZoneModelV1 />
+      <HydroZoneModelV2 />
       <div v-if="annualNormalizedRunoff">
         <div>
           Source:
@@ -177,6 +151,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import HydroZoneModelV1 from './ComparitiveRunoffModels/HydroZoneModelV1'
+import HydroZoneModelV2 from './ComparitiveRunoffModels/HydroZoneModelV2'
 
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
@@ -199,7 +175,9 @@ const months = [
 export default {
   name: 'ComparativeRunoffModels',
   components: {
-    Plotly
+    Plotly,
+    HydroZoneModelV1,
+    HydroZoneModelV2
   },
   props: {
     record: null,
@@ -318,18 +296,18 @@ export default {
     },
     hydrologicalZoneModelRunoff () {
       console.log(this.watershedDetails)
-      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output ||
-        !this.watershedDetails.wally_hydro_zone_model_output.mean_annual_flow) {
+      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
+        !this.watershedDetails.wally_hydro_zone_model_output_v1.mean_annual_flow) {
         return null
       }
-      return (Number(this.watershedDetails.wally_hydro_zone_model_output.mean_annual_flow)).toFixed(2)
+      return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.mean_annual_flow)).toFixed(2)
     },
     hydrologicalZoneModelRSquared () {
-      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output ||
-        !this.watershedDetails.wally_hydro_zone_model_output.r_squared) {
+      if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
+        !this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared) {
         return null
       }
-      return (Number(this.watershedDetails.wally_hydro_zone_model_output.r_squared)).toFixed(2)
+      return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared)).toFixed(2)
     },
     isolineRunoffByMonth () {
       if (!this.annualIsolineRunoff) {
