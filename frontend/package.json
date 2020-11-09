@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@bcgov/bc-sans": "^1.0.1",
-    "@mapbox/mapbox-gl-draw": "^1.1.2",
+    "@mapbox/mapbox-gl-draw": "^1.2.0",
     "@mapbox/mapbox-gl-geocoder": "^4.5.1",
     "@mdi/font": "^4.4.95",
     "@sentry/browser": "^5.9.1",
@@ -29,7 +29,6 @@
     "@turf/line-to-polygon": "^6.0.1",
     "@turf/union": "^6.0.3",
     "axios": "^0.19.0",
-    "core-js": "^2.6.5",
     "csv2geojson": "^5.1.1",
     "esri-leaflet": "^2.2.4",
     "file-saver": "^2.0.2",
@@ -57,6 +56,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
+    "@vue/babel-preset-app": "^4.5.4",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-plugin-eslint": "^3.8.0",
     "@vue/cli-plugin-unit-jest": "^4.5.6",
@@ -67,6 +67,7 @@
     "babel-jest": "^23.6.0",
     "babel-plugin-dynamic-import-node": "^2.3.0",
     "compression-webpack-plugin": "^3.1.0",
+    "core-js": "^3.7.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
     "jest-canvas-mock": "^2.2.0",
