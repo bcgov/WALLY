@@ -21,7 +21,7 @@ from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
-from api import config
+from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
@@ -372,6 +372,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         See https://www2.gov.bc.ca/assets/gov/data/geographic/topography/fwa/fwa_user_guide.pdf
         for more info.
     """
+    if WATERSHED_DEBUG:
+        logger.info("Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
 
     q = """
         select ST_AsGeojson(
@@ -384,14 +386,20 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
                          "include": watershed_feature_id if include_self else None})
 
+    if WATERSHED_DEBUG:
+        logger.info("Upstream catchment query finished %s", res)
+
     record = res.fetchone()
 
+    if WATERSHED_DEBUG:
+        logger.info("Upstream catchment record %s", record)
+
     if not record or not record[0]:
-        logger.warn(
+        logger.warning(
             'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
-    return Feature(
+    feature = Feature(
         geometry=shape(
             geojson.loads(record[0])
         ),
@@ -403,6 +411,10 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
             "and LOCAL_WATERSHED_CODE properties."
         }
     )
+    if WATERSHED_DEBUG:
+        logger.info("Generated watershed feature %s", feature)
+
+    return feature
 
 
 def calculate_watershed(
@@ -411,6 +423,8 @@ def calculate_watershed(
     include_self: bool
 ):
     """ calculates watershed area upstream of a POI """
+    if WATERSHED_DEBUG:
+        logger.info("calculating watershed")
 
     q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
         func.ST_Contains(
@@ -419,10 +433,19 @@ def calculate_watershed(
         )
     )
 
+    if WATERSHED_DEBUG:
+        logger.info("watershed query %s", q)
+
     watershed_id = q.first()
 
+    if WATERSHED_DEBUG:
+        logger.info("watershed id %s", watershed_id)
+
     if not watershed_id:
+        if WATERSHED_DEBUG:
+            logger.warning("No watershed found")
         return None
+
     watershed_id = watershed_id[0]
 
     feature = get_upstream_catchment_area(
@@ -1009,20 +1032,32 @@ def get_scsb2016_input_stats(db: Session):
 def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True):
     """ returns watershed inputs variables used in modelling """
 
+    if WATERSHED_DEBUG:
+        logger.info("getting watershed details")
+
     watershed_poly = shape(watershed.geometry)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
     watershed_rect = watershed_poly.minimum_rotated_rectangle
+
+    if WATERSHED_DEBUG:
+        logger.info("watershed area %s", watershed_area)
 
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
         db, watershed_rect)
 
+    if WATERSHED_DEBUG:
+        logger.info("glacial coverage %s", glacial_coverage)
+
     # precipitation values from prism raster
     annual_precipitation = mean_annual_precipitation(db, watershed_poly)
     if not annual_precipitation:
         # fall back on PCIC data
         annual_precipitation = get_annual_precipitation(watershed_poly)
+
+    if WATERSHED_DEBUG:
+        logger.info("annual precipitation %s", annual_precipitation)
 
     # temperature and potential evapotranspiration values
     try:
@@ -1037,6 +1072,9 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         potential_evapotranspiration_hamon = None
         potential_evapotranspiration_thornthwaite = None
 
+    if WATERSHED_DEBUG:
+        logger.info("temperature data %s", temperature_data)
+
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
@@ -1049,6 +1087,9 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
             solar_exposure = get_hillshade(average_slope, aspect)
         except Exception:
             logger.error("Error getting slope elevation aspect")
+
+    if WATERSHED_DEBUG:
+        logger.info("median elevation %s", median_elevation)
 
     data = {
         "watershed_id": watershed.id,
