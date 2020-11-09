@@ -85,7 +85,7 @@ export default {
         fwa_watershed_code: {},
         geojson: feature,
         geometry_length: 0,
-        gnis_name: 'Unnamed stream',
+        gnis_name: 'Custom Stream Point',
         // inverse_distance: 0,
         left_right_tributary: 0,
         length_metre: 0,
