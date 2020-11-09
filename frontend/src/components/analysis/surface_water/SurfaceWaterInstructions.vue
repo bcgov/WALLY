@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="pa-3">
     <div class="headline">Instructions, Methodology, and Data Sources</div>
               <div class="title my-3 font-weight-bold">Instructions</div>
                 <ol>
