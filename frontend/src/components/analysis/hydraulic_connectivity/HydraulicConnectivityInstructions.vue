@@ -23,31 +23,16 @@
     </p>
     <p>
       If you made modifications to your analysis, such as removing stream segments or adding custom stream points, a
-      counterclockwise arrow icon will appear, which allows you to reset the analysis. Warning: This button reloads t
-      he analysis to its initial results and will remove any custom-added stream points.
+      counterclockwise arrow icon will appear, which allows you to reset the analysis. Warning: This button reloads the
+      analysis to its initial results and will remove any custom-added stream points.
       You can export results to Excel by selecting the "Excel" button.
     </p>
     <p>
       If no analysis is produced, then press "Select a New Point" and try again. It also helps to have the map zoomed
       to a smaller area with a sufficiently large amount of detail.
     </p>
-    <p>
-      After your analysis is produced, there are buttons available to: remove multiple streams, remove overlaps,
-      and remove streams where apportionment is less than 10%. Each row in the table has an eye icon to highlight
-      stream segments and a trash can icon to delete that specific stream segment. If you have made modifications
-      to your analysis, a counterclockwise arrow icon will appear beside the weighting factor - click on this
-      button to reset the analysis to the initial results.
-    </p>
-    <p>
-      You can export results to Excel by selecting the "Excel" button.
-    </p>
-    <p>
-      If no analysis is produced, then go to the drop down Selection menu in the top navigation bar and
-      "Reset Selections" and try again. It also helps to have the map zoomed to a smaller area with a
-      sufficiently large amount of detail.
-    </p>
     </div>
-    <div>
+    <div class="mt-12">
       <h3>Methodology</h3>
       <p>
         The Hydraulic Connectivity analysis is produced by obtaining the ten nearest stream segments from the dropped
@@ -82,7 +67,7 @@
         </dd>
       </dl>
     </div>
-    <div class="mt-3">
+    <div class="mt-12">
       <h3>Data Sources</h3>
       <p class="mb-0">
         The Hydraulic Connectivity analysis feature uses the following datasets:
