@@ -21,17 +21,45 @@
     </v-toolbar>
     <div
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
+      <div>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                Instructions, Methodology, and Data Sources
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-card flat>
+                  <v-card-text>
+                    <SurfaceWaterInstructions></SurfaceWaterInstructions>
+                  </v-card-text>
+                </v-card>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
+      </div>
       <SurfaceWaterV2 v-if="this.app.config && this.app.config.surface_water_design_v2"></SurfaceWaterV2>
       <SurfaceWater v-else></SurfaceWater>
     </div>
-    <v-row class="mt-3" v-else>
-      <v-col cols=12 lg=8>
-        <p class="pl-3">Select a point of interest to determine water availability.</p>
-      </v-col>
-      <v-col class="text-right">
-        <v-btn @click="selectPointOfInterest" color="primary" outlined>Select a point</v-btn>
-      </v-col>
-    </v-row>
+    <div v-else>
+      <v-row class="mt-3">
+        <v-col cols=12 lg=8>
+          <p class="pl-3">Select a point of interest to determine water availability.</p>
+        </v-col>
+        <v-col class="text-right">
+          <v-btn @click="selectPointOfInterest" color="primary" outlined>Select a point</v-btn>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-card>
+            <v-card-title>Instructions, Methodology, and Data Sources</v-card-title>
+            <v-card-text>
+              <SurfaceWaterInstructions></SurfaceWaterInstructions>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+    </div>
   </v-container>
 </template>
 
@@ -39,12 +67,14 @@
 import { mapGetters, mapActions } from 'vuex'
 import SurfaceWater from './SurfaceWater'
 import SurfaceWaterV2 from './SurfaceWaterV2'
+import SurfaceWaterInstructions from './SurfaceWaterInstructions'
 
 export default {
   name: 'SurfaceWaterContainer',
   components: {
     SurfaceWater,
-    SurfaceWaterV2
+    SurfaceWaterV2,
+    SurfaceWaterInstructions
   },
   data: () => ({
     licencesLayerAutomaticallyEnabled: false,
