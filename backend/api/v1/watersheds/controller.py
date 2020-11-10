@@ -38,7 +38,7 @@ from external.docgen.controller import docgen_export_to_xlsx
 from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger('api')
+logger = logging.getLogger('WATERSHEDS')
 
 SEC_IN_YEAR = 31536000
 
@@ -91,7 +91,8 @@ def pcic_data_request(
 
     req_url = pcic_url + urlencode(params)
 
-    logger.info('pcic request: %s', req_url)
+    if WATERSHED_DEBUG:
+        logger.info('pcic request: %s', req_url)
 
     try:
         resp = requests.get(req_url)
@@ -588,7 +589,8 @@ def get_watershed(db: Session, watershed_feature: str):
     watershed_feature_id = watershed_feature.split('.')[-1:]
     watershed = None
 
-    logger.info(watershed_feature_id)
+    if WATERSHED_DEBUG:
+        logger.info(watershed_feature_id)
 
     # if we generated this watershed, use the catchment area
     # generation function to get the shape.
@@ -739,7 +741,8 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
         "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
 
     try:
-        logger.warn("(SEA) Request Started")
+        if WATERSHED_DEBUG:
+            logger.warn("(SEA) Request Started")
         response = requests.post(sea_url, headers=headers, data=payload)
         response.raise_for_status()
     except requests.exceptions.HTTPError as errh:
@@ -753,11 +756,13 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
 
     result = response.json()
 
-    logger.warn(result)
-    logger.warn("(SEA) Request Finished")
+    if WATERSHED_DEBUG:
+        logger.warn(result)
+        logger.warn("(SEA) Request Finished")
 
     if result["status"] != "SUCCESS":
-        logger.warn("(SEA) Request Failed:" + result["message"])
+        if WATERSHED_DEBUG:
+            logger.warn("(SEA) Request Failed:" + result["message"])
         raise Exception
 
     # response object from sea example
@@ -1087,7 +1092,8 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
                 watershed_poly)
             solar_exposure = get_hillshade(average_slope, aspect)
         except Exception:
-            logger.error("Error getting slope elevation aspect")
+            if WATERSHED_DEBUG:
+                logger.error("Error getting slope elevation aspect")
 
     if WATERSHED_DEBUG:
         logger.info("median elevation %s", median_elevation)
