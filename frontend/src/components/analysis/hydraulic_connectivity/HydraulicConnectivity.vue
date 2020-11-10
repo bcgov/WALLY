@@ -5,7 +5,7 @@
         <v-expansion-panels>
           <v-expansion-panel>
             <v-expansion-panel-header>
-              Instructions
+              Instructions, Methodology, and Data Sources
             </v-expansion-panel-header>
             <v-expansion-panel-content>
               <v-card flat>
@@ -27,7 +27,7 @@
         </div>
       </v-col>
       <v-col class="text-right">
-        <v-btn @click="selectPointOfInterest" color="primary" outlined>Draw a New Point</v-btn>
+        <v-btn @click="selectPointOfInterest" color="primary" outlined>Select a New Point</v-btn>
         <v-btn
           v-if="streams && streams.length"
           outlined
@@ -120,7 +120,7 @@
               <v-icon >mdi-restore</v-icon>
             </v-btn>
           </template>
-          <span>Restore all streams</span>
+          <span>Reset all streams. WARNING: This will remove any custom-added stream points.</span>
         </v-tooltip>
       </v-col>
       <v-col align-self="center" v-if="!isFreshwaterAtlasStreamNetworksLayerEnabled">
@@ -159,45 +159,6 @@
               </tr>
             </template>
           </v-data-table>
-      </v-col>
-    </v-row>
-    <v-row no-gutters>
-      <v-col>
-        <v-expansion-panels class="mt-5 elevation-0" multiple>
-          <v-expansion-panel class="elevation-0">
-            <v-expansion-panel-header disable-icon-rotate class="grey--text text--darken-4 subtitle-1">
-              Where does this information come from?
-              <template v-slot:actions>
-                <v-icon color="primary">mdi-help-circle-outline</v-icon>
-              </template>
-
-            </v-expansion-panel-header>
-            <v-expansion-panel-content>
-              <p>Data on this page comes from <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network" target="_blank">Freshwater Atlas Stream Network</a>.</p>
-              <p>
-                Computations used are from the <a href="https://www2.gov.bc.ca/gov/content/environment/air-land-water/water/water-science-data/water-science-series" target="_blank">Water Science Series</a>
-                publication WSS 2016-01 <a href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=50832" target="_blank">"Determining the Likelihood of Hydraulic Connection - Guidance for Determining the Effect of Diversion of Groundwater on Specific Streams"</a>.
-              </p>
-              <p></p>
-              <dl>
-                <dt>Distance</dt>
-                <dd>Computed distance of the closest point of the stream to the selected point of interest.</dd>
-                <dt>Demand</dt>
-                <dd>
-                  Assign demand from a well to hydraulically connected streams;
-                  also known as stream apportionment.
-                </dd>
-                <dt>Weighting Factor</dt>
-                <dd>
-                  A weighting factor of 1 (linear) or 2 (squared) is usually set when assigning demand from a well.
-                  A larger weighting factor results in a greater contribution from the nearest stream.
-                  A weighting factor of 2 is recommended for general applications as per
-                  the guidance document for 'Determining the Likelihood of Hydraulic Connection'.
-                </dd>
-              </dl>
-            </v-expansion-panel-content>
-          </v-expansion-panel>
-        </v-expansion-panels>
       </v-col>
     </v-row>
   </v-container>
