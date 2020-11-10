@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div class="title my-3 font-weight-bold">Instructions</div>
+  <div id="surface_water_instructions">
+    <h3>Instructions</h3>
       <ol>
         <li>Zoom into an area of interest on the map.</li>
         <li>Click the “Select Point” button and drop a point of interest on the map.</li>
@@ -14,7 +14,7 @@
         <li>If no analysis is produced, then press "Select A Point" and try again. It also helps to have the map zoomed to a smaller area with a sufficiently large amount of detail.</li>
       </ol>
 
-    <div class="title my-3 font-weight-bold">Methodology</div>
+    <h3 class="mt-12">Methodology</h3>
 
     <p>
       Disclaimer: This modelling output has not been peer reviewed and is still considered experimental. Use the values generated with your own discretion.
@@ -36,7 +36,7 @@
       The outputs in this analysis are based on the South Coast Stewardship Baseline model from Sentlinger, 2016. This model is only available for the South Coast region. Additional models are currently being scoped to support additional regions. While model estimates, such as mean annual discharge and monthly distributions, are not presently provided for regions outside of the South Coast, you can still view other data, such as water rights licences, fish information, and links to EcoCat for streamflow reports.
     </p>
 
-    <div class="title my-3 font-weight-bold">Data Sources</div>
+    <h3 class="mt-12">Data Sources</h3>
 
     <p>
       The Surface Water Availability analysis feature uses the following datasets:
@@ -83,3 +83,11 @@ export default {
   name: 'SurfaceWaterInstructions'
 }
 </script>
+<style lang="scss">
+#surface_water_instructions{
+  h3 {
+    border-bottom: 1px groove;
+    margin-bottom: 5px;
+  }
+}
+</style>
