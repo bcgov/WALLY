@@ -10,22 +10,22 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 import api.v1.catalogue.db as meta_repo
-import api.v1.catalogue.models as view_model
+import api.v1.catalogue.schema as schema
 
 logger = getLogger("catalogue")
 
 router = APIRouter()
 
 
-@router.get("/all", response_model=view_model.Catalogue)
+@router.get("/all", response_model=schema.Catalogue)
 def list_catalogue(db: Session = Depends(get_db)):
     """
     List all supported catalogue entries
     """
-    layers = [view_model.Layer.from_orm(layer)
+    layers = [schema.Layer.from_orm(layer)
               for layer in meta_repo.get_display_catalogue(db)]
-    categories = [view_model.LayerCategory.from_orm(
+    categories = [schema.LayerCategory.from_orm(
         category) for category in meta_repo.get_layer_categories(db)]
 
-    return view_model.Catalogue(layers=layers, categories=categories)
+    return schema.Catalogue(layers=layers, categories=categories)
 

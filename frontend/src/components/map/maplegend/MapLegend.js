@@ -34,7 +34,7 @@ export default {
       const type = this.map.getLayer(layer.display_data_name).type
       const paint = this.mapLayerPaint(type, layer.display_data_name)
       return {
-        text: layer.name,
+        text: layer.display_name,
         type: type,
         ...paint
       }

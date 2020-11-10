@@ -34,8 +34,8 @@
           <div>
             <span>{{item.name}}</span>
             <Dialog
-            v-if="item.description"
-            :name="item.name" :description="item.description" :url="item.source_url" />
+            v-if="item.source_description"
+            :name="item.source_name" :description="item.source_description" :url="item.source_url" />
           </div>
         </template>
       </v-treeview>
@@ -147,8 +147,9 @@ export default {
       layers.forEach((layer) => {
         const layerNode = {
           id: layer.display_data_name,
-          name: layer.name,
-          description: layer.description,
+          name: layer.display_name,
+          source_name: layer.source_name,
+          source_description: layer.source_description,
           source_url: layer.source_url
         }
         if (!catMap[layer.layer_category_code]) {

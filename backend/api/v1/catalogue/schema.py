@@ -14,8 +14,9 @@ class Layer(BaseModel):
     wms_name: str = ''
     wms_style: str = ''
     use_wms: bool = False
-    name: str = ''
-    description: str = ''
+    source_name: str = ''
+    source_description: str = ''
+    source_layer: str = ''
     source_url: str = ''
     vector_name: str = ''
     layer_category_code: str = ''
@@ -23,14 +24,6 @@ class Layer(BaseModel):
 
     class Config:
         orm_mode = True
-
-
-class MapConfig(BaseModel):
-    """
-    Client map config e.g. access tokens
-    """
-    mapbox_token: str
-    mapbox_style: str
 
 
 class LayerCategory(BaseModel):

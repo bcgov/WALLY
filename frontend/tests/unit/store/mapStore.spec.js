@@ -258,7 +258,8 @@ describe('Map Store', () => {
     ]
     store.state.map = {
       addSource: jest.fn(),
-      addLayer: jest.fn()
+      addLayer: jest.fn(),
+      getSource: jest.fn()
     }
 
     const addLayerSpy = jest.spyOn(mapUtils, 'addMapboxLayer')

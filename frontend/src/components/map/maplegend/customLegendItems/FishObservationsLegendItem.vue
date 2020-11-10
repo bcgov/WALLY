@@ -1,28 +1,28 @@
 <template>
-  <LegendGroup :legendItems="legendItems()" :groupName="'Fish Observations'" />
+  <LegendItem :item="legendItem()" />
 </template>
 
 <script>
-import LegendGroup from '../LegendGroup'
+import LegendItem from '../LegendItem'
 
 export default {
   name: 'FishObservationsLegendItem',
-  components: { LegendGroup },
-  props: {
-    item: {}
-  },
+  components: { LegendItem },
+  props: ['layer'],
   methods: {
-    legendItems () {
-      return [
-        {
-          text: 'Observation Point',
+    legendItem () {
+      if (this.layer.display_data_name === 'fish_observations') {
+        return {
+          text: this.layer.display_name,
           image: 'fish-icon-orange'
-        },
-        {
-          text: 'Summary Point',
+        }
+      }
+      if (this.layer.display_data_name === 'fish_observations_summaries') {
+        return {
+          text: this.layer.display_name,
           image: 'fish-icon-red'
         }
-      ]
+      }
     }
   }
 }
