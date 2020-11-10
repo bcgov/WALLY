@@ -167,6 +167,11 @@ objects:
               secretKeyRef:
                 key: minioHostUrl
                 name: minio
+          - name: WATERSHED_DEBUG
+            valueFrom:
+              secretKeyRef:
+                key: WATERSHED_DEBUG
+                name: wally-debug
           - name: POSTGRES_SERVER
             value: wally-psql-master-${NAME}
           - name: WALLY_ENV

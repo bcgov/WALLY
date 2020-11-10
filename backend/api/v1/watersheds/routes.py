@@ -20,7 +20,6 @@ from api.v1.hydat.db_models import Station as StreamStation
 
 from api.v1.aggregator.controller import (
     databc_feature_search,
-
     EXTERNAL_API_REQUESTS,
     API_DATASOURCES,
     DATABC_GEOMETRY_FIELD,
@@ -51,6 +50,7 @@ from api.v1.watersheds.schema import (
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
 from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model_v1, get_hydrological_zone_model_v2
+from api.config import WATERSHED_DEBUG
 
 logger = getLogger("aggregator")
 
@@ -159,7 +159,8 @@ def watershed_stats(
     )
 ):
     """ aggregates statistics/info about a watershed """
-    logger.warn("Watershed Details - Request Started")
+    if WATERSHED_DEBUG:
+        logger.warning("Watershed Details - Request Started")
 
     # watershed area calculations
     watershed = get_watershed(db, watershed_feature)
@@ -210,7 +211,8 @@ def watershed_stats(
 
         return export_summary_as_xlsx(jsonable_encoder(data))
 
-    logger.warn("Watershed Details - Request Finished")
+    if WATERSHED_DEBUG:
+        logger.warning("Watershed Details - Request Finished")
 
     return data
 
@@ -233,6 +235,9 @@ def get_generated_watershed_details(
         point_parsed = json.loads(point)
         point = Point(point_parsed)
 
+    if WATERSHED_DEBUG:
+        logger.warning("watershed details point: %s", point)
+
     watershed = calculate_watershed(db, point, include_self=True)
 
     if not watershed:
@@ -240,6 +245,9 @@ def get_generated_watershed_details(
             status_code=500, detail="Could not generate watershed.")
 
     watershed_details = get_watershed_details(db, watershed, use_sea)
+
+    if WATERSHED_DEBUG:
+        logger.warning("watershed details: %s", watershed_details)
 
     return watershed_details
 
