@@ -314,13 +314,21 @@ def feature_search(db: Session, layers, search_area, srsName="EPSG:3005"):
 
         # if we don't have a direct API to access, fall back on WMS.
         if item.display_data_name in DATABC_LAYER_IDS or item.wms_catalogue_id is not None:
+            cql_filter = f"""
+                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {
+                               albers_search_area.wkt})
+                """
+
+            # Special case for fish observations layer - split the layer by POINT_TYPE_CODE
+            if item.display_data_name == 'fish_observations':
+                cql_filter += """ AND POINT_TYPE_CODE LIKE 'Observation' """
+            elif item.display_data_name == 'fish_observations_summaries':
+                cql_filter += """ AND POINT_TYPE_CODE LIKE 'Summary' """
+
             query = WMSGetFeatureQuery(
                 typeName=DATABC_LAYER_IDS.get(
                     item.display_data_name, None) or item.wms_catalogue.wms_name,
-                cql_filter=f"""
-                    INTERSECTS({DATABC_GEOMETRY_FIELD.get(item.display_data_name, 'GEOMETRY')}, {
-                               albers_search_area.wkt})
-                """,
+                cql_filter=cql_filter,
                 srsName=srsName
             )
             req = ExternalAPIRequest(
