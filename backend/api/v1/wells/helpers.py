@@ -2,16 +2,7 @@ import math
 import pyproj
 from shapely.ops import transform, nearest_points
 from shapely.geometry import Point, LineString
-
-transform_4326_3005 = pyproj.Transformer.from_proj(
-    pyproj.Proj(init='epsg:4326'),
-    pyproj.Proj(init='epsg:3005')
-).transform
-
-transform_3005_4326 = pyproj.Transformer.from_proj(
-    pyproj.Proj(init='epsg:3005'),
-    pyproj.Proj(init='epsg:4326')
-).transform
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 
 COMPASS_BRACKETS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"]
 
