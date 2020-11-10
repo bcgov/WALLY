@@ -29,7 +29,7 @@ def upgrade():
 
     op.execute("""
     UPDATE display_catalogue
-    SET display_name = 'Known BC Fish Observations & Distributions - Observations'
+    SET display_name = 'Known Fish Observation Point'
     WHERE display_data_name = 'fish_observations'
     """)
     op.execute("""
@@ -47,7 +47,7 @@ def upgrade():
                 create_user, create_date, update_user, update_date, effective_date, expiry_date
             ) SELECT
                'fish_observations_summaries',
-               'Known BC Fish Observations & Distributions - Summaries',
+               'Known Fish Summary Point',
                label_column,
                label,
                highlight_columns,

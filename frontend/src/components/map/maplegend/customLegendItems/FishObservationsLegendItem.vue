@@ -11,15 +11,15 @@ export default {
   props: ['layer'],
   methods: {
     legendItem () {
-      if (this.layer === 'fish_observations') {
+      if (this.layer.display_data_name === 'fish_observations') {
         return {
-          text: 'Known BC Fish Observation Point',
+          text: this.layer.display_name,
           image: 'fish-icon-orange'
         }
       }
-      if (this.layer === 'fish_observations_summaries') {
+      if (this.layer.display_data_name === 'fish_observations_summaries') {
         return {
-          text: 'Known BC Fish Observations Summary',
+          text: this.layer.display_name,
           image: 'fish-icon-red'
         }
       }
