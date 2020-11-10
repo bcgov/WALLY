@@ -37,6 +37,7 @@ from api.v1.aggregator.controller import feature_search, databc_feature_search
 from external.docgen.controller import docgen_export_to_xlsx
 from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('api')
 
 SEC_IN_YEAR = 31536000
