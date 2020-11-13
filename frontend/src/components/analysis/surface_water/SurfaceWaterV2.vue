@@ -27,7 +27,7 @@
 
     <v-card flat v-if="watersheds && watersheds.length">
       <SurfaceWaterHeaderButtons v-if="selectedWatershed" :layers="layers"/>
-      <!-- TODO remove isolines at future date once confirmed to be not needed -->
+      <!-- TODO remove multiple watersheds dropdown at future date once confirmed to be not needed -->
       <!-- <v-select
         class="watershedInfo"
         v-model="selectedWatershed"
