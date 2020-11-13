@@ -42,12 +42,13 @@
       </v-row>
     </v-alert>
     <template v-if="watersheds && watersheds.length">
-      <v-row>
+      <v-row class="pr-1">
         <v-col cols=12 md=12 class="text-right">
           <v-btn outlined color="primary" @click="resetWatershed">Reset</v-btn>
         </v-col>
       </v-row>
-      <v-row align="center">
+      <!-- TODO remove multiple watersheds dropdown at future date once confirmed to be not needed -->
+      <!-- <v-row align="center">
         <v-col cols=12 md=12>
           <v-select
             v-model="selectedWatershed"
@@ -59,14 +60,14 @@
             hint="Available watersheds at this location"
           ></v-select>
         </v-col>
-      </v-row>
+      </v-row> -->
 
       <div v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
-          <div>Watershed Details
+          <div>
              <v-tooltip right v-if="this.scsb2016ModelInputs">
                 <template v-slot:activator="{ on }">
                   <v-btn v-on="on" x-small fab depressed light
