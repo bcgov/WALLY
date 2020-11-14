@@ -17,6 +17,7 @@ import api.v1.aggregator.controller as agr_repo
 from api.v1.aggregator.controller import fetch_geojson_features, EXTERNAL_API_REQUESTS, DATABC_LAYER_IDS as WFS_LAYER_IDS
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest
 from api.v1.geocoder.db_models import geocode
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 
 logger = getLogger("geocoder")
 search_symbols = re.compile(r'[^\w ]', re.UNICODE)
@@ -120,12 +121,6 @@ def wfs_search(db, query, feature_type):
     # this list will eventually be returned as geocoder results.
     geocoder_features = []
 
-    # Some datasets in the DataBC API only output BC Albers (3005). Configure projection
-    # to SRID 4326 so we can get a representative point in lat/long degrees.
-    project = pyproj.Transformer.from_proj(
-        pyproj.Proj(init='epsg:3005'),
-        pyproj.Proj(init='epsg:4326'))
-
     for feature in features:
 
         # skip null geometries (e.g. a result with no coordinates)
@@ -136,7 +131,9 @@ def wfs_search(db, query, feature_type):
         if not feature.geometry:
             continue
 
-        geom = transform(project.transform, shape(feature.geometry))
+        # Some datasets in the DataBC API only output BC Albers (3005). Project
+        # to SRID 4326 so we can get a representative point in lat/long degrees.
+        geom = transform(transform_3005_4326, shape(feature.geometry))
         new_feature = Feature(geometry=mapping(geom.centroid))
 
         # add metadata to the feature. This info is required

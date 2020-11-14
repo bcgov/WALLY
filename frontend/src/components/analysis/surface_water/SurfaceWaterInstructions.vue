@@ -43,34 +43,34 @@
     </p>
       <ul>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds">Freshwater Atlas Assessment Watersheds</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds">Freshwater Atlas Assessment Watersheds</a>
         </li>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-named-watersheds">Freshwater Atlas Named Watersheds</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-named-watersheds">Freshwater Atlas Named Watersheds</a>
         </li>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network">Freshwater Atlas Watersheds</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-stream-network">Freshwater Atlas Watersheds</a>
         </li>
         <li>
-          <a href="https://a100.gov.bc.ca/pub/acat/public/welcome.do">EcoCat Reports</a>
+          <a target="_blank" href="https://a100.gov.bc.ca/pub/acat/public/welcome.do">EcoCat Reports</a>
         </li>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical">Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical">Hydrology: Normal Annual Runoff Isolines (1961 - 1990) - Historical</a>
         </li>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries">Hydrology: Hydrometric Watershed Boundaries</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries">Hydrology: Hydrometric Watershed Boundaries</a>
         </li>
         <li>
-          <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html">National Water Data Archive (HYDAT)</a>
+          <a target="_blank" href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html">National Water Data Archive (HYDAT)</a>
         </li>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions">Known BC Fish Observations and BC Fish Distributions</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/known-bc-fish-observations-and-bc-fish-distributions">Known BC Fish Observations and BC Fish Distributions</a>
         </li>
         <li>
-          <a href="http://a100.gov.bc.ca/pub/fidq/welcome.do">Fish Inventories Data Queries (FIDQ)</a>
+          <a target="_blank" href="http://a100.gov.bc.ca/pub/fidq/welcome.do">Fish Inventories Data Queries (FIDQ)</a>
         </li>
         <li>
-          <a href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public">Water Rights Licences - Public</a>
+          <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public">Water Rights Licences - Public</a>
         </li>
       </ul>
     <p class="mt-3">
