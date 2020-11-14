@@ -5,7 +5,7 @@ import * as surfaceWaterStore from '../../../src/store/surfaceWaterStore'
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
-describe('Map Store', () => {
+describe('Surface Water Store tests', () => {
   let store
   beforeEach(() => {
     store = surfaceWaterStore.default
