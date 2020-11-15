@@ -423,18 +423,10 @@ export default {
         2,
         'hsla(2, 100%, 100%, 0.4)',
         7,
-        'hsl(2, 0%, 100%)'
+        'hsl(2, 1%, 100%)'
       ],
       'circle-stroke-color': 'hsl(140, 95%, 52%)',
-      'circle-stroke-width': [
-        'interpolate',
-        ['linear'],
-        ['zoom'],
-        3,
-        0,
-        9,
-        1
-      ],
+      'circle-stroke-width': 1,
       'circle-radius': [
         'interpolate',
         ['linear'],
