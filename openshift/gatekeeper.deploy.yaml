@@ -86,6 +86,8 @@ objects:
                 - '--enable-refresh-tokens=true'
                 - '--encryption-key=$(ENCRYPTION_KEY)'
                 - '--enable-metrics'
+                - '--server-write-timeout=30s'
+                - '--upstream-response-header-timeout=30s'
                 - '--forbidden-page'
                 - /app/forbidden-page.html
               envFrom:
