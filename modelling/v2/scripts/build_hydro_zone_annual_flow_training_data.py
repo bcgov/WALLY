@@ -5,8 +5,8 @@ import pandas as pd
 
 tic = time.time()
 
-watershed_info_df = pd.read_csv("../data/station_watershed_info_10-25-2020.csv")
-mean_annual_flows_df = pd.read_csv("../data/bc_mean_annual_flows/bc_mean_annual_flows.csv")
+watershed_info_df = pd.read_csv("../data/station_watershed_info_11-16-2020.csv")
+mean_annual_flows_df = pd.read_csv("../data/bc_mean_annual_flows/bc_mean_annual_flows_nov16.csv")
 
 training_set = []
 null_station_ids = set()
@@ -40,6 +40,7 @@ for record in mean_annual_flows_df.iterrows():
           "min": record["MIN"],
           "max_month": record["MAX_MONTH"],
           "max": record["MAX"],
+          "drainage_area_gross": record["DRAINAGE_AREA_GROSS"],
         }
         station_info = {
           "average_slope": station["average_slope"], 
@@ -77,7 +78,7 @@ for key in hydrological_zones:
     print("zone {} -> {}".format(key, len(hydrological_zones[key])))
     df = pd.DataFrame(hydrological_zones[key])
     keyname = '0' + str(key) if key < 10 else key
-    df.to_csv('../data/training_data_hydro_zone_annual_flow/zone_{}.csv'.format(keyname), index=False, header=True)
+    df.to_csv('../data/training_data_hydro_zone_annual_flow/nov16/zone_{}.csv'.format(keyname), index=False, header=True)
 
 
 # log outcome

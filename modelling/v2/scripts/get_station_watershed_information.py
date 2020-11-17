@@ -15,7 +15,7 @@ tic = time.time()
 # Add Wally access token here
 headers = {'Authorization': 'Bearer <token>'}
 # Read in station locations
-station_locations_df = pd.read_csv("../data/bc_station_locations/bc_station_locations.csv")
+station_locations_df = pd.read_csv("../data/bc_station_locations/bc_station_locations_nov16.csv")
 
 # setup output file
 date = datetime.datetime.now().strftime('%m-%d-%Y')
