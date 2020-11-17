@@ -38,7 +38,6 @@
           </v-expansion-panels>
       </div>
       <SurfaceWaterV2 v-if="this.app.config && this.app.config.surface_water_design_v2"></SurfaceWaterV2>
-      <SurfaceWater v-else></SurfaceWater>
     </div>
     <div v-else>
       <v-row class="mt-3">
@@ -65,14 +64,12 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import SurfaceWater from './SurfaceWater'
 import SurfaceWaterV2 from './SurfaceWaterV2'
 import SurfaceWaterInstructions from './SurfaceWaterInstructions'
 
 export default {
   name: 'SurfaceWaterContainer',
   components: {
-    SurfaceWater,
     SurfaceWaterV2,
     SurfaceWaterInstructions
   },

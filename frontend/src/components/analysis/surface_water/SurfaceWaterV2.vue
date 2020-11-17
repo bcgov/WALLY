@@ -147,7 +147,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import ApiService from '../../../services/ApiService'
 import qs from 'querystring'
-import ComparativeRunoffModels from './ComparitiveRunoffModels'
+import ComparativeRunoffModels from './ComparativeRunoffModels'
 import HydrometricStationsContainer from './hydrometric_stations/HydrometricStationsContainer'
 import FishObservations from './FishObservations'
 import StreamflowInventory from './streamflow_inventory/StreamflowInventory'

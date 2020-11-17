@@ -39,7 +39,6 @@ describe('Fish Observation tests', () => {
     })
   })
   it('Toggles layer visibility', () => {
-    console.log(wrapper)
     wrapper.vm.isFishLayerVisible = true
     wrapper.vm.toggleLayerVisibility()
     expect(store.dispatch).toHaveBeenCalledWith(
