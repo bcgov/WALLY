@@ -205,7 +205,7 @@ export default {
       yaxis: {
         title: 'm³/s'
       }
-    },
+    }
     // TODO remove isolines at future date once confirmed to be not needed
     // isolineRunoffLayout: {
     //   title: 'Monthly discharge (using 1961 - 1990 runoff isolines)',
@@ -312,7 +312,7 @@ export default {
         return null
       }
       return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared)).toFixed(2)
-    },
+    }
     // TODO remove isolines at future date once confirmed to be not needed
     // isolineRunoffByMonth () {
     //   if (!this.annualIsolineRunoff) {
