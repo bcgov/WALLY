@@ -12,10 +12,6 @@ from minio import Minio
 from minio.error import ResponseError
 from api.config import MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
 
-minioClient = Minio(MINIO_HOST_URL,
-                  access_key=MINIO_ACCESS_KEY,
-                  secret_key=MINIO_SECRET_KEY,
-                  secure=False)
 
 logger = logging.getLogger("hydrological_zones")
 
@@ -23,6 +19,13 @@ WORKING_DIR = "./api/v1/models/hydrological_zones/working_files/"
 V1_ANNUAL_FLOW_BUCKET = "v1/hydro_zone_annual_flow/"
 V2_ANNUAL_FLOW_BUCKET = "v2/hydro_zone_annual_flow/"
 V2_MONTHLY_DISTRIBUTIONS_BUCKET = "v2/hydro_zone_monthly_distributions/"
+
+
+def minio_config():
+    return Minio(MINIO_HOST_URL,
+                access_key=MINIO_ACCESS_KEY,
+                secret_key=MINIO_SECRET_KEY,
+                secure=False)
 
 
 def get_hydrological_zone_model_v1(
@@ -68,7 +71,7 @@ def get_zone_info(zone):
     # Get model state file from minio storage
     r2_file = None
     try:
-        r2_file = minioClient.get_object('models', V1_ANNUAL_FLOW_BUCKET + "zone_models_r2.json")
+        r2_file = minio_config().get_object('models', V1_ANNUAL_FLOW_BUCKET + "zone_models_r2.json")
     except ResponseError as err:
         print(err)
 
@@ -172,7 +175,7 @@ def get_set_model_data(minio_path: str, file_name: str):
     Gets a model object from Minio and sets the file by file_name
     """
     try:
-        response = minioClient.get_object('models', minio_path)
+        response = minio_config().get_object('models', minio_path)
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
