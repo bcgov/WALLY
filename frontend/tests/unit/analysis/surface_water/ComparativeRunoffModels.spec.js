@@ -29,6 +29,7 @@ describe('Comparative Runoff Models test', () => {
 
     store.dispatch = jest.fn()
   })
+
   it('Shows annual normalized runoff if available', () => {
     const annualRunoffValue = 123
     // If a watershed has an ANNUAL_RUNOFF_IN_MM, it's from the hydrometric
@@ -79,7 +80,7 @@ describe('Comparative Runoff Models test', () => {
     const cardText = wrapper.find('v-card-text-stub')
 
     expect(cardText.text()).not.toContain('Annual normalized runoff')
-    
+
     // Only the annualized runoff & isolines have v-card-title elementss
     expect(cardText.find('v-card-title-stub').exists()).toBeFalsy()
   })

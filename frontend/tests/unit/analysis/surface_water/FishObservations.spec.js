@@ -28,6 +28,9 @@ describe('Fish Observation tests', () => {
     store = new Vuex.Store({ modules: { map } })
 
     store.dispatch = jest.fn()
+  })
+
+  const mountContainer = () => {
     wrapper = shallowMount(FishObservations, {
       vuetify,
       store,
@@ -37,12 +40,38 @@ describe('Fish Observation tests', () => {
         surface_water_design_v2: true
       }
     })
-  })
+  }
+
   it('Toggles layer visibility', () => {
+    mountContainer()
     wrapper.vm.isFishLayerVisible = true
     wrapper.vm.toggleLayerVisibility()
     expect(store.dispatch).toHaveBeenCalledWith(
       'map/removeMapLayer',
       'fish_observations')
+  })
+
+  it('Shows fish data', async () => {
+    mountContainer()
+    await wrapper.setData({
+      fishData: {
+        fish_species_data: [{
+          qty: 2,
+          species: 'Test',
+          count: 2,
+          life_stages: 'test',
+          observation_date_min: '',
+          observation_date_max: ''
+        }]
+      }
+    })
+    const dataTable = wrapper.find('v-data-table-stub')
+    expect(dataTable.exists()).toBeTruthy()
+  })
+
+  it('Doesn\'t show fish data', () => {
+    mountContainer()
+    const dataTable = wrapper.find('v-data-table-stub')
+    expect(dataTable.exists()).toBeFalsy()
   })
 })
