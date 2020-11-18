@@ -118,8 +118,8 @@ export default {
         // Set the user's name
         this.name = name
 
-        // Track unique user
-        window._paq && window._paq.push(['setUserId', uuid])
+        // // Track unique user
+        // window._paq && window._paq.push(['setUserId', uuid])
       }
     },
     openFeedback () {

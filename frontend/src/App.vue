@@ -47,6 +47,9 @@ export default {
     this.getAppConfig()
     this.getUserProfile()
     console.log('[wally]', this.app.config)
+    console.log('[wally] auth', this.$auth)
+    // Track unique user
+    this.$auth && window._paq && window._paq.push(['setUserId', this.$auth.uuid])
   },
   watch: {
     isMapReady (value) {
