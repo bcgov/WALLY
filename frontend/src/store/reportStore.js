@@ -12,7 +12,7 @@ export default {
         // Custom metrics - Track Excel downloads
         window._paq && window._paq.push([
           'trackLink',
-          `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/aggregate/?${qs.stringify(payload)}`,
+          `${global.config.baseUrl}/api/v1/aggregate/?${qs.stringify(payload)}`,
           'download'])
 
         ApiService.getApi('/aggregate/?' + qs.stringify(payload), { responseType: 'arraybuffer' })
