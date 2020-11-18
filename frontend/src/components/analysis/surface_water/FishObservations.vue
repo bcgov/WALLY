@@ -35,7 +35,7 @@
       <v-card-actions>
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-            <v-btn v-on="on" small  depressed light class="ml-2" @click="toggleLayerVisibility">
+            <v-btn v-on="on" small depressed light class="ml-2" @click="toggleLayerVisibility">
               <v-icon small>
                 layers
               </v-icon>
