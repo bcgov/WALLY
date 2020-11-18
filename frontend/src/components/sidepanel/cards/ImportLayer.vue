@@ -252,6 +252,8 @@ export default {
           status: 'error',
           message: `file of type ${fileType} not supported.`
         })
+        // Custom Metrics - Import files
+        window._paq && window._paq.push(['trackEvent', 'Upload files', 'Unsupported filetype', fileType])
         return
       }
 
@@ -339,6 +341,8 @@ export default {
         console.log('-------------------------------')
         console.log('Imported')
         console.log('-------------------------------')
+        // Custom Metrics - Import files
+        window._paq && window._paq.push(['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
 
         // get the coordinates of the first feature.
         // this helps zoom to the dataset (if desired).
