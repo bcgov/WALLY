@@ -4,7 +4,7 @@
     "isStaging": false,
     "isDevelopment": true,
     "debug": true,
-    "enableAnalytics": true
+    "enableAnalytics": false
   },
   "staging": {
     "isProduction":  false,

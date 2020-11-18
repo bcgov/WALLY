@@ -113,13 +113,10 @@ export default {
       this.$store.commit('toggleAdjustableSidePanel')
     },
     updateAuth (payload) {
-      const { name, uuid, authenticated } = payload
+      const { name, authenticated } = payload
       if (authenticated) {
         // Set the user's name
         this.name = name
-
-        // // Track unique user
-        // window._paq && window._paq.push(['setUserId', uuid])
       }
     },
     openFeedback () {
