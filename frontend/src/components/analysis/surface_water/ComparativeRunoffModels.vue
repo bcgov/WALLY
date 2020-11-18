@@ -38,7 +38,7 @@
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
             </v-card-title>
             <v-card-text class="info-blue">
-              <strong>{{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</strong>
+              <strong>{{ record && record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</strong>
             </v-card-text>
           </v-card>
         </v-col>
