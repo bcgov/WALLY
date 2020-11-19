@@ -294,7 +294,7 @@ export default {
       // Custom metrics - Track Excel downloads
       window._paq && window._paq.push([
         'trackLink',
-        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/watersheds/${this.selectedWatershed}`,
+        `${global.config.baseUrl}/api/v1/watersheds/${this.selectedWatershed}`,
         'download'])
 
       const params = {
