@@ -7,6 +7,10 @@ const DEV = 'development'
 const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
 const WALLY_TEST_HOSTNAME = 'wally-staging.pathfinder.gov.bc.ca'
 
+config.app.baseUrl = window.location.protocol + '//' +
+  location.host.split(':')[0] +
+  ((window.location.port) && ':' + window.location.port)
+
 // Development - envConfig is not defined yet
 let envConfig = config[DEV]
 

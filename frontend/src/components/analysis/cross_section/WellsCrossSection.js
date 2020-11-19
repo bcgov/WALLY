@@ -791,7 +791,7 @@ export default {
       // Track cross section excel downloads
       window._paq && window._paq.push([
         'trackLink',
-        `${process.env.VUE_APP_AXIOS_BASE_URL}/api/v1/wells/section/export`,
+        `${global.config.baseUrl}/api/v1/wells/section/export`,
         'download'])
 
       const params = {

@@ -38,7 +38,7 @@
               <v-icon small class="ml-1">mdi-information-outline</v-icon>
             </v-card-title>
             <v-card-text class="info-blue">
-              <strong>{{ record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</strong>
+              <strong>{{ record && record.properties['FEATURE_AREA_SQM'].toFixed(1) }} sq. m</strong>
             </v-card-text>
           </v-card>
         </v-col>
@@ -61,7 +61,8 @@
               :data="normalizedRunoffByMonth"
       ></Plotly>
     </v-card-text>
-    <v-card-text v-if="annualNormalizedRunoff && annualIsolineRunoff">
+    <!-- TODO remove isolines at future date once confirmed to be not needed -->
+    <!-- <v-card-text v-if="annualNormalizedRunoff && annualIsolineRunoff">
       <v-divider class="mt-3 mb-3"></v-divider>
     </v-card-text>
     <v-card-text v-if="annualIsolineRunoff">
@@ -106,7 +107,7 @@
     </v-card-text>
     <v-card-text v-else-if="!fishLoading">
       <p class="text--disabled mt-2">Unknown fish presence</p>
-    </v-card-text>
+    </v-card-text> -->
   </v-card>
   <div v-else>
     <div>
@@ -130,7 +131,8 @@
           :data="normalizedRunoffByMonth"
         ></Plotly>
       </div>
-      <div v-if="annualIsolineRunoff">
+      <!-- TODO remove isolines at future date once confirmed to be not needed -->
+      <!-- <div v-if="annualIsolineRunoff">
         <div>
           Source:
           <a href="https://catalogue.data.gov.bc.ca/dataset/hydrology-normal-annual-runoff-isolines-1961-1990-historical" target="_blank">
@@ -143,9 +145,9 @@
           :layout="isolineRunoffLayout"
           :data="isolineRunoffByMonth"
         ></Plotly>
-      </div>
+      </div> -->
     </div>
-    <div v-if="!annualIsolineRunoff && !annualNormalizedRunoff">No availability models available at this location.</div>
+    <!-- <div v-if="!annualIsolineRunoff && !annualNormalizedRunoff">No availability models available at this location.</div> -->
   </div>
 </template>
 
@@ -203,22 +205,23 @@ export default {
       yaxis: {
         title: 'm³/s'
       }
-    },
-    isolineRunoffLayout: {
-      title: 'Monthly discharge (using 1961 - 1990 runoff isolines)',
-      legend: {
-        xanchor: 'center',
-        x: 0.5,
-        y: -0.1,
-        orientation: 'h'
-      },
-      xaxis: {
-        tickformat: '%B'
-      },
-      yaxis: {
-        title: 'm³/s'
-      }
     }
+    // TODO remove isolines at future date once confirmed to be not needed
+    // isolineRunoffLayout: {
+    //   title: 'Monthly discharge (using 1961 - 1990 runoff isolines)',
+    //   legend: {
+    //     xanchor: 'center',
+    //     x: 0.5,
+    //     y: -0.1,
+    //     orientation: 'h'
+    //   },
+    //   xaxis: {
+    //     tickformat: '%B'
+    //   },
+    //   yaxis: {
+    //     title: 'm³/s'
+    //   }
+    // }
   }),
   watch: {
   },
@@ -288,12 +291,13 @@ export default {
       }
       return null
     },
-    annualIsolineRunoff () {
-      if (!this.watershedDetails || !this.watershedDetails.runoff_isoline_avg) {
-        return null
-      }
-      return (Number(this.watershedDetails.runoff_isoline_avg)).toFixed(2)
-    },
+    // TODO remove isolines at future date once confirmed to be not needed
+    // annualIsolineRunoff () {
+    //   if (!this.watershedDetails || !this.watershedDetails.runoff_isoline_avg) {
+    //     return null
+    //   }
+    //   return (Number(this.watershedDetails.runoff_isoline_avg)).toFixed(2)
+    // },
     hydrologicalZoneModelRunoff () {
       console.log(this.watershedDetails)
       if (!this.watershedDetails || !this.watershedDetails.wally_hydro_zone_model_output_v1 ||
@@ -308,40 +312,41 @@ export default {
         return null
       }
       return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared)).toFixed(2)
-    },
-    isolineRunoffByMonth () {
-      if (!this.annualIsolineRunoff) {
-        return null
-      }
-
-      const meanAnnualDischarge = this.annualIsolineRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60
-
-      const plotData = {
-        type: 'bar',
-        name: 'MAD',
-        y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
-        x: months,
-        line: { color: '#17BECF' }
-      }
-
-      const mad20 = {
-        type: 'line',
-        name: '20% MAD',
-        y: Array(12).fill(0.2 * meanAnnualDischarge),
-        x: months,
-        line: { color: '#17BECF' }
-      }
-
-      const mad10 = {
-        type: 'line',
-        name: '10% MAD',
-        y: Array(12).fill(0.1 * meanAnnualDischarge),
-        x: months,
-        line: { color: '#17BECF' }
-      }
-
-      return [plotData, mad20, mad10]
     }
+    // TODO remove isolines at future date once confirmed to be not needed
+    // isolineRunoffByMonth () {
+    //   if (!this.annualIsolineRunoff) {
+    //     return null
+    //   }
+
+    //   const meanAnnualDischarge = this.annualIsolineRunoff * this.watershedArea / 1000 / 365 / 24 / 60 / 60
+
+    //   const plotData = {
+    //     type: 'bar',
+    //     name: 'MAD',
+    //     y: this.monthlyRunoffCoefficients.map((x) => x * meanAnnualDischarge),
+    //     x: months,
+    //     line: { color: '#17BECF' }
+    //   }
+
+    //   const mad20 = {
+    //     type: 'line',
+    //     name: '20% MAD',
+    //     y: Array(12).fill(0.2 * meanAnnualDischarge),
+    //     x: months,
+    //     line: { color: '#17BECF' }
+    //   }
+
+    //   const mad10 = {
+    //     type: 'line',
+    //     name: '10% MAD',
+    //     y: Array(12).fill(0.1 * meanAnnualDischarge),
+    //     x: months,
+    //     line: { color: '#17BECF' }
+    //   }
+
+    //   return [plotData, mad20, mad10]
+    // }
   },
   methods: {
     showWallyModelFeatureFlag () {
