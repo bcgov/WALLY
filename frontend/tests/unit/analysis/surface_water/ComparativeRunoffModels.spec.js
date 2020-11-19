@@ -79,9 +79,6 @@ describe('Comparative Runoff Models test', () => {
     })
     const cardText = wrapper.find('v-card-text-stub')
 
-    expect(cardText.text()).not.toContain('Annual normalized runoff')
-
-    // Only the annualized runoff & isolines have v-card-title elementss
-    expect(cardText.find('v-card-title-stub').exists()).toBeFalsy()
+    expect(cardText.exists()).toBeFalsy()
   })
 })
