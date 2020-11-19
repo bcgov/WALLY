@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, mount } from '@vue/test-utils'
+import { createLocalVue, shallowMount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -92,32 +92,6 @@ describe('Surface water tests', () => {
     })
     const modellingAlert = wrapper.find('v-alert-stub')
     expect(modellingAlert.text()).toContain('This modelling output has not been peer reviewed')
-  })
-
-  it('Displays watershed name', async () => {
-    wrapper = mount(SurfaceWaterV2, {
-      vuetify,
-      store,
-      localVue,
-      mocks: {
-        $router
-      }
-    })
-    const watershedName = 'My Watershed'
-    await wrapper.setData({
-      selectedWatershed: 1,
-      watersheds: [
-        {
-          id: 1,
-          properties: {
-            name: watershedName
-          }
-        }
-      ]
-
-    })
-    const selectedWatershed = wrapper.find('.v-select__selections div')
-    expect(selectedWatershed.text().toLowerCase()).toEqual(watershedName.toLowerCase())
   })
 
   it('Lists all the tabs', async () => {

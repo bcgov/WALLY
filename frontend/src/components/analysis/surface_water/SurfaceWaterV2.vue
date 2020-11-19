@@ -27,7 +27,21 @@
 
     <v-card flat v-if="watersheds && watersheds.length">
       <SurfaceWaterHeaderButtons v-if="selectedWatershed" :layers="layers"/>
-      <v-select
+      <div class="watershedLabel"></div>
+      <v-card flat >
+        <v-card-title>
+          {{watershedName}}
+        </v-card-title>
+        <v-card-text>
+          <v-row align="center">
+            <v-col class="grow">
+              {{watershedSource}}
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+      <!-- TODO remove multiple watersheds dropdown at future date once confirmed to be not needed -->
+      <!-- <v-select
         class="watershedInfo"
         v-model="selectedWatershed"
         :items="watershedOptions"
@@ -36,7 +50,7 @@
         item-text="label"
         item-value="value"
         hint="Select from available watersheds at this location"
-      ></v-select>
+      ></v-select> -->
     </v-card>
 
     <template v-if="watersheds && watersheds.length">
@@ -236,6 +250,25 @@ export default {
               : props.OBJECTID ? props.OBJECTID : ''
       global.config.debug && console.log('[wally] name', name)
       return name.toString()
+    },
+    watershedSource () {
+      if (!this.selectedWatershedRecord) {
+        return ''
+      }
+      let id = this.selectedWatershedRecord.id
+      if (id.includes('generated.')) {
+        return 'Watershed estimated by combining Freshwater Atlas watershed polygons that are determined to be ' +
+          'upstream of the point of interest based on their FWA_WATERSHED_CODE and LOCAL_WATERSHED_CODE properties.'
+      }
+      if (id.includes('WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY')) {
+        return 'Watershed sourced from the "Freshwater Atlas Assessment Watersheds" layer in DataBC. ' +
+          'https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds'
+      }
+      if (id.includes('WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY')) {
+        return 'Watershed sourced from the "Hydrology: Hydrometric Watershed Boundaries" layer in DataBC. ' +
+          'https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries'
+      }
+      return ''
     },
     selectedWatershedRecord () {
       if (!this.selectedWatershed || !this.watersheds) {
