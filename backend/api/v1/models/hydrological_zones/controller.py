@@ -1,6 +1,7 @@
 import json
 import logging
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from api.v1.aggregator.controller import feature_search
 from shapely.geometry import MultiPolygon, shape
 from shapely.ops import transform
@@ -93,11 +94,8 @@ def get_hydrological_zone_model_v2(
         # or not glacial_area
     ):
         return {"error": "Missing wally zone model parameters."}
-    
+
     # ANNUAL FLOW
-    xgb = XGBRegressor(random_state=42)
-    inputs = [drainage_area, annual_precipitation, glacial_coverage, glacial_area]
-    inputs = np.array(inputs).reshape((1, -1))
 
     # get annual_model state
     state_object_path = V2_ANNUAL_FLOW_BUCKET + "zone_{}.json".format(hydrological_zone)
@@ -109,16 +107,25 @@ def get_hydrological_zone_model_v2(
     score_file_name = "annual_model_scores.json"
     get_set_model_data(score_object_path, score_file_name)
 
-    # Load model
-    try:
-        xgb.load_model(state_file_name)
-    except Exception as error:
-        print(error)
-
     # load model score
     with open(score_file_name) as json_file:
         scores = json.load(json_file)
-        annual_model_score = scores[str(hydrological_zone)]
+        annual_model_score = scores[str(hydrological_zone)]['score']
+        best_inputs = scores[str(hydrological_zone)]['best_inputs']
+
+    if len(best_inputs) <= 0: 
+        raise HTTPException(
+            status_code=400, detail="model inputs not found.")
+
+    # Set best model inputs from scores file
+    inputs = np.array(best_inputs).reshape((1, -1))
+
+    # Load model
+    try:
+        xgb = XGBRegressor(random_state=42)
+        xgb.load_model(state_file_name)
+    except Exception as error:
+        print(error)
 
     # make annual prediction
     mean_annual_flow_prediction = xgb.predict(inputs)
@@ -128,6 +135,7 @@ def get_hydrological_zone_model_v2(
     )
 
     # MONTHLY FLOW
+    
     zone_name = "zone_{}".format(hydrological_zone)
     # get monthly model scores
     monthly_scores_object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + 'monthly_model_scores.json'

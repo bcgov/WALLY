@@ -13,7 +13,8 @@ zone_scores = {}
 count = 0
 
 # inputs_list = ["year","drainage_area","drainage_area_gross","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
-inputs_list = ["drainage_area_gross", "drainage_area", "watershed_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+inputs_list = [ "drainage_area", "watershed_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+# "drainage_area_gross"
 
 all_combinations = []
 for r in range(len(inputs_list) + 1):
