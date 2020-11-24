@@ -1,0 +1,77 @@
+<template>
+  <div>
+    <div v-for="(file, index) in files" class="mb-5" v-bind:key="index" id="fileList">
+      <dl>
+        <dt>
+          Filename:
+        </dt>
+        <dd>
+          {{file.name}}
+        </dd>
+      </dl>
+
+      <v-progress-linear v-if="fileLoading[file.name]" show indeterminate></v-progress-linear>
+      <dl v-if="file && file.name && file.stats">
+        <dt>
+          Colour:
+        </dt>
+        <dd>
+          <v-color-picker
+            hide-canvas
+            hide-inputs
+            v-model="file.color"
+          ></v-color-picker>
+        </dd>
+        <dt>
+          Size:
+        </dt>
+        <dd>
+          {{ file.stats.size ? `${(file.stats.size / 1e6).toFixed(2)} MB` : '' }}
+          <v-icon
+            v-if="file && file.stats && file.stats.size > warnFileSizeThreshold"
+            color="orange"
+            small
+          >mdi-alert</v-icon>
+        </dd>
+        <dt>
+          Geometry type:
+        </dt>
+        <dd> {{ file.stats.geomType }}</dd>
+        <dt>Total features:</dt>
+        <dd>{{file.stats.numFeatures}}</dd>
+        <dt v-if="file.stats.propertyFields">
+          Feature properties:
+        </dt>
+        <dd>
+          <v-row>
+            <v-col>
+              <div v-if="!file.options.showAllProperties">{{file.stats.propertyFields.length}} properties</div>
+              <div v-else>
+                <div v-for="prop in file.stats.propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
+              </div>
+            </v-col>
+            <v-btn dense @click="file.options.showAllProperties = !file.options.showAllProperties">{{file.options.showAllProperties ? 'Hide' : 'Show'}}</v-btn>
+            <v-col cols="2"></v-col>
+          </v-row>
+        </dd>
+      </dl>
+      <v-alert
+        class="my-3"
+        :id="`fileSizeWarning${index}`"
+        v-if="file && file.size > warnFileSizeThreshold"
+        type="warning"
+      >
+        {{file.name}}: file size greater than 10 MB. This file may take additional time to load and it may cause performance issues.
+      </v-alert>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  name: 'FileList',
+  props: ['files', 'fileLoading'],
+  data: () => ({
+    warnFileSizeThreshold: global.config.warnUploadFileSizeThresholdInMB * 1024 * 1024
+  })
+}
+</script>

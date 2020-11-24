@@ -18,75 +18,13 @@
     </v-row>
     <v-row class="pl-5 pr-5">
      <v-col>
-
-       <FileDrop @import:load-files="this.loadFiles"></FileDrop>
+       <FileDrop @import:load-files="this.loadFiles" v-if="fileList.length === 0"></FileDrop>
+       <div v-else>
+         <v-btn @click="clearFiles"><v-icon class="mr-2">mdi-restore</v-icon>Clear files</v-btn>
+       </div>
      </v-col>
     </v-row>
-    <div v-for="(file, index) in files" class="mb-5" v-bind:key="index" id="fileList">
-
-      <dl>
-        <dt>
-          Filename:
-        </dt>
-        <dd>
-          {{file.name}}
-        </dd>
-      </dl>
-
-      <v-progress-linear v-if="fileLoading[file.name]" show indeterminate></v-progress-linear>
-      <dl v-if="file && file.name && file.stats">
-        <dt>
-          Colour:
-        </dt>
-        <dd>
-          <v-color-picker
-            hide-canvas
-            hide-inputs
-            v-model="file.color"
-          ></v-color-picker>
-        </dd>
-        <dt>
-          Size:
-        </dt>
-        <dd>
-          {{ file.stats.size ? `${(file.stats.size / 1e6).toFixed(2)} mb` : '' }}
-          <v-icon
-            v-if="file && file.stats && file.stats.size > warnFileSizeThreshold"
-            color="orange"
-            small
-          >mdi-alert</v-icon>
-        </dd>
-        <dt>
-          Geometry type:
-        </dt>
-        <dd> {{ file.stats.geomType }}</dd>
-        <dt>Total features:</dt>
-        <dd>{{file.stats.numFeatures}}</dd>
-        <dt v-if="file.stats.propertyFields">
-          Feature properties:
-        </dt>
-        <dd>
-          <v-row>
-            <v-col>
-              <div v-if="!file.options.showAllProperties">{{file.stats.propertyFields.length}} properties</div>
-              <div v-else>
-                <div v-for="prop in file.stats.propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
-              </div>
-            </v-col>
-          <v-btn dense @click="file.options.showAllProperties = !file.options.showAllProperties">{{file.options.showAllProperties ? 'Hide' : 'Show'}}</v-btn>
-            <v-col cols="2"></v-col>
-          </v-row>
-        </dd>
-      </dl>
-      <v-alert
-        class="my-3"
-        :id="`fileSizeWarning${index}`"
-        v-if="file && file.size > warnFileSizeThreshold"
-        type="warning"
-      >
-        {{file.name}}: file size greater than 10 mb. This file may take additional time to load and it may cause performance issues.
-      </v-alert>
-    </div>
+    <FileList :files="files" :fileLoading="fileLoading"></FileList>
     <div v-for="(processedFile,i) in processedFiles.filter(x => x.status)" :key="`fileMsg${i}`">
       <v-alert
         :id="`statusMessage${i}`"
@@ -129,8 +67,9 @@
 </style>
 <script>
 import { mapGetters } from 'vuex'
-import FileDrop from '../../tools/FileDrop'
 import centroid from '@turf/centroid'
+import FileDrop from '../../tools/import_layer/FileDrop'
+import FileList from '../../tools/import_layer/FileList'
 import {
   createMessageFromErrorArray,
   csvToGeoJSON,
@@ -141,7 +80,10 @@ import {
 
 export default {
   name: 'ImportLayer',
-  components: { FileDrop },
+  components: {
+    FileDrop,
+    FileList
+  },
   data: () => ({
     warnFileSizeThreshold: 1e7, // 10 mb
     buttonClicked: false,
@@ -243,6 +185,11 @@ export default {
         message: `${filename}: ${message}`,
         firstFeatureCoords: firstFeatureCoords
       })
+    },
+    clearFiles () {
+      this.fileList = []
+      this.processedFiles = []
+      this.files = []
     },
     readFile (file) {
       const { fileType, fileSupported } = this.determineFileType(file.name)
@@ -419,6 +366,7 @@ export default {
           // filetype extension matched- return filetype key (geojson, shp, etc.)
           return {
             fileType: k,
+            fileExtension: extension,
             fileSupported: true
           }
         }
