@@ -1,0 +1,271 @@
+inputs_list = ["drainage_area", "glacial_coverage", "glacial_area", "annual_precipitation", "potential_evapotranspiration_thornthwaite"]
+
+1{'score': 0.98514, 'best_inputs': ['annual_precipitation', 'potential_evapotranspiration_thornthwaite']}
+2{'score': 0.83267, 'best_inputs': ['annual_precipitation']}
+3{'score': 0.9011, 'best_inputs': ['drainage_area']}
+4{'score': 0, 'best_inputs': []}
+5{'score': 0.92953, 'best_inputs': ['annual_precipitation']}
+6{'score': 0.40423, 'best_inputs': ['drainage_area']}
+7{'score': 0.88111, 'best_inputs': ['drainage_area', 'glacial_coverage']}
+8{'score': 0.78926, 'best_inputs': ['drainage_area', 'glacial_coverage', 'annual_precipitation']}
+9{'score': 0.79688, 'best_inputs': ['glacial_coverage', 'annual_precipitation']}
+10{'score': 0.97562, 'best_inputs': ['annual_precipitation']}
+11{'score': 0.86996, 'best_inputs': ['drainage_area']}
+12{'score': 0, 'best_inputs': []}
+13{'score': 0.85537, 'best_inputs': ['drainage_area']}
+14{'score': 0.88176, 'best_inputs': ['glacial_area', 'annual_precipitation']}
+15{'score': 0.97915, 'best_inputs': ['drainage_area', 'annual_precipitation', 'potential_evapotranspiration_thornthwaite']}
+16{'score': 0.86015, 'best_inputs': ['glacial_coverage', 'potential_evapotranspiration_thornthwaite']}
+17{'score': 0.89405, 'best_inputs': ['potential_evapotranspiration_thornthwaite']}
+18{'score': 0.84703, 'best_inputs': ['potential_evapotranspiration_thornthwaite']}
+19{'score': 0.06294, 'best_inputs': ['drainage_area']}
+20{'score': 0.54304, 'best_inputs': ['glacial_area', 'potential_evapotranspiration_thornthwaite']}
+21{'score': 0.52959, 'best_inputs': ['drainage_area', 'glacial_area', 'annual_precipitation']}
+22{'score': 0.99503, 'best_inputs': ['drainage_area']}
+23{'score': 0.89298, 'best_inputs': ['drainage_area', 'potential_evapotranspiration_thornthwaite']}
+24{'score': 0.99366, 'best_inputs': ['annual_precipitation', 'potential_evapotranspiration_thornthwaite']}
+25{'score': 0.80799, 'best_inputs': ['potential_evapotranspiration_thornthwaite']}
+26{'score': 0.71157, 'best_inputs': ['glacial_coverage', 'glacial_area', 'potential_evapotranspiration_thornthwaite']}
+27{'score': 0.89061, 'best_inputs': ['glacial_area', 'potential_evapotranspiration_thornthwaite']}
+28{'score': 0.89633, 'best_inputs': ['drainage_area', 'glacial_coverage']}
+29{'score': 0.91886, 'best_inputs': ['potential_evapotranspiration_thornthwaite']}
+
+
+inputs_list = ["drainage_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+
+1{'score': 0.98514, 'best_inputs': ['annual_precipitation', 'potential_evapotranspiration_thornthwaite']}
+2{'score': 0.83267, 'best_inputs': ['annual_precipitation']}
+3{'score': 0.96249, 'best_inputs': ['average_slope']}
+4{'score': 0, 'best_inputs': []}
+5{'score': 0.92953, 'best_inputs': ['average_slope']}
+6{'score': 0.40423, 'best_inputs': ['drainage_area']}
+7{'score': 0.88111, 'best_inputs': ['drainage_area', 'glacial_coverage']}
+8{'score': 0.78926, 'best_inputs': ['drainage_area', 'glacial_coverage', 'annual_precipitation']}
+9{'score': 0.82916, 'best_inputs': ['median_elevation']}
+10{'score': 0.99287, 'best_inputs': ['potential_evapotranspiration_thornthwaite', 'aspect']}
+11{'score': 0.86996, 'best_inputs': ['median_elevation']}
+12{'score': 0, 'best_inputs': []}
+13{'score': 0.85537, 'best_inputs': ['drainage_area']}
+14{'score': 0.98958, 'best_inputs': ['annual_precipitation', 'aspect']}
+15{'score': 0.97915, 'best_inputs': ['drainage_area', 'annual_precipitation', 'potential_evapotranspiration_thornthwaite']}
+16{'score': 0.87866, 'best_inputs': ['solar_exposure']}
+17{'score': 0.89405, 'best_inputs': ['potential_evapotranspiration_thornthwaite']}
+18{'score': 0.98338, 'best_inputs': ['average_slope', 'annual_precipitation', 'potential_evapotranspiration_thornthwaite', 'solar_exposure']}
+19{'score': 0.06294, 'best_inputs': ['drainage_area']}
+20{'score': 0.88835, 'best_inputs': ['average_slope', 'glacial_coverage']}
+21{'score': 0.85686, 'best_inputs': ['drainage_area', 'average_slope', 'annual_precipitation']}
+22{'score': 0.99968, 'best_inputs': ['drainage_area', 'average_slope']}
+23{'score': 0.89298, 'best_inputs': ['drainage_area', 'potential_evapotranspiration_thornthwaite']}
+24{'score': 0.99366, 'best_inputs': ['annual_precipitation', 'potential_evapotranspiration_thornthwaite']}
+25{'score': 0.82108, 'best_inputs': ['average_slope', 'potential_evapotranspiration_thornthwaite']}
+26{'score': 0.77616, 'best_inputs': ['aspect']}
+27{'score': 0.93093, 'best_inputs': ['glacial_coverage', 'potential_evapotranspiration_thornthwaite', 'solar_exposure']}
+28{'score': 0.89633, 'best_inputs': ['drainage_area', 'glacial_coverage']}
+29{'score': 0.91886, 'best_inputs': ['potential_evapotranspiration_thornthwaite']}
+
+
+inputs_list = ["year","drainage_area","drainage_area_gross","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
+
+1{'score': 0.98811, 'best_inputs': ['year', 'glacial_coverage', 'annual_precipitation']}
+2{'score': 0.83267, 'best_inputs': ['potential_evapotranspiration_hamon']}
+3{'score': 0.9686, 'best_inputs': ['year', 'drainage_area_gross', 'median_elevation', 'aspect', 'solar_exposure']}
+4{'score': 0, 'best_inputs': []}
+5{'score': 0.92953, 'best_inputs': ['average_slope']}
+6{'score': 0.40423, 'best_inputs': ['drainage_area']}
+7{'score': 0.91533, 'best_inputs': ['year', 'glacial_area', 'potential_evapotranspiration_hamon']}
+8{'score': 0.95116, 'best_inputs': ['drainage_area_gross', 'glacial_coverage', 'annual_precipitation', 'solar_exposure']}
+9{'score': 0.82916, 'best_inputs': ['median_elevation']}
+10{'score': 0.99695, 'best_inputs': ['year', 'median_elevation', 'aspect']}
+11{'score': 0.86996, 'best_inputs': ['median_elevation']}
+12{'score': 0, 'best_inputs': []}
+13{'score': 0.85537, 'best_inputs': ['drainage_area']}
+14{'score': 0.98958, 'best_inputs': ['annual_precipitation', 'aspect']}
+15{'score': 0.98124, 'best_inputs': ['year', 'drainage_area', 'potential_evapotranspiration_thornthwaite', 'annual_precipitation']}
+16{'score': 0.92517, 'best_inputs': ['drainage_area_gross', 'potential_evapotranspiration_thornthwaite']}
+17{'score': 0.92222, 'best_inputs': ['drainage_area_gross', 'potential_evapotranspiration_hamon']}
+18{'score': 0.98539, 'best_inputs': ['drainage_area', 'drainage_area_gross', 'potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon', 'median_elevation']}
+19{'score': 0.22613, 'best_inputs': ['year', 'potential_evapotranspiration_hamon']}
+20{'score': 0.88835, 'best_inputs': ['average_slope', 'glacial_coverage']}
+21{'score': 0.91973, 'best_inputs': ['drainage_area', 'drainage_area_gross', 'potential_evapotranspiration_hamon']}
+22{'score': 0.99968, 'best_inputs': ['drainage_area', 'average_slope']}
+23{'score': 0.89298, 'best_inputs': ['drainage_area', 'potential_evapotranspiration_thornthwaite']}
+24{'score': 0.99366, 'best_inputs': ['drainage_area', 'potential_evapotranspiration_hamon', 'annual_precipitation']}
+25{'score': 0.89495, 'best_inputs': ['drainage_area', 'drainage_area_gross', 'average_slope', 'annual_precipitation', 'solar_exposure']}
+26{'score': 0.77616, 'best_inputs': ['aspect']}
+27{'score': 0.98034, 'best_inputs': ['year', 'glacial_coverage', 'glacial_area', 'watershed_area', 'annual_precipitation']}
+28{'score': 0.89633, 'best_inputs': ['drainage_area', 'glacial_coverage']}
+29{'score': 0.91886, 'best_inputs': ['potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon', 'annual_precipitation']}
+
+total combinations:  3473
+Found New Best: 0.9851386156937106 ['drainage_area']
+Found New Best: 0.9851386344728121 ['potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9855561267478128 ['year', 'drainage_area']
+Found New Best: 0.9860821105875166 ['year', 'average_slope']
+Found New Best: 0.9860883868718245 ['year', 'median_elevation']
+Found New Best: 0.9877685429080822 ['year', 'aspect']
+Found New Best: 0.9881050850780793 ['year', 'glacial_coverage', 'annual_precipitation']
+ZONE: 01 SCORE: 0.98811 INPUTS: ['year', 'glacial_coverage', 'annual_precipitation']
+Found New Best: 0.8326739836726603 ['drainage_area']
+Found New Best: 0.8326742228115891 ['potential_evapotranspiration_hamon']
+ZONE: 02 SCORE: 0.83267 INPUTS: ['potential_evapotranspiration_hamon']
+Found New Best: 0.12490452321576306 ['year']
+Found New Best: 0.9011028273706282 ['drainage_area']
+Found New Best: 0.9624882914297033 ['average_slope']
+Found New Best: 0.9646926689212407 ['year', 'average_slope']
+Found New Best: 0.964897018472562 ['year', 'aspect']
+Found New Best: 0.9678667716158399 ['year', 'drainage_area_gross', 'median_elevation']
+Found New Best: 0.9680299828272194 ['year', 'drainage_area_gross', 'watershed_area', 'median_elevation']
+Found New Best: 0.968036873423678 ['year', 'drainage_area_gross', 'average_slope', 'median_elevation', 'solar_exposure']
+Found New Best: 0.9685953601987716 ['year', 'drainage_area_gross', 'median_elevation', 'aspect', 'solar_exposure']
+ZONE: 03 SCORE: 0.9686 INPUTS: ['year', 'drainage_area_gross', 'median_elevation', 'aspect', 'solar_exposure']
+ZONE: 04 SCORE: 0 INPUTS: []
+Found New Best: 0.9295292157162593 ['drainage_area']
+Found New Best: 0.9295294365453747 ['average_slope']
+ZONE: 05 SCORE: 0.92953 INPUTS: ['average_slope']
+Found New Best: 0.4042291247634002 ['drainage_area']
+ZONE: 06 SCORE: 0.40423 INPUTS: ['drainage_area']
+Found New Best: 0.8811122552984062 ['drainage_area']
+Found New Best: 0.8811128286120912 ['potential_evapotranspiration_thornthwaite']
+Found New Best: 0.8811128575007693 ['potential_evapotranspiration_hamon']
+Found New Best: 0.8912493445197831 ['year', 'drainage_area']
+Found New Best: 0.8944848164421694 ['year', 'glacial_coverage']
+Found New Best: 0.8953177530009133 ['year', 'glacial_area']
+Found New Best: 0.9098393189006456 ['year', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9118729449598234 ['year', 'glacial_coverage', 'potential_evapotranspiration_hamon']
+Found New Best: 0.9122016350950841 ['year', 'glacial_coverage', 'annual_precipitation']
+Found New Best: 0.9153258536162101 ['year', 'glacial_area', 'potential_evapotranspiration_hamon']
+ZONE: 07 SCORE: 0.91533 INPUTS: ['year', 'glacial_area', 'potential_evapotranspiration_hamon']
+Found New Best: 0.7892548781252386 ['drainage_area']
+Found New Best: 0.8518308548123106 ['drainage_area_gross']
+Found New Best: 0.8537226350954878 ['year', 'drainage_area_gross']
+Found New Best: 0.9511561386435297 ['drainage_area_gross', 'average_slope']
+Found New Best: 0.9511562242481927 ['drainage_area_gross', 'average_slope', 'glacial_coverage']
+Found New Best: 0.9511563887257976 ['drainage_area_gross', 'average_slope', 'annual_precipitation']
+Found New Best: 0.9511564196587297 ['drainage_area_gross', 'annual_precipitation', 'median_elevation']
+Found New Best: 0.9511565961454982 ['drainage_area_gross', 'annual_precipitation', 'aspect']
+Found New Best: 0.9511566517194276 ['drainage_area', 'drainage_area_gross', 'average_slope', 'annual_precipitation']
+Found New Best: 0.951156688237586 ['drainage_area_gross', 'glacial_coverage', 'annual_precipitation', 'solar_exposure']
+ZONE: 08 SCORE: 0.95116 INPUTS: ['drainage_area_gross', 'glacial_coverage', 'annual_precipitation', 'solar_exposure']
+Found New Best: 0.7965263384621964 ['drainage_area']
+Found New Best: 0.8155391348008363 ['drainage_area_gross']
+Found New Best: 0.8291543523660087 ['average_slope']
+Found New Best: 0.8291566860137545 ['median_elevation']
+ZONE: 09 SCORE: 0.82916 INPUTS: ['median_elevation']
+Found New Best: 0.9754562981883044 ['drainage_area']
+Found New Best: 0.9928200226318552 ['average_slope']
+Found New Best: 0.9963257263649808 ['year', 'average_slope']
+Found New Best: 0.9965852865128532 ['year', 'median_elevation']
+Found New Best: 0.9969491261390241 ['year', 'aspect']
+Found New Best: 0.9969500760735742 ['year', 'median_elevation', 'aspect']
+ZONE: 10 SCORE: 0.99695 INPUTS: ['year', 'median_elevation', 'aspect']
+Found New Best: 0.8699573914107529 ['drainage_area']
+Found New Best: 0.8699575037404607 ['median_elevation']
+ZONE: 11 SCORE: 0.86996 INPUTS: ['median_elevation']
+ZONE: 12 SCORE: 0 INPUTS: []
+Found New Best: 0.8553710459460285 ['drainage_area']
+ZONE: 13 SCORE: 0.85537 INPUTS: ['drainage_area']
+Found New Best: 0.8578667460469778 ['drainage_area']
+Found New Best: 0.9218392603760774 ['drainage_area_gross']
+Found New Best: 0.9895796899871029 ['average_slope']
+Found New Best: 0.9895797013239882 ['drainage_area', 'aspect']
+Found New Best: 0.9895797037831124 ['average_slope', 'glacial_coverage']
+Found New Best: 0.9895805897629817 ['average_slope', 'annual_precipitation']
+Found New Best: 0.9895805963500519 ['average_slope', 'solar_exposure']
+Found New Best: 0.9895809640792473 ['annual_precipitation', 'aspect']
+ZONE: 14 SCORE: 0.98958 INPUTS: ['annual_precipitation', 'aspect']
+Found New Best: 0.973124523418041 ['drainage_area']
+Found New Best: 0.9791372305520634 ['potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9791430879971955 ['drainage_area', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9791475253255953 ['potential_evapotranspiration_thornthwaite', 'annual_precipitation']
+Found New Best: 0.9791507848024797 ['potential_evapotranspiration_hamon', 'annual_precipitation']
+Found New Best: 0.9791510487321927 ['glacial_coverage', 'potential_evapotranspiration_hamon', 'annual_precipitation']
+Found New Best: 0.9791542483645295 ['glacial_area', 'potential_evapotranspiration_thornthwaite', 'annual_precipitation']
+Found New Best: 0.9792724499749128 ['year', 'drainage_area', 'glacial_coverage', 'potential_evapotranspiration_hamon']
+Found New Best: 0.9795702965313932 ['year', 'drainage_area', 'glacial_area', 'potential_evapotranspiration_hamon']
+Found New Best: 0.9812359556619843 ['year', 'drainage_area', 'potential_evapotranspiration_thornthwaite', 'annual_precipitation']
+ZONE: 15 SCORE: 0.98124 INPUTS: ['year', 'drainage_area', 'potential_evapotranspiration_thornthwaite', 'annual_precipitation']
+Found New Best: 0.8601543904527544 ['drainage_area']
+Found New Best: 0.9251650370840074 ['drainage_area_gross']
+Found New Best: 0.9251650372937706 ['drainage_area', 'drainage_area_gross']
+Found New Best: 0.9251650394532684 ['drainage_area_gross', 'potential_evapotranspiration_thornthwaite']
+ZONE: 16 SCORE: 0.92517 INPUTS: ['drainage_area_gross', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.8831890385573037 ['drainage_area']
+Found New Best: 0.919724400413625 ['drainage_area_gross']
+Found New Best: 0.9197244536357879 ['drainage_area', 'drainage_area_gross']
+Found New Best: 0.9222230351583149 ['drainage_area_gross', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9222231529990643 ['drainage_area_gross', 'potential_evapotranspiration_hamon']
+ZONE: 17 SCORE: 0.92222 INPUTS: ['drainage_area_gross', 'potential_evapotranspiration_hamon']
+Found New Best: 0.8470326165146742 ['drainage_area']
+Found New Best: 0.9043214616766252 ['drainage_area_gross']
+Found New Best: 0.9833793010110274 ['average_slope']
+Found New Best: 0.9833798983606103 ['median_elevation']
+Found New Best: 0.9853933670606448 ['drainage_area_gross', 'average_slope']
+Found New Best: 0.9853934390000836 ['drainage_area_gross', 'aspect']
+Found New Best: 0.9853934850200246 ['drainage_area', 'drainage_area_gross', 'average_slope', 'solar_exposure']
+Found New Best: 0.9853934885741747 ['drainage_area', 'drainage_area_gross', 'average_slope', 'potential_evapotranspiration_hamon', 'solar_exposure']
+Found New Best: 0.9853935130686541 ['drainage_area', 'drainage_area_gross', 'potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon', 'median_elevation']
+ZONE: 18 SCORE: 0.98539 INPUTS: ['drainage_area', 'drainage_area_gross', 'potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon', 'median_elevation']
+Found New Best: 0.1832430863053769 ['year']
+Found New Best: 0.22612707529001486 ['year', 'potential_evapotranspiration_hamon']
+ZONE: 19 SCORE: 0.22613 INPUTS: ['year', 'potential_evapotranspiration_hamon']
+Found New Best: 0.5429982725602663 ['drainage_area']
+Found New Best: 0.7860666029167512 ['drainage_area_gross']
+Found New Best: 0.8878746373746321 ['average_slope']
+Found New Best: 0.8883496268460526 ['average_slope', 'glacial_coverage']
+ZONE: 20 SCORE: 0.88835 INPUTS: ['average_slope', 'glacial_coverage']
+Found New Best: 0.428939706083179 ['drainage_area']
+Found New Best: 0.9197346514565238 ['drainage_area_gross']
+Found New Best: 0.919734654418619 ['drainage_area', 'drainage_area_gross']
+Found New Best: 0.919734710266555 ['drainage_area_gross', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9197347712044072 ['drainage_area_gross', 'potential_evapotranspiration_hamon']
+Found New Best: 0.9197347732765759 ['drainage_area', 'drainage_area_gross', 'potential_evapotranspiration_hamon']
+ZONE: 21 SCORE: 0.91973 INPUTS: ['drainage_area', 'drainage_area_gross', 'potential_evapotranspiration_hamon']
+Found New Best: 0.9950260070083722 ['drainage_area']
+Found New Best: 0.9996839805749701 ['average_slope']
+Found New Best: 0.9996839821877069 ['drainage_area', 'average_slope']
+ZONE: 22 SCORE: 0.99968 INPUTS: ['drainage_area', 'average_slope']
+Found New Best: 0.375746454118318 ['year']
+Found New Best: 0.8516199677114868 ['drainage_area']
+Found New Best: 0.8725391901369941 ['drainage_area_gross']
+Found New Best: 0.8929774294159543 ['potential_evapotranspiration_thornthwaite']
+Found New Best: 0.892977727714735 ['drainage_area', 'potential_evapotranspiration_thornthwaite']
+ZONE: 23 SCORE: 0.89298 INPUTS: ['drainage_area', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9884896659054913 ['drainage_area']
+Found New Best: 0.9936548188181853 ['potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9936563879685695 ['drainage_area', 'potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9936565357847558 ['drainage_area', 'potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon']
+Found New Best: 0.9936571203861594 ['drainage_area', 'potential_evapotranspiration_hamon', 'annual_precipitation']
+ZONE: 24 SCORE: 0.99366 INPUTS: ['drainage_area', 'potential_evapotranspiration_hamon', 'annual_precipitation']
+Found New Best: 0.8079917664980083 ['drainage_area']
+Found New Best: 0.82108142224769 ['average_slope']
+Found New Best: 0.8210820928867621 ['median_elevation']
+Found New Best: 0.8210825297618349 ['aspect']
+Found New Best: 0.8949488765640283 ['drainage_area_gross', 'average_slope']
+Found New Best: 0.8949488939094671 ['drainage_area_gross', 'aspect']
+Found New Best: 0.8949490101116788 ['drainage_area', 'drainage_area_gross', 'average_slope']
+Found New Best: 0.8949490342778611 ['drainage_area', 'drainage_area_gross', 'average_slope', 'aspect']
+Found New Best: 0.8949490580412309 ['drainage_area', 'drainage_area_gross', 'average_slope', 'solar_exposure']
+Found New Best: 0.8949491514035028 ['drainage_area', 'drainage_area_gross', 'average_slope', 'annual_precipitation', 'solar_exposure']
+ZONE: 25 SCORE: 0.89495 INPUTS: ['drainage_area', 'drainage_area_gross', 'average_slope', 'annual_precipitation', 'solar_exposure']
+Found New Best: 0.29067930586217594 ['drainage_area']
+Found New Best: 0.7761518765414068 ['average_slope']
+Found New Best: 0.7761581932192068 ['aspect']
+ZONE: 26 SCORE: 0.77616 INPUTS: ['aspect']
+Found New Best: 0.14999857821795182 ['year']
+Found New Best: 0.8196476945055563 ['drainage_area']
+Found New Best: 0.9396649019373571 ['drainage_area_gross']
+Found New Best: 0.9787296260959502 ['year', 'drainage_area']
+Found New Best: 0.9792971075803789 ['year', 'glacial_coverage', 'annual_precipitation']
+Found New Best: 0.9798940489581771 ['year', 'drainage_area', 'glacial_coverage', 'annual_precipitation']
+Found New Best: 0.9799946386581632 ['year', 'glacial_coverage', 'watershed_area', 'annual_precipitation']
+Found New Best: 0.9802458343504766 ['year', 'drainage_area', 'glacial_coverage', 'glacial_area', 'annual_precipitation']
+Found New Best: 0.9803448770048246 ['year', 'glacial_coverage', 'glacial_area', 'watershed_area', 'annual_precipitation']
+ZONE: 27 SCORE: 0.98034 INPUTS: ['year', 'glacial_coverage', 'glacial_area', 'watershed_area', 'annual_precipitation']
+Found New Best: 0.8963318693258516 ['drainage_area']
+Found New Best: 0.8963337249708979 ['drainage_area', 'glacial_coverage']
+ZONE: 28 SCORE: 0.89633 INPUTS: ['drainage_area', 'glacial_coverage']
+Found New Best: 0.8445942434004456 ['drainage_area']
+Found New Best: 0.9112615402875357 ['drainage_area_gross']
+Found New Best: 0.918857532264693 ['potential_evapotranspiration_thornthwaite']
+Found New Best: 0.9188575370314268 ['potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon', 'annual_precipitation']
+ZONE: 29 SCORE: 0.91886 INPUTS: ['potential_evapotranspiration_thornthwaite', 'potential_evapotranspiration_hamon', 'annual_precipitation']

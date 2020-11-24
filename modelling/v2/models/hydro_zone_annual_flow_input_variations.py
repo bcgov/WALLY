@@ -7,13 +7,14 @@ import math
 import itertools
 from ast import literal_eval
 
-directory = '../data/training_data_hydro_zone_annual_flow/nov16/'
+directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
-# inputs_list = ["year","drainage_area","drainage_area_gross","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
-inputs_list = [ "drainage_area", "watershed_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+inputs_list = ["year","drainage_area","drainage_area_gross","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
+# inputs_list = ["drainage_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+# inputs_list = ["drainage_area", "glacial_coverage", "glacial_area", "annual_precipitation", "potential_evapotranspiration_thornthwaite"]
 # "drainage_area_gross"
 
 all_combinations = []
@@ -23,7 +24,7 @@ for r in range(len(inputs_list) + 1):
     all_combinations += combinations_list
 
 # limit input list size
-all_combinations = [x for x in all_combinations if len(x)<=4]
+all_combinations = [x for x in all_combinations if len(x)<=5]
 
 print('total combinations: ', len(all_combinations))
 
@@ -80,7 +81,7 @@ for filename in sorted(os.listdir(directory)):
                 # print(best_r_squared)
                 # print(best_inputs)
                 print('Found New Best:', best_r_squared, best_inputs)
-                xgb.save_model('../model_output/hydro_zone_annual_flow_nov16/zone_{}.json'.format(zone_name))
+                xgb.save_model('../model_output/hydro_zone_annual_flow/nov23/zone_{}.json'.format(zone_name))
             
             # print(count, xgb_score, X.columns.values)
             # print(count)
@@ -94,8 +95,10 @@ for filename in sorted(os.listdir(directory)):
         print('ZONE:', zone_name, 'SCORE:', score, 'INPUTS:', best_inputs)
     else:
         continue
-# print(zone_scores)
+
+for attr, value in zone_scores.items():
+    print(value)
 
 # create r2 scores
-with open('../model_output/hydro_zone_annual_flow_nov16/annual_model_scores.json', "w") as outfile:
+with open('../model_output/hydro_zone_annual_flow/nov23/annual_model_scores.json', "w") as outfile:
     json.dump(zone_scores, outfile)
