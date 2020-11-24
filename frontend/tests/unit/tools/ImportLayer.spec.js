@@ -1,5 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils'
 import ImportLayer from '../../../src/components/sidepanel/cards/ImportLayer.vue'
+import FileList from '../../../src/components/tools/import_layer/FileList'
+
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
@@ -8,6 +10,10 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 Vue.use(Vuetify)
 const vuetify = new Vuetify()
+
+global.config = {
+  warnUploadFileSizeThresholdInMB: 10
+}
 
 describe('ImportLayer', () => {
   let store
@@ -100,11 +106,37 @@ describe('ImportLayer', () => {
     expect(wrapper.vm.readFiles).toHaveBeenCalled()
   })
 
-  it('Shows warning for files larger than the warning threshold (10mb)', async () => {
+  it('Hides FileDrop when processing files', async () => {
+    wrapper.setData({
+      fileList: [
+        { name: 'test' }
+      ]
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('filedrop-stub').exists()).toBeFalsy()
+  })
+})
+
+describe('FileList', () => {
+  let wrapper
+
+  beforeEach(() => {
     let file = {
-      size: 1e7 + 1
+      size: 11 * 1024 * 1024 // 11mb
     }
-    wrapper.vm.files = [file]
+
+    wrapper = shallowMount(FileList, {
+      vuetify,
+      localVue,
+      propsData: {
+        files: [file],
+        fileLoading: []
+      }
+    })
+  })
+
+  it('Shows warning for files larger ' +
+    'than the warning threshold', async () => {
     await wrapper.vm.$nextTick()
 
     expect(wrapper.find('#fileSizeWarning0').text().toLowerCase())

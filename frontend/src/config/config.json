@@ -19,6 +19,7 @@
     "debug": false
   },
   "app": {
-    "title": "Water Allocation - Province of British Columbia"
+    "title": "Water Allocation - Province of British Columbia",
+    "warnUploadFileSizeThresholdInMB": 10
   }
 }
