@@ -61,7 +61,7 @@ describe('HydroZoneModelV2', () => {
 
     expect(v2.exists()).toBeFalsy()
   })
-  it('displays Wally model if feature flag off', () => {
+  it('displays Wally model if feature flag on', () => {
     let getters = {
       app: () => ({
         config: {
