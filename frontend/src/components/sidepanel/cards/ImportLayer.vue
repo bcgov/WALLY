@@ -19,57 +19,22 @@
     <v-row class="pl-5 pr-5">
      <v-col>
        <FileDrop @import:load-files="this.loadFiles" v-if="fileList.length === 0"></FileDrop>
-       <div v-else>
-         <v-btn @click="clearFiles"><v-icon class="mr-2">mdi-restore</v-icon>Clear files</v-btn>
+       <div v-else class="mb-5">
+         <v-btn @click="clearFiles" outlined color="primary"><v-icon class="mr-2">mdi-restore</v-icon>Clear files</v-btn>
        </div>
+       <FileList :files="files" :fileLoading="fileLoading"></FileList>
+       <FileListImported :files="processedFiles"></FileListImported>
      </v-col>
     </v-row>
-    <FileList :files="files" :fileLoading="fileLoading"></FileList>
-    <div v-for="(processedFile,i) in processedFiles.filter(x => x.status)" :key="`fileMsg${i}`">
-      <v-alert
-        :id="`statusMessage${i}`"
-        v-if="processedFile.message"
-        :type="processedFile.status"
-      >
-        {{ processedFile.message }}
-        <span class="float-right" v-if="processedFile.firstFeatureCoords">
-          <v-btn text small @click="map.flyTo({center: processedFile.firstFeatureCoords})"><v-icon small>mdi-arrow-top-right</v-icon></v-btn>
-        </span>
-      </v-alert>
-    </div>
     <v-btn class="my-5" v-if="files.length > 0" @click="importLayers" :loading="Object.values(layerLoading).some(Boolean)">Import</v-btn>
   </v-container>
 </template>
-<style lang="scss">
-  #fileList {
-    dl {
-      display: flex;
-      flex-wrap: wrap;
-      padding-bottom: 10px;
-    }
-
-    dt {
-      width: 33%;
-      margin-top: 0;
-      border-bottom: 1px solid lightgrey;
-    }
-
-    dd {
-      padding-left: 10px;
-      width: 66%;
-      border-bottom: 1px solid lightgrey;
-    }
-
-    dt:nth-last-child(2), dd:last-child{
-      border-bottom: none;
-    }
-  }
-</style>
 <script>
 import { mapGetters } from 'vuex'
 import centroid from '@turf/centroid'
 import FileDrop from '../../tools/import_layer/FileDrop'
 import FileList from '../../tools/import_layer/FileList'
+import FileListImported from '../../tools/import_layer/FileListImported'
 import {
   createMessageFromErrorArray,
   csvToGeoJSON,
@@ -82,7 +47,8 @@ export default {
   name: 'ImportLayer',
   components: {
     FileDrop,
-    FileList
+    FileList,
+    FileListImported
   },
   data: () => ({
     warnFileSizeThreshold: 1e7, // 10 mb

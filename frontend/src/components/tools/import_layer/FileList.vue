@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-for="(file, index) in files" class="mb-5" v-bind:key="index" id="fileList">
+    <v-card outlined v-for="(file, index) in files" class="mb-5 pa-5" v-bind:key="index" id="fileList">
       <dl>
         <dt>
           Filename:
@@ -20,6 +20,7 @@
             hide-canvas
             hide-inputs
             v-model="file.color"
+            flat
           ></v-color-picker>
         </dd>
         <dt>
@@ -50,7 +51,9 @@
                 <div v-for="prop in file.stats.propertyFields" :key="`${file.name}${prop}`">{{prop}}</div>
               </div>
             </v-col>
-            <v-btn dense @click="file.options.showAllProperties = !file.options.showAllProperties">{{file.options.showAllProperties ? 'Hide' : 'Show'}}</v-btn>
+            <v-btn dense outlined color="primary" @click="file.options.showAllProperties = !file.options.showAllProperties">
+              {{file.options.showAllProperties ? 'Hide' : 'Show'}}
+            </v-btn>
             <v-col cols="2"></v-col>
           </v-row>
         </dd>
@@ -63,9 +66,39 @@
       >
         {{file.name}}: file size greater than 10 MB. This file may take additional time to load and it may cause performance issues.
       </v-alert>
-    </div>
+    </v-card>
   </div>
 </template>
+<style lang="scss">
+  #fileList {
+    dl {
+      display: flex;
+      flex-wrap: wrap;
+      padding-bottom: 10px;
+    }
+
+    dt {
+      width: 33%;
+      margin-top: 0;
+      border-bottom: 1px solid lightgrey;
+    }
+
+    dd {
+      padding-left: 10px;
+      width: 66%;
+      border-bottom: 1px solid lightgrey;
+    }
+
+    dt:nth-child(n+3):nth-last-child(2),
+    dd:nth-child(n+3):last-child {
+      border-bottom: none;
+    }
+
+    dd, dt {
+      margin-top: 5px;
+    }
+  }
+</style>
 <script>
 export default {
   name: 'FileList',
