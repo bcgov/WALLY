@@ -65,7 +65,7 @@ def get_zone_info(zone):
     try:
         r2_file = minio_client.get_object('models', V1_ANNUAL_FLOW_BUCKET + "zone_models_r2.json")
     except ResponseError as err:
-        print(err)
+        logger.warning(err)
 
     if r2_file:
         zone_r_squares = json.load(r2_file)
@@ -101,7 +101,8 @@ def get_hydrological_zone_model_v2(
         scores = json.load(json_file)
         annual_model_score = scores[str(hydrological_zone)]['score']
         best_inputs = scores[str(hydrological_zone)]['best_inputs']
-        print("annual - best inputs:", best_inputs)
+        logger.warning("best_inputs:")
+        logger.warning(best_inputs)
 
     if len(best_inputs) <= 0: 
         raise HTTPException(
@@ -111,14 +112,15 @@ def get_hydrological_zone_model_v2(
     # extract inputs from request params
     inputs = [input_values[x] for x in best_inputs]
     inputs = np.array(inputs).reshape((1, len(inputs)))
-    print("Annual Inputs:", inputs)
+    logger.warning("inputs:")
+    logger.warning(inputs)
 
     # Load model
     try:
         xgb = XGBRegressor(random_state=42)
         xgb.load_model(state_file_name)
     except Exception as error:
-        print(error)
+        logger.warning(error)
 
     # make annual prediction
     mean_annual_flow_prediction = xgb.predict(inputs)
@@ -127,7 +129,8 @@ def get_hydrological_zone_model_v2(
         r_squared=annual_model_score
     )
 
-    print("mean_annual_flow", mean_annual_flow)
+    logger.warning("mean_annual_flow:")
+    logger.warning(mean_annual_flow)
 
     # MONTHLY FLOW
     
@@ -144,28 +147,35 @@ def get_hydrological_zone_model_v2(
     monthly_predictions = []
     for month in range(1, 13): # months
         object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + str(month) + '.json'
-        print("object path", object_path)
+        logger.warning("object_path")
+        logger.warning(object_path)
         monthly_state_file_name = "monthly_model_state.json"
         get_set_model_data(object_path, monthly_state_file_name)
 
-        print(monthly_scores)
+        logger.warning(monthly_scores)
         month_model_score = monthly_scores[str(month)]['score']
         month_best_inputs = monthly_scores[str(month)]['best_inputs']
-        print("monthly - score:", month, month_model_score)
-        print("monthly - best inputs:", month, month_best_inputs)
+        logger.warning("month")
+        logger.warning(month)
+        logger.warning("monthly - score:")
+        logger.warning(month_model_score)
+        logger.warning("monthly - best inputs:")
+        logger.warning(month_best_inputs)
         # extract inputs from request params
         month_inputs = [input_values[x] for x in month_best_inputs]
         month_inputs = np.array(month_inputs).reshape((1, -1))
-        print("Monthly Inputs:", month, month_inputs)
+        logger.warning("Monthly Inputs:")
+        logger.warning(month_inputs)
 
         try:
             xgb_month = XGBRegressor(random_state=42)
             xgb_month.load_model(monthly_state_file_name)
         except Exception as error:
-            print(error)
+            logger.warning(error)
 
         mean_monthly_flow_prediction = xgb_month.predict(month_inputs)
-        print("month prediction", mean_monthly_flow_prediction)
+        logger.warning("mean_monthly_flow_prediction")
+        logger.warning(mean_monthly_flow_prediction)
         mean_monthly_flow = MeanMonthlyFlow(
             mean_monthly_flow=mean_monthly_flow_prediction,
             r_squared=month_model_score,
@@ -185,9 +195,10 @@ def get_set_model_data(minio_path: str, file_name: str):
     Gets a model object from Minio and sets the file by file_name
     """
     try:
-        print('MINIO STARTED', file_name)
+        logger.warning('MINIO STARTED')
+        logger.warning(file_name)
         response = minio_client.get_object('models', minio_path)
-        print('MINIO FINISHED', file_name)
+        logger.warning('MINIO FINISHED')
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
