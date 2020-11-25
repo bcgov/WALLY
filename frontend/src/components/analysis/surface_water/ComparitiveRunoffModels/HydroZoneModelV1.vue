@@ -71,7 +71,7 @@ export default {
       const params = {
         hydrological_zone: details.hydrological_zone,
         drainage_area: details.drainage_area,
-        median_elevation: details.median_elevation,
+        median_elevation: 1500,
         annual_precipitation: details.annual_precipitation
       }
       console.log(params)

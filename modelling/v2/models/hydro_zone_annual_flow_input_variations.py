@@ -12,9 +12,9 @@ dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
-inputs_list = ["year","drainage_area","drainage_area_gross","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
-# inputs_list = ["drainage_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
-# inputs_list = ["drainage_area", "glacial_coverage", "glacial_area", "annual_precipitation", "potential_evapotranspiration_thornthwaite"]
+# inputs_list = ["year","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","annual_precipitation","median_elevation","aspect","solar_exposure"]
+inputs_list = ["average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+# inputs_list = ["glacial_coverage", "glacial_area", "annual_precipitation", "potential_evapotranspiration_thornthwaite"]
 # "drainage_area_gross"
 
 all_combinations = []
@@ -48,9 +48,9 @@ for filename in sorted(os.listdir(directory)):
             # inputs = ['drainage_area', 'annual_precipitation', 
             #   'glacial_coverage', 'glacial_area', dependant_variable]
             
-            inputs = list(inputs) + [dependant_variable]
-            if len(inputs) < 2:
-                continue
+            inputs = ["drainage_area"] + list(inputs) + [dependant_variable]
+            # if len(inputs) < 2:
+            #     continue
 
             features_df = zone_df[inputs]
             X = features_df.dropna(subset=inputs) # drop NaNs
@@ -71,7 +71,6 @@ for filename in sorted(os.listdir(directory)):
                 continue
 
             X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
-
             xgb.fit(X_train, y_train)
             xgb_score = xgb.score(X_test, y_test)
 
@@ -97,7 +96,7 @@ for filename in sorted(os.listdir(directory)):
         continue
 
 for attr, value in zone_scores.items():
-    print(value)
+    print(attr, value)
 
 # create r2 scores
 with open('../model_output/hydro_zone_annual_flow/nov23/annual_model_scores.json', "w") as outfile:

@@ -9,9 +9,19 @@ class HydroZoneModelInputs(BaseModel):
     """
     inputs needed to create model prediction
     """
-    drainage_area: float
-    median_elevation: float
-    annual_precipitation: float
+    hydrological_zone: str
+    year: Optional[str]
+    drainage_area: Optional[float]
+    average_slope: Optional[float]
+    glacial_coverage: Optional[float]
+    glacial_area: Optional[float]
+    watershed_area: Optional[float]
+    potential_evapotranspiration_thornthwaite: Optional[float]
+    potential_evapotranspiration_hamon: Optional[float]
+    annual_precipitation: Optional[float]
+    median_elevation: Optional[float]
+    aspect: Optional[float]
+    solar_exposure: Optional[float]
 
     class Config:
         orm_mode = True

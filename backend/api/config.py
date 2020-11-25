@@ -64,7 +64,7 @@ class Settings(BaseSettings):
     external_import_types = ""
 
     wally_model = False
-    surface_water_design_v2 = False
+    surface_water_design_v2 = True
 
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""
