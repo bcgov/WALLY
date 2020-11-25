@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text v-if="showWallyModelFeatureFlag && modelData">
+    <v-card-text id="hydroZoneModelV2" v-if="showWallyModelFeatureFlag && modelData">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -97,6 +97,7 @@ export default {
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails']),
+    ...mapGetters(['app']),
     watershedArea () {
       if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
         return null
@@ -145,6 +146,9 @@ export default {
         return Number(this.modelData.mean_annual_flow.r_squared).toFixed(2)
       }
       return null
+    },
+    showWallyModelFeatureFlag () {
+      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   methods: {
@@ -178,9 +182,6 @@ export default {
           this.modelLoading = false
           console.error(e)
         })
-    },
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   mounted () {
