@@ -6,8 +6,8 @@
       Comparative Runoff Models
     </v-card-title>
     <div v-if="showWallyModelFeatureFlag">
-      <HydroZoneModelV1 id="hydroZoneModelV1" />
-      <HydroZoneModelV2 id="hydroZoneModelV2" />
+      <HydroZoneModelV1 />
+      <HydroZoneModelV2 />
     </div>
 
     <v-card-text v-if="annualNormalizedRunoff">
@@ -113,8 +113,10 @@
   <div v-else>
     <div>
       <div class="titleSub">Comparative Runoff Models</div>
-      <HydroZoneModelV1 />
-      <HydroZoneModelV2 />
+      <div v-if="showWallyModelFeatureFlag">
+        <HydroZoneModelV1 />
+        <HydroZoneModelV2 />
+      </div>
       <div v-if="annualNormalizedRunoff">
         <div>
           Source:
@@ -354,9 +356,6 @@ export default {
     // }
   },
   methods: {
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
-    }
   },
   mounted () {
   }

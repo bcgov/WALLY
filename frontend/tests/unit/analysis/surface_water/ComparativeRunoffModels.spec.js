@@ -5,6 +5,8 @@ import Vuex from 'vuex'
 
 import ComparativeRunoffModels
   from '../../../../src/components/analysis/surface_water/ComparativeRunoffModels'
+import HydroZoneModelV1 from '../../../../src/components/analysis/surface_water/ComparitiveRunoffModels/HydroZoneModelV1'
+import HydroZoneModelV2 from '../../../../src/components/analysis/surface_water/ComparitiveRunoffModels/HydroZoneModelV2'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -110,6 +112,7 @@ describe('Comparative Runoff Models test', () => {
         watershedDetails: {}
       }
     })
+
     const v1 = wrapper.find('#hydroZoneModelV1')
     const v2 = wrapper.find('#hydroZoneModelV2')
 
