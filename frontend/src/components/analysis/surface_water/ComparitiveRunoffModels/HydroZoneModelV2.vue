@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text id="hydroZoneModelV2" v-if="showWallyModelFeatureFlag && modelData">
+    <v-card-text v-if="modelData" id="hydroZoneModelV2">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -31,11 +31,11 @@
           </v-card>
         </v-col>
       </v-row>
-    </v-card-text>
-    <Plotly v-if="meanMonthlyPlotData"
+        <Plotly v-if="meanMonthlyPlotData"
             :layout="meanMonthlyLayout"
             :data="meanMonthlyPlotData"
-    ></Plotly>
+        ></Plotly>
+    </v-card-text>
   </div>
 </template>
 
@@ -146,9 +146,6 @@ export default {
         return Number(this.modelData.mean_annual_flow.r_squared).toFixed(2)
       }
       return null
-    },
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   methods: {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text id="hydroZoneModelV1" v-if="showWallyModelFeatureFlag && modelData">
+    <v-card-text v-if="modelData" id="hydroZoneModelV1">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -64,9 +64,6 @@ export default {
         return Number(this.modelData.r_squared).toFixed(2)
       }
       return null
-    },
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   methods: {

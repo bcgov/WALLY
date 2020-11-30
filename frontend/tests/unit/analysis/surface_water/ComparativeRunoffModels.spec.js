@@ -1,10 +1,12 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils'
+import { createLocalVue, shallowMount, mount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
 
 import ComparativeRunoffModels
   from '../../../../src/components/analysis/surface_water/ComparativeRunoffModels'
+import HydroZoneModelV1 from '../../../../src/components/analysis/surface_water/ComparitiveRunoffModels/HydroZoneModelV1'
+import HydroZoneModelV2 from '../../../../src/components/analysis/surface_water/ComparitiveRunoffModels/HydroZoneModelV2'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -21,6 +23,8 @@ describe('Comparative Runoff Models test', () => {
 
   beforeEach(() => {
     console.error = jest.fn()
+    console.log = jest.fn()
+
     let map = {
       namespaced: true
     }
@@ -80,5 +84,71 @@ describe('Comparative Runoff Models test', () => {
     const cardText = wrapper.find('v-card-text-stub')
 
     expect(cardText.exists()).toBeFalsy()
+  })
+
+  it('does not display Wally model if feature flag off', () => {
+    let getters = {
+      app: () => ({
+        config: {
+          wally_model: false
+        }
+      })
+    }
+    let map = {
+      namespaced: true
+    }
+    let surfaceWater = {
+      namespaced: true,
+      getters: {
+        watershedDetails: () => ({})
+      }
+    }
+    store = new Vuex.Store({ modules: { map, surfaceWater }, getters })
+    wrapper = mount(ComparativeRunoffModels, {
+      vuetify,
+      store,
+      localVue,
+      propsData: {
+        watershedDetails: {}
+      }
+    })
+
+    const v1 = wrapper.find('#hydroZoneModelV1')
+    const v2 = wrapper.find('#hydroZoneModelV2')
+
+    expect(v1.exists()).toBeFalsy()
+    expect(v2.exists()).toBeFalsy()
+  })
+  it('displays Wally model if feature flag on', () => {
+    let getters = {
+      app: () => ({
+        config: {
+          wally_model: true
+        }
+      })
+    }
+    let map = {
+      namespaced: true
+    }
+    let surfaceWater = {
+      namespaced: true,
+      getters: {
+        watershedDetails: () => ({})
+      }
+    }
+    store = new Vuex.Store({ modules: { map, surfaceWater }, getters })
+    wrapper = mount(ComparativeRunoffModels, {
+      vuetify,
+      store,
+      localVue,
+      propsData: {
+        watershedDetails: {}
+      }
+    })
+    const v1 = wrapper.find('#hydroZoneModelV1')
+    const v2 = wrapper.find('#hydroZoneModelV2')
+
+    expect(v1.exists()).toBeTruthy()
+    expect(v2.exists()).toBeTruthy()
   })
 })
