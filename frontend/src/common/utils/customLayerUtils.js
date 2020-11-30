@@ -1,6 +1,15 @@
 import csv2geojson from 'csv2geojson'
 import { kml } from '@tmcw/togeojson'
 import XLSX from 'xlsx'
+import * as shapefile from 'shapefile'
+
+export const FILE_TYPES_ACCEPTED = {
+  'geojson': ['geojson', 'json'],
+  'shapefile': ['shp', 'dbf', 'shx'], // add zip file
+  'csv': ['csv'],
+  'xlsx': ['xls', 'xlsx'],
+  'kml': ['kml']
+}
 
 export function groupErrorsByRow (errors) {
   // returns a new array containing a single object representing each row.

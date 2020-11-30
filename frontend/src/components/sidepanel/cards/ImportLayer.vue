@@ -20,7 +20,7 @@
      <v-col>
        <FileDrop @import:load-files="this.loadFiles" v-if="fileList.length === 0"></FileDrop>
        <div v-else class="mb-5">
-         <v-btn @click="clearFiles" outlined color="primary"><v-icon class="mr-2">mdi-restore</v-icon>Clear files</v-btn>
+         <v-btn @click="clearFiles" small color="blue-grey lighten-4"><v-icon class="mr-2">mdi-restore</v-icon>Clear files</v-btn>
        </div>
        <FileList :files="files" :fileLoading="fileLoading"></FileList>
        <FileListImported :files="processedFiles"></FileListImported>
@@ -42,6 +42,8 @@ import {
   xlsxToGeoJSON,
   groupErrorsByRow
 } from '../../../common/utils/customLayerUtils'
+import Importer from '../../../common/utils/Importer'
+import EventBus from '../../../services/EventBus'
 
 export default {
   name: 'ImportLayer',
@@ -105,17 +107,43 @@ export default {
       this.fileList = fileList
       if (fileList.length > 0) {
         this.resetStatus()
-        this.readFiles()
+
+        // Start import
+        EventBus.$on('fileLoading', this.setFileLoading)
+        Importer.readFiles(Array.from(fileList))
+        // this.readFiles()
       }
     },
-    readFiles () {
-      // Reset files
-      this.files = []
-      Array.from(this.fileList).forEach(file => {
-        this.fileLoading[file.name] = true
-        this.readFile(file)
-      })
+    setFileLoading (filename) {
+      // Set filename to 'loading'
+      // this.fileLoading[filename] = true
     },
+    // readFiles () {
+    //   // Reset files
+    //   this.files = []
+    //   this.shapeFiles = []
+    //   Array.from(this.fileList).forEach(file => {
+    //     this.fileLoading[file.name] = true
+    //
+    //     // check if shape file
+    //     console.log('read file', file, file.name.split('.'))
+    //     const filename = file.name.split('.')
+    //     console.log('file info', filename)
+    //     // const { fileType, fileExtension, fileSupported } = this.determineFileType(file.name)
+    //     // console.log('fileType', fileType, fileExtension, fileSupported)
+    //
+    //     if (filename[1] === 'shp') {
+    //       // Find dbf...
+    //       console.log(filename)
+    //       let newArr = Array.from(this.fileList).filter(element => element.name === filename[0] + '.dbf')
+    //       console.log('newarr', newArr)
+    //       const dbfFile = newArr.length === 1 && newArr[0]
+    //       this.readShapefile(file, dbfFile)
+    //     } else if (filename[1] !== 'dbf') {
+    //       this.readFile(file)
+    //     }
+    //   })
+    // },
     importLayers () {
       this.files.forEach(file => {
         this.handleLoadLayer(file)
@@ -151,11 +179,6 @@ export default {
         message: `${filename}: ${message}`,
         firstFeatureCoords: firstFeatureCoords
       })
-    },
-    clearFiles () {
-      this.fileList = []
-      this.processedFiles = []
-      this.files = []
     },
     readFile (file) {
       const { fileType, fileSupported } = this.determineFileType(file.name)
@@ -350,6 +373,11 @@ export default {
         name: file.name,
         type: file.type
       }
+    },
+    clearFiles () {
+      this.fileList = []
+      this.processedFiles = []
+      this.files = []
     },
     resetFiles () {
       this.files = []
