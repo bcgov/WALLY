@@ -5,9 +5,10 @@
       dark>
       Comparative Runoff Models
     </v-card-title>
-
-    <HydroZoneModelV1 />
-    <HydroZoneModelV2 />
+    <div v-if="showWallyModelFeatureFlag">
+      <HydroZoneModelV1 />
+      <HydroZoneModelV2 />
+    </div>
 
     <v-card-text v-if="annualNormalizedRunoff">
       <v-card-actions>
@@ -112,8 +113,10 @@
   <div v-else>
     <div>
       <div class="titleSub">Comparative Runoff Models</div>
-      <HydroZoneModelV1 />
-      <HydroZoneModelV2 />
+      <div v-if="showWallyModelFeatureFlag">
+        <HydroZoneModelV1 />
+        <HydroZoneModelV2 />
+      </div>
       <div v-if="annualNormalizedRunoff">
         <div>
           Source:
@@ -227,6 +230,7 @@ export default {
   },
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails']),
+    ...mapGetters(['app']),
     watershedArea () {
       if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
         return null
@@ -312,6 +316,9 @@ export default {
         return null
       }
       return (Number(this.watershedDetails.wally_hydro_zone_model_output_v1.r_squared)).toFixed(2)
+    },
+    showWallyModelFeatureFlag () {
+      return this.app && this.app.config && this.app.config.wally_model
     }
     // TODO remove isolines at future date once confirmed to be not needed
     // isolineRunoffByMonth () {
@@ -349,9 +356,6 @@ export default {
     // }
   },
   methods: {
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
-    }
   },
   mounted () {
   }
