@@ -161,14 +161,7 @@ export default {
     fetchWatershedModel (details) {
       console.log(details)
       this.modelLoading = true
-      // const params = {
-      //   hydrological_zone: details.hydrological_zone,
-      //   drainage_area: details.drainage_area,
-      //   annual_precipitation: details.annual_precipitation,
-      //   glacial_coverage: details.glacial_coverage,
-      //   glacial_area: details.glacial_area
-      // }
-      // console.log(params)
+      // add year as model parameter
       details['year'] = new Date().getFullYear()
       ApiService.post('/api/v1/hydrological_zones/v2_watershed_drainage_model', details)
         .then(r => {

@@ -101,8 +101,6 @@ def get_hydrological_zone_model_v2(
         scores = json.load(json_file)
         annual_model_score = scores[str(hydrological_zone)]['score']
         best_inputs = scores[str(hydrological_zone)]['best_inputs']
-        logger.warning("best_inputs:")
-        logger.warning(best_inputs)
 
     if len(best_inputs) <= 0: 
         raise HTTPException(
@@ -112,8 +110,6 @@ def get_hydrological_zone_model_v2(
     # extract inputs from request params
     inputs = [input_values[x] for x in best_inputs]
     inputs = np.array(inputs).reshape((1, len(inputs)))
-    logger.warning("inputs:")
-    logger.warning(inputs)
 
     # Load model
     try:
@@ -128,9 +124,6 @@ def get_hydrological_zone_model_v2(
         mean_annual_flow=mean_annual_flow_prediction,
         r_squared=annual_model_score
     )
-
-    logger.warning("mean_annual_flow:")
-    logger.warning(mean_annual_flow)
 
     # MONTHLY FLOW
     
@@ -147,25 +140,14 @@ def get_hydrological_zone_model_v2(
     monthly_predictions = []
     for month in range(1, 13): # months
         object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + str(month) + '.json'
-        logger.warning("object_path")
-        logger.warning(object_path)
         monthly_state_file_name = "monthly_model_state.json"
         get_set_model_data(object_path, monthly_state_file_name)
 
-        logger.warning(monthly_scores)
         month_model_score = monthly_scores[str(month)]['score']
         month_best_inputs = monthly_scores[str(month)]['best_inputs']
-        logger.warning("month")
-        logger.warning(month)
-        logger.warning("monthly - score:")
-        logger.warning(month_model_score)
-        logger.warning("monthly - best inputs:")
-        logger.warning(month_best_inputs)
         # extract inputs from request params
         month_inputs = [input_values[x] for x in month_best_inputs]
         month_inputs = np.array(month_inputs).reshape((1, -1))
-        logger.warning("Monthly Inputs:")
-        logger.warning(month_inputs)
 
         try:
             xgb_month = XGBRegressor(random_state=42)
@@ -174,8 +156,6 @@ def get_hydrological_zone_model_v2(
             logger.warning(error)
 
         mean_monthly_flow_prediction = xgb_month.predict(month_inputs)
-        logger.warning("mean_monthly_flow_prediction")
-        logger.warning(mean_monthly_flow_prediction)
         mean_monthly_flow = MeanMonthlyFlow(
             mean_monthly_flow=mean_monthly_flow_prediction,
             r_squared=month_model_score,
@@ -195,10 +175,7 @@ def get_set_model_data(minio_path: str, file_name: str):
     Gets a model object from Minio and sets the file by file_name
     """
     try:
-        logger.warning('MINIO STARTED')
-        logger.warning(file_name)
         response = minio_client.get_object('models', minio_path)
-        logger.warning('MINIO FINISHED')
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
