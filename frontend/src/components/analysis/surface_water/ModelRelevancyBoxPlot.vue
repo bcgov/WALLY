@@ -25,7 +25,8 @@ export default {
       xaxis: {
         fixedrange: true
       },
-      autosize: false,
+      autosize: true,
+      showlegend: false,
       margin: { // Margins for the chart without a title
         l: 50,
         r: 50,
@@ -42,14 +43,16 @@ export default {
       return [{
         type: 'box',
         name: stat.name,
+        boxpoints: false,
         y: [stat.minimum, stat.quartile_1, stat.median, stat.median, stat.quartile_3, stat.maximum]
       },
       {
-        type: 'line',
-        name: 'Watershed Input',
-        y: [input, input],
-        x: [0, 1],
-        line: { color: '#17BECF' }
+        x: [stat.name],
+        y: [input],
+        name: 'input value',
+        marker: {
+          size: 15
+        }
       }]
     }
   }
