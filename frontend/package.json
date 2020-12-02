@@ -46,6 +46,7 @@
     "mapbox-gl-draw-rectangle-mode": "^1.0.4",
     "material-design-icons-iconfont": "^5.0.1",
     "moment": "^2.24.0",
+    "shapefile": "^0.6.6",
     "vue": "^2.6.10",
     "vue-matomo": "^3.13.4-1",
     "vue-plotly": "^1.0.1",

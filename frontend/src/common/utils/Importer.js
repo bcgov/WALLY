@@ -2,7 +2,8 @@ import centroid from '@turf/centroid'
 import {
   createMessageFromErrorArray,
   csvToGeoJSON, FILE_TYPES_ACCEPTED,
-  groupErrorsByRow, kmlToGeoJSON, xlsxToGeoJSON
+  groupErrorsByRow, kmlToGeoJSON, xlsxToGeoJSON,
+  shapefileToGeoJSON
 } from './customLayerUtils'
 import {
   getFileExtension, generateFileStats, determineFileReadMethod,
@@ -201,29 +202,8 @@ export default class Importer {
       // Custom Metrics - Import files
       window._paq && window._paq.push(['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
 
-      // get the coordinates of the first feature.
-      // this helps zoom to the dataset (if desired).
-      // todo: in the future, zooming to the dataset extent might be nicer for users.
-      let firstFeatureCoords = null
-      try {
-        firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
-      } catch (e) {
-        store.commit('importer/processFile', {
-          filename: file.name,
-          status: 'error',
-          message: e.message
-        })
-        return
-        // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
-      }
+      Importer.queueFile([file], fileInfo)
 
-      fileInfo['firstFeatureCoords'] = firstFeatureCoords
-
-      fileInfo['stats'] = generateFileStats(fileInfo)
-      global.config.debug && console.log('[wally] fileInfo ', fileInfo)
-      // this.files.push(fileInfo)
-
-      store.commit('importer/addFile', fileInfo)
       store.commit('importer/setLoadingFile', {
         filename: file.name,
         loading: false
@@ -246,9 +226,104 @@ export default class Importer {
   static readShapefile (shpFile, dbfFile, shxFile) {
     console.log('Staring to read shapefile', shpFile, dbfFile, shxFile)
 
-    // Skip determineFileType as we're only checking file name extensions
-    // there and we're sure it's supported
-    // const { dbfFileType, dbfFileExtension, dbfFileSupported } = Importer.determineFileType(dbfFile)
+    // Read file from form input
+    const shpReader = new FileReader()
+    const dbfReader = new FileReader()
+
+    let fileInfo = {
+      name: shpFile.name || '',
+      size: shpFile.size || 0,
+      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      lastModified: shpFile.lastModified || null,
+      lastModifiedDate: shpFile.lastModifiedDate || null,
+      type: shpFile.type || null,
+      webkitRelativePath: shpFile.webkitRelativePath || null,
+      options: {
+        showAllProperties: false
+      }
+    }
+
+    const handleFileLoaded = (e) => {
+      console.log(e)
+      console.log('shapefile loaded?', shpReader.readyState)
+      console.log('dbf loaded?', dbfReader.readyState)
+
+      const DONE = 2
+      if (shpReader.readyState === DONE && dbfReader.readyState === DONE) {
+        console.log('shp and dbf result', shpReader.result, dbfReader.result)
+        fileInfo['data'] = shapefileToGeoJSON(shpReader.result, dbfReader.result)
+        Importer.queueFile([shpFile, dbfFile], fileInfo)
+        store.commit('importer/setLoadingFile', {
+          filename: shpFile.name,
+          loading: false
+        })
+        store.commit('importer/setLoadingFile', {
+          filename: dbfFile.name,
+          loading: false
+        })
+      }
+    }
+
+    shpReader.addEventListener('loadend', handleFileLoaded)
+    dbfReader.addEventListener('loadend', handleFileLoaded)
+
+    shpReader.readAsArrayBuffer(shpFile)
+    dbfReader.readAsArrayBuffer(dbfFile)
+
+    // set the onload function. this will be triggered when the file is read below.
+    // reader.onload = async () => {
+    //   let fileInfo = {
+    //     name: shpFile.name || '',
+    //     size: shpFile.size || 0,
+    //     color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+    //     lastModified: shpFile.lastModified || null,
+    //     lastModifiedDate: shpFile.lastModifiedDate || null,
+    //     type: shpFile.type || null,
+    //     webkitRelativePath: shpFile.webkitRelativePath || null,
+    //     options: {
+    //       showAllProperties: false
+    //     }
+    //   }
+    //
+    //   try {
+    //     fileInfo['data'] = shapefileToGeoJSON(reader.result)
+    //   } catch (e) {
+    //     store.commit('importer/processFile', {
+    //       filename: shpFile.name,
+    //       status: 'error',
+    //       message: e.message
+    //     })
+    //   }
+    // }
+  }
+
+  static queueFile (queuedFiles, fileInfo) {
+    // get the coordinates of the first feature.
+    // this helps zoom to the dataset (if desired).
+    // todo: in the future, zooming to the dataset extent might be nicer for users.
+    let firstFeatureCoords = null
+    try {
+      firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
+    } catch (e) {
+      queuedFiles.forEach(queuedFile => {
+        store.commit('importer/processFile', {
+          filename: queuedFile.name,
+          status: 'error',
+          message: e.message
+        })
+      })
+
+      return
+      // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+    }
+
+    fileInfo['firstFeatureCoords'] = firstFeatureCoords
+
+    fileInfo['stats'] = generateFileStats(fileInfo)
+    global.config.debug && console.log('[wally] fileInfo ', fileInfo)
+    // this.files.push(fileInfo)
+
+    store.commit('importer/addFile', fileInfo)
   }
 
   static validateAndReturnFirstFeatureCoords (geojsonFc) {

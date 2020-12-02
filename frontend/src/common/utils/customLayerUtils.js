@@ -91,3 +91,17 @@ export function csvToGeoJSON (file) {
     })
   })
 }
+
+export function shapefileToGeoJSON (shpfile, dbffile) {
+  console.log('processing shapefile')
+  console.log(shpfile)
+  // shapefile.open(shpfile, dbffile)
+  shapefile.open(shpfile, dbffile)
+    .then(source => source.read()
+      .then(function log (result) {
+        if (result.done) return
+        console.log('shapefile is', result.value, result)
+        return source.read().then(log)
+      }))
+    .catch(error => console.error(error.stack))
+}
