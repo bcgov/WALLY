@@ -23,7 +23,7 @@
     </v-data-table>
     <v-container>
       <v-row>
-        <v-col class="title" style="color: black; padding-left: 15px">Model Relevancy Box Plots</v-col>
+        <v-col class="title black--text pl-3 mb-5">Model Relevancy Box Plots</v-col>
       </v-row>
       <v-row no-gutters >
         <v-col cols="12" md="3" v-for="(item) in modelInfo" :key="`modelinput-${item.name}`">
