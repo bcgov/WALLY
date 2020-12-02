@@ -21,6 +21,7 @@ describe('ImportLayer', () => {
   let wrapper
   let map
   let customLayers
+  let importer
 
   beforeEach(() => {
     mapGetters = {
@@ -38,6 +39,13 @@ describe('ImportLayer', () => {
       namespaced: true,
       getters: customLayersGetters
     }
+    importer = {
+      namespaced: true,
+      getters: {
+        files: () => [],
+        processedFiles: () => []
+      }
+    }
 
     getters = {
       app: () => ({
@@ -48,7 +56,10 @@ describe('ImportLayer', () => {
 
     }
 
-    store = new Vuex.Store({ modules: { map, customLayers }, getters })
+    store = new Vuex.Store({
+      modules: { map, customLayers, importer },
+      getters
+    })
 
     store.dispatch = jest.fn()
     wrapper = shallowMount(ImportLayer, {
@@ -102,6 +113,10 @@ describe('ImportLayer', () => {
     })
     await wrapper.vm.$nextTick()
     expect(wrapper.find('filedrop-stub').exists()).toBeFalsy()
+  })
+
+  it('Shows FileDrop when processed file is invalid', () => {
+
   })
 })
 

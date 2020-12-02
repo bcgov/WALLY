@@ -1,5 +1,18 @@
 <template>
   <div>
+    <div v-if="files.length === 0">
+      <v-card outlined v-for="(file, index) in droppedFiles" class="mb-5 pa-5" v-bind:key="index" id="droppedFileList">
+        <dl>
+          <dt>
+            Filename:
+          </dt>
+          <dd>
+            {{file.name}}
+          </dd>
+        </dl>
+        <v-progress-linear v-if="loadingFiles[file.name]" show indeterminate></v-progress-linear>
+      </v-card>
+    </div>
     <v-card outlined v-for="(file, index) in files" class="mb-5 pa-5" v-bind:key="index" id="fileList">
       <dl>
         <dt>
@@ -9,8 +22,7 @@
           {{file.name}}
         </dd>
       </dl>
-
-      <v-progress-linear v-if="fileLoading[file.name]" show indeterminate></v-progress-linear>
+      <v-progress-linear v-if="loadingFiles[file.name]" show indeterminate></v-progress-linear>
       <dl v-if="file && file.name && file.stats">
         <dt>
           Colour:
@@ -100,11 +112,16 @@
   }
 </style>
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'FileList',
-  props: ['files', 'fileLoading'],
+  props: ['droppedFiles'],
   data: () => ({
     warnFileSizeThreshold: global.config.warnUploadFileSizeThresholdInMB * 1024 * 1024
-  })
+  }),
+  computed: {
+    ...mapGetters('importer', ['loadingFiles', 'files'])
+  }
 }
 </script>

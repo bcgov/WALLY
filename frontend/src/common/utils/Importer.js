@@ -1,10 +1,14 @@
+import centroid from '@turf/centroid'
 import {
   createMessageFromErrorArray,
   csvToGeoJSON, FILE_TYPES_ACCEPTED,
   groupErrorsByRow, kmlToGeoJSON, xlsxToGeoJSON
 } from './customLayerUtils'
-import { getFileExtension } from './fileUtils'
-import EventBus from '../../services/EventBus'
+import {
+  getFileExtension, generateFileStats, determineFileReadMethod,
+  determineFileType
+} from './fileUtils'
+import store from '../../store/index'
 
 export default class Importer {
   constructor () {
@@ -20,10 +24,10 @@ export default class Importer {
   static readFiles (files) {
     files.forEach(file => {
       // Set loading file spinner
-      // this.fileLoading[file.name] = true
-      console.log('emitting....')
-      EventBus.$emit('fileLoading', file.name)
-      console.log('done emitting')
+      store.commit('importer/setLoadingFile', {
+        filename: file.name,
+        loading: true
+      })
 
       const fileExtension = getFileExtension(file.name)
       const fileName = file.name.replace(`.${fileExtension}`, '')
@@ -49,13 +53,22 @@ export default class Importer {
    */
   static readFile (file) {
     console.log("I'm in importer read file")
-    const { fileType, fileSupported } = this.determineFileType(file.name)
+    const { fileType, fileSupported } = determineFileType(file.name)
     if (!fileSupported) {
-      this.handleFileMessage({
+      // this.handleFileMessage({
+      //   filename: file.name,
+      //   status: 'error',
+      //   message: `file of type ${fileType} not supported.`
+      // })
+      store.commit('importer/processFile', {
         filename: file.name,
         status: 'error',
         message: `file of type ${fileType} not supported.`
       })
+
+      store.commit('importer/clearFiles')
+
+      // EventBus
       // Custom Metrics - Import files
       window._paq && window._paq.push(['trackEvent', 'Upload files', 'Unsupported filetype', fileType])
       return
@@ -96,10 +109,21 @@ export default class Importer {
           if (errors && errors.length) {
             errors = groupErrorsByRow(errors)
             const warnMsg = createMessageFromErrorArray(errors)
-            this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
+            store.commit('importer/processFile', {
+              filename: file.name,
+              status: 'warning',
+              message: `${errors.length} rows removed - ${warnMsg}`
+            })
+            // this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
           }
         } catch (e) {
-          return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
+          store.commit('importer/processFile', {
+            filename: file.name,
+            status: 'error',
+            message: e.message ? e.message : e
+          })
+          return
+          // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
         }
       } else if (fileType === 'xlsx') {
         try {
@@ -112,22 +136,45 @@ export default class Importer {
           if (errors && errors.length) {
             errors = groupErrorsByRow(errors)
             const warnMsg = createMessageFromErrorArray(errors)
-            this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
+            store.commit('importer/processFile', {
+              filename: file.name,
+              status: 'warning',
+              message: `${errors.length} rows removed - ${warnMsg}`
+            })
+            // this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
           }
         } catch (e) {
-          return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
+          store.commit('importer/processFile', {
+            filename: file.name,
+            status: 'error',
+            message: e.message ? e.message : e
+          })
+          return
+          // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
         }
       } else if (fileType === 'kml') {
         try {
           fileInfo['data'] = kmlToGeoJSON(reader.result)
         } catch (e) {
-          return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+          store.commit('importer/processFile', {
+            filename: file.name,
+            status: 'error',
+            message: e.message
+          })
+          return
+          // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
         }
       } else if (fileType === 'geojson') {
         try {
           fileInfo['data'] = JSON.parse(reader.result)
         } catch (e) {
-          return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file contains invalid JSON.' })
+          store.commit('importer/processFile', {
+            filename: file.name,
+            status: 'error',
+            message: 'file contains invalid JSON.'
+          })
+          return
+          // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file contains invalid JSON.' })
         }
       } else {
         // Unknown file type
@@ -139,7 +186,13 @@ export default class Importer {
 
       // check if there are any features in the dataset
       if (!fileInfo['data'].features) {
-        return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
+        store.commit('importer/processFile', {
+          filename: file.name,
+          status: 'error',
+          message: 'file does not contain any valid features.'
+        })
+        return
+        // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
       }
 
       console.log('-------------------------------')
@@ -153,23 +206,34 @@ export default class Importer {
       // todo: in the future, zooming to the dataset extent might be nicer for users.
       let firstFeatureCoords = null
       try {
-        firstFeatureCoords = this.validateAndReturnFirstFeatureCoords(fileInfo['data'])
+        firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
       } catch (e) {
-        return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
+        store.commit('importer/processFile', {
+          filename: file.name,
+          status: 'error',
+          message: e.message
+        })
+        return
+        // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
       }
 
       fileInfo['firstFeatureCoords'] = firstFeatureCoords
 
-      fileInfo['stats'] = this.generateFileStats(fileInfo)
+      fileInfo['stats'] = generateFileStats(fileInfo)
       global.config.debug && console.log('[wally] fileInfo ', fileInfo)
-      this.files.push(fileInfo)
+      // this.files.push(fileInfo)
 
-      this.fileLoading[file.name] = false
+      store.commit('importer/addFile', fileInfo)
+      store.commit('importer/setLoadingFile', {
+        filename: file.name,
+        loading: false
+      })
+      // this.fileLoading[file.name] = false
     }
 
     // select read method and then read file, triggering the onload function.
     // shapefiles are read as arrayBuffers but most other filetypes are text.
-    const readMethod = this.determineFileReadMethod(fileType)
+    const readMethod = determineFileReadMethod(fileType)
     if (readMethod === 'text') {
       reader.readAsText(file)
     } else if (readMethod === 'arrayBuffer') {
@@ -179,31 +243,27 @@ export default class Importer {
     }
   }
 
-  static determineFileType (filename) {
-    const extension = getFileExtension(filename)
-    for (const fileType of Object.keys(FILE_TYPES_ACCEPTED)) {
-      if (FILE_TYPES_ACCEPTED[fileType].includes(extension)) {
-        return {
-          fileType: fileType,
-          fileExtension: extension,
-          fileSupported: true
-        }
-      }
-    }
-
-    // Could not determine file type based on file extension
-    return {
-      fileType: extension,
-      fileExtension: extension,
-      fileSupported: false
-    }
-  }
-
   static readShapefile (shpFile, dbfFile, shxFile) {
     console.log('Staring to read shapefile', shpFile, dbfFile, shxFile)
 
     // Skip determineFileType as we're only checking file name extensions
     // there and we're sure it's supported
     // const { dbfFileType, dbfFileExtension, dbfFileSupported } = Importer.determineFileType(dbfFile)
+  }
+
+  static validateAndReturnFirstFeatureCoords (geojsonFc) {
+    const firstFeatureGeom = centroid(geojsonFc.features.filter(f => Boolean(f.geometry))[0].geometry).geometry
+    const firstFeature = [firstFeatureGeom.coordinates[0], firstFeatureGeom.coordinates[1]]
+
+    // basic test to assert that the first feature is near BC.
+    // this will only be a warning and will only be reliable if all the features are outside BC.
+    // the most common case will be when users upload data in non WGS84 coordinate systems.
+    // todo: investigate if better warnings are required based on user feedback.
+
+    // using [-139.06 48.30],  [-114.03  60.00] as extents of BC.
+    if (!(firstFeature[0] > -180 && firstFeature[0] < 180) || !(firstFeature[1] > -90 && firstFeature[1] < 90)) {
+      throw new Error('coordinates are not in degrees')
+    }
+    return firstFeature
   }
 }
