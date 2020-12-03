@@ -1,6 +1,7 @@
 import csv2geojson from 'csv2geojson'
 import { kml } from '@tmcw/togeojson'
 import XLSX from 'xlsx'
+import proj4 from 'proj4'
 import * as shapefile from 'shapefile'
 import {
   convertGeometryCoords
@@ -108,6 +109,8 @@ export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) 
   //     }))
   //   .catch(error => console.error(error.stack))
 
+  const proj = proj4(projection)
+
   return new Promise((resolve, reject) => {
     const features = []
 
@@ -121,9 +124,8 @@ export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) 
           let feature = result.value
 
           // Convert coordinates based on projection file
-
           if (projection && feature.geometry && feature.geometry.coordinates) {
-            feature.geometry.coordinates = convertGeometryCoords(projection,
+            feature.geometry.coordinates = convertGeometryCoords(proj,
               feature.geometry)
           }
 

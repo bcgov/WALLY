@@ -19,7 +19,8 @@ export default class Importer {
   }
 
   /**
-   * Reads a FileList
+   * Go through each file and check if some of them should be grouped together
+   * Shapefiles consist of multiple files that need to be processed together
    * @param {Array} files
    */
   static readFiles (files) {
@@ -46,12 +47,15 @@ export default class Importer {
         const prjFile = findPRJArr.length === 1 ? findPRJArr[0] : null
 
         Importer.readShapefile(file, dbfFile, prjFile)
+      } else if (fileExtension === 'zip') {
+        // Install `unzip` package to unpack zip file which contains
+        // multiple files for shapefiles.
       }
     })
   }
 
   /**
-   *
+   * Read a single (supported) file
    * @param {File} file
    */
   static readFile (file) {
@@ -214,7 +218,7 @@ export default class Importer {
     }
 
     // select read method and then read file, triggering the onload function.
-    // shapefiles are read as arrayBuffers but most other filetypes are text.
+    // csvs are read as arrayBuffers but most other filetypes are text.
     const readMethod = determineFileReadMethod(fileType)
     if (readMethod === 'text') {
       reader.readAsText(file)
@@ -225,6 +229,12 @@ export default class Importer {
     }
   }
 
+  /**
+   *
+   * @param shpFile
+   * @param dbfFile
+   * @param prjFile
+   */
   static readShapefile (shpFile, dbfFile = null, prjFile = null) {
     console.log('Staring to read shapefile', shpFile, dbfFile, prjFile)
 

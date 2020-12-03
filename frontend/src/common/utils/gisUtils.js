@@ -1,17 +1,8 @@
-import proj4 from 'proj4'
-export function to4326 (fromProjection, coordinates) {
-  // console.log('converting', coordinates, fromProjection)
-  return proj4(fromProjection, 'WGS84', coordinates)
-}
-
-export function convertPoint (fromProjection, coordinates) {
-  return to4326(fromProjection, coordinates)
-}
 
 export function convertLineString (fromProjection, coordinates) {
   const newCoords = []
   coordinates.forEach(coords => {
-    newCoords.push(to4326(fromProjection, coords))
+    newCoords.push(fromProjection.inverse(coords))
   })
   return newCoords
 }
@@ -22,13 +13,21 @@ export function convertMultiLineString (fromProjection, coordinates) {
   coordinates.forEach(coords => {
     newCoords2 = []
     coords.forEach(coords2 => {
-      newCoords2.push(to4326(fromProjection, coords2))
+      newCoords2.push(fromProjection.inverse(coords2))
     })
     newCoords.push(newCoords2)
   })
   return newCoords
 }
 
+/**
+ *
+ * @param projection proj4 instance
+ * @param geometry A feature's geometry
+ * @param geometry.type Geometry type to determine data structure
+ * @param geometry.coordinates Coordinates to be converted
+ * @returns geometry { Object } with converted coordinates
+ */
 export function convertGeometryCoords (projection, geometry) {
   if (geometry === null) {
     return null
@@ -38,7 +37,7 @@ export function convertGeometryCoords (projection, geometry) {
 
   switch (geometry.type) {
     case 'Point':
-      coords4326 = convertPoint(projection, geometry.coordinates)
+      coords4326 = projection.inverse(geometry.coordinates)
       break
     case 'LineString':
       coords4326 = convertLineString(projection, geometry.coordinates)
