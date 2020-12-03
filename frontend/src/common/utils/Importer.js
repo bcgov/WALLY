@@ -39,11 +39,13 @@ export default class Importer {
         // File is a shapefile, find other associated files
         let findDBFArr = files.filter(element => element.name === fileName + '.dbf')
         let findSHXArr = files.filter(element => element.name === fileName + '.shx')
+        let findPRJArr = files.filter(element => element.name === fileName + '.prj')
 
         const dbfFile = findDBFArr.length === 1 ? findDBFArr[0] : null
         const shxFile = findSHXArr.length === 1 ? findSHXArr[0] : null
+        const prjFile = findPRJArr.length === 1 ? findPRJArr[0] : null
 
-        Importer.readShapefile(file, dbfFile, shxFile)
+        Importer.readShapefile(file, dbfFile, prjFile)
       }
     })
   }
@@ -223,13 +225,21 @@ export default class Importer {
     }
   }
 
-  static readShapefile (shpFile, dbfFile, shxFile) {
-    console.log('Staring to read shapefile', shpFile, dbfFile, shxFile)
+  static readShapefile (shpFile, dbfFile = null, prjFile = null) {
+    console.log('Staring to read shapefile', shpFile, dbfFile, prjFile)
 
     // Read file from form input
     const shpReader = new FileReader()
-    const dbfReader = new FileReader()
+    let dbfReader, prjReader
+    if (dbfFile) {
+      dbfReader = new FileReader()
+    }
 
+    if (prjFile) {
+      prjReader = new FileReader()
+    }
+
+    // TODO: Concat all files into name and size
     let fileInfo = {
       name: shpFile.name || '',
       size: shpFile.size || 0,
@@ -243,58 +253,54 @@ export default class Importer {
       }
     }
 
-    const handleFileLoaded = (e) => {
+    const handleFileLoaded = async (e) => {
       console.log(e)
       console.log('shapefile loaded?', shpReader.readyState)
-      console.log('dbf loaded?', dbfReader.readyState)
+      dbfFile && console.log('dbf loaded?', dbfReader.readyState)
 
       const DONE = 2
-      if (shpReader.readyState === DONE && dbfReader.readyState === DONE) {
-        console.log('shp and dbf result', shpReader.result, dbfReader.result)
-        fileInfo['data'] = shapefileToGeoJSON(shpReader.result, dbfReader.result)
-        Importer.queueFile([shpFile, dbfFile], fileInfo)
+      if (shpReader.readyState === DONE &&
+          (dbfFile ? dbfReader.readyState === DONE : true) &&
+          (prjFile ? prjReader.readyState === DONE : true)) {
+        console.log('shp result', shpReader.result)
+        dbfFile && console.log('dbf result', dbfReader.result)
+
+        let dbfReaderResult = (dbfFile) ? dbfReader.result : null
+        let prjReaderResult = (prjFile) ? prjReader.result : null
+        fileInfo['data'] = await shapefileToGeoJSON(shpReader.result, dbfReaderResult, prjReaderResult)
+        console.log('--------DATA--------')
+        console.log(fileInfo['data'], fileInfo['data'].features[0])
+        console.log('------END DATA------')
+        let fileQueue = [shpFile]
+        if (dbfFile) {
+          fileQueue.push(dbfFile)
+        }
+        if (prjFile) {
+          fileQueue.push(prjFile)
+        }
+        Importer.queueFile(fileQueue, fileInfo)
         store.commit('importer/setLoadingFile', {
           filename: shpFile.name,
           loading: false
         })
-        store.commit('importer/setLoadingFile', {
+        dbfFile && store.commit('importer/setLoadingFile', {
           filename: dbfFile.name,
+          loading: false
+        })
+        prjFile && store.commit('importer/setLoadingFile', {
+          filename: prjFile.name,
           loading: false
         })
       }
     }
 
     shpReader.addEventListener('loadend', handleFileLoaded)
-    dbfReader.addEventListener('loadend', handleFileLoaded)
+    dbfFile && dbfReader.addEventListener('loadend', handleFileLoaded)
+    prjFile && prjReader.addEventListener('loadend', handleFileLoaded)
 
     shpReader.readAsArrayBuffer(shpFile)
-    dbfReader.readAsArrayBuffer(dbfFile)
-
-    // set the onload function. this will be triggered when the file is read below.
-    // reader.onload = async () => {
-    //   let fileInfo = {
-    //     name: shpFile.name || '',
-    //     size: shpFile.size || 0,
-    //     color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-    //     lastModified: shpFile.lastModified || null,
-    //     lastModifiedDate: shpFile.lastModifiedDate || null,
-    //     type: shpFile.type || null,
-    //     webkitRelativePath: shpFile.webkitRelativePath || null,
-    //     options: {
-    //       showAllProperties: false
-    //     }
-    //   }
-    //
-    //   try {
-    //     fileInfo['data'] = shapefileToGeoJSON(reader.result)
-    //   } catch (e) {
-    //     store.commit('importer/processFile', {
-    //       filename: shpFile.name,
-    //       status: 'error',
-    //       message: e.message
-    //     })
-    //   }
-    // }
+    dbfFile && dbfReader.readAsArrayBuffer(dbfFile)
+    prjFile && prjReader.readAsText(prjFile)
   }
 
   static queueFile (queuedFiles, fileInfo) {
@@ -337,7 +343,8 @@ export default class Importer {
 
     // using [-139.06 48.30],  [-114.03  60.00] as extents of BC.
     if (!(firstFeature[0] > -180 && firstFeature[0] < 180) || !(firstFeature[1] > -90 && firstFeature[1] < 90)) {
-      throw new Error('coordinates are not in degrees')
+      throw new Error('Coordinates are not in degrees. If this is a' +
+        ' shapefile, please upload a .prj file with the same name')
     }
     return firstFeature
   }

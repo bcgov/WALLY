@@ -351,43 +351,44 @@ export default {
     //   }
     //   return methods[filetype]
     // },
-    determineFileType (filename) {
-      console.log(filename)
-      if (!filename || !filename.length) {
-        // basic check for validity before trying to parse filename
-        console.warn(`invalid filename ${filename}`)
-        return null
-      }
-      const types = {
-        'geojson': ['geojson', 'json'],
-        'shapefile': ['shp', 'dbf', 'zip'],
-        'csv': ['csv'],
-        'xlsx': ['xls', 'xlsx'],
-        'kml': ['kml']
-      }
-
-      const filenameParts = filename.split('.')
-      const extension = filenameParts[filenameParts.length - 1]
-      const typeOptions = Object.keys(types)
-      for (let i = 0; i < typeOptions.length; i++) {
-        const k = typeOptions[i]
-        if (types[k].includes(extension)) {
-          // filetype extension matched- return filetype key (geojson, shp, etc.)
-          return {
-            fileType: k,
-            fileExtension: extension,
-            fileSupported: true
-          }
-        }
-      }
-
-      // Could not determine file type
-      return {
-        fileType: extension,
-        fileExtension: extension,
-        fileSupported: false
-      }
-    },
+    // determineFileType (filename) {
+    //   console.log(filename)
+    //   if (!filename || !filename.length) {
+    //     // basic check for validity before trying to parse filename
+    //     console.warn(`invalid filename ${filename}`)
+    //     return null
+    //   }
+    //   const types = {
+    //     'geojson': ['geojson', 'json'],
+    //     'shapefile': ['shp', 'dbf', 'zip'],
+    //     'csv': ['csv'],
+    //     'xlsx': ['xls', 'xlsx'],
+    //     'kml': ['kml']
+    //   }
+    //
+    //   const filenameParts = filename.split('.')
+    //   const extension = filenameParts[filenameParts.length - 1]
+    //   console.log('extension', extension)
+    //   const typeOptions = Object.keys(types)
+    //   for (let i = 0; i < typeOptions.length; i++) {
+    //     const k = typeOptions[i]
+    //     if (types[k].includes(extension)) {
+    //       // filetype extension matched- return filetype key (geojson, shp, etc.)
+    //       return {
+    //         fileType: k,
+    //         fileExtension: extension,
+    //         fileSupported: true
+    //       }
+    //     }
+    //   }
+    //
+    //   // Could not determine file type
+    //   return {
+    //     fileType: extension,
+    //     fileExtension: extension,
+    //     fileSupported: false
+    //   }
+    // },
     // getDefaultFileStats (file) {
     //   if (!file) {
     //     return null

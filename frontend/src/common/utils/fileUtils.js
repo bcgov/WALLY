@@ -1,4 +1,4 @@
-import {FILE_TYPES_ACCEPTED} from "./customLayerUtils"
+import { FILE_TYPES_ACCEPTED } from './customLayerUtils'
 
 export function getFileExtension (filename) {
   if (!filename || !filename.length) {
@@ -41,7 +41,7 @@ export function generateFileStats (file) {
   return Object.assign({}, getDefaultFileStats(file), geojsonStats)
 }
 
-export function determineFileReadMethod (filetype) {
+export function determineFileReadMethod (fileType) {
   const methods = {
     'geojson': 'text',
     'csv': 'text',
@@ -49,7 +49,7 @@ export function determineFileReadMethod (filetype) {
     'shapefile': 'arrayBuffer',
     'kml': 'text'
   }
-  return methods[filetype]
+  return methods[fileType]
 }
 
 export function determineFileType (filename) {

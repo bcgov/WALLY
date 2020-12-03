@@ -2,10 +2,14 @@ import csv2geojson from 'csv2geojson'
 import { kml } from '@tmcw/togeojson'
 import XLSX from 'xlsx'
 import * as shapefile from 'shapefile'
+import {
+  convertGeometryCoords
+} from './gisUtils'
+import { featureCollection } from '../mapbox/features'
 
 export const FILE_TYPES_ACCEPTED = {
   'geojson': ['geojson', 'json'],
-  'shapefile': ['shp', 'dbf', 'shx'], // add zip file
+  'shapefile': ['shp', 'dbf', 'shx', 'prj'], // add zip file
   'csv': ['csv'],
   'xlsx': ['xls', 'xlsx'],
   'kml': ['kml']
@@ -92,16 +96,43 @@ export function csvToGeoJSON (file) {
   })
 }
 
-export function shapefileToGeoJSON (shpfile, dbffile) {
+export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) {
   console.log('processing shapefile')
   console.log(shpfile)
   // shapefile.open(shpfile, dbffile)
-  shapefile.open(shpfile, dbffile)
-    .then(source => source.read()
-      .then(function log (result) {
-        if (result.done) return
-        console.log('shapefile is', result.value, result)
-        return source.read().then(log)
-      }))
-    .catch(error => console.error(error.stack))
+  //   .then(source => source.read()
+  //     .then(function log (result) {
+  //       if (result.done) return
+  //       console.log('shapefile is', result.value, result)
+  //       return source.read().then(log)
+  //     }))
+  //   .catch(error => console.error(error.stack))
+
+  return new Promise((resolve, reject) => {
+    const features = []
+
+    shapefile.open(shpfile, dbffile)
+      .then(source => source.read()
+        .then(function log (result) {
+          if (result.done) {
+            resolve(featureCollection(features))
+            return
+          }
+          let feature = result.value
+
+          // Convert coordinates based on projection file
+
+          if (projection && feature.geometry && feature.geometry.coordinates) {
+            feature.geometry.coordinates = convertGeometryCoords(projection,
+              feature.geometry)
+          }
+
+          features.push(feature)
+          return source.read().then(log)
+        }))
+      .catch(error => {
+        reject(new Error(error.stack))
+        console.error(error.stack)
+      })
+  })
 }
