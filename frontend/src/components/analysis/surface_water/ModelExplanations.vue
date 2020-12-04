@@ -29,7 +29,7 @@
                   </a>
                 </p>
 
-                Co-Efficients Table
+                <div class="title black--text pl-3 mb-5">Co-Efficients Table</div>
                 <v-data-table
                   id="model-explanations-table"
                   :headers="modelHeaders"
