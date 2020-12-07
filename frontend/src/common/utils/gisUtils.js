@@ -9,13 +9,8 @@ export function convertLineString (fromProjection, coordinates) {
 
 export function convertMultiLineString (fromProjection, coordinates) {
   const newCoords = []
-  let newCoords2
   coordinates.forEach(coords => {
-    newCoords2 = []
-    coords.forEach(coords2 => {
-      newCoords2.push(fromProjection.inverse(coords2))
-    })
-    newCoords.push(newCoords2)
+    newCoords.push(convertLineString(fromProjection, coords))
   })
   return newCoords
 }
@@ -46,7 +41,7 @@ export function convertGeometryCoords (projection, geometry) {
       coords4326 = convertMultiLineString(projection, geometry.coordinates)
       break
     default:
-      throw Error('Unsupported feature type')
+      throw Error(`Unsupported feature type ${geometry.type}`)
   }
 
   return coords4326
