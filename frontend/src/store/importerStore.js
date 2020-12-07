@@ -5,9 +5,11 @@ export default {
     // todo: rename this to queuedFiles
     files: [], // files queued to be processed
     loadingFiles: [], // status for files
-    processedFiles: [], // files processed (whether successful or not)
-    successFiles: [],
-    errorFiles: []
+    processedFiles: {
+      success: [],
+      error: [],
+      warning: []
+    }
   },
   mutations: {
     setFiles (state, files) {
@@ -25,29 +27,25 @@ export default {
         throw new Error(`handleFileMessage called with invalid file status: ${status}`)
       }
 
-      switch (status) {
-        case 'success':
-          state.successFiles.push({
-            name: filename,
-            status: status,
-            message: `${filename}: ${message}`,
-            firstFeatureCoords: firstFeatureCoords
-          })
-          break
-        case 'warning':
-          break
-        case 'error':
-          break
-        default:
-          break
-      }
-
-      state.processedFiles.push({
+      let processedFile = {
         name: filename,
         status: status,
-        message: `${filename}: ${message}`,
-        firstFeatureCoords: firstFeatureCoords
-      })
+        message: `${filename}: ${message}`
+      }
+
+      if (status === 'success') {
+        processedFile['firstFeatureCoords'] = firstFeatureCoords
+        state.processedFiles.success.push(processedFile)
+      } else if (status === 'warning' || status === 'error') {
+        state.processedFiles.warning.push(processedFile)
+      }
+
+      // state.processedFiles.push({
+      //   name: filename,
+      //   status: status,
+      //   message: `${filename}: ${message}`,
+      //   firstFeatureCoords: firstFeatureCoords
+      // })
     },
     clearFiles (state) {
       state.files = []

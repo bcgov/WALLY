@@ -23,7 +23,7 @@
          <v-btn @click="clearAllFiles" small color="blue-grey lighten-4"><v-icon class="mr-2">mdi-restore</v-icon>Cancel import</v-btn>
        </div>
        <FileList :dropped-files="fileList"></FileList>
-       <FileListImported :files="processedFiles"></FileListImported>
+       <FileListProcessed :files="processedFiles"></FileListProcessed>
      </v-col>
     </v-row>
     <v-btn class="my-5" v-if="files.length > 0" @click="importLayers" :loading="Object.values(layerLoading).some(Boolean)">Import</v-btn>
@@ -34,7 +34,7 @@ import { mapGetters, mapMutations } from 'vuex'
 // import centroid from '@turf/centroid'
 import FileDrop from '../../tools/import_layer/FileDrop'
 import FileList from '../../tools/import_layer/FileList'
-import FileListImported from '../../tools/import_layer/FileListImported'
+import FileListProcessed from '../../tools/import_layer/FileListProcessed'
 // import {
 //   createMessageFromErrorArray,
 //   csvToGeoJSON,
@@ -49,7 +49,7 @@ export default {
   components: {
     FileDrop,
     FileList,
-    FileListImported
+    FileListProcessed
   },
   data: () => ({
     warnFileSizeThreshold: 1e7, // 10 mb

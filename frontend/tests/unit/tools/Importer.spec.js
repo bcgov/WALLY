@@ -1,46 +1,19 @@
 import Importer from '../../../src/common/utils/Importer'
+import store from '../../../src/store/index'
 
 describe('Importer', () => {
-  it('Determines a file type and if it is accepted', () => {
-    const geojsonFile = Importer.determineFileType('test.geojson')
-    expect(geojsonFile.fileType).toBe('geojson')
-    expect(geojsonFile.fileSupported).toBeTruthy()
-    expect(geojsonFile.fileExtension).toBe('geojson')
+  it('Sets error message for file extension not supported',  () => {
+    store.commit = jest.fn()
 
-    const csvFile = Importer.determineFileType('test.csv')
-    expect(csvFile.fileType).toBe('csv')
-    expect(csvFile.fileSupported).toBeTruthy()
-    expect(csvFile.fileExtension).toBe('csv')
+    const txtFile = new File([''], 'test.txt')
+    Importer.readFile(txtFile)
 
-    const kmlFile = Importer.determineFileType('test.kml')
-    expect(kmlFile.fileType).toBe('kml')
-    expect(kmlFile.fileSupported).toBeTruthy()
-    expect(kmlFile.fileExtension).toBe('kml')
-
-    const jsonFile = Importer.determineFileType('test.json')
-    expect(jsonFile.fileType).toBe('geojson')
-    expect(jsonFile.fileSupported).toBeTruthy()
-    expect(jsonFile.fileExtension).toBe('json')
-
-    const exeFile = Importer.determineFileType('test.exe')
-    expect(exeFile.fileType).toBe('exe')
-    expect(exeFile.fileSupported).toBeFalsy()
-    expect(exeFile.fileExtension).toBe('exe')
-
-    const shpFile = Importer.determineFileType('test.shp')
-    expect(shpFile.fileSupported).toBeTruthy()
-    expect(shpFile.fileType).toBe('shapefile')
-    expect(shpFile.fileExtension).toBe('shp')
-
-    const shxFile = Importer.determineFileType('test.shx')
-    expect(shxFile.fileSupported).toBeTruthy()
-    expect(shxFile.fileType).toBe('shapefile')
-    expect(shxFile.fileExtension).toBe('shx')
-
-    const dbfFile = Importer.determineFileType('test.dbf')
-    expect(dbfFile.fileSupported).toBeTruthy()
-    expect(dbfFile.fileType).toBe('shapefile')
-    expect(dbfFile.fileExtension).toBe('dbf')
+    expect(store.commit).toHaveBeenCalledWith('importer/processFile', {
+      filename: txtFile.name,
+      message: 'file of type .txt not supported.',
+      status: 'error'
+    })
+    expect(store.commit).toHaveBeenCalledWith('importer/clearFiles')
   })
 
   const testCases = [

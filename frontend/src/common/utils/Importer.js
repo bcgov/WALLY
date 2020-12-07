@@ -59,8 +59,7 @@ export default class Importer {
    * @param {File} file
    */
   static readFile (file) {
-    console.log("I'm in importer read file")
-    const { fileType, fileSupported } = determineFileType(file.name)
+    const { fileType, fileSupported, fileExtension } = determineFileType(file.name)
     if (!fileSupported) {
       // this.handleFileMessage({
       //   filename: file.name,
@@ -70,7 +69,7 @@ export default class Importer {
       store.commit('importer/processFile', {
         filename: file.name,
         status: 'error',
-        message: `file of type ${fileType} not supported.`
+        message: `file of type .${fileExtension} not supported.`
       })
 
       store.commit('importer/clearFiles')
@@ -313,15 +312,14 @@ export default class Importer {
     prjFile && prjReader.readAsText(prjFile)
   }
 
-  static queueFile (queuedFiles, fileInfo) {
+  static queueFile (queuedFileGroup, fileInfo) {
     // get the coordinates of the first feature.
     // this helps zoom to the dataset (if desired).
-    // todo: in the future, zooming to the dataset extent might be nicer for users.
     let firstFeatureCoords = null
     try {
       firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
     } catch (e) {
-      queuedFiles.forEach(queuedFile => {
+      queuedFileGroup.forEach(queuedFile => {
         store.commit('importer/processFile', {
           filename: queuedFile.name,
           status: 'error',
