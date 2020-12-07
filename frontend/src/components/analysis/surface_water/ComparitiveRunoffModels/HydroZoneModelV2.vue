@@ -41,7 +41,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import qs from 'querystring'
 import ApiService from '../../../../services/ApiService'
 
 const Plotly = () => import('vue-plotly').then(module => {
