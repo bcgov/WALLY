@@ -59,11 +59,6 @@ export default class Importer {
   static readFile (file) {
     let { fileType, fileSupported, fileExtension } = determineFileType(file.name)
     if (!fileSupported) {
-      // this.handleFileMessage({
-      //   filename: file.name,
-      //   status: 'error',
-      //   message: `file of type ${fileType} not supported.`
-      // })
       fileExtension = fileExtension ? `.${fileExtension}` : 'None'
       store.dispatch('importer/processFile', {
         filename: file.name,
@@ -73,7 +68,6 @@ export default class Importer {
 
       store.commit('importer/clearQueuedFiles')
 
-      // EventBus
       // Custom Metrics - Import files
       window._paq && window._paq.push(['trackEvent', 'Upload files', 'Unsupported filetype', fileType])
       return
@@ -109,7 +103,7 @@ export default class Importer {
       if (fileType === 'csv') {
         try {
           ({ data, errors } = await csvToGeoJSON(reader.result))
-          console.log(data)
+          global.config.debug && console.log(data)
           fileInfo['data'] = data
           if (errors && errors.length) {
             errors = groupErrorsByRow(errors)
@@ -119,7 +113,6 @@ export default class Importer {
               status: 'warning',
               message: `${errors.length} rows removed - ${warnMsg}`
             })
-            // this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
           }
         } catch (e) {
           store.dispatch('importer/processFile', {
@@ -128,13 +121,12 @@ export default class Importer {
             message: e.message ? e.message : e
           })
           return
-          // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
         }
       } else if (fileType === 'xlsx') {
         try {
           const fileData = new Uint8Array(reader.result);
           ({ data, errors } = await xlsxToGeoJSON(fileData))
-          console.log(data)
+          global.config.debug && console.log(data)
 
           fileInfo['data'] = data
 
@@ -146,7 +138,6 @@ export default class Importer {
               status: 'warning',
               message: `${errors.length} rows removed - ${warnMsg}`
             })
-            // this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
           }
         } catch (e) {
           store.dispatch('importer/processFile', {
@@ -155,7 +146,6 @@ export default class Importer {
             message: e.message ? e.message : e
           })
           return
-          // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message ? e.message : e })
         }
       } else if (fileType === 'kml') {
         try {
@@ -167,7 +157,6 @@ export default class Importer {
             message: e.message
           })
           return
-          // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
         }
       } else if (fileType === 'geojson') {
         try {
@@ -179,7 +168,6 @@ export default class Importer {
             message: 'file contains invalid JSON.'
           })
           return
-          // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file contains invalid JSON.' })
         }
       } else {
         // Unknown file type
@@ -200,9 +188,9 @@ export default class Importer {
         // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
       }
 
-      console.log('-------------------------------')
-      console.log('Imported')
-      console.log('-------------------------------')
+      global.config.debug && console.log('-------------------------------')
+      global.config.debug && console.log('Imported')
+      global.config.debug && console.log('-------------------------------')
       // Custom Metrics - Import files
       window._paq && window._paq.push(['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
 
@@ -212,7 +200,6 @@ export default class Importer {
         filename: file.name,
         loading: false
       })
-      // this.fileLoading[file.name] = false
     }
 
     // select read method and then read file, triggering the onload function.
@@ -234,8 +221,6 @@ export default class Importer {
    * @param prjFile
    */
   static readShapefile (shpFile, dbfFile = null, prjFile = null) {
-    console.log('Staring to read shapefile', shpFile, dbfFile, prjFile)
-
     let filenamesArr = [shpFile.name]
     let filesizeTotal = shpFile.size
 
@@ -254,9 +239,6 @@ export default class Importer {
       filesizeTotal += prjFile.size
     }
 
-    // console.log('filesizearr', filesizesArr)
-
-    // TODO: Concat all files into name and size
     let fileInfo = {
       name: filenamesArr.join(', ') || '',
       size: filesizeTotal || 0,
@@ -271,23 +253,14 @@ export default class Importer {
     }
 
     const handleFileLoaded = async (e) => {
-      console.log(e)
-      console.log('shapefile loaded?', shpReader.readyState)
-      dbfFile && console.log('dbf loaded?', dbfReader.readyState)
-
       const DONE = 2
       if (shpReader.readyState === DONE &&
           (dbfFile ? dbfReader.readyState === DONE : true) &&
           (prjFile ? prjReader.readyState === DONE : true)) {
-        console.log('shp result', shpReader.result)
-        dbfFile && console.log('dbf result', dbfReader.result)
-
         let dbfReaderResult = (dbfFile) ? dbfReader.result : null
         let prjReaderResult = (prjFile) ? prjReader.result : null
         fileInfo['data'] = await shapefileToGeoJSON(shpReader.result, dbfReaderResult, prjReaderResult)
-        console.log('--------DATA--------')
-        console.log(fileInfo['data'], fileInfo['data'].features[0])
-        console.log('------END DATA------')
+
         let fileQueue = [shpFile]
         if (dbfFile) {
           fileQueue.push(dbfFile)
@@ -336,14 +309,12 @@ export default class Importer {
       })
 
       return
-      // return this.handleFileMessage({ filename: file.name, status: 'error', message: e.message })
     }
 
     fileInfo['firstFeatureCoords'] = firstFeatureCoords
 
     fileInfo['stats'] = generateFileStats(fileInfo)
     global.config.debug && console.log('[wally] fileInfo ', fileInfo)
-    // this.files.push(fileInfo)
 
     store.commit('importer/addQueuedFile', fileInfo)
   }

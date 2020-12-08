@@ -37,8 +37,7 @@ describe('File utils', () => {
     expect(shpFile.fileExtension).toBe('shp')
 
     const shxFile = determineFileType('test.shx')
-    expect(shxFile.fileSupported).toBeTruthy()
-    expect(shxFile.fileType).toBe('shapefile')
+    expect(shxFile.fileSupported).toBeFalsy()
     expect(shxFile.fileExtension).toBe('shx')
 
     const dbfFile = determineFileType('test.dbf')

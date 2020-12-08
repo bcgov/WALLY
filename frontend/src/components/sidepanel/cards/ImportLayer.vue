@@ -57,8 +57,6 @@ export default {
     area: 0,
     fileList: [],
     layerLoading: {},
-    fileData: {}, // the file data object after being read by FileReader
-    fileStats: {}, // statistics about the file from generateFileStats()
     message: null
   }),
   methods: {

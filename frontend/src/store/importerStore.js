@@ -2,7 +2,6 @@ export default {
   namespaced: true,
   state: {
     fileList: [], // files dropped or selected from the computer
-    // todo: rename this to queuedFiles
     queuedFiles: [], // files queued to be processed
     loadingFiles: [], // status for files,
     processedFiles: {
@@ -13,7 +12,6 @@ export default {
   },
   actions: {
     processFile ({ commit, state }, { filename, status, message, firstFeatureCoords }) {
-      // console.log(state, state.processedFiles)
       if (!['success', 'warning', 'error'].includes(status)) {
         throw new Error(`handleFileMessage called with invalid file status: ${status}`)
       }
@@ -26,20 +24,10 @@ export default {
 
       if (status === 'success') {
         processedFile['firstFeatureCoords'] = firstFeatureCoords
-        // state.processedFiles.success.push(processedFile)
-      // } else if (status === 'warning' || status === 'error') {
-      //   state.processedFiles[status].push(processedFile)
       }
 
       commit('setLoadingFile', { filename, loading: false })
       commit('setProcessedFile', { status, processedFile })
-
-      // state.processedFiles.push({
-      //   name: filename,
-      //   status: status,
-      //   message: `${filename}: ${message}`,
-      //   firstFeatureCoords: firstFeatureCoords
-      // })
     }
   },
   mutations: {

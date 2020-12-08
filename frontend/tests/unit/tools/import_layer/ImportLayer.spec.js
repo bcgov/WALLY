@@ -40,10 +40,11 @@ const initStore = ({ queuedFiles = [], processedFiles = [], loadingFiles = [] })
     namespaced: true,
     getters: customLayersGetters
   }
+
   importer = {
     namespaced: true,
     getters: {
-      files: () => queuedFiles,
+      queuedFiles: () => queuedFiles,
       processedFiles: () => processedFiles,
       loadingFiles: () => loadingFiles
     },
@@ -77,8 +78,6 @@ describe('ImportLayer', () => {
   let store
   let wrapper
 
-  // let importer
-
   const initComponent = ({ queuedFiles = [], processedFiles = [], loadingFiles = [] }) => {
     store = initStore({ queuedFiles, processedFiles, loadingFiles })
     wrapper = shallowMount(ImportLayer, {
@@ -97,7 +96,8 @@ describe('ImportLayer', () => {
     let testFile = new File([''], 'test.geojson', { type: 'application/geo+json' })
     let testFile2 = new File([''], 'test2.geojson', { type: 'application/geo+json' })
 
-    wrapper.vm.loadFiles([testFile, testFile2])
+    wrapper.vm.handleSelectedFiles([testFile, testFile2])
+    wrapper.vm.prepareFiles()
     await wrapper.vm.$nextTick()
 
     expect(wrapper.vm.clearAllFiles).toHaveBeenCalled()
@@ -110,9 +110,9 @@ describe('ImportLayer', () => {
 
     initComponent({ queuedFiles: [testFile, testFile2] })
 
-    wrapper.vm.readFiles = jest.fn()
     Importer.readFiles = jest.fn()
-
+    wrapper.vm.handleSelectedFiles([testFile, testFile2])
+    wrapper.vm.prepareFiles()
     await wrapper.vm.$nextTick()
     expect(wrapper.find('filedrop-stub').exists()).toBeFalsy()
   })
@@ -135,6 +135,9 @@ describe('FileList', () => {
     wrapper = shallowMount(FileList, {
       vuetify,
       store,
+      propsData: {
+        droppedFiles: [{ name: 'test.txt' }]
+      },
       localVue
     })
   })

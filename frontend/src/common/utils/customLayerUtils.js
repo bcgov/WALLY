@@ -98,17 +98,6 @@ export function csvToGeoJSON (file) {
 }
 
 export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) {
-  console.log('processing shapefile')
-  console.log(shpfile)
-  // shapefile.open(shpfile, dbffile)
-  //   .then(source => source.read()
-  //     .then(function log (result) {
-  //       if (result.done) return
-  //       console.log('shapefile is', result.value, result)
-  //       return source.read().then(log)
-  //     }))
-  //   .catch(error => console.error(error.stack))
-
   const proj = projection ? proj4(projection) : null
 
   return new Promise((resolve, reject) => {
