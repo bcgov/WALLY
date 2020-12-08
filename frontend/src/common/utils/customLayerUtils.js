@@ -10,7 +10,7 @@ import { featureCollection } from '../mapbox/features'
 
 export const FILE_TYPES_ACCEPTED = {
   'geojson': ['geojson', 'json'],
-  'shapefile': ['shp', 'dbf', 'shx', 'prj'], // add zip file
+  'shapefile': ['shp', 'dbf', 'prj'], // add zip file
   'csv': ['csv'],
   'xlsx': ['xls', 'xlsx'],
   'kml': ['kml']
@@ -109,7 +109,7 @@ export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) 
   //     }))
   //   .catch(error => console.error(error.stack))
 
-  const proj = proj4(projection)
+  const proj = projection ? proj4(projection) : null
 
   return new Promise((resolve, reject) => {
     const features = []

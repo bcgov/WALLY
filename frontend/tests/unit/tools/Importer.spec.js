@@ -2,18 +2,19 @@ import Importer from '../../../src/common/utils/Importer'
 import store from '../../../src/store/index'
 
 describe('Importer', () => {
-  it('Sets error message for file extension not supported',  () => {
+  it('Sets error message for file extension not supported', () => {
     store.commit = jest.fn()
+    store.dispatch = jest.fn()
 
     const txtFile = new File([''], 'test.txt')
     Importer.readFile(txtFile)
 
-    expect(store.commit).toHaveBeenCalledWith('importer/processFile', {
+    expect(store.dispatch).toHaveBeenCalledWith('importer/processFile', {
       filename: txtFile.name,
       message: 'file of type .txt not supported.',
       status: 'error'
     })
-    expect(store.commit).toHaveBeenCalledWith('importer/clearFiles')
+    expect(store.commit).toHaveBeenCalledWith('importer/clearQueuedFiles')
   })
 
   const testCases = [
@@ -24,7 +25,7 @@ describe('Importer', () => {
       { name: 'test.kml' },
       { name: 'test.geojson' }
     ],
-    readFileCount: 2,
+    readFileCount: 3,
     readShapeFile: true
     },
     { files: [
@@ -39,7 +40,7 @@ describe('Importer', () => {
       { name: 'test.shx' },
       { name: 'test.geojson' }
     ],
-    readFileCount: 1,
+    readFileCount: 2,
     readShapeFile: false
     }
   ]

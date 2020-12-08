@@ -1,22 +1,16 @@
 <template>
   <div>
-    <div v-if="files.length === 0">
-      <v-card outlined v-for="(file, index) in droppedFiles" class="mb-5 pa-5" v-bind:key="index" id="droppedFileList">
-        <dl>
-          <dt>
-            Filename:
-          </dt>
-          <dd>
+    <v-card outlined v-if="droppedFiles.length > 0 && queuedFiles.length === 0" class="pa-2">
+      <h3>Files to be processed</h3>
+      <v-card flat v-for="(file, index) in droppedFiles" class="" v-bind:key="index" id="droppedFileList">
             {{file.name}}
-          </dd>
-        </dl>
         <v-progress-linear v-if="loadingFiles[file.name]" show indeterminate></v-progress-linear>
       </v-card>
-    </div>
-    <v-card outlined v-for="(file, index) in files" class="mb-5 pa-5" v-bind:key="index" id="fileList">
+    </v-card>
+    <v-card outlined v-for="(file, index) in queuedFiles" class="mb-5 pa-5" v-bind:key="index" id="fileList">
       <dl>
         <dt>
-          Filename:
+          Filename(s):
         </dt>
         <dd>
           {{file.name}}
@@ -82,7 +76,7 @@
   </div>
 </template>
 <style lang="scss">
-  #fileList {
+  #fileList, #droppedFileList{
     dl {
       display: flex;
       flex-wrap: wrap;
@@ -121,7 +115,7 @@ export default {
     warnFileSizeThreshold: global.config.warnUploadFileSizeThresholdInMB * 1024 * 1024
   }),
   computed: {
-    ...mapGetters('importer', ['loadingFiles', 'files'])
+    ...mapGetters('importer', ['loadingFiles', 'queuedFiles'])
   }
 }
 </script>

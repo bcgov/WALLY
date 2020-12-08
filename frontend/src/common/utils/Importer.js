@@ -39,11 +39,9 @@ export default class Importer {
       } else if (fileExtension === 'shp') {
         // File is a shapefile, find other associated files
         let findDBFArr = files.filter(element => element.name === fileName + '.dbf')
-        let findSHXArr = files.filter(element => element.name === fileName + '.shx')
         let findPRJArr = files.filter(element => element.name === fileName + '.prj')
 
         const dbfFile = findDBFArr.length === 1 ? findDBFArr[0] : null
-        const shxFile = findSHXArr.length === 1 ? findSHXArr[0] : null
         const prjFile = findPRJArr.length === 1 ? findPRJArr[0] : null
 
         Importer.readShapefile(file, dbfFile, prjFile)
@@ -59,20 +57,21 @@ export default class Importer {
    * @param {File} file
    */
   static readFile (file) {
-    const { fileType, fileSupported, fileExtension } = determineFileType(file.name)
+    let { fileType, fileSupported, fileExtension } = determineFileType(file.name)
     if (!fileSupported) {
       // this.handleFileMessage({
       //   filename: file.name,
       //   status: 'error',
       //   message: `file of type ${fileType} not supported.`
       // })
-      store.commit('importer/processFile', {
+      fileExtension = fileExtension ? `.${fileExtension}` : 'None'
+      store.dispatch('importer/processFile', {
         filename: file.name,
         status: 'error',
-        message: `file of type .${fileExtension} not supported.`
+        message: `file of type ${fileExtension} not supported.`
       })
 
-      store.commit('importer/clearFiles')
+      store.commit('importer/clearQueuedFiles')
 
       // EventBus
       // Custom Metrics - Import files
@@ -115,7 +114,7 @@ export default class Importer {
           if (errors && errors.length) {
             errors = groupErrorsByRow(errors)
             const warnMsg = createMessageFromErrorArray(errors)
-            store.commit('importer/processFile', {
+            store.dispatch('importer/processFile', {
               filename: file.name,
               status: 'warning',
               message: `${errors.length} rows removed - ${warnMsg}`
@@ -123,7 +122,7 @@ export default class Importer {
             // this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
           }
         } catch (e) {
-          store.commit('importer/processFile', {
+          store.dispatch('importer/processFile', {
             filename: file.name,
             status: 'error',
             message: e.message ? e.message : e
@@ -142,7 +141,7 @@ export default class Importer {
           if (errors && errors.length) {
             errors = groupErrorsByRow(errors)
             const warnMsg = createMessageFromErrorArray(errors)
-            store.commit('importer/processFile', {
+            store.dispatch('importer/processFile', {
               filename: file.name,
               status: 'warning',
               message: `${errors.length} rows removed - ${warnMsg}`
@@ -150,7 +149,7 @@ export default class Importer {
             // this.handleFileMessage({ filename: file.name, status: 'warning', message: `${errors.length} rows removed - ${warnMsg}` })
           }
         } catch (e) {
-          store.commit('importer/processFile', {
+          store.dispatch('importer/processFile', {
             filename: file.name,
             status: 'error',
             message: e.message ? e.message : e
@@ -162,7 +161,7 @@ export default class Importer {
         try {
           fileInfo['data'] = kmlToGeoJSON(reader.result)
         } catch (e) {
-          store.commit('importer/processFile', {
+          store.dispatch('importer/processFile', {
             filename: file.name,
             status: 'error',
             message: e.message
@@ -174,7 +173,7 @@ export default class Importer {
         try {
           fileInfo['data'] = JSON.parse(reader.result)
         } catch (e) {
-          store.commit('importer/processFile', {
+          store.dispatch('importer/processFile', {
             filename: file.name,
             status: 'error',
             message: 'file contains invalid JSON.'
@@ -192,7 +191,7 @@ export default class Importer {
 
       // check if there are any features in the dataset
       if (!fileInfo['data'].features) {
-        store.commit('importer/processFile', {
+        store.dispatch('importer/processFile', {
           filename: file.name,
           status: 'error',
           message: 'file does not contain any valid features.'
@@ -237,26 +236,35 @@ export default class Importer {
   static readShapefile (shpFile, dbfFile = null, prjFile = null) {
     console.log('Staring to read shapefile', shpFile, dbfFile, prjFile)
 
+    let filenamesArr = [shpFile.name]
+    let filesizeTotal = shpFile.size
+
     // Read file from form input
     const shpReader = new FileReader()
     let dbfReader, prjReader
     if (dbfFile) {
       dbfReader = new FileReader()
+      filenamesArr.push(dbfFile.name)
+      filesizeTotal += dbfFile.size
     }
 
     if (prjFile) {
       prjReader = new FileReader()
+      filenamesArr.push(prjFile.name)
+      filesizeTotal += prjFile.size
     }
+
+    // console.log('filesizearr', filesizesArr)
 
     // TODO: Concat all files into name and size
     let fileInfo = {
-      name: shpFile.name || '',
-      size: shpFile.size || 0,
+      name: filenamesArr.join(', ') || '',
+      size: filesizeTotal || 0,
       color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-      lastModified: shpFile.lastModified || null,
-      lastModifiedDate: shpFile.lastModifiedDate || null,
-      type: shpFile.type || null,
-      webkitRelativePath: shpFile.webkitRelativePath || null,
+      lastModified: '(.shp)' + shpFile.lastModified || null,
+      lastModifiedDate: '(.shp)' + shpFile.lastModifiedDate || null,
+      type: '(.shp)' + shpFile.type || null,
+      webkitRelativePath: '(.shp)' + shpFile.webkitRelativePath || null,
       options: {
         showAllProperties: false
       }
@@ -320,7 +328,7 @@ export default class Importer {
       firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
     } catch (e) {
       queuedFileGroup.forEach(queuedFile => {
-        store.commit('importer/processFile', {
+        store.dispatch('importer/processFile', {
           filename: queuedFile.name,
           status: 'error',
           message: e.message
@@ -337,7 +345,7 @@ export default class Importer {
     global.config.debug && console.log('[wally] fileInfo ', fileInfo)
     // this.files.push(fileInfo)
 
-    store.commit('importer/addFile', fileInfo)
+    store.commit('importer/addQueuedFile', fileInfo)
   }
 
   static validateAndReturnFirstFeatureCoords (geojsonFc) {
