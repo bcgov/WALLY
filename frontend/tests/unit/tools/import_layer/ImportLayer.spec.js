@@ -117,8 +117,18 @@ describe('ImportLayer', () => {
     expect(wrapper.find('filedrop-stub').exists()).toBeFalsy()
   })
 
-  it('Shows FileDrop when processed file is invalid', () => {
+  it('Shows FileDrop when processed file is invalid', async () => {
+    let testFile = new File([''], 'test.exe')
 
+    initComponent({ queuedFiles: [testFile],
+      processedFiles: [{
+        filename: testFile.name,
+        status: 'error',
+        message: `file of type .exe not supported.`
+      }] })
+
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('filedrop-stub').exists()).toBeTruthy()
   })
 })
 

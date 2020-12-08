@@ -38,7 +38,6 @@ export default {
       state.queuedFiles.push(file)
     },
     setLoadingFile (state, { filename, loading = true }) {
-      console.log('set loading file', filename, loading)
       state.loadingFiles[filename] = loading
     },
     setProcessedFile (state, { status, processedFile }) {
@@ -53,6 +52,7 @@ export default {
         error: [],
         warning: []
       }
+      state.loadingFiles = []
       state.queuedFiles = []
     }
   },
