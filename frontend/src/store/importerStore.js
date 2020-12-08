@@ -45,6 +45,7 @@ export default {
     },
     clearQueuedFiles (state) {
       state.queuedFiles = []
+      state.loadingFiles = []
     },
     clearAllFiles (state) {
       state.processedFiles = {
