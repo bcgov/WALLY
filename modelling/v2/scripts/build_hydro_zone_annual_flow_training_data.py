@@ -5,8 +5,10 @@ import pandas as pd
 
 tic = time.time()
 
-watershed_info_df = pd.read_csv("../data/station_watershed_info_10-25-2020.csv")
-mean_annual_flows_df = pd.read_csv("../data/bc_mean_annual_flows/bc_mean_annual_flows.csv")
+watershed_info_df = pd.read_csv("../data/station_watershed_info_11-16-2020.csv")
+watershed_info_secondary_df = pd.read_csv("../data/station_watershed_info_10-25-2020.csv")
+
+mean_annual_flows_df = pd.read_csv("../data/bc_mean_annual_flows/bc_mean_annual_flows_nov16.csv")
 
 training_set = []
 null_station_ids = set()
@@ -27,9 +29,12 @@ for record in mean_annual_flows_df.iterrows():
     else:
         station = next((wd[1].to_dict() for wd in watershed_info_df.iterrows() if wd[1][1] == station_number), None)
     if station is None:
-        print("FOUND NO STATION: {}".format(station_number))
-        null_station_ids.add(station_number)
-        not_found.append(station_number)
+        station = next((wd[1].to_dict() for wd in watershed_info_secondary_df.iterrows() if wd[1][1] == station_number), None)
+        if station is None:
+            print("FOUND NO STATION: {}".format(station_number))
+            null_station_ids.add(station_number)
+            not_found.append(station_number)
+
     if station:
         # station_number,year,mean,min_month,min,max_month,max,average_slope,temperature_data,glacial_coverage,glacial_area,watershed_area,potential_evapotranspiration_thornthwaite,potential_evapotranspiration_hamon,hydrological_zone,annual_precipitation,median_elevation,aspect,solar_exposure,latitude,longitude,drainage_area
         record_info = {
@@ -40,6 +45,7 @@ for record in mean_annual_flows_df.iterrows():
           "min": record["MIN"],
           "max_month": record["MAX_MONTH"],
           "max": record["MAX"],
+          "drainage_area_gross": record["DRAINAGE_AREA_GROSS"],
         }
         station_info = {
           "average_slope": station["average_slope"], 
@@ -76,8 +82,8 @@ for record in mean_annual_flows_df.iterrows():
 for key in hydrological_zones:
     print("zone {} -> {}".format(key, len(hydrological_zones[key])))
     df = pd.DataFrame(hydrological_zones[key])
-    keyname = '0' + str(key) if key < 10 else key
-    df.to_csv('../data/training_data_hydro_zone_annual_flow/zone_{}.csv'.format(keyname), index=False, header=True)
+    keyname = '0' + str(round(key)) if key < 10 else round(key)
+    df.to_csv('../data/training_data_hydro_zone_annual_flow/nov23/zone_{}.csv'.format(keyname), index=False, header=True)
 
 
 # log outcome

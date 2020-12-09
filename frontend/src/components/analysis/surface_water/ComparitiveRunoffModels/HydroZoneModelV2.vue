@@ -41,7 +41,6 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import qs from 'querystring'
 import ApiService from '../../../../services/ApiService'
 
 const Plotly = () => import('vue-plotly').then(module => {
@@ -160,15 +159,9 @@ export default {
     },
     fetchWatershedModel (details) {
       this.modelLoading = true
-      const params = {
-        hydrological_zone: details.hydrological_zone,
-        drainage_area: details.drainage_area,
-        annual_precipitation: details.annual_precipitation,
-        glacial_coverage: details.glacial_coverage,
-        glacial_area: details.glacial_area
-      }
-      console.log(params)
-      ApiService.query(`/api/v1/hydrological_zones/v2_watershed_drainage_model?${qs.stringify(params)}`)
+      // add year as model parameter
+      details['year'] = new Date().getFullYear()
+      ApiService.post('/api/v1/hydrological_zones/v2_watershed_drainage_model', details)
         .then(r => {
           this.modelData = r.data
           this.modelLoading = false

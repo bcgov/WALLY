@@ -75,7 +75,6 @@ export default {
         median_elevation: details.median_elevation,
         annual_precipitation: details.annual_precipitation
       }
-      console.log(params)
       ApiService.query(`/api/v1/hydrological_zones/v1_watershed_drainage_model?${qs.stringify(params)}`)
         .then(r => {
           this.modelData = r.data
