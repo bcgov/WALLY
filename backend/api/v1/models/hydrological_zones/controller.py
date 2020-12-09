@@ -21,7 +21,7 @@ V2_MONTHLY_DISTRIBUTIONS_BUCKET = "v2/hydro_zone_monthly_distributions/"
 
 
 def get_hydrological_zone_model_v1(
-    hydrological_zone: str,
+    hydrological_zone: int,
     drainage_area: float,
     median_elevation: float,
     annual_precipitation: float
@@ -38,10 +38,12 @@ def get_hydrological_zone_model_v1(
     ):
         return {"error": "Missing wally zone model parameters."}
 
+    hydrological_zone = str(hydrological_zone)
+
     # Get model state file from minio storage
     state_object_path = V1_ANNUAL_FLOW_BUCKET + "zone_{}.json".format(hydrological_zone)
     state_file_name = "v1_annual_model_state.json"
-    get_set_model_data(state_object_path, state_file_name)
+    load_model_data(state_object_path, state_file_name)
 
     xgb = XGBRegressor(random_state=42)
     xgb.load_model(state_file_name)
@@ -82,25 +84,25 @@ def get_hydrological_zone_model_v2(
     mean annual flow value for the hydrological zone.
     """
     input_values = model_inputs.dict()
-    hydrological_zone = model_inputs.hydrological_zone
+    hydrological_zone = str(model_inputs.hydrological_zone)
 
     # ANNUAL FLOW
 
     # get annual_model state
     state_object_path = V2_ANNUAL_FLOW_BUCKET + "zone_{}.json".format(hydrological_zone)
     state_file_name = "annual_model_state.json"
-    get_set_model_data(state_object_path, state_file_name)
+    load_model_data(state_object_path, state_file_name)
 
     # get annual_model score
     score_object_path = V2_ANNUAL_FLOW_BUCKET + "annual_model_scores.json"
     score_file_name = "annual_model_scores.json"
-    get_set_model_data(score_object_path, score_file_name)
+    load_model_data(score_object_path, score_file_name)
 
     # load model score
     with open(score_file_name) as json_file:
         scores = json.load(json_file)
-        annual_model_score = scores[str(hydrological_zone)]['score']
-        best_inputs = scores[str(hydrological_zone)]['best_inputs']
+        annual_model_score = scores[hydrological_zone]['score']
+        best_inputs = scores[hydrological_zone]['best_inputs']
 
     if len(best_inputs) <= 0: 
         raise HTTPException(
@@ -131,7 +133,7 @@ def get_hydrological_zone_model_v2(
     # get monthly model scores
     monthly_scores_object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + 'monthly_model_scores.json'
     monthly_scores_file_name = "monthly_model_scores.json"
-    get_set_model_data(monthly_scores_object_path, monthly_scores_file_name)
+    load_model_data(monthly_scores_object_path, monthly_scores_file_name)
 
     monthly_scores = {}
     with open(monthly_scores_file_name) as json_file:
@@ -141,7 +143,7 @@ def get_hydrological_zone_model_v2(
     for month in range(1, 13): # months
         object_path = V2_MONTHLY_DISTRIBUTIONS_BUCKET + zone_name + '/' + str(month) + '.json'
         monthly_state_file_name = "monthly_model_state.json"
-        get_set_model_data(object_path, monthly_state_file_name)
+        load_model_data(object_path, monthly_state_file_name)
 
         month_model_score = monthly_scores[str(month)]['score']
         month_best_inputs = monthly_scores[str(month)]['best_inputs']
@@ -170,7 +172,7 @@ def get_hydrological_zone_model_v2(
     return result
 
 
-def get_set_model_data(minio_path: str, file_name: str):
+def load_model_data(minio_path: str, file_name: str):
     """
     Gets a model object from Minio and sets the file by file_name
     """

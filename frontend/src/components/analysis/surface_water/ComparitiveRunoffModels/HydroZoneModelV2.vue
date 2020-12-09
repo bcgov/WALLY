@@ -158,7 +158,6 @@ export default {
       return []
     },
     fetchWatershedModel (details) {
-      console.log(details)
       this.modelLoading = true
       // add year as model parameter
       details['year'] = new Date().getFullYear()

@@ -9,7 +9,7 @@ class HydroZoneModelInputs(BaseModel):
     """
     inputs needed to create model prediction
     """
-    hydrological_zone: str
+    hydrological_zone: int
     year: Optional[str]
     drainage_area: Optional[float]
     average_slope: Optional[float]
