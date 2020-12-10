@@ -197,7 +197,7 @@ export default {
     hydrometricWatershed: null,
     watersheds: [],
     geojsonLayersAdded: [],
-    includePOIPolygon: false,
+    includePOIPolygon: true,
     watershedDetailsLoading: false,
     error: {
       watershedList: false,
