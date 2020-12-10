@@ -66,6 +66,7 @@ export default {
       'icon-image': 'campsite-11',
       'icon-rotate':
         ['-', 90, ['to-number', ['get', 'DOWNSTREAM_DIRECTION']]],
+      'icon-rotation-alignment': 'map',
       'visibility': 'none'
     },
     'paint': {}
