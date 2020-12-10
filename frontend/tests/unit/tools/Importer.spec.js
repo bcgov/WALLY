@@ -29,7 +29,6 @@ describe('Importer', () => {
     readShapeFile: true
     },
     { files: [
-
       { name: 'test.geojson' }
     ],
     readFileCount: 1,
@@ -41,7 +40,7 @@ describe('Importer', () => {
       { name: 'test.geojson' }
     ],
     readFileCount: 2,
-    readShapeFile: false
+    readShapeFile: true
     }
   ]
 
@@ -55,6 +54,185 @@ describe('Importer', () => {
         expect(Importer.readShapefile).toHaveBeenCalled()
       }
       expect(Importer.readFile).toHaveBeenCalledTimes(testCase.readFileCount)
+    })
+  }
+
+  const testCasesShapefiles = [
+    {
+      filename: 'test',
+      files: [
+        { name: 'test.dbf' },
+        { name: 'test.shp' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      returnObj: {
+        files: [{ name: 'test.geojson' }],
+        shapefiles: {
+          'shp': { name: 'test.shp' },
+          'dbf': { name: 'test.dbf' },
+          'prj': { name: 'test.prj' }
+        }
+      }
+    },
+    {
+      filename: 'test',
+      files: [
+        { name: 'test.shp' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      returnObj: {
+        files: [{ name: 'test.geojson' }],
+        shapefiles: {
+          'shp': { name: 'test.shp' },
+          'dbf': null,
+          'prj': { name: 'test.prj' }
+        }
+      }
+    },
+    {
+      filename: 'test',
+      files: [
+        { name: 'test.dbf' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      returnObj: {
+        files: [{ name: 'test.geojson' }],
+        shapefiles: {
+          'shp': null,
+          'dbf': { name: 'test.dbf' },
+          'prj': { name: 'test.prj' }
+        }
+      }
+    },
+    {
+      filename: 'test',
+      files: [
+        { name: 'testo.shp' },
+        { name: 'test.dbf' },
+        { name: 'test.geojson' }
+      ],
+      returnObj: {
+        files: [
+          { name: 'testo.shp' },
+          { name: 'test.geojson' }
+        ],
+        shapefiles: {
+          'shp': null,
+          'dbf': { name: 'test.dbf' },
+          'prj': null
+        }
+      }
+    },
+    {
+      filename: 'tester',
+      files: [
+        { name: 'test.shp' },
+        { name: 'test.dbf' },
+        { name: 'test.prj' }
+      ],
+      returnObj: {
+        files: [
+          { name: 'test.shp' },
+          { name: 'test.dbf' },
+          { name: 'test.prj' }
+        ],
+        shapefiles: {
+          'shp': null,
+          'dbf': null,
+          'prj': null
+        }
+      }
+    },
+    {
+      filename: 'tester',
+      files: [
+        { name: 'tester.shp' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      returnObj: {
+        files: [
+          { name: 'test.prj' },
+          { name: 'test.geojson' }
+        ],
+        shapefiles: {
+          'shp': { name: 'tester.shp' },
+          'dbf': null,
+          'prj': null
+        }
+      }
+    }
+  ]
+  for (const testCase of testCasesShapefiles) {
+    it('Finds all shapefiles', () => {
+      const returnObj = Importer.findShapefiles(testCase.files, testCase.filename)
+      // expect(Importer.findShapefiles).toHaveBeenCalledTimes(4)
+      expect(returnObj).toMatchObject(testCase.returnObj)
+    })
+  }
+
+  const testCaseFiles = [
+    {
+      files: [
+        { name: 'test.dbf' },
+        { name: 'test.shp' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      groupedFileCount: 2
+    },
+    {
+      files: [
+        { name: 'test.shp' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      groupedFileCount: 2
+    },
+    {
+      files: [
+        { name: 'test.dbf' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      groupedFileCount: 2
+    },
+    {
+      files: [
+        { name: 'testo.shp' },
+        { name: 'test.dbf' },
+        { name: 'test.geojson' }
+      ],
+      groupedFileCount: 3
+    },
+    {
+      files: [
+        { name: 'test.shp' },
+        { name: 'test.dbf' },
+        { name: 'test.prj' }
+      ],
+      groupedFileCount: 1
+    },
+    {
+      files: [
+        { name: 'tester.geojson' },
+        { name: 'testo.kml' },
+        { name: 'tester.shp' },
+        { name: 'myfile.csv' },
+        { name: 'test.prj' },
+        { name: 'test.geojson' }
+      ],
+      groupedFileCount: 6
+    }
+  ]
+
+  for (const testCase of testCaseFiles) {
+    it('Group required files together', () => {
+      const returnVal = Importer.groupFiles(testCase.files)
+      expect(returnVal.length).toBe(testCase.groupedFileCount)
     })
   }
 })

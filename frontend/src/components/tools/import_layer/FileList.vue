@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card outlined v-if="droppedFiles.length > 0 && queuedFiles.length === 0" class="pa-2">
+    <v-card outlined v-if="droppedFiles.length > 0 && queuedFiles.length === 0" class="pa-2 mb-5">
       <h3>Files to be processed</h3>
       <v-card flat v-for="(file, index) in droppedFiles" class="" v-bind:key="index" id="droppedFileList">
             {{file.name}}

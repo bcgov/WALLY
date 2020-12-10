@@ -8,9 +8,10 @@ import {
 } from './gisUtils'
 import { featureCollection } from '../mapbox/features'
 
+export const FILE_TYPE_SHAPEFILE = 'shapefile'
 export const FILE_TYPES_ACCEPTED = {
   'geojson': ['geojson', 'json'],
-  'shapefile': ['shp', 'dbf', 'prj'], // add zip file
+  [FILE_TYPE_SHAPEFILE]: ['shp', 'dbf', 'prj'], // add zip file
   'csv': ['csv'],
   'xlsx': ['xls', 'xlsx'],
   'kml': ['kml']

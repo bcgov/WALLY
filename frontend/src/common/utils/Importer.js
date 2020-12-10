@@ -1,16 +1,17 @@
 import centroid from '@turf/centroid'
 import {
   createMessageFromErrorArray,
-  csvToGeoJSON, FILE_TYPES_ACCEPTED,
+  csvToGeoJSON, FILE_TYPE_SHAPEFILE,
   groupErrorsByRow, kmlToGeoJSON, xlsxToGeoJSON,
   shapefileToGeoJSON
 } from './customLayerUtils'
 import {
-  getFileExtension, generateFileStats, determineFileReadMethod,
+  generateFileStats, determineFileReadMethod,
   determineFileType
 } from './fileUtils'
 import store from '../../store/index'
 
+/** Importer class */
 export default class Importer {
   constructor () {
     if (this instanceof Importer) {
@@ -24,32 +25,75 @@ export default class Importer {
    * @param {Array} files
    */
   static readFiles (files) {
-    files.forEach(file => {
-      // Set loading file spinner
-      store.commit('importer/setLoadingFile', {
-        filename: file.name,
-        loading: true
-      })
-
-      const fileExtension = getFileExtension(file.name)
-      const fileName = file.name.replace(`.${fileExtension}`, '')
-
-      if (!FILE_TYPES_ACCEPTED['shapefile'].includes(fileExtension)) {
-        Importer.readFile(file)
-      } else if (fileExtension === 'shp') {
-        // File is a shapefile, find other associated files
-        let findDBFArr = files.filter(element => element.name === fileName + '.dbf')
-        let findPRJArr = files.filter(element => element.name === fileName + '.prj')
-
-        const dbfFile = findDBFArr.length === 1 ? findDBFArr[0] : null
-        const prjFile = findPRJArr.length === 1 ? findPRJArr[0] : null
-
-        Importer.readShapefile(file, dbfFile, prjFile)
-      } else if (fileExtension === 'zip') {
-        // Install `unzip` package to unpack zip file which contains
-        // multiple files for shapefiles.
+    const groupedFiles = Importer.groupFiles(files)
+    groupedFiles.forEach(x => {
+      if (Object.keys(x.file).length > 1 && x.type === FILE_TYPE_SHAPEFILE) {
+        Importer.readShapefile(x.file.shp, x.file.dbf, x.file.prj)
+        return
       }
+      Importer.readFile(x.file)
     })
+  }
+
+  /**
+   * Given a list of files, find all shapefiles (fileTypes)
+   * and remove them from the file list
+   * @param files
+   * @param fileName
+   * @param fileTypes
+   * @param returnObj
+   * @returns {files: [], shapefiles: {}} object listing remaining files and shapefiles
+   */
+  static findShapefiles (files, fileName, fileTypes = ['shp', 'dbf', 'prj'], returnObj = { 'files': [], 'shapefiles': {} }) {
+    if (fileTypes.length === 0) {
+      return returnObj
+    }
+    const fileExtension = fileTypes.pop()
+    let findFile = files.filter(e => e.name === fileName + '.' + fileExtension)
+
+    files = files.filter(e => e.name !== fileName + '.' + fileExtension)
+    returnObj.files = files
+    returnObj['shapefiles'][fileExtension] = findFile.length === 1 ? findFile[0] : null
+
+    return Importer.findShapefiles(files, fileName, fileTypes, returnObj)
+  }
+
+  /**
+   * Go through the list of files and group together files that are supposed
+   * to go together (i.e. shapefiles)
+   * @param files
+   * @param groupedFiles
+   * @returns {*[]} Files grouped together if required by their fileType
+   */
+  static groupFiles (files = [], groupedFiles = []) {
+    if (files.length === 0) {
+      return groupedFiles
+    }
+    const fileToRead = files[0]
+
+    const { fileType, fileSupported, fileExtension } = determineFileType(fileToRead.name)
+
+    const fileName = fileToRead.name.replace(`.${fileExtension}`, '')
+    if (String(fileType) === FILE_TYPE_SHAPEFILE) {
+      const returnObj = Importer.findShapefiles(files, fileName)
+      groupedFiles.push({
+        'type': FILE_TYPE_SHAPEFILE,
+        'extension': null,
+        'supported': fileSupported,
+        'file': returnObj.shapefiles
+      })
+      return Importer.groupFiles(returnObj.files, groupedFiles)
+    }
+
+    files = files.filter(e => e.name !== fileName + '.' + fileExtension)
+
+    groupedFiles.push({
+      'type': fileType,
+      'extension': fileExtension,
+      'supported': fileSupported,
+      'file': fileToRead
+    })
+    return Importer.groupFiles(files, groupedFiles)
   }
 
   /**
@@ -220,13 +264,32 @@ export default class Importer {
    * @param dbfFile
    * @param prjFile
    */
-  static readShapefile (shpFile, dbfFile = null, prjFile = null) {
+  static readShapefile (shpFile = null, dbfFile = null, prjFile = null) {
+    if (!shpFile) {
+      store.dispatch('importer/processFile', {
+        filename: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)].filter(Boolean).join(', '),
+        status: 'error',
+        message: 'It looks like you\'re uploading a shapefile. Please' +
+          ' provide the .shp file.'
+      })
+      dbfFile && store.commit('importer/setLoadingFile', {
+        filename: dbfFile.name,
+        loading: false
+      })
+      prjFile && store.commit('importer/setLoadingFile', {
+        filename: prjFile.name,
+        loading: false
+      })
+      return
+    }
+
     let filenamesArr = [shpFile.name]
     let filesizeTotal = shpFile.size
 
     // Read file from form input
     const shpReader = new FileReader()
     let dbfReader, prjReader
+
     if (dbfFile) {
       dbfReader = new FileReader()
       filenamesArr.push(dbfFile.name)
