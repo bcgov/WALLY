@@ -254,4 +254,52 @@ describe('Map Legend Test', () => {
     legendText = legendItem.vm.labelLookup('FR_EXC')
     expect(legendText).toEqual('Fully Recorded Except')
   })
+
+  it('Returns layers with a display name', async () => {
+    await wrapper.vm.$nextTick()
+    let propsData = {
+      map: {
+        getLayer: (name) => {
+          let types = {
+            'fish_obstacles.geojson.1593556874000': 'Point'
+          }
+          return types[name]
+        },
+        getPaintProperty: () => {}
+      }
+    }
+    let map = {
+      namespaced: true,
+      getters: {
+        activeMapLayers: () => []
+      }
+    }
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => ['fish_obstacles.geojson.1593556874000', '_imported-map-layers'],
+        customLayers: () => {
+          return {
+            children: [{
+              color: '#D2126',
+              geomType: 'Point',
+              id: 'fish_obstacles.geojson.1593556874000',
+              name: 'fish_obstacles'
+            }]
+          }
+        }
+      }
+    }
+    store = new Vuex.Store({ modules: { map, customLayers } })
+    wrapper = mount(MapLegend, {
+      vuetify,
+      store,
+      propsData,
+      localVue
+    })
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('div#legend').length).toEqual(1)
+    let fishObstacles = wrapper.findAll('div#legend').at(0).find('span.layerName')
+    expect(fishObstacles.text()).toEqual('Fish obstacles')
+  })
 })
