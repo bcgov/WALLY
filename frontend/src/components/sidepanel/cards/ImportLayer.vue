@@ -76,7 +76,7 @@ export default {
       geojsonFc.properties.name = file.name.split('.')[0]
 
       const fileStatus = {
-        filename: file.name
+        filenames: [file.name]
       }
 
       this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })

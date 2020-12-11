@@ -294,7 +294,7 @@ export default class Importer {
       return data
     } catch (e) {
       await store.dispatch('importer/processFile', {
-        filename: filename,
+        filenames: [filename],
         status: 'error',
         message: e.message ? e.message : e
       })
@@ -447,7 +447,7 @@ export default class Importer {
         filenames.push(file.name)
       })
       store.dispatch('importer/processFile', {
-        filename: [filenames],
+        filenames: [filenames],
         status: 'error',
         message: e.message
       })
