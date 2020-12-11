@@ -101,11 +101,13 @@ export default class Importer {
    * @param {File} file
    */
   static readFile (file) {
+    store.commit('importer/startLoadingFile', file.name)
+
     let { fileType, fileSupported, fileExtension } = determineFileType(file.name)
     if (!fileSupported) {
       fileExtension = fileExtension ? `.${fileExtension}` : 'None'
       store.dispatch('importer/processFile', {
-        filename: file.name,
+        filenames: [file.name],
         status: 'error',
         message: `file of type ${fileExtension} not supported.`
       })
@@ -122,128 +124,7 @@ export default class Importer {
 
     // set the onload function. this will be triggered when the file is read below.
     reader.onload = async () => {
-      let fileInfo = {
-        name: file.name || '',
-        size: file.size || 0,
-        color: '#' + Math.floor(Math.random() * 16777215).toString(16),
-        lastModified: file.lastModified || null,
-        lastModifiedDate: file.lastModifiedDate || null,
-        type: file.type || null,
-        webkitRelativePath: file.webkitRelativePath || null,
-        options: {
-          showAllProperties: false
-        }
-      }
-
-      // place to store errors/warnings that some file handling libraries return (XLS, CSV)
-      // other libraries throw an exception, so not all file types need the errors var.
-      let errors
-      let data
-
-      // check file type and call the handler to convert the file to GeoJSON.
-      // each file type has a different handler.
-      // a try/catch is used for each type in order to generate a user error
-      // message if there are any issues converting.
-      if (fileType === 'csv') {
-        try {
-          ({ data, errors } = await csvToGeoJSON(reader.result))
-          global.config.debug && console.log(data)
-          fileInfo['data'] = data
-          if (errors && errors.length) {
-            errors = groupErrorsByRow(errors)
-            const warnMsg = createMessageFromErrorArray(errors)
-            store.dispatch('importer/processFile', {
-              filename: file.name,
-              status: 'warning',
-              message: `${errors.length} rows removed - ${warnMsg}`
-            })
-          }
-        } catch (e) {
-          store.dispatch('importer/processFile', {
-            filename: file.name,
-            status: 'error',
-            message: e.message ? e.message : e
-          })
-          return
-        }
-      } else if (fileType === 'xlsx') {
-        try {
-          const fileData = new Uint8Array(reader.result);
-          ({ data, errors } = await xlsxToGeoJSON(fileData))
-          global.config.debug && console.log(data)
-
-          fileInfo['data'] = data
-
-          if (errors && errors.length) {
-            errors = groupErrorsByRow(errors)
-            const warnMsg = createMessageFromErrorArray(errors)
-            store.dispatch('importer/processFile', {
-              filename: file.name,
-              status: 'warning',
-              message: `${errors.length} rows removed - ${warnMsg}`
-            })
-          }
-        } catch (e) {
-          store.dispatch('importer/processFile', {
-            filename: file.name,
-            status: 'error',
-            message: e.message ? e.message : e
-          })
-          return
-        }
-      } else if (fileType === 'kml') {
-        try {
-          fileInfo['data'] = kmlToGeoJSON(reader.result)
-        } catch (e) {
-          store.dispatch('importer/processFile', {
-            filename: file.name,
-            status: 'error',
-            message: e.message
-          })
-          return
-        }
-      } else if (fileType === 'geojson') {
-        try {
-          fileInfo['data'] = JSON.parse(reader.result)
-        } catch (e) {
-          store.dispatch('importer/processFile', {
-            filename: file.name,
-            status: 'error',
-            message: 'file contains invalid JSON.'
-          })
-          return
-        }
-      } else {
-        // Unknown file type
-        // this should not occur (an unsupported file error should have been caught earlier),
-        // but log an error here for good measure in case this ever comes up.
-
-        return console.error(`File ${file.name} does not have a -toGeoJSON handler and was not caught by file type check.`)
-      }
-
-      // check if there are any features in the dataset
-      if (!fileInfo['data'].features) {
-        store.dispatch('importer/processFile', {
-          filename: file.name,
-          status: 'error',
-          message: 'file does not contain any valid features.'
-        })
-        return
-        // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
-      }
-
-      global.config.debug && console.log('-------------------------------')
-      global.config.debug && console.log('Imported')
-      global.config.debug && console.log('-------------------------------')
-      // Custom Metrics - Import files
-      window._paq && window._paq.push(['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
-
-      Importer.queueFile([file], fileInfo)
-
-      store.commit('importer/setLoadingFile', {
-        filename: file.name,
-        loading: false
-      })
+      await Importer.processFileData(file, fileType, reader.result)
     }
 
     // select read method and then read file, triggering the onload function.
@@ -258,6 +139,195 @@ export default class Importer {
     }
   }
 
+  static async processFileData (file, fileType, data) {
+    let fileInfo = {
+      name: file.name || '',
+      size: file.size || 0,
+      color: '#' + Math.floor(Math.random() * 16777215).toString(16),
+      lastModified: file.lastModified || null,
+      lastModifiedDate: file.lastModifiedDate || null,
+      type: file.type || null,
+      webkitRelativePath: file.webkitRelativePath || null,
+      options: {
+        showAllProperties: false
+      }
+    }
+
+    // place to store errors/warnings that some file handling libraries return (XLS, CSV)
+    // other libraries throw an exception, so not all file types need the errors var.
+    // let errors
+    // let data
+
+    // check file type and call the handler to convert the file to GeoJSON.
+    // each file type has a different handler.
+    // a try/catch is used for each type in order to generate a user error
+    // message if there are any issues converting.
+    if (fileType === 'csv') {
+      fileInfo['data'] = await Importer.readCSV(file.name, data)
+      // try {
+      //   ({ data, errors } = await csvToGeoJSON(reader.result))
+      //   global.config.debug && console.log(data)
+      //   fileInfo['data'] = data
+      //   if (errors && errors.length) {
+      //     errors = groupErrorsByRow(errors)
+      //     const warnMsg = createMessageFromErrorArray(errors)
+      //     store.dispatch('importer/processFile', {
+      //       filename: file.name,
+      //       status: 'warning',
+      //       message: `${errors.length} rows removed - ${warnMsg}`
+      //     })
+      //   }
+      // } catch (e) {
+      //   store.dispatch('importer/processFile', {
+      //     filename: file.name,
+      //     status: 'error',
+      //     message: e.message ? e.message : e
+      //   })
+      //   return
+      // }
+    } else if (fileType === 'xlsx') {
+      fileInfo['data'] = await Importer.readXLSX(file.name, data)
+      // try {
+      //   const fileData = new Uint8Array(reader.result);
+      //   ({ data, errors } = await xlsxToGeoJSON(fileData))
+      //   global.config.debug && console.log(data)
+      //
+      //   fileInfo['data'] = data
+      //
+      //   if (errors && errors.length) {
+      //     errors = groupErrorsByRow(errors)
+      //     const warnMsg = createMessageFromErrorArray(errors)
+      //     store.dispatch('importer/processFile', {
+      //       filename: file.name,
+      //       status: 'warning',
+      //       message: `${errors.length} rows removed - ${warnMsg}`
+      //     })
+      //   }
+      // } catch (e) {
+      //   store.dispatch('importer/processFile', {
+      //     filename: file.name,
+      //     status: 'error',
+      //     message: e.message ? e.message : e
+      //   })
+      //   return
+      // }
+    } else if (fileType === 'kml') {
+      fileInfo['data'] = Importer.readKML(file.name, data)
+    } else if (fileType === 'geojson') {
+      fileInfo['data'] = Importer.readGeoJSON(file.name, data)
+      // return
+    } else {
+      // Unknown file type
+      // this should not occur (an unsupported file error should have been caught earlier),
+      // but log an error here for good measure in case this ever comes up.
+
+      return console.error(`File ${file.name} does not have a -toGeoJSON handler and was not caught by file type check.`)
+    }
+
+    // // check if there are any features in the dataset
+    // if (!fileInfo['data'].features) {
+    //   store.dispatch('importer/processFile', {
+    //     filename: file.name,
+    //     status: 'error',
+    //     message: 'file does not contain any valid features.'
+    //   })
+    //   return
+    //   // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
+    // }
+    if (fileInfo['data']) {
+      global.config.debug && console.log('[wally]-------------------------------')
+      global.config.debug && console.log('[wally]File has been loaded successfully')
+      global.config.debug && console.log('[wally]-------------------------------')
+
+      // TODO: Move this
+      // Custom Metrics - Import files
+      window._paq && window._paq.push(['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
+
+      Importer.prepareLoadedFileForImport([file], fileInfo)
+    }
+  }
+
+  static async readCSV (filename, contents) {
+    let data, errors
+    try {
+      ({ data, errors } = await csvToGeoJSON(contents))
+      global.config.debug && console.log(data)
+      if (errors && errors.length) {
+        errors = groupErrorsByRow(errors)
+        const warnMsg = createMessageFromErrorArray(errors)
+        await store.dispatch('importer/processFile', {
+          filenames: [filename],
+          status: 'warning',
+          message: `${errors.length} rows removed - ${warnMsg}`
+        })
+      }
+      return data
+    } catch (e) {
+      await store.dispatch('importer/processFile', {
+        filenames: [filename],
+        status: 'error',
+        message: e.message ? e.message : e
+      })
+      // return
+    }
+  }
+
+  static async readXLSX (filename, contents) {
+    let data, errors
+    try {
+      const fileData = new Uint8Array(contents);
+      ({ data, errors } = await xlsxToGeoJSON(fileData))
+      global.config.debug && console.log(data)
+
+      // fileInfo['data'] = data
+
+      if (errors && errors.length) {
+        errors = groupErrorsByRow(errors)
+        const warnMsg = createMessageFromErrorArray(errors)
+        await store.dispatch('importer/processFile', {
+          filenames: [filename],
+          status: 'warning',
+          message: `${errors.length} rows removed - ${warnMsg}`
+        })
+      }
+
+      return data
+    } catch (e) {
+      await store.dispatch('importer/processFile', {
+        filename: filename,
+        status: 'error',
+        message: e.message ? e.message : e
+      })
+      // return
+    }
+  }
+
+  static readKML (filename, contents) {
+    try {
+      return kmlToGeoJSON(contents)
+    } catch (e) {
+      store.dispatch('importer/processFile', {
+        filenames: [filename],
+        status: 'error',
+        message: e.message
+      })
+      // return
+    }
+  }
+
+  static readGeoJSON (filename, contents) {
+    try {
+      return JSON.parse(contents)
+    } catch (e) {
+      store.dispatch('importer/processFile', {
+        filenames: [filename],
+        status: 'error',
+        message: 'file contains invalid JSON.'
+      })
+      // return
+    }
+  }
+
   /**
    *
    * @param shpFile
@@ -267,19 +337,14 @@ export default class Importer {
   static readShapefile (shpFile = null, dbfFile = null, prjFile = null) {
     if (!shpFile) {
       store.dispatch('importer/processFile', {
-        filename: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)].filter(Boolean).join(', '),
+        filenames: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)],
+        // filename: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)].filter(Boolean).join(', '),
         status: 'error',
         message: 'It looks like you\'re uploading a shapefile. Please' +
           ' provide the .shp file.'
       })
-      dbfFile && store.commit('importer/setLoadingFile', {
-        filename: dbfFile.name,
-        loading: false
-      })
-      prjFile && store.commit('importer/setLoadingFile', {
-        filename: prjFile.name,
-        loading: false
-      })
+      // dbfFile && store.commit('importer/startLoadingFile', dbfFile.name)
+      // prjFile && store.commit('importer/startLoadingFile', prjFile.name)
       return
     }
 
@@ -331,19 +396,13 @@ export default class Importer {
         if (prjFile) {
           fileQueue.push(prjFile)
         }
-        Importer.queueFile(fileQueue, fileInfo)
-        store.commit('importer/setLoadingFile', {
-          filename: shpFile.name,
-          loading: false
-        })
-        dbfFile && store.commit('importer/setLoadingFile', {
-          filename: dbfFile.name,
-          loading: false
-        })
-        prjFile && store.commit('importer/setLoadingFile', {
-          filename: prjFile.name,
-          loading: false
-        })
+        Importer.prepareLoadedFileForImport(fileQueue, fileInfo)
+        // store.commit('importer/setLoadingFile', {
+        //   filename: shpFile.name,
+        //   loading: false
+        // })
+        // dbfFile && store.commit('importer/stopLoadingFile', dbfFile.name)
+        // prjFile && store.commit('importer/stopLoadingFile', prjFile.name)
       }
     }
 
@@ -356,22 +415,52 @@ export default class Importer {
     prjFile && prjReader.readAsText(prjFile)
   }
 
-  static queueFile (queuedFileGroup, fileInfo) {
+  /**
+   * Files are read and loaded; let's prepare them for the final import
+   * @param queuedFileGroup
+   * @param fileInfo
+   */
+  static prepareLoadedFileForImport (queuedFileGroup, fileInfo) {
+    // store.commit('importer/addQueuedFile', fileInfo)
+    console.log('loaded file is', fileInfo)
+
+    // check if there are any features in the dataset
+    if (!fileInfo['data'].features) {
+      store.dispatch('importer/processFile', {
+        filenames: [fileInfo.filename],
+        status: 'error',
+        message: 'file does not contain any valid features.'
+      })
+      return
+      // return
+      // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
+    }
+
     // get the coordinates of the first feature.
     // this helps zoom to the dataset (if desired).
     let firstFeatureCoords = null
     try {
       firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
     } catch (e) {
-      queuedFileGroup.forEach(queuedFile => {
-        store.dispatch('importer/processFile', {
-          filename: queuedFile.name,
-          status: 'error',
-          message: e.message
-        })
+      let filenames = []
+      queuedFileGroup.forEach(file => {
+        filenames.push(file.name)
       })
-
+      store.dispatch('importer/processFile', {
+        filename: [filenames],
+        status: 'error',
+        message: e.message
+      })
+      // queuedFileGroup.forEach(queuedFile => {
+      //   store.dispatch('importer/processFile', {
+      //     filename: queuedFile.name,
+      //     status: 'error',
+      //     message: e.message
+      //   })
+      // })
       return
+
+      // return
     }
 
     fileInfo['firstFeatureCoords'] = firstFeatureCoords

@@ -4,7 +4,7 @@
       <h3>Files to be processed</h3>
       <v-card flat v-for="(file, index) in droppedFiles" class="" v-bind:key="index" id="droppedFileList">
             {{file.name}}
-        <v-progress-linear v-if="loadingFiles[file.name]" show indeterminate></v-progress-linear>
+        <v-progress-linear v-if="isFileLoading(file.name)" show indeterminate></v-progress-linear>
       </v-card>
     </v-card>
     <v-card outlined v-for="(file, index) in queuedFiles" class="mb-5 pa-5" v-bind:key="index" id="fileList">
@@ -16,7 +16,7 @@
           {{file.name}}
         </dd>
       </dl>
-      <v-progress-linear v-if="loadingFiles[file.name]" show indeterminate></v-progress-linear>
+      <v-progress-linear v-if="isFileLoading[file.name]" show indeterminate></v-progress-linear>
       <dl v-if="file && file.name && file.stats">
         <dt>
           Colour:
@@ -115,7 +115,7 @@ export default {
     warnFileSizeThreshold: global.config.warnUploadFileSizeThresholdInMB * 1024 * 1024
   }),
   computed: {
-    ...mapGetters('importer', ['loadingFiles', 'queuedFiles'])
+    ...mapGetters('importer', ['isFileLoading', 'queuedFiles'])
   }
 }
 </script>

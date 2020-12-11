@@ -46,7 +46,7 @@ const initStore = ({ queuedFiles = [], processedFiles = [], loadingFiles = [] })
     getters: {
       queuedFiles: () => queuedFiles,
       processedFiles: () => processedFiles,
-      loadingFiles: () => loadingFiles
+      isFileLoading: () => jest.fn(x => false)
     },
     mutations: {
       clearAllFiles: jest.fn()

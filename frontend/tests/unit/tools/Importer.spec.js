@@ -1,6 +1,8 @@
 import Importer from '../../../src/common/utils/Importer'
 import store from '../../../src/store/index'
+import * as fileUtils from '../../../src/common/utils/fileUtils'
 
+global.config = { debug: false }
 describe('Importer', () => {
   it('Sets error message for file extension not supported', () => {
     store.commit = jest.fn()
@@ -10,11 +12,26 @@ describe('Importer', () => {
     Importer.readFile(txtFile)
 
     expect(store.dispatch).toHaveBeenCalledWith('importer/processFile', {
-      filename: txtFile.name,
+      filenames: [txtFile.name],
       message: 'file of type .txt not supported.',
       status: 'error'
     })
     expect(store.commit).toHaveBeenCalledWith('importer/clearQueuedFiles')
+  })
+
+  it('Sets loading file when starting to read file', async () => {
+    store.commit = jest.fn()
+    const fileReaderSpy = jest.spyOn(
+      FileReader.prototype, 'readAsText'
+    ).mockImplementation(() => null)
+    Importer.prepareLoadedFileForImport = jest.fn()
+
+    const file = new File([''], 'test.csv')
+    Importer.readFile(file)
+    await expect(store.commit).toHaveBeenCalledWith(
+      'importer/startLoadingFile', file.name
+    )
+    expect(fileReaderSpy).toHaveBeenCalled()
   })
 
   const testCases = [
@@ -169,7 +186,6 @@ describe('Importer', () => {
   for (const testCase of testCasesShapefiles) {
     it('Finds all shapefiles', () => {
       const returnObj = Importer.findShapefiles(testCase.files, testCase.filename)
-      // expect(Importer.findShapefiles).toHaveBeenCalledTimes(4)
       expect(returnObj).toMatchObject(testCase.returnObj)
     })
   }
@@ -235,4 +251,73 @@ describe('Importer', () => {
       expect(returnVal.length).toBe(testCase.groupedFileCount)
     })
   }
+
+
+
+  const mockFileData = jest.fn(x => {
+    return {
+      features: []
+    }
+  })
+
+  const mockValidateCoords = jest.fn(x => {
+    return {
+      geometry: {}
+    }
+  })
+
+  const mockProcessingFns = () => {
+    Importer.validateAndReturnFirstFeatureCoords = mockValidateCoords
+    fileUtils.generateFileStats = jest.fn()
+    Importer.prepareLoadedFileForImport = jest.fn()
+  }
+
+  it('Process the CSV file data and convert to geojson', async () => {
+    store.dispatch = jest.fn()
+    Importer.readCSV = mockFileData
+    mockProcessingFns()
+
+    const file = new File([''], 'test.csv')
+    await Importer.processFileData(file, 'csv', {})
+    expect(Importer.readCSV).toHaveBeenCalled()
+    expect(Importer.prepareLoadedFileForImport).toHaveBeenCalled()
+  })
+
+  it('Process the XLSX file data and convert to geojson', async () => {
+    Importer.readXLSX = mockFileData
+    mockProcessingFns()
+
+    const file = new File([''], 'test.xlsx')
+    await Importer.processFileData(file, 'xlsx', {})
+    expect(Importer.readXLSX).toHaveBeenCalled()
+    expect(Importer.prepareLoadedFileForImport).toHaveBeenCalled()
+  })
+
+  it('Process the KML file data and convert to geojson', async () => {
+    Importer.readKML = mockFileData
+    mockProcessingFns()
+
+    const file = new File([''], 'test.kml')
+    await Importer.processFileData(file, 'kml', {})
+    expect(Importer.readKML).toHaveBeenCalled()
+    expect(Importer.prepareLoadedFileForImport).toHaveBeenCalled()
+  })
+
+  it('Process the geojson file', async () => {
+    Importer.readGeoJSON = mockFileData
+    mockProcessingFns()
+
+    const file = new File([''], 'test.geojson')
+    await Importer.processFileData(file, 'geojson', {})
+    expect(Importer.readGeoJSON).toHaveBeenCalled()
+    expect(Importer.prepareLoadedFileForImport).toHaveBeenCalled()
+  })
+
+  it('Throws an error when there is no toGeoJSON handler for filetype', async () => {
+    console.error = jest.fn()
+
+    const file = new File([''], 'test.txt')
+    await Importer.processFileData(file, 'txt', {})
+    expect(console.error).toHaveBeenCalled()
+  })
 })

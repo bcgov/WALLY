@@ -63,7 +63,7 @@ export default {
   methods: {
     handleLoadLayer (file) {
       // file must be a GeoJSON FeatureCollection
-      this.layerLoading[file.name] = true
+      // this.layerLoading[file.name] = true
 
       const geojsonFc = file.data
 
@@ -113,7 +113,7 @@ export default {
       if (this.fileList.length > 0) {
         this.clearAllFiles()
 
-        // Prepare files for import
+        // Read and prepare files for import
         Importer.readFiles(Array.from(this.fileList))
       }
     },
@@ -123,7 +123,7 @@ export default {
       })
       this.fileList = []
     },
-    ...mapMutations('importer', ['clearQueuedFiles', 'clearAllFiles', 'processFile', 'setFiles']),
+    ...mapMutations('importer', ['clearQueuedFiles', 'clearAllFiles', 'setFiles']),
     ...mapActions('importer', ['processFile'])
   },
   computed: {
@@ -133,8 +133,10 @@ export default {
   watch: {
   },
   mounted () {
+  },
+  beforeDestroy () {
+    this.cancelImport()
   }
-
 }
 </script>
 

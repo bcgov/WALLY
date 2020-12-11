@@ -11,22 +11,28 @@ export default {
     }
   },
   actions: {
-    processFile ({ commit, state }, { filename, status, message, firstFeatureCoords }) {
+    processFile ({ commit, state }, { filenames, status, message, firstFeatureCoords }) {
+
       if (!['success', 'warning', 'error'].includes(status)) {
         throw new Error(`handleFileMessage called with invalid file status: ${status}`)
       }
 
+      let filenamesStr = filenames.filter(Boolean).join(', ')
+      console.log('processFile', filenamesStr, filenames)
+
       let processedFile = {
-        name: filename,
+        name: filenamesStr,
         status: status,
-        message: `${filename}: ${message}`
+        message: `${filenamesStr}: ${message}`
       }
 
       if (status === 'success') {
         processedFile['firstFeatureCoords'] = firstFeatureCoords
       }
 
-      commit('setLoadingFile', { filename, loading: false })
+      filenames.forEach(file => {
+        commit('stopLoadingFile', file)
+      })
       commit('setProcessedFile', { status, processedFile })
     }
   },
@@ -37,8 +43,18 @@ export default {
     addQueuedFile (state, file) {
       state.queuedFiles.push(file)
     },
-    setLoadingFile (state, { filename, loading = true }) {
-      state.loadingFiles[filename] = loading
+    stopLoadingFile (state, filename) {
+      console.log('delete from loading file', filename, state.loadingFiles)
+      state.loadingFiles = state.loadingFiles.filter(x => x !== filename)
+      console.log(state.loadingFiles)
+    },
+    startLoadingFile (state, filename) {
+      console.log('set loading for', filename, state.loadingFiles)
+      // state.loadingFiles[filename] = loading
+      // state.loadingFiles = { ...state.loadingFiles, filename: loading }
+      state.loadingFiles.push(filename)
+
+      console.log(state.loadingFiles)
     },
     setProcessedFile (state, { status, processedFile }) {
       state.processedFiles[status].push(processedFile)
@@ -60,6 +76,7 @@ export default {
   getters: {
     queuedFiles: state => state.queuedFiles,
     loadingFiles: state => state.loadingFiles,
-    processedFiles: state => state.processedFiles
+    processedFiles: state => state.processedFiles,
+    isFileLoading: state => filename => state.loadingFiles.find((x) => x && x === filename)
   }
 }
