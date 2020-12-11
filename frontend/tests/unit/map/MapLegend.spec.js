@@ -261,7 +261,7 @@ describe('Map Legend Test', () => {
       map: {
         getLayer: (name) => {
           let types = {
-            'fish_obstacles.geojson.1593556874000': 'Point',
+            'fish_obstacles.geojson.1593556874000': 'Point'
           }
           return types[name]
         },
@@ -278,14 +278,16 @@ describe('Map Legend Test', () => {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => ['fish_obstacles.geojson.1593556874000', '_imported-map-layers'],
-        customLayers: () => { return {
-          children: [{
-            color: '#D2126',
-            geomType: 'Point',
-            id: 'fish_obstacles.geojson.1593556874000',
-            name: 'fish_obstacles'
-          }] 
-        }}
+        customLayers: () => {
+          return {
+            children: [{
+              color: '#D2126',
+              geomType: 'Point',
+              id: 'fish_obstacles.geojson.1593556874000',
+              name: 'fish_obstacles'
+            }]
+          }
+        }
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
@@ -301,4 +303,3 @@ describe('Map Legend Test', () => {
     expect(fishObstacles.text()).toEqual('Fish obstacles')
   })
 })
-
