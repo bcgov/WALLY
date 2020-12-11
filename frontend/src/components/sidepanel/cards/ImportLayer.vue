@@ -62,50 +62,52 @@ export default {
   }),
   methods: {
     handleLoadLayer (file) {
-      // file must be a GeoJSON FeatureCollection
-      // this.layerLoading[file.name] = true
-
-      const geojsonFc = file.data
-
-      geojsonFc.id = `${file.name}.${file.lastModified}`
-
-      if (!geojsonFc.properties) {
-        geojsonFc.properties = {}
-      }
-
-      geojsonFc.properties.name = file.name.split('.')[0]
-
-      const fileStatus = {
-        filenames: [file.name]
-      }
-
-      this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
-        .then(() => {
-          fileStatus.status = 'success'
-          fileStatus.message = `file loaded`
-          fileStatus.firstFeatureCoords = file.firstFeatureCoords
-        }).catch((e) => {
-          fileStatus.status = 'error'
-          console.log(e)
-          fileStatus.message = `error loading file ${file.name}: ${e}`
-        }).finally(() => {
-          // this.handleFileMessage(fileStatus)
-          this.processFile(fileStatus)
-          // this.$store.commit('importer/processFile', fileStatus)
-          this.layerLoading[file.name] = false
-        })
-      this.map.once('idle', () => {
-        // this.resetFiles()
-        // this.$store.commit('importer/setFiles', [])
-        // this.setQueuedFiles([])
-        this.clearQueuedFiles()
-      })
+      Importer.finalizeImport(file)
+      // // file must be a GeoJSON FeatureCollection
+      // // this.layerLoading[file.name] = true
+      //
+      // const geojsonFc = file.data
+      //
+      // geojsonFc.id = `${file.name}.${file.lastModified}`
+      //
+      // if (!geojsonFc.properties) {
+      //   geojsonFc.properties = {}
+      // }
+      //
+      // geojsonFc.properties.name = file.name.split('.')[0]
+      //
+      // const fileStatus = {
+      //   filenames: [file.name]
+      // }
+      //
+      // this.$store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: this.map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
+      //   .then(() => {
+      //     fileStatus.status = 'success'
+      //     fileStatus.message = `file loaded`
+      //     fileStatus.firstFeatureCoords = file.firstFeatureCoords
+      //   }).catch((e) => {
+      //     fileStatus.status = 'error'
+      //     console.log(e)
+      //     fileStatus.message = `error loading file ${file.name}: ${e}`
+      //   }).finally(() => {
+      //     // this.handleFileMessage(fileStatus)
+      //     this.processFile(fileStatus)
+      //     // this.$store.commit('importer/processFile', fileStatus)
+      //     this.layerLoading[file.name] = false
+      //   })
+      // this.map.once('idle', () => {
+      //   // this.resetFiles()
+      //   // this.$store.commit('importer/setFiles', [])
+      //   // this.setQueuedFiles([])
+      //   this.clearQueuedFiles()
+      // })
     },
     cancelImport () {
       this.clearAllFiles()
       this.fileList = []
     },
     handleSelectedFiles (fileList) {
+      // console.log('handle selected')
       this.clearAllFiles()
       this.fileList = fileList
     },

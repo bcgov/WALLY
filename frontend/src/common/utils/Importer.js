@@ -487,4 +487,50 @@ export default class Importer {
     }
     return firstFeature
   }
+
+  static finalizeImport (file) {
+    // file must be a GeoJSON FeatureCollection
+    // this.layerLoading[file.name] = true
+    store.commit('importer/startLoadingFile', file.name)
+
+    const geojsonFc = file.data
+
+    geojsonFc.id = `${file.name}.${file.lastModified}`
+
+    if (!geojsonFc.properties) {
+      geojsonFc.properties = {}
+    }
+
+    geojsonFc.properties.name = file.name.split('.')[0]
+
+    const fileStatus = {
+      filenames: [file.name]
+    }
+
+    const map = store.getters['map/map']
+    // todo: set loading?
+
+    store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
+      .then(() => {
+        fileStatus.status = 'success'
+        fileStatus.message = `file loaded`
+        fileStatus.firstFeatureCoords = file.firstFeatureCoords
+      }).catch((e) => {
+        fileStatus.status = 'error'
+        console.log(e)
+        fileStatus.message = `error loading file ${file.name}: ${e}`
+      }).finally(() => {
+      // this.handleFileMessage(fileStatus)
+      //   this.processFile(fileStatus)
+        store.dispatch('importer/processFile', fileStatus)
+        // this.$store.commit('importer/processFile', fileStatus)
+        // this.layerLoading[file.name] = false
+      })
+    map.once('idle', () => {
+      // this.resetFiles()
+      // this.$store.commit('importer/setFiles', [])
+      // this.setQueuedFiles([])
+      store.commit('importer/clearQueuedFiles')
+    })
+  }
 }
