@@ -97,7 +97,7 @@ export default class Importer {
   }
 
   /**
-   * Read a single (supported) file
+   * Read the contents of a file
    * @param {File} file
    */
   static readFile (file) {
@@ -122,13 +122,11 @@ export default class Importer {
     // read file from form input, store the result of FileReader() and generate statistics about the file.
     const reader = new FileReader()
 
-    // set the onload function. this will be triggered when the file is read below.
+    // This will be triggered when the file is read below.
     reader.onload = async () => {
       await Importer.processFileData(file, fileType, reader.result)
     }
 
-    // select read method and then read file, triggering the onload function.
-    // csvs are read as arrayBuffers but most other filetypes are text.
     const readMethod = determineFileReadMethod(fileType)
     if (readMethod === 'text') {
       reader.readAsText(file)
@@ -139,6 +137,14 @@ export default class Importer {
     }
   }
 
+  /**
+   * Convert the file data into geojson,
+   * and send it off to be prepared for import
+   * @param file
+   * @param fileType
+   * @param data
+   * @returns {Promise<void>}
+   */
   static async processFileData (file, fileType, data) {
     let fileInfo = {
       name: file.name || '',
@@ -153,100 +159,36 @@ export default class Importer {
       }
     }
 
-    // place to store errors/warnings that some file handling libraries return (XLS, CSV)
-    // other libraries throw an exception, so not all file types need the errors var.
-    // let errors
-    // let data
-
-    // check file type and call the handler to convert the file to GeoJSON.
-    // each file type has a different handler.
-    // a try/catch is used for each type in order to generate a user error
-    // message if there are any issues converting.
     if (fileType === 'csv') {
       fileInfo['data'] = await Importer.readCSV(file.name, data)
-      // try {
-      //   ({ data, errors } = await csvToGeoJSON(reader.result))
-      //   global.config.debug && console.log(data)
-      //   fileInfo['data'] = data
-      //   if (errors && errors.length) {
-      //     errors = groupErrorsByRow(errors)
-      //     const warnMsg = createMessageFromErrorArray(errors)
-      //     store.dispatch('importer/processFile', {
-      //       filename: file.name,
-      //       status: 'warning',
-      //       message: `${errors.length} rows removed - ${warnMsg}`
-      //     })
-      //   }
-      // } catch (e) {
-      //   store.dispatch('importer/processFile', {
-      //     filename: file.name,
-      //     status: 'error',
-      //     message: e.message ? e.message : e
-      //   })
-      //   return
-      // }
     } else if (fileType === 'xlsx') {
       fileInfo['data'] = await Importer.readXLSX(file.name, data)
-      // try {
-      //   const fileData = new Uint8Array(reader.result);
-      //   ({ data, errors } = await xlsxToGeoJSON(fileData))
-      //   global.config.debug && console.log(data)
-      //
-      //   fileInfo['data'] = data
-      //
-      //   if (errors && errors.length) {
-      //     errors = groupErrorsByRow(errors)
-      //     const warnMsg = createMessageFromErrorArray(errors)
-      //     store.dispatch('importer/processFile', {
-      //       filename: file.name,
-      //       status: 'warning',
-      //       message: `${errors.length} rows removed - ${warnMsg}`
-      //     })
-      //   }
-      // } catch (e) {
-      //   store.dispatch('importer/processFile', {
-      //     filename: file.name,
-      //     status: 'error',
-      //     message: e.message ? e.message : e
-      //   })
-      //   return
-      // }
     } else if (fileType === 'kml') {
       fileInfo['data'] = Importer.readKML(file.name, data)
     } else if (fileType === 'geojson') {
       fileInfo['data'] = Importer.readGeoJSON(file.name, data)
-      // return
     } else {
       // Unknown file type
       // this should not occur (an unsupported file error should have been caught earlier),
       // but log an error here for good measure in case this ever comes up.
-
       return console.error(`File ${file.name} does not have a -toGeoJSON handler and was not caught by file type check.`)
     }
 
-    // // check if there are any features in the dataset
-    // if (!fileInfo['data'].features) {
-    //   store.dispatch('importer/processFile', {
-    //     filename: file.name,
-    //     status: 'error',
-    //     message: 'file does not contain any valid features.'
-    //   })
-    //   return
-    //   // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
-    // }
-    if (fileInfo['data']) {
+    if (fileInfo.data) {
       global.config.debug && console.log('[wally]-------------------------------')
       global.config.debug && console.log('[wally]File has been loaded successfully')
       global.config.debug && console.log('[wally]-------------------------------')
-
-      // TODO: Move this
-      // Custom Metrics - Import files
-      window._paq && window._paq.push(['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
 
       Importer.prepareLoadedFileForImport([file], fileInfo)
     }
   }
 
+  /**
+   * Reads a CSV file and returns data in geojson format
+   * @param filename
+   * @param contents
+   * @returns {{features: *[], type: string}} Parsed data in geojson format, or undefined
+   */
   static async readCSV (filename, contents) {
     let data, errors
     try {
@@ -268,18 +210,21 @@ export default class Importer {
         status: 'error',
         message: e.message ? e.message : e
       })
-      // return
     }
   }
 
+  /**
+   * Reads an XLSX file and returns data in geojson format
+   * @param filename
+   * @param contents
+   * @returns {{features: *[], type: string}} Parsed data in geojson format, or undefined
+   */
   static async readXLSX (filename, contents) {
     let data, errors
     try {
       const fileData = new Uint8Array(contents);
       ({ data, errors } = await xlsxToGeoJSON(fileData))
       global.config.debug && console.log(data)
-
-      // fileInfo['data'] = data
 
       if (errors && errors.length) {
         errors = groupErrorsByRow(errors)
@@ -298,10 +243,15 @@ export default class Importer {
         status: 'error',
         message: e.message ? e.message : e
       })
-      // return
     }
   }
 
+  /**
+   * Reads a KML file and returns data in geojson format
+   * @param filename
+   * @param contents
+   * @returns {{features: *[], type: string}} Parsed data in geojson format, or undefined
+   */
   static readKML (filename, contents) {
     try {
       return kmlToGeoJSON(contents)
@@ -311,10 +261,15 @@ export default class Importer {
         status: 'error',
         message: e.message
       })
-      // return
     }
   }
 
+  /**
+   * Reads a geojson file and returns data in geojson format
+   * @param filename
+   * @param contents
+   * @returns {{features: *[], type: string}}  Parsed data in geojson format, or undefined
+   */
   static readGeoJSON (filename, contents) {
     try {
       return JSON.parse(contents)
@@ -324,12 +279,11 @@ export default class Importer {
         status: 'error',
         message: 'file contains invalid JSON.'
       })
-      // return
     }
   }
 
   /**
-   *
+   * Handles the reading of a set of shapefiles
    * @param shpFile
    * @param dbfFile
    * @param prjFile
@@ -338,13 +292,10 @@ export default class Importer {
     if (!shpFile) {
       store.dispatch('importer/processFile', {
         filenames: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)],
-        // filename: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)].filter(Boolean).join(', '),
         status: 'error',
         message: 'It looks like you\'re uploading a shapefile. Please' +
           ' provide the .shp file.'
       })
-      // dbfFile && store.commit('importer/startLoadingFile', dbfFile.name)
-      // prjFile && store.commit('importer/startLoadingFile', prjFile.name)
       return
     }
 
@@ -397,12 +348,6 @@ export default class Importer {
           fileQueue.push(prjFile)
         }
         Importer.prepareLoadedFileForImport(fileQueue, fileInfo)
-        // store.commit('importer/setLoadingFile', {
-        //   filename: shpFile.name,
-        //   loading: false
-        // })
-        // dbfFile && store.commit('importer/stopLoadingFile', dbfFile.name)
-        // prjFile && store.commit('importer/stopLoadingFile', prjFile.name)
       }
     }
 
@@ -416,14 +361,12 @@ export default class Importer {
   }
 
   /**
-   * Files are read and loaded; let's prepare them for the final import
+   * Prepare files that have already been read and loaded
+   * Get some info and stats about the file and queue them for importing
    * @param queuedFileGroup
    * @param fileInfo
    */
   static prepareLoadedFileForImport (queuedFileGroup, fileInfo) {
-    // store.commit('importer/addQueuedFile', fileInfo)
-    console.log('loaded file is', fileInfo)
-
     // check if there are any features in the dataset
     if (!fileInfo['data'].features) {
       store.dispatch('importer/processFile', {
@@ -432,8 +375,6 @@ export default class Importer {
         message: 'file does not contain any valid features.'
       })
       return
-      // return
-      // return this.handleFileMessage({ filename: file.name, status: 'error', message: 'file does not contain any valid features.' })
     }
 
     // get the coordinates of the first feature.
@@ -451,16 +392,7 @@ export default class Importer {
         status: 'error',
         message: e.message
       })
-      // queuedFileGroup.forEach(queuedFile => {
-      //   store.dispatch('importer/processFile', {
-      //     filename: queuedFile.name,
-      //     status: 'error',
-      //     message: e.message
-      //   })
-      // })
       return
-
-      // return
     }
 
     fileInfo['firstFeatureCoords'] = firstFeatureCoords
@@ -489,10 +421,10 @@ export default class Importer {
   }
 
   static finalizeImport (file) {
-    // file must be a GeoJSON FeatureCollection
-    // this.layerLoading[file.name] = true
     store.commit('importer/startLoadingFile', file.name)
+    const { fileType } = determineFileType(file.name)
 
+    // file must be a GeoJSON FeatureCollection
     const geojsonFc = file.data
 
     geojsonFc.id = `${file.name}.${file.lastModified}`
@@ -508,29 +440,28 @@ export default class Importer {
     }
 
     const map = store.getters['map/map']
-    // todo: set loading?
 
-    store.dispatch('customLayers/loadCustomGeoJSONLayer', { map: map, featureCollection: geojsonFc, geomType: file.stats.geomType, color: file.color.substring(0, 7) })
-      .then(() => {
+    store.dispatch('customLayers/loadCustomGeoJSONLayer',
+      {
+        map: map,
+        featureCollection: geojsonFc,
+        geomType: file.stats.geomType,
+        color: file.color.substring(0, 7)
+      })
+      .then((response) => {
         fileStatus.status = 'success'
         fileStatus.message = `file loaded`
         fileStatus.firstFeatureCoords = file.firstFeatureCoords
       }).catch((e) => {
         fileStatus.status = 'error'
-        console.log(e)
+        console.error(e)
         fileStatus.message = `error loading file ${file.name}: ${e}`
       }).finally(() => {
-      // this.handleFileMessage(fileStatus)
-      //   this.processFile(fileStatus)
+        // Custom Metrics - Import files
+        window._paq && window._paq.push(
+          ['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
+
         store.dispatch('importer/processFile', fileStatus)
-        // this.$store.commit('importer/processFile', fileStatus)
-        // this.layerLoading[file.name] = false
       })
-    map.once('idle', () => {
-      // this.resetFiles()
-      // this.$store.commit('importer/setFiles', [])
-      // this.setQueuedFiles([])
-      store.commit('importer/clearQueuedFiles')
-    })
   }
 }

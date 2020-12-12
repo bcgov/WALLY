@@ -252,8 +252,6 @@ describe('Importer', () => {
     })
   }
 
-
-
   const mockFileData = jest.fn(x => {
     return {
       features: []
@@ -319,5 +317,21 @@ describe('Importer', () => {
     const file = new File([''], 'test.txt')
     await Importer.processFileData(file, 'txt', {})
     expect(console.error).toHaveBeenCalled()
+  })
+
+  it('Imports the file into a wally layer', async () => {
+    store.commit = jest.fn()
+    store.dispatch = jest.fn(() => {
+      return new Promise(() => {})
+    })
+
+    const file = {
+      name: 'test.geojson',
+      data: { id: 'test' },
+      stats: { geomType: '' },
+      color: 'blue'
+    }
+    Importer.finalizeImport(file)
+    await expect(store.dispatch('customLayers/loadCustomGeoJSONLayer')).toHaveBeenCalled
   })
 })
