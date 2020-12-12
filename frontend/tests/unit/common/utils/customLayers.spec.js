@@ -77,3 +77,21 @@ describe('groupErrorsByRow', () => {
     })
   })
 })
+
+describe('Detect shapefile files', () => {
+  it('Picks out shapefile and dbf files in a list of files', () => {
+    // Given an array of files
+    // See if one of them is '.shp'
+    const fileList = [
+      { name: 'test.kml' },
+      { name: 'test.dbf' },
+      { name: 'test.shx' },
+      { name: 'test.shp' }
+    ]
+
+    // If yes, create an obj containing the filenames
+    // expect(shapefileFiles['shp']).toBe('test.shp')
+    // expect(shapefileFiles['dbf']).toBe('test.dbf')
+    // expect(shapefileFiles['shx']).toBe('test.shx')
+  })
+})
