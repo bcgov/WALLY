@@ -12,7 +12,6 @@ export default {
   },
   actions: {
     processFile ({ commit, state }, { filenames, status, message, firstFeatureCoords }) {
-
       if (!['success', 'warning', 'error'].includes(status)) {
         throw new Error(`handleFileMessage called with invalid file status: ${status}`)
       }
