@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount, mount } from '@vue/test-utils'
+import { createLocalVue, shallowMount } from '@vue/test-utils'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -26,7 +26,6 @@ describe('Surface water tests', () => {
   let wrapper
   let map
   let mapGetters
-  let $route
 
   beforeEach(() => {
     actions = {

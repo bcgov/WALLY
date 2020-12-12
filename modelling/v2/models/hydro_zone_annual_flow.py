@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import math
 from ast import literal_eval
 
-directory = '../data/training_data_hydro_zone_annual_flow/'
+directory = '../data/training_data_hydro_zone_annual_flow/nov16/'
 dependant_variable = 'mean'
 scores = {}
 
@@ -16,8 +16,8 @@ for filename in sorted(os.listdir(directory)):
 
         # feature engineering
         # drop data from years above 2017
-        # indexNames = zone_df[ zone_df['YEAR'] > 2017 ].index
-        # zone_df.drop(indexNames, inplace=True)
+        indexNames = zone_df[ zone_df['year'] > 2015 ].index
+        zone_df.drop(indexNames, inplace=True)
 
         columns = ['drainage_area', 'annual_precipitation', 
           'glacial_coverage', 'glacial_area', dependant_variable]
@@ -40,7 +40,7 @@ for filename in sorted(os.listdir(directory)):
         X = X.drop([dependant_variable], axis=1) # independant
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
 
-        xgb = XGBRegressor(random_state=42)
+        xgb = XGBRegressor(random_state=1)
         xgb.fit(X_train, y_train)
         xgb_score = xgb.score(X_test, y_test)
 
@@ -50,7 +50,8 @@ for filename in sorted(os.listdir(directory)):
         # print score value
         score = round(xgb_score, 4)
         scores[zone_name] = score
-        score_text = '{}: {}'.format(zone_name, score)
+        # score_text = '{}: {}'.format(zone_name, score)
+        score_text = '{}'.format(score)
         print(score_text)
         
         continue

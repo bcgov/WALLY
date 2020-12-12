@@ -5,6 +5,7 @@ import WaterLicensedWorksLegendItem from './customLegendItems/WaterLicensedWorks
 import WaterRightsLicencesLegendItem from './customLegendItems/WaterRightsLicencesLegendItem'
 import WaterApprovalPointsLegendItem from './customLegendItems/WaterApprovalPointsLegendItem'
 import StreamAllocationRestrictionsLegendItem from './customLegendItems/StreamAllocationRestrictionsLegendItem'
+import { humanReadable } from '../../../common/helpers'
 
 export default {
   name: 'MapLegend',
@@ -73,6 +74,7 @@ export default {
         .map((layer) => {
           return {
             display_data_name: layer.id,
+            display_name: humanReadable(layer.name),
             name: layer.name
           }
         })

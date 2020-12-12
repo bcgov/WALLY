@@ -4,7 +4,6 @@
       <ol>
         <li>Zoom into an area of interest on the map.</li>
         <li>Click the “Select Point” button and drop a point of interest on the map.</li>
-        <li>Choose different watersheds in the area for analysis from the drop down menu.</li>
         <li>After the analysis is produced, an "Export" button allows you to download all the information from all the tabs into Excel or PDF.</li>
         <li>The "Model Calculations and Error" information box describes the model's calculations, coefficients table, and relevancy to watershed.</li>
         <li>Below the initial outputs, the "Model Inputs" button allows you to customize the model inputs values for expert adjustment and discretion.</li>
@@ -21,11 +20,7 @@
     </p>
 
     <p>
-      The Surface Water Availability analysis automatically defaults to the "Estimated Catchment Area". To determine what area was used in the analysis, refer to the map to see the polygon outline.
-    </p>
-
-    <p>
-      The outputs provided for the "Estimated Catchment Area" are for the total watershed, starting from the point of interest and upstream. This area is comprised of all of the Freshwater Atlas (FWA) Watershed polygons that are located upstream of the point of interest based on each polygon's watershed code and local watershed code. The watershed polygon that contains the point of interest is included. Depending on where the point of interest is placed, there may be surface area downstream, but not additional tributaries. You can turn on the Freshwater Atlas Watersheds layer from the WALLY layer library to be more clear on what is included within the catchment area and then double check the catchment area that was automatically delineated is what you want.
+      To determine what area was used in the analysis, refer to the map to see the polygon outline. The outputs provided are for the total watershed, starting from the point of interest and upstream. This area is comprised of all of the Freshwater Atlas (FWA) Watershed polygons that are located upstream of the point of interest based on each polygon's watershed code and local watershed code. The watershed polygon that contains the point of interest is included. Depending on where the point of interest is placed, there may be surface area downstream, but not additional tributaries. You can turn on the Freshwater Atlas Watersheds layer from the WALLY layer library to be more clear on what is included within the catchment area and then double check the catchment area that was automatically delineated is what you want.
     </p>
 
     <p>

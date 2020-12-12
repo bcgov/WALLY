@@ -8,7 +8,8 @@ tic = time.time()
 
 directory = '../data/bc_dly_monthly_flows/'
 
-watershed_info_df = pd.read_csv("../data/station_watershed_info_10-25-2020.csv")
+watershed_info_df = pd.read_csv("../data/station_watershed_info_11-16-2020.csv")
+watershed_info_secondary_df = pd.read_csv("../data/station_watershed_info_10-25-2020.csv")
 # monthly_distributions_df = pd.read_csv("../data/bc_dly_monthly_flows/bc_dly_monthly_flows.csv")
 
 training_set = []
@@ -34,9 +35,11 @@ for filename in sorted(os.listdir(directory)):
             else:
                 station = next((wd[1].to_dict() for wd in watershed_info_df.iterrows() if wd[1][1] == station_number), None)
             if station is None:
-                print("FOUND NO STATION: {}".format(station_number))
-                null_station_ids.add(station_number)
-                not_found.append(station_number)
+                station = next((wd[1].to_dict() for wd in watershed_info_secondary_df.iterrows() if wd[1][1] == station_number), None)
+                if station is None:
+                    print("FOUND NO STATION: {}".format(station_number))
+                    null_station_ids.add(station_number)
+                    not_found.append(station_number)
             if station:
                 # "STATION_NUMBER","YEAR","MONTH","NO_DAYS","MONTHLY_MEAN","MONTHLY_TOTAL","MIN","MAX","DRAINAGE_AREA_GROSS","DRAINAGE_AREA_EFFECT","LATITUDE","LONGITUDE"
                 record_info = {
@@ -47,7 +50,8 @@ for filename in sorted(os.listdir(directory)):
                   "monthly_mean": record["MONTHLY_MEAN"],
                   "monthly_total": record["MONTHLY_TOTAL"],
                   "min": record["MIN"],
-                  "max": record["MAX"]
+                  "max": record["MAX"],
+                  "drainage_area_gross": record["DRAINAGE_AREA_GROSS"]
                 }
                 station_info = {
                   "average_slope": station["average_slope"], 
@@ -75,7 +79,7 @@ for filename in sorted(os.listdir(directory)):
                 
                 print("STATION FOUND: {}".format(training_item["station_number"]))
 
-                zone = training_item["hydrological_zone"]
+                zone = round(training_item["hydrological_zone"])
                 month = training_item["month"]
                 if not hydrological_zone_months.get(zone, None):
                     hydrological_zone_months[zone] = {}
@@ -90,7 +94,13 @@ for zone in hydrological_zone_months:
         print("zone {} month {} -> {}".format(zone, month, len(hydrological_zone_months[zone][month])))
         df = pd.DataFrame(hydrological_zone_months[zone][month])
         # keyname = '0' + str(month) if month < 10 else zone
-        df.to_csv('../data/training_data_hydro_zone_monthly_distributions/zone_{}/{}.csv'.format(zone, month), index=False, header=True)
+        outdir = '../data/training_data_hydro_zone_monthly_distributions/nov23/zone_{}'.format(zone)
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
+        outname = '{}.csv'.format(month)
+        fullname = os.path.join(outdir, outname)
+        print(fullname)
+        df.to_csv(fullname, index=False, header=True)
 
 
 # log outcome

@@ -64,11 +64,9 @@ export default {
     'source-layer': 'freshwater_atlas_stream_directions',
     'layout': {
       'icon-image': 'campsite-11',
-      'icon-rotate': [
-        '+',
-        ['-', ['get', 'DOWNSTREAM_DIRECTION']],
-        90
-      ],
+      'icon-rotate':
+        ['-', 90, ['to-number', ['get', 'DOWNSTREAM_DIRECTION']]],
+      'icon-rotation-alignment': 'map',
       'visibility': 'none'
     },
     'paint': {}

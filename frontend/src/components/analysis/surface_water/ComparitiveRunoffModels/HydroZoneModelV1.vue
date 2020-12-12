@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text v-if="showWallyModelFeatureFlag && modelData">
+    <v-card-text v-if="modelData" id="hydroZoneModelV1">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -52,6 +52,7 @@ export default {
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails']),
+    ...mapGetters(['app']),
     meanAnnualFlow () {
       if (this.modelData && this.modelData.mean_annual_flow) {
         return Number(this.modelData.mean_annual_flow).toFixed(2)
@@ -74,7 +75,6 @@ export default {
         median_elevation: details.median_elevation,
         annual_precipitation: details.annual_precipitation
       }
-      console.log(params)
       ApiService.query(`/api/v1/hydrological_zones/v1_watershed_drainage_model?${qs.stringify(params)}`)
         .then(r => {
           this.modelData = r.data
@@ -84,9 +84,6 @@ export default {
           this.modelLoading = false
           console.error(e)
         })
-    },
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   mounted () {

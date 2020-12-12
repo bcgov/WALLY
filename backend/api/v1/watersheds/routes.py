@@ -104,16 +104,13 @@ def get_watersheds(
     Watersheds are sourced from the following datasets:
     https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-assessment-watersheds
     https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries
-    https://catalogue.data.gov.bc.ca/dataset/freshwater-atlas-watersheds
 
     """
     assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
-    fwa_watersheds_layer_id = 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY'
     hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
 
     search_layers = ','.join([
         assessment_watershed_layer_id,
-        fwa_watersheds_layer_id,
         hydrometric_watershed_layer_id
     ])
 

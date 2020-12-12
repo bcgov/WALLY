@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import requests as req
 import csv 
 import time
@@ -12,26 +13,34 @@ log = logging.getLogger(__name__)
 
 tic = time.time()
 
+# token = os.getenv("STAGING_TOKEN", "")
+token = os.getenv("PROD_TOKEN", "")
+
 # Add Wally access token here
-headers = {'Authorization': 'Bearer <token>'}
+headers = {'Authorization': 'Bearer ' + token}
 # Read in station locations
-station_locations_df = pd.read_csv("../data/bc_station_locations/bc_station_locations.csv")
+station_locations_df = pd.read_csv("../data/bc_station_locations/bc_station_locations_nov16.csv")
+existing_stations_df = pd.read_csv("../data/station_watershed_info_11-16-2020.csv")
+existing_stations_list = existing_stations_df["station_number"].tolist()
 
 # setup output file
-date = datetime.datetime.now().strftime('%m-%d-%Y')
-filename = "station_watershed_info" + "_" + date + ".csv"
-filepath = "../data/{}".format(filename)
+# date = datetime.datetime.now().strftime('%m-%d-%Y')
+# filename = "station_watershed_info" + "_" + date + ".csv"
+# filepath = "../data/{}".format(filename)
+
+filepath = "../data/station_watershed_info_11-16-2020.csv"
 
 watershed_info = []
 row_count = 0
+already_exists_count = 0
 success_count = 0
 resp_error_count = 0
 slope_null_count = 0
 
 
 def log_progress():
-    if(len(watershed_info) <= 0):
-        print("no watershed info")
+    # if(len(watershed_info) <= 0):
+    #     print("no watershed info")
     if row_count % 30 != 0:
         return
 
@@ -45,6 +54,7 @@ def log_progress():
     failed_call_perc = (resp_error_count / row_count) * 100
     failed_slope_perc = (slope_null_count / row_count) * 100
     # success_total = data_size - resp_error_count - slope_null_count
+    print("already existing stations: {}/{}%".format(already_exists_count, len(existing_stations_list)))
     print("failed calls: {} {}%".format(resp_error_count, failed_call_perc))
     print("slope nulls: {} {}%".format(slope_null_count, failed_slope_perc))
     print("successful stations count: {} out of {}".format(success_count, row_count))
@@ -58,6 +68,12 @@ with open(filepath, "a") as outfile:
     for row in station_locations_df.iterrows():
         row_count += 1
         station = row[1]
+
+        if station["STATION_NUMBER"] in existing_stations_list:
+            print("station data already exists")
+            already_exists_count += 1
+            continue
+
         url = "https://wally.pathfinder.gov.bc.ca/api/v1/watersheds/details/?point=[{},{}]".format(station["LONGITUDE"], station["LATITUDE"])
         resp = req.get(url, headers=headers)
         

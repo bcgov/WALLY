@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text v-if="showWallyModelFeatureFlag && modelData">
+    <v-card-text v-if="modelData" id="hydroZoneModelV2">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -31,17 +31,16 @@
           </v-card>
         </v-col>
       </v-row>
-    </v-card-text>
-    <Plotly v-if="meanMonthlyPlotData"
+        <Plotly v-if="meanMonthlyPlotData"
             :layout="meanMonthlyLayout"
             :data="meanMonthlyPlotData"
-    ></Plotly>
+        ></Plotly>
+    </v-card-text>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
-import qs from 'querystring'
 import ApiService from '../../../../services/ApiService'
 
 const Plotly = () => import('vue-plotly').then(module => {
@@ -97,6 +96,7 @@ export default {
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails']),
+    ...mapGetters(['app']),
     watershedArea () {
       if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
         return null
@@ -159,15 +159,9 @@ export default {
     },
     fetchWatershedModel (details) {
       this.modelLoading = true
-      const params = {
-        hydrological_zone: details.hydrological_zone,
-        drainage_area: details.drainage_area,
-        annual_precipitation: details.annual_precipitation,
-        glacial_coverage: details.glacial_coverage,
-        glacial_area: details.glacial_area
-      }
-      console.log(params)
-      ApiService.query(`/api/v1/hydrological_zones/v2_watershed_drainage_model?${qs.stringify(params)}`)
+      // add year as model parameter
+      details['year'] = new Date().getFullYear()
+      ApiService.post('/api/v1/hydrological_zones/v2_watershed_drainage_model', details)
         .then(r => {
           this.modelData = r.data
           this.modelLoading = false
@@ -176,9 +170,6 @@ export default {
           this.modelLoading = false
           console.error(e)
         })
-    },
-    showWallyModelFeatureFlag () {
-      return this.app && this.app.config && this.app.config.wally_model
     }
   },
   mounted () {
