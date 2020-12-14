@@ -1,6 +1,21 @@
 import csv2geojson from 'csv2geojson'
 import { kml } from '@tmcw/togeojson'
 import XLSX from 'xlsx'
+import proj4 from 'proj4'
+import * as shapefile from 'shapefile'
+import {
+  convertGeometryCoords
+} from './gisUtils'
+import { featureCollection } from '../mapbox/features'
+
+export const FILE_TYPE_SHAPEFILE = 'shapefile'
+export const FILE_TYPES_ACCEPTED = {
+  'geojson': ['geojson', 'json'],
+  [FILE_TYPE_SHAPEFILE]: ['shp', 'dbf', 'prj'], // add zip file
+  'csv': ['csv'],
+  'xlsx': ['xls', 'xlsx'],
+  'kml': ['kml']
+}
 
 export function groupErrorsByRow (errors) {
   // returns a new array containing a single object representing each row.
@@ -80,5 +95,36 @@ export function csvToGeoJSON (file) {
         reject(new Error('An error occured loading file'))
       }
     })
+  })
+}
+
+export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) {
+  const proj = projection ? proj4(projection) : null
+
+  return new Promise((resolve, reject) => {
+    const features = []
+
+    shapefile.open(shpfile, dbffile)
+      .then(source => source.read()
+        .then(function log (result) {
+          if (result.done) {
+            resolve(featureCollection(features))
+            return
+          }
+          let feature = result.value
+
+          // Convert coordinates based on projection file
+          if (projection && feature.geometry && feature.geometry.coordinates) {
+            feature.geometry.coordinates = convertGeometryCoords(proj,
+              feature.geometry)
+          }
+
+          features.push(feature)
+          return source.read().then(log)
+        }))
+      .catch(error => {
+        reject(new Error(error.stack))
+        console.error(error.stack)
+      })
   })
 }

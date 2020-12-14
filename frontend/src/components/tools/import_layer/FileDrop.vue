@@ -48,11 +48,7 @@ export default {
       dropZone.addEventListener('drop', (e) => {
         let droppedFiles = e.dataTransfer.files // the files that were dropped
 
-        console.log(droppedFiles)
-        // this.showFiles(droppedFiles)
         this.$emit('import:load-files', droppedFiles)
-
-        // triggerFormSubmit();
       })
 
       input.addEventListener('change', (e) => {

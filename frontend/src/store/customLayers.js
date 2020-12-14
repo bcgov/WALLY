@@ -67,7 +67,6 @@ export default {
     },
     removeCustomLayer (state, { map, id }) {
       // removes a custom layer by layer ID
-
       map.removeLayer(id)
       map.removeSource(id)
 
