@@ -61,15 +61,12 @@ export default {
   },
   mutations: {
     registerCustomLayer (state, { layerInfo }) {
-      console.log('registering layer id', layerInfo.id)
       // featureCollection should have an ID field and a name in properties.name
       state.customLayers.children.push(layerInfo)
       state.selectedCustomLayers.push(layerInfo.id)
     },
     removeCustomLayer (state, { map, id }) {
       // removes a custom layer by layer ID
-      console.log('removing layer id', id)
-
       map.removeLayer(id)
       map.removeSource(id)
 
