@@ -294,7 +294,7 @@ export default class Importer {
         filenames: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)],
         status: 'error',
         message: 'It looks like you\'re uploading a shapefile. Please' +
-          ' provide the .shp file.'
+          ' provide the .shp and .prj file.'
       })
       return
     }
