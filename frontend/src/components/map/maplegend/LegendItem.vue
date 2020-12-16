@@ -48,7 +48,7 @@ export default {
       return this.item.strokeWidth ? this.item.strokeWidth + 'px' : '1px'
     },
     strokeColor () {
-      return this.item.outlineColor
+      return this.item.outlineColor ? this.item.outlineColor : null
     }
   }
 }

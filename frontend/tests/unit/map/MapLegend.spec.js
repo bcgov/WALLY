@@ -302,4 +302,133 @@ describe('Map Legend Test', () => {
     let fishObstacles = wrapper.findAll('div#legend').at(0).find('span.layerName')
     expect(fishObstacles.text()).toEqual('Fish obstacles')
   })
+
+  it('Displays the correct colors of the icon', async () => {
+    const paints = {
+      'freshwater_atlas_stream_networks': {
+        'line-color': 'hsl(213, 78%, 55%)'
+      },
+      'snow_stations': {
+        'circle-color': 'hsl(2, 1%, 100%)',
+        'circle-stroke-color': 'hsl(140, 95%, 52%)',
+        'circle-stroke-width': 1
+      }
+    }
+
+    const layers = {
+      'freshwater_atlas_stream_networks': {
+        type: 'line'
+      },
+      'snow_stations': {
+        type: 'circle'
+      }
+    }
+    const streamLayer = {
+      display_data_name: 'freshwater_atlas_stream_networks',
+      display_name: 'FWA Stream Networks'
+    }
+    let mapLayers = [streamLayer]
+    let propsData = {
+      map: {
+        getLayer: (name) => {
+          return layers[name]
+        },
+        getPaintProperty: (id, type) => {
+          return paints[id][type]
+        }
+      }
+    }
+    let map = {
+      namespaced: true,
+      state: {
+        activeMapLayers: []
+      },
+      getters: {
+        activeMapLayers: (state) => state.activeMapLayers
+      },
+      mutations: {
+        setActiveMapLayers: (state, payload) => {
+          state.activeMapLayers = payload
+        }
+      }
+    }
+    let customLayers = {
+      namespaced: true,
+      getters: {
+        selectedCustomLayers: () => [],
+        customLayers: () => {
+          return {
+            children: [] }
+        }
+      }
+    }
+
+    store = new Vuex.Store({ modules: { map, customLayers } })
+    wrapper = mount(MapLegend, {
+      vuetify,
+      store,
+      propsData,
+      localVue,
+      computed: {
+        legend: {
+          get () {
+            return this.activeMapLayers
+          },
+          set (val) {
+            this.activeMapLayers = val
+          }
+        }
+      }
+    })
+
+    // activate a line string layer
+    store.commit('map/setActiveMapLayers', mapLayers)
+    await wrapper.vm.$nextTick()
+    let legendItems = wrapper.findAll('div.legendItem i')
+
+    // expect 1 item in map legend
+    // 1 line, blue w/no outline
+    expect(legendItems.length).toBe(1)
+    let streamIconColor = legendItems.at(0).element.style.getPropertyValue('color')
+    let streamIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
+    expect(streamIconColor).toBe(paints['freshwater_atlas_stream_networks']['line-color'])
+    expect(streamIconOutlineColor).toBeFalsy()
+
+    // activate a point layer and a line string layer
+    const snowLayer = {
+      display_data_name: 'snow_stations',
+      display_name: 'Snow Stations'
+    }
+    mapLayers = [snowLayer, streamLayer]
+    store.commit('map/setActiveMapLayers', mapLayers)
+    await wrapper.vm.$nextTick()
+
+    // expect 2 items in map legend
+    // 1 point, white w/cyan outline
+    // 1 line, blue w/no outline
+    legendItems = wrapper.findAll('div.legendItem i')
+    expect(legendItems.length).toBe(2)
+    let snowIconColor = legendItems.at(0).element.style.getPropertyValue('color')
+    let snowIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
+    streamIconColor = legendItems.at(1).element.style.getPropertyValue('color')
+    streamIconOutlineColor = legendItems.at(1).element.style.getPropertyValue('-webkit-text-stroke-color')
+    expect(snowIconColor).toBe(paints['snow_stations']['circle-color'])
+    expect(snowIconOutlineColor).toBe(paints['snow_stations']['circle-stroke-color'])
+    expect(streamIconColor).toBe(paints['freshwater_atlas_stream_networks']['line-color'])
+    expect(streamIconOutlineColor).toBeFalsy()
+
+    // deactivate snow stations layer
+    mapLayers = [streamLayer]
+    store.commit('map/setActiveMapLayers', mapLayers)
+    await wrapper.vm.$nextTick()
+
+    // expect 1 item in map legend
+    // 1 line, blue w/no outline
+    legendItems = wrapper.findAll('div.legendItem i')
+    streamIconColor = legendItems.at(0).element.style.getPropertyValue('color')
+    streamIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
+    expect(legendItems.length).toBe(1)
+    expect(streamIconColor).toBe(paints['freshwater_atlas_stream_networks']['line-color'])
+    expect(streamIconOutlineColor).toBeFalsy()
+  })
 })
