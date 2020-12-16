@@ -111,7 +111,7 @@ export default {
         model_version: 'v1',
         hydrological_zone: this.watershedDetails.hydrological_zone
       }
-      ApiService.query(`/api/v1/hydrological_zones/download_training_data?${qs.stringify(params)}`)
+      ApiService.query(`/api/v1/hydrological_zones/download_training_data?${qs.stringify(params)}`, null, { responseType: 'arraybuffer' })
         .then(r => {
           downloadZip(r, `zone-${params.hydrological_zone}-training-data.zip`)
           this.downloading = false

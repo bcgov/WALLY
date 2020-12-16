@@ -195,13 +195,9 @@ def download_training_data(model_version: str, hydrological_zone: int):
     minio_path = '/{}/training_data/{}'.format(model_version, filename)
     bucket_name = 'models'
     try:
-        stat = minio_client.stat_object(bucket_name=bucket_name, object_name=minio_path)
-        # print(stat.content_type)
-        minio_response = minio_client.get_object(bucket_name, minio_path)
         return StreamingResponse(
-          minio_response,
-          media_type=stat.content_type,
-          headers={'Content-Disposition': f'attachment; filename={filename}'}
+          minio_client.get_object(bucket_name, minio_path),
+          media_type='application/zip',
         )
 
     except Exception as error:

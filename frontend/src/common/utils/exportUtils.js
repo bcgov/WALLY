@@ -1,5 +1,5 @@
 const XLSX_FILE_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-// const ZIP_FILE_TYPE = 'application/zip'
+const ZIP_FILE_TYPE = 'application/zip'
 
 export function downloadXlsx (r, defaultFilename) {
   global.config.debug && console.log('[wally]', r)
@@ -34,9 +34,7 @@ export function downloadZip (r, defaultFilename) {
   if (filenameData && filenameData.length === 2) {
     filename = filenameData[1]
   }
-
-  let blob = new Blob([r.data], { type: r.headers['content-type'] })
-
+  let blob = new Blob([r.data], { type: ZIP_FILE_TYPE })
   let link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = filename
