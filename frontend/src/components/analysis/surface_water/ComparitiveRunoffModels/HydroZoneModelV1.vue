@@ -31,6 +31,24 @@
           </v-card>
         </v-col>
       </v-row>
+      <v-row class="pl-6">
+        <v-btn
+          outlined
+          :disabled="downloading"
+          @click="downloadTrainingData"
+          color="primary"
+        >
+          Download Training Data
+          <v-icon class="ml-2" v-if="!downloading">cloud_download</v-icon>
+          <v-progress-circular
+            v-if="downloading"
+            indeterminate
+            size=24
+            class="ml-1"
+            color="primary"
+          ></v-progress-circular>
+        </v-btn>
+      </v-row>
     </v-card-text>
   </div>
 </template>
@@ -39,6 +57,7 @@
 import { mapGetters } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../../services/ApiService'
+import { downloadZip } from '../../../../common/utils/exportUtils'
 
 export default {
   name: 'HydroZoneModelV1',
@@ -48,7 +67,8 @@ export default {
   },
   data: () => ({
     modelLoading: false,
-    modelData: {}
+    modelData: {},
+    downloading: false
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails']),
@@ -82,6 +102,22 @@ export default {
         })
         .catch(e => {
           this.modelLoading = false
+          console.error(e)
+        })
+    },
+    downloadTrainingData () {
+      this.downloading = true
+      const params = {
+        model_version: 'v1',
+        hydrological_zone: this.watershedDetails.hydrological_zone
+      }
+      ApiService.query(`/api/v1/hydrological_zones/download_training_data?${qs.stringify(params)}`)
+        .then(r => {
+          downloadZip(r, `zone-${params.hydrological_zone}-training-data.zip`)
+          this.downloading = false
+        })
+        .catch(e => {
+          this.downloading = false
           console.error(e)
         })
     }

@@ -11,6 +11,7 @@ from xgboost import XGBRegressor, DMatrix
 import numpy as np
 from api.minio.client import minio_client
 from minio.error import ResponseError
+from starlette.responses import Response
 
 logger = logging.getLogger("hydrological_zones")
 
@@ -181,6 +182,25 @@ def load_model_data(minio_path: str, file_name: str):
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
+
+    except Exception as error:
+        logger.warning(error)
+
+
+def download_training_data(model_version: str, hydrological_zone: int):
+    """
+    Gets the model training data from Minio using model version and hydro zone
+    """
+    filename = 'zone_{}.zip'.format(str(hydrological_zone))
+    minio_path = '/{}/training_data/{}'.format(model_version, filename)
+    try:
+        response = minio_client.get_object('models', minio_path)
+        content = response.read()
+        return Response(
+          content=content,
+          media_type='application/zip',
+          headers={'Content-Disposition': f'attachment; filename={filename}'}
+        )
 
     except Exception as error:
         logger.warning(error)
