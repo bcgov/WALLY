@@ -2,6 +2,7 @@ import json
 import logging
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
 from api.v1.aggregator.controller import feature_search
 from shapely.geometry import MultiPolygon, shape
 from shapely.ops import transform
@@ -11,7 +12,6 @@ from xgboost import XGBRegressor, DMatrix
 import numpy as np
 from api.minio.client import minio_client
 from minio.error import ResponseError
-from starlette.responses import Response
 
 logger = logging.getLogger("hydrological_zones")
 
@@ -193,12 +193,14 @@ def download_training_data(model_version: str, hydrological_zone: int):
     """
     filename = 'zone_{}.zip'.format(str(hydrological_zone))
     minio_path = '/{}/training_data/{}'.format(model_version, filename)
+    bucket_name = 'models'
     try:
-        response = minio_client.get_object('models', minio_path)
-        content = response.read()
-        return Response(
-          content=content,
-          media_type='application/zip',
+        stat = minio_client.stat_object(bucket_name=bucket_name, object_name=minio_path)
+        # print(stat.content_type)
+        minio_response = minio_client.get_object(bucket_name, minio_path)
+        return StreamingResponse(
+          minio_response,
+          media_type=stat.content_type,
           headers={'Content-Disposition': f'attachment; filename={filename}'}
         )
 
