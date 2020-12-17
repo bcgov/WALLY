@@ -33,10 +33,9 @@
       </v-row>
       <v-row class="pl-6 mb-5">
         <v-btn
-          outlined
+          small depressed light
           :disabled="downloading"
           @click="downloadTrainingData"
-          color="primary"
         >
           Download Training Data
           <v-icon class="ml-2" v-if="!downloading">cloud_download</v-icon>
