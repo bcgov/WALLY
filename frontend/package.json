@@ -8,7 +8,9 @@
     "test:unit": "vue-cli-service test:unit --no-cache",
     "lint": "vue-cli-service lint",
     "build:report": "vue-cli-service build --report",
-    "build:report:json": "vue-cli-service build --report-json"
+    "build:report:json": "vue-cli-service build --report-json",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^1.0.1",
@@ -53,6 +55,10 @@
   },
   "devDependencies": {
     "@babel/core": "^7.12.3",
+    "@storybook/addon-actions": "^6.1.11",
+    "@storybook/addon-essentials": "^6.1.11",
+    "@storybook/addon-links": "^6.1.11",
+    "@storybook/vue": "^6.1.11",
     "@vue/babel-preset-app": "^4.5.4",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-plugin-eslint": "^3.8.0",
@@ -62,6 +68,7 @@
     "@vue/test-utils": "^1.0.0-beta.30",
     "babel-eslint": "^10.0.1",
     "babel-jest": "^23.6.0",
+    "babel-loader": "^8.2.2",
     "babel-plugin-dynamic-import-node": "^2.3.0",
     "compression-webpack-plugin": "^6.1.1",
     "core-js": "^3.7.0",
