@@ -53,7 +53,7 @@ def v2_watershed_drainage_model(
     return model_output
 
 
-@router.get("/download_training_data")
+@router.get("/training_data/download")
 def get_training_data(
         model_version: str,
         hydrological_zone: int
