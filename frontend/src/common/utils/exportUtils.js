@@ -34,6 +34,7 @@ export function downloadZip (r, defaultFilename) {
   if (filenameData && filenameData.length === 2) {
     filename = filenameData[1]
   }
+
   let blob = new Blob([r.data], { type: ZIP_FILE_TYPE })
   let link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
