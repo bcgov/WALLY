@@ -27,6 +27,15 @@ def upgrade():
           Column('create_date', DateTime, nullable=False),
           Column('update_date', DateTime, nullable=False)
       )
+    op.create_table(
+          'project_document',
+          Column('project_document_id', Integer, primary_key=True),
+          Column('project_id', String, ForeignKey('project.project_id')),
+          Column('s3_path', String),
+          Column('filename', String),
+          Column('create_date', DateTime, nullable=False),
+          Column('update_date', DateTime, nullable=False)
+    )
 
 
 def downgrade():
