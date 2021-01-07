@@ -40,6 +40,7 @@
         <template v-slot:expanded-item="{ headers, item }">
           <td :colspan="headers.length">
             <ProjectDocumentList :project="item.id"/>
+            <SavedAnalysisList :project="item.id"/>
           </td>
         </template>
       </v-data-table>
@@ -72,14 +73,18 @@
 </template>
 
 <script>
-import { mapGetters, mapActions, mapMutations } from 'vuex'
+import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
+import ProjectDocumentList from './ProjectDocumentList'
+import SavedAnalysisList from './SavedAnalysisList'
 
 export default {
   name: 'Projects',
   components: {
+    ProjectDocumentList,
+    SavedAnalysisList
   },
-  props: ['watershedID'],
+  props: [''],
   data: () => ({
     projectsLoading: false,
     name: '',
@@ -129,13 +134,10 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters('map', ['map']),
-    ...mapGetters('surfaceWater', ['allocationValues', 'shortTermAllocationValues'])
+    ...mapGetters('map', ['map'])
   },
   methods: {
-    ...mapActions('surfaceWater', ['initAllocationItemIfNotExists', 'initShortTermAllocationItemIfNotExists']),
     ...mapGetters('map', ['isMapReady']),
-    ...mapMutations('surfaceWater', ['setLicencePlotData']),
     fetchProjectsData () {
       this.projectsLoading = true
       ApiService.query(`/api/v1/projects/`)
@@ -150,25 +152,17 @@ export default {
     },
     toggleCreateProjectModal () {
 
-
-      
     },
     createNewProject () {
       const params = {
         name: this.name,
         description: this.description
       }
-
-      ApiService.post(`/api/v1/projects/`, params, {
-        responseType: 'arraybuffer'
-      }).then((res) => {
-        // default filename, and inspect response header Content-Disposition
-        // for a more specific filename (if provided).
-        downloadXlsx(res, 'WellsCrossSection.xlsx')
-        this.xlsLoading = false
+      ApiService.post(`/api/v1/projects/`, params).then((res) => {
+        // TODO project create logic
+        console.log(res)
       }).catch((error) => {
         console.error(error)
-        this.xlsLoading = false
       })
     }
   },

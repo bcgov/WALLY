@@ -1,0 +1,3 @@
+<template>
+<container></container>
+</template>
