@@ -59,6 +59,8 @@ MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", False)
 
 # Use Pydantic's settings management
+
+
 class Settings(BaseSettings):
     external_import = False
     external_import_types = ""

@@ -352,7 +352,7 @@ def surface_water_approval_points(polygon: Polygon):
     )
 
 
-def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
+def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False, downstream_route_measure = None, blue_line_key = None):
     """ returns the union of all FWA watershed polygons upstream from
         the watershed polygon with WATERSHED_FEATURE_ID as a Feature
 
@@ -375,7 +375,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         for more info.
     """
     if WATERSHED_DEBUG:
-        logger.info("Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
+        logger.info(
+            "Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
 
     q = """
         select ST_AsGeojson(
@@ -385,8 +386,34 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
             )
         ) as geom """
 
-    res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
-                         "include": watershed_feature_id if include_self else None})
+    params = {
+        "watershed_feature_id": watershed_feature_id,
+        "include": watershed_feature_id if include_self else None}
+
+    ws_id = f"generated.{watershed_feature_id}"
+    is_3005 = False
+
+    if downstream_route_measure and blue_line_key:
+        logger.info("using FWAPG method - blk: %s; drm: %s", blue_line_key, downstream_route_measure)
+        q = """
+            select ST_AsGeojson(
+                coalesce(
+                    (SELECT geom from FWA_WatershedAtMeasure(:blue_line_key, :downstream_route_measure)),
+                    (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
+                    (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
+                )
+            ) as geom """
+
+        params = {
+            "downstream_route_measure": downstream_route_measure,
+            "blue_line_key": blue_line_key,
+            "watershed_feature_id": watershed_feature_id,
+            "include": watershed_feature_id if include_self else None}
+
+        ws_id = f"fwapg.{blue_line_key}_{int(downstream_route_measure)}"
+        is_3005 = True
+
+    res = db.execute(q, params)
 
     if WATERSHED_DEBUG:
         logger.info("Upstream catchment query finished %s", res)
@@ -401,11 +428,13 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
             'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
+    ws_geom = shape(geojson.loads(record[0]))
+    if is_3005:
+        ws_geom = transform(transform_3005_4326, ws_geom)
+
     feature = Feature(
-        geometry=shape(
-            geojson.loads(record[0])
-        ),
-        id=f"generated.{watershed_feature_id}",
+        geometry=ws_geom,
+        id=ws_id,
         properties={
             "name": "Estimated catchment area",
             "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
@@ -422,7 +451,9 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
 def calculate_watershed(
     db: Session,
     point: Point,
-    include_self: bool
+    include_self: bool,
+    downstream_route_measure=None,
+    blue_line_key=None
 ):
     """ calculates watershed area upstream of a POI """
     if WATERSHED_DEBUG:
@@ -440,18 +471,17 @@ def calculate_watershed(
 
     watershed_id = q.first()
 
+
     if WATERSHED_DEBUG:
         logger.info("watershed id %s", watershed_id)
 
-    if not watershed_id:
-        if WATERSHED_DEBUG:
-            logger.warning("No watershed found")
-        return None
-
-    watershed_id = watershed_id[0]
+    # if not watershed_id:
+    #     if WATERSHED_DEBUG:
+    #         logger.warning("No watershed found")
+    #     return None
 
     feature = get_upstream_catchment_area(
-        db, watershed_id, include_self=include_self)
+        db, watershed_id, include_self=include_self, downstream_route_measure=downstream_route_measure, blue_line_key=blue_line_key)
 
     if not feature:
         # was not able to calculate a watershed with the provided params.
@@ -585,16 +615,33 @@ def surficial_geology(polygon: Polygon):
 
 def get_watershed(db: Session, watershed_feature: str):
     """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
+
+    logger.info('-----------------------------------------')
+    logger.info('-----------------------------------------')
+    logger.info(watershed_feature)
+    logger.info('-----------------------------------------')
+    logger.info('-----------------------------------------')
+
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
     watershed = None
 
+    logger.info(watershed_layer)
+    logger.info(watershed_feature_id)
+    logger.info('-----------------------------------------')
+    logger.info('-----------------------------------------')
+
+
     if WATERSHED_DEBUG:
         logger.info(watershed_feature_id)
 
+    if watershed_layer == 'fwapg':
+        blk, drm = watershed_feature_id[0].split('_')
+        watershed = get_upstream_catchment_area(db, None, blue_line_key=int(blk), downstream_route_measure=float(drm))
+
     # if we generated this watershed, use the catchment area
     # generation function to get the shape.
-    if watershed_layer == 'generated':
+    elif watershed_layer == 'generated':
         watershed = get_upstream_catchment_area(db, watershed_feature_id[0])
 
     # otherwise, fetch the watershed from DataBC. The layer is encoded in the
@@ -1045,8 +1092,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
     watershed_rect = watershed_poly.minimum_rotated_rectangle
 
-    if WATERSHED_DEBUG:
-        logger.info("watershed area %s", watershed_area)
+    logger.info("watershed area %s", watershed_area)
 
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²

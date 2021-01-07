@@ -108,10 +108,10 @@ def get_watersheds(
     """
     assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
     hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
+    fwa_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_WATERSHEDS_POLY'
 
     search_layers = ','.join([
-        assessment_watershed_layer_id,
-        hydrometric_watershed_layer_id
+        fwa_watershed_layer_id
     ])
 
     if not point:
@@ -126,19 +126,32 @@ def get_watersheds(
 
     watershed_features = []
 
-    calculated_ws = calculate_watershed(db, point, include_self=include_self)
+    ws_geom = transform(transform_3005_4326, shape(watersheds[0].geometry))
+
+    streams = databc_feature_search(
+        "WHSE_BASEMAPPING.FWA_STREAM_NETWORKS_SP", search_area=ws_geom.minimum_rotated_rectangle)
+
+    blk = streams[0].get('properties', {}).get('BLUE_LINE_KEY')
+    drm = streams[0].get('properties', {}).get('DOWNSTREAM_ROUTE_MEASURE')
+
+    logger.info('--------------------------')
+    logger.info("blk: %s; drm: %s", blk, drm)
+    logger.info('--------------------------')
+
+    calculated_ws = calculate_watershed(
+        db, point, include_self=include_self, downstream_route_measure=drm, blue_line_key=blk)
 
     if calculated_ws:
         watershed_features.append(calculated_ws)
 
-    for ws in watersheds.features:
-        watershed_features.append(
-            Feature(
-                geometry=transform(transform_3005_4326, shape(ws.geometry)),
-                properties=dict(ws.properties),
-                id=ws.id
-            )
-        )
+    # for ws in watersheds.features:
+    #     watershed_features.append(
+    #         Feature(
+    #             geometry=transform(transform_3005_4326, shape(ws.geometry)),
+    #             properties=dict(ws.properties),
+    #             id=ws.id
+    #         )
+    #     )
 
     return FeatureCollection(watershed_features)
 
@@ -164,7 +177,7 @@ def watershed_stats(
     watershed_poly = shape(watershed.geometry)
 
     watershed_details = get_watershed_details(db, watershed)
-    wd = watershed_details # purely for shorthand below
+    wd = watershed_details  # purely for shorthand below
 
     # isoline model outputs
     isoline_runoff_model = calculate_runoff_in_area(db, watershed_poly)

@@ -355,6 +355,7 @@ export default {
     },
     addSingleWatershedLayer (data, id = 'watershedsAtLocation') {
       const layer = findWallyLayer(SOURCE_WATERSHEDS_AT_LOCATION)(id, data)
+      console.log(data)
       this.map.addLayer(layer, 'water_rights_licences')
     },
     fetchWatersheds () {
@@ -372,6 +373,9 @@ export default {
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
+          console.log('---------API data')
+          console.log(data)
+          console.log('---------')
           this.watersheds = data.features
           this.watersheds.forEach((ws, i) => {
             if (i === 0) this.selectedWatershed = ws.id
