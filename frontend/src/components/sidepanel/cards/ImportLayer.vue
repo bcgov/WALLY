@@ -5,16 +5,13 @@
         <v-toolbar-title>Upload file or data</v-toolbar-title>
       </v-banner>
     </v-toolbar>
-    <v-row class="pa-5">
+    <v-row>
       <v-col>
-        <p>Choose files, data or layers to import from your computer, which will become temporarily available on the map.</p>
-        <p>Supported file types include: geojson, csv, xlsx, kml, shapefiles (shp, dbf, prj)</p>
-        <p>Imported files require a location in order to be displayed. The supported coordinated system is decimal degrees longitude/latitude (WGS84).
-            For example, -127.10205, 51.81051</p>
-        <p>For CSV and Excel, the files should have two columns with the headings (not case sensitive): "Latitude" and "Longitude" or "lat" and "long".
-            It works best to upload an Excel workbook that has a table on the first sheet (and no other cells filled in outside the table).</p>
-        <p>Shapefiles must include both the .shp and .prj. Uploading the .dbf is also recommended if you want to view features and properties of the layer.</p>
-        <p>Large or complex files may impact performance. A message will indicate if the file has been successfully uploaded.</p>
+        <v-card flat>
+          <v-card-text>
+            <ImportLayerInstructions/>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
     <v-row class="pl-5 pr-5">
@@ -39,6 +36,7 @@
 </template>
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
+import ImportLayerInstructions from '../../tools/import_layer/ImportLayerInstructions'
 import FileDrop from '../../tools/import_layer/FileDrop'
 import FileList from '../../tools/import_layer/FileList'
 import FileListProcessed from '../../tools/import_layer/FileListProcessed'
@@ -47,6 +45,7 @@ import Importer from '../../../common/utils/Importer'
 export default {
   name: 'ImportLayer',
   components: {
+    ImportLayerInstructions,
     FileDrop,
     FileList,
     FileListProcessed
