@@ -8,7 +8,6 @@ Create Date: 2021-01-03 11:10:10.127212
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision = 'b93cc797efe6'
@@ -23,7 +22,7 @@ def upgrade():
           Column('project_id', Integer, primary_key=True),
           Column('name', String),
           Column('description', String),
-          Column('user_id', UUID(), ForeignKey('user.uuid')),
+          Column('user_id', String, ForeignKey('user.uuid')),
           Column('create_date', DateTime, nullable=False),
           Column('update_date', DateTime, nullable=False)
       )
