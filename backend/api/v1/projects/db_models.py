@@ -34,5 +34,5 @@ class ProjectDocument(Base):
     project_document_id = Column(Integer, primary_key=True, comment='primary key id for a project')
     s3_path = Column(String, comment='path to document in s3 storage system')              
     filename = Column(String, comment='filename of the document')
-    project_id = Column(String, ForeignKey('project.project_id'),
+    project_id = Column(Integer, ForeignKey('project.project_id'),
                           comment='foreign key to the project this document is associated with')
