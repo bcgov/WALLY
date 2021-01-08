@@ -18,6 +18,7 @@ from api.v1.models.hydrological_zones import routes as hydrological_zones
 from api.v1.models.isolines import routes as isolines
 from api.v1.models.scsb2016 import routes as scsb2016
 from api.v1.user import routes as user
+from api.v1.projects import routes as projects
 
 api_router = APIRouter()
 
@@ -123,5 +124,12 @@ api_router.include_router(
     user.router,
     prefix="/user",
     tags=["user"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    projects.router,
+    prefix="/projects",
+    tags=["projects"],
     responses={404: {"description": "Not found"}},
 )

@@ -20,6 +20,7 @@ import WaterRightsLicencesNearbyContainer
 import FirstNationsAreasNearbyContainer
   from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
 import ImportLayer from './components/sidepanel/cards/ImportLayer'
+import Projects from './components/projects/Projects'
 
 Vue.use(Router)
 
@@ -238,6 +239,11 @@ const router = new Router({
       path: '/import-layer',
       name: 'import-layer',
       redirect: '/upload-data-layer'
+    },
+    {
+      path: '/projects',
+      name: 'projects',
+      component: Projects
     }
   ]
 })
