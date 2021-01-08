@@ -7,6 +7,7 @@ from sqlalchemy.inspection import inspect
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Polygon
 from logging import getLogger
+
 logger = getLogger("CustomBase")
 
 
@@ -63,7 +64,8 @@ class CustomLayerBase(object):
     @classmethod
     def get_geom_column(cls, db: Session):
         geom_cols = db.execute(text(
-            """SELECT f_geometry_column FROM geometry_columns WHERE f_table_name=:tablename"""), {"tablename": cls.__table__.name})
+            """SELECT f_geometry_column FROM geometry_columns WHERE f_table_name=:tablename"""),
+            {"tablename": cls.__table__.name})
 
         col = None
 
@@ -105,5 +107,41 @@ class CustomLayerBase(object):
         return d
 
 
+class Base(object):
+    __table_args__ = {'schema': 'metadata'}
+
+    create_date = Column(
+        DateTime,
+        comment='Date and time (UTC) when the physical record was created in the database.')
+    update_date = Column(DateTime,
+                         comment='Date and time (UTC) when the physical record was updated in the database. '
+                                 'It will be the same as the create_date until the record is first '
+                                 'updated after creation.')
+
+
+class BaseAudit(object):
+    __table_args__ = {'schema': 'metadata'}
+
+    create_user = Column(
+        String(100), comment='The user who created this record in the database.')
+    create_date = Column(
+        DateTime,
+        comment='Date and time (UTC) when the physical record was created in the database.')
+    update_user = Column(
+        String(100), comment='The user who last updated this record in the database.')
+    update_date = Column(DateTime,
+                         comment='Date and time (UTC) when the physical record was updated in the database. '
+                                 'It will be the same as the create_date until the record is first '
+                                 'updated after creation.')
+    effective_date = Column(
+        DateTime, comment='The date and time that the code became valid and could be used.')
+    expiry_date = Column(DateTime,
+                         comment='The date and time after which the code is no longer valid and '
+                                 'should not be used.')
+
+
 BaseTable = declarative_base(cls=CustomBase)
 BaseLayerTable = declarative_base(cls=CustomLayerBase)
+
+Base = declarative_base(cls=Base)
+BaseAudit = declarative_base(cls=BaseAudit)
