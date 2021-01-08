@@ -1,5 +1,5 @@
 <template>
-  <v-card flat>
+  <v-card flat v-if="this.app.config && this.app.config.projects">
     <v-card-text class="pb-0">
       <h3 class="mb-5">Projects</h3>
     </v-card-text>

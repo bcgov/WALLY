@@ -61,8 +61,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
-
-      <v-menu offset-y>
+      <v-menu offset-y v-if="this.app.config && this.app.config.projects">
         <template v-slot:activator="{ on }">
           <v-btn
             color="grey darken-3"
