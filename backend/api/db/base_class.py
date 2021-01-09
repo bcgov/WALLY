@@ -7,6 +7,7 @@ from sqlalchemy.inspection import inspect
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Polygon
 from logging import getLogger
+from datetime import datetime
 
 logger = getLogger("CustomBase")
 
@@ -126,10 +127,13 @@ class BaseAudit(object):
         String(100), comment='The user who created this record in the database.')
     create_date = Column(
         DateTime,
+        default=datetime.now,
         comment='Date and time (UTC) when the physical record was created in the database.')
     update_user = Column(
         String(100), comment='The user who last updated this record in the database.')
     update_date = Column(DateTime,
+                         default=datetime.now,
+                         onupdate=datetime.now,
                          comment='Date and time (UTC) when the physical record was updated in the database. '
                                  'It will be the same as the create_date until the record is first '
                                  'updated after creation.')
