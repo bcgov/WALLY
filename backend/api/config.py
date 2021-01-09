@@ -60,13 +60,13 @@ WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", False)
 
 # Use Pydantic's settings management
 class Settings(BaseSettings):
-    external_import = False
+    external_import = True
     external_import_types = ""
 
     wally_model = False
     surface_water_design_v2 = True
 
-    projects = False
+    projects = True
 
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""

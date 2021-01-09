@@ -1,5 +1,7 @@
 <template>
-  <v-card flat v-if="this.app.config && this.app.config.projects">
+<div>
+        <!-- <FileBrowser/> -->
+  <v-card flat>
     <v-card-text class="pb-0">
       <h3 class="mb-5">Projects</h3>
     </v-card-text>
@@ -11,18 +13,73 @@
       <p>
         Project folders that are currently being worked on
       </p>
-      <v-col class="text-right">
-        <v-btn
-          outlined
-          @click="createNewProject"
-          color="primary"
-        >
-          Create New Project
-        </v-btn>
-      </v-col>
+      <v-row>
+      <CreateNewProjectModal />
+      <v-file-input
+        counter
+        multiple
+        show-size
+        truncate-length="50"
+      ></v-file-input>
+      </v-row>
+  <v-expansion-panels>
+    <v-expansion-panel
+      v-for="(item) in projectsData"
+      :key="item.project_id"
+    >
+      <v-expansion-panel-header>
+        <v-row no-gutters>
+            <v-col cols="3">
+        {{ item.name }}
+            </v-col>
+            <v-col cols="4">
+        {{ item.description }}
+            </v-col>
+            <v-col
+              cols="4"
+              class="text--secondary"
+            >
+          {{ formatDate(item.create_date) }}
+            </v-col>
+          </v-row>
+      </v-expansion-panel-header>
+      <v-expansion-panel-content>
+      </v-expansion-panel-content>
+    </v-expansion-panel>
+
+  </v-expansion-panels>
       <v-data-table
         :headers="projectsHeaders"
-        :items="projectsData.filter(p => p.status === 'active')"
+        :items="projectsData"
+        :single-expand="singleExpandProjects"
+        :expanded.sync="expandedProjects"
+        item-key="project_id"
+        show-expand
+      >
+        <template v-slot:[`item.name`]="{ item }">
+          {{ item.name }}
+        </template>
+        <template v-slot:[`item.description`]="{ item }">
+          {{ item.description }}
+        </template>
+        <template v-slot:[`item.create_date`]="{ item }">
+          {{ formatDate(item.create_date) }}
+        </template>
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+            <DocumentList :project_id="item.project_id"/>
+            <!-- <SavedAnalysisList :project_id="item.project_id"/> -->
+          </td>
+        </template>
+      </v-data-table>
+
+      <!-- <div class="subtitle font-weight-bold">Inactive Projects</div>
+      <p>
+        Project folders that are no longer in use or have been archived.
+      </p>
+      <v-data-table
+        :headers="projectsHeaders"
+        :items="projectsData.filter(p => p.status === 'inactive')"
         :single-expand="singleExpandProjects"
         :expanded.sync="expandedProjects"
         item-key="name"
@@ -34,93 +91,43 @@
         <template v-slot:[`item.description`]="{ item }">
           {{ item.description }}
         </template>
-        <template v-slot:[`item.createdAt`]="{ item }">
-          {{ item.createdAt }}
+        <template v-slot:[`item.create_date`]="{ item }">
+          {{ item.create_date }}
         </template>
-        <template v-slot:expanded-item="{ headers, item }">
-          <td :colspan="headers.length">
-            <ProjectDocumentList :project="item.id"/>
-            <SavedAnalysisList :project="item.id"/>
-          </td>
-        </template>
-      </v-data-table>
-
-      <div class="subtitle font-weight-bold">Inactive Projects</div>
-      <p>
-        Project folders that are no longer in use or have been archived.
-      </p>
-      <v-data-table
-        :headers="projectsHeaders"
-        :items="projectsData.filter(p => p.status === 'inactive')"
-        :single-expand="singleExpandInactiveLicences"
-        :expanded.sync="expandedProjects"
-        item-key="name"
-        show-expand
-      >
-        <template v-slot:[`item.name`]="{ item }">
-          {{ item.name }}
-        </template>
-        <template v-slot:[`item.description`]="{ item }">
-          {{ item.description }}
-        </template>
-        <template v-slot:[`item.createdAt`]="{ item }">
-          {{ item.createdAt }}
-        </template>
-      </v-data-table>
+      </v-data-table> -->
 
     </v-card-text>
   </v-card>
+</div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
-import ProjectDocumentList from './ProjectDocumentList'
-import SavedAnalysisList from './SavedAnalysisList'
+import DocumentList from './DocumentList'
+// import SavedAnalysisList from './SavedAnalysisList'
+import CreateNewProjectModal from './CreateNewProjectModal'
+// import FileBrowser from '../filebrowser'
+import moment from 'moment'
 
 export default {
   name: 'Projects',
   components: {
-    ProjectDocumentList,
-    SavedAnalysisList
+    DocumentList,
+    // SavedAnalysisList,
+    CreateNewProjectModal
+    // FileBrowser
   },
   props: [''],
   data: () => ({
     projectsLoading: false,
     name: '',
     description: '',
-    projectsData: [
-      {
-        id: '',
-        name: 'test',
-        description: 'test description',
-        createdAt: new Date(),
-        status: 'active',
-        documents: [
-          {
-            name: 'test 1',
-            url: ''
-          }
-        ]
-      },
-      {
-        id: '',
-        name: 'test',
-        description: 'test description',
-        createdAt: new Date(),
-        status: 'inactive',
-        documents: [
-          {
-            name: 'test 1',
-            url: ''
-          }
-        ]
-      }
-    ],
+    projectsData: [],
     projectsHeaders: [
-      { text: 'Name', value: 'name', sortable: true },
-      { text: 'Description', value: 'description', align: 'end' },
-      { text: 'Create Date', value: 'createdAt', align: 'end' }
+      { text: 'Project Name', value: 'name', sortable: true },
+      { text: 'Project Description', value: 'description', align: 'end' },
+      { text: 'Create Date', value: 'create_date', align: 'end' }
     ],
     projectStatus: [
       'active',
@@ -140,8 +147,10 @@ export default {
     ...mapGetters('map', ['isMapReady']),
     fetchProjectsData () {
       this.projectsLoading = true
+      moment()
       ApiService.query(`/api/v1/projects/`)
         .then(r => {
+          console.log(r.data)
           this.projectsData = r.data
           this.projectsLoading = false
         })
@@ -149,9 +158,6 @@ export default {
           this.projectsLoading = false
           console.error(e)
         })
-    },
-    toggleCreateProjectModal () {
-
     },
     createNewProject () {
       const params = {
@@ -164,15 +170,20 @@ export default {
       }).catch((error) => {
         console.error(error)
       })
+    },
+    formatDate (date) {
+      return moment(date).format('MMM DD YYYY')
     }
   },
   watch: {
     isMapReady (value) {
       if (value) {
+        this.fetchProjectsData()
       }
     }
   },
   mounted () {
+    this.fetchProjectsData()
     if (this.isMapReady()) {
     }
   },
