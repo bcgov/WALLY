@@ -8,10 +8,12 @@ class Base(object):
     __table_args__ = {'schema': 'metadata'}
 
     create_date = Column(
-        DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
-    update_date = Column(DateTime, comment='Date and time (UTC) when the physical record was updated in the database. '
-                                           'It will be the same as the create_date until the record is first '
-                                           'updated after creation.')
+        DateTime,
+        comment='Date and time (UTC) when the physical record was created in the database.')
+    update_date = Column(DateTime,
+                         comment='Date and time (UTC) when the physical record was updated in the database. '
+                                 'It will be the same as the create_date until the record is first '
+                                 'updated after creation.')
 
 
 Base = declarative_base(cls=Base, metadata=BaseTable.metadata)
@@ -22,10 +24,10 @@ class Project(Base):
     __table_args__ = {'schema': 'public'}
 
     project_id = Column(Integer, primary_key=True, comment='primary key id for a project')
-    name = Column(String, comment='name of the project')              
+    name = Column(String, comment='name of the project')
     description = Column(String, comment='description of the project')
-    user_id = Column(UUID(), ForeignKey('user.uuid'),
-                          comment='foreign key to the user who created this project')
+    user_id = Column(String, ForeignKey('user.uuid'),
+                     comment='foreign key to the user who created this project')
 
 
 class ProjectDocument(Base):
@@ -33,7 +35,7 @@ class ProjectDocument(Base):
     __table_args__ = {'schema': 'public'}
 
     project_document_id = Column(Integer, primary_key=True, comment='primary key id for a project')
-    s3_path = Column(String, comment='path to document in s3 storage system')              
+    s3_path = Column(String, comment='path to document in s3 storage system')
     filename = Column(String, comment='filename of the document')
     project_id = Column(Integer, ForeignKey('project.project_id'),
-                          comment='foreign key to the project this document is associated with')
+                        comment='foreign key to the project this document is associated with')

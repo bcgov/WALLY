@@ -19,6 +19,7 @@ from api.v1.models.isolines import routes as isolines
 from api.v1.models.scsb2016 import routes as scsb2016
 from api.v1.user import routes as user
 from api.v1.projects import routes as projects
+from api.v1.saved_analyses import routes as saved_analyses
 
 api_router = APIRouter()
 
@@ -131,5 +132,12 @@ api_router.include_router(
     projects.router,
     prefix="/projects",
     tags=["projects"],
+    responses={404: {"description": "Not found"}},
+)
+
+api_router.include_router(
+    saved_analyses.router,
+    prefix="/saved_analyses",
+    tags=["saved_analyses"],
     responses={404: {"description": "Not found"}},
 )

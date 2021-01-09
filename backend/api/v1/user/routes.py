@@ -4,7 +4,7 @@ User management endpoints
 import os
 from logging import getLogger
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Header, Body
+from fastapi import APIRouter, Depends, HTTPException, Header, Body, Request
 from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
