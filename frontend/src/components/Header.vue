@@ -5,7 +5,7 @@
     color="#036"
     dark
     height="64"
-    class="wally-header"
+    id="wally-header"
   >
     <img
       class="ml-5"
@@ -132,10 +132,10 @@ export default {
   }
 }
 </script>
-<style>
-  .wally-header {
-    box-shadow: inset 0 -1px 0 #fcba19;
-  }
+<style lang="scss">
+#wally-header {
+  box-shadow: inset 0 -1px 0 #fcba19;
+}
 .bcgov-title {
   font-weight: normal;
   font-size: 28px;

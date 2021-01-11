@@ -79,11 +79,6 @@ export default {
     border-radius: 4px 0px 0px 4px!important;
     border-width: 1px 1px 1px 0px;
   }
-  .wally-toolbar {
-    box-shadow: inset 0 -1px 0 grey;
-    z-index: 3;
-    position: relative;
-  }
   .mapboxgl-ctrl-geocoder {
     width: 164rem!important;
     min-height: 40px!important;
