@@ -1,5 +1,5 @@
-import vuetify from '@/plugins/vuetify';
-
+// import vuetify from '@/plugins/vuetify';
+// import vuetify from '../../plugins/vuetify'
 import Header from '../../components/Header'
 
 export default {
@@ -11,22 +11,30 @@ const Template = (args, { argTypes }) => ({
   props: Object.keys(argTypes),
   components: { Header },
   template:
-    '<Header :appInfo="user" />'
+    '<Header :appInfo="appInfo" />'
+  // decorators: vuetify
 })
 
 export const Production = Template.bind({})
 Production.args = {
-  wally_env: 'PROD'
+  appInfo: {
+    wally_env: 'production'
+  }
 }
 
 export const Development = Template.bind({})
 Development.args = {
-  wally_env: 'DEV'
+  appInfo: {
+    wally_env: 'DEV'
+  }
 }
 
 export const Staging = Template.bind({})
 Staging.args = {
-  wally_env: 'DEV'
+  appInfo: {
+    wally_env: 'Staging'
+  }
 }
 
+// Template.
 // Template.decorators = [() =>{}]

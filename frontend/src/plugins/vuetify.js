@@ -13,8 +13,7 @@ const wallyColors = {
   green: '#2E8540',
   lightblue: '#1976d2'
 }
-
-export default new Vuetify({
+export const options = {
   theme: {
     themes: {
       light: {
@@ -34,4 +33,6 @@ export default new Vuetify({
       }
     }
   }
-})
+}
+
+export default new Vuetify(options)
