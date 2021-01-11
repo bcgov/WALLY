@@ -6,11 +6,14 @@
       </template>
     </v-breadcrumbs>
     <v-toolbar flat>
-      <v-banner color="indigo"
-                icon="mdi-map-marker"
-                icon-color="white"
-                width="100%"
-      >
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+            icon="mdi-map-marker"
+            color="white">
+            mdi-map-marker
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>
          First Nations Areas Nearby
         </v-toolbar-title>

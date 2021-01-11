@@ -1,11 +1,14 @@
 <template>
   <v-container class="pt-5">
     <v-toolbar flat>
-      <v-banner color="indigo"
-                icon="mdi-shape-polygon-plus"
-                icon-color="white"
-                width="100%"
-      >
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+            icon="mdi-shape-polygon-plus"
+            color="white">
+            mdi-shape-polygon-plus
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>
           Polygon selection
         </v-toolbar-title>
