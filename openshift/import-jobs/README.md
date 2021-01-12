@@ -130,6 +130,7 @@ Upload tiles to Mapbox by their mapbox source ID. This will gather all the `mbti
 | fn_treaty_areas                          | fn_treaty_areas | `oc process -f import.job.yaml -p JOB_NAME=fntreatyareas -p LAYER_NAME=fn_treaty_areas | oc apply -f -`
 | fn_treaty_lands                          | fn_treaty_lands | `oc process -f import.job.yaml -p JOB_NAME=fntreatylands -p LAYER_NAME=fn_treaty_lands | oc apply -f -`
 | normal_annual_runoff_isolines            | normal_annual_runoff_isolines | `oc process -f import.job.yaml -p JOB_NAME=isolines -p LAYER_NAME=normal_annual_runoff_isolines | oc apply -f -`
+| freshwater_atlas_watersheds            | freshwater_atlas_watersheds | `oc process -f import.job.yaml -p JOB_NAME=watersheds -p LAYER_NAME=freshwater_atlas_watersheds | oc apply -f -`
 
 
 # Cron jobs setup and management

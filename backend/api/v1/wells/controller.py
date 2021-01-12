@@ -31,6 +31,8 @@ from api.v1.wells.schema import WellDrawdown, Screen, ExportApiRequest, ExportAp
     CrossSectionExport
 from api.v1.wells.helpers import distance_from_line, compass_direction_point_to_line
 
+from api.v1.wells.parse_description import parse_description, classify_soil
+
 logger = logging.getLogger("api")
 
 
@@ -121,7 +123,7 @@ def get_wells_by_aquifer(point, radius, well_tag_numbers=None) -> Dict[Union[int
     for a in aquifers:
         wells_by_aquifer[a if a else ''] = [w for w in wells if
                                             (w.aquifer and w.aquifer.aquifer_id == a) or (
-                                                    a is None and not w.aquifer)]
+                                                a is None and not w.aquifer)]
     return wells_by_aquifer
 
 
@@ -163,7 +165,8 @@ def get_wells_with_drawdown(point, radius, well_tag_numbers=None) -> List[WellDr
         for well in results:
             # calculate distance from well to click point
             center_point = transform(transform_4326_3005, point)
-            well_point = transform(transform_4326_3005, Point(well["longitude"], well["latitude"]))
+            well_point = transform(transform_4326_3005, Point(
+                well["longitude"], well["latitude"]))
             distance = center_point.distance(well_point)
             well["distance"] = distance
 
@@ -337,13 +340,14 @@ def get_wells_along_line(db: Session, profile: LineString, radius: float):
         well_aquifer = well.properties.pop('aquifer', None)
 
         # Add (flattened) aquifer into feature info
-        well.properties['aquifer'] = well_aquifer.get('aquifer_id') if well_aquifer else None
+        well.properties['aquifer'] = well_aquifer.get(
+            'aquifer_id') if well_aquifer else None
 
         well.properties['distance_from_line'] = shortest_line
         well.properties['compass_direction'] = compass_direction
 
         # Remove lithologydescription_set from well properties as it's not formatted properly
-        well.properties.pop('lithologydescription_set')
+        well_lithology = well.properties.pop('lithologydescription_set')
 
         # load screen data from the geojson response
         screenset = well.properties.get('screen_set', '')
@@ -483,3 +487,27 @@ def get_cross_section_export(xs: CrossSectionExport):
     feature_collection = fetch_geojson_features(requests)
 
     return cross_section_xlsx_export(feature_collection, xs.coordinates, xs.buffer)
+
+
+def get_well_lithology(wells):
+    """ gets and parses well lithology for a list of wells """
+
+    resp = requests.get(
+        f"{GWELLS_API_URL}/api/v2/wells/lithology?wells={wells}")
+
+    wells = resp.json()
+
+    for well in wells.get('results'):
+        lith_set = well.get("lithologydescription_set", None)
+        if not lith_set:
+            continue
+
+        for obj in lith_set:
+            lith_raw_data = obj.get("lithology_raw_data", None)
+            if not lith_raw_data:
+                continue
+            parsed = parse_description(lith_raw_data)
+            if parsed.primary:
+                obj['lithology_primary'] = parsed.primary
+
+    return wells

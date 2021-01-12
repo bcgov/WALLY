@@ -613,7 +613,7 @@ export default {
       })
     },
     fetchWellsLithology (ids) {
-      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
+      ApiService.getApi(`/wells/section/lithology?wells=${ids}`).then((r) => {
         let results = r.data.results
         let lithologyList = []
         for (let index = 0; index < results.length; index++) {
@@ -624,7 +624,7 @@ export default {
           if (well) {
             wellLithologySet.lithologydescription_set.forEach(w => {
               // combine lithology_raw_data and lithology_observation
-              const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
+              const description = [w.lithology_raw_data, w.lithology_observation, w.lithology_primary ? `(PRIMARY: ${w.lithology_primary})` : null].filter(Boolean).join('; ')
 
               lithologyList.push({
                 well_tag_number: wellLithologySet.well_tag_number,

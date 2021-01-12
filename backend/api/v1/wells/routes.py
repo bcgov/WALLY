@@ -11,6 +11,7 @@ from api.v1.wells.schema import WellDrawdown, CrossSection, CrossSectionExport, 
 from api.v1.elevations.controllers.profile import get_profile_line_by_length
 from api.v1.elevations.controllers.surface import fetch_surface_lines
 from api.v1.wells.controller import (
+    get_well_lithology,
     get_waterbodies_along_line,
     create_line_buffer,
     get_wells_with_drawdown,
@@ -77,7 +78,8 @@ def export_nearby_wells(
     well_tag_numbers = ','.join([str(wtn) for wtn in export_wells])
     point_shape = Point(point_parsed)
 
-    wells_by_aquifer = get_wells_by_aquifer(point_shape, req.radius, well_tag_numbers)
+    wells_by_aquifer = get_wells_by_aquifer(
+        point_shape, req.radius, well_tag_numbers)
 
     return wells_by_aquifer_xlsx_export(wells_by_aquifer)
 
@@ -139,3 +141,11 @@ def get_wells_section_export(
     """ gather well information for many wells and export an excel report """
 
     return get_cross_section_export(req)
+
+
+@router.get("/section/lithology")
+def get_parsed_well_lithology(
+    wells=Query(..., title="Well list",
+                description="List of wells to look up"),
+):
+    return get_well_lithology(wells)
