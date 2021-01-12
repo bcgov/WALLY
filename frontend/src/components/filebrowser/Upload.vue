@@ -129,7 +129,7 @@ export default {
         })
       })
 
-      return await Promise.all(promises)
+      return Promise.all(promises)
     },
 
     async add (event) {
@@ -176,6 +176,7 @@ export default {
 
       this.uploading = true
       let response = await this.axios.request(config)
+      console.log(response)
       this.uploading = false
       this.$emit('uploaded')
     }

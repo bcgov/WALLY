@@ -79,11 +79,6 @@ const availableStorages = [
     code: 's3',
     icon: 'mdi-amazon-drive'
   }
-  /* {
-        name: "Dropbox",
-        code: "dropbox",
-        icon: "mdi-dropbox"
-    } */
 ]
 
 const endpoints = {
@@ -135,7 +130,7 @@ export default {
       default: () => availableStorages.map(item => item.code).join(',')
     },
     // code of default storage
-    storage: { type: String, default: 'local' },
+    storage: { type: String, default: 's3' },
     // show tree view
     tree: { type: Boolean, default: true },
     // file icons set

@@ -8,22 +8,21 @@
                 :search="filter"
                 :load-children="readFolder"
                 v-on:update:active="activeChanged"
-                item-key="project_id"
-                item-text="name"
+                item-key="path"
+                item-text="basename"
                 dense
                 activatable
                 transition
                 class="folders-tree"
             >
                 <template v-slot:prepend="{ item, open }">
-                  <v-icon>'mdi-folder-open-outline'</v-icon>
-                    <!-- <v-icon
+                    <v-icon
                         v-if="item.type === 'dir'"
                     >{{ open ? 'mdi-folder-open-outline' : 'mdi-folder-outline' }}</v-icon>
-                    <v-icon v-else>{{ icons[item.extension.toLowerCase()] || icons['other'] }}</v-icon> -->
+                    <v-icon v-else>{{ icons[item.extension.toLowerCase()] || icons['other'] }}</v-icon>
                 </template>
                 <template v-slot:label="{ item }">
-                    {{item.name}}
+                    {{item.basename}}
                     <v-btn
                         icon
                         v-if="item.type === 'dir'"
@@ -87,9 +86,9 @@ export default {
           {
             type: 'dir',
             path: '/',
-            basename: 'projects',
+            basename: 'My Projects',
             extension: '',
-            name: 'projects',
+            name: 'My Projects',
             children: []
           }
         ]
@@ -100,7 +99,10 @@ export default {
     },
     async readFolder (item) {
       this.$emit('loading', true)
-      let url = this.endpoints.projects.url
+      let url = this.endpoints.list.url
+        .replace(new RegExp('{storage}', 'g'), this.storage)
+        .replace(new RegExp('{path}', 'g'), item.path)
+
       let config = {
         url,
         method: this.endpoints.list.method || 'get'

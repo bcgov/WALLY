@@ -1,6 +1,5 @@
 <template>
 <div>
-        <!-- <FileBrowser/> -->
   <v-card flat>
     <v-card-text class="pb-0">
       <h3 class="mb-5">Projects</h3>
@@ -8,21 +7,31 @@
     <v-card-text v-if="projectsLoading">
       <v-progress-linear show indeterminate></v-progress-linear>
     </v-card-text>
+     <!-- <v-treeview
+          selected-color="grey darken-2"
+          hoverable
+          open-on-click
+          :items="formattedProjectsData"
+        >
+        </v-treeview> -->
     <v-card-text v-if="projectsData" class="pt-0">
       <div class="subtitle font-weight-bold">Active Projects List</div>
       <p>
         Project folders that are currently being worked on
       </p>
+      <FileBrowser/>
+
       <v-row>
-      <CreateNewProjectModal />
-      <v-file-input
-        counter
-        multiple
-        show-size
-        truncate-length="50"
-      ></v-file-input>
+        <CreateNewProjectModal />
+        <!-- <v-file-input
+          counter
+          multiple
+          show-size
+          truncate-length="50"
+        ></v-file-input> -->
       </v-row>
-  <v-expansion-panels>
+
+  <!-- <v-expansion-panels>
     <v-expansion-panel
       v-for="(item) in projectsData"
       :key="item.project_id"
@@ -47,8 +56,9 @@
       </v-expansion-panel-content>
     </v-expansion-panel>
 
-  </v-expansion-panels>
-      <v-data-table
+  </v-expansion-panels> -->
+
+      <!-- <v-data-table
         :headers="projectsHeaders"
         :items="projectsData"
         :single-expand="singleExpandProjects"
@@ -66,12 +76,11 @@
           {{ formatDate(item.create_date) }}
         </template>
         <template v-slot:expanded-item="{ headers, item }">
-          <td :colspan="headers.length">
             <DocumentList :project_id="item.project_id"/>
-            <!-- <SavedAnalysisList :project_id="item.project_id"/> -->
-          </td>
         </template>
-      </v-data-table>
+      </v-data-table> -->
+
+      <!-- <Upload/> -->
 
       <!-- <div class="subtitle font-weight-bold">Inactive Projects</div>
       <p>
@@ -104,19 +113,21 @@
 <script>
 import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
-import DocumentList from './DocumentList'
+// import DocumentList from './DocumentList'
+// import Upload from './Upload'
 // import SavedAnalysisList from './SavedAnalysisList'
 import CreateNewProjectModal from './CreateNewProjectModal'
-// import FileBrowser from '../filebrowser'
+import FileBrowser from '../filebrowser'
 import moment from 'moment'
 
 export default {
   name: 'Projects',
   components: {
-    DocumentList,
+    // DocumentList,
     // SavedAnalysisList,
-    CreateNewProjectModal
-    // FileBrowser
+    CreateNewProjectModal,
+    // Upload
+    FileBrowser
   },
   props: [''],
   data: () => ({
@@ -141,7 +152,24 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters('map', ['map'])
+    ...mapGetters('map', ['map']),
+    formattedProjectsData () {
+      let projects = this.projectsData.map((pd) => {
+        return {
+          ...pd,
+          children: [{
+            id: 1,
+            name: 1
+          },
+          {
+            id: 2,
+            name: 2
+          }]
+        }
+      })
+      console.log(projects)
+      return projects
+    }
   },
   methods: {
     ...mapGetters('map', ['isMapReady']),
