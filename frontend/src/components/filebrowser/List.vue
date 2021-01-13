@@ -8,8 +8,8 @@
         <!-- <v-card-text
             class="grow d-flex justify-center align-center"
         >File: {{ path }}</v-card-text> -->
-        <v-card-text v-if="activeFiles" class="grow">
-            <v-list subheader v-if="dirs.length">
+        <v-card-text v-if="activeFiles.length > 0" class="grow">
+            <!-- <v-list subheader v-if="dirs.length">
                 <v-subheader>Folders</v-subheader>
                 <v-list-item
                     v-for="item in dirs"
@@ -31,8 +31,8 @@
                         </v-btn>
                     </v-list-item-action>
                 </v-list-item>
-            </v-list>
-            <v-divider v-if="dirs.length && files.length"></v-divider>
+            </v-list> -->
+            <!-- <v-divider v-if="dirs.length && files.length"></v-divider> -->
             <v-list subheader v-if="activeFiles">
                 <v-subheader>Files</v-subheader>
                 <v-list-item
@@ -69,9 +69,9 @@
         <v-card-text
             v-else
             class="grow d-flex justify-center align-center grey--text py-5"
-        >The folder is empty</v-card-text>
+        >The project is empty</v-card-text>
         <v-divider ></v-divider>
-        <v-toolbar v-if="files.length" dense flat class="shrink">
+        <v-toolbar v-if="activeFiles.length" dense flat class="shrink">
         </v-toolbar>
         <v-toolbar  dense flat class="shrink">
             <v-text-field
@@ -89,9 +89,9 @@
             <v-btn icon>
               <v-icon>mdi-download</v-icon>
             </v-btn>
-            <v-btn icon @click="load">
+            <!-- <v-btn icon @click="load">
               <v-icon>mdi-refresh</v-icon>
-            </v-btn>
+            </v-btn> -->
         </v-toolbar>
     </v-card>
 </template>
@@ -119,27 +119,27 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectItem', 'activeFiles']),
-    dirs () {
-      return this.items.filter(
-        item =>
-          item.type === 'dir' && item.basename.includes(this.filter)
-      )
-    },
-    files () {
-      return this.items
-      // return this.items.filter(
-      //   item =>
-      //     item.type === 'file' && item.basename.includes(this.filter)
-      // )
-    },
-    isDir () {
-      moment()
-      return false // this.path[this.path.length - 1] === '/'
-    },
-    isFile () {
-      return !this.isDir
-    }
+    ...mapGetters(['selectedProjectItem', 'activeFiles'])
+    // dirs () {
+    //   return this.items.filter(
+    //     item =>
+    //       item.type === 'dir' && item.basename.includes(this.filter)
+    //   )
+    // },
+    // files () {
+    //   return this.items
+    //   // return this.items.filter(
+    //   //   item =>
+    //   //     item.type === 'file' && item.basename.includes(this.filter)
+    //   // )
+    // },
+    // isDir () {
+    //   moment()
+    //   return false // this.path[this.path.length - 1] === '/'
+    // },
+    // isFile () {
+    //   return !this.isDir
+    // }
   },
   methods: {
     formattedDate (date) {
@@ -148,23 +148,17 @@ export default {
     fileExtension (filename) {
       return filename.split('.').pop().toLowerCase()
     },
-    async load () {
-      this.$emit('loading', true)
-      if (this.isDir) {
-        let url = this.endpoints.documents.url
-
-        let config = {
-          url,
-          method: this.endpoints.documents.method || 'get'
-        }
-
-        let response = await ApiService.request(config)
-        this.items = response.data
-      } else {
-        // TODO: load file
-      }
-      this.$emit('loading', false)
-    },
+    // async load () {
+    //   this.$emit('loading', true)
+    //   if (this.isDir) {
+    //     let url = this.endpoints.documents.url
+    //     let response = await ApiService.query(url)
+    //     this.items = response.data
+    //   } else {
+    //     // TODO: load file
+    //   }
+    //   this.$emit('loading', false)
+    // },
     async deleteItem (item) {
       let confirmed = await this.$refs.confirm.open(
         'Delete',
@@ -182,7 +176,7 @@ export default {
           method: this.endpoints.delete.method || 'post'
         }
 
-        await ApiService.request(config)
+        await ApiService.post(config)
         this.$emit('file-deleted')
         this.$emit('loading', false)
       }
@@ -192,12 +186,12 @@ export default {
     }
   },
   watch: {
-    async refreshPending () {
-      if (this.refreshPending) {
-        await this.load()
-        this.$emit('refreshed')
-      }
-    }
+    // async refreshPending () {
+    //   if (this.refreshPending) {
+    //     await this.load()
+    //     this.$emit('refreshed')
+    //   }
+    // }
   }
 }
 </script>

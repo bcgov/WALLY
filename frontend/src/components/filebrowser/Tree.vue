@@ -34,7 +34,7 @@
                     <!-- <v-btn
                         icon
                         v-if="item.type === 'root' || item.type === 'dir'"
-                        @click.stop="item.type === 'root' ? readFolder(item) : readProject(item)"
+                        @click.stop="item.type === 'root' ? readFolder(item) : fetchProjectDocuments(item)"
                         class="ml-1"
                     >
                         <v-icon class="pa-0 mdi-18px" color="grey lighten-1">mdi-refresh</v-icon>
@@ -102,21 +102,13 @@ export default {
             children: []
           }
         ]
-        this.readFolder(this.items[0])
+        this.initProjects(this.items[0])
       }, 0)
     },
-    async readFolder (item) {
+    async initProjects (item) {
       this.$emit('loading', true)
       let url = this.endpoints.projects.url
-
-      let config = {
-        url,
-        method: this.endpoints.projects.method || 'get'
-      }
-
-      let response = await ApiService.request(config)
-      console.log(response)
-
+      let response = await ApiService.query(url)
       // eslint-disable-next-line require-atomic-updates
       item.children = response.data.map(item => {
         item.type = 'dir'
@@ -124,42 +116,22 @@ export default {
         item.children = []
         return item
       })
-
       this.$emit('loading', false)
     },
-    async readProject (item) {
+    async fetchProjectDocuments (item) {
       if (!item) { return }
 
-      console.log('readProject start', item)
+      console.log('fetchProjectDocuments start', item)
+
       this.$emit('loading', true)
       let url = this.endpoints.documents.url
         .replace(new RegExp('{projectId}', 'g'), item.project_id)
 
-      let config = {
-        url,
-        method: this.endpoints.documents.method || 'get'
-      }
-
-      let response = await ApiService.request(config)
+      let response = await ApiService.query(url)
       this.setActiveFiles(response.data)
-
-      console.log('getting project documents', response.data)
-
-      // set project children to be its documents
-      // item.children = response.data.map((doc) => {
-      //   doc.type = 'file'
-      //   doc.project_id = doc.project_id.toString()
-      //   return item
-      // })
       item.children = response.data
-      // eslint-disable-next-line require-atomic-updates
-      // item.children = response.data.map(item => {
-      //   if (item.description) {
-      //     item.children = []
-      //   }
-      //   return item
-      // })
 
+      console.log('fetched project documents', response.data)
       this.$emit('loading', false)
     },
     activeChanged (active) {
@@ -171,7 +143,7 @@ export default {
       }
       if (projectId) {
         const project = this.findChild(projectId)
-        this.readProject(project)
+        this.fetchProjectDocuments(project)
         this.setSelectedProjectItem(project)
       }
     },
