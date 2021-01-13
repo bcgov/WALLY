@@ -507,7 +507,10 @@ def get_well_lithology(wells):
             if not lith_raw_data:
                 continue
             parsed = parse_description(lith_raw_data)
-            if parsed.primary:
-                obj['lithology_primary'] = parsed.primary
+            if not parsed.primary:
+                continue
+            obj['lithology_primary'] = parsed.primary
+            obj['material_class'] = classify_soil(
+                parsed.primary, "").material_class
 
     return wells

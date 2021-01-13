@@ -2,8 +2,11 @@
 Parsing soil visual descriptions from field notes into a Python class
 """
 import regex as re
+from logging import getLogger
 
 from api.v1.wells.soil_types import PRIMARY_TERMS, SECONDARY_TERMS, CONSOL_BEDROCK_TERMS, UNCONSOL_SOIL_TERMS, BASE_TYPES, CONSISTENCY_TERMS, MOISTURE_TERMS
+
+logger = getLogger("parser")
 
 
 class Description:
@@ -72,6 +75,9 @@ def trim_suffix(word, suffix):
     """ trims a suffix from word
         used to remove suffixes like "ly" from "gravelly"
     """
+    if word and suffix and word.endswith(suffix):
+        return word[:-len(suffix)]
+    return word
 
 
 def determine_primary(desc, single_words):
@@ -168,17 +174,19 @@ def classify_soil(word: str, prev: str):
         (trim_suffix(word, "ly"), "y"),
     ]
 
+    logger.info('trying with %s', word_list)
+
     # try variations of the soil term against unconsolidated (soil) and consolidated (bedrock) terms.
     # warning: as with the other word lists, these word lists may not be complete.
     for test_word in word_list:
-        if test_word in UNCONSOL_SOIL_TERMS:
+        if test_word[0] in UNCONSOL_SOIL_TERMS:
             return SoilToken(
                 orig,
                 term=test_word[0],
                 modifier=test_word[1],
                 material_class="soil"
             )
-        if test_word in CONSOL_BEDROCK_TERMS:
+        if test_word[0] in CONSOL_BEDROCK_TERMS:
             return SoilToken(
                 orig,
                 term=test_word[0],
