@@ -50,8 +50,8 @@ import List from './List.vue'
 import Upload from './Upload.vue'
 
 const endpoints = {
-  projects: { url: '/api/v1/projects', method: 'get' },
-  createProject: { url: '/api/v1/projects', method: 'post' },
+  projects: { url: '/api/v1/projects/', method: 'get' },
+  createProject: { url: '/api/v1/projects/', method: 'post' },
   deleteProject: { url: '/api/v1/projects/delete', method: 'post' },
 
   documents: { url: '/api/v1/projects/{projectId}/documents', method: 'get' },
