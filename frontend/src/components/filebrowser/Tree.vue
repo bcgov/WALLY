@@ -67,11 +67,12 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+import ApiService from '../../services/ApiService'
+
 export default {
   props: {
     icons: Object,
     endpoints: Object,
-    axios: Function,
     refreshPending: Boolean
   },
   data () {
@@ -113,7 +114,7 @@ export default {
         method: this.endpoints.projects.method || 'get'
       }
 
-      let response = await this.axios.request(config)
+      let response = await ApiService.request(config)
       console.log(response)
 
       // eslint-disable-next-line require-atomic-updates
@@ -139,7 +140,7 @@ export default {
         method: this.endpoints.documents.method || 'get'
       }
 
-      let response = await this.axios.request(config)
+      let response = await ApiService.request(config)
       this.setActiveFiles(response.data)
 
       console.log('getting project documents', response.data)

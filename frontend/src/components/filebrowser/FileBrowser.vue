@@ -2,7 +2,6 @@
     <v-card class="mx-auto" :loading="loading > 0">
         <toolbar
             :endpoints="endpoints"
-            :axios="axiosInstance"
             v-on:add-files="addUploadingFiles"
             v-on:folder-created="refreshPending = true"
         ></toolbar>
@@ -11,7 +10,6 @@
                 <tree
                     :icons="icons"
                     :endpoints="endpoints"
-                    :axios="axiosInstance"
                     :refreshPending="refreshPending"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
@@ -22,7 +20,6 @@
                 <list
                     :icons="icons"
                     :endpoints="endpoints"
-                    :axios="axiosInstance"
                     :refreshPending="refreshPending"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
@@ -34,7 +31,6 @@
             v-if="uploadingFiles !== false"
             :files="uploadingFiles"
             :icons="icons"
-            :axios="axiosInstance"
             :endpoint="endpoints.upload"
             :maxUploadFilesCount="maxUploadFilesCount"
             :maxUploadFileSize="maxUploadFileSize"
@@ -48,8 +44,6 @@
 </template>
 
 <script>
-import axios from 'axios'
-
 import Toolbar from './Toolbar.vue'
 import Tree from './Tree.vue'
 import List from './List.vue'
@@ -60,7 +54,7 @@ const endpoints = {
   createProject: { url: '/api/v1/projects', method: 'post' },
   deleteProject: { url: '/api/v1/projects/delete', method: 'post' },
 
-  documents: { url: 'api/v1/projects/{projectId}/documents', method: 'get' },
+  documents: { url: '/api/v1/projects/{projectId}/documents', method: 'get' },
   upload: { url: '/api/v1/projects/{projectId}/documents', method: 'post' },
   delete: { url: '/api/v1/projects/documents/{documentId}/delete', method: 'delete' }
 
@@ -105,10 +99,6 @@ export default {
     icons: { type: Object, default: () => fileIcons },
     // custom backend endpoints
     endpoints: { type: Object, default: () => endpoints },
-    // custom axios instance
-    axios: { type: Function },
-    // custom configuration for internal axios instance
-    axiosConfig: { type: Object, default: () => {} },
     // max files count to upload at once. Unlimited by default
     maxUploadFilesCount: { type: Number, default: 0 },
     // max file size to upload. Unlimited by default
@@ -118,8 +108,7 @@ export default {
     return {
       loading: 0,
       uploadingFiles: false, // or an Array of files
-      refreshPending: false,
-      axiosInstance: null
+      refreshPending: false
     }
   },
   computed: {
@@ -161,7 +150,6 @@ export default {
     }
   },
   created () {
-    this.axiosInstance = this.axios || axios.create(this.axiosConfig)
   },
   mounted () {
   }

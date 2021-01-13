@@ -101,12 +101,12 @@
 import Confirm from './Confirm.vue'
 import { mapGetters } from 'vuex'
 import moment from 'moment'
+import ApiService from '../../services/ApiService'
 
 export default {
   props: {
     icons: Object,
     endpoints: Object,
-    axios: Function,
     refreshPending: Boolean
   },
   components: {
@@ -158,7 +158,7 @@ export default {
           method: this.endpoints.documents.method || 'get'
         }
 
-        let response = await this.axios.request(config)
+        let response = await ApiService.request(config)
         this.items = response.data
       } else {
         // TODO: load file
@@ -182,7 +182,7 @@ export default {
           method: this.endpoints.delete.method || 'post'
         }
 
-        await this.axios.request(config)
+        await ApiService.request(config)
         this.$emit('file-deleted')
         this.$emit('loading', false)
       }

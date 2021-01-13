@@ -83,6 +83,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ApiService from '../../services/ApiService'
 import { formatBytes } from './util'
 
 const imageMimeTypes = ['image/png', 'image/jpeg']
@@ -92,7 +93,6 @@ export default {
     endpoint: Object,
     files: { type: Array, default: () => [] },
     icons: Object,
-    axios: Function,
     maxUploadFilesCount: { type: Number, default: 0 },
     maxUploadFileSize: { type: Number, default: 0 }
   },
@@ -177,7 +177,7 @@ export default {
 
       try {
         this.uploading = true
-        let response = await this.axios.request(config)
+        let response = await ApiService.request(config)
         console.log(response)
         this.uploading = false
         this.$emit('uploaded')
