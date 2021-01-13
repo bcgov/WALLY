@@ -4,8 +4,8 @@
             <v-card-text class="py-3 text-center">
                 <div>
                     <span class="grey--text">Upload to:</span>
-                    <v-chip color="info" class="mx-1">{{ storage }}</v-chip>
-                    <v-chip>{{ path }}</v-chip>
+                    <v-chip color="info" class="mx-1">Project</v-chip>
+                    <v-chip color="info" class="mx-1">{{selectedProjectItem.project_id}}</v-chip>
                 </div>
                 <div v-if="maxUploadFilesCount">
                     <span class="grey--text">Max files count: {{ maxUploadFilesCount }}</span>
@@ -82,14 +82,13 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { formatBytes } from './util'
 
 const imageMimeTypes = ['image/png', 'image/jpeg']
 
 export default {
   props: {
-    path: String,
-    storage: String,
     endpoint: Object,
     files: { type: Array, default: () => [] },
     icons: Object,
@@ -104,6 +103,9 @@ export default {
       progress: 0,
       listItems: []
     }
+  },
+  computed: {
+    ...mapGetters(['selectedProjectItem'])
   },
   methods: {
     formatBytes,
@@ -161,8 +163,7 @@ export default {
       }
 
       let url = this.endpoint.url
-        .replace(new RegExp('{storage}', 'g'), this.storage)
-        .replace(new RegExp('{path}', 'g'), this.path)
+        .replace(new RegExp('{projectId}', 'g'), this.selectedProjectItem.project_id)
 
       let config = {
         url,
@@ -174,11 +175,16 @@ export default {
         }
       }
 
-      this.uploading = true
-      let response = await this.axios.request(config)
-      console.log(response)
-      this.uploading = false
-      this.$emit('uploaded')
+      try {
+        this.uploading = true
+        let response = await this.axios.request(config)
+        console.log(response)
+        this.uploading = false
+        this.$emit('uploaded')
+      } catch (e) {
+        console.error(e)
+        this.uploading = false
+      }
     }
   },
   watch: {

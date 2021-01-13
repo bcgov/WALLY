@@ -7,15 +7,17 @@
           color="primary"
           v-bind="attrs"
           v-on="on"
+          class='mb-2'
         >
-          Create New Project
+          <v-icon class='mr-1'>mdi-folder-plus-outline</v-icon>
+          Create Project
         </v-btn>
       </v-col>
     </template>
 
     <v-card shaped>
       <v-card-title class="headline grey lighten-3" primary-title>
-          Create New Project
+          Create Project
       </v-card-title>
       <v-card-text class="mt-4">
         <v-row>

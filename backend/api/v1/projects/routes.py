@@ -26,7 +26,7 @@ logger = getLogger("projects")
 
 router = APIRouter()
 
-ALLOWED_FILE_EXTENSIONS = [".gif", ".jpg", ".jpeg",
+ALLOWED_FILE_EXTENSIONS = [".gif", ".jpg", ".jpeg", ".txt", ".geojson", ".json",
                            ".png", ".pdf", ".doc", ".docx", ".csv", ".xlsx"]
 PROJECTS_BUCKET_NAME = "projects"
 
@@ -71,10 +71,10 @@ def get_project_documents(
     return controller.get_documents(db, x_auth_userid, project_id)
 
 
-@router.post("/{project_id}/upload_document")
+@router.post("/{project_id}/documents")
 def upload_document_to_project(
         project_id: int,
-        file: UploadFile = File(...),
+        files: UploadFile = File(...),
         x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):
@@ -82,11 +82,17 @@ def upload_document_to_project(
     allows an authenticated user to upload a file of the supported file extension types.
     the file being uploaded in run thru a few filters to determine its type
     """
+    file = files
     file_ext = get_file_ext(file.filename)
     if file_ext not in ALLOWED_FILE_EXTENSIONS:
         logger.warning("upload_document - Unsupported media type")
         raise HTTPException(status_code=HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                             detail=f'unsupported media type: {file_ext}')
+    
+    print('filename', file.filename)
+    print('content_type', file.content_type)
+    print('extension', file_ext)
+    # print('starting - Stage 1')
 
     try:
         replacement_file_name = generate_file_name(file.filename)
@@ -104,16 +110,18 @@ def upload_document_to_project(
         if file.file:
             file.file.close()
 
+    # print('starting - Stage 2')
     try:
         # get the content type
         mime = magic.Magic(mime=True)
         content_type = mime.from_file(new_file_path)
+        s3_path = '{}/{}'.format(project_id, replacement_file_name)
         # send file to minio
         upload = upload_file_to_minio(
-            replacement_file_name, new_file_path, content_type)
+            s3_path, new_file_path, content_type)
         # create new document in database once upload is successful
         document = controller.create_document(
-            db, x_auth_userid, project_id, replacement_file_name, file.filename)
+            db, x_auth_userid, project_id, s3_path, file.filename)
         return document
 
     except FileNotFoundError as exc:
@@ -123,7 +131,7 @@ def upload_document_to_project(
     except Exception as exc:
         error_msg = f'error: {sys.exc_info()[0]}'
         logger.error(
-            f'upload_file - Unknown Error During Upload Process {error_msg}')
+            f'upload_file - Unknown Error During Upload Process {error_msg} {exc}')
         raise HTTPException(status_code=HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f'Unknown Error During Upload Process - Stage 2')
     finally:
@@ -152,12 +160,10 @@ def upload_file_to_minio(destination_file_name: str, local_file_path: str, conte
                                           content_type=content_type
                                           # metadata=metadata
                                           )
-
+        return result
     except Exception as exc:
         raise HTTPException(status_code=HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail=f'Unknown Error During Upload Process')
-    finally:
-        return result
+                            detail=f'Unknown Error During Upload Process {exc}')
 
 
 def get_file_ext(file_path: str) -> str:

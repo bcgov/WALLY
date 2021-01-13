@@ -22,7 +22,7 @@
       <FileBrowser/>
 
       <v-row>
-        <CreateNewProjectModal />
+        <!-- <CreateNewProjectModal /> -->
         <!-- <v-file-input
           counter
           multiple
@@ -116,7 +116,7 @@ import ApiService from '../../services/ApiService'
 // import DocumentList from './DocumentList'
 // import Upload from './Upload'
 // import SavedAnalysisList from './SavedAnalysisList'
-import CreateNewProjectModal from './CreateNewProjectModal'
+// import CreateNewProjectModal from './CreateNewProjectModal'
 import FileBrowser from '../filebrowser'
 import moment from 'moment'
 
@@ -125,7 +125,7 @@ export default {
   components: {
     // DocumentList,
     // SavedAnalysisList,
-    CreateNewProjectModal,
+    // CreateNewProjectModal,
     // Upload
     FileBrowser
   },
