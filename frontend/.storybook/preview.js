@@ -18,8 +18,6 @@ const vuetify = new Vuetify(options)
 export const decorators = [
   (story, context) => {
 
-
-    console.log('vuetify', options, vuetify)
     // wrap the passed component within the passed context
     const wrapped = story(context)
     // extend Vue to use Vuetify around the wrapped component
