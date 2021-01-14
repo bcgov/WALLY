@@ -6,10 +6,12 @@
 
 ### Prerequisites
 
-Environment variables. Create a .env for docker to read your environment variables from
+Environment variables. Create a `.env` for docker to read your environment variables from
 `MAPBOX_ACCESS_TOKEN` (required): a token from mapbox.com for making Mapbox API requests (e.g. requesting tiles and map images).
 `MINIO_HOST_URL`: Set the default to minio:9000
 
+The backend also uses [Pydantic's settings management](https://github.com/bcgov-c/wally/blob/0dc732c241bff5e8d8ce72d40ab88b9286e4566c/backend/api/config.py#L61-L82)
+Create a file called `dev.env` under `backend/.config/` to test your feature flags and other settings.
 
 Start the backend API and database stack with Docker Compose:
 

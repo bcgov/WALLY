@@ -30,7 +30,7 @@
     "@turf/length": "^6.0.2",
     "@turf/line-to-polygon": "^6.0.1",
     "@turf/union": "^6.0.3",
-    "axios": "^0.19.0",
+    "axios": "^0.21.1",
     "csv2geojson": "^5.1.1",
     "file-saver": "^2.0.2",
     "html2canvas": "^1.0.0-rc.5",
