@@ -11,7 +11,7 @@ from pathlib import Path
 from logging import getLogger
 from typing import List, Optional
 from tempfile import NamedTemporaryFile
-from fastapi import APIRouter, Depends, HTTPException, Header, Body, UploadFile, File, Query
+from fastapi import APIRouter, Depends, HTTPException, Header, Body, UploadFile, File
 from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -21,7 +21,6 @@ import api.v1.projects.controller as controller
 from api.minio.client import minio_client
 from starlette.status import HTTP_409_CONFLICT, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_415_UNSUPPORTED_MEDIA_TYPE
-from api.v1.saved_analyses import controller as SavedAnalysesController
 
 logger = getLogger("projects")
 
@@ -132,30 +131,6 @@ def upload_document_to_project(
             tmp_upload_file_path.unlink()
         except:
             pass
-
-
-@router.post("/{project_id}/analysis")
-def save_analysis_to_project(
-        project_id: int,
-        x_auth_userid: Optional[str] = Header(None),
-        geometry: str = Query(
-            "", title="Starting geometry",
-            description="Geometry to load into feature starting point"
-        ),
-        feature_type: str = Query("", title="Feature",
-                                  description="Feature used by this analysis"),
-        description: Optional[str] = Query("", title="Description",
-                                           description="Description of the analysis"),
-        zoom_level: Optional[int] = None,
-        map_layers: List[str] = None,
-        db: Session = Depends(get_db)
-):
-    SavedAnalysesController.save_analysis(
-        db,
-        x_auth_userid, geometry, feature_type, description,
-        zoom_level, map_layers,
-        project_id
-    )
 
 
 def upload_file_to_minio(destination_file_name: str, local_file_path: str, content_type: str):

@@ -18,6 +18,7 @@ depends_on = None
 
 
 def upgrade():
+
     op.create_table(
         'saved_analysis',
 
@@ -27,25 +28,23 @@ def upgrade():
         Column('name', String, comment='Name of the custom analysis'),
         Column('geometry', String, comment='Geometry of the analysis'),
         Column('feature_type', String, comment='Feature used for analysis'),
+        Column('description', String, comment='Description of the analysis'),
         Column('zoom_level', String, comment='Starting zoom level'),
-        Column('project_id', Integer, ForeignKey('project.project_id')),
-        Column('user_id', String, ForeignKey('user.uuid'),
-               comment='foreign key to the user who created this project'),
         Column('create_date', DateTime, nullable=False),
         Column('update_date', DateTime, nullable=False)
     )
 
-    # op.create_table(
-    #     'project_saved_analysis',
-    #     Column('saved_analysis_id', Integer, ForeignKey('saved_analysis.saved_analysis_id')),
-    #     Column('project_id', Integer, ForeignKey('project.project_id')),
-    #     Column('create_date', DateTime, nullable=False),
-    #     Column('update_date', DateTime, nullable=False)
-    # )
+    op.create_table(
+        'project_saved_analysis',
+        Column('saved_analysis_id', Integer, ForeignKey('saved_analysis.saved_analysis_id')),
+        Column('project_id', Integer, ForeignKey('project.project_id')),
+        Column('create_date', DateTime, nullable=False),
+        Column('update_date', DateTime, nullable=False)
+    )
 
     op.create_table(
         'saved_analysis_map_layer',
-        Column('saved_analysis_id', Integer, ForeignKey('saved_analysis.saved_analysis_id')),
+        Column('saved_analysis_id', Integer, ForeignKey('project.project_id')),
         Column('map_layer', String, ForeignKey('metadata.display_catalogue.display_data_name')),
         Column('create_date', DateTime, nullable=False),
         Column('update_date', DateTime, nullable=False)
@@ -53,6 +52,8 @@ def upgrade():
 
 
 def downgrade():
-    # op.drop_table('project_saved_analysis')
+
+    op.drop_table('project_saved_analysis')
     op.drop_table('saved_analysis_map_layer')
     op.drop_table('saved_analysis')
+
