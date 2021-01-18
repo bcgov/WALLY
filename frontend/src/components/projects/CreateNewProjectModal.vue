@@ -1,18 +1,16 @@
 <template>
   <v-dialog v-model="dialog" width="650">
     <template v-slot:activator="{ on, attrs }">
-      <v-col class="text-right">
         <v-btn
           outlined
           color="primary"
           v-bind="attrs"
           v-on="on"
-          class='mb-2'
+          class='mb-2 p-3'
         >
           <v-icon class='mr-1'>mdi-folder-plus-outline</v-icon>
           Create Project
         </v-btn>
-      </v-col>
     </template>
 
     <v-card shaped>

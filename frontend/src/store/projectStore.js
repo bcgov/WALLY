@@ -4,10 +4,11 @@ import ApiService from '../services/ApiService'
 
 export default {
   state: {
-    selectedProjectItem: {},
-    activeFiles: [],
+    selectedProject: {},
+    projectFiles: [],
     projects: [],
-    loadingProjects: false
+    loadingProjects: false,
+    downloadingFile: false
   },
   actions: {
     getProjects ({ commit, dispatch }) {
@@ -40,42 +41,68 @@ export default {
           console.log('error delete project', e)
         })
     },
-    deleteProjectDocument ({ dispatch }, projectDocumentId) {
-      ApiService.query(`/api/v1/projects/documents/${projectDocumentId}/delete`)
+    getProjectFiles ({ commit }, projectId) {
+      ApiService.query(`/api/v1/projects/${projectId}/documents`)
         .then((r) => {
-          dispatch('getProjects')
+          commit('setProjectFiles', r.data)
         }).catch((e) => {
           console.log('error delete project', e)
         })
     },
-    downloadProjectDocument ({ dispatch }, payload) {
-      console.log(payload)
+    deleteProjectDocument ({ state, dispatch }, projectDocumentId) {
+      ApiService.query(`/api/v1/projects/documents/${projectDocumentId}/delete`)
+        .then((r) => {
+          dispatch('getProjects')
+          dispatch('getProjectFiles', state.selectedProject.project_id)
+        }).catch((e) => {
+          console.log('error delete project', e)
+        })
+    },
+    downloadProject ({ state, commit }) {
+      let projectId = state.selectedProject.project_id
+      ApiService.query(`/api/v1/projects/${projectId}/download`, null, { responseType: 'arraybuffer' })
+        .then((r) => {
+          downloadFile(r, 'project_' + projectId, true)
+          commit('downloadingFile', false)
+        }).catch((e) => {
+          commit('downloadingFile', false)
+          console.log('error delete project', e)
+        })
+    },
+    downloadProjectDocument ({ commit }, payload) {
+      commit('downloadingFile', true)
       ApiService.query(`/api/v1/projects/documents/${payload.projectDocumentId}`, null, { responseType: 'arraybuffer' })
         .then((r) => {
           downloadFile(r, payload.filename)
+          commit('downloadingFile', false)
         }).catch((e) => {
+          commit('downloadingFile', false)
           console.log('error delete project', e)
         })
     }
   },
   mutations: {
-    setSelectedProjectItem (state, payload) {
-      state.selectedProjectItem = payload
+    setSelectedProject (state, payload) {
+      state.selectedProject = payload
     },
-    setActiveFiles (state, files) {
-      state.activeFiles = files
+    setProjectFiles (state, files) {
+      state.projectFiles = files
     },
     setProjects (state, projects) {
       state.projects = projects
     },
     loadingProjects (state, val) {
       state.loadingProjects = val
+    },
+    downloadingFile (state, val) {
+      state.downloadingFile = val
     }
   },
   getters: {
-    selectedProjectItem: state => state.selectedProjectItem,
-    activeFiles: state => state.activeFiles,
+    selectedProject: state => state.selectedProject,
+    projectFiles: state => state.projectFiles,
+    projects: state => state.projects,
     loadingProjects: state => state.loadingProjects,
-    projects: state => state.projects
+    downloadingFile: state => state.downloadingFile
   }
 }

@@ -6,7 +6,7 @@
                 :active="active"
                 :items="projectList"
                 :search="filter"
-                v-on:update:active="activeChanged"
+                v-on:update:active="selectProject"
                 item-key="id"
                 item-text="name"
                 dense
@@ -15,6 +15,7 @@
                 class="folders-tree"
             >
                 <template v-slot:prepend="{ item, open }">
+                    <span class="mr-2">{{item.fileCount}}</span>
                     <v-icon
                         v-if="item.type === 'root' || item.type === 'dir'"
                     >
@@ -22,7 +23,7 @@
                     </v-icon>
                     <span
                       v-if="item.type === 'root' || item.type === 'dir'"
-                      class='ml-3'
+                      class='ml-1 overflow-hidden'
                     >
                       {{item.name}}
                     </span>
@@ -67,7 +68,6 @@
 
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import ApiService from '../../services/ApiService'
 
 export default {
   props: {
@@ -83,7 +83,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectItem', 'projects']),
+    ...mapGetters(['selectedProject', 'projects']),
     projectList () {
       let projectList = [{
         type: 'root',
@@ -92,6 +92,8 @@ export default {
       }]
       projectList[0].children = this.projects.map(p => {
         p.type = 'dir'
+        p.fileCount = p.children.length
+        p.children = []
         // p.project_id = p.project_id.toString()
         return p
       })
@@ -99,37 +101,21 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getProjects']),
-    ...mapMutations(['setSelectedProjectItem', 'setActiveFiles']),
+    ...mapActions(['getProjects', 'getProjectFiles']),
+    ...mapMutations(['setSelectedProject', 'setProjectFiles']),
     init () {
       this.open = []
       this.getProjects()
     },
-    async fetchProjectDocuments (item) {
-      if (!item) { return }
-
-      console.log('fetchProjectDocuments start', item)
-
-      this.$emit('loading', true)
-      let url = this.endpoints.documents.url
-        .replace(new RegExp('{projectId}', 'g'), item.project_id)
-
-      let response = await ApiService.query(url)
-      this.setActiveFiles(response.data)
-      item.children = response.data
-
-      console.log('fetched project documents', response.data)
-      this.$emit('loading', false)
-    },
-    activeChanged (active) {
+    selectProject (active) {
       if (!active[0]) { return }
       let split = active[0].split('-')
       const type = split[0]
       const id = split[1]
       if (type === 'project') {
         const project = this.findChildProject(id)
-        this.fetchProjectDocuments(project)
-        this.setSelectedProjectItem(project)
+        // this.fetchProjectDocuments(project)
+        this.setSelectedProject(project)
       } else if (type === 'document') {
         // TODO what happens when a document
         // is clicked in the tree, show more info?
@@ -155,7 +141,7 @@ export default {
     height: 100%;
 
     .scroll-x {
-        overflow-x: auto;
+        overflow-x: hidden;
     }
 
     ::v-deep .folders-tree {

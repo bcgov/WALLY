@@ -5,14 +5,10 @@ from api.config import MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 
-# minio_client = Minio(MINIO_HOST_URL,
-#                   access_key=MINIO_ACCESS_KEY,
-#                   secret_key=MINIO_SECRET_KEY,
-#                   secure=False)
-minio_client = Minio("minio-bfpeyx-dev.pathfinder.gov.bc.ca",
-                  access_key="BK5o5xdo",
-                  secret_key="quIAVbQiX3euO8jH",
-                  secure=True)
+minio_client = Minio(MINIO_HOST_URL,
+                  access_key=MINIO_ACCESS_KEY,
+                  secret_key=MINIO_SECRET_KEY,
+                  secure=False)
 
 
 def s3_upload_file(destination_file_name: str, local_file_path: str, content_type: str, bucket_name: str):

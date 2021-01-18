@@ -1,13 +1,15 @@
 import os
+import io
 import sys
 import json
 import magic
 import shutil
+import logging
+import zipfile
 from os import path
 from pathlib import Path
 from typing import List, Optional
-import logging
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, Response
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session, joinedload
 from tempfile import NamedTemporaryFile
@@ -75,14 +77,7 @@ def delete_project(db: Session, user_id: str, project_id: int):
             s3_delete_file(PROJECTS_BUCKET_NAME, doc.s3_path)
             # delete document in database
             db.delete(doc)
-            # db.query(ProjectDocument) \
-            #   .filter(ProjectDocument.project_document_id == doc.project_document_id) \
-            #   .delete()
-        
-        # delete project
-        # db.query(Project).filter(Project.project_id == project_id) \
-        #   .filter(Project.user_id == user_id) \
-        #   .delete()
+
         db.delete(project_with_documents)
 
         db.commit()
@@ -182,13 +177,18 @@ def create_document(db: Session, user_id: str, project_id: int, s3_path: str, fi
 def delete_project_document(db: Session, user_id: str, project_document_id: int):
     """ deletes a document object """
     try:
+        print('deleting document')
         document = db.query(ProjectDocument) \
           .filter(ProjectDocument.project_document_id == project_document_id) \
           .one()
 
+        print('document', document)
+
         project = db.query(Project) \
           .filter(Project.project_id == document.project_id) \
           .one()
+
+        print('project', project)
 
         # only allow the project owner to delete the document
         if project.user_id == user_id:
@@ -229,6 +229,34 @@ def download_project_document(db: Session, user_id: str, project_document_id: in
         try:
             response = StreamingResponse(s3_get_file(PROJECTS_BUCKET_NAME, document.s3_path))
             response.headers['Content-Disposition'] = document.filename
+            return response
+        except Exception as error:
+            logger.warning(error)
+
+
+def download_project(db: Session, user_id: str, project_id: int):
+    """ gets all a projects documents and downloads them as a zip file """
+
+    project_with_documents = db.query(Project).options(joinedload(Project.children)) \
+      .filter(Project.project_id == project_id) \
+      .filter(Project.user_id == user_id) \
+      .one()
+
+    # only allow the project owner to download the document
+    if project_with_documents.user_id == user_id:
+        documents = []
+        # get all project documents
+        for document in project_with_documents.children:
+            result = s3_get_file(PROJECTS_BUCKET_NAME, document.s3_path)
+            documents.append({"filename": document.filename, "data": result.read()})
+
+        zip_buffer = io.BytesIO()
+        with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False) as zip_file:
+            for doc in documents:
+                zip_file.writestr(doc["filename"], doc["data"])
+        try:
+            response = Response(zip_buffer.getvalue())
+            response.headers['Content-Disposition'] = 'project_{}.zip'.format(project_id)
             return response
         except Exception as error:
             logger.warning(error)

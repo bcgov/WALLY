@@ -22,7 +22,7 @@ export function downloadXlsx (r, defaultFilename) {
   }, 0)
 }
 
-export function downloadFile (r, defaultFilename) {
+export function downloadFile (r, defaultFilename, zip = false) {
   global.config.debug && console.log('[wally]', r)
   let filename = defaultFilename
 
@@ -33,7 +33,7 @@ export function downloadFile (r, defaultFilename) {
     filename = filenameData[1]
   }
 
-  let blob = new Blob([r.data])
+  let blob = zip ? new Blob([r.data], { type: 'application/zip' }) : new Blob([r.data])
   let link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = filename

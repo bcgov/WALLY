@@ -11,7 +11,10 @@
             <v-icon>mdi-plus-circle</v-icon>
             <input v-show="false" ref="inputUpload" type="file" multiple @change="addFiles" />
           </v-btn>
-          <v-btn icon @click="promptDelete" title="Upload Files">
+          <v-btn icon @click="downloadProject" title="Download Project">
+            <v-icon>mdi-download</v-icon>
+          </v-btn>
+          <v-btn icon @click="promptDelete" title="Delete Project">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </template>
@@ -31,10 +34,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectItem']),
+    ...mapGetters(['selectedProject']),
     selectedName () {
-      let name = this.selectedProjectItem?.name
-      let filename = this.selectedProjectItem?.filename
+      let name = this.selectedProject?.name
+      let filename = this.selectedProject?.filename
       if (name) {
         return name
       } else if (filename) {
@@ -45,15 +48,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['deleteProject']),
+    ...mapActions(['deleteProject', 'downloadProject']),
     async addFiles (event) {
       this.$emit('add-files', event.target.files)
       this.$refs.inputUpload.value = ''
     },
     async promptDelete () {
-      const name = this.selectedProjectItem?.name
+      const name = this.selectedProject?.name
       // eslint-disable-next-line
-      const projectId = this.selectedProjectItem?.project_id
+      const projectId = this.selectedProject?.project_id
       console.log(projectId)
       if (projectId) {
         let confirmed = await this.$refs.confirmDeleteProject.open(

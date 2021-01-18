@@ -5,7 +5,7 @@
                 <div>
                     <span class="grey--text">Upload to:</span>
                     <v-chip color="info" class="mx-1">Project</v-chip>
-                    <v-chip color="info" class="mx-1">{{selectedProjectItem.project_id}}</v-chip>
+                    <v-chip color="info" class="mx-1">{{selectedProject.project_id}}</v-chip>
                 </div>
                 <div v-if="maxUploadFilesCount">
                     <span class="grey--text">Max files count: {{ maxUploadFilesCount }}</span>
@@ -105,10 +105,10 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectItem'])
+    ...mapGetters(['selectedProject'])
   },
   methods: {
-    ...mapActions(['getProjects']),
+    ...mapActions(['getProjects', 'getProjectFiles']),
     formatBytes,
 
     async filesMap (files) {
@@ -164,7 +164,7 @@ export default {
       }
 
       let url = this.endpoint.url
-        .replace(new RegExp('{projectId}', 'g'), this.selectedProjectItem.project_id)
+        .replace(new RegExp('{projectId}', 'g'), this.selectedProject.project_id)
 
       let config = {
         url,
@@ -183,6 +183,7 @@ export default {
         this.uploading = false
         this.$emit('uploaded')
         this.getProjects()
+        this.getProjectFiles(this.selectedProject.project_id)
       } catch (e) {
         console.error(e)
         this.uploading = false

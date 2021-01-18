@@ -117,3 +117,16 @@ def download_project_document(
     """
 
     return controller.download_project_document(db, x_auth_userid, project_document_id)
+
+
+@router.get("/{project_id}/download")
+def download_project(
+        project_id: int,
+        x_auth_userid: Optional[str] = Header(None),
+        db: Session = Depends(get_db)
+):
+    """
+    Downloads a projects documents in zip format
+    """
+
+    return controller.download_project(db, x_auth_userid, project_id)
