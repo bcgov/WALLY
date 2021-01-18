@@ -1,4 +1,7 @@
-""" conversions for water data """
+import os
+import uuid
+
+""" general utility functions """
 
 
 def normalize_quantity(qty, qty_unit: str):
@@ -21,3 +24,19 @@ def normalize_quantity(qty, qty_unit: str):
     else:
         # could not interpret QUANTITY_UNIT value
         return None
+
+
+
+def get_file_ext(file_path: str) -> str:
+    file_name, file_extension = os.path.splitext(file_path)
+    return file_extension
+
+
+def get_file_name(file_path: str) -> str:
+    file_name, file_extension = os.path.splitext(file_path)
+    return file_name
+
+
+def generate_file_name(file_name: str) -> str:
+    file_ext = get_file_ext(file_name)
+    return f'{str(uuid.uuid4())}{file_ext}'

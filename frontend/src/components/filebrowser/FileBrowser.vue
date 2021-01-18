@@ -57,7 +57,6 @@ const endpoints = {
   documents: { url: '/api/v1/projects/{projectId}/documents', method: 'get' },
   upload: { url: '/api/v1/projects/{projectId}/documents', method: 'post' },
   delete: { url: '/api/v1/projects/documents/{documentId}/delete', method: 'delete' }
-
 }
 
 const fileIcons = {

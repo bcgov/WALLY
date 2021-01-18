@@ -64,6 +64,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import ApiService from '../../services/ApiService'
 
 export default {
@@ -78,7 +79,13 @@ export default {
     description: ''
   }),
   methods: {
+    ...mapActions(['getProjects']),
     createProject () {
+      if (this.name.length < 3) {
+        // TODO add user notify that at least 3 characters
+        // are needed for a project name
+        return
+      }
       this.loading = true
       const params = {
         name: this.name,
@@ -89,7 +96,7 @@ export default {
           // TODO project create logic
           this.dialog = false
           this.loading = false
-          console.log(res)
+          this.getProjects()
         })
         .catch((error) => {
           this.loading = false

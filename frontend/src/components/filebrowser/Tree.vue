@@ -4,10 +4,10 @@
             <v-treeview
                 :open="open"
                 :active="active"
-                :items="items"
+                :items="projectList"
                 :search="filter"
                 v-on:update:active="activeChanged"
-                item-key="project_id"
+                item-key="id"
                 item-text="name"
                 dense
                 activatable
@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import ApiService from '../../services/ApiService'
 
 export default {
@@ -79,44 +79,31 @@ export default {
     return {
       open: [],
       active: [],
-      items: [],
       filter: ''
     }
   },
   computed: {
-    ...mapGetters(['selectedProjectItem'])
+    ...mapGetters(['selectedProjectItem', 'projects']),
+    projectList () {
+      let projectList = [{
+        type: 'root',
+        extension: '',
+        name: 'My Projects'
+      }]
+      projectList[0].children = this.projects.map(p => {
+        p.type = 'dir'
+        // p.project_id = p.project_id.toString()
+        return p
+      })
+      return projectList
+    }
   },
   methods: {
+    ...mapActions(['getProjects']),
     ...mapMutations(['setSelectedProjectItem', 'setActiveFiles']),
     init () {
       this.open = []
-      this.items = []
-      // set default files tree items (root item) in nextTick.
-      // Otherwise this.open isn't cleared properly (due to syncing perhaps)
-      setTimeout(() => {
-        this.items = [
-          {
-            type: 'root',
-            extension: '',
-            name: 'My Projects',
-            children: []
-          }
-        ]
-        this.initProjects(this.items[0])
-      }, 0)
-    },
-    async initProjects (item) {
-      this.$emit('loading', true)
-      let url = this.endpoints.projects.url
-      let response = await ApiService.query(url)
-      // eslint-disable-next-line require-atomic-updates
-      item.children = response.data.map(item => {
-        item.type = 'dir'
-        item.project_id = item.project_id.toString()
-        item.children = []
-        return item
-      })
-      this.$emit('loading', false)
+      this.getProjects()
     },
     async fetchProjectDocuments (item) {
       if (!item) { return }
@@ -135,25 +122,27 @@ export default {
       this.$emit('loading', false)
     },
     activeChanged (active) {
-      console.log('activeChanged', active)
-      this.active = active
-      let projectId = ''
-      if (active.length) {
-        projectId = active[0]
-      }
-      if (projectId) {
-        const project = this.findChild(projectId)
+      if (!active[0]) { return }
+      let split = active[0].split('-')
+      const type = split[0]
+      const id = split[1]
+      if (type === 'project') {
+        const project = this.findChildProject(id)
         this.fetchProjectDocuments(project)
         this.setSelectedProjectItem(project)
+      } else if (type === 'document') {
+        // TODO what happens when a document
+        // is clicked in the tree, show more info?
       }
     },
-    findChild (projectId) {
-      const children = this.items[0].children
-      const child = children.find((x) => x.project_id === projectId)
-      return child
+    findChildProject (projectId) {
+      const children = this.projectList[0].children
+      return children.find((x) => x.project_id.toString() === projectId)
     }
   },
   watch: {
+    projects () {
+    }
   },
   created () {
     this.init()

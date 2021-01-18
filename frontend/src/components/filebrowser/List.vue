@@ -99,9 +99,8 @@
 <script>
 // import { formatBytes } from './util'
 import Confirm from './Confirm.vue'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import moment from 'moment'
-import ApiService from '../../services/ApiService'
 
 export default {
   props: {
@@ -120,45 +119,15 @@ export default {
   },
   computed: {
     ...mapGetters(['selectedProjectItem', 'activeFiles'])
-    // dirs () {
-    //   return this.items.filter(
-    //     item =>
-    //       item.type === 'dir' && item.basename.includes(this.filter)
-    //   )
-    // },
-    // files () {
-    //   return this.items
-    //   // return this.items.filter(
-    //   //   item =>
-    //   //     item.type === 'file' && item.basename.includes(this.filter)
-    //   // )
-    // },
-    // isDir () {
-    //   moment()
-    //   return false // this.path[this.path.length - 1] === '/'
-    // },
-    // isFile () {
-    //   return !this.isDir
-    // }
   },
   methods: {
+    ...mapActions(['deleteProjectDocument', 'downloadProjectDocument']),
     formattedDate (date) {
       return moment(date).format('DD MMM YYYY')
     },
     fileExtension (filename) {
       return filename.split('.').pop().toLowerCase()
     },
-    // async load () {
-    //   this.$emit('loading', true)
-    //   if (this.isDir) {
-    //     let url = this.endpoints.documents.url
-    //     let response = await ApiService.query(url)
-    //     this.items = response.data
-    //   } else {
-    //     // TODO: load file
-    //   }
-    //   this.$emit('loading', false)
-    // },
     async deleteItem (item) {
       let confirmed = await this.$refs.confirm.open(
         'Delete',
@@ -167,22 +136,16 @@ export default {
         }?<br><em>${item.basename}</em>`
       )
 
-      if (confirmed) {
-        this.$emit('loading', true)
-        let url = this.endpoints.delete.url
-
-        let config = {
-          url,
-          method: this.endpoints.delete.method || 'post'
-        }
-
-        await ApiService.post(config)
-        this.$emit('file-deleted')
-        this.$emit('loading', false)
+      if (confirmed && item.project_document_id) {
+        this.deleteProjectDocument(item.project_document_id)
+        // this.$emit('loading', true)
+        // await ApiService.post(config)
+        // this.$emit('file-deleted')
+        // this.$emit('loading', false)
       }
     },
-    async downloadItem (item) {
-
+    downloadItem (item) {
+      this.downloadProjectDocument({ projectDocumentId: item.project_document_id, filename: item.filename })
     }
   },
   watch: {

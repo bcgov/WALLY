@@ -82,7 +82,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 import { formatBytes } from './util'
 
@@ -108,6 +108,7 @@ export default {
     ...mapGetters(['selectedProjectItem'])
   },
   methods: {
+    ...mapActions(['getProjects']),
     formatBytes,
 
     async filesMap (files) {
@@ -178,9 +179,10 @@ export default {
       try {
         this.uploading = true
         let response = await ApiService.request(config)
-        console.log(response)
+        console.log('uploaded response', response)
         this.uploading = false
         this.$emit('uploaded')
+        this.getProjects()
       } catch (e) {
         console.error(e)
         this.uploading = false
