@@ -143,7 +143,6 @@ class BaseAudit(object):
                          comment='The date and time after which the code is no longer valid and '
                                  'should not be used.')
 
-
 BaseTable = declarative_base(cls=CustomBase)
 BaseLayerTable = declarative_base(cls=CustomLayerBase)
 

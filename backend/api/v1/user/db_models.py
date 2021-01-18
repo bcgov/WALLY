@@ -1,6 +1,7 @@
 from sqlalchemy import String, Column, DateTime, ARRAY, TEXT
 from sqlalchemy.ext.declarative import declarative_base
 from api.db.base_class import BaseTable
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class Base(object):

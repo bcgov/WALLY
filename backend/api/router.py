@@ -133,3 +133,10 @@ api_router.include_router(
     tags=["projects"],
     responses={404: {"description": "Not found"}},
 )
+
+api_router.include_router(
+    projects.router,
+    prefix="/saved_analyses",
+    tags=["saved_analyses"],
+    responses={404: {"description": "Not found"}},
+)

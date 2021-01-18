@@ -3,24 +3,39 @@ import logging
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from api.v1.projects.db_models import Project, ProjectDocument
-from api.v1.saved_analyses.db_models import SavedAnalysis, ProjectSavedAnalysis, SavedAnalysisMapLayer
+from api.v1.saved_analyses.db_models import SavedAnalysis, SavedAnalysisMapLayer
 from datetime import datetime
 
 logger = logging.getLogger("projects")
 
 
-def save_analysis_to_project(db: Session, user_id: str, project_id: int):
-    """ Saves an analysis into a project """
+def save_analysis(db: Session, user_id: str, name: str, description: str,
+                  geometry: str, feature_type: str, zoom_level: int,
+                  map_layers: [], project_id: int = None):
+    # validate geometry
 
-    # date = datetime.now()
-    analysis = SavedAnalysis(
-        project_id=project_id,
-        create_date=date,
-        update_date=date
-    )
-    db.add(projectDocument)
-    db.commit()
+    # validate map layers
+
+    # validate feature type
+
+    # validate zoom level
+
+    analysis = SavedAnalysis(user_id, name, description, geometry, feature_type,
+                             zoom_level, project_id)
+    db.add(analysis)
+    db.flush()
+
+    for layer in map_layers:
+        saved_analysis_map_layer = SavedAnalysisMapLayer(
+            analysis.saved_analysis_id,
+            layer
+        )
+        db.add(saved_analysis_map_layer)
 
 
+def get_saved_analyses(db: Session, user_id: str):
+    analyses = db.query(SavedAnalysis) \
+        .filter(SavedAnalysis.user_id == user_id) \
+        .all()
 
-    return projectDocument
+    return analyses
