@@ -6,6 +6,7 @@ from typing import Optional, List
 from shapely import wkt
 from shapely.errors import WKTReadingError
 from api.constants import FEATURE_TYPES
+from uuid import UUID
 
 
 class SavedAnalysisMapLayer(BaseModel):
@@ -17,8 +18,11 @@ class SavedAnalysis(BaseModel):
     description: Optional[str]
     geometry: Optional[str]
     feature_type: Optional[str]
-    zoom_level: Optional[int]
+    zoom_level: Optional[float]
     map_layers: Optional[List[str]]
+
+
+class SavedAnalysisCreate(SavedAnalysis):
 
     @validator('geometry')
     def geometry_wkt(cls, v):
@@ -34,3 +38,6 @@ class SavedAnalysis(BaseModel):
         if v not in FEATURE_TYPES:
             raise ValueError('Invalid feature type')
 
+
+class SavedAnalysisGet(SavedAnalysis):
+    saved_analysis_id: UUID

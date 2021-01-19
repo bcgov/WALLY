@@ -113,8 +113,11 @@ class Base(object):
 
     create_date = Column(
         DateTime,
+        default=datetime.now,
         comment='Date and time (UTC) when the physical record was created in the database.')
     update_date = Column(DateTime,
+                         default=datetime.now,
+                         onupdate=datetime.now,
                          comment='Date and time (UTC) when the physical record was updated in the database. '
                                  'It will be the same as the create_date until the record is first '
                                  'updated after creation.')
@@ -142,6 +145,7 @@ class BaseAudit(object):
     expiry_date = Column(DateTime,
                          comment='The date and time after which the code is no longer valid and '
                                  'should not be used.')
+
 
 BaseTable = declarative_base(cls=CustomBase)
 BaseLayerTable = declarative_base(cls=CustomLayerBase)
