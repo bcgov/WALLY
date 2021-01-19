@@ -137,7 +137,6 @@ api_router.include_router(
 
 api_router.include_router(
     saved_analyses.router,
-    prefix="/saved_analyses",
     tags=["saved_analyses"],
     responses={404: {"description": "Not found"}},
 )

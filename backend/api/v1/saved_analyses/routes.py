@@ -4,17 +4,18 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Body, UploadFile,
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.saved_analyses import schema, controller
+import uuid
 
 logger = getLogger("saved_analysis")
 
 router = APIRouter()
 
 
-@router.post("/")
+@router.post("/saved_analyses")
 def create_saved_analysis(
-        saved_analysis: schema.SavedAnalysis,
+        saved_analysis: schema.SavedAnalysisCreate,
         x_auth_userid: Optional[str] = Header(None),
-        db: Session = Depends(get_db)) -> schema.SavedAnalysis:
+        db: Session = Depends(get_db)) -> schema.SavedAnalysisCreate:
     """
     Saves an analysis
     """
@@ -25,7 +26,13 @@ def create_saved_analysis(
                                     saved_analysis.zoom_level, saved_analysis.map_layers)
 
 
-@router.get("/")
+@router.get("/saved_analyses", response_model=List[schema.SavedAnalysisGet])
 def get_saved_analyses(x_auth_userid: Optional[str] = Header(None),
-                       db: Session = Depends(get_db)) -> List[schema.SavedAnalysis]:
-    return controller.get_saved_analyses(db, x_auth_userid)
+                       db: Session = Depends(get_db)) -> List[schema.SavedAnalysisGet]:
+    return controller.get_saved_analyses_by_user(db, x_auth_userid)
+
+
+@router.get("/saved_analyses/{saved_analysis_uuid}", response_model=schema.SavedAnalysisGet)
+def get_saved_analyses(saved_analysis_uuid: uuid.UUID,
+                       db: Session = Depends(get_db)) -> List[schema.SavedAnalysisGet]:
+    return controller.get_saved_analysis(db, saved_analysis_uuid)

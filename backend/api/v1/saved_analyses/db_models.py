@@ -26,7 +26,7 @@ class SavedAnalysis(Base):
     project_id = Column(Integer, ForeignKey(Project.project_id))
     user_id = Column(String, ForeignKey(User.uuid),
                      comment='foreign key to the user who created this project')
-    map_layers = relationship('SavedAnalysisMapLayer')
+    map_layers = relationship('SavedAnalysisMapLayer', lazy='joined')
 
 
 class SavedAnalysisMapLayer(Base):

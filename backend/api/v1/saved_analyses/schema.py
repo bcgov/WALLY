@@ -12,17 +12,28 @@ from uuid import UUID
 class SavedAnalysisMapLayer(BaseModel):
     map_layer: Optional[str]
 
+    class Config:
+        orm_mode = True
 
-class SavedAnalysis(BaseModel):
+
+class SavedAnalysisBase(BaseModel):
     name: Optional[str]
     description: Optional[str]
     geometry: Optional[str]
     feature_type: Optional[str]
     zoom_level: Optional[float]
+    map_layers: Optional[List[SavedAnalysisMapLayer]]
+
+    class Config:
+        orm_mode = True
+
+
+class SavedAnalysisGet(SavedAnalysisBase):
+    saved_analysis_uuid: UUID
+
+
+class SavedAnalysisCreate(SavedAnalysisBase):
     map_layers: Optional[List[str]]
-
-
-class SavedAnalysisCreate(SavedAnalysis):
 
     @validator('geometry')
     def geometry_wkt(cls, v):
@@ -37,7 +48,3 @@ class SavedAnalysisCreate(SavedAnalysis):
 
         if v not in FEATURE_TYPES:
             raise ValueError('Invalid feature type')
-
-
-class SavedAnalysisGet(SavedAnalysis):
-    saved_analysis_id: UUID
