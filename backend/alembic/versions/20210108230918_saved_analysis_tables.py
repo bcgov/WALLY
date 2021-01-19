@@ -25,8 +25,8 @@ def upgrade():
 
         Column('saved_analysis_id', Integer, primary_key=True, comment='Primary key id for '
                                                                        'a saved analysis'),
-        Column('description', String, comment='Description of the analysis'),
         Column('name', String, comment='Name of the custom analysis'),
+        Column('description', String, comment='Description of the analysis'),
         Column('geometry', String, comment='Geometry of the analysis'),
         Column('feature_type', String, comment='Feature used for analysis'),
         Column('zoom_level', String, comment='Starting zoom level'),

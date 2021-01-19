@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.saved_analyses import schema, controller
 
-logger = getLogger("projects")
+logger = getLogger("saved_analysis")
 
 router = APIRouter()
 

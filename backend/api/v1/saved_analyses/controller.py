@@ -20,8 +20,13 @@ def save_analysis(db: Session, user_id: str, name: str, description: str,
 
     # validate zoom level
 
-    analysis = SavedAnalysis(user_id, name, description, geometry, feature_type,
-                             zoom_level, project_id)
+    analysis = SavedAnalysis(user_id=user_id,
+                             name=name,
+                             description=description,
+                             geometry=geometry,
+                             feature_type=feature_type,
+                             zoom_level=zoom_level,
+                             project_id=project_id)
     db.add(analysis)
     db.flush()
 
