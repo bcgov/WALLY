@@ -115,7 +115,7 @@ export default class Importer {
       store.commit('importer/clearQueuedFiles')
 
       // Custom Metrics - Import files
-      window._paq && window._paq.push(['trackEvent', 'Upload files', 'Unsupported filetype', fileType])
+      window._paq && window._paq.push(['trackEvent', 'Import files', 'Unsupported filetype', fileType])
       return
     }
 
@@ -293,7 +293,7 @@ export default class Importer {
       store.dispatch('importer/processFile', {
         filenames: [(dbfFile && dbfFile.name), (prjFile && prjFile.name)],
         status: 'error',
-        message: 'It looks like you\'re uploading a shapefile. Please' +
+        message: 'It looks like you\'re importing a shapefile. Please' +
           ' provide the .shp and .prj file.'
       })
       return
@@ -409,13 +409,13 @@ export default class Importer {
 
     // basic test to assert that the first feature is near BC.
     // this will only be a warning and will only be reliable if all the features are outside BC.
-    // the most common case will be when users upload data in non WGS84 coordinate systems.
+    // the most common case will be when users import data in non WGS84 coordinate systems.
     // todo: investigate if better warnings are required based on user feedback.
 
     // using [-139.06 48.30],  [-114.03  60.00] as extents of BC.
     if (!(firstFeature[0] > -180 && firstFeature[0] < 180) || !(firstFeature[1] > -90 && firstFeature[1] < 90)) {
       throw new Error('Coordinates are not in degrees. If this is a' +
-        ' shapefile, please upload a .prj file with the same name')
+        ' shapefile, please import a .prj file with the same name')
     }
     return firstFeature
   }
@@ -459,7 +459,7 @@ export default class Importer {
       }).finally(() => {
         // Custom Metrics - Import files
         window._paq && window._paq.push(
-          ['trackEvent', 'Upload files', 'Uploaded Filetype', fileType])
+          ['trackEvent', 'Import files', 'Imported Filetype', fileType])
 
         store.dispatch('importer/processFile', fileStatus)
       })

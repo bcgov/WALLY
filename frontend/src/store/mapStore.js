@@ -567,8 +567,6 @@ export default {
       state.layerCategories = payload
     },
     setActiveMapLayers (state, payload) {
-      // TODO: See if this is actually used anywhere else
-      // Could have been deprecated by updateActiveMapLayers
       state.activeMapLayers = state.mapLayers.filter((l) => {
         return payload.includes(l.display_data_name)
       })

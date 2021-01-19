@@ -93,4 +93,10 @@ export default {
   dl > dd {
     font-size: 1em;
   }
+  .instructions {
+    h3 {
+      border-bottom: 1px groove;
+      margin-bottom: 5px;
+    }
+  }
 </style>
