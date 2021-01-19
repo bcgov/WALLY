@@ -10,10 +10,10 @@
             small
             color="grey darken-2"
             text
-            :to="{ name: 'upload-data-layer' }"
+            :to="{ name: 'import-data-layer' }"
             @click="$emit('closeDialog')"
             v-if="this.app.config && this.app.config.external_import">
-            <v-icon small>mdi-cloud-upload</v-icon> Upload file or data
+            <v-icon small>mdi-cloud-upload</v-icon> Import file or data
           </v-btn>
           <v-btn @click.prevent="handleResetLayers" small color="grey darken-2" text>
             <v-icon>refresh</v-icon> Reset all

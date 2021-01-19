@@ -2,7 +2,7 @@
   <v-container class="pt-5">
     <v-toolbar flat>
       <v-banner color="indigo" icon="mdi-cloud-upload" icon-color="white" width="100%">
-        <v-toolbar-title>Upload file or data</v-toolbar-title>
+        <v-toolbar-title>Import file or data</v-toolbar-title>
       </v-banner>
     </v-toolbar>
     <v-row>
