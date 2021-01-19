@@ -1,8 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import Session
 from geojson import Point, Feature, FeatureCollection, Polygon, MultiPolygon
-from typing import List
-from sqlalchemy import Integer, String, Column, DateTime, Float, func, text
+from sqlalchemy import Integer, String, Column, DateTime, Float, func, text, ForeignKey
 from sqlalchemy.inspection import inspect
 from geoalchemy2.shape import to_shape
 from shapely.geometry import Polygon
@@ -118,7 +117,8 @@ class Base(object):
     update_date = Column(DateTime,
                          default=datetime.now,
                          onupdate=datetime.now,
-                         comment='Date and time (UTC) when the physical record was updated in the database. '
+                         comment='Date and time (UTC) when the physical record was updated in the'
+                                 ' database. '
                                  'It will be the same as the create_date until the record is first '
                                  'updated after creation.')
 
@@ -127,13 +127,15 @@ class BaseAudit(object):
     __table_args__ = {'schema': 'metadata'}
 
     create_user = Column(
-        String(100), comment='The user who created this record in the database.')
+        String,
+        comment='The user who created this record in the database.')
     create_date = Column(
         DateTime,
         default=datetime.now,
         comment='Date and time (UTC) when the physical record was created in the database.')
     update_user = Column(
-        String(100), comment='The user who last updated this record in the database.')
+        String,
+        comment='The user who last updated this record in the database.')
     update_date = Column(DateTime,
                          default=datetime.now,
                          onupdate=datetime.now,

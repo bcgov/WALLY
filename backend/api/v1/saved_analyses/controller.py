@@ -1,12 +1,13 @@
-import json
 import logging
-from sqlalchemy import text, func
+from sqlalchemy import func, ForeignKey
+# from sqlalchemy import and_
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from api.v1.saved_analyses.db_models import SavedAnalysis, SavedAnalysisMapLayer
 from api.v1.user.db_models import User
 from api.v1.catalogue.db_models import DisplayCatalogue
 from uuid import UUID
+from datetime import datetime
 
 logger = logging.getLogger("projects")
 
@@ -45,8 +46,8 @@ def save_analysis(db: Session, user_id: str,
 
     for layer in map_layers:
         # validate map layers
-        map_layer = db.query(func.count(DisplayCatalogue.display_data_name))\
-            .filter(DisplayCatalogue.display_data_name == layer)\
+        map_layer = db.query(func.count(DisplayCatalogue.display_data_name)) \
+            .filter(DisplayCatalogue.display_data_name == layer) \
             .scalar()
         if map_layer == 0:
             raise HTTPException(status_code=422, detail=f"Invalid map layer `{layer}`")
@@ -62,13 +63,27 @@ def save_analysis(db: Session, user_id: str,
 
 
 def get_saved_analyses_by_user(db: Session, user_id: str):
-    analyses = db.query(SavedAnalysis) \
-        .filter(SavedAnalysis.user_id == user_id) \
+    analyses = db.query(SavedAnalysis).filter(
+        SavedAnalysis.user_id == user_id,
+        SavedAnalysis.deleted_on.is_(None)
+    )
 
-    print(analyses)
     return analyses.all()
 
 
-def get_saved_analysis(db: Session, saved_analysis_uuid: UUID):
-    analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
+def get_saved_analysis(db: Session, saved_analysis_uuid: UUID, include_deleted=False):
+    if include_deleted:
+        analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
+    else:
+        analysis = db.query(SavedAnalysis).filter(
+            SavedAnalysis.saved_analysis_uuid == saved_analysis_uuid,
+            SavedAnalysis.deleted_on.is_(None)
+        ).first()
+
     return analysis
+
+
+def delete_saved_analysis(db: Session, saved_analysis_uuid: UUID):
+    analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
+    analysis.deleted_on = datetime.now()
+    db.commit()

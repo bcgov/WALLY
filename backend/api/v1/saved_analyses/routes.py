@@ -33,6 +33,12 @@ def get_saved_analyses(x_auth_userid: Optional[str] = Header(None),
 
 
 @router.get("/saved_analyses/{saved_analysis_uuid}", response_model=schema.SavedAnalysisGet)
-def get_saved_analyses(saved_analysis_uuid: uuid.UUID,
+def get_saved_analysis(saved_analysis_uuid: uuid.UUID,
                        db: Session = Depends(get_db)) -> List[schema.SavedAnalysisGet]:
     return controller.get_saved_analysis(db, saved_analysis_uuid)
+
+
+@router.delete("/saved_analyses/{saved_analysis_uuid}")
+def delete_saved_analysis(saved_analysis_uuid: uuid.UUID,
+                          db: Session = Depends(get_db)):
+    return controller.delete_saved_analysis(db, saved_analysis_uuid)

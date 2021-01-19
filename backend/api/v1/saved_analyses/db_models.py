@@ -1,7 +1,7 @@
-from sqlalchemy import String, Column, Integer, Numeric, ForeignKey
+from sqlalchemy import String, Column, Integer, Numeric, ForeignKey, DateTime
 from sqlalchemy.schema import PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
-from api.db.base_class import Base
+from api.db.base_class import BaseAudit, Base
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.user.db_models import User
 from api.v1.projects.db_models import Project
@@ -26,6 +26,8 @@ class SavedAnalysis(Base):
     project_id = Column(Integer, ForeignKey(Project.project_id))
     user_id = Column(String, ForeignKey(User.uuid),
                      comment='foreign key to the user who created this project')
+    deleted_on = Column(
+        DateTime, comment='Date and time when this record was deleted')
     map_layers = relationship('SavedAnalysisMapLayer', lazy='joined')
 
 

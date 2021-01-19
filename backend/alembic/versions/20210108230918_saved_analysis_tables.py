@@ -34,10 +34,12 @@ def upgrade():
         Column('zoom_level', Numeric, comment='Starting zoom level'),
         Column('project_id', Integer, ForeignKey('project.project_id')),
         Column('user_id', String, ForeignKey('user.uuid')),
-        Column('create_date', DateTime, nullable=False),
-        Column('update_date', DateTime, nullable=False),
-
-
+        Column('create_date', DateTime, nullable=False,
+               comment='The date and time when this record was created'),
+        Column('update_date', DateTime, nullable=False,
+               comment='The date and time when this record was updated'),
+        Column('deleted_on', DateTime, nullable=True,
+               comment='The date and time when this record was deleted'),
     )
 
     op.create_table(

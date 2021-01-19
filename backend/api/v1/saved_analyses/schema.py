@@ -48,3 +48,5 @@ class SavedAnalysisCreate(SavedAnalysisBase):
 
         if v not in FEATURE_TYPES:
             raise ValueError('Invalid feature type')
+
+        return v
