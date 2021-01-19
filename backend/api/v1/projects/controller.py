@@ -25,7 +25,7 @@ logger = logging.getLogger("projects")
 
 
 ALLOWED_FILE_EXTENSIONS = [".gif", ".jpg", ".jpeg", ".txt", ".geojson", ".json",
-                           ".png", ".pdf", ".doc", ".docx", ".csv", ".xlsx"]
+                           ".png", ".pdf", ".doc", ".docx", ".csv", ".xlsx", ".kml"]
 PROJECTS_BUCKET_NAME = "projects"
 
 
