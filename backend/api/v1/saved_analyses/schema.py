@@ -5,6 +5,7 @@ from pydantic import BaseModel, ValidationError, validator
 from typing import Optional, List
 from shapely import wkt
 from shapely.errors import WKTReadingError
+from api.constants import FEATURE_TYPES
 
 
 class SavedAnalysisMapLayer(BaseModel):
@@ -27,4 +28,9 @@ class SavedAnalysis(BaseModel):
             raise ValueError('Invalid geometry')
         return v
 
-# class SavedAnalysi
+    @validator('feature_type')
+    def feature_type_valid(cls, v):
+
+        if v not in FEATURE_TYPES:
+            raise ValueError('Invalid feature type')
+
