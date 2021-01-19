@@ -37,8 +37,8 @@
           :disabled="downloading"
           @click="downloadTrainingData"
         >
-          Download Training Data
           <v-icon class="ml-2" v-if="!downloading">cloud_download</v-icon>
+          Download Training Data
           <v-progress-circular
             v-if="downloading"
             indeterminate
