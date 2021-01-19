@@ -12,6 +12,7 @@ export function downloadXlsx (r, defaultFilename) {
     filename = filenameData[1]
   }
 
+  // TODO: Refactor code duplication
   let blob = new Blob([r.data], { type: XLSX_FILE_TYPE })
   let link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
