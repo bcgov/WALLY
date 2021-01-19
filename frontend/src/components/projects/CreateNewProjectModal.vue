@@ -91,7 +91,8 @@ export default {
       }
       ApiService.post(`/api/v1/projects/`, params)
         .then((res) => {
-          // TODO project create logic
+          this.name = ''
+          this.description = ''
           this.dialog = false
           this.loading = false
           this.getProjects()

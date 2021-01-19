@@ -5,7 +5,9 @@
                 <div>
                     <span class="grey--text">Upload to:</span>
                     <v-chip color="info" class="mx-1">Project</v-chip>
-                    <v-chip color="info" class="mx-1">{{selectedProject.project_id}}</v-chip>
+                    <v-chip color="info" class="mx-1">{{selectedProject.name}}</v-chip>
+                    <div class="grey--text">Accepted file types: .gif .jpg .jpeg .txt .geojson .json
+                           .png .pdf .doc .docx .csv .xlsx .kml</div>
                 </div>
                 <div v-if="maxUploadFilesCount">
                     <span class="grey--text">Max files count: {{ maxUploadFilesCount }}</span>
