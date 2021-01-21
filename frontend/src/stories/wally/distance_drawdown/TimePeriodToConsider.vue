@@ -60,6 +60,33 @@
       </v-col>
     </v-row>
     </v-card>
+    <v-card class="mt-5 pa-5" outlined tile>
+      <v-row>
+        <v-col
+          cols="4"
+          class="py-2"
+        >
+
+          <v-text-field
+            label="Select time period to consider"
+            hint="Select the time to consider where pumping rate (Q) is varied and time (T) is constant"
+            suffix="days"
+            persistent-hint
+            required>
+          </v-text-field>
+        </v-col>
+        <v-col cols="6">
+          <label class="pl-5">
+            <input type="radio" name="radio" value="latest"/>
+            Latest time considered
+          </label>
+          <label class="pl-5">
+            <input type="radio" name="radio" value="earliest"/>
+            Earliest time considered
+          </label>
+        </v-col>
+      </v-row>
+    </v-card>
   </v-form>
 </template>
 <script>
