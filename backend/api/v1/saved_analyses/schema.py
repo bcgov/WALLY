@@ -32,7 +32,7 @@ class SavedAnalysisGet(SavedAnalysisBase):
     saved_analysis_uuid: UUID
 
 
-class SavedAnalysisCreate(SavedAnalysisBase):
+class SavedAnalysisCreateUpdate(SavedAnalysisBase):
     map_layers: Optional[List[str]]
 
     @validator('geometry')

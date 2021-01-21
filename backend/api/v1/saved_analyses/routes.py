@@ -13,9 +13,9 @@ router = APIRouter()
 
 @router.post("/saved_analyses")
 def create_saved_analysis(
-        saved_analysis: schema.SavedAnalysisCreate,
+        saved_analysis: schema.SavedAnalysisCreateUpdate,
         x_auth_userid: Optional[str] = Header(None),
-        db: Session = Depends(get_db)) -> schema.SavedAnalysisCreate:
+        db: Session = Depends(get_db)) -> schema.SavedAnalysisCreateUpdate:
     """
     Saves an analysis
     """
@@ -42,3 +42,15 @@ def get_saved_analysis(saved_analysis_uuid: uuid.UUID,
 def delete_saved_analysis(saved_analysis_uuid: uuid.UUID,
                           db: Session = Depends(get_db)):
     return controller.delete_saved_analysis(db, saved_analysis_uuid)
+
+
+@router.put("/saved_analyses/{saved_analysis_uuid}")
+def update_saved_analysis(saved_analysis_uuid: uuid.UUID,
+                          saved_analysis: schema.SavedAnalysisCreateUpdate,
+                          x_auth_userid: Optional[str] = Header(None),
+                          db: Session = Depends(get_db)):
+    return controller.update_saved_analysis(db, saved_analysis_uuid, x_auth_userid,
+                                            saved_analysis.name, saved_analysis.description,
+                                            saved_analysis.geometry, saved_analysis.feature_type,
+                                            saved_analysis.zoom_level, saved_analysis.map_layers
+                                            )
