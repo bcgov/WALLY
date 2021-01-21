@@ -1,5 +1,5 @@
 <template>
-  <div id="hydraulic_connectivity">
+  <div id="hydraulic_connectivity" class="instructions">
     <div>
     <h3>Instructions</h3>
     <p>Zoom into an area of interest on the map.</p>
@@ -86,12 +86,6 @@
   </div>
 </template>
 <style lang="scss">
-#hydraulic_connectivity{
-  h3 {
-    border-bottom: 1px groove;
-    margin-bottom: 5px;
-  }
-}
 </style>
 <script>
 export default {

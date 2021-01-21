@@ -37,6 +37,7 @@
           </v-list-item>
         </v-list>
       </v-menu>
+
     <v-menu offset-y>
         <template v-slot:activator="{ on }">
           <v-btn
@@ -59,6 +60,29 @@
             <v-list-item-title>{{ item.title }}</v-list-item-title>
           </v-list-item>
         </v-list>
+      </v-menu>
+      <v-menu offset-y v-if="this.app.config && this.app.config.projects">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            color="grey darken-3"
+            class="ml-3 selection-menu-buttons"
+            tile
+            text
+            :to="'/projects'"
+          >
+            Projects
+          </v-btn>
+        </template>
+        <!-- <v-list>
+          <v-list-item
+            v-for="(item, index) in projectOptions"
+            :key="index"
+            :to="item.route"
+            active-class="font-weight-bold"
+          >
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list> -->
       </v-menu>
   </div>
 </template>
@@ -102,7 +126,12 @@ export default {
         title: 'Surface water availability',
         route: { name: 'surface-water' }
       }
-
+    ],
+    projectOptions: [
+      {
+        title: 'Projects List',
+        route: { name: 'projects' }
+      }
     ]
   }),
   computed: {
@@ -111,8 +140,8 @@ export default {
 
       let externalImport =
       {
-        title: 'Upload file or data',
-        route: { name: 'upload-data-layer' },
+        title: 'Import file or data',
+        route: { name: 'import-data-layer' },
         icon: 'mdi-cloud-upload'
       }
 

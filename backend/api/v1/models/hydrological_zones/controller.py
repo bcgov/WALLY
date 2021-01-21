@@ -1,7 +1,9 @@
 import json
+import datetime
 import logging
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
+from fastapi.responses import StreamingResponse
 from api.v1.aggregator.controller import feature_search
 from shapely.geometry import MultiPolygon, shape
 from shapely.ops import transform
@@ -182,5 +184,24 @@ def load_model_data(minio_path: str, file_name: str):
         with open(file_name, "w+") as local_file:
             local_file.write(content)
 
+    except Exception as error:
+        logger.warning(error)
+
+
+def download_training_data(model_version: str, hydrological_zone: int):
+    """
+    Gets the model training data from Minio using model version and hydro zone
+    """
+    cur_date = datetime.datetime.now().strftime("%d-%m-%Y")
+    name = 'zone_{}.zip'.format(str(hydrological_zone))
+    minio_path = '/{}/training_data/{}'.format(model_version, name)
+    bucket_name = 'models'
+    try:
+        response = StreamingResponse(
+          minio_client.get_object(bucket_name, minio_path),
+          media_type='application/zip')
+        file_name = 'training-data-' + cur_date + "-" + name
+        response.headers['Content-Disposition'] = f'attachment;filename={file_name}'
+        return response
     except Exception as error:
         logger.warning(error)
