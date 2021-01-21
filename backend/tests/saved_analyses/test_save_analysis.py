@@ -1,9 +1,7 @@
 import pytest
-
 from pydantic import ValidationError
 from api.v1.saved_analyses.controller import save_analysis
-from api.v1.saved_analyses.schema import SavedAnalysisCreate
-from tests.utils import get_mock_session
+from api.v1.saved_analyses.schema import SavedAnalysisCreateUpdate
 
 import logging
 
@@ -26,7 +24,7 @@ class TestSaveAnalysis:
         geometry = 'LINESTRING (30 10, 10 30-sdfs)'
 
         with pytest.raises(ValidationError) as e:
-            assert SavedAnalysisCreate(
+            assert SavedAnalysisCreateUpdate(
                 user_id=self.x_auth_userid,
                 name=self.name,
                 description=self.description,
@@ -44,7 +42,7 @@ class TestSaveAnalysis:
         """
         geometry = 'LINESTRING (30 10, 10 30)'
 
-        assert SavedAnalysisCreate(
+        assert SavedAnalysisCreateUpdate(
             user_id=self.x_auth_userid,
             name=self.name,
             description=self.description,
@@ -57,7 +55,7 @@ class TestSaveAnalysis:
     def test_validate_feature_types_invalid(self):
         feature_type = 'wrong_feature'
         with pytest.raises(ValidationError) as e:
-            assert SavedAnalysisCreate(
+            assert SavedAnalysisCreateUpdate(
                 user_id=self.x_auth_userid,
                 name=self.name,
                 description=self.description,
@@ -71,7 +69,7 @@ class TestSaveAnalysis:
 
     def test_validate_feature_types_valid(self):
         feature_type = 'cross_section'
-        assert SavedAnalysisCreate(
+        assert SavedAnalysisCreateUpdate(
             user_id=self.x_auth_userid,
             name=self.name,
             description=self.description,

@@ -18,11 +18,11 @@ class SavedAnalysis(Base):
                                  default=uuid.uuid4,
                                  unique=True,
                                  comment='Primary key id for a saved analysis')
-    name = Column(String, comment='Name of the custom analysis')
+    name = Column(String, comment='Name of the custom analysis', nullable=False)
     description = Column(String, comment='Description of the analysis')
-    geometry = Column(String, comment='Geometry of the analysis')
-    feature_type = Column(String, comment='Feature used for the analysis')
-    zoom_level = Column(Numeric, comment='Zoom level')
+    geometry = Column(String, comment='Geometry of the analysis', nullable=False)
+    feature_type = Column(String, comment='Feature used for the analysis', nullable=False)
+    zoom_level = Column(Numeric, comment='Zoom level', nullable=False)
     project_id = Column(Integer, ForeignKey(Project.project_id))
     user_id = Column(String, ForeignKey(User.uuid),
                      comment='foreign key to the user who created this project')

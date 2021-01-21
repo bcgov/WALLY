@@ -17,11 +17,11 @@ class SavedAnalysisMapLayer(BaseModel):
 
 
 class SavedAnalysisBase(BaseModel):
-    name: Optional[str]
+    name: str
     description: Optional[str]
-    geometry: Optional[str]
-    feature_type: Optional[str]
-    zoom_level: Optional[float]
+    geometry: str
+    feature_type: str
+    zoom_level: str
     map_layers: Optional[List[SavedAnalysisMapLayer]]
 
     class Config:
