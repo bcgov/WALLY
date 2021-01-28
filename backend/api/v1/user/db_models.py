@@ -1,6 +1,7 @@
 from sqlalchemy import String, Column, DateTime, ARRAY, TEXT
 from sqlalchemy.ext.declarative import declarative_base
 from api.db.base_class import BaseTable
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class Base(object):
@@ -20,8 +21,9 @@ class User(Base):
     __tablename__ = 'user'
     __table_args__ = {'schema': 'public'}
 
+    # Note: this is a keycloak string id, not a real 128-bit UUID
     uuid = Column(String, primary_key=True,
-                  comment='The keycloak uuid that is returned after oauth login. '
+                  comment='The keycloak auth user id that is returned after oauth login. '
                   'We use this table to keep track of user specific information.')
     default_map_layers = Column(ARRAY(TEXT),
                   comment='Default map layer names that the user last used.')
