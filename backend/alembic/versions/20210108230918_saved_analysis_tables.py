@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 from sqlalchemy import Column, Integer, String, Numeric, ForeignKey, DateTime
 from sqlalchemy.schema import PrimaryKeyConstraint
-from datetime import datetime
+from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
@@ -29,7 +29,7 @@ def upgrade():
                comment='Primary key id for a saved analysis'),
         Column('name', String, comment='Name of the custom analysis', nullable=False),
         Column('description', String, comment='Description of the analysis'),
-        Column('geometry', String, comment='Geometry of the analysis', nullable=False),
+        Column('geometry', Geometry, comment='Geometry of the analysis', nullable=False),
         Column('feature_type', String, comment='Feature used for analysis', nullable=False),
         Column('zoom_level', Numeric, comment='Starting zoom level', nullable=False),
         Column('project_id', Integer, ForeignKey('project.project_id')),
