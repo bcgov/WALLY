@@ -57,15 +57,6 @@ async def db_session_middleware(request: Request, call_next):
     return response
 
 
-@wally_api.middleware("http")
-async def auth_middleware(request: Request, call_next):
-    print('request headers -------')
-    print(request.headers)
-    print('-----------------------')
-    response = await call_next(request)
-    return response
-
-
 @wally_api.get("/health")
 def health_check():
     return Response(status_code=200, content=b"")

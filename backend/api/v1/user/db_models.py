@@ -1,26 +1,8 @@
-from sqlalchemy import String, Column, ForeignKey, ARRAY, TEXT
-from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-from api.db.base_class import BaseTable
+from sqlalchemy import String, Column, ARRAY, TEXT
 from api.db.base_class import Base
 
 
 from sqlalchemy.dialects.postgresql import UUID
-
-
-# class Base(object):
-#     __table_args__ = {'schema': 'metadata'}
-#
-#     create_date = Column(
-#         DateTime,
-#         comment='Date and time (UTC) when the physical record was created in the database.')
-#     update_date = Column(DateTime,
-#                          comment='Date and time (UTC) when the physical record was updated in the database. '
-#                                  'It will be the same as the create_date until the record is first '
-#                                  'updated after creation.')
-#
-#
-# Base = declarative_base(cls=Base, metadata=BaseTable.metadata)
 
 
 class User(Base):

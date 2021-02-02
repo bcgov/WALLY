@@ -15,20 +15,6 @@ logger = getLogger("catalogue")
 router = APIRouter()
 
 
-@router.get('/')
-def get_user(x_auth_subject: Optional[str] = Header(None),
-             x_auth_email: Optional[str] = Header(None),
-             x_auth_roles: Optional[str] = Header(None),
-             x_auth_username: Optional[str] = Header(None)):
-    print()
-    return {
-        'uuid': x_auth_subject,
-        'email': x_auth_email,
-        'roles': x_auth_roles,
-        'x_auth_username': x_auth_username
-    }
-
-
 @router.get("/profile")
 def get_create_user_profile(
         x_auth_userid: Optional[str] = Header(None),
