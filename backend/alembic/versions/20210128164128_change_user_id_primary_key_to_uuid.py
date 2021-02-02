@@ -2,7 +2,7 @@
 The current user table has a String primary key.
 This migration creates a new user table with a UUID() primary key and preserves the data contained
 in the old user table (just user IDIRs and their saved map layers) into a new table called
-`user_map_layers`
+`user_map_layer`
 
 Revision ID: 74ddceb41c46
 Revises: 563750b4923c
