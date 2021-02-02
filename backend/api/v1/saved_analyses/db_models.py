@@ -1,6 +1,6 @@
 from sqlalchemy import String, Column, Integer, Numeric, ForeignKey, DateTime
 from sqlalchemy.schema import PrimaryKeyConstraint
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import relationship
 from api.db.base_class import Base
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.user.db_models import User

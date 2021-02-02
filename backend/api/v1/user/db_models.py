@@ -1,4 +1,5 @@
-from sqlalchemy import String, Column, DateTime, ARRAY, TEXT
+from sqlalchemy import String, Column, ForeignKey, ARRAY, TEXT
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 from api.db.base_class import BaseTable
 from api.db.base_class import Base

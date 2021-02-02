@@ -4,9 +4,7 @@ User management endpoints
 import os
 from logging import getLogger
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Header, Body
-from geojson import FeatureCollection, Feature, Point
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.user.schema import User
@@ -28,7 +26,8 @@ def get_create_user_profile(
     x_auth_userid holds the keycloak guid that is passed as a
     header up from the proxy service (X-Auth-UserId)
     """
-    return controller.get_create_user(db, x_auth_userid)
+    # TODO: Change this to return a user and not a user map layer once user migration is complete
+    return controller.get_create_user_map_layer(db, x_auth_userid)
 
 
 @router.post("/maplayers")
