@@ -12,8 +12,7 @@ class User(Base):
     user_uuid = Column(UUID(), primary_key=True,
                        comment='The keycloak auth user uuid that is returned after oauth login. '
                                'We use this table to keep track of user specific information.')
-    user_idir = Column(String, primary_key=True,
-                       comment='The user\'s IDIR')
+    user_idir = Column(String, comment='The user\'s IDIR')
 
 
 class UserMapLayer(Base):
