@@ -225,20 +225,14 @@ const router = new Router({
       }
     },
     {
-      path: '/upload-data-layer',
-      name: 'upload-data-layer',
+      path: '/import-data-layer',
+      name: 'import-data-layer',
       component: ImportLayer,
       meta: {
-        title: `Upload File - ${title}`,
+        title: `Import File - ${title}`,
         sidebarColumns: {},
         allowRedirect: true
       }
-    },
-    {
-      // Retired path
-      path: '/import-layer',
-      name: 'import-layer',
-      redirect: '/upload-data-layer'
     },
     {
       path: '/projects',
@@ -250,7 +244,7 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   // Check if feature is enabled
-  if (to.name === 'upload-data-layer' &&
+  if (to.name === 'import-data-layer' &&
     store.getters.app &&
     store.getters.app.config &&
     !store.getters.app.config.external_import) next({ name: 'home' })

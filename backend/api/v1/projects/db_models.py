@@ -2,6 +2,7 @@ from sqlalchemy import String, Column, DateTime, ARRAY, TEXT, Integer, ForeignKe
 from sqlalchemy.ext.declarative import declarative_base
 from api.db.base_class import BaseTable
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 
 
 class Base(object):
@@ -24,8 +25,8 @@ class Project(Base):
     project_id = Column(Integer, primary_key=True, comment='primary key id for a project')
     name = Column(String, comment='name of the project')              
     description = Column(String, comment='description of the project')
-    user_id = Column(String, ForeignKey('public.user.uuid'),
-                          comment='foreign key to the user who created this project')
+    user_uuid = Column(UUID(), ForeignKey('user.user_uuid'),
+                          comment='User who owns this project')
     children = relationship("ProjectDocument", backref="parent", passive_deletes=True)
 
 

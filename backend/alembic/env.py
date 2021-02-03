@@ -9,7 +9,7 @@ import sys
 sys.path = ['', '..'] + sys.path[1:]
 
 
-from api.db.base import BaseTable, BaseLayerTable  # noqa
+from api.db.base import BaseTable, BaseLayerTable, Base, BaseAudit  # noqa
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -26,7 +26,7 @@ fileConfig(config.config_file_name)
 # target_metadata = None
 
 
-target_metadata = [BaseTable.metadata, BaseLayerTable.metadata]
+target_metadata = [BaseTable.metadata, BaseLayerTable.metadata, Base.metadata, BaseAudit.metadata]
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

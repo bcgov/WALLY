@@ -153,6 +153,7 @@ export default {
   }),
   computed: {
     ...mapGetters('map', ['map']),
+    ...mapGetters(['app']),
     formattedProjectsData () {
       let projects = this.projectsData.map((pd) => {
         return {

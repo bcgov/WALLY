@@ -7,16 +7,16 @@
       Imported files require a location in order to be displayed. The supported coordinated system is decimal
       degrees longitude/latitude (WGS84). For example, -127.10205, 51.81051
     </p>
-    <p>Large or complex files may impact performance. A message will indicate if the file has been successfully uploaded.</p>
+    <p>Large or complex files may impact performance. A message will indicate if the file has been successfully imported.</p>
     <h3>CSV and Excel</h3>
     <p>
       For CSV and Excel, the files should have two columns with the headings (not case sensitive):
-      "Latitude" and "Longitude" or "lat" and "long". It works best to upload an Excel workbook that has a table on
+      "Latitude" and "Longitude" or "lat" and "long". It works best to import an Excel workbook that has a table on
       the first sheet (and no other cells filled in outside the table).
     </p>
     <h3>Shapefile</h3>
     <p>
-      Shapefiles must include both the .shp and .prj. Uploading the .dbf is also recommended if you want to view features and properties of the layer.
+      Shapefiles must include both the .shp and .prj. Importing the .dbf is also recommended if you want to view features and properties of the layer.
     </p>
   </div>
 </template>
