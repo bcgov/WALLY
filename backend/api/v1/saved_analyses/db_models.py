@@ -1,6 +1,6 @@
 from sqlalchemy import String, Column, Integer, Numeric, ForeignKey, DateTime
 from sqlalchemy.schema import PrimaryKeyConstraint
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy.orm import relationship
 from api.db.base_class import Base
 from api.v1.catalogue.db_models import DisplayCatalogue
 from api.v1.user.db_models import User
@@ -27,7 +27,7 @@ class SavedAnalysis(Base):
     feature_type = Column(String, comment='Feature used for the analysis', nullable=False)
     zoom_level = Column(Numeric, comment='Zoom level', nullable=False)
     project_id = Column(Integer, ForeignKey(Project.project_id))
-    user_id = Column(String, ForeignKey(User.uuid),
+    user_id = Column(UUID(), ForeignKey(User.user_uuid),
                      comment='foreign key to the user who created this project')
     deleted_on = Column(
         DateTime, comment='Date and time when this record was deleted')

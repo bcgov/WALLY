@@ -24,8 +24,8 @@ class Project(Base):
     project_id = Column(Integer, primary_key=True, comment='primary key id for a project')
     name = Column(String, comment='name of the project')              
     description = Column(String, comment='description of the project')
-    user_id = Column(UUID(), ForeignKey('user.uuid'),
-                          comment='foreign key to the user who created this project')
+    user_uuid = Column(UUID(), ForeignKey('user.user_uuid'),
+                          comment='User who owns this project')
 
 
 class ProjectDocument(Base):
