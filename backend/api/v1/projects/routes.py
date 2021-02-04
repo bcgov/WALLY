@@ -1,13 +1,6 @@
 """
 Project management endpoints
 """
-# import os
-# import sys
-# import uuid
-# import magic
-# import shutil
-# from os import path
-# from pathlib import Path
 from logging import getLogger
 from typing import List, Optional
 from tempfile import NamedTemporaryFile
@@ -18,15 +11,13 @@ from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.projects.schema import Project
 import api.v1.projects.controller as controller
-# from starlette.status import HTTP_409_CONFLICT, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR
-# from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY, HTTP_415_UNSUPPORTED_MEDIA_TYPE
 
 logger = getLogger("projects")
 
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 def get_projects(
         x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
@@ -36,11 +27,10 @@ def get_projects(
     x_auth_userid holds the keycloak guid that is passed as a
     header up from the proxy service (X-Auth-UserId)
     """
-
     return controller.get_projects_with_documents(db, x_auth_userid)
 
 
-@router.post("/")
+@router.post("")
 def create_project(
         project: Project,
         x_auth_userid: Optional[str] = Header(None),

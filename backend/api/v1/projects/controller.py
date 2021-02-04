@@ -29,31 +29,31 @@ ALLOWED_FILE_EXTENSIONS = [".gif", ".jpg", ".jpeg", ".txt", ".geojson", ".json",
 PROJECTS_BUCKET_NAME = "projects"
 
 
-def get_projects(db: Session, user_id: str):
+def get_projects(db: Session, user_uuid: str):
     """ gets all projects that a user is associated with """
 
-    projects = db.query(Project).filter(Project.user_id == user_id).all()
+    projects = db.query(Project).filter(Project.user_uuid == user_uuid).all()
 
     return projects
 
 
-def get_projects_with_documents(db: Session, user_id: str):
+def get_projects_with_documents(db: Session, user_uuid: str):
     """ gets all projects that a user is associated with, and associated documents """
     projects_with_documents = db.query(Project).options(joinedload(Project.children)) \
-        .filter(Project.user_id == user_id) \
+        .filter(Project.user_uuid == user_uuid) \
         .all()
 
     return projects_with_documents
 
 
-def create_project(db: Session, user_id: str, project_name: str, project_description: str):
+def create_project(db: Session, user_uuid: str, project_name: str, project_description: str):
     """ creates a new project associated with a user """
-
+    print("user_uuid", user_uuid)
     date = datetime.now()
     project = Project(
         name=project_name,
         description=project_description,
-        user_id=user_id,
+        user_uuid=user_uuid,
         create_date=date,
         update_date=date
     )
@@ -63,12 +63,12 @@ def create_project(db: Session, user_id: str, project_name: str, project_descrip
     return project
 
 
-def delete_project(db: Session, user_id: str, project_id: int):
+def delete_project(db: Session, user_uuid: str, project_id: int):
     """ deletes a project and all associated documents """
     try:
         project_with_documents = db.query(Project).options(joinedload(Project.children)) \
           .filter(Project.project_id == project_id) \
-          .filter(Project.user_id == user_id) \
+          .filter(Project.user_uuid == user_uuid) \
           .one()
 
         print('deleting s3 project files')
@@ -87,7 +87,7 @@ def delete_project(db: Session, user_id: str, project_id: int):
         return False
 
 
-def get_documents(db: Session, user_id: str, project_id: int):
+def get_documents(db: Session, user_uuid: str, project_id: int):
     """ gets all project documents """
 
     documents = db.query(ProjectDocument) \
@@ -97,7 +97,7 @@ def get_documents(db: Session, user_id: str, project_id: int):
     return documents
 
 
-def create_and_upload_document(db: Session, user_id: str, project_id: int, files: UploadFile):
+def create_and_upload_document(db: Session, user_uuid: str, project_id: int, files: UploadFile):
     file = files
 
     file_ext = get_file_ext(file.filename)
@@ -138,7 +138,7 @@ def create_and_upload_document(db: Session, user_id: str, project_id: int, files
             s3_path, new_file_path, content_type, PROJECTS_BUCKET_NAME)
         # create new document in database once upload is successful
         document = create_document(
-            db, user_id, project_id, s3_path, file.filename)
+            db, user_uuid, project_id, s3_path, file.filename)
         return document
     except FileNotFoundError as exc:
         logger.error(f'upload_file - unknown upload error - {str(exc)}')
@@ -157,7 +157,7 @@ def create_and_upload_document(db: Session, user_id: str, project_id: int, files
             pass
 
 
-def create_document(db: Session, user_id: str, project_id: int, s3_path: str, filename: str):
+def create_document(db: Session, user_uuid: str, project_id: int, s3_path: str, filename: str):
     """ creates a new project document """
 
     date = datetime.now()
@@ -174,7 +174,7 @@ def create_document(db: Session, user_id: str, project_id: int, s3_path: str, fi
     return project_document
 
 
-def delete_project_document(db: Session, user_id: str, project_document_id: int):
+def delete_project_document(db: Session, user_uuid: str, project_document_id: int):
     """ deletes a document object """
     try:
         print('deleting document')
@@ -191,7 +191,7 @@ def delete_project_document(db: Session, user_id: str, project_document_id: int)
         print('project', project)
 
         # only allow the project owner to delete the document
-        if project.user_id == user_id:
+        if project.user_uuid == user_uuid:
             try:
                 file_deleted = s3_delete_file(PROJECTS_BUCKET_NAME, document.s3_path)
                 db.delete(document)
@@ -213,7 +213,7 @@ def delete_project_document(db: Session, user_id: str, project_document_id: int)
         return False
 
 
-def download_project_document(db: Session, user_id: str, project_document_id: int):
+def download_project_document(db: Session, user_uuid: str, project_document_id: int):
     """ gets a project document and downloads it to the client """
 
     document = db.query(ProjectDocument) \
@@ -225,7 +225,7 @@ def download_project_document(db: Session, user_id: str, project_document_id: in
       .one()
 
     # only allow the project owner to download the document
-    if project.user_id == user_id:
+    if project.user_uuid == user_uuid:
         try:
             response = StreamingResponse(s3_get_file(PROJECTS_BUCKET_NAME, document.s3_path))
             response.headers['Content-Disposition'] = document.filename
@@ -234,16 +234,16 @@ def download_project_document(db: Session, user_id: str, project_document_id: in
             logger.warning(error)
 
 
-def download_project(db: Session, user_id: str, project_id: int):
+def download_project(db: Session, user_uuid: str, project_id: int):
     """ gets all a projects documents and downloads them as a zip file """
 
     project_with_documents = db.query(Project).options(joinedload(Project.children)) \
       .filter(Project.project_id == project_id) \
-      .filter(Project.user_id == user_id) \
+      .filter(Project.user_uuid == user_uuid) \
       .one()
 
     # only allow the project owner to download the document
-    if project_with_documents.user_id == user_id:
+    if project_with_documents.user_uuid == user_uuid:
         documents = []
         # get all project documents
         for document in project_with_documents.children:
