@@ -65,7 +65,7 @@ def upload_document_to_project(
 ):
     """
     allows an authenticated user to upload a file of the supported file extension types.
-    the file being uploaded in run thru a few filters to determine its type
+    the file being uploaded is run thru a few filters to determine its type
     """
     return controller.create_and_upload_document(db, x_auth_userid, project_id, files)
 

@@ -95,8 +95,8 @@ export default {
     endpoint: Object,
     files: { type: Array, default: () => [] },
     icons: Object,
-    maxUploadFilesCount: { type: Number, default: 0 },
-    maxUploadFileSize: { type: Number, default: 0 }
+    maxUploadFilesCount: { type: Number, default: 25 },
+    maxUploadFileSize: { type: Number, default: 1000000 }
   },
   data () {
     return {

@@ -98,10 +98,10 @@ export default {
     icons: { type: Object, default: () => fileIcons },
     // custom backend endpoints
     endpoints: { type: Object, default: () => endpoints },
-    // max files count to upload at once. Unlimited by default
-    maxUploadFilesCount: { type: Number, default: 0 },
-    // max file size to upload. Unlimited by default
-    maxUploadFileSize: { type: Number, default: 0 }
+    // max files count to upload at once.
+    maxUploadFilesCount: { type: Number, default: 25 },
+    // max file size to upload.
+    maxUploadFileSize: { type: Number, default: 1000000 }
   },
   data () {
     return {
