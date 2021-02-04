@@ -1,33 +1,33 @@
 <template>
     <v-card class="mx-auto" :loading="loading > 0">
-        <toolbar
+        <FileBrowserToolbar
             :endpoints="endpoints"
             v-on:add-files="addUploadingFiles"
             v-on:folder-created="refreshPending = true"
-        ></toolbar>
+        ></FileBrowserToolbar>
         <v-row no-gutters>
             <v-col v-if="tree && $vuetify.breakpoint.smAndUp" sm="auto">
-                <tree
+                <FileBrowserTreeView
                     :icons="icons"
                     :endpoints="endpoints"
                     :refreshPending="refreshPending"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
-                ></tree>
+                ></FileBrowserTreeView>
             </v-col>
             <v-divider v-if="tree" vertical></v-divider>
             <v-col>
-                <list
+                <FileBrowserFileList
                     :icons="icons"
                     :endpoints="endpoints"
                     :refreshPending="refreshPending"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
                     v-on:file-deleted="refreshPending = true"
-                ></list>
+                ></FileBrowserFileList>
             </v-col>
         </v-row>
-        <upload
+        <FileBrowserUpload
             v-if="uploadingFiles !== false"
             :files="uploadingFiles"
             :icons="icons"
@@ -39,15 +39,15 @@
             v-on:clear-files="uploadingFiles = []"
             v-on:cancel="uploadingFiles = false"
             v-on:uploaded="uploaded"
-        ></upload>
+        ></FileBrowserUpload>
     </v-card>
 </template>
 
 <script>
-import Toolbar from './Toolbar.vue'
-import Tree from './Tree.vue'
-import List from './List.vue'
-import Upload from './Upload.vue'
+import FileBrowserToolbar from './FileBrowserToolbar.vue'
+import FileBrowserTreeView from './FileBrowserTreeView.vue'
+import FileBrowserFileList from './FileBrowserFileList.vue'
+import FileBrowserUpload from './FileBrowserUpload.vue'
 
 const endpoints = {
   projects: { url: '/api/v1/projects/', method: 'get' },
@@ -83,10 +83,10 @@ const fileIcons = {
 
 export default {
   components: {
-    Toolbar,
-    Tree,
-    List,
-    Upload
+    FileBrowserToolbar,
+    FileBrowserTreeView,
+    FileBrowserFileList,
+    FileBrowserUpload
   },
   model: {
     event: 'change'

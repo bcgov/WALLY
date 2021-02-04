@@ -1,6 +1,6 @@
 <template>
     <v-card flat tile min-height="250" class="d-flex flex-column">
-        <confirm ref="confirm"></confirm>
+        <FileBrowserConfirmDialog ref="confirm"></FileBrowserConfirmDialog>
         <v-card-subtitle v-if="selectedProject.description">Project Description: {{selectedProject.description}}</v-card-subtitle>
         <v-card-text v-if="files.length > 0" class="grow">
             <v-list subheader v-if="files.length > 0">
@@ -77,7 +77,7 @@
 </template>
 
 <script>
-import Confirm from './Confirm.vue'
+import FileBrowserConfirmDialog from './FileBrowserConfirmDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 import moment from 'moment'
 
@@ -88,7 +88,7 @@ export default {
     refreshPending: Boolean
   },
   components: {
-    Confirm
+    FileBrowserConfirmDialog
   },
   data () {
     return {

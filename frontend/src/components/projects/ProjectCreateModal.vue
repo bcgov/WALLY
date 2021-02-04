@@ -66,7 +66,7 @@ import { mapActions } from 'vuex'
 import ApiService from '../../services/ApiService'
 
 export default {
-  name: 'CreateNewProject',
+  name: 'ProjectCreateModal',
   props: {
     open: Boolean
   },

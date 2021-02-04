@@ -50,11 +50,10 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
-import ApiService from '../../services/ApiService'
+import { mapGetters } from 'vuex'
 
 export default {
-  name: 'UploadFileToProject',
+  name: 'ProjectFileUpload',
   props: {
     open: Boolean,
     selectedProject: {}
@@ -66,7 +65,7 @@ export default {
   computed: {
     ...mapGetters(['projects']),
     projects () {
-      return projects.map(project => {
+      return this.projects.map(project => {
         return { value: project.project_id, text: project.name }
       })
     }

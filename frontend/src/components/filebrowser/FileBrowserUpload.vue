@@ -86,7 +86,7 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
-import { formatBytes } from './util'
+import { formatBytes } from '../../common/utils/fileUtils'
 
 const imageMimeTypes = ['image/png', 'image/jpeg']
 

@@ -1,8 +1,8 @@
 <template>
     <v-toolbar flat dense color="blue-grey lighten-5">
-        <confirm ref="confirmDeleteProject"></confirm>
+        <FileBrowserConfirmDialog ref="confirmDeleteProject"></FileBrowserConfirmDialog>
         <v-toolbar-items>
-          <create-new-project-modal />
+          <ProjectCreateModal/>
         </v-toolbar-items>
         <div class="flex-grow-1"></div>
         <template v-if="selectedName">
@@ -23,10 +23,13 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
-import CreateNewProjectModal from '../projects/CreateNewProjectModal.vue'
-import Confirm from './Confirm.vue'
+import FileBrowserConfirmDialog from './FileBrowserConfirmDialog.vue'
+import ProjectCreateModal from '../projects/ProjectCreateModal.vue'
 export default {
-  components: { CreateNewProjectModal, Confirm },
+  components: {
+    FileBrowserConfirmDialog,
+    ProjectCreateModal
+  },
   props: {
   },
   data () {

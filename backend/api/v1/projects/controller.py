@@ -48,7 +48,6 @@ def get_projects_with_documents(db: Session, user_uuid: str):
 
 def create_project(db: Session, user_uuid: str, project_name: str, project_description: str):
     """ creates a new project associated with a user """
-    print("user_uuid", user_uuid)
     date = datetime.now()
     project = Project(
         name=project_name,
@@ -106,9 +105,9 @@ def create_and_upload_document(db: Session, user_uuid: str, project_id: int, fil
         raise HTTPException(status_code=HTTP_415_UNSUPPORTED_MEDIA_TYPE,
                             detail=f'unsupported media type: {file_ext}')
 
-    print('filename', file.filename)
-    print('content_type', file.content_type)
-    print('extension', file_ext)
+    # print('filename', file.filename)
+    # print('content_type', file.content_type)
+    # print('extension', file_ext)
     # print('starting - Stage 1')
 
     try:

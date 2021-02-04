@@ -39,7 +39,14 @@ def get_create_user(db: Session, user_idir):
         db.add(user)
         db.commit()
 
-    return user
+    map_layer = get_create_user_map_layer(db, user_idir)
+
+    result = {
+      **user.__dict__,
+      "default_map_layers": map_layer.default_map_layers
+    }
+
+    return result
 
 
 def update_map_layers(db: Session, user_idir, map_layers):

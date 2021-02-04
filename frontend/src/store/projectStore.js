@@ -34,6 +34,7 @@ export default {
         })
     },
     deleteProject ({ dispatch }, projectId) {
+      if (!projectId) { return }
       ApiService.query(`/api/v1/projects/${projectId}/delete`)
         .then((r) => {
           dispatch('getProjects')
@@ -42,6 +43,7 @@ export default {
         })
     },
     getProjectFiles ({ commit }, projectId) {
+      if (!projectId) { return }
       ApiService.query(`/api/v1/projects/${projectId}/documents`)
         .then((r) => {
           commit('setProjectFiles', r.data)
@@ -50,6 +52,7 @@ export default {
         })
     },
     deleteProjectDocument ({ state, dispatch }, projectDocumentId) {
+      if (!projectDocumentId) { return }
       ApiService.query(`/api/v1/projects/documents/${projectDocumentId}/delete`)
         .then((r) => {
           dispatch('getProjects')
@@ -70,6 +73,7 @@ export default {
         })
     },
     downloadProjectDocument ({ commit }, payload) {
+      if (!payload.projectDocumentId) { return }
       commit('downloadingFile', true)
       ApiService.query(`/api/v1/projects/documents/${payload.projectDocumentId}`, null, { responseType: 'arraybuffer' })
         .then((r) => {
@@ -79,6 +83,10 @@ export default {
           commit('downloadingFile', false)
           console.log('error delete project', e)
         })
+    },
+    deselectProjects ({ commit }) {
+      commit('setSelectedProject', {})
+      commit('setProjectFiles', [])
     }
   },
   mutations: {

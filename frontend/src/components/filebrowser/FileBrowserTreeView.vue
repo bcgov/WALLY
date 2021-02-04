@@ -7,12 +7,14 @@
                 :items="projectList"
                 :search="filter"
                 v-on:update:active="selectProject"
+                v-on:update:open="toggleProjectsFolder"
                 item-key="id"
                 item-text="name"
                 dense
                 activatable
                 transition
                 class="folders-tree"
+                open-on-click
             >
                 <template v-slot:prepend="{ item, open }">
                     <span class="mr-2">{{item.fileCount}}</span>
@@ -101,14 +103,18 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getProjects', 'getProjectFiles']),
+    ...mapActions(['getProjects', 'getProjectFiles', 'deselectProjects']),
     ...mapMutations(['setSelectedProject', 'setProjectFiles']),
     init () {
       this.open = []
       this.getProjects()
     },
     selectProject (active) {
-      if (!active[0]) { return }
+      console.log('active', active)
+      if (!active[0]) {
+        this.deselectProjects()
+        return
+      }
       let split = active[0].split('-')
       const type = split[0]
       const id = split[1]
@@ -120,6 +126,10 @@ export default {
         // TODO what happens when a document
         // is clicked in the tree, show more info?
       }
+    },
+    toggleProjectsFolder () {
+      this.active = []
+      this.deselectProjects()
     },
     findChildProject (projectId) {
       const children = this.projectList[0].children
