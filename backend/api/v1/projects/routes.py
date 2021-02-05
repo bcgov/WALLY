@@ -9,7 +9,7 @@ from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.v1.projects.schema import Project
+from api.v1.projects.schema import Project, ProjectDocument
 import api.v1.projects.controller as controller
 
 logger = getLogger("projects")
@@ -17,7 +17,7 @@ logger = getLogger("projects")
 router = APIRouter()
 
 
-@router.get("")
+@router.get("", response_model=List[Project])
 def get_projects(
         x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
@@ -27,10 +27,11 @@ def get_projects(
     x_auth_userid holds the keycloak guid that is passed as a
     header up from the proxy service (X-Auth-UserId)
     """
+
     return controller.get_projects_with_documents(db, x_auth_userid)
 
 
-@router.post("")
+@router.post("", response_model=Project)
 def create_project(
         project: Project,
         x_auth_userid: Optional[str] = Header(None),
@@ -43,7 +44,7 @@ def create_project(
     return controller.create_project(db, x_auth_userid, project.name, project.description)
 
 
-@router.get("/{project_id}/delete")
+@router.get("/{project_id}/delete", response_model=bool)
 def delete_project(
         project_id: int,
         x_auth_userid: Optional[str] = Header(None),
@@ -56,7 +57,7 @@ def delete_project(
     return controller.delete_project(db, x_auth_userid, project_id)
 
 
-@router.post("/{project_id}/documents")
+@router.post("/{project_id}/documents", response_model=ProjectDocument)
 def upload_document_to_project(
         project_id: int,
         files: UploadFile = File(...),
@@ -70,7 +71,7 @@ def upload_document_to_project(
     return controller.create_and_upload_document(db, x_auth_userid, project_id, files)
 
 
-@router.get("/documents/{project_document_id}/delete")
+@router.get("/documents/{project_document_id}/delete", response_model=bool)
 def delete_project_document(
         project_document_id: int,
         x_auth_userid: Optional[str] = Header(None),
@@ -83,7 +84,7 @@ def delete_project_document(
     return controller.delete_project_document(db, x_auth_userid, project_document_id)
 
 
-@router.get("/{project_id}/documents")
+@router.get("/{project_id}/documents", response_model=List[ProjectDocument])
 def get_project_documents(
         project_id: int,
         x_auth_userid: Optional[str] = Header(None),
