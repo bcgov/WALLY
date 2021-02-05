@@ -165,12 +165,11 @@ export default {
         formData.append('files', file, file.name)
       }
 
-      let url = this.endpoint.url
-        .replace(new RegExp('{projectId}', 'g'), this.selectedProject.project_id)
+      let url = `/api/v1/projects/${this.selectedProject.project_id}/documents`
 
       let config = {
         url,
-        method: this.endpoint.method || 'post',
+        method: 'post',
         data: formData,
         onUploadProgress: progressEvent => {
           this.progress =

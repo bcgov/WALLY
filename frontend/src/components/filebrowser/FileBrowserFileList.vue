@@ -84,7 +84,6 @@ import moment from 'moment'
 export default {
   props: {
     icons: Object,
-    endpoints: Object,
     refreshPending: Boolean
   },
   components: {

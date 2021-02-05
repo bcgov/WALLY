@@ -1,7 +1,6 @@
 <template>
     <v-card class="mx-auto" :loading="loading > 0">
         <FileBrowserToolbar
-            :endpoints="endpoints"
             v-on:add-files="addUploadingFiles"
             v-on:folder-created="refreshPending = true"
         ></FileBrowserToolbar>
@@ -9,7 +8,6 @@
             <v-col v-if="tree && $vuetify.breakpoint.smAndUp" sm="auto">
                 <FileBrowserTreeView
                     :icons="icons"
-                    :endpoints="endpoints"
                     :refreshPending="refreshPending"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
@@ -19,7 +17,6 @@
             <v-col>
                 <FileBrowserFileList
                     :icons="icons"
-                    :endpoints="endpoints"
                     :refreshPending="refreshPending"
                     v-on:loading="loadingChanged"
                     v-on:refreshed="refreshPending = false"
@@ -31,7 +28,6 @@
             v-if="uploadingFiles !== false"
             :files="uploadingFiles"
             :icons="icons"
-            :endpoint="endpoints.upload"
             :maxUploadFilesCount="maxUploadFilesCount"
             :maxUploadFileSize="maxUploadFileSize"
             v-on:add-files="addUploadingFiles"
@@ -48,16 +44,6 @@ import FileBrowserToolbar from './FileBrowserToolbar.vue'
 import FileBrowserTreeView from './FileBrowserTreeView.vue'
 import FileBrowserFileList from './FileBrowserFileList.vue'
 import FileBrowserUpload from './FileBrowserUpload.vue'
-
-const endpoints = {
-  projects: { url: '/api/v1/projects/', method: 'get' },
-  createProject: { url: '/api/v1/projects/', method: 'post' },
-  deleteProject: { url: '/api/v1/projects/delete', method: 'post' },
-
-  documents: { url: '/api/v1/projects/{projectId}/documents', method: 'get' },
-  upload: { url: '/api/v1/projects/{projectId}/documents', method: 'post' },
-  delete: { url: '/api/v1/projects/documents/{documentId}/delete', method: 'delete' }
-}
 
 const fileIcons = {
   zip: 'mdi-folder-zip-outline',
@@ -96,8 +82,6 @@ export default {
     tree: { type: Boolean, default: true },
     // file icons set
     icons: { type: Object, default: () => fileIcons },
-    // custom backend endpoints
-    endpoints: { type: Object, default: () => endpoints },
     // max files count to upload at once.
     maxUploadFilesCount: { type: Number, default: 25 },
     // max file size to upload.

@@ -74,7 +74,6 @@ import { mapActions, mapGetters, mapMutations } from 'vuex'
 export default {
   props: {
     icons: Object,
-    endpoints: Object,
     refreshPending: Boolean
   },
   data () {
