@@ -24,6 +24,7 @@ def get_create_user_map_layer(db: Session, user_idir):
     return user_map_layer
 
 
+# TODO: Remove this once auth middleware is in place
 def get_create_user(db: Session, user_idir):
     """ get or create user based on idir """
 
