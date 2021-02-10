@@ -577,16 +577,6 @@ export default {
     },
     fetchWells (params) {
       return ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
-      // .then(results => {
-      //   this.processWellResults(results.data)
-      // })
-      // .catch(e => {
-      //   console.error(e)
-      // })
-      // .finally(() => {
-      //   this.loading = false
-      //   this.setAnnotationMarkers()
-      // })
     },
     processWellResults (data) {
       this.wells = data.wells
