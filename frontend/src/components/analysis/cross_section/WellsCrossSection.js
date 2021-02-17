@@ -8,6 +8,7 @@ import jsPDF from 'jspdf'
 import PlotlyJS from 'plotly.js'
 
 import CrossSectionInstructions from './CrossSectionInstructions'
+import SaveAnalysisModal from '../../savedanalyses/SaveAnalysisModal'
 import { downloadXlsx } from '../../../common/utils/exportUtils'
 import { SOURCE_WELL_OFFSET_DISTANCE } from '../../../common/mapbox/sourcesWally'
 import { addMapboxLayer } from '../../../common/utils/mapUtils'
@@ -27,7 +28,8 @@ export default {
       return module.Plotly
     }),
     PlotlyJS,
-    CrossSectionInstructions
+    CrossSectionInstructions,
+    SaveAnalysisModal
   },
   mounted () {
     this.$store.commit('map/setMode',

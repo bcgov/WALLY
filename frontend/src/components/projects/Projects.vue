@@ -40,7 +40,7 @@
         <template v-slot:expanded-item="{ headers, item }">
           <td :colspan="headers.length">
             <ProjectDocumentList :project="item.id"/>
-            <SavedAnalysisList :project="item.id"/>
+            <!-- <SavedAnalysisList :project="item.id"/> -->
           </td>
         </template>
       </v-data-table>
@@ -76,13 +76,13 @@
 import { mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 import ProjectDocumentList from './ProjectDocumentList'
-import SavedAnalysisList from './SavedAnalysisList'
+// import SavedAnalysisList from './SavedAnalysisList'
 
 export default {
   name: 'Projects',
   components: {
-    ProjectDocumentList,
-    SavedAnalysisList
+    ProjectDocumentList
+    // SavedAnalysisList
   },
   props: [''],
   data: () => ({

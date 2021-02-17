@@ -112,6 +112,8 @@ export default {
 
       // NOTE: temporary
       // this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
+      console.log('MAP INIT')
+      this.map.on('moveend', this.testMapMove)
 
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.setDrawToolInActive)
@@ -121,6 +123,9 @@ export default {
 
       // Show layer selection sidebar
       // this.$store.commit('toggleInfoPanelVisibility')
+    },
+    testMapMove (e) {
+      console.log('map move end', e)
     },
     polygonToolHelp () {
       const disableKey = 'disablePolygonToolHelp'
