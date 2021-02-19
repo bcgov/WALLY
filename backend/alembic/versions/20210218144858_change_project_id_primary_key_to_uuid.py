@@ -8,7 +8,7 @@ Create Date: 2021-02-18 14:48:58.580550
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 
 # revision identifiers, used by Alembic.
 revision = '7a154ea3f123'
@@ -18,7 +18,8 @@ depends_on = None
 
 
 def upgrade():
-    # op.execute('ALTER TABLE project_document DROP CONSTRAINT pk_project_document CASCADE')
+    op.execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA public")
+
     op.drop_column('project_document', 'project_id')
 
     op.drop_column('saved_analysis', 'project_id')
@@ -28,11 +29,12 @@ def upgrade():
     op.drop_column('project_document', 'project_document_id')
 
     op.add_column('project_document', Column('project_document_uuid', UUID(),
-              primary_key=True, comment="Project document identifier"))
+             server_default=sa.text("uuid_generate_v4()"), primary_key=True,
+             comment="Project document identifier"))
 
-    # op.execute('ALTER TABLE project DROP CONSTRAINT pk_project CASCADE')
     op.add_column('project', Column('project_uuid', UUID(), primary_key=True,
-                   unique=True, comment="Project identifier"))
+                   server_default=sa.text("uuid_generate_v4()"), unique=True,
+                   comment="Project identifier"))
 
     op.add_column('project_document',
                   Column('project_uuid', UUID(), ForeignKey('project.project_uuid'),
@@ -44,7 +46,6 @@ def upgrade():
 
 
 def downgrade():
-    # op.execute('ALTER TABLE project_document DROP CONSTRAINT pk_project_document CASCADE')
     op.add_column('project_document', Column('project_document_id', Integer,
                   primary_key=True, comment="Project document identifier"))
 
