@@ -16,7 +16,7 @@ logger = logging.getLogger("saved_analyses")
 
 def validate_user(db: Session, user_id: str):
     # TODO: Deprecate this when auth middleware is in place
-    user = db.query(func.count(User.uuid)).filter(User.uuid == user_id).scalar()
+    user = db.query(func.count(User.user_uuid)).filter(User.user_uuid == user_id).scalar()
     if user == 0:
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid user")
 
@@ -38,7 +38,7 @@ def validate_layers(db: Session, layers: List):
 def save_analysis(db: Session, user_id: str,
                   name: str, description: str,
                   geometry: dict, feature_type: str, zoom_level: float,
-                  map_layers: [], project_id: int = None):
+                  map_bounds: [], map_layers: [], project_id: int = None):
     """
     Create a saved analysis
     :param db: db session
@@ -61,6 +61,7 @@ def save_analysis(db: Session, user_id: str,
                              description=description,
                              _geometry=geometry,
                              feature_type=feature_type,
+                             map_bounds=map_bounds,
                              zoom_level=zoom_level,
                              project_id=project_id)
     db.add(analysis)

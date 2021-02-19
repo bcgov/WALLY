@@ -67,7 +67,8 @@ import ApiService from '../../services/ApiService'
 export default {
   name: 'SaveAnalysisModal',
   props: {
-    geometry: {}
+    geometry: {},
+    featureType: String
   },
   data: () => ({
     loading: false,
@@ -95,15 +96,18 @@ export default {
       const params = {
         name: this.name,
         description: this.description,
-        mapLayers: this.activeMapLayers.map(l => l.display_data_name),
-        bounds: bounds,
-        zoom: zoom,
-        geometry: this.geometry
+        geometry: this.geometry,
+        feature_type: this.featureType,
+        map_layers: this.activeMapLayers.map((l) => {
+          return { map_layer: l.display_data_name }
+        }),
+        map_bounds: [bounds._ne, bounds._sw],
+        zoom_level: zoom
       }
 
       console.log(params)
 
-      ApiService.post(`/api/v1/saved_analyises`, params)
+      ApiService.post(`/api/v1/saved_analyses`, params)
         .then((res) => {
           this.name = ''
           this.description = ''

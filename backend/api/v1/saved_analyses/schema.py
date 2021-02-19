@@ -25,10 +25,11 @@ class SavedAnalysisBase(BaseModel):
     geometry: dict
     feature_type: str
     zoom_level: float
+    map_bounds: List[dict]
     map_layers: Optional[List[SavedAnalysisMapLayer]]
 
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
 
 
 class SavedAnalysisGet(SavedAnalysisBase):
@@ -60,7 +61,7 @@ class SavedAnalysisCreateUpdate(SavedAnalysisBase):
 
 
 class SavedAnalysisCreate(SavedAnalysisCreateUpdate):
-    map_layers: Optional[List[str]]
+    pass
 
 
 class SavedAnalysisUpdate(SavedAnalysisCreateUpdate):
