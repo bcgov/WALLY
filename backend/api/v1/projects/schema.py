@@ -15,7 +15,7 @@ class ProjectDocument(BaseModel):
 
 
 class Project(BaseModel):
-    project_uuid: str
+    project_uuid: UUID
     name: Optional[str]
     description: Optional[str]
     children: Optional[List[ProjectDocument]]
