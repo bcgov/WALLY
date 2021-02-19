@@ -3,6 +3,7 @@ API data models for Projects.
 """
 from pydantic import BaseModel
 from typing import Optional, List
+from uuid import UUID
 
 
 class ProjectDocument(BaseModel):
