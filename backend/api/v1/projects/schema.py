@@ -6,7 +6,7 @@ from typing import Optional, List
 
 
 class ProjectDocument(BaseModel):
-    project_document_uuid: str
+    project_document_uuid: UUID
     s3_path: Optional[str]
     filename: Optional[str]
 
