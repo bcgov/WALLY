@@ -7,7 +7,8 @@ Create Date: 2021-02-18 14:48:58.580550
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 
 # revision identifiers, used by Alembic.
 revision = '7a154ea3f123'
@@ -17,24 +18,47 @@ depends_on = None
 
 
 def upgrade():
+    # op.execute('ALTER TABLE project_document DROP CONSTRAINT pk_project_document CASCADE')
+    op.drop_column('project_document', 'project_id')
 
-    op.alter_column('project', 'project_id', existing_type=sa.Integer, type_=UUID())
-    op.alter_column('project', 'project_id', new_column_name='project_uuid')
+    op.drop_column('saved_analysis', 'project_id')
 
-	op.alter_column('project_document', 'project_id', existing_type=sa.Integer, type_=UUID())
-    op.alter_column('project_document', 'project_id', new_column_name='project_uuid')
+    op.drop_column('project', 'project_id')
 
-	op.alter_column('project_document', 'project_document_id', existing_type=sa.Integer, type_=UUID())
-    op.alter_column('project_document', 'project_document_id', new_column_name='project_document_uuid')
+    op.drop_column('project_document', 'project_document_id')
+
+    op.add_column('project_document', Column('project_document_uuid', UUID(),
+              primary_key=True, comment="Project document identifier"))
+
+    # op.execute('ALTER TABLE project DROP CONSTRAINT pk_project CASCADE')
+    op.add_column('project', Column('project_uuid', UUID(), primary_key=True,
+                   unique=True, comment="Project identifier"))
+
+    op.add_column('project_document',
+                  Column('project_uuid', UUID(), ForeignKey('project.project_uuid'),
+                         comment="Project that this document relates to"))
+
+    op.add_column('saved_analysis',
+                      Column('project_uuid', UUID(), ForeignKey('project.project_uuid'),
+                             comment="Project that this saved_analysis relates to"))
 
 
 def downgrade():
-	
-	op.alter_column('project', 'project_id', existing_type=UUID(), type_=sa.Integer)
-    op.alter_column('project', 'project_uuid', new_column_name='project_id')
+    # op.execute('ALTER TABLE project_document DROP CONSTRAINT pk_project_document CASCADE')
+    op.add_column('project_document', Column('project_document_id', Integer,
+                  primary_key=True, comment="Project document identifier"))
 
-	op.alter_column('project_document', 'project_id', existing_type=UUID(), type_=sa.Integer)
-    op.alter_column('project_document', 'project_uuid', new_column_name='project_id')
-    
-	op.alter_column('project_document', 'project_document_id', existing_type=UUID(), type_=sa.Integer)
-    op.alter_column('project_document', 'project_document_uuid', new_column_name='project_document_id')
+    op.add_column('project', Column('project_id', Integer, primary_key=True,
+               comment="Project identifier"))
+
+    op.drop_column('project_document', 'project_uuid')
+    op.drop_column('saved_analysis', 'project_uuid')
+    op.drop_column('project', 'project_uuid')
+
+    op.add_column('project_document',
+                  Column('project_id', Integer, ForeignKey('project.project_id'),
+                         comment="Project that this document relates to"))
+
+    op.add_column('saved_analysis',
+              Column('project_id', Integer, ForeignKey('project.project_id'),
+                     comment="Project that this saved_analysis relates to"))

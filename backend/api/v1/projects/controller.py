@@ -62,11 +62,11 @@ def create_project(db: Session, user_uuid: str, project_name: str, project_descr
     return project
 
 
-def delete_project(db: Session, user_uuid: str, project_id: int):
+def delete_project(db: Session, user_uuid: str, project_uuid: str):
     """ deletes a project and all associated documents """
     try:
         project_with_documents = db.query(Project).options(joinedload(Project.children)) \
-          .filter(Project.project_id == project_id) \
+          .filter(Project.project_uuid == project_uuid) \
           .filter(Project.user_uuid == user_uuid) \
           .one()
 
@@ -86,17 +86,17 @@ def delete_project(db: Session, user_uuid: str, project_id: int):
         return False
 
 
-def get_documents(db: Session, user_uuid: str, project_id: int):
+def get_documents(db: Session, user_uuid: str, project_uuid: str):
     """ gets all project documents """
 
     documents = db.query(ProjectDocument) \
-      .filter(ProjectDocument.project_id == project_id) \
+      .filter(ProjectDocument.project_uuid == project_uuid) \
       .all()
 
     return documents
 
 
-def create_and_upload_document(db: Session, user_uuid: str, project_id: int, files: UploadFile):
+def create_and_upload_document(db: Session, user_uuid: str, project_uuid: str, files: UploadFile):
     file = files
 
     file_ext = get_file_ext(file.filename)
@@ -131,13 +131,13 @@ def create_and_upload_document(db: Session, user_uuid: str, project_id: int, fil
         # get the content type
         mime = magic.Magic(mime=True)
         content_type = mime.from_file(new_file_path)
-        s3_path = '{}/{}'.format(project_id, replacement_file_name)
+        s3_path = '{}/{}'.format(project_uuid, replacement_file_name)
         # send file to minio
         upload = s3_upload_file(
             s3_path, new_file_path, content_type, PROJECTS_BUCKET_NAME)
         # create new document in database once upload is successful
         document = create_document(
-            db, user_uuid, project_id, s3_path, file.filename)
+            db, user_uuid, project_uuid, s3_path, file.filename)
         return document
     except FileNotFoundError as exc:
         logger.error(f'upload_file - unknown upload error - {str(exc)}')
@@ -156,12 +156,12 @@ def create_and_upload_document(db: Session, user_uuid: str, project_id: int, fil
             pass
 
 
-def create_document(db: Session, user_uuid: str, project_id: int, s3_path: str, filename: str):
+def create_document(db: Session, user_uuid: str, project_uuid: str, s3_path: str, filename: str):
     """ creates a new project document """
 
     date = datetime.now()
     project_document = ProjectDocument(
-        project_id=project_id,
+        project_uuid=project_uuid,
         s3_path=s3_path,
         filename=filename,
         create_date=date,
@@ -173,18 +173,18 @@ def create_document(db: Session, user_uuid: str, project_id: int, s3_path: str, 
     return project_document
 
 
-def delete_project_document(db: Session, user_uuid: str, project_document_id: int):
+def delete_project_document(db: Session, user_uuid: str, project_document_uuid: str):
     """ deletes a document object """
     try:
         print('deleting document')
         document = db.query(ProjectDocument) \
-          .filter(ProjectDocument.project_document_id == project_document_id) \
+          .filter(ProjectDocument.project_document_uuid == project_document_uuid) \
           .one()
 
         print('document', document)
 
         project = db.query(Project) \
-          .filter(Project.project_id == document.project_id) \
+          .filter(Project.project_uuid == document.project_uuid) \
           .one()
 
         print('project', project)
@@ -212,15 +212,15 @@ def delete_project_document(db: Session, user_uuid: str, project_document_id: in
         return False
 
 
-def download_project_document(db: Session, user_uuid: str, project_document_id: int):
+def download_project_document(db: Session, user_uuid: str, project_document_uuid: str):
     """ gets a project document and downloads it to the client """
 
     document = db.query(ProjectDocument) \
-      .filter(ProjectDocument.project_document_id == project_document_id) \
+      .filter(ProjectDocument.project_document_uuid == project_document_uuid) \
       .one()
 
     project = db.query(Project) \
-      .filter(Project.project_id == document.project_id) \
+      .filter(Project.project_uuid == document.project_uuid) \
       .one()
 
     # only allow the project owner to download the document
@@ -233,11 +233,11 @@ def download_project_document(db: Session, user_uuid: str, project_document_id: 
             logger.warning(error)
 
 
-def download_project(db: Session, user_uuid: str, project_id: int):
+def download_project(db: Session, user_uuid: str, project_uuid: str):
     """ gets all a projects documents and downloads them as a zip file """
 
     project_with_documents = db.query(Project).options(joinedload(Project.children)) \
-      .filter(Project.project_id == project_id) \
+      .filter(Project.project_uuid == project_uuid) \
       .filter(Project.user_uuid == user_uuid) \
       .one()
 
@@ -255,7 +255,7 @@ def download_project(db: Session, user_uuid: str, project_id: int):
                 zip_file.writestr(doc["filename"], doc["data"])
         try:
             response = Response(zip_buffer.getvalue())
-            response.headers['Content-Disposition'] = 'project_{}.zip'.format(project_id)
+            response.headers['Content-Disposition'] = 'project_{}.zip'.format(project_uuid)
             return response
         except Exception as error:
             logger.warning(error)

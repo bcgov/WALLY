@@ -23,7 +23,7 @@ class Project(Base):
     __tablename__ = 'project'
     __table_args__ = {'schema': 'public'}
 
-    project_id = Column(Integer, primary_key=True, comment='primary key id for a project')
+    project_uuid = Column(UUID, primary_key=True, comment='primary key id for a project')
     name = Column(String, comment='name of the project')
     description = Column(String, comment='description of the project')
     user_uuid = Column(UUID, ForeignKey(User.user_uuid),
@@ -35,8 +35,8 @@ class ProjectDocument(Base):
     __tablename__ = 'project_document'
     __table_args__ = {'schema': 'public'}
 
-    project_document_id = Column(Integer, primary_key=True, comment='primary key id for a project')
+    project_document_uuid = Column(UUID, primary_key=True, comment='primary key uuid for a project')
     s3_path = Column(String, comment='path to document in s3 storage system')
     filename = Column(String, comment='filename of the document')
-    project_id = Column(Integer, ForeignKey(Project.project_id),
+    project_uuid = Column(Integer, ForeignKey(Project.project_uuid),
                           comment='foreign key to the project this document is associated with')

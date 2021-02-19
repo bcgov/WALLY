@@ -38,7 +38,7 @@ def validate_layers(db: Session, layers: List):
 def save_analysis(db: Session, user_id: str,
                   name: str, description: str,
                   geometry: dict, feature_type: str, zoom_level: float,
-                  map_layers: [], project_id: int = None):
+                  map_layers: [], project_uuid: str = None):
     """
     Create a saved analysis
     :param db: db session
@@ -49,7 +49,7 @@ def save_analysis(db: Session, user_id: str,
     :param feature_type: feature type, must be one of the constants.FEATURE_TYPE allowed
     :param zoom_level: set the map to this zoom level when analysis is loaded
     :param map_layers: map layers loaded in this analysis
-    :param project_id: tie analysis to a project
+    :param project_uuid: tie analysis to a project
     :return:
     """
 
@@ -62,7 +62,7 @@ def save_analysis(db: Session, user_id: str,
                              _geometry=geometry,
                              feature_type=feature_type,
                              zoom_level=zoom_level,
-                             project_id=project_id)
+                             project_uuid=project_uuid)
     db.add(analysis)
     db.flush()
 

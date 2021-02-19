@@ -6,7 +6,7 @@ from typing import Optional, List
 
 
 class ProjectDocument(BaseModel):
-    project_document_id: int
+    project_document_uuid: str
     s3_path: Optional[str]
     filename: Optional[str]
 
@@ -15,7 +15,7 @@ class ProjectDocument(BaseModel):
 
 
 class Project(BaseModel):
-    project_id: int
+    project_uuid: str
     name: Optional[str]
     description: Optional[str]
     children: Optional[List[ProjectDocument]]
