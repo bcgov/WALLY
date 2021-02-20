@@ -14,9 +14,9 @@ from typing import List
 logger = logging.getLogger("saved_analyses")
 
 
-def validate_user(db: Session, user_id: str):
+def validate_user(db: Session, user_uuid: str):
     # TODO: Deprecate this when auth middleware is in place
-    user = db.query(func.count(User.user_uuid)).filter(User.user_uuid == user_id).scalar()
+    user = db.query(func.count(User.user_uuid)).filter(User.user_uuid == user_uuid).scalar()
     if user == 0:
         raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid user")
 
@@ -28,49 +28,50 @@ def validate_layers(db: Session, layers: List):
     :param layers: list of map layers
     """
     layer_count = db.query(func.count(DisplayCatalogue.display_data_name)).filter(
-        DisplayCatalogue.display_data_name.in_(layers)
+        DisplayCatalogue.display_data_name.in_([layer.map_layer for layer in layers])
     ).scalar()
 
     if len(layers) != layer_count:
         raise HTTPException(status_code=422, detail=f"Invalid map layer(s)")
 
 
-def save_analysis(db: Session, user_id: str,
+def save_analysis(db: Session, user_uuid: str,
                   name: str, description: str,
                   geometry: dict, feature_type: str, zoom_level: float,
-                  map_bounds: [], map_layers: [], project_id: int = None):
+                  map_bounds: [], map_layers: [], project_uuid: str = None):
+
     """
     Create a saved analysis
     :param db: db session
-    :param user_id: owner of this saved analysis
+    :param user_uuid: owner of this saved analysis
     :param name: name of this saved analysis
     :param description: description of this saved analysis
     :param geometry: geometry, usually needed as a starting point by the analysis
     :param feature_type: feature type, must be one of the constants.FEATURE_TYPE allowed
     :param zoom_level: set the map to this zoom level when analysis is loaded
     :param map_layers: map layers loaded in this analysis
-    :param project_id: tie analysis to a project
+    :param project_uuid: tie analysis to a project
     :return:
     """
 
-    validate_user(db, user_id)
+    # validate_user(db, user_uuid)
     validate_layers(db, map_layers)
 
-    analysis = SavedAnalysis(user_id=user_id,
+    analysis = SavedAnalysis(user_uuid=user_uuid,
                              name=name,
                              description=description,
                              _geometry=geometry,
                              feature_type=feature_type,
                              map_bounds=map_bounds,
                              zoom_level=zoom_level,
-                             project_id=project_id)
+                             project_uuid=project_uuid)
     db.add(analysis)
     db.flush()
 
     for layer in map_layers:
         saved_analysis_map_layer = SavedAnalysisMapLayer(
             saved_analysis_uuid=analysis.saved_analysis_uuid,
-            map_layer=layer
+            map_layer=layer.map_layer
         )
         db.add(saved_analysis_map_layer)
 
@@ -78,17 +79,17 @@ def save_analysis(db: Session, user_id: str,
     return analysis.saved_analysis_uuid
 
 
-def get_saved_analyses_by_user(db: Session, user_id: str):
+def get_saved_analyses_by_user(db: Session, user_uuid: str):
     """
     Get a list of saved analyses for this user
     :param db: db session
-    :param user_id: User id
+    :param user_uuid: User UUID
     :return: list of saved analyses
     """
     analyses = db.query(
         SavedAnalysis
     ).filter(
-        SavedAnalysis.user_id == user_id,
+        SavedAnalysis.user_uuid == user_uuid,
         SavedAnalysis.deleted_on.is_(None)
     )
 
@@ -130,17 +131,17 @@ def delete_saved_analysis(db: Session, saved_analysis_uuid: UUID):
 
 
 def update_saved_analysis(db: Session, saved_analysis_uuid: UUID,
-                          user_id: str,
+                          user_uuid: str,
                           update_data: dict = None):
     """
     Update the saved analysis
     :param update_data:
     :param db: db session
     :param saved_analysis_uuid: the saved analysis uuid
-    :param user_id: the user id
+    :param user_uuid: the user uuid
     """
     # TODO: Deprecate when auth middleware is in place
-    validate_user(db, user_id)
+    validate_user(db, user_uuid)
 
     analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
 

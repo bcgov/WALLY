@@ -6,30 +6,30 @@
           color="primary"
           v-bind="attrs"
           v-on="on"
-          class='mx-2 p-3'
+          class='mb-2 p-3'
         >
           <v-icon class='mr-1'>mdi-folder-plus-outline</v-icon>
-          Save Analysis
+          Create Project
         </v-btn>
     </template>
 
     <v-card shaped>
       <v-card-title class="headline grey lighten-3" primary-title>
-          Save Analysis
+          Create Project
       </v-card-title>
       <v-card-text class="mt-4">
         <v-row>
           <v-col cols="12" md="12" align-self="center">
             <v-text-field
-              label="Save Analysis Name"
-              placeholder="Enter a name for this saved analysis"
+              label="Project Name"
+              placeholder="Enter an application # or area name"
               v-model="name"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="12">
             <v-text-field
-              label="Save Analysis  Description"
-              placeholder="Enter a description of the analysis"
+              label="Project Description"
+              placeholder="Enter a description of the work to be done"
               v-model="description"
             ></v-text-field>
           </v-col>
@@ -40,7 +40,7 @@
         <v-spacer></v-spacer>
         <v-btn
           outlined
-          @click="createSavedAnalysis"
+          @click="createProject"
           color="primary"
           :disabled="loading"
         >
@@ -62,13 +62,13 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex'
+import { mapActions } from 'vuex'
 import ApiService from '../../services/ApiService'
+
 export default {
-  name: 'SaveAnalysisModal',
+  name: 'ProjectCreateModal',
   props: {
-    geometry: {},
-    featureType: String
+    open: Boolean
   },
   data: () => ({
     loading: false,
@@ -76,47 +76,26 @@ export default {
     name: '',
     description: ''
   }),
-  computed: {
-    ...mapGetters('map', ['map', 'activeMapLayers'])
-  },
   methods: {
-    ...mapActions(['getSavedAnalyses']),
-    createSavedAnalysis () {
-      console.log('testing')
+    ...mapActions(['getProjects']),
+    createProject () {
       if (this.name.length < 3) {
         // TODO add user notify that at least 3 characters
-        // are needed for a analysis name
+        // are needed for a project name
         return
       }
       this.loading = true
-      const bounds = this.map.getBounds()
-      const ne = bounds._ne
-      const sw = bounds._sw
-      const mapBounds = [[ne.lng, ne.lat], [sw.lng, sw.lat]]
-      const zoom = this.map.getZoom()
-      // .setView([40, -74.50], 9)
-
       const params = {
         name: this.name,
-        description: this.description,
-        geometry: this.geometry,
-        feature_type: this.featureType,
-        map_layers: this.activeMapLayers.map((l) => {
-          return { map_layer: l.display_data_name }
-        }),
-        map_bounds: mapBounds,
-        zoom_level: zoom
+        description: this.description
       }
-
-      console.log(params)
-
-      ApiService.post(`/api/v1/saved_analyses`, params)
+      ApiService.post(`/api/v1/projects/`, params)
         .then((res) => {
           this.name = ''
           this.description = ''
           this.dialog = false
           this.loading = false
-          this.getSavedAnalyses()
+          this.getProjects()
         })
         .catch((error) => {
           this.loading = false

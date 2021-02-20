@@ -28,8 +28,8 @@ class SavedAnalysis(Base):
     feature_type = Column(String, comment='Feature used for the analysis', nullable=False)
     zoom_level = Column(Numeric, comment='Zoom level', nullable=False)
     map_bounds = Column(ARRAY(Float, dimensions=2), comment='Map Bounds', nullable=False)
-    project_id = Column(Integer, ForeignKey(Project.project_id))
-    user_id = Column(UUID(), ForeignKey(User.user_uuid),
+    project_uuid = Column(UUID(), ForeignKey(Project.project_uuid))
+    user_uuid = Column(UUID(), ForeignKey(User.user_uuid),
                      comment='foreign key to the user who created this project')
     deleted_on = Column(
         DateTime, comment='Date and time when this record was deleted')

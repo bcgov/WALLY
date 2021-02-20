@@ -39,8 +39,8 @@ export default {
           console.log('error delete project', e)
         })
     },
-    createSavedAnalysis({ dispatch }, payload) {
-    },
+    createSavedAnalysis ({ dispatch }, payload) {
+    }
   },
   mutations: {
     setCurrentAnalysis (state, payload) {
@@ -49,10 +49,7 @@ export default {
     setSavedAnalyses (state, files) {
       state.savedAnalyses = files
     },
-    setSavedAnalyses (state, projects) {
-      state.projects = projects
-    },
-    setGeometry({ dispatch }, geometry) {
+    setGeometry (state, geometry) {
       state.geometry = geometry
     },
     loadingSavedAnalyses (state, val) {
@@ -63,6 +60,6 @@ export default {
     currentAnalysis: state => state.currentAnalysis,
     savedAnalyses: state => state.savedAnalyses,
     projects: state => state.projects,
-    loadingSavedAnalyses: state => state.loadingSavedAnalyses,
+    loadingSavedAnalyses: state => state.loadingSavedAnalyses
   }
 }

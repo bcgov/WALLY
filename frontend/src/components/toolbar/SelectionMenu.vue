@@ -84,6 +84,29 @@
           </v-list-item>
         </v-list> -->
       </v-menu>
+      <v-menu offset-y v-if="this.app.config && this.app.config.saved_analysis">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            color="grey darken-3"
+            class="ml-3 selection-menu-buttons"
+            tile
+            text
+            :to="'/saved-analyses'"
+          >
+            Saved Analyses
+          </v-btn>
+        </template>
+        <!-- <v-list>
+          <v-list-item
+            v-for="(item, index) in projectOptions"
+            :key="index"
+            :to="item.route"
+            active-class="font-weight-bold"
+          >
+            <v-list-item-title>{{ item.title }}</v-list-item-title>
+          </v-list-item>
+        </v-list> -->
+      </v-menu>
   </div>
 </template>
 

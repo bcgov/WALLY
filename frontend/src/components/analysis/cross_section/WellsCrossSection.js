@@ -531,7 +531,7 @@ export default {
         })
       }).flat()
     },
-    fetchWellsAlongLine () {
+    async fetchWellsAlongLine () {
       if (!this.radiusIsValid(this.radius)) {
         return
       }
@@ -553,27 +553,43 @@ export default {
         } })
       }
 
-      ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
-        .then(r => {
-          this.wells = r.data.wells
-          this.elevations = r.data.elevation_profile
-          this.surfacePoints = r.data.surface
-          this.waterbodies = r.data.waterbodies
-          this.screens = this.prepareScreens(r.data.wells)
-          this.showBuffer(r.data.search_area)
-          let wellIds = this.wells.map(w => w.well_tag_number).join()
-          this.fetchWellsLithology(wellIds)
-          this.addWellOffsetDistanceLayer(
-            featureCollection(r.data.wells.map(x => x.feature))
-          )
-        })
-        .catch(e => {
-          console.error(e)
-        })
-        .finally(() => {
-          this.loading = false
-          this.setAnnotationMarkers()
-        })
+      // Fetch wells
+      let wells = {}
+      try {
+        wells = await this.fetchWells(params)
+      } catch (e) {
+        console.error(e)
+      }
+      this.processWellResults(wells.data)
+      this.setAnnotationMarkers()
+
+      // Fetch Lithology
+      let wellIds = this.wells.map(w => w.well_tag_number).join()
+      let lithologyResults = {}
+      try {
+        lithologyResults = await this.fetchWellsLithology(wellIds)
+      } catch (e) {
+        console.error(e)
+      }
+      let lithology = lithologyResults.data.results
+      this.buildLithologyList(lithology)
+
+      this.loading = false
+      this.initPlotly()
+    },
+    fetchWells (params) {
+      return ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
+    },
+    processWellResults (data) {
+      this.wells = data.wells
+      this.elevations = data.elevation_profile
+      this.surfacePoints = data.surface
+      this.waterbodies = data.waterbodies
+      this.screens = this.prepareScreens(data.wells)
+      this.showBuffer(data.search_area)
+      this.addWellOffsetDistanceLayer(
+        featureCollection(data.wells.map(x => x.feature))
+      )
     },
     setAnnotationMarkers () {
       let annotationGeoJson = [
@@ -615,42 +631,37 @@ export default {
       })
     },
     fetchWellsLithology (ids) {
-      ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`).then((r) => {
-        let results = r.data.results
-        let lithologyList = []
-        for (let index = 0; index < results.length; index++) {
-          const wellLithologySet = results[index]
-          let well = this.wells.find(
-            x => x.well_tag_number === wellLithologySet.well_tag_number
-          )
-          if (well) {
-            wellLithologySet.lithologydescription_set.forEach(w => {
-              // combine lithology_raw_data and lithology_observation
-              const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
+      return ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`)
+    },
+    buildLithologyList (results) {
+      let lithologyList = []
+      for (let index = 0; index < results.length; index++) {
+        const wellLithologySet = results[index]
+        let well = this.wells.find(
+          x => x.well_tag_number === wellLithologySet.well_tag_number
+        )
+        if (well) {
+          wellLithologySet.lithologydescription_set.forEach(w => {
+            // combine lithology_raw_data and lithology_observation
+            const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
 
-              lithologyList.push({
-                well_tag_number: wellLithologySet.well_tag_number,
-                x: well.distance_from_origin ? well.distance_from_origin : 0,
-                y0: well.ground_elevation_from_dem - (w.start * 0.3048),
-                y1: well.ground_elevation_from_dem - (w.end * 0.3048),
-                lat: wellLithologySet.latitude,
-                lon: wellLithologySet.longitude,
-                data: description,
-                color: w.lithology_colour,
-                hardness: w.lithology_hardness,
-                observation: w.lithology_observation,
-                flow: w.water_bearing_estimated_flow
-              })
+            lithologyList.push({
+              well_tag_number: wellLithologySet.well_tag_number,
+              x: well.distance_from_origin ? well.distance_from_origin : 0,
+              y0: well.ground_elevation_from_dem - (w.start * 0.3048),
+              y1: well.ground_elevation_from_dem - (w.end * 0.3048),
+              lat: wellLithologySet.latitude,
+              lon: wellLithologySet.longitude,
+              data: description,
+              color: w.lithology_colour,
+              hardness: w.lithology_hardness,
+              observation: w.lithology_observation,
+              flow: w.water_bearing_estimated_flow
             })
-          }
+          })
         }
-        this.wellsLithology = lithologyList
-      }).catch((e) => {
-        console.error(e)
-      }).finally(() => {
-        this.loading = false
-        this.initPlotly()
-      })
+      }
+      this.wellsLithology = lithologyList
     },
     showBuffer (polygon) {
       polygon.id = 'user_search_radius'

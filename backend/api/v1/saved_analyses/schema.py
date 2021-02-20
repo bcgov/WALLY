@@ -15,8 +15,8 @@ from shapely.geometry import shape
 class SavedAnalysisMapLayer(BaseModel):
     map_layer: Optional[str]
 
-    class Config:
-        orm_mode = True
+    # class Config:
+    #     orm_mode = True
 
 
 class SavedAnalysisBase(BaseModel):
@@ -25,7 +25,7 @@ class SavedAnalysisBase(BaseModel):
     geometry: dict
     feature_type: str
     zoom_level: float
-    map_bounds: List[dict]
+    map_bounds: List[List[float]]
     map_layers: Optional[List[SavedAnalysisMapLayer]]
 
     class Config:

@@ -11,6 +11,8 @@ import surfaceWater from './surfaceWaterStore'
 import user from './userStore'
 import customLayers from './customLayers'
 import importer from './importerStore'
+import project from './projectStore'
+import savedAnalyses from './savedAnalyses'
 
 Vue.use(Vuex)
 
@@ -26,6 +28,8 @@ export default new Vuex.Store({
     surfaceWater,
     user,
     customLayers,
-    importer
+    importer,
+    project,
+    savedAnalyses
   }
 })

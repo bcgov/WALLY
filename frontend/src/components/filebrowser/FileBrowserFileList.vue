@@ -1,25 +1,28 @@
 <template>
     <v-card flat tile min-height="250" class="d-flex flex-column">
-        <!-- <FileBrowserConfirmDialog ref="confirm"></FileBrowserConfirmDialog> -->
-        <v-card-subtitle v-if="selectedProject.description">Analysis Description: {{selectedProject.description}}</v-card-subtitle>
+        <FileBrowserConfirmDialog ref="confirm"></FileBrowserConfirmDialog>
+        <v-card-subtitle v-if="selectedProject.description">Project Description: {{selectedProject.description}}</v-card-subtitle>
         <v-card-text v-if="files.length > 0" class="grow">
-            <v-list subheader v-if="savedAnalyses.length > 0">
-                <v-subheader>Saved Analyses</v-subheader>
+            <v-list subheader v-if="files.length > 0">
+                <v-subheader>Files</v-subheader>
                 <v-list-item
-                    v-for="item in savedAnalyses"
-                    :key="item.saved_analysis_uuid"
+                    v-for="item in files"
+                    :key="item.project_document_id"
                     class="pl-0"
                 >
+                    <v-list-item-avatar class="ma-0">
+                        <v-icon>{{ icons[fileExtension(item.filename)] || icons['other'] }}</v-icon>
+                    </v-list-item-avatar>
                     <v-list-item-content class="py-2">
-                        <v-list-item-title v-text="item.name"></v-list-item-title>
-                        <v-list-item-title v-text="item.description"></v-list-item-title>
+                        <v-list-item-title v-text="item.filename"></v-list-item-title>
                         <v-list-item-subtitle>{{ formattedDate(item.create_date) }}</v-list-item-subtitle>
                     </v-list-item-content>
 
                     <v-list-item-action>
                         <v-btn
                           icon
-                          @click.stop="runAnalysis(item)"
+                          @click.stop="downloadItem(item)"
+                          :disabled="downloadingFile"
                         >
                           <v-icon v-if="!downloadingFile" color="grey lighten-1">mdi-download</v-icon>
                           <v-progress-circular
@@ -42,11 +45,11 @@
         <v-card-text
             v-else-if="filter"
             class="grow d-flex justify-center align-center grey--text py-5"
-        >No save analyses found</v-card-text>
+        >No project files found</v-card-text>
         <v-card-text
             v-else
             class="grow d-flex justify-center align-center grey--text py-5"
-        >Create your first saved analysis by performing an analysis from one of WALLY's features.</v-card-text>
+        >Select a project or add some files.</v-card-text>
         <v-divider ></v-divider>
         <v-toolbar v-if="files.length" dense flat class="shrink">
         </v-toolbar>
@@ -74,14 +77,17 @@
 </template>
 
 <script>
+import FileBrowserConfirmDialog from './FileBrowserConfirmDialog.vue'
 import { mapActions, mapGetters } from 'vuex'
 import moment from 'moment'
+
 export default {
   props: {
     icons: Object,
     refreshPending: Boolean
   },
   components: {
+    FileBrowserConfirmDialog
   },
   data () {
     return {
@@ -90,8 +96,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['savedAnalyses']),
-    ...mapGetters('map', ['isMapReady']),
+    ...mapGetters(['selectedProject', 'projectFiles', 'downloadingFile']),
     files () {
       return this.projectFiles.filter(
         item => item.filename.includes(this.filter)
@@ -99,27 +104,37 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['getSavedAnalyses', 'deleteSavedAnalysis', 'reRunSavedAnalysis']),
+    ...mapActions(['deleteProjectDocument', 'downloadProjectDocument', 'getProjectFiles']),
     formattedDate (date) {
       return moment(date).format('DD MMM YYYY')
+    },
+    fileExtension (filename) {
+      return filename.split('.').pop().toLowerCase()
     },
     async deleteItem (item) {
       let confirmed = await this.$refs.confirm.open(
         'Delete',
-        `Are you sure<br>you want to delete this analysis?<br><em>${item.filename}</em>`
+        `Are you sure<br>you want to delete this file?<br><em>${item.filename}</em>`
       )
-      if (confirmed && item.saved_analysis_uuid) {
-        this.deleteSavedAnalysis(item.saved_analysis_uuid)
+
+      if (confirmed && item.project_document_id) {
+        this.deleteProjectDocument(item.project_document_id)
+        // this.$emit('loading', true)
+        // await ApiService.post(config)
+        // this.$emit('file-deleted')
+        // this.$emit('loading', false)
       }
     },
-    runAnalysis (item) {
-      this.runSavedAnalysis(item)
+    downloadItem (item) {
+      this.downloadProjectDocument({ projectDocumentId: item.project_document_id, filename: item.filename })
     }
   },
   watch: {
-    isMapReady (value) {
-      if (value) {
-        this.getSavedAnalyses()
+    selectedProject (value) {
+      this.getProjectFiles(value.project_id)
+    },
+    downloadingFile (value) {
+      if (!value) {
       }
     }
   }

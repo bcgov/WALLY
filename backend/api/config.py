@@ -70,7 +70,7 @@ class Settings(BaseSettings):
     external_import = False
     wally_model = False
     projects = False
-    saved_analysis = False
+    saved_analysis = True
     hydraulic_connectivity_custom_stream_points = False
 
     # Keep this set to true, we need to retire the old design

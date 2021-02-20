@@ -1,6 +1,7 @@
+import uuid
 import logging
 from sqlalchemy.orm import Session
-from api.v1.user.db_models import UserMapLayer
+from api.v1.user.db_models import UserMapLayer, User
 from datetime import datetime
 
 logger = logging.getLogger("user")
@@ -21,6 +22,31 @@ def get_create_user_map_layer(db: Session, user_idir):
         db.commit()
 
     return user_map_layer
+
+
+# TODO: Remove this once auth middleware is in place
+def get_create_user(db: Session, user_idir):
+    """ get or create user based on idir """
+    user = db.query(User).filter(User.user_idir == user_idir).first()
+    if not user:
+        date = datetime.now()
+        user = User(
+            user_uuid=str(uuid.uuid4()),
+            user_idir=user_idir,
+            create_date=date,
+            update_date=date
+        )
+        db.add(user)
+        db.commit()
+
+    map_layer = get_create_user_map_layer(db, user_idir)
+
+    result = {
+      **user.__dict__,
+      "default_map_layers": map_layer.default_map_layers
+    }
+
+    return result
 
 
 def update_map_layers(db: Session, user_idir, map_layers):

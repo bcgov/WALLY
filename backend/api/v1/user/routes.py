@@ -26,8 +26,7 @@ def get_create_user_profile(
     x_auth_userid holds the keycloak guid that is passed as a
     header up from the proxy service (X-Auth-UserId)
     """
-    # TODO: Change this to return a user and not a user map layer once user migration is complete
-    return controller.get_create_user_map_layer(db, x_auth_userid)
+    return controller.get_create_user(db, x_auth_userid)
 
 
 @router.post("/maplayers")

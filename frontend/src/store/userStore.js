@@ -19,7 +19,7 @@ export default {
     updateDefaultMapLayers ({ commit }, payload) {
       ApiService.post(`/api/v1/user/maplayers`, {
         map_layers: payload
-      }).then((r) => {
+      }, config).then((r) => {
         console.log('updated user default map layers: ' + r.data)
       })
     }
