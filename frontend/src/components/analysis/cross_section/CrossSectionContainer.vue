@@ -142,6 +142,7 @@ export default {
     if (this.isMapReady) {
       this.clearSelections()
       this.map.on('click', this.mapClick)
+      this.loadFeature()
     }
     this.$store.commit('setInfoPanelVisibility', true)
     if (!this.isWellsLayerEnabled) {

@@ -9,11 +9,13 @@ import {
   SOURCE_SELECTED_STREAM,
   SOURCE_STREAM_APPORTIONMENT
 } from '../../../common/mapbox/sourcesWally'
+import SaveAnalysisModal from '../../savedanalyses/SaveAnalysisModal'
 
 export default {
   name: 'HydraulicConnectivity',
   components: {
-    HydraulicConnectivityInstructions
+    HydraulicConnectivityInstructions,
+    SaveAnalysisModal
   },
   props: ['record'],
   data: () => ({

@@ -10,7 +10,7 @@ export default {
   actions: {
     getSavedAnalyses ({ commit, dispatch }) {
       commit('loadingSavedAnalyses', true)
-      ApiService.query('/api/v1/saved_analyses/')
+      ApiService.query('/api/v1/saved_analyses')
         .then((r) => {
           const savedAnalyses = r.data
           // TODO
@@ -32,7 +32,7 @@ export default {
     },
     deleteSavedAnalysis ({ dispatch }, uuid) {
       if (!uuid) { return }
-      ApiService.query(`/api/v1/saved_analyses/${uuid}/delete`)
+      ApiService.delete('/api/v1/saved_analyses', `${uuid}`)
         .then((r) => {
           dispatch('getSavedAnalyses')
         }).catch((e) => {

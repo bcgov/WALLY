@@ -1,8 +1,8 @@
 <template>
     <v-card flat tile min-height="250" class="d-flex flex-column">
-        <!-- <FileBrowserConfirmDialog ref="confirm"></FileBrowserConfirmDialog> -->
-        <v-card-subtitle v-if="selectedProject.description">Analysis Description: {{selectedProject.description}}</v-card-subtitle>
-        <v-card-text v-if="files.length > 0" class="grow">
+        <FileBrowserConfirmDialog ref="confirm"></FileBrowserConfirmDialog>
+        <v-card-subtitle>Analysis Description: </v-card-subtitle>
+        <v-card-text v-if="savedAnalyses.length > 0" class="grow">
             <v-list subheader v-if="savedAnalyses.length > 0">
                 <v-subheader>Saved Analyses</v-subheader>
                 <v-list-item
@@ -15,20 +15,15 @@
                         <v-list-item-title v-text="item.description"></v-list-item-title>
                         <v-list-item-subtitle>{{ formattedDate(item.create_date) }}</v-list-item-subtitle>
                     </v-list-item-content>
-
+                    <v-list-item-content class="py-2">
+                        <v-list-item-title v-text="item.feature_type"></v-list-item-title>
+                    </v-list-item-content>
                     <v-list-item-action>
                         <v-btn
                           icon
                           @click.stop="runAnalysis(item)"
                         >
-                          <v-icon v-if="!downloadingFile" color="grey lighten-1">mdi-download</v-icon>
-                          <v-progress-circular
-                            v-if="downloadingFile"
-                            indeterminate
-                            size=16
-                            class="mr-1"
-                            color="secondary"
-                          ></v-progress-circular>
+                          <v-icon>mdi-refresh</v-icon>
                         </v-btn>
                     </v-list-item-action>
                     <v-list-item-action>
@@ -48,7 +43,7 @@
             class="grow d-flex justify-center align-center grey--text py-5"
         >Create your first saved analysis by performing an analysis from one of WALLY's features.</v-card-text>
         <v-divider ></v-divider>
-        <v-toolbar v-if="files.length" dense flat class="shrink">
+        <v-toolbar v-if="savedAnalyses.length" dense flat class="shrink">
         </v-toolbar>
         <v-toolbar  dense flat class="shrink">
             <v-text-field
@@ -75,6 +70,7 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex'
+import FileBrowserConfirmDialog from '../filebrowser/FileBrowserConfirmDialog.vue'
 import moment from 'moment'
 export default {
   props: {
@@ -82,6 +78,7 @@ export default {
     refreshPending: Boolean
   },
   components: {
+    FileBrowserConfirmDialog
   },
   data () {
     return {
@@ -91,29 +88,40 @@ export default {
   },
   computed: {
     ...mapGetters(['savedAnalyses']),
-    ...mapGetters('map', ['isMapReady']),
-    files () {
-      return this.projectFiles.filter(
-        item => item.filename.includes(this.filter)
-      )
-    }
+    ...mapGetters('map', ['map', 'isMapReady'])
+    // analyses () {
+    //   return this.savedAnalyses.filter(
+    //     item => item.name.includes(this.filter)
+    //   )
+    // }
   },
   methods: {
-    ...mapActions(['getSavedAnalyses', 'deleteSavedAnalysis', 'reRunSavedAnalysis']),
+    ...mapActions(['getSavedAnalyses', 'deleteSavedAnalysis', 'runSavedAnalysis']),
     formattedDate (date) {
       return moment(date).format('DD MMM YYYY')
     },
     async deleteItem (item) {
       let confirmed = await this.$refs.confirm.open(
         'Delete',
-        `Are you sure<br>you want to delete this analysis?<br><em>${item.filename}</em>`
+        `Are you sure<br>you want to delete this analysis?<br><em>${item.name}</em>`
       )
       if (confirmed && item.saved_analysis_uuid) {
         this.deleteSavedAnalysis(item.saved_analysis_uuid)
       }
     },
     runAnalysis (item) {
-      this.runSavedAnalysis(item)
+      console.log(item)
+      console.log(this.$route.query)
+      this.map.fitBounds(item.map_bounds)
+      let coordinates = item.geometry.coordinates
+      this.$router.push({
+        path: item.feature_type,
+        query: {
+          'section_line_A': coordinates[0],
+          'section_line_B': coordinates[1]
+        }
+      })
+      // this.runSavedAnalysis(item)
     }
   },
   watch: {
@@ -122,6 +130,9 @@ export default {
         this.getSavedAnalyses()
       }
     }
+  },
+  created () {
+    this.getSavedAnalyses()
   }
 }
 </script>
