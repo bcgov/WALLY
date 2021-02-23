@@ -3,10 +3,11 @@ API data models for Projects.
 """
 from pydantic import BaseModel
 from typing import Optional, List
+from uuid import UUID
 
 
 class ProjectDocument(BaseModel):
-    project_document_uuid: str
+    project_document_uuid: UUID
     s3_path: Optional[str]
     filename: Optional[str]
 
@@ -15,7 +16,7 @@ class ProjectDocument(BaseModel):
 
 
 class Project(BaseModel):
-    project_uuid: str
+    project_uuid: UUID
     name: Optional[str]
     description: Optional[str]
     children: Optional[List[ProjectDocument]]
