@@ -18,8 +18,6 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\" WITH SCHEMA public")
-
     op.drop_column('project_document', 'project_id')
 
     op.drop_column('saved_analysis', 'project_id')
