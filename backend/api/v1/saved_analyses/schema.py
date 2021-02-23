@@ -13,10 +13,10 @@ from shapely.geometry import shape
 
 
 class SavedAnalysisMapLayer(BaseModel):
-    map_layer: Optional[str]
+    map_layer: str
 
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
 
 
 class SavedAnalysisBase(BaseModel):
@@ -26,7 +26,7 @@ class SavedAnalysisBase(BaseModel):
     feature_type: str
     zoom_level: float
     map_bounds: List[List[float]]
-    map_layers: Optional[List[SavedAnalysisMapLayer]]
+    map_layers: List[SavedAnalysisMapLayer]
 
     class Config:
         orm_mode = True
@@ -34,7 +34,6 @@ class SavedAnalysisBase(BaseModel):
 
 class SavedAnalysisGet(SavedAnalysisBase):
     saved_analysis_uuid: UUID
-    map_layer_list: List[str]
 
     class Config:
         orm_mode = True

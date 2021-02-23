@@ -31,7 +31,7 @@
         <v-btn @click="handleRedraw" color="primary" outlined class="mt-5">Draw a new cross section</v-btn>
       </v-col>
       <v-col class="text-right">
-        <SaveAnalysisModal :geometry="record.geometry" featureType="section"/>
+        <SavedAnalysesCreateModal :geometry="record.geometry" featureType="section"/>
         <v-btn
           v-if="wells && wells.length"
           outlined

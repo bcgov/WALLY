@@ -27,7 +27,7 @@
 
     <v-card flat v-if="watersheds && watersheds.length">
       <SurfaceWaterHeaderButtons v-if="selectedWatershed" :layers="layers"/>
-      <SaveAnalysisModal :geometry="pointOfInterest.geometry" featureType="surface-water"/>
+      <SavedAnalysesCreateModal :geometry="pointOfInterest.geometry" featureType="surface-water"/>
       <div class="watershedLabel"></div>
       <v-card flat >
         <v-card-title>
@@ -177,7 +177,7 @@ import EventBus from '../../../services/EventBus'
 import { months, secondsInMonth } from '../../../constants/months'
 import { findWallyLayer } from '../../../common/utils/mapUtils'
 import { SOURCE_WATERSHEDS_AT_LOCATION } from '../../../common/mapbox/sourcesWally'
-import SaveAnalysisModal from '../../savedanalyses/SaveAnalysisModal'
+import SavedAnalysesCreateModal from '../../savedanalyses/SavedAnalysesCreateModal'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -190,7 +190,7 @@ export default {
     WatershedDetails,
     WatershedMonthlyDischarge,
     WatershedLicencedQty,
-    SaveAnalysisModal
+    SavedAnalysesCreateModal
   },
   data: () => ({
     tab: null,

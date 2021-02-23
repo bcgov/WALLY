@@ -93,7 +93,7 @@
             text
             :to="'/saved-analyses'"
           >
-            Saved Analyses
+            My Saved Analyses
           </v-btn>
         </template>
         <!-- <v-list>

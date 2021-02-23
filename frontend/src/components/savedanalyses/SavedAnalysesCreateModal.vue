@@ -28,7 +28,7 @@
           </v-col>
           <v-col cols="12" md="12">
             <v-text-field
-              label="Save Analysis  Description"
+              label="Save Analysis Description"
               placeholder="Enter a description of the analysis"
               v-model="description"
             ></v-text-field>
@@ -65,7 +65,7 @@
 import { mapActions, mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 export default {
-  name: 'SaveAnalysisModal',
+  name: 'SavedAnalysesCreateModal',
   props: {
     geometry: {},
     featureType: String
