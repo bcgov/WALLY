@@ -27,7 +27,7 @@ export default {
         .then((r) => {
           commit('setSavedAnalyses', r.data)
         }).catch((e) => {
-          console.log('error delete project', e)
+          console.log('error getting saved analysis', e)
         })
     },
     deleteSavedAnalysis ({ dispatch }, uuid) {
@@ -36,10 +36,8 @@ export default {
         .then((r) => {
           dispatch('getSavedAnalyses')
         }).catch((e) => {
-          console.log('error delete project', e)
+          console.log('error deleting saved analyses', e)
         })
-    },
-    createSavedAnalysis ({ dispatch }, payload) {
     }
   },
   mutations: {

@@ -63,10 +63,12 @@ class SavedAnalysisCreate(SavedAnalysisCreateUpdate):
     pass
 
 
-class SavedAnalysisUpdate(SavedAnalysisCreateUpdate):
-    name: Optional[str]
-    geometry: Optional[dict]
-    feature_type: Optional[str]
-    zoom_level: Optional[float]
-    map_layers: Optional[List[str]]
+class SavedAnalysisUpdate(BaseModel):
+    name: str
+    description: str
+    # TODO design UX on how to edit the following features
+    # geometry: Optional[dict]
+    # feature_type: Optional[str]
+    # zoom_level: Optional[float]
+    # map_layers: Optional[List[str]]
 

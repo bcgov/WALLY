@@ -60,7 +60,6 @@ export default {
       const name = this.selectedProject?.name
       // eslint-disable-next-line
       const projectId = this.selectedProject?.project_id
-      console.log(projectId)
       if (projectId) {
         let confirmed = await this.$refs.confirmDeleteProject.open(
           'Delete',

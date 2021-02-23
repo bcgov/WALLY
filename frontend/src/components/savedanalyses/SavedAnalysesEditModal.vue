@@ -1,36 +1,32 @@
 <template>
   <v-dialog v-model="dialog" width="650">
     <template v-slot:activator="{ on, attrs }">
-        <v-btn
-          outlined
-          color="primary"
-          v-bind="attrs"
-          v-on="on"
-          class='mx-2 p-3'
-        >
-          <v-icon class='mr-1'>mdi-folder-plus-outline</v-icon>
-          Save Analysis
-        </v-btn>
+      <v-icon
+        v-on="on"
+        class='mr-1'>
+        mdi-square-edit-outline
+      </v-icon>
     </template>
 
     <v-card shaped>
       <v-card-title class="headline grey lighten-3" primary-title>
-          Save Analysis
+          Edit Analysis
       </v-card-title>
       <v-card-text class="mt-4">
         <v-row>
           <v-col cols="12" md="12" align-self="center">
             <v-text-field
-              label="Save Analysis Name"
+              label="Saved Analysis Name"
               placeholder="Enter a name for this saved analysis"
-              v-model="name"
+              :rules="[rules.required, rules.length]"
+              v-model="editAnalysis.name"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="12">
             <v-text-field
-              label="Save Analysis Description"
+              label="Saved Analysis Description"
               placeholder="Enter a description of the analysis"
-              v-model="description"
+              v-model="editAnalysis.description"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -40,7 +36,7 @@
         <v-spacer></v-spacer>
         <v-btn
           outlined
-          @click="createSavedAnalysis"
+          @click="editSavedAnalysisRecord"
           color="primary"
           :disabled="loading"
         >
@@ -65,60 +61,50 @@
 import { mapActions, mapGetters } from 'vuex'
 import ApiService from '../../services/ApiService'
 export default {
-  name: 'SavedAnalysesCreateModal',
-  props: {
-    geometry: {},
-    featureType: String
+  name: 'SavedAnalysesEditModal',
+  props: ['analysis'],
+  data: function () {
+    return {
+      loading: false,
+      dialog: false,
+      editAnalysis: Object.assign({}, this.analysis),
+      rules: {
+        required: value => !!value || 'Name is Required.',
+        length: value => value.length > 2 || 'Name requires more than 3 characters.'
+      }
+    }
   },
-  data: () => ({
-    loading: false,
-    dialog: false,
-    name: '',
-    description: ''
-  }),
   computed: {
     ...mapGetters('map', ['map', 'activeMapLayers'])
   },
   methods: {
-    ...mapActions(['getSavedAnalyses']),
-    createSavedAnalysis () {
-      if (this.name.length < 3) {
-        // TODO add user notify that at least 3 characters
-        // are needed for a analysis name
+    ...mapActions(['getSavedAnalyses', 'editSavedAnalyses']),
+    editSavedAnalysisRecord () {
+      let uuid = this.editAnalysis.saved_analysis_uuid
+      let name = this.editAnalysis.name
+      let description = this.editAnalysis.description
+      console.log(uuid, name, description)
+
+      if (this.editAnalysis.name.length < 3) {
         return
       }
-      this.loading = true
-      const bounds = this.map.getBounds()
-      const ne = bounds._ne
-      const sw = bounds._sw
-      const mapBounds = [[ne.lng, ne.lat], [sw.lng, sw.lat]]
-      const zoom = this.map.getZoom()
 
+      this.loading = true
       const params = {
-        name: this.name,
-        description: this.description,
-        geometry: this.geometry,
-        feature_type: this.featureType,
-        map_layers: this.activeMapLayers.map((l) => {
-          return { map_layer: l.display_data_name }
-        }),
-        map_bounds: mapBounds,
-        zoom_level: zoom
+        name: name,
+        description: description
       }
 
-      console.log(params)
+      console.log(params, uuid)
 
-      ApiService.post(`/api/v1/saved_analyses`, params)
-        .then((res) => {
-          this.name = ''
-          this.description = ''
+      ApiService.put(`/api/v1/saved_analyses/${uuid}`, params)
+        .then((r) => {
           this.dialog = false
           this.loading = false
           this.getSavedAnalyses()
-        })
-        .catch((error) => {
+        }).catch((e) => {
           this.loading = false
-          console.error(error)
+          console.log('error editing saved analyses', e)
         })
     }
   }

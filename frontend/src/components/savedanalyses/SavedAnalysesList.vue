@@ -15,8 +15,8 @@
                   <td class="text-center v-data-table__divider"><span>{{formattedDate(item.create_date)}}</span></td>
                   <td class="text-center v-data-table__divider"><span>{{item.description}}</span></td>
                   <td class="text-right v-data-table__divider"><span>{{featureNames[item.feature_type]}}</span></td>
+                  <td class="text-center"><SavedAnalysesEditModal :analysis="item"/></td>
                   <td class="text-center"><v-icon medium @click="deleteItem(item)">mdi-delete-outline</v-icon></td>
-                  <td class="text-center"><v-icon medium @click="editItem(item)">mdi-edit-outline</v-icon></td>
                   <td class="text-center"><v-icon medium @click="runAnalysis(item)">mdi-application-import</v-icon></td>
                 </tr>
               </template>
@@ -53,6 +53,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex'
 import FileBrowserConfirmDialog from '../filebrowser/FileBrowserConfirmDialog.vue'
+import SavedAnalysesEditModal from './SavedAnalysesEditModal'
 import qs from 'querystring'
 import moment from 'moment'
 export default {
@@ -61,7 +62,8 @@ export default {
     refreshPending: Boolean
   },
   components: {
-    FileBrowserConfirmDialog
+    FileBrowserConfirmDialog,
+    SavedAnalysesEditModal
   },
   data () {
     return {
@@ -78,8 +80,9 @@ export default {
         { text: 'Created', value: 'create_date', align: 'center', divider: true },
         { text: 'Description', value: 'description', align: 'center', divider: true },
         { text: 'Feature type', value: 'feature_type', align: 'end', divider: true },
-        { text: 'Run', value: 'action', align: 'center', sortable: false },
-        { text: 'Delete', value: 'action', align: 'center', sortable: false }
+        { text: 'Edit', value: 'action', align: 'center', sortable: false },
+        { text: 'Delete', value: 'action', align: 'center', sortable: false },
+        { text: 'Run', value: 'action', align: 'center', sortable: false }
       ]
     }
   },
@@ -94,7 +97,7 @@ export default {
     // }
   },
   methods: {
-    ...mapActions(['getSavedAnalyses', 'deleteSavedAnalysis', 'runSavedAnalysis']),
+    ...mapActions(['getSavedAnalyses', 'editSavedAnalysis', 'deleteSavedAnalysis', 'runSavedAnalysis']),
     ...mapActions('map', ['addFeaturePOIFromCoordinates']),
     formattedDate (date) {
       return moment(date).format('DD MMM YYYY')
@@ -109,13 +112,7 @@ export default {
       }
     },
     async editItem (item) {
-      let confirmed = await this.$refs.confirm.open(
-        'Edit',
-        `Are you sure<br>you want to delete this analysis?<br><em>${item.name}</em>`
-      )
-      if (confirmed && item.saved_analysis_uuid) {
-        this.editSavedAnalysis(item.saved_analysis_uuid)
-      }
+      this.editSavedAnalysis(item.saved_analysis_uuid)
     },
     runAnalysis (item) {
       this.map.fitBounds(item.map_bounds)
