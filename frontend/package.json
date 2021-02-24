@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "node --max_old_space_size=8000 node_modules/@vue/cli-service/bin/vue-cli-service.js build",
     "test:unit": "vue-cli-service test:unit --no-cache",
+    "test:coverage": "vue-cli-service test:unit --coverage",
     "lint": "vue-cli-service lint",
     "build:report": "vue-cli-service build --report",
     "build:report:json": "vue-cli-service build --report-json"

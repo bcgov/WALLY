@@ -25,7 +25,7 @@
       </v-col>
     </v-row>
 
-    <v-card flat v-if="watersheds && watersheds.length">
+    <v-card flat v-if="watersheds && watersheds.length" class="text-right">
       <SurfaceWaterHeaderButtons v-if="selectedWatershed" :layers="layers"/>
       <SavedAnalysesCreateModal :geometry="pointOfInterest.geometry" featureType="surface-water"/>
       <div class="watershedLabel"></div>
@@ -33,7 +33,7 @@
         <v-card-title>
           {{watershedName}}
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="text-left">
           <v-row align="center">
             <v-col class="grow">
               {{watershedSource}}

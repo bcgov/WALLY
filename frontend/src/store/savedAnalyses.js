@@ -44,11 +44,11 @@ export default {
     setCurrentAnalysis (state, payload) {
       state.currentAnalysis = payload
     },
-    setSavedAnalyses (state, files) {
-      state.savedAnalyses = files
+    setSavedAnalyses (state, payload) {
+      state.savedAnalyses = payload
     },
-    setGeometry (state, geometry) {
-      state.geometry = geometry
+    setGeometry (state, payload) {
+      state.geometry = payload
     },
     loadingSavedAnalyses (state, val) {
       state.loadingSavedAnalyses = val
@@ -57,7 +57,6 @@ export default {
   getters: {
     currentAnalysis: state => state.currentAnalysis,
     savedAnalyses: state => state.savedAnalyses,
-    projects: state => state.projects,
     loadingSavedAnalyses: state => state.loadingSavedAnalyses
   }
 }

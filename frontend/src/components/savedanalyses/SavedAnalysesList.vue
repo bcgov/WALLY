@@ -6,7 +6,7 @@
             <v-data-table
               id="saved-analysis-table"
               :headers="headers"
-              :items-per-page="10"
+              :items-per-page="15"
               item-key="saved_analysis_uuid"
               :items="savedAnalyses">
               <template v-slot:item="{ item }">
@@ -14,10 +14,10 @@
                   <td class="text-left v-data-table__divider"><span>{{item.name}}</span></td>
                   <td class="text-center v-data-table__divider"><span>{{formattedDate(item.create_date)}}</span></td>
                   <td class="text-center v-data-table__divider"><span>{{item.description}}</span></td>
-                  <td class="text-right v-data-table__divider"><span>{{featureNames[item.feature_type]}}</span></td>
-                  <td class="text-center"><SavedAnalysesEditModal :analysis="item"/></td>
-                  <td class="text-center"><v-icon medium @click="deleteItem(item)">mdi-delete-outline</v-icon></td>
+                  <td class="text-center v-data-table__divider"><span>{{featureNames[item.feature_type]}}</span></td>
                   <td class="text-center"><v-icon medium @click="runAnalysis(item)">mdi-application-import</v-icon></td>
+                  <td class="text-center"><SavedAnalysesEditModal :analysis="item" :key="item.saved_analysis_uuid"/></td>
+                  <td class="text-center"><v-icon medium @click="deleteItem(item)">mdi-delete-outline</v-icon></td>
                 </tr>
               </template>
             </v-data-table>
@@ -76,13 +76,13 @@ export default {
         'assign-demand': 'Hydraulic Connectivity'
       },
       headers: [
-        { text: 'Name', value: 'name', align: 'start', divider: true },
+        { text: 'Name', value: 'name', align: 'center', divider: true },
         { text: 'Created', value: 'create_date', align: 'center', divider: true },
         { text: 'Description', value: 'description', align: 'center', divider: true },
-        { text: 'Feature type', value: 'feature_type', align: 'end', divider: true },
+        { text: 'Feature type', value: 'feature_type', align: 'center', divider: true },
+        { text: 'Re-Run', value: 'action', align: 'center', sortable: false },
         { text: 'Edit', value: 'action', align: 'center', sortable: false },
-        { text: 'Delete', value: 'action', align: 'center', sortable: false },
-        { text: 'Run', value: 'action', align: 'center', sortable: false }
+        { text: 'Delete', value: 'action', align: 'center', sortable: false }
       ]
     }
   },
@@ -98,7 +98,7 @@ export default {
   },
   methods: {
     ...mapActions(['getSavedAnalyses', 'editSavedAnalysis', 'deleteSavedAnalysis', 'runSavedAnalysis']),
-    ...mapActions('map', ['addFeaturePOIFromCoordinates']),
+    ...mapActions('map', ['addFeaturePOIFromCoordinates', 'updateActiveMapLayers']),
     formattedDate (date) {
       return moment(date).format('DD MMM YYYY')
     },
@@ -110,9 +110,6 @@ export default {
       if (confirmed && item.saved_analysis_uuid) {
         this.deleteSavedAnalysis(item.saved_analysis_uuid)
       }
-    },
-    async editItem (item) {
-      this.editSavedAnalysis(item.saved_analysis_uuid)
     },
     runAnalysis (item) {
       this.map.fitBounds(item.map_bounds)
@@ -132,12 +129,19 @@ export default {
       this.$router.push({
         path: item.feature_type + '?' + qs.stringify(params)
       })
-      // Update the selected Point of Interest in the store
-      const data = {
-        coordinates: coordinates[0],
-        layerName: 'point-of-interest'
+
+      if (featureType !== 'section') {
+        // Update the selected Point of Interest in the store
+        const data = {
+          coordinates: coordinates[0],
+          layerName: 'point-of-interest'
+        }
+        // Add point of interest to map
+        this.addFeaturePOIFromCoordinates(data)
       }
-      this.addFeaturePOIFromCoordinates(data)
+
+      // Activate map layers that were saved
+      this.updateActiveMapLayers(item.map_layers.map((m) => m.map_layer))
     }
   },
   watch: {

@@ -12,11 +12,19 @@
           Save Analysis
         </v-btn>
     </template>
-
     <v-card shaped>
       <v-card-title class="headline grey lighten-3" primary-title>
           Save Analysis
       </v-card-title>
+      <v-alert
+        v-if="success"
+        dense
+        text
+        type="success"
+        class="mt-2"
+      >
+        Saved analysis created <strong>successfully!</strong>
+        </v-alert>
       <v-card-text class="mt-4">
         <v-row>
           <v-col cols="12" md="12" align-self="center">
@@ -35,7 +43,6 @@
           </v-col>
         </v-row>
       </v-card-text>
-
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
@@ -55,7 +62,6 @@
             color="primary"
           ></v-progress-circular>
         </v-btn>
-
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -73,6 +79,7 @@ export default {
   data: () => ({
     loading: false,
     dialog: false,
+    success: false,
     name: '',
     description: ''
   }),
@@ -112,13 +119,20 @@ export default {
         .then((res) => {
           this.name = ''
           this.description = ''
-          this.dialog = false
           this.loading = false
+          this.success = true
           this.getSavedAnalyses()
         })
         .catch((error) => {
           this.loading = false
+          this.success = false
           console.error(error)
+        })
+        .finally((res) => {
+          setTimeout(() => {
+            this.dialog = false
+            this.success = false
+          }, 2000)
         })
     }
   }

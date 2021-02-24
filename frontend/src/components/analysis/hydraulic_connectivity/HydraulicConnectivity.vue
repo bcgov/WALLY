@@ -28,7 +28,7 @@
       </v-col>
       <v-col class="text-right">
         <SavedAnalysesCreateModal :geometry="record.geometry" featureType="assign-demand" />
-        <v-btn @click="selectPointOfInterest" color="primary" outlined class="mt-2">Select a New Point</v-btn>
+        <v-btn @click="selectPointOfInterest" color="primary" outlined>Select a New Point</v-btn>
         <v-btn
           v-if="streams && streams.length"
           outlined
