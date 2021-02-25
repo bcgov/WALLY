@@ -15,7 +15,7 @@ class TestSaveAnalysis:
     x_auth_userid = 'test_user'
     name = 'Test analysis'
     description = 'Test'
-    feature_type = 'cross_section'
+    feature_type = 'section'
     zoom_level = 3
     map_layers = ['groundwater_wells']
 
@@ -76,7 +76,7 @@ class TestSaveAnalysis:
         assert e.type == ValidationError
 
     def test_validate_feature_types_valid(self):
-        feature_type = 'cross_section'
+        feature_type = 'upstream-downstream'
         assert SavedAnalysisCreate(
             user_id=self.x_auth_userid,
             name=self.name,
