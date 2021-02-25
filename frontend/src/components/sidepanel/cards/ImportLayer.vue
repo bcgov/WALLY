@@ -9,7 +9,7 @@
             mdi-cloud-upload
           </v-icon>
         </v-avatar>
-        <v-toolbar-title>Upload file or data</v-toolbar-title>
+        <v-toolbar-title>Import file or data</v-toolbar-title>
       </v-banner>
     </v-toolbar>
     <v-row>

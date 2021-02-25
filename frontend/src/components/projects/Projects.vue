@@ -134,7 +134,8 @@ export default {
     }
   }),
   computed: {
-    ...mapGetters('map', ['map'])
+    ...mapGetters('map', ['map']),
+    ...mapGetters(['app'])
   },
   methods: {
     ...mapGetters('map', ['isMapReady']),

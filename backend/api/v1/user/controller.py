@@ -1,34 +1,32 @@
-import json
 import logging
-from sqlalchemy import text, func
 from sqlalchemy.orm import Session
-from api.v1.user.db_models import User
+from api.v1.user.db_models import UserMapLayer
 from datetime import datetime
 
 logger = logging.getLogger("user")
 
 
-def get_create_user(db: Session, user_id):
-    """ get or create user based on uuid pk """
+def get_create_user_map_layer(db: Session, user_idir):
+    """ get or create user map layer based on idir """
 
-    user = db.query(User).filter(User.uuid == user_id).first()
-    if not user:
+    user_map_layer = db.query(UserMapLayer).filter(UserMapLayer.user_idir == user_idir).first()
+    if not user_map_layer:
         date = datetime.now()
-        user = User(
-            uuid=user_id,
+        user_map_layer = UserMapLayer(
+            user_idir=user_idir,
             create_date=date,
             update_date=date
         )
-        db.add(user)
+        db.add(user_map_layer)
         db.commit()
 
-    return user
+    return user_map_layer
 
 
-def update_map_layers(db: Session, user_id, map_layers):
+def update_map_layers(db: Session, user_idir, map_layers):
     """ updates user default map layers from string array """
-    db.query(User).filter(User.uuid == user_id) \
-      .update({User.default_map_layers: map_layers})
+    db.query(UserMapLayer).filter(UserMapLayer.user_idir == user_idir) \
+        .update({UserMapLayer.default_map_layers: map_layers})
     db.commit()
 
     return True

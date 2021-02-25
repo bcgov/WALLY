@@ -7,6 +7,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
+import logging
 
 from starlette_exporter import PrometheusMiddleware, handle_metrics
 
@@ -17,6 +18,7 @@ from api.db.session import Session
 wally_api = FastAPI(title=config.PROJECT_NAME,
                     openapi_url="/api/v1/openapi.json")
 
+settings = config.get_settings()
 
 wally_api.add_middleware(PrometheusMiddleware, app_name="wally")
 wally_api.add_route("/metrics", handle_metrics)
@@ -42,6 +44,9 @@ if config.BACKEND_CORS_ORIGINS:
 wally_api.add_middleware(GZipMiddleware)
 
 wally_api.include_router(api_router, prefix=config.API_V1_STR)
+
+if settings.sql_alchemy_debug:
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 
 @wally_api.middleware("http")
