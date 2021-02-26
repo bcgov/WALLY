@@ -25,7 +25,9 @@ class AuthBackend(AuthenticationBackend):
         userid = request.headers['x-auth-userid']
 
         logger.info(sub)
-        logger.info(email, roles, userid)
+        logger.info(email)
+        logger.info(roles)
+        logger.info(userid)
 
         user = User.get_or_create(db, sub)
 
