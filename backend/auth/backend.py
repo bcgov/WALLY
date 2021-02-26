@@ -19,17 +19,18 @@ class AuthBackend(AuthenticationBackend):
         if "X-Auth-Subject" not in request.headers:
             return
 
-        sub = request.headers['X-Auth-Subject']
-        email = request.headers['X-Auth-Email']
+        sub = request.headers['x-auth-subject']
+        email = request.headers['x-auth-email']
         roles = request.headers['x-auth-roles']
         userid = request.headers['x-auth-userid']
 
-        logger.info(sub, email, roles, userid)
+        logger.info(sub)
+        logger.info(email, roles, userid)
 
         user = User.get_or_create(db, sub)
 
-        # Update user email
-        user.email = email
+        # Update user IDIR
+        user.user_idir = userid
         db.commit()
 
         # update_user = False
