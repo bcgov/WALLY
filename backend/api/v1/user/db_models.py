@@ -1,5 +1,8 @@
 from sqlalchemy import String, Column, ARRAY, TEXT, DateTime
 from api.db.base_class import Base
+from fastapi import Depends
+from api.db.utils import get_db
+from sqlalchemy.orm import Session
 
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -15,11 +18,10 @@ class User(Base):
     # last_login = Column(DateTime, comment='Last time the user has logged in')
 
     @classmethod
-    def get_or_create(cls, db, user_uuid, user_idir):
+    def get_or_create(cls, db: Session, user_uuid):
         user = db.query(User).get(user_uuid)
         if not user:
-            user = cls(user_uuid=user_uuid,
-                       user_idir=user_idir)
+            user = cls(user_uuid=user_uuid)
             db.add(user)
             db.commit()
 
