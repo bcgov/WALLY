@@ -17,6 +17,7 @@ class TestSaveAnalysis:
     description = 'Test'
     feature_type = 'section'
     zoom_level = 3
+    map_bounds = [[123, -49], [123.1, -49.1]]
     map_layers = ['groundwater_wells']
 
     def test_validate_geometry_invalid(self):
@@ -36,6 +37,7 @@ class TestSaveAnalysis:
                 geometry=geometry,
                 feature_type=self.feature_type,
                 zoom_level=self.zoom_level,
+                map_bounds=self.map_bounds,
                 map_layers=self.map_layers
             )
         assert 'Invalid geometry' in str(e.value)
@@ -57,6 +59,7 @@ class TestSaveAnalysis:
             geometry=geometry,
             feature_type=self.feature_type,
             zoom_level=self.zoom_level,
+            map_bounds=self.map_bounds,
             map_layers=self.map_layers
         )
 
@@ -70,6 +73,7 @@ class TestSaveAnalysis:
                 geometry=self.geometry,
                 feature_type=feature_type,
                 zoom_level=self.zoom_level,
+                map_bounds=self.map_bounds,
                 map_layers=self.map_layers
             )
         assert 'Invalid feature type' in str(e.value)
@@ -84,5 +88,6 @@ class TestSaveAnalysis:
             geometry=self.geometry,
             feature_type=feature_type,
             zoom_level=self.zoom_level,
+            map_bounds=self.map_bounds,
             map_layers=self.map_layers
         )
