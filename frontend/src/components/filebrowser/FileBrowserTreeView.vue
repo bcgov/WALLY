@@ -95,7 +95,7 @@ export default {
         p.type = 'dir'
         p.fileCount = p.children.length
         p.children = []
-        // p.project_id = p.project_id.toString()
+        // p.project_uuid = p.project_uuid.toString()
         return p
       })
       return projectList
@@ -114,11 +114,11 @@ export default {
         this.deselectProjects()
         return
       }
-      let split = active[0].split('-')
-      const type = split[0]
-      const id = split[1]
+      let treeId = active[0]
+      let type = treeId.split('-')[0]
+      let uuid = treeId.substring(treeId.indexOf('-') + 1)
       if (type === 'project') {
-        const project = this.findChildProject(id)
+        const project = this.findChildProject(uuid)
         // this.fetchProjectDocuments(project)
         this.setSelectedProject(project)
       } else if (type === 'document') {
@@ -130,9 +130,9 @@ export default {
       this.active = []
       this.deselectProjects()
     },
-    findChildProject (projectId) {
+    findChildProject (projectUUID) {
       const children = this.projectList[0].children
-      return children.find((x) => x.project_id.toString() === projectId)
+      return children.find((x) => x.project_uuid.toString() === projectUUID)
     }
   },
   watch: {

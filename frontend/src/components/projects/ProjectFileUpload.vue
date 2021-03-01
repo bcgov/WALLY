@@ -66,7 +66,7 @@ export default {
     ...mapGetters(['projects']),
     projects () {
       return this.projects.map(project => {
-        return { value: project.project_id, text: project.name }
+        return { value: project.project_uuid, text: project.name }
       })
     }
   }

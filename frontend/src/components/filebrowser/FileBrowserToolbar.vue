@@ -59,14 +59,14 @@ export default {
     async promptDelete () {
       const name = this.selectedProject?.name
       // eslint-disable-next-line
-      const projectId = this.selectedProject?.project_id
-      if (projectId) {
+      const projectUUID = this.selectedProject?.project_uuid
+      if (projectUUID) {
         let confirmed = await this.$refs.confirmDeleteProject.open(
           'Delete',
           `Are you sure<br>you want to delete <br><b>Project: </b><em>${name}</em>`
         )
         if (confirmed) {
-          this.deleteProject(projectId)
+          this.deleteProject(projectUUID)
         }
       }
     }

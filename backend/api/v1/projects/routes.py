@@ -9,7 +9,7 @@ from geojson import FeatureCollection, Feature, Point
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.v1.projects.schema import Project, ProjectDocument
+from api.v1.projects.schema import Project, ProjectDocument, ProjectCreate
 import api.v1.projects.controller as controller
 
 logger = getLogger("projects")
@@ -33,7 +33,7 @@ def get_projects(
 
 @router.post("", response_model=Project)
 def create_project(
-        project: Project,
+        project: ProjectCreate,
         x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):

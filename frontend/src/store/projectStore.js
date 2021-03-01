@@ -17,9 +17,9 @@ export default {
         .then((r) => {
           // set unique ids for treeview to use
           let projects = r.data.map(project => {
-            project.id = 'project-' + project.project_id
+            project.id = 'project-' + project.project_uuid
             let children = project.children.map(child => {
-              child.id = 'document-' + child.project_document_id
+              child.id = 'document-' + child.project_document_uuid
               child.name = child.filename.split('.')[0]
               return child
             })
@@ -33,39 +33,39 @@ export default {
           commit('loadingProjects', false)
         })
     },
-    deleteProject ({ dispatch }, projectId) {
-      if (!projectId) { return }
-      ApiService.query(`/api/v1/projects/${projectId}/delete`)
+    deleteProject ({ dispatch }, projectUUID) {
+      if (!projectUUID) { return }
+      ApiService.query(`/api/v1/projects/${projectUUID}/delete`)
         .then((r) => {
           dispatch('getProjects')
         }).catch((e) => {
           console.log('error delete project', e)
         })
     },
-    getProjectFiles ({ commit }, projectId) {
-      if (!projectId) { return }
-      ApiService.query(`/api/v1/projects/${projectId}/documents`)
+    getProjectFiles ({ commit }, projectUUID) {
+      if (!projectUUID) { return }
+      ApiService.query(`/api/v1/projects/${projectUUID}/documents`)
         .then((r) => {
           commit('setProjectFiles', r.data)
         }).catch((e) => {
           console.log('error delete project', e)
         })
     },
-    deleteProjectDocument ({ state, dispatch }, projectDocumentId) {
-      if (!projectDocumentId) { return }
-      ApiService.query(`/api/v1/projects/documents/${projectDocumentId}/delete`)
+    deleteProjectDocument ({ state, dispatch }, projectDocumentUUID) {
+      if (!projectDocumentUUID) { return }
+      ApiService.query(`/api/v1/projects/documents/${projectDocumentUUID}/delete`)
         .then((r) => {
           dispatch('getProjects')
-          dispatch('getProjectFiles', state.selectedProject.project_id)
+          dispatch('getProjectFiles', state.selectedProject.project_uuid)
         }).catch((e) => {
           console.log('error delete project', e)
         })
     },
     downloadProject ({ state, commit }) {
-      let projectId = state.selectedProject.project_id
-      ApiService.query(`/api/v1/projects/${projectId}/download`, null, { responseType: 'arraybuffer' })
+      let projectUUID = state.selectedProject.project_uuid
+      ApiService.query(`/api/v1/projects/${projectUUID}/download`, null, { responseType: 'arraybuffer' })
         .then((r) => {
-          downloadFile(r, 'project_' + projectId, true)
+          downloadFile(r, 'project_' + projectUUID, true)
           commit('downloadingFile', false)
         }).catch((e) => {
           commit('downloadingFile', false)
@@ -73,9 +73,9 @@ export default {
         })
     },
     downloadProjectDocument ({ commit }, payload) {
-      if (!payload.projectDocumentId) { return }
+      if (!payload.projectDocumentUUID) { return }
       commit('downloadingFile', true)
-      ApiService.query(`/api/v1/projects/documents/${payload.projectDocumentId}`, null, { responseType: 'arraybuffer' })
+      ApiService.query(`/api/v1/projects/documents/${payload.projectDocumentUUID}`, null, { responseType: 'arraybuffer' })
         .then((r) => {
           downloadFile(r, payload.filename)
           commit('downloadingFile', false)

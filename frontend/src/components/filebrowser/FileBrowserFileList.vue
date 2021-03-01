@@ -7,7 +7,7 @@
                 <v-subheader>Files</v-subheader>
                 <v-list-item
                     v-for="item in files"
-                    :key="item.project_document_id"
+                    :key="item.project_document_uuid"
                     class="pl-0"
                 >
                     <v-list-item-avatar class="ma-0">
@@ -117,21 +117,20 @@ export default {
         `Are you sure<br>you want to delete this file?<br><em>${item.filename}</em>`
       )
 
-      if (confirmed && item.project_document_id) {
-        this.deleteProjectDocument(item.project_document_id)
-        // this.$emit('loading', true)
-        // await ApiService.post(config)
-        // this.$emit('file-deleted')
-        // this.$emit('loading', false)
+      if (confirmed && item.project_document_uuid) {
+        this.deleteProjectDocument(item.project_document_uuid)
       }
     },
     downloadItem (item) {
-      this.downloadProjectDocument({ projectDocumentId: item.project_document_id, filename: item.filename })
+      this.downloadProjectDocument({ projectDocumentUUID: item.project_document_uuid, filename: item.filename })
     }
   },
   watch: {
     selectedProject (value) {
-      this.getProjectFiles(value.project_id)
+      if (value) {
+        // console.log(value)
+        this.getProjectFiles(value[0])
+      }
     },
     downloadingFile (value) {
       if (!value) {

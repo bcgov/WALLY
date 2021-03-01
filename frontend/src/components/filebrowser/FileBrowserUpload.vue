@@ -165,7 +165,7 @@ export default {
         formData.append('files', file, file.name)
       }
 
-      let url = `/api/v1/projects/${this.selectedProject.project_id}/documents`
+      let url = `/api/v1/projects/${this.selectedProject.project_uuid}/documents`
 
       let config = {
         url,
@@ -184,7 +184,7 @@ export default {
         this.uploading = false
         this.$emit('uploaded')
         this.getProjects()
-        this.getProjectFiles(this.selectedProject.project_id)
+        this.getProjectFiles(this.selectedProject.project_uuid)
       } catch (e) {
         console.error(e)
         this.uploading = false
