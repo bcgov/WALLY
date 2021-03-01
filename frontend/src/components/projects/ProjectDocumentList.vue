@@ -119,17 +119,6 @@ export default {
     fetch () {
       if (this.documents.length) return
 
-      // ApiService.query(`/api/v1/projects/${this.project_id}/documents/`)
-      //   .then((r) => {
-      //     console.log(r.data)
-      //     this.documents = r.data
-      //     this.loading = false
-      //   })
-      //   .catch((e) => {
-      //     this.loading = false
-      //     console.error(e)
-      //   })
-
       this.documents = [
         {
           name: 'test 1'

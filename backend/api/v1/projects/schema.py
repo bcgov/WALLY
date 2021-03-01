@@ -23,3 +23,8 @@ class Project(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class ProjectCreate(BaseModel):
+    name: str
+    description: Optional[str]
