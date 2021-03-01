@@ -223,7 +223,7 @@ objects:
           - name: wally-config
             mountPath: /app/.config/
         - name: promtail
-          image: grafana/promtail:v1.3.0
+          image: docker-registry.default.svc:5000/bfpeyx-tools/promtail:v1.3.0
           args:
           - -config.file=/etc/promtail/promtail.yaml
           - -client.url=http://loki:3100/api/prom/push

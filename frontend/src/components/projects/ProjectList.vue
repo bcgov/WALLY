@@ -77,7 +77,7 @@ export default {
     fetchProjectsData () {
       this.projectsLoading = true
       moment()
-      ApiService.query(`/api/v1/projects/`)
+      ApiService.query(`/api/v1/projects`)
         .then(r => {
           console.log(r.data)
           this.projectsData = r.data
@@ -87,21 +87,6 @@ export default {
           this.projectsLoading = false
           console.error(e)
         })
-    },
-    createNewProject () {
-      const params = {
-        name: this.name,
-        description: this.description
-      }
-      ApiService.post(`/api/v1/projects/`, params).then((res) => {
-        // TODO project create logic
-        console.log(res)
-      }).catch((error) => {
-        console.error(error)
-      })
-    },
-    formatDate (date) {
-      return moment(date).format('MMM DD YYYY')
     }
   },
   watch: {
