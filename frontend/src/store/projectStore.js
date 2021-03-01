@@ -13,7 +13,7 @@ export default {
   actions: {
     getProjects ({ commit, dispatch }) {
       commit('loadingProjects', true)
-      ApiService.query('/api/v1/projects/')
+      ApiService.query('/api/v1/projects')
         .then((r) => {
           // set unique ids for treeview to use
           let projects = r.data.map(project => {

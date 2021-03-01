@@ -89,7 +89,7 @@ export default {
         name: this.name,
         description: this.description
       }
-      ApiService.post(`/api/v1/projects/`, params)
+      ApiService.post(`/api/v1/projects`, params)
         .then((res) => {
           this.name = ''
           this.description = ''
