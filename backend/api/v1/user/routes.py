@@ -17,8 +17,8 @@ router = APIRouter()
 
 @router.get("/profile")
 def get_create_user_profile(
-        x_auth_userid: Optional[str] = Header(None),
         x_auth_subject: Optional[str] = Header(None),
+        x_auth_userid: Optional[str] = Header(None),
         db: Session = Depends(get_db)
 ):
     """
@@ -27,7 +27,7 @@ def get_create_user_profile(
     x_auth_subject holds the keycloak guid that is passed as a
     header up from the proxy service (X-Auth-Subject)
     """
-    return controller.get_create_user(db, x_auth_subject)
+    return controller.get_create_user(db, x_auth_subject, x_auth_userid)
 
 
 @router.post("/maplayers")

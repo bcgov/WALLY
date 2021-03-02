@@ -52,8 +52,10 @@ def get_create_user(db: Session, user_uuid, user_idir):
 
 def update_map_layers(db: Session, user_idir, map_layers):
     """ updates user default map layers from string array """
+
     db.query(UserMapLayer).filter(UserMapLayer.user_idir == user_idir) \
         .update({UserMapLayer.default_map_layers: map_layers})
+
     db.commit()
 
     return True
