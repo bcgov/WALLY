@@ -21,8 +21,9 @@ class AuthBackend(AuthenticationBackend):
         if "X-Auth-Subject" not in request.headers and WALLY_ENV != ENV_DEV:
             raise AuthenticationError("OIDC Subject (User) not found")
 
-        # Skip for unit tests
-        if request.headers['user-agent'] == 'testclient':
+        # Skip for unit tests and kube-prob
+        if 'testclient' == request.headers['user-agent'] or \
+                'kube-probe' in request.headers['user-agent']:
             return
 
         settings = get_settings()
