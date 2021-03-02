@@ -10,7 +10,7 @@ parent_directory = '../data/training_data_hydro_zone_monthly_distributions/nov23
 save_directory = '../model_output/hydro_zone_monthly_distributions/nov23'
 dependant_variable = 'monthly_mean'
 
-# inputs_list = ["year","drainage_area","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
+inputs_list = ["year","drainage_area","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","hydrological_zone","annual_precipitation","median_elevation","aspect","solar_exposure"]
 # inputs_list = ["drainage_area", "average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
 inputs_list = ["year", "drainage_area", "glacial_coverage", "glacial_area", "annual_precipitation", "potential_evapotranspiration_thornthwaite"]
 

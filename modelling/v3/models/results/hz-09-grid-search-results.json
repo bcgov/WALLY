@@ -1,0 +1,1 @@
+{"cv_score": -3.1014128852760745, "r2": 0.8668187721693981, "params": {"colsample_bytree": 0.7, "learning_rate": 0.03, "max_depth": 7, "min_child_weight": 5, "n_estimators": 500, "nthread": 6, "objective": "reg:squarederror", "subsample": 0.7}}
