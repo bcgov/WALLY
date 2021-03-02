@@ -18,7 +18,7 @@ class TestSaveAnalysis:
     feature_type = 'section'
     zoom_level = 3
     map_bounds = [[123, -49], [123.1, -49.1]]
-    map_layers = ['groundwater_wells']
+    map_layers = [{'map_layer':'groundwater_wells'}]
 
     def test_validate_geometry_invalid(self):
         """
