@@ -8,6 +8,7 @@ from logging import getLogger
 from api.db.utils import get_db_session
 from api.v1.user.db_models import User
 from api.config import WALLY_ENV, ENV_DEV
+from api.config import get_settings
 
 logger = getLogger('auth')
 
@@ -24,9 +25,10 @@ class AuthBackend(AuthenticationBackend):
         if request.headers['user-agent'] == 'testclient':
             return
 
+        settings = get_settings()
         logger.info(request.headers)
 
-        if WALLY_ENV == ENV_DEV: # and 'localhost' in request.headers['host']:
+        if WALLY_ENV == ENV_DEV and settings.local_development:
             # Dev user
             sub = '00000000-0000-0000-0000-000000000000'
             email = 'dev.wally.test@gov.bc.ca'
