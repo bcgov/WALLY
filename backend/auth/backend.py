@@ -27,7 +27,6 @@ class AuthBackend(AuthenticationBackend):
             return
 
         settings = get_settings()
-        logger.info(request.headers)
 
         if WALLY_ENV == ENV_DEV and settings.local_development:
             # Dev user
