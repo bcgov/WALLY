@@ -16,10 +16,10 @@ router = APIRouter()
 @router.post("/saved_analyses")
 def create_saved_analysis(
         saved_analysis: SavedAnalysisCreate,
-        x_auth_userid: Optional[str] = Header(None),
+        x_auth_subject: Optional[str] = Header(None),
         db: Session = Depends(get_db)) -> SavedAnalysisCreate:
 
-    return controller.save_analysis(db, x_auth_userid,
+    return controller.save_analysis(db, x_auth_subject,
                                     saved_analysis.name, saved_analysis.description,
                                     saved_analysis.geometry, saved_analysis.feature_type,
                                     saved_analysis.zoom_level, saved_analysis.map_bounds,
@@ -27,9 +27,10 @@ def create_saved_analysis(
 
 
 @router.get("/saved_analyses", response_model=List[SavedAnalysisGet])
-def get_saved_analyses(x_auth_userid: Optional[str] = Header(None),
-                       db: Session = Depends(get_db)) -> List[SavedAnalysisGet]:
-    return controller.get_saved_analyses_by_user(db, x_auth_userid)
+def get_saved_analyses(
+        x_auth_subject: Optional[str] = Header(None),
+        db: Session = Depends(get_db)) -> List[SavedAnalysisGet]:
+    return controller.get_saved_analyses_by_user(db, x_auth_subject)
 
 
 @router.get("/saved_analyses/{saved_analysis_uuid}", response_model=SavedAnalysisGet)
@@ -47,8 +48,8 @@ def delete_saved_analysis(saved_analysis_uuid: uuid.UUID,
 @router.put("/saved_analyses/{saved_analysis_uuid}")
 def update_saved_analysis(saved_analysis_uuid: uuid.UUID,
                           saved_analysis: SavedAnalysisUpdate,
-                          x_auth_userid: Optional[str] = Header(None),
+                          x_auth_subject: Optional[str] = Header(None),
                           db: Session = Depends(get_db)):
     saved_analysis_data = jsonable_encoder(saved_analysis)
-    return controller.update_saved_analysis(db, saved_analysis_uuid, x_auth_userid,
+    return controller.update_saved_analysis(db, saved_analysis_uuid, x_auth_subject,
                                             saved_analysis_data)
