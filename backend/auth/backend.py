@@ -14,20 +14,21 @@ logger = getLogger('auth')
 
 
 class AuthBackend(AuthenticationBackend):
+    """
+    This application sits behind an auth service Keycloak Gatekeeper, so we don't really need to
+    authenticate here. We just need to check the authenticated user's data to make sure we have a
+    matching user in the database.
+    """
     async def authenticate(self, request):
-        # This application sits behind an auth service Keycloak Gatekeeper, so we don't really
-        # need to authenticate here. We just need to log the authenticated user's data to make
-        # sure we have a matching user in the database.
-        if "X-Auth-Subject" not in request.headers and WALLY_ENV != ENV_DEV:
-            raise AuthenticationError("OIDC Subject (User) not found")
-
         # Skip for unit tests and kube-prob
         if 'testclient' == request.headers['user-agent'] or \
                 'kube-probe' in request.headers['user-agent']:
             return
 
-        settings = get_settings()
+        if "X-Auth-Subject" not in request.headers and WALLY_ENV != ENV_DEV:
+            raise AuthenticationError("OIDC Subject (User) not found")
 
+        settings = get_settings()
         if WALLY_ENV == ENV_DEV and settings.local_development:
             # Dev user
             sub = '00000000-0000-0000-0000-000000000000'
