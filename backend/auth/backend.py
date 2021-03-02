@@ -24,7 +24,9 @@ class AuthBackend(AuthenticationBackend):
         if request.headers['user-agent'] == 'testclient':
             return
 
-        if WALLY_ENV == ENV_DEV and 'localhost' in request.headers['host']:
+        logger.info(request.headers)
+
+        if WALLY_ENV == ENV_DEV: # and 'localhost' in request.headers['host']:
             # Dev user
             sub = '00000000-0000-0000-0000-000000000000'
             email = 'dev.wally.test@gov.bc.ca'
