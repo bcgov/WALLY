@@ -25,6 +25,8 @@ class User(Base):
             db.add(user)
             db.commit()
 
+        return user
+
 
 class UserMapLayer(Base):
     __tablename__ = 'user_map_layer'
