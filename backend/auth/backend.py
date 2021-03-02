@@ -18,15 +18,13 @@ class AuthBackend(AuthenticationBackend):
         # need to authenticate here. We just need to log the authenticated user's data to make
         # sure we have a matching user in the database.
         if "X-Auth-Subject" not in request.headers and WALLY_ENV != ENV_DEV:
-            logger.info("no user")
-
             raise AuthenticationError("OIDC Subject (User) not found")
 
         # Skip for unit tests
         if request.headers['user-agent'] == 'testclient':
             return
 
-        if WALLY_ENV == ENV_DEV:
+        if WALLY_ENV == ENV_DEV and 'localhost' in request.headers['host']:
             # Dev user
             sub = '00000000-0000-0000-0000-000000000000'
             email = 'dev.wally.test@gov.bc.ca'
