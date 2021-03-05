@@ -2,11 +2,14 @@
   <v-container class="pt-3">
     <v-toolbar flat>
       <v-hover v-slot:default="{ hover }">
-      <v-banner color="indigo"
-                icon="mdi-map-marker"
-                icon-color="white"
-                width="100%"
-      >
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+            icon="mdi-map-marker"
+            color="white">
+            mdi-map-marker
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>
           Point of interest
         </v-toolbar-title>

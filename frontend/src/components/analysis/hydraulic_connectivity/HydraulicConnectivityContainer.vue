@@ -6,11 +6,14 @@
       </template>
     </v-breadcrumbs>
     <v-toolbar flat>
-      <v-banner color="indigo"
-                icon="mdi-axis-arrow"
-                icon-color="white"
-                width="100%"
-      >
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+            icon="mdi-axis-arrow"
+            color="white">
+            mdi-axis-arrow
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>
           Assign demand from a well to hydraulically connected streams
         </v-toolbar-title>

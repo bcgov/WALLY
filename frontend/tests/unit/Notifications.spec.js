@@ -24,9 +24,9 @@ describe('Notifications', () => {
   })
 
   it('Component begins with no messages shown', () => {
-    expect(wrapper.find('#infoNotification').exists()).toBe(false)
-    expect(wrapper.find('#errorNotification').exists()).toBe(false)
-    expect(wrapper.find('#helpNotification').exists()).toBe(false)
+    expect(wrapper.find('#infoNotification div').isVisible()).toBe(false)
+    expect(wrapper.find('#errorNotification div').isVisible()).toBe(false)
+    expect(wrapper.find('#helpNotification div').isVisible()).toBe(false)
   })
 
   it('Info message appears when an info event is sent', async () => {
