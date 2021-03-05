@@ -14,13 +14,6 @@ from typing import List
 logger = logging.getLogger("saved_analyses")
 
 
-def validate_user(db: Session, user_uuid: str):
-    # TODO: Deprecate this when auth middleware is in place
-    user = db.query(func.count(User.user_uuid)).filter(User.user_uuid == user_uuid).scalar()
-    if user == 0:
-        raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid user")
-
-
 def validate_layers(db: Session, layers: List):
     """
     Validate map layers with a single sql query
@@ -54,7 +47,6 @@ def save_analysis(db: Session, user_uuid: str,
     :return:
     """
 
-    # validate_user(db, user_uuid)
     validate_layers(db, map_layers)
 
     analysis = SavedAnalysis(user_uuid=user_uuid,
@@ -131,7 +123,6 @@ def delete_saved_analysis(db: Session, saved_analysis_uuid: UUID):
 
 
 def update_saved_analysis(db: Session, saved_analysis_uuid: UUID,
-                          user_uuid: str,
                           update_data: dict = None):
     """
     Update the saved analysis
@@ -140,8 +131,6 @@ def update_saved_analysis(db: Session, saved_analysis_uuid: UUID,
     :param saved_analysis_uuid: the saved analysis uuid
     :param user_uuid: the user uuid
     """
-    # TODO: Deprecate when auth middleware is in place
-    validate_user(db, user_uuid)
 
     analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
 
