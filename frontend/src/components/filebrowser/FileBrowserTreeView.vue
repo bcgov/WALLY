@@ -4,7 +4,7 @@
             <v-treeview
                 :open="open"
                 :active="active"
-                :items="projectList"
+                :items="projectTree"
                 :search="filter"
                 v-on:update:active="selectProject"
                 v-on:update:open="toggleProjectsFolder"
@@ -84,21 +84,27 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['selectedProject', 'projects']),
-    projectList () {
-      let projectList = [{
+    ...mapGetters(['selectedProject', 'projectsList']),
+    projectTree () {
+      let tree = [{
         type: 'root',
         extension: '',
         name: 'My Projects'
       }]
-      projectList[0].children = this.projects.map(p => {
-        p.type = 'dir'
-        p.fileCount = p.children.length
-        p.children = []
-        // p.project_uuid = p.project_uuid.toString()
-        return p
-      })
-      return projectList
+      if (this.projectsList.length > 0) {
+        tree[0].children = this.projectsList.map(p => {
+          return {
+            id: p.project_uuid,
+            project_uuid: p.project_uuid,
+            description: p.description,
+            name: p.name,
+            type: 'dir',
+            fileCount: p.children.length,
+            children: [] // stops documents from showing in the left side tree view
+          }
+        })
+      }
+      return tree
     }
   },
   methods: {
@@ -108,36 +114,21 @@ export default {
       this.open = []
       this.getProjects()
     },
-    selectProject (active) {
-      console.log('active', active)
-      if (!active[0]) {
+    selectProject (tree) {
+      if (!tree[0]) {
         this.deselectProjects()
         return
       }
-      let treeId = active[0]
-      let type = treeId.split('-')[0]
-      let uuid = treeId.substring(treeId.indexOf('-') + 1)
-      if (type === 'project') {
-        const project = this.findChildProject(uuid)
-        // this.fetchProjectDocuments(project)
-        this.setSelectedProject(project)
-      } else if (type === 'document') {
-        // TODO what happens when a document
-        // is clicked in the tree, show more info?
-      }
+      let uuid = tree[0]
+      const project = this.projectsList.find((p) => p.project_uuid === uuid)
+      this.setSelectedProject(project)
     },
     toggleProjectsFolder () {
       this.active = []
       this.deselectProjects()
-    },
-    findChildProject (projectUUID) {
-      const children = this.projectList[0].children
-      return children.find((x) => x.project_uuid.toString() === projectUUID)
     }
   },
   watch: {
-    projects () {
-    }
   },
   created () {
     this.init()

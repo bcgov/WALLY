@@ -34,7 +34,7 @@ class Project(Base):
     description = Column(String, comment='description of the project')
     user_uuid = Column(UUID, ForeignKey(User.user_uuid),
                       comment='User who owns this project')
-    children = relationship("ProjectDocument", backref="parent", passive_deletes=True)
+    children = relationship("ProjectDocument", backref="parent", passive_deletes=True, lazy='joined')
 
 
 class ProjectDocument(Base):
@@ -48,5 +48,5 @@ class ProjectDocument(Base):
                                    comment='primary key uuid for a project')
     s3_path = Column(String, comment='path to document in s3 storage system')
     filename = Column(String, comment='filename of the document')
-    project_uuid = Column(Integer, ForeignKey(Project.project_uuid),
+    project_uuid = Column(UUID, ForeignKey(Project.project_uuid),
                           comment='foreign key to the project this document is associated with')

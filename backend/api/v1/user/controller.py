@@ -10,7 +10,7 @@ logger = logging.getLogger("user")
 def get_create_user_map_layer(db: Session, user_idir):
     """ get or create user map layer based on idir """
 
-    user_map_layer = db.query(UserMapLayer).filter(UserMapLayer.user_uuid == user_idir).first()
+    user_map_layer = db.query(UserMapLayer).filter(UserMapLayer.user_idir == user_idir).first()
     if not user_map_layer:
         date = datetime.now()
         user_map_layer = UserMapLayer(
@@ -22,32 +22,6 @@ def get_create_user_map_layer(db: Session, user_idir):
         db.commit()
 
     return user_map_layer
-
-
-# TODO: Remove this once auth middleware is in place
-def get_create_user(db: Session, user_uuid, user_idir):
-    """ get or create user based on idir """
-
-    user = db.query(User).filter(User.user_uuid == user_uuid).first()
-    if not user:
-        date = datetime.now()
-        user = User(
-            user_uuid=user_uuid,
-            user_idir=user_idir,
-            create_date=date,
-            update_date=date
-        )
-        db.add(user)
-        db.commit()
-
-    map_layer = get_create_user_map_layer(db, user_idir)
-
-    result = {
-        **user.__dict__,
-        "default_map_layers": map_layer.default_map_layers
-    }
-
-    return result
 
 
 def update_map_layers(db: Session, user_idir, map_layers):
