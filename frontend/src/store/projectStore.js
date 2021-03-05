@@ -6,7 +6,7 @@ export default {
   state: {
     selectedProject: {},
     projectFiles: [],
-    projects: [],
+    projectsList: [],
     loadingProjects: false,
     downloadingFile: false
   },
@@ -26,7 +26,7 @@ export default {
             project.children = children
             return project
           })
-          commit('setProjects', projects)
+          commit('setProjectsList', projects)
           commit('loadingProjects', false)
         }).catch((e) => {
           console.log('error loading projects', e)
@@ -96,8 +96,8 @@ export default {
     setProjectFiles (state, files) {
       state.projectFiles = files
     },
-    setProjects (state, projects) {
-      state.projects = projects
+    setProjectsList (state, projects) {
+      state.projectsList = projects
     },
     loadingProjects (state, val) {
       state.loadingProjects = val
@@ -109,7 +109,7 @@ export default {
   getters: {
     selectedProject: state => state.selectedProject,
     projectFiles: state => state.projectFiles,
-    projects: state => state.projects,
+    projectsList: state => state.projectsList,
     loadingProjects: state => state.loadingProjects,
     downloadingFile: state => state.downloadingFile
   }

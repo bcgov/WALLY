@@ -20,9 +20,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import ApiService from '../../services/ApiService'
 import FileBrowser from '../filebrowser/FileBrowser'
-import moment from 'moment'
 
 export default {
   name: 'ProjectList',
@@ -73,36 +71,7 @@ export default {
     }
   },
   methods: {
-    ...mapGetters('map', ['isMapReady']),
-    fetchProjectsData () {
-      this.projectsLoading = true
-      moment()
-      ApiService.query(`/api/v1/projects`)
-        .then(r => {
-          console.log(r.data)
-          this.projectsData = r.data
-          this.projectsLoading = false
-        })
-        .catch(e => {
-          this.projectsLoading = false
-          console.error(e)
-        })
-    }
-  },
-  watch: {
-    isMapReady (value) {
-      if (value) {
-        this.fetchProjectsData()
-      }
-    }
-  },
-  mounted () {
-    this.fetchProjectsData()
-    if (this.isMapReady()) {
-    }
-  },
-  beforeDestroy () {
-
+    ...mapGetters('map', ['isMapReady'])
   }
 }
 </script>

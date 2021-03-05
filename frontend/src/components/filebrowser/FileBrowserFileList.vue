@@ -126,10 +126,9 @@ export default {
     }
   },
   watch: {
-    selectedProject (value) {
-      if (value) {
-        // console.log(value)
-        this.getProjectFiles(value[0])
+    selectedProject (project) {
+      if (project) {
+        this.getProjectFiles(project.project_uuid)
       }
     },
     downloadingFile (value) {
