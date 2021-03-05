@@ -78,6 +78,7 @@ class Settings(BaseSettings):
 
     # Other app settings
     sql_alchemy_debug = False
+    local_development = False
 
     class Config:
         env_file = ".env"
