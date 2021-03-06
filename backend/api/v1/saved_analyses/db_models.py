@@ -26,7 +26,7 @@ class SavedAnalysis(Base):
     _geometry = Column('geometry', Geometry, comment='Geometry of the analysis', nullable=False)
     feature_type = Column(String, comment='Feature used for the analysis', nullable=False)
     zoom_level = Column(Numeric, comment='Zoom level', nullable=False)
-    project_id = Column(Integer, ForeignKey(Project.project_id))
+    project_uuid = Column(UUID(), ForeignKey(Project.project_uuid))
     user_id = Column(UUID(), ForeignKey(User.user_uuid),
                      comment='foreign key to the user who created this project')
     deleted_on = Column(

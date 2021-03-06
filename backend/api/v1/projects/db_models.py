@@ -1,7 +1,11 @@
 from sqlalchemy import String, Column, DateTime, ARRAY, TEXT, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from api.db.base_class import BaseTable
+from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from api.v1.user.db_models import User
+
+import uuid
 
 
 class Base(object):
@@ -21,19 +25,28 @@ class Project(Base):
     __tablename__ = 'project'
     __table_args__ = {'schema': 'public'}
 
-    project_id = Column(Integer, primary_key=True, comment='primary key id for a project')
-    name = Column(String, comment='name of the project')              
+    project_uuid = Column(UUID(as_uuid=True), 
+                          primary_key=True, 
+                          default=uuid.uuid4, 
+                          unique=True, 
+                          comment='primary key id for a project')
+    name = Column(String, comment='name of the project')
     description = Column(String, comment='description of the project')
-    user_uuid = Column(UUID(), ForeignKey('user.user_uuid'),
-                          comment='User who owns this project')
+    user_uuid = Column(UUID, ForeignKey(User.user_uuid),
+                      comment='User who owns this project')
+    children = relationship("ProjectDocument", backref="parent", passive_deletes=True, lazy='joined')
 
 
 class ProjectDocument(Base):
     __tablename__ = 'project_document'
     __table_args__ = {'schema': 'public'}
 
-    project_document_id = Column(Integer, primary_key=True, comment='primary key id for a project')
-    s3_path = Column(String, comment='path to document in s3 storage system')              
+    project_document_uuid = Column(UUID(as_uuid=True),
+                                   primary_key=True,
+                                   default=uuid.uuid4,
+                                   unique=True,
+                                   comment='primary key uuid for a project')
+    s3_path = Column(String, comment='path to document in s3 storage system')
     filename = Column(String, comment='filename of the document')
-    project_id = Column(Integer, ForeignKey('project.project_id'),
+    project_uuid = Column(UUID, ForeignKey(Project.project_uuid),
                           comment='foreign key to the project this document is associated with')
