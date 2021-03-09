@@ -1,4 +1,5 @@
 // TODO: change to api call, or create new array just for map layers
+import debounce from 'lodash.debounce'
 import ApiService from '../services/ApiService'
 import router from '../router'
 import baseMapDescriptions from '../common/utils/baseMapDescriptions'
@@ -239,7 +240,7 @@ export default {
       // for drawn rectangular regions, the polygon describing the rectangle is the first
       // element in the array of drawn features.
       // note: this is what might break if extending the selection tools to draw more objects.
-      dispatch('getMapObjects', { bounds: newFeature, options: { alwaysReplaceFeatures: options.alwaysReplaceFeatures } })
+      dispatch('handleGetMapObjects', { bounds: newFeature, options: { alwaysReplaceFeatures: options.alwaysReplaceFeatures } })
       commit('setSelectionBoundingBox', newFeature, { root: true })
     },
     updateActiveMapLayers ({ commit, state, dispatch }, selectedLayers) {
@@ -322,6 +323,10 @@ export default {
         })
       }
     },
+    handleGetMapObjects:
+      debounce(async function ({ dispatch }, { bounds, options }) {
+        dispatch('getMapObjects', { bounds, options })
+      }, 1000),
     async getMapObjects ({ commit, dispatch, state, getters }, { bounds, options = {} }) {
       // TODO: Separate activeMaplayers by activeWMSLayers and activeDataMartLayers
       // options:
@@ -353,7 +358,7 @@ export default {
         if (options.alwaysReplaceFeatures) {
           commit('clearDataMartFeatures', {}, { root: true })
         }
-
+        commit('replaceOldFeatures', bounds.id)
         global.config.debug && console.log('[wally]', bounds)
 
         dispatch('getDataMartFeatures', {

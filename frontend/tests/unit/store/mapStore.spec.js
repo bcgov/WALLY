@@ -151,6 +151,19 @@ describe('Map Store', () => {
     expect(store.commit).toHaveBeenCalledWith('activateLayer', 'test3')
   })
 
+
+  it('getMapObjects triggers a replace of old features so there are never two search areas on the map at once ', () => {
+    store.commit = jest.fn()
+    // store.dispatch = jest.fn()
+
+    // set up basic map parameters for the test
+    store.state.mode = { type: 'interactive' }
+    store.state.map = { getCanvas: () => ({ width: 100, height: 100 }) }
+
+    store.actions.getMapObjects(store, { bounds: { id: 'testfeature' } })
+    expect(store.commit).toHaveBeenCalledTimes(1)
+  })
+
   it('addActiveSelection commits the new feature to state', () => {
     const testFeatureCollection = { features: [
       {
