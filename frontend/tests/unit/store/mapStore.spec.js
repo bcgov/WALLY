@@ -152,7 +152,7 @@ describe('Map Store', () => {
   })
 
 
-  it('getMapObjects triggers a replace of old features so there are never two search areas on the map at once ', () => {
+  it('getMapObjects triggers a replace of old features so there are never two search areas on the map at once ', async () => {
     store.commit = jest.fn()
     // store.dispatch = jest.fn()
 
@@ -160,8 +160,9 @@ describe('Map Store', () => {
     store.state.mode = { type: 'interactive' }
     store.state.map = { getCanvas: () => ({ width: 100, height: 100 }) }
 
-    store.actions.getMapObjects(store, { bounds: { id: 'testfeature' } })
-    expect(store.commit).toHaveBeenCalledTimes(1)
+    store.actions.getMapObjects(store, { bounds: { id: 'testFeature' } })
+    await localVue.nextTick()
+    expect(store.commit).toHaveBeenCalledWith('replaceOldFeatures', 'testFeature')
   })
 
   it('addActiveSelection commits the new feature to state', () => {
