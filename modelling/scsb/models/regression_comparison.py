@@ -21,7 +21,7 @@ zone_27_df = pd.read_csv("../data/scsb_zone_27.csv")
 month_dependant_variables = ['jan_dist','feb_dist','mar_dist','apr_dist','may_dist','jun_dist','jul_dist','aug_dist','sep_dist','oct_dist','nov_dist','dec_dist']
 
 data = zone_26_df
-dependant_variable = 'may_dist'
+dependant_variable = 'mean_annual_runoff'
 
 # features_df = data[['annual_precipitation', 'drainage_area', 'median_elevation', \
 #   'average_slope', 'glacial_coverage', 'potential_evapo_transpiration', dependant_variable]]
@@ -46,19 +46,21 @@ lin = LinearRegression()
 lin.fit(X_train, y_train)
 lin_pred = lin.predict(X_test)
 print('Score Linear Regressor', lin.score(X_test, y_test))
-
+lin_output = lin.predict(X)
 
 dtr = DecisionTreeRegressor(random_state=42)
 dtr.fit(X_train, y_train)
 dtr_pred = dtr.predict(X_test)
 print('Score Decision Tree Regressor', dtr.score(X_test, y_test))
-# print('R2 Decision Tree Regressor', r2_score(y_test, dtr_pred))
-# # Mean square error Decision Tree Regressor
-# dtr_mse = MSE(y_test, dtr_pred)
-# print('Mean Suqare Error Decision Tree Regressor', dtr_mse)
-# # Root mean square error Decision Tree Regressor
-# dtr_rmse = math.sqrt(dtr_mse)
-# print('Root Mean Suqare Error Decision Tree Regressor', dtr_rmse)
+print('R2 Decision Tree Regressor', r2_score(y_test, dtr_pred))
+# Mean square error Decision Tree Regressor
+dtr_mse = MSE(y_test, dtr_pred)
+print('Mean Square Error Decision Tree Regressor', dtr_mse)
+# Root mean square error Decision Tree Regressor
+dtr_rmse = math.sqrt(dtr_mse)
+print('Root Mean Square Error Decision Tree Regressor', dtr_rmse)
+dtr_output = dtr.predict(X)
+print()
 
 
 xgb = XGBRegressor(random_state=42)
@@ -66,20 +68,59 @@ xgb.fit(X_train, y_train)
 xgb_pred = xgb.predict(X_test)
 print('Score XGBoost Regressor', xgb.score(X_test, y_test))
 # Mean square error XGBoost Regressor
-# xgb_mse = MSE(y_test, xgb_pred)
-# print('Mean Suqare Error XGBoost Regressor', xgb_mse)
+xgb_mse = MSE(y_test, xgb_pred)
+print('Mean Square Error XGBoost Regressor', xgb_mse)
 # Root mean square error XGBoost Regressor
-# xgb_rmse = math.sqrt(xgb_mse)
-# print('Root Mean Suqare Error XGBoost Regressor', xgb_rmse)
-
+xgb_rmse = math.sqrt(xgb_mse)
+print('Root Mean Square Error XGBoost Regressor', xgb_rmse)
+print()
+# print(xgb_pred)
+xgb_output = xgb.predict(X)
 
 rfr = RandomForestRegressor(random_state=42)
 rfr.fit(X_train, y_train)
 rfr_pred = rfr.predict(X_test)
+
 print('Score Random Forest Regressor', rfr.score(X_test, y_test))
-# # Mean square error Random Forest Regressor
-# rfr_mse = MSE(y_test, rfr_pred)
-# print('Mean Suqare Error Random Forest Regressor', rfr_mse)
-# # Root mean square error Random Forest Regressor
-# rfr_rmse = math.sqrt(rfr_mse)
-# print('Root Mean Suqare Error Random Forest Regressor', rfr_rmse)
+# Mean square error Random Forest Regressor
+rfr_mse = MSE(y_test, rfr_pred)
+print('Mean Square Error Random Forest Regressor', rfr_mse)
+# Root mean square error Random Forest Regressor
+rfr_rmse = math.sqrt(rfr_mse)
+print('Root Mean Square Error Random Forest Regressor', rfr_rmse)
+print()
+# print(rfr_pred)
+rfr_output = rfr.predict(X)
+
+# Output comparisons
+output_df = pd.DataFrame()
+output_df[['id', 'name']] = data[['id', 'name']]
+output_df['SCSB'] = y
+output_df['SK_LINEAR'] = lin_output
+output_df['SK_RANDOMFOREST'] = rfr_output
+output_df['SK_DECISIONTREE'] = dtr_output
+output_df['XGBOOST'] = xgb_output
+
+output_df = output_df.round(2)
+output_df = output_df.set_index('id')
+output_df.to_csv('zone26-models-comparison.csv')
+
+data = data.drop_duplicates(subset=['name'])
+
+# plt.clf()
+start = 16
+end = 30
+data = data.iloc[start:end]
+
+plt.plot(data['name'], y.iloc[start:end], 'go', label='SCSB', color='blue', alpha=0.5)
+plt.plot(data['name'], rfr_output[start:end], 'go', label='SK_RANDOMFOREST', color='red', alpha=0.5)
+plt.plot(data['name'], dtr_output[start:end], 'go', label='SK_DECISIONTREE', color='green', alpha=0.5)
+plt.plot(data['name'], xgb_output[start:end], 'go', label='XGBOOST', color='black', alpha=0.5)
+plt.legend(loc='best')
+# plt.xticks(data['name'],"")
+plt.xlabel('GNIS Name')
+plt.ylabel('MAR')
+plt.show()
+
+
+
