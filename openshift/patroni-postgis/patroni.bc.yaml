@@ -1,0 +1,43 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewBuild
+  labels:
+    build: patroni-postgis
+  name: patroni-postgis
+  namespace: bfpeyx-tools
+spec:
+  failedBuildsHistoryLimit: 5
+  output:
+    to:
+      kind: ImageStreamTag
+      name: patroni-postgis:10-postgis2.5-v2
+  postCommit: {}
+  resources:
+    limits:
+      cpu: "2"
+    requests:
+      cpu: "1"
+  runPolicy: Serial
+  source:
+    contextDir: openshift/patroni-postgis
+    git:
+      ref: master
+      uri: git@github.com:bcgov-c/wally.git
+    secrets:
+    - destinationDir: .
+      secret:
+        name: wally-at-github
+    sourceSecret:
+      name: wally-at-github
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        kind: DockerImage
+        name: postgres:10
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - type: ConfigChange

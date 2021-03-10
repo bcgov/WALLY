@@ -261,7 +261,7 @@ parameters:
   value: bfpeyx-tools
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
-  value: patroni-postgis:10-postgis2.5
+  value: patroni-postgis:10-postgis2.5-v2
 - description: The size of the persistent volume to create.
   displayName: Persistent Volume Size
   name: PVC_SIZE
