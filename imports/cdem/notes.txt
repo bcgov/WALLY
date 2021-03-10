@@ -1,0 +1,45 @@
+
+The following gdal command gives you background information on the geo raster file you're looking at.
+gdalinfo ./cdem_12sec.tif 
+
+gdalinfo cdem_12sec.tif 
+Driver: GTiff/GeoTIFF
+Files: cdem_12sec.tif
+Size is 26850, 12525
+Coordinate System is:
+GEOGCRS["NAD83(CSRS98)",
+    DATUM["NAD83 Canadian Spatial Reference System",
+        ELLIPSOID["GRS 1980",6378137,298.257222100887,
+            LENGTHUNIT["metre",1]]],
+    PRIMEM["Greenwich",0,
+        ANGLEUNIT["degree",0.0174532925199433]],
+    CS[ellipsoidal,2],
+        AXIS["geodetic latitude (Lat)",north,
+            ORDER[1],
+            ANGLEUNIT["degree minute second hemisphere",0.0174532925199433]],
+        AXIS["geodetic longitude (Long)",east,
+            ORDER[2],
+            ANGLEUNIT["degree minute second hemisphere",0.0174532925199433]],
+    ID["EPSG",4140]]
+Data axis to CRS axis mapping: 2,1
+Origin = (-142.000208333333006,83.250104166666702)
+Pixel Size = (0.003333333333333,-0.003333333333333)
+Metadata:
+  AREA_OR_POINT=Area
+Image Structure Metadata:
+  INTERLEAVE=BAND
+Corner Coordinates:
+Upper Left  (-142.0002083,  83.2501042) (142d 0' 0.75"W, 83d15' 0.38"N)
+Lower Left  (-142.0002083,  41.5001042) (142d 0' 0.75"W, 41d30' 0.38"N)
+Upper Right ( -52.5002083,  83.2501042) ( 52d30' 0.75"W, 83d15' 0.38"N)
+Lower Right ( -52.5002083,  41.5001042) ( 52d30' 0.75"W, 41d30' 0.38"N)
+Center      ( -97.2502083,  62.3751042) ( 97d15' 0.75"W, 62d22'30.38"N)
+Band 1 Block=26850x1 Type=Float32, ColorInterp=Gray
+  NoData Value=-32767
+
+
+This command imports the dem raster into postgres
+DEMs should have their own schema "dem" with the table name as the data source name ex. "cdem"
+
+raster2pgsql -s 4140 -t 100x100 -I -C -Y "./cdem_12sec.tif" dem.cdem | PGPASSWORD=<password> psql --user wally -d wally -h <host>
+

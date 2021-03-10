@@ -25,10 +25,11 @@ from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.watersheds.prism import mean_annual_precipitation
+from api.v1.watersheds.cdem import mean_elevation
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
@@ -1083,6 +1084,10 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
 
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
+
+    polygon_4140 = transform(transform_4326_4140, watershed_poly)
+    mean_elev = mean_elevation(db, polygon_4140)
+    print("MEAN ELEVATION", mean_elev)
 
     # slope elevation aspect
     average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
