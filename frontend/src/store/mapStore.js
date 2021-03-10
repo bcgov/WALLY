@@ -1,4 +1,3 @@
-// TODO: change to api call, or create new array just for map layers
 import debounce from 'lodash.debounce'
 import ApiService from '../services/ApiService'
 import router from '../router'
