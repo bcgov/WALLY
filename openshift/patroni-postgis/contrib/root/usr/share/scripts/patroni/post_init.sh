@@ -11,7 +11,7 @@ if [[ (! -z "$APP_USER") &&  (! -z "$APP_PASSWORD") && (! -z "$APP_DATABASE")]];
   echo "Creating PostGIS extension"
   psql $APP_DATABASE -w -c "CREATE EXTENSION IF NOT EXISTS POSTGIS"
   psql $APP_DATABASE -w -c "CREATE EXTENSION IF NOT EXISTS pg_trgm"
-  psql $APP_DATABASE -w -c "CREATE EXTENSION IF NOT EXISTS uuid-ossp"
+  psql $APP_DATABASE -w -c "CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\""
 
 else
   echo "Skipping user creation"
