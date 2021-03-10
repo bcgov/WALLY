@@ -7,7 +7,7 @@ FROM registry.hub.docker.com/library/postgres:10
 ARG PGHOME=/home/postgres
 
 ENV POSTGIS_MAJOR 2.5
-ENV POSTGIS_VERSION 2.5.4+dfsg-1.pgdg90+1
+ENV POSTGIS_VERSION 2.5.5+dfsg-1.pgdg90+2
 
 RUN export DEBIAN_FRONTEND=noninteractive \
     && echo 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01norecommend \
