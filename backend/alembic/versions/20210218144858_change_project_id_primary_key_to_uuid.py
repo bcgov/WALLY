@@ -26,29 +26,28 @@ def upgrade():
 
     op.drop_column('project_document', 'project_document_id')
 
-    op.add_column('project_document', Column('project_document_uuid', UUID(),
-             server_default=sa.text("uuid_generate_v4()"), primary_key=True,
-             comment="Project document identifier"))
+    op.add_column('project_document', Column('project_document_uuid', UUID(), primary_key=True,
+                                             comment="Project document identifier"))
 
     op.add_column('project', Column('project_uuid', UUID(), primary_key=True,
-                   server_default=sa.text("uuid_generate_v4()"), unique=True,
-                   comment="Project identifier"))
+                                    unique=True,
+                                    comment="Project identifier"))
 
     op.add_column('project_document',
                   Column('project_uuid', UUID(), ForeignKey('project.project_uuid'),
                          comment="Project that this document relates to"))
 
     op.add_column('saved_analysis',
-                      Column('project_uuid', UUID(), ForeignKey('project.project_uuid'),
-                             comment="Project that this saved_analysis relates to"))
+                  Column('project_uuid', UUID(), ForeignKey('project.project_uuid'),
+                         comment="Project that this saved_analysis relates to"))
 
 
 def downgrade():
     op.add_column('project_document', Column('project_document_id', Integer,
-                  primary_key=True, comment="Project document identifier"))
+                                             primary_key=True, comment="Project document identifier"))
 
     op.add_column('project', Column('project_id', Integer, primary_key=True,
-               comment="Project identifier"))
+                                    comment="Project identifier"))
 
     op.drop_column('project_document', 'project_uuid')
     op.drop_column('saved_analysis', 'project_uuid')
@@ -59,5 +58,5 @@ def downgrade():
                          comment="Project that this document relates to"))
 
     op.add_column('saved_analysis',
-              Column('project_id', Integer, ForeignKey('project.project_id'),
-                     comment="Project that this saved_analysis relates to"))
+                  Column('project_id', Integer, ForeignKey('project.project_id'),
+                         comment="Project that this saved_analysis relates to"))
