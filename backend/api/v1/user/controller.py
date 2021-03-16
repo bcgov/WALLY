@@ -24,10 +24,10 @@ def get_create_user_map_layer(db: Session, user_idir):
     return user_map_layer
 
 
-def update_map_layers(db: Session, user_idir, map_layers):
+def update_map_layers(db: Session, user, map_layers):
     """ updates user default map layers from string array """
 
-    db.query(UserMapLayer).filter(UserMapLayer.user_idir == user_idir) \
+    db.query(UserMapLayer).filter(UserMapLayer.user_idir == user.user_idir) \
         .update({UserMapLayer.default_map_layers: map_layers})
 
     db.commit()
