@@ -32,15 +32,15 @@ start_time = time.time()
 #   'average_slope', 'glacial_coverage', 'potential_evapo_transpiration', dependant_variable]]
 
 # zone 25 independant variables
-# features_df = data[['annual_precipitation', 'glacial_coverage', 'potential_evapo_transpiration', dependant_variable]]
+# features_df = data[['annual_precipitation', 'drainage_area', 'average_slope', dependant_variable]]
 
 # zone 26 independant variables
-# features_df = data[['median_elevation', 'glacial_coverage', 'annual_precipitation', 'potential_evapo_transpiration', dependant_variable]]
+# features_df = data[['glacial_coverage', 'annual_precipitation', 'potential_evapo_transpiration', dependant_variable]]
 
 # zone 27 independant variables
-# features_df = data[['median_elevation', 'annual_precipitation', 'average_slope', dependant_variable]]
-features_df = data[['median_elevation', 'solar_exposure', 'glacial_coverage', 'annual_precipitation', 'potential_evapo_transpiration', 'average_slope', 'drainage_area', dependant_variable]]
-
+features_df = data[['median_elevation', 'annual_precipitation', 'average_slope', dependant_variable]]
+# features_df = data[['median_elevation', 'solar_exposure', 'glacial_coverage', 'annual_precipitation', 'potential_evapo_transpiration', 'average_slope', 'drainage_area', dependant_variable]]
+# cdem is trim dataset
 
 X = features_df.drop([dependant_variable], axis=1)
 y = features_df.get(dependant_variable)
@@ -50,15 +50,18 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random
 lin = LinearRegression()
 lin.fit(X_train, y_train)
 lin_pred = lin.predict(X_test)
-print('Score Linear Regressor', lin.score(X_test, y_test))
-lin_output = lin.predict(X)
 print()
+print('One Shot Pass')
+print('R2 value:', lin.score(X_test, y_test))
+lin_output = lin.predict(X)
 print(lin.coef_)
 print(lin.intercept_)
+print()
 
 # TODO Does running k fold, reduce the importance of variables. See if any algorithms drop importance
 # average flow compared to normal flow, Look at HYDAT and normalization, 
 folds = 10
+best_model = {}
 max_r2, min_r2, acc_r2 = 0, math.inf, []
 kfold = KFold(n_splits=folds, shuffle=True, random_state=42)
 for train_index, test_index in kfold.split(X, y):
@@ -75,12 +78,17 @@ for train_index, test_index in kfold.split(X, y):
     acc_r2.append(score)
     if score > max_r2:
         max_r2 = score
+        best_model = model
     if score < min_r2:
         min_r2 = score
 
 avg_r2_score = sum(acc_r2)/folds
+print('Cross Validation Pass')
 print('r2 of each fold - {}'.format(acc_r2))
 print('R2 values:')
 print("min:", min_r2)
 print('avg: {}'.format(avg_r2_score))
-print("max:", max_r2) 
+print("max:", max_r2)
+print("Best coefficients:")
+print(best_model.coef_)
+print(best_model.intercept_)

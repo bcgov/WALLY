@@ -15,7 +15,7 @@ zone_27_df = pd.read_csv("../data/scsb_zone_27.csv")
 
 month_dependant_variables = ['jan_dist','feb_dist','mar_dist','apr_dist','may_dist','jun_dist','jul_dist','aug_dist','sep_dist','oct_dist','nov_dist','dec_dist']
 
-data = zone_27_df
+data = zone_25_df
 dependant_variable = 'mean_annual_runoff'
 start_time = time.time()
 
@@ -35,7 +35,10 @@ features_df = data[['median_elevation', 'solar_exposure', 'glacial_coverage', 'a
 X = features_df.drop([dependant_variable], axis=1)
 y = features_df.get(dependant_variable)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
+X = X.tail(30)
+y = y.tail(30)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, random_state=42)
 
 # One Time Split
 xgb = XGBRegressor(random_state=42)
@@ -54,7 +57,7 @@ max_r2, min_r2, acc_r2 = 0, math.inf, []
 kfold = KFold(n_splits=folds, shuffle=True, random_state=42)
 for train_index, test_index in kfold.split(X, y):
     # print("--- %s seconds ---" % (time.time() - start_time))
-    # print("TRAIN:", train_index, "TEST:", test_index)
+    print("TRAIN:", train_index, "TEST:", test_index)
 
     X_train , X_test = X.iloc[train_index,:],X.iloc[test_index,:]
     y_train , y_test = y[train_index] , y[test_index]
