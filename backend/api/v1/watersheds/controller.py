@@ -781,13 +781,13 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     return (slope, median_elevation, aspect)
 
 
-def get_hillshade(slope: float, aspect: float):
+def get_hillshade(slope_rad: float, aspect_rad: float):
     """
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
 
-    if slope is None or aspect is None:
+    if slope_rad is None or aspect_rad is None:
         return None
 
     azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
@@ -795,9 +795,9 @@ def get_hillshade(slope: float, aspect: float):
     azimuth_rad = azimuth * math.pi / 2.
     altitude_rad = altitude * math.pi / 180.
 
-    shade_value = math.sin(altitude_rad) * math.sin(slope) \
-        + math.cos(altitude_rad) * math.cos(slope) \
-        * math.cos((azimuth_rad - math.pi / 2.) - aspect)
+    shade_value = math.sin(altitude_rad) * math.sin(slope_rad) \
+        + math.cos(altitude_rad) * math.cos(slope_rad) \
+        * math.cos((azimuth_rad - math.pi / 2.) - aspect_rad)
 
     return abs(shade_value)
 
@@ -1087,13 +1087,15 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
 
     polygon_4140 = transform(transform_4326_4140, watershed_poly)
     mean_elev = mean_elevation(db, polygon_4140)
-    avg_slope = average_slope(db, polygon_4140)
+    avg_slope_perc = average_slope(db, polygon_4140)
     aspect = mean_aspect(db, polygon_4140)
-    solar_exposure = get_hillshade(avg_slope, aspect)
+
+    slope_radians = math.atan(avg_slope_perc/100) * (math.pi/180)
+    solar_exposure = get_hillshade(slope_radians, aspect)
 
     if WATERSHED_DEBUG:
         logger.info("median elevation %s", mean_elev)
-        logger.info("average slope %s", avg_slope)
+        logger.info("average slope %s", avg_slope_perc)
         logger.info("aspect %s", aspect)
         logger.info("solar exposure %s", solar_exposure)
 
@@ -1108,7 +1110,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
         "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
         "hydrological_zone": hydrological_zone,
-        "average_slope": avg_slope,
+        "average_slope": avg_slope_perc,
         "solar_exposure": solar_exposure,
         "median_elevation": mean_elev,
         "aspect": aspect

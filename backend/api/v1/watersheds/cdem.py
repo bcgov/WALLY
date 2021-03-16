@@ -10,7 +10,7 @@ logger = logging.getLogger('cdem')
 
 
 def mean_elevation(db: Session, area: Polygon):
-    """ finds the mean elevation from CDEM for a given area
+    """ finds the mean elevation in METERS from CDEM for a given area
         area should be a polygon with SRID 4140.
     """
 
@@ -48,7 +48,7 @@ def mean_elevation(db: Session, area: Polygon):
 
 
 def average_slope(db: Session, area: Polygon):
-    """ finds the mean slope from CDEM for a given area
+    """ finds the mean slope in PERCENT from CDEM for a given area
         area should be a polygon with SRID 4140.
     """
 
@@ -64,7 +64,7 @@ def average_slope(db: Session, area: Polygon):
         inner join
                 ST_GeomFromText(:area, 4140) as geom
         on      ST_Intersects(cdem.rast, geom),
-                ST_ValueCount(ST_Slope(ST_Clip(cdem.rast,geom),1,'32BF'))
+                ST_ValueCount(ST_Slope(ST_Clip(cdem.rast,geom),1,'32BF','PERCENT'))
         as vc
         group by (vc).value
         order by (vc).value
@@ -73,19 +73,19 @@ def average_slope(db: Session, area: Polygon):
     from    slope;
     """
 
-    avg_slope = db.execute(q, {"area": area.wkt})
-    avg_slope = avg_slope.fetchone()
-    if not avg_slope or not avg_slope[0]:
+    avg_slope_perc = db.execute(q, {"area": area.wkt})
+    avg_slope_perc = avg_slope_perc.fetchone()
+    if not avg_slope_perc or not avg_slope_perc[0]:
         raise Exception(
             "mean slope could not be found using CDEM")
-    avg_slope = avg_slope[0]
-    logger.info("found CDEM mean slope: %s", avg_slope)
+    avg_slope_perc = avg_slope_perc[0]
+    logger.info("found CDEM mean slope: %s", avg_slope_perc)
 
-    return avg_slope
+    return avg_slope_perc
 
 
 def mean_aspect(db: Session, area: Polygon):
-    """ finds the mean aspect from CDEM for a given area
+    """ finds the mean aspect in RADIANS from CDEM for a given area
         area should be a polygon with SRID 4140.
     """
 
@@ -101,7 +101,7 @@ def mean_aspect(db: Session, area: Polygon):
         inner join
                 ST_GeomFromText(:area, 4140) as geom
         on      ST_Intersects(cdem.rast, geom),
-                ST_ValueCount(ST_Aspect(ST_Clip(cdem.rast,geom),1,'32BF'))
+                ST_ValueCount(ST_Aspect(ST_Clip(cdem.rast,geom),1,'32BF','RADIANS'))
         as vc
         group by (vc).value
         order by (vc).value
