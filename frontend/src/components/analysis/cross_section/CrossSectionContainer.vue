@@ -1,11 +1,14 @@
 <template>
   <v-container class="pt-3">
     <v-toolbar flat>
-      <v-banner color="indigo"
-                icon="mdi-vector-line"
-                icon-color="white"
-                width="100%"
-      >
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+            icon="mdi-vector-line"
+            color="white">
+            mdi-vector-line
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>
           Plot a cross section between wells
         </v-toolbar-title>

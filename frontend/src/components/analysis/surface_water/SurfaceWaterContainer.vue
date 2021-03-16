@@ -1,11 +1,14 @@
 <template>
   <v-container>
     <v-toolbar flat>
-      <v-banner color="indigo"
-                icon="mdi-chart-bar"
-                icon-color="white"
-                width="100%"
-      >
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+          icon="mdi-chart-bar"
+          color="white">
+            mdi-chart-bar
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>
           Analyze surface water availability
         </v-toolbar-title>

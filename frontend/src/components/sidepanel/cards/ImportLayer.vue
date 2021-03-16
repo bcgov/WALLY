@@ -1,7 +1,14 @@
 <template>
   <v-container class="pt-5">
     <v-toolbar flat>
-      <v-banner color="indigo" icon="mdi-cloud-upload" icon-color="white" width="100%">
+      <v-banner width="100%">
+        <v-avatar slot="icon" color="indigo">
+          <v-icon
+            icon="mdi-cloud-upload"
+            color="white">
+            mdi-cloud-upload
+          </v-icon>
+        </v-avatar>
         <v-toolbar-title>Import file or data</v-toolbar-title>
       </v-banner>
     </v-toolbar>
