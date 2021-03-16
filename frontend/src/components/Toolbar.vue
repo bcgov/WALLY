@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-toolbar fixed class="wally-toolbar" short>
+    <v-toolbar fixed id="wally-toolbar" short>
       <v-toolbar-items class="py-2">
 
         <v-menu
@@ -83,5 +83,10 @@ export default {
 <style lang="scss">
 .layer-selection-menu {
   max-height: 60vh;
+}
+#wally-toolbar {
+  box-shadow: inset 0 -1px 0 grey;
+  z-index: 3;
+  position: relative;
 }
 </style>
