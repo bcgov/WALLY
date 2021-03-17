@@ -43,3 +43,8 @@ DEMs should have their own schema "dem" with the table name as the data source n
 
 raster2pgsql -s 4140 -t 100x100 -I -C -Y "./cdem_12sec.tif" dem.cdem | PGPASSWORD=<password> psql --user wally -d wally -h <host>
 
+raster2pgsql -s 4140 -t 1350x530 -I -C -Y "./Whistler_CDEM.tif"
+
+CREATE TABLE dem.cdem ("rid" serial PRIMARY KEY,"rast" raster);
+INSERT INTO dem.cdem (rid, rast) VALUES (1, '');
+CREATE INDEX ON dem.cdem USING gist (st_convexhull("rast"));
