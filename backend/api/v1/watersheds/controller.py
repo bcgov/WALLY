@@ -29,7 +29,7 @@ from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, 
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.watersheds.prism import mean_annual_precipitation
-from api.v1.watersheds.cdem import mean_elevation, average_slope, mean_aspect
+from api.v1.watersheds.cdem import average_slope, mean_aspect, median_elevation, raster_summary_stats
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
@@ -775,10 +775,10 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     sea = result["SlopeElevationAspectResult"]
 
     slope = sea["slope"]
-    median_elevation = sea["averageElevation"]
+    median_elev = sea["averageElevation"]
     aspect = sea["aspect"]
 
-    return (slope, median_elevation, aspect)
+    return (slope, median_elev, aspect)
 
 
 def get_hillshade(slope_rad: float, aspect_rad: float):
@@ -1086,16 +1086,20 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
     polygon_4140 = transform(transform_4326_4140, watershed_poly)
-    mean_elev = mean_elevation(db, polygon_4140)
-    avg_slope_perc = average_slope(db, polygon_4140)
+
+    elev_stats = raster_summary_stats(db, polygon_4140)
+    median_elev = median_elevation(db, polygon_4140)
+    avg_slope = average_slope(db, polygon_4140)
     aspect = mean_aspect(db, polygon_4140)
 
-    slope_radians = math.atan(avg_slope_perc/100) * (math.pi/180)
+    slope_percent = math.tan(avg_slope) * 100
+    slope_radians = avg_slope * (math.pi/180)
     solar_exposure = get_hillshade(slope_radians, aspect)
 
     if WATERSHED_DEBUG:
-        logger.info("median elevation %s", mean_elev)
-        logger.info("average slope %s", avg_slope_perc)
+        logger.info("elevation stats %s", elev_stats)
+        logger.info("median elevation %s", median_elev)
+        logger.info("average slope %s", slope_percent)
         logger.info("aspect %s", aspect)
         logger.info("solar exposure %s", solar_exposure)
 
@@ -1110,9 +1114,10 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
         "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
         "hydrological_zone": hydrological_zone,
-        "average_slope": avg_slope_perc,
+        "average_slope": slope_percent,
         "solar_exposure": solar_exposure,
-        "median_elevation": mean_elev,
+        "median_elevation": median_elev,
+        "elevation_stats": elev_stats,
         "aspect": aspect
     }
 

@@ -5,12 +5,34 @@
 import logging
 from sqlalchemy.orm import Session
 from shapely.geometry import Polygon
+import numpy as np
 
 logger = logging.getLogger('cdem')
 
 
-def mean_elevation(db: Session, area: Polygon):
-    """ finds the mean elevation in METERS from CDEM for a given area
+def raster_summary_stats(db: Session, area: Polygon):
+    """ finds the elevation stats summary from CDEM for a given area
+        area should be a polygon with SRID 4140.
+    """
+
+    # Use ST_SummaryStats to find a summary of raster stats
+    # https://postgis.net/docs/RT_ST_SummaryStats.html
+    q = """
+        select ST_SummaryStats(ST_Clip(cdem.rast,ST_GeomFromText(:area, 4140))) FROM dem.cdem
+    """
+
+    stats = db.execute(q, {"area": area.wkt})
+    stats = stats.fetchone()
+    if not stats:
+        raise Exception(
+            "elevation stats could not be found using CDEM")
+    logger.info("found CDEM elevation stats: %s", stats)
+
+    return stats
+
+
+def median_elevation(db: Session, area: Polygon):
+    """ finds the median elevation in METERS from CDEM for a given area
         area should be a polygon with SRID 4140.
     """
 
@@ -32,23 +54,23 @@ def mean_elevation(db: Session, area: Polygon):
         group by (vc).value
         order by (vc).value
     )
-    select  sum(value*tot_pix)/sum(tot_pix) AS avg
-    from    elev;
+    select percentile_cont(0.5) WITHIN GROUP (ORDER BY value) AS median
+    from elev;
     """
 
-    mean_elev = db.execute(q, {"area": area.wkt})
-    mean_elev = mean_elev.fetchone()
-    if not mean_elev or not mean_elev[0]:
+    median_elev = db.execute(q, {"area": area.wkt})
+    median_elev = median_elev.fetchone()
+    if not median_elev or not median_elev[0]:
         raise Exception(
-            "mean elevation could not be found using CDEM")
-    mean_elev = mean_elev[0]
-    logger.info("found CDEM mean elevation: %s", mean_elev)
+            "median elevation could not be found using CDEM")
+    median_elev = median_elev[0]
+    logger.info("found CDEM median elevation: %s", median_elev)
 
-    return mean_elev
+    return median_elev
 
 
 def average_slope(db: Session, area: Polygon):
-    """ finds the mean slope in PERCENT from CDEM for a given area
+    """ finds the mean slope in DEGREES from CDEM for a given area
         area should be a polygon with SRID 4140.
     """
 
@@ -64,12 +86,12 @@ def average_slope(db: Session, area: Polygon):
         inner join
                 ST_GeomFromText(:area, 4140) as geom
         on      ST_Intersects(cdem.rast, geom),
-                ST_ValueCount(ST_Slope(ST_Clip(cdem.rast,geom),1,'32BF','PERCENT'))
+                ST_ValueCount(ST_Slope(ST_Clip(cdem.rast,geom),1,'32BF','DEGREES'))
         as vc
         group by (vc).value
         order by (vc).value
     )
-    select  sum(value*tot_pix)/sum(tot_pix) AS avg
+    select  sum(value)/sum(tot_pix) AS avg
     from    slope;
     """
 
@@ -106,7 +128,7 @@ def mean_aspect(db: Session, area: Polygon):
         group by (vc).value
         order by (vc).value
     )
-    select  sum(value*tot_pix)/sum(tot_pix) AS avg
+    select  sum(value)/sum(tot_pix) AS avg
     from    slope;
     """
 
