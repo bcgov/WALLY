@@ -29,7 +29,7 @@ from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, 
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.watersheds.prism import mean_annual_precipitation
-from api.v1.watersheds.cdem import average_slope, mean_aspect, median_elevation, raster_summary_stats
+from api.v1.watersheds.cdem import CDEM
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
@@ -1086,11 +1086,12 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
     polygon_4140 = transform(transform_4326_4140, watershed_poly)
+    area_cdem = CDEM(polygon_4140)
 
-    elev_stats = raster_summary_stats(db, polygon_4140)
-    median_elev = median_elevation(db, polygon_4140)
-    avg_slope = average_slope(db, polygon_4140)
-    aspect = mean_aspect(db, polygon_4140)
+    elev_stats = area_cdem.get_raster_summary_stats()
+    median_elev = area_cdem.get_median_elevation()
+    avg_slope = area_cdem.get_average_slope()
+    aspect = area_cdem.get_mean_aspect()
 
     slope_percent = math.tan(avg_slope) * 100
     slope_radians = avg_slope * (math.pi/180)
