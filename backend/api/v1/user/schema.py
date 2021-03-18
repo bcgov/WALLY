@@ -6,5 +6,5 @@ from typing import List, Any, Optional
 from geojson import Feature
 
 
-class User(BaseModel):
+class UpdateMapLayers(BaseModel):
     map_layers: Optional[List[str]]

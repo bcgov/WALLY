@@ -58,21 +58,27 @@ MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", False)
 
+
 # Use Pydantic's settings management
 class Settings(BaseSettings):
-    external_import = False
-    external_import_types = ""
-
-    wally_model = False
-    surface_water_design_v2 = True
-
-    projects = False
-
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""
     w_mapbox_style = ""
 
+    # Feature flags
+    # These are overridden by config file, so don't change these unless absolutely necessary
+    external_import = False
+    wally_model = False
+    projects = False
+    saved_analysis = False
     hydraulic_connectivity_custom_stream_points = False
+
+    # Keep this set to true, we need to retire the old design
+    surface_water_design_v2 = True
+
+    # Other app settings
+    sql_alchemy_debug = False
+    local_development = False
 
     class Config:
         env_file = ".env"

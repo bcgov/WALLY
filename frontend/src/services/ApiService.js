@@ -66,6 +66,9 @@ const ApiService = {
   presignedPutUrl (resource, record, filename, isPrivate) {
     return axios.get(`${resource}/${record}/presigned_put_url?filename=${filename}&private=${isPrivate}`)
   },
+  request (config) {
+    return axios.request(config)
+  },
   // fileUpload uploads a file using a pre-signed S3 URL
   fileUpload (presignedUrl, file) {
     const config = {
