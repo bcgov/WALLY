@@ -198,7 +198,7 @@ export default {
         const bounds = circle([e.lngLat['lng'], e.lngLat['lat']], radius, options)
 
         // this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
-        this.getMapObjects({ bounds })
+        this.handleGetMapObjects({ bounds })
       }
     },
     getPolygonCenter (arr) {
@@ -232,7 +232,7 @@ export default {
       'clearHighlightLayer',
       'clearSelections',
       'getMapLayers',
-      'getMapObjects',
+      'handleGetMapObjects',
       'addActiveSelection',
       'handleAddPointSelection',
       'initHighlightLayers',
