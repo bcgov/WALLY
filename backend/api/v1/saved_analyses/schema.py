@@ -59,10 +59,6 @@ class SavedAnalysisCreateUpdate(SavedAnalysisBase):
         return v
 
 
-class SavedAnalysisCreate(SavedAnalysisCreateUpdate):
-    pass
-
-
 class SavedAnalysisUpdate(BaseModel):
     name: str
     description: str

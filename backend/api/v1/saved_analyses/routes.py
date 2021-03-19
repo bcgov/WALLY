@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Header, Body, UploadFile,
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.saved_analyses import controller
-from api.v1.saved_analyses.schema import SavedAnalysisCreate, SavedAnalysisGet, SavedAnalysisUpdate
+from api.v1.saved_analyses.schema import SavedAnalysisCreateUpdate, SavedAnalysisGet, SavedAnalysisUpdate
 from fastapi.encoders import jsonable_encoder
 from api.v1.user.db_models import User
 from api.v1.user.session import get_user
@@ -17,9 +17,9 @@ router = APIRouter()
 
 @router.post("/saved_analyses")
 def create_saved_analysis(
-        saved_analysis: SavedAnalysisCreate,
+        saved_analysis: SavedAnalysisCreateUpdate,
         user: User = Depends(get_user),
-        db: Session = Depends(get_db)) -> SavedAnalysisCreate:
+        db: Session = Depends(get_db)) -> SavedAnalysisCreateUpdate:
 
     return controller.save_analysis(db, user.user_uuid,
                                     saved_analysis.name, saved_analysis.description,
