@@ -14,13 +14,6 @@ from typing import List
 logger = logging.getLogger("saved_analyses")
 
 
-def validate_user(db: Session, user_id: str):
-    # TODO: Deprecate this when auth middleware is in place
-    user = db.query(func.count(User.uuid)).filter(User.uuid == user_id).scalar()
-    if user == 0:
-        raise HTTPException(status_code=HTTP_422_UNPROCESSABLE_ENTITY, detail="Invalid user")
-
-
 def validate_layers(db: Session, layers: List):
     """
     Validate map layers with a single sql query
@@ -35,14 +28,14 @@ def validate_layers(db: Session, layers: List):
         raise HTTPException(status_code=422, detail=f"Invalid map layer(s)")
 
 
-def save_analysis(db: Session, user_id: str,
+def save_analysis(db: Session, user_uuid: UUID,
                   name: str, description: str,
                   geometry: dict, feature_type: str, zoom_level: float,
                   map_layers: [], project_uuid: str = None):
     """
     Create a saved analysis
     :param db: db session
-    :param user_id: owner of this saved analysis
+    :param user_uuid: owner of this saved analysis
     :param name: name of this saved analysis
     :param description: description of this saved analysis
     :param geometry: geometry, usually needed as a starting point by the analysis
@@ -53,10 +46,9 @@ def save_analysis(db: Session, user_id: str,
     :return:
     """
 
-    validate_user(db, user_id)
     validate_layers(db, map_layers)
 
-    analysis = SavedAnalysis(user_id=user_id,
+    analysis = SavedAnalysis(user_uuid=user_uuid,
                              name=name,
                              description=description,
                              _geometry=geometry,
@@ -77,17 +69,17 @@ def save_analysis(db: Session, user_id: str,
     return analysis.saved_analysis_uuid
 
 
-def get_saved_analyses_by_user(db: Session, user_id: str):
+def get_saved_analyses_by_user(db: Session, user_uuid: UUID):
     """
     Get a list of saved analyses for this user
     :param db: db session
-    :param user_id: User id
+    :param user_uuid: User id
     :return: list of saved analyses
     """
     analyses = db.query(
         SavedAnalysis
     ).filter(
-        SavedAnalysis.user_id == user_id,
+        SavedAnalysis.user_uuid == user_uuid,
         SavedAnalysis.deleted_on.is_(None)
     )
 
@@ -129,19 +121,20 @@ def delete_saved_analysis(db: Session, saved_analysis_uuid: UUID):
 
 
 def update_saved_analysis(db: Session, saved_analysis_uuid: UUID,
-                          user_id: str,
+                          user_uuid: UUID,
                           update_data: dict = None):
     """
     Update the saved analysis
     :param update_data:
     :param db: db session
     :param saved_analysis_uuid: the saved analysis uuid
-    :param user_id: the user id
+    :param user_uuid: the user uuid
     """
-    # TODO: Deprecate when auth middleware is in place
-    validate_user(db, user_id)
 
     analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
+
+    if user_uuid != analysis.user_uuid:
+        raise HTTPException(status_code=403, detail=f"You do not have the permissions to modify this saved analysis")
 
     # Replace all map layers if needed
     if update_data['map_layers'] is not None:
