@@ -9,12 +9,19 @@ import geojson
 import json
 import math
 import re
+import os
+import uuid
+import rasterio
+import fiona
+from rasterio.features import shapes
+from whitebox_tools import WhiteboxTools
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Tuple, List
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from operator import add
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
-from shapely.ops import transform
+from shapely.ops import transform, unary_union
 from starlette.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func
@@ -42,6 +49,13 @@ logger = logging.getLogger('WATERSHEDS')
 
 SEC_IN_YEAR = 31536000
 
+# create an instance of WhiteboxTools - a python wrapper for hydrological analysis functions
+# provided by whitebox-tools.  
+# https://github.com/jblindsay/whitebox-tools
+wbt = WhiteboxTools()
+
+# the whitebox_tools cli is installed to /usr/local/bin by the Dockerfile.
+wbt.set_whitebox_dir('/usr/local/bin/')
 
 def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, float]:
     """
@@ -419,6 +433,140 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     return feature
 
 
+def wbt_calculate_watershed(db: Session, point: Point):
+    """
+    Use Whitebox Tools to calculate the upstream drainage area from point
+    """
+
+    rast_q = """
+        SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
+        FROM cdem.cdem WHERE rast && ST_MakeEnvelope(-123.4431147, 50.3377906, -122.3239692, 49.8958591);
+    """
+
+    res = db.execute(rast_q)
+    data = res.first()['rastjpg'].tobytes()
+
+    file_010_dem = NamedTemporaryFile(suffix='.tif')
+    file_010_dem.write(data)
+
+
+    # with rasterio.open(dem_data.name) as dataset:
+    #     data_array = dataset.read()
+
+    # # Register GDAL format drivers and configuration options with a
+    # # context manager.
+    # with rasterio.Env():
+
+    #     # Write an array as a raster band to a new 8-bit file. For
+    #     # the new file's profile, we start with the profile of the source
+    #     profile = data_array.profile
+
+    #     # And then change the band count to 1, set the
+    #     # dtype to uint8, and specify LZW compression.
+    #     profile.update(
+    #         dtype=rasterio.uint8,
+    #         count=1,
+    #         compress='lzw')
+
+    #     with rasterio.open(file_010_dem.name, 'w', **profile) as dem_gtiff:
+    #         dem_gtiff.write(array.astype(rasterio.uint8), 1)
+
+    file_020_dem_filled = NamedTemporaryFile(suffix='.tif')
+    file_030_fdr = NamedTemporaryFile(suffix='.tif')
+    file_040_far = NamedTemporaryFile(suffix='.tif')
+    file_050_point_shp = TemporaryDirectory()
+    file_060_snapped_pour_point = NamedTemporaryFile(suffix='.shp')
+    file_070_watershed = NamedTemporaryFile(suffix='.tif')
+    file_080_result = NamedTemporaryFile(suffix='.shp')
+
+    accum_result = wbt.flow_accumulation_full_workflow(
+        '/app/fixtures/rasters/Whistler_DEM_Burned.tif',
+        file_020_dem_filled.name,
+        file_030_fdr.name,
+        file_040_far.name,
+        out_type="Specific Contributing Area", log=False, clip=False, esri_pntr=False, callback=None)
+
+    logger.info('accum result: %', accum_result) # 0 or 1; 1 is an error
+
+
+
+    # Define a point feature geometry with one attribute
+    shp_schema = {
+        'geometry': 'Point',
+        'properties': {'id': 'int'},
+    }
+
+    # Write a new Shapefile
+    with fiona.open(file_050_point_shp.name, 'w', 'ESRI Shapefile', shp_schema) as c:
+        c.write({
+            'geometry': mapping(point),
+            'properties': {'id': 123},
+        })
+
+
+        logger.info('------------------')
+        logger.info('------------------')
+        logger.info('Wrote shapefile')
+        point_shp_file = c.name
+        logger.info('------------------')
+
+    snap_result = wbt.jenson_snap_pour_points(
+        f"{file_050_point_shp.name}/{point_shp_file}.shp",
+        file_040_far.name,
+        file_060_snapped_pour_point.name, 
+        15.0, callback=None)
+
+    logger.info('------------------')
+    logger.info('------------------')
+    logger.info('Wrote snapped point')
+    logger.info(snap_result)
+    logger.info('------------------')
+
+
+
+    watershed_result = wbt.watershed(
+        file_030_fdr.name,
+        file_060_snapped_pour_point.name,
+        file_070_watershed.name, esri_pntr=False, callback=None)
+    
+    logger.info('------------------')
+    logger.info('------------------')
+    logger.info('%s %s', file_010_dem.name, os.stat(file_010_dem.name).st_size)
+    logger.info('%s %s', file_020_dem_filled.name, os.stat(file_020_dem_filled.name).st_size)
+    logger.info('%s %s', file_030_fdr.name, os.stat(file_030_fdr.name).st_size)
+    logger.info('%s %s', file_040_far.name, os.stat(file_040_far.name).st_size)
+    logger.info('%s %s', file_060_snapped_pour_point.name, os.stat(file_060_snapped_pour_point.name).st_size)
+    logger.info('%s %s', file_070_watershed.name, os.stat(file_070_watershed.name).st_size)
+
+
+
+    wbt.raster_to_vector_polygons(
+        file_070_watershed.name, 
+        file_080_result.name
+    )
+
+    with fiona.open(file_080_result.name, 'r', 'ESRI Shapefile') as ws_result:
+
+        ws_result_list = [shape(poly['geometry']) for poly in ws_result]
+        combined_result = MultiPolygon(ws_result_list)
+        logger.info('------------------')
+        logger.info(combined_result)
+        logger.info('------------------')
+
+        feature = Feature(
+            geometry=combined_result,
+            id=f"generated.12321312",
+            properties={
+                "name": "Estimated catchment area",
+                "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
+                "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
+                "and LOCAL_WATERSHED_CODE properties."
+            }
+        )
+    if WATERSHED_DEBUG:
+        logger.info("Generated watershed feature %s", feature)
+    return feature
+
 def calculate_watershed(
     db: Session,
     point: Point,
@@ -428,43 +576,46 @@ def calculate_watershed(
     if WATERSHED_DEBUG:
         logger.info("calculating watershed")
 
-    q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
-        func.ST_Contains(
-            FreshwaterAtlasWatersheds.GEOMETRY,
-            func.ST_GeomFromText(point.wkt, 4326)
-        )
-    )
 
-    if WATERSHED_DEBUG:
-        logger.info("watershed query %s", q)
+    return wbt_calculate_watershed(db, point)
+    
+    # q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
+    #     func.ST_Contains(
+    #         FreshwaterAtlasWatersheds.GEOMETRY,
+    #         func.ST_GeomFromText(point.wkt, 4326)
+    #     )
+    # )
 
-    watershed_id = q.first()
+    # if WATERSHED_DEBUG:
+    #     logger.info("watershed query %s", q)
 
-    if WATERSHED_DEBUG:
-        logger.info("watershed id %s", watershed_id)
+    # watershed_id = q.first()
 
-    if not watershed_id:
-        if WATERSHED_DEBUG:
-            logger.warning("No watershed found")
-        return None
+    # if WATERSHED_DEBUG:
+    #     logger.info("watershed id %s", watershed_id)
 
-    watershed_id = watershed_id[0]
+    # if not watershed_id:
+    #     if WATERSHED_DEBUG:
+    #         logger.warning("No watershed found")
+    #     return None
 
-    feature = get_upstream_catchment_area(
-        db, watershed_id, include_self=include_self)
+    # watershed_id = watershed_id[0]
 
-    if not feature:
-        # was not able to calculate a watershed with the provided params.
-        # return None; the calling function will skip this calculated watershed
-        # and return other pre-generated ones.
-        logger.info(
-            "skipping calculated watershed based on watershed feature id %s", watershed_id)
-        return None
+    # feature = get_upstream_catchment_area(
+    #     db, watershed_id, include_self=include_self)
 
-    feature.properties['FEATURE_AREA_SQM'] = transform(
-        transform_4326_3005, shape(feature.geometry)).area
+    # if not feature:
+    #     # was not able to calculate a watershed with the provided params.
+    #     # return None; the calling function will skip this calculated watershed
+    #     # and return other pre-generated ones.
+    #     logger.info(
+    #         "skipping calculated watershed based on watershed feature id %s", watershed_id)
+    #     return None
 
-    return feature
+    # feature.properties['FEATURE_AREA_SQM'] = transform(
+    #     transform_4326_3005, shape(feature.geometry)).area
+
+    # return feature
 
 
 def get_databc_watershed(watershed_id: str):
