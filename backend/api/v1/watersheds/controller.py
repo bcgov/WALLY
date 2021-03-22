@@ -25,10 +25,11 @@ from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.watersheds.prism import mean_annual_precipitation
+from api.v1.watersheds.cdem import CDEM
 
 from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
@@ -774,19 +775,19 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     sea = result["SlopeElevationAspectResult"]
 
     slope = sea["slope"]
-    median_elevation = sea["averageElevation"]
+    median_elev = sea["averageElevation"]
     aspect = sea["aspect"]
 
-    return (slope, median_elevation, aspect)
+    return (slope, median_elev, aspect)
 
 
-def get_hillshade(slope: float, aspect: float):
+def get_hillshade(slope_rad: float, aspect_rad: float):
     """
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
     """
 
-    if slope is None or aspect is None:
+    if slope_rad is None or aspect_rad is None:
         return None
 
     azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
@@ -794,9 +795,9 @@ def get_hillshade(slope: float, aspect: float):
     azimuth_rad = azimuth * math.pi / 2.
     altitude_rad = altitude * math.pi / 180.
 
-    shade_value = math.sin(altitude_rad) * math.sin(slope) \
-        + math.cos(altitude_rad) * math.cos(slope) \
-        * math.cos((azimuth_rad - math.pi / 2.) - aspect)
+    shade_value = math.sin(altitude_rad) * math.sin(slope_rad) \
+        + math.cos(altitude_rad) * math.cos(slope_rad) \
+        * math.cos((azimuth_rad - math.pi / 2.) - aspect_rad)
 
     return abs(shade_value)
 
@@ -1084,19 +1085,24 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
-    # slope elevation aspect
-    average_slope, median_elevation, aspect, solar_exposure = None, None, None, None
-    if use_sea:
-        try:
-            average_slope, median_elevation, aspect = get_slope_elevation_aspect(
-                watershed_poly)
-            solar_exposure = get_hillshade(average_slope, aspect)
-        except Exception:
-            if WATERSHED_DEBUG:
-                logger.error("Error getting slope elevation aspect")
+    polygon_4140 = transform(transform_4326_4140, watershed_poly)
+    area_cdem = CDEM(polygon_4140)
+
+    elev_stats = area_cdem.get_raster_summary_stats()
+    median_elev = area_cdem.get_median_elevation()
+    avg_slope = area_cdem.get_average_slope()
+    aspect = area_cdem.get_mean_aspect()
+
+    slope_percent = math.tan(avg_slope) * 100
+    slope_radians = avg_slope * (math.pi/180)
+    solar_exposure = get_hillshade(slope_radians, aspect)
 
     if WATERSHED_DEBUG:
-        logger.info("median elevation %s", median_elevation)
+        logger.info("elevation stats %s", elev_stats)
+        logger.info("median elevation %s", median_elev)
+        logger.info("average slope %s", slope_percent)
+        logger.info("aspect %s", aspect)
+        logger.info("solar exposure %s", solar_exposure)
 
     data = {
         "watershed_id": watershed.id,
@@ -1109,9 +1115,10 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
         "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
         "hydrological_zone": hydrological_zone,
-        "average_slope": average_slope,
+        "average_slope": slope_percent,
         "solar_exposure": solar_exposure,
-        "median_elevation": median_elevation,
+        "median_elevation": median_elev,
+        "elevation_stats": elev_stats,
         "aspect": aspect
     }
 
