@@ -42,6 +42,7 @@
         </div>
       </v-col>
       <v-col class="text-right">
+        <SavedAnalysesCreateModal :geometry="pointOfInterest.geometry" featureType="upstream-downstream"/>
         <v-btn class="ml-3 my-2" @click="selectPoint" color="primary" outlined :disabled="buttonClicked">Select a point</v-btn>
       </v-col>
     </v-row>
@@ -95,12 +96,14 @@ import UpstreamDownstreamInstructions from './UpstreamDownstreamInstructions'
 import debounce from 'lodash.debounce'
 import { findWallyLayer } from '../../../common/utils/mapUtils'
 import { SOURCE_DOWNSTREAM_NETWORK, SOURCE_UPSTREAM_NETWORK } from '../../../common/mapbox/sourcesWally'
+import SavedAnalysesCreateModal from '../../savedanalyses/SavedAnalysesCreateModal'
 
 export default {
   name: 'StreamBufferIntersections',
   components: {
     UpstreamDownstreamData,
-    UpstreamDownstreamInstructions
+    UpstreamDownstreamInstructions,
+    SavedAnalysesCreateModal
   },
   props: ['point'],
   data: () => ({

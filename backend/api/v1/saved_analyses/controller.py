@@ -21,7 +21,7 @@ def validate_layers(db: Session, layers: List):
     :param layers: list of map layers
     """
     layer_count = db.query(func.count(DisplayCatalogue.display_data_name)).filter(
-        DisplayCatalogue.display_data_name.in_(layers)
+        DisplayCatalogue.display_data_name.in_([layer.map_layer for layer in layers])
     ).scalar()
 
     if len(layers) != layer_count:
@@ -31,7 +31,8 @@ def validate_layers(db: Session, layers: List):
 def save_analysis(db: Session, user_uuid: UUID,
                   name: str, description: str,
                   geometry: dict, feature_type: str, zoom_level: float,
-                  map_layers: [], project_uuid: str = None):
+                  map_bounds: [], map_layers: [], project_uuid: str = None):
+
     """
     Create a saved analysis
     :param db: db session
@@ -53,6 +54,7 @@ def save_analysis(db: Session, user_uuid: UUID,
                              description=description,
                              _geometry=geometry,
                              feature_type=feature_type,
+                             map_bounds=map_bounds,
                              zoom_level=zoom_level,
                              project_uuid=project_uuid)
     db.add(analysis)
@@ -61,7 +63,7 @@ def save_analysis(db: Session, user_uuid: UUID,
     for layer in map_layers:
         saved_analysis_map_layer = SavedAnalysisMapLayer(
             saved_analysis_uuid=analysis.saved_analysis_uuid,
-            map_layer=layer
+            map_layer=layer.map_layer
         )
         db.add(saved_analysis_map_layer)
 
@@ -108,14 +110,19 @@ def get_saved_analysis(db: Session, saved_analysis_uuid: UUID, include_deleted=F
         raise HTTPException(status_code=404, detail=f"Item not found")
 
 
-def delete_saved_analysis(db: Session, saved_analysis_uuid: UUID):
+def delete_saved_analysis(db: Session, saved_analysis_uuid: UUID, user_uuid: UUID):
     """
     Delete a saved analysis
     Performs a soft delete on a saved analysis
+    :param user_uuid: the user uuid
     :param db: db session
     :param saved_analysis_uuid: the saved analysis uuid
     """
     analysis = db.query(SavedAnalysis).get(saved_analysis_uuid)
+
+    if user_uuid != analysis.user_uuid:
+        raise HTTPException(status_code=403, detail=f"You do not have the permissions to modify this saved analysis")
+
     analysis.deleted_on = datetime.now()
     db.commit()
 

@@ -25,14 +25,15 @@
       </v-col>
     </v-row>
 
-    <v-card flat v-if="watersheds && watersheds.length">
+    <v-card flat v-if="watersheds && watersheds.length" class="text-right">
       <SurfaceWaterHeaderButtons v-if="selectedWatershed" :layers="layers"/>
+      <SavedAnalysesCreateModal :geometry="pointOfInterest.geometry" featureType="surface-water"/>
       <div class="watershedLabel"></div>
       <v-card flat >
         <v-card-title>
           {{watershedName}}
         </v-card-title>
-        <v-card-text>
+        <v-card-text class="text-left">
           <v-row align="center">
             <v-col class="grow">
               {{watershedSource}}
@@ -176,6 +177,8 @@ import EventBus from '../../../services/EventBus'
 import { months, secondsInMonth } from '../../../constants/months'
 import { findWallyLayer } from '../../../common/utils/mapUtils'
 import { SOURCE_WATERSHEDS_AT_LOCATION } from '../../../common/mapbox/sourcesWally'
+import SavedAnalysesCreateModal from '../../savedanalyses/SavedAnalysesCreateModal'
+
 export default {
   name: 'SurfaceWaterDetails',
   components: {
@@ -186,7 +189,8 @@ export default {
     SurfaceWaterHeaderButtons,
     WatershedDetails,
     WatershedMonthlyDischarge,
-    WatershedLicencedQty
+    WatershedLicencedQty,
+    SavedAnalysesCreateModal
   },
   data: () => ({
     tab: null,
