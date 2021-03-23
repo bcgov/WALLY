@@ -1,4 +1,4 @@
-"""empty message
+"""merge heads```
 
 Revision ID: a691dfe51337
 Revises: c82f8499050e, 48ca44a2a61f
