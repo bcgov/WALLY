@@ -51,6 +51,9 @@ const ApiService = {
   post (resource, params, headers = null) {
     return axios.post(resource, params, headers)
   },
+  put (resource, params, headers = null) {
+    return axios.put(resource, params, headers)
+  },
   patch (resource, record, params) {
     return axios.patch(`${resource}/${record}`, params)
   },

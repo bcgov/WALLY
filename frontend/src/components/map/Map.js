@@ -110,9 +110,6 @@ export default {
       this.map.on('mouseenter', 'parcels', this.setCursorPointer)
       this.map.on('mouseleave', 'parcels', this.resetCursor)
 
-      // NOTE: temporary
-      // this.map.on('moveend', this.onMapMoveUpdateStreamLayer)
-
       // Subscribe to mode change event to toggle drawing state
       this.map.on('draw.modechange', this.setDrawToolInActive)
 

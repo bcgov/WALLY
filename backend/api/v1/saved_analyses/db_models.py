@@ -1,4 +1,5 @@
-from sqlalchemy import String, Column, Integer, Numeric, ForeignKey, DateTime
+from sqlalchemy import String, Column, Integer, Numeric, ForeignKey, DateTime, Float
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.schema import PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from api.db.base_class import Base
@@ -26,9 +27,10 @@ class SavedAnalysis(Base):
     _geometry = Column('geometry', Geometry, comment='Geometry of the analysis', nullable=False)
     feature_type = Column(String, comment='Feature used for the analysis', nullable=False)
     zoom_level = Column(Numeric, comment='Zoom level', nullable=False)
+    map_bounds = Column(ARRAY(Float, dimensions=2), comment='Map Bounds', nullable=False)
     project_uuid = Column(UUID(), ForeignKey(Project.project_uuid))
-    user_id = Column(UUID(), ForeignKey(User.user_uuid),
-                     comment='foreign key to the user who created this project')
+    user_uuid = Column(UUID(), ForeignKey(User.user_uuid),
+                       comment='User who created this saved analysis')
     deleted_on = Column(
         DateTime, comment='Date and time when this record was deleted')
     map_layers = relationship('SavedAnalysisMapLayer', lazy='joined')

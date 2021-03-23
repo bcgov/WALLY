@@ -13,7 +13,7 @@ from shapely.geometry import shape
 
 
 class SavedAnalysisMapLayer(BaseModel):
-    map_layer: Optional[str]
+    map_layer: str
 
     class Config:
         orm_mode = True
@@ -25,15 +25,15 @@ class SavedAnalysisBase(BaseModel):
     geometry: dict
     feature_type: str
     zoom_level: float
-    map_layers: Optional[List[SavedAnalysisMapLayer]]
+    map_bounds: List[List[float]]
+    map_layers: List[SavedAnalysisMapLayer]
 
-    # class Config:
-    #     orm_mode = True
+    class Config:
+        orm_mode = True
 
 
 class SavedAnalysisGet(SavedAnalysisBase):
     saved_analysis_uuid: UUID
-    map_layer_list: List[str]
 
     class Config:
         orm_mode = True
@@ -59,14 +59,12 @@ class SavedAnalysisCreateUpdate(SavedAnalysisBase):
         return v
 
 
-class SavedAnalysisCreate(SavedAnalysisCreateUpdate):
-    map_layers: Optional[List[str]]
-
-
-class SavedAnalysisUpdate(SavedAnalysisCreateUpdate):
-    name: Optional[str]
-    geometry: Optional[dict]
-    feature_type: Optional[str]
-    zoom_level: Optional[float]
-    map_layers: Optional[List[str]]
+class SavedAnalysisUpdate(BaseModel):
+    name: str
+    description: str
+    # TODO design UX on how to edit the following features
+    # geometry: Optional[dict]
+    # feature_type: Optional[str]
+    # zoom_level: Optional[float]
+    # map_layers: Optional[List[str]]
 
