@@ -5,6 +5,7 @@ WORKDIR /dataload
 COPY ./hydat/load_hydat.sh /dataload/
 COPY ./databc/*.sh /dataload/
 COPY ./prism/*.sh /dataload/
+COPY ./cdem/*.sh /dataload/
 COPY ./tiles/create_tileset.sh /dataload/
 COPY ./tiles/upload_tileset.sh /dataload/
 
