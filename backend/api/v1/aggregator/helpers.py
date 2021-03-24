@@ -20,6 +20,15 @@ transform_3005_4326 = pyproj.Transformer.from_proj(
     pyproj.Proj(init='epsg:4326')
 ).transform
 
+transform_4326_4140 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:4326'),
+    pyproj.Proj(init='epsg:4140')
+).transform
+
+transform_4140_4326 = pyproj.Transformer.from_proj(
+    pyproj.Proj(init='epsg:4140'),
+    pyproj.Proj(init='epsg:4326')
+).transform
 
 # Converts to x,y point array from lat lng
 def spherical_mercator_project(lat, lng):
