@@ -7,32 +7,27 @@ parameters:
   displayName: Environment name
   name: ENV_NAME
   value: staging
-- description: Dataset layer name. Refer to load_cdem.sh to add datasets.
-  displayName: Layer name
-  name: DATASET_NAME
-  value: 'pr'
 objects:
   - apiVersion: batch/v1
     kind: Job
     metadata:
-      name: wally-cdem-${DATASET_NAME}
+      name: wally-cdem
       labels:
         component: importer
-        job: cdem-${DATASET_NAME}
-        name: wally-cdem-${DATASET_NAME}
+        job: cdem
+        name: wally-cdem
     spec:
       backoffLimit: 3
       parallelism: 1    
       completions: 1    
       template:         
         metadata:
-          name: wally-cdem-${DATASET_NAME}
+          name: wally-cdem
         spec:
           containers:
           - name: importer
             image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
             command: ['/dataload/load_cdem.sh']
-            args: ['${DATASET_NAME}']
             resources:
               requests:
                 cpu: 200m
