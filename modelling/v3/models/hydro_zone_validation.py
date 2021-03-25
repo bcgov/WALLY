@@ -19,6 +19,8 @@ count = 0
 inputs = ["average_slope","glacial_coverage","glacial_area","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation"]
 columns = list(inputs) + [dependant_variable]
 
+show_error_plots = False
+
 params = {
   'nthread':[6], #when use hyperthread, xgboost may become slower
   'objective':['reg:squarederror'],
@@ -33,7 +35,7 @@ params = {
 }
 
 model = XGBRegressor(random_state=42)
-folds = 25
+folds = 15
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
 kf = KFold(n_splits=folds, random_state=None, shuffle=True)
 
@@ -69,8 +71,15 @@ for filename in sorted(os.listdir(directory)):
             # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
             model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
 
+            # TODO
+            # minimum number of years
+            # track highest rmse, highest R2/lowest RMSE
+            # choose model with highest minimum r2
+            # look at furthest outlier, compare the two versions
+            # build comparison graph, 
+
             y_pred = model.predict(X_test)
-            r2 = r2_score(y_test, y_pred) #model.score(X_test, y_test)
+            r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
             rmse = mean_squared_error(y_test, y_pred, squared=False)
             results = model.evals_result()
             
@@ -87,6 +96,7 @@ for filename in sorted(os.listdir(directory)):
             elif rmse < best_model['rmse']:
                 best_model = model_test
 
+
         model = best_model['model']
         results = best_model['results']
         rmse = best_model['rmse']
@@ -101,7 +111,6 @@ for filename in sorted(os.listdir(directory)):
         rmse_95_p = rmse * 2
         print("RMSE 95%", rmse_95_p)
 
-        show_error_plots = False
         if show_error_plots:
             epochs = len(results["validation_0"]["rmse"])
             x_axis = range(0, epochs)
@@ -110,8 +119,8 @@ for filename in sorted(os.listdir(directory)):
             ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
             ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
             ax.legend()
-            pyplot.ylabel("RMSE Loss")
-            pyplot.title("XGBoost RMSE Loss")
+            pyplot.ylabel("RMSE")
+            pyplot.title("XGBoost RMSE")
             # plot log error
             # fig, ax = pyplot.subplots(figsize=(12,12))
             # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
