@@ -21,6 +21,7 @@ import FirstNationsAreasNearbyContainer
   from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
 import ImportLayer from './components/sidepanel/cards/ImportLayer'
 import ProjectList from './components/projects/ProjectList'
+import SavedAnalysesList from './components/savedanalyses/SavedAnalysesList'
 
 Vue.use(Router)
 
@@ -238,6 +239,11 @@ const router = new Router({
       path: '/projects',
       name: 'projects',
       component: ProjectList
+    },
+    {
+      path: '/saved-analyses',
+      name: 'saved-analyses',
+      component: SavedAnalysesList
     }
   ]
 })
