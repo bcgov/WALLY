@@ -463,13 +463,13 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
                             WHERE   "WATERSHED_FEATURE_ID" = :upstream_from
                         )
                     )
-                ) as rast FROM cdem.cdem
+                ) as rast FROM dem.ws_cdem
             ) cdem_clipped
         """
     else:
         rast_q = """
             SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
-            FROM cdem.cdem
+            FROM dem.ws_cdem
             WHERE ST_Intersects(
                 rast, (
                     SELECT
