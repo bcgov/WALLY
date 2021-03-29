@@ -744,6 +744,8 @@ def calculate_watershed(
     # choose method based on function argument.
     if method.startswith('DEM'):
         # estimate the watershed using the DEM
+
+        logger.info("--- Calculating watershed using DEM ---")
         watershed = wbt_calculate_watershed(
             db, point, watershed_id, clip_dem=not method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
