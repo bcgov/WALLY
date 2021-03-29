@@ -605,7 +605,7 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
     return watershed_result
 
 
-def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershed_id: int, fwa_dem_selection_factor=0.8):
+def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershed_id: int, fwa_dem_selection_factor=0.3):
     """
     Augments a DEM-derived watershed (in vector Polygon form) with Freshwater Atlas fundamental
     watersheds.
@@ -647,7 +647,7 @@ def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershe
             )
         ),
         dem_watershed AS (
-            SELECT ST_Intersection(ST_SetSRID(ST_GeomFromText(:dem_watershed), 4326), (select ST_Union(geom) from watershed_fwa_polygons)) as geom
+            SELECT ST_Intersection(ST_Transform(ST_Simplify(ST_Transform(ST_ChaikinSmoothing(ST_SetSRID(ST_GeomFromText(:dem_watershed), 4326)), 3005), 50), 4326), (select ST_Union(geom) from watershed_fwa_polygons)) as geom
         ),
         upstream_fwa_polygons AS (
             SELECT
@@ -744,8 +744,6 @@ def calculate_watershed(
     # choose method based on function argument.
     if method.startswith('DEM'):
         # estimate the watershed using the DEM
-
-        logger.info("--- Calculating watershed using DEM ---")
         watershed = wbt_calculate_watershed(
             db, point, watershed_id, clip_dem=not method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
