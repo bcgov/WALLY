@@ -738,7 +738,7 @@ def calculate_watershed(
     watershed_id = watershed_id[0]
     watershed_source = ""
     generated_method = ""
-    watershed_point = base64.b64encode(point.wkb).decode('utf-8')
+    watershed_point = base64.urlsafe_b64encode(point.wkb).decode('utf-8')
     watershed = None
 
     # choose method based on function argument.
@@ -921,7 +921,7 @@ def get_watershed(db: Session, watershed_feature: str):
 
     elif watershed_layer == 'generated_dem_fwa':
         logger.info(watershed_feature_id[0])
-        point = wkb.loads(base64.b64decode(watershed_feature_id[0]))
+        point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
         watershed = calculate_watershed(db, point, method='DEM+FWA')
 
     elif watershed_layer == 'generated_dem':
