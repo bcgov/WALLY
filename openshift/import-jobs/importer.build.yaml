@@ -31,7 +31,7 @@ objects:
           memory: 1Gi
       runPolicy: SerialLatestOnly
       source:
-        contextDir: openshift/import-jobs
+        contextDir: imports
         git:
           ref: "${GIT_REF}"
           uri: "${GIT_REPO}"

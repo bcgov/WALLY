@@ -12,9 +12,9 @@ echo "(1/3) Setting up Minio host"
 mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 echo "(2/3) Copying CDEM raster data from Minio"
-mc --config-dir=./.mc cp "minio/raster/BC_AREA_CDEM.tif" "./"
+mc --config-dir=./.mc cp "minio/raster/BC_Area_CDEM.tif" "./"
 
 echo "(3/3) Loading raster data into database $POSTGRES_SERVER"
-raster2pgsql -s 4140 -t 100x100 -I -C -Y "./BC_AREA_CDEM.tif" dem.cdem | psql "$pg_host"
+raster2pgsql -s 4140 -t 100x100 -I -C -Y "./BC_Area_CDEM.tif" dem.cdem | psql "$pg_host"
 
 echo "Finished."
