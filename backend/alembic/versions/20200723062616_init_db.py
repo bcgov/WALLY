@@ -3493,12 +3493,10 @@ def upgrade():
     op.execute("""
         WITH vc_id AS (
                     INSERT INTO vector_catalogue (
-                    vector_catalogue_id,
                     description,
                     vector_name,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id')),
                     'Freshwater Atlas Stream Networks',
                     'fwa_stream_networks',
                     'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
@@ -3507,7 +3505,6 @@ def upgrade():
 
             ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -3517,7 +3514,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'Freshwater Atlas Stream Networks',
                     'Flow network arcs (observed, inferred and constructed). Contains no banks, coast or watershed bourdary arcs. Directionalized and connected. Contains heirarchial key and route identifier.',
@@ -3778,12 +3774,10 @@ def upgrade():
     op.execute("""
         WITH vc_id AS (
                     INSERT INTO vector_catalogue (
-                    vector_catalogue_id,
                     description,
                     vector_name,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id')),
                     'First Nations Community Locations',
                     'fn_community_locations',
                     'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
@@ -3791,7 +3785,6 @@ def upgrade():
             ),
             ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -3801,7 +3794,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'First Nation Community Locations',
                     'This spatial dataset contains the approximate locations of First Nations in British Columbia. Locations are based on the location of the main community, as obtained from Aboriginal Affairs and Northern Development Canada (AANDC). This data includes 6 Yukon or NWT bands that have parts of their traditional territories in B.C. and have been accepted into the BC treaty process. This is a multipoint feature. LIMITATONS: Although every attempt has been made to ensure that this data is accurate and complete, some First Nations may be missing or inaccurately positioned. The First Nations themselves should be contacted for the definitive locations.',
@@ -3845,12 +3837,10 @@ def upgrade():
     op.execute("""
         WITH vc_id AS (
                     INSERT INTO vector_catalogue (
-                    vector_catalogue_id,
                     description,
                     vector_name,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id')),
                     'First Nations Treaty Areas',
                     'fn_treaty_areas',
                     'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
@@ -3858,7 +3848,6 @@ def upgrade():
             ),
             ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -3868,7 +3857,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'First Nation Treaty Areas',
                     'This layer contains the areas within which the First Nation has a role (as described in the treaty) related to economic activities, governance activities and cultural activities.',
@@ -3910,12 +3898,10 @@ def upgrade():
     op.execute("""
         WITH vc_id AS (
                     INSERT INTO vector_catalogue (
-                    vector_catalogue_id,
                     description,
                     vector_name,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id')),
                     'First Nations Treaty Lands',
                     'fn_treaty_lands',
                     'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
@@ -3923,7 +3909,6 @@ def upgrade():
             ),
             ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -3933,7 +3918,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'First Nations Treaty Lands',
                     'This layer shows the lands that are owned by the First Nation as a result of the treaty and over which the First Nation has governance as described in the treaty. These boundaries should be treated as cartographic representations only. The official versions of these boundaries are contained within the treaty documents.',
@@ -3984,7 +3968,6 @@ def upgrade():
     op.execute("""
               WITH ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -3994,7 +3977,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'Freshwater Atlas Glaciers',
                     'Glaciers and ice masses for the province of British Columbia.',
@@ -4007,13 +3989,11 @@ def upgrade():
             ),
             wms_id AS (
               INSERT INTO wms_catalogue (
-                    wms_catalogue_id,
                     description,
                     wms_name,
                     wms_style,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('wms_catalogue','wms_catalogue_id')),
                     'Freshwater Atlas Glaciers',
                     'WHSE_BASEMAPPING.FWA_GLACIERS_POLY',
                     '',
@@ -4058,7 +4038,6 @@ def upgrade():
     op.execute("""
         WITH ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -4068,7 +4047,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'Hydrologic Zone Boundaries of BC',
                     'Zones that represent areas of homogeneous hydrologic and geomorphological characteristics.',
@@ -4081,13 +4059,11 @@ def upgrade():
             ),
             wms_id AS (
               INSERT INTO wms_catalogue (
-                    wms_catalogue_id,
                     description,
                     wms_name,
                     wms_style,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('wms_catalogue','wms_catalogue_id')),
                     'Hydrologic Zone Boundaries of BC',
                     'WHSE_WATER_MANAGEMENT.HYDZ_HYDROLOGICZONE_SP',
                     '',
@@ -4451,7 +4427,6 @@ def upgrade():
     op.execute("""
         WITH ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -4461,7 +4436,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'Normal Annual Runoff Isolines (1961 - 1990)',
                     'Spatial layer intended to display normal annual runoff isolines, in millimetres, for 1961 -1990.',
@@ -4474,12 +4448,10 @@ def upgrade():
             ),
             vc_id AS (
                     INSERT INTO vector_catalogue (
-                    vector_catalogue_id,
                     description,
                     vector_name,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('vector_catalogue','vector_catalogue_id')),
                     'Normal Annual Runoff Isolines (1961 - 1990)',
                     'normal_annual_runoff_isolines',
                     'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z'
@@ -4803,7 +4775,6 @@ def upgrade():
     op.execute("""
               WITH ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -4813,7 +4784,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'Known BC Fish Observations & BC Fish Distributions',
                     'This point location dataset of fish observations is a regularly updated compilation of BC fish distribution information taken from a combination of all the official provincial databases including the BC Fisheries Information Summary System (FISS). Fish occurrences in this dataset represent the most current and comprehensive information source on fish presence for the province.',
@@ -5441,7 +5411,6 @@ def upgrade():
     op.execute("""
           WITH ds_id AS (
             INSERT INTO data_source (
-                data_source_id,
                 data_format_code,
                 name,
                 description,
@@ -5451,7 +5420,6 @@ def upgrade():
                 source_object_id,
                 create_user, create_date, update_user, update_date, effective_date, expiry_date
             ) VALUES (
-                NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                 'json',
                 'Water Approval Points',
                 'The location (point) where an approval has been requested to conduct works in the vicinity of a water source.',
@@ -5788,7 +5756,6 @@ def upgrade():
     op.execute("""
               WITH ds_id AS (
                 INSERT INTO data_source (
-                    data_source_id,
                     data_format_code,
                     name,
                     description,
@@ -5798,7 +5765,6 @@ def upgrade():
                     source_object_id,
                     create_user, create_date, update_user, update_date, effective_date, expiry_date
                 ) VALUES (
-                    NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                     'json',
                     'Provincial Obstacles to Fish Passage',
                     'The Provincial Obstacles to Fish Passage theme presents records of all known obstacles to fish passage from several fisheries datasets. Records from the following datasets have been included: The Fisheries Information Summary System (FISS); the Fish Habitat Inventory and Information Program (FHIIP); the Field Data Information System (FDIS) and the Resource Analysis Branch (RAB) inventory studies. The main intent of this layer is to have a single layer of all known obstacles to fish passage.',

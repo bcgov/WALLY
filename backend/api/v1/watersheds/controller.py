@@ -442,8 +442,12 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
     Use Whitebox Tools to calculate the upstream drainage area from point
     """
 
-    nearest_streams = get_nearest_streams(db, point, limit=1)
-    nearest_stream_point = nearest_streams[0].get('closest_stream_point')
+    nearest_stream = get_nearest_streams(db, point, limit=1)[0]
+
+    # testing for use with fwapg
+    nearest_stream_blue_line_key = None
+    nearest_stream_drm = None
+    nearest_stream_point = nearest_stream.get('closest_stream_point')
 
     point = shape(nearest_stream_point)
 
@@ -463,13 +467,13 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
                             WHERE   "WATERSHED_FEATURE_ID" = :upstream_from
                         )
                     )
-                ) as rast FROM dem.ws_cdem
+                ) as rast FROM cdem.ws_cdem
             ) cdem_clipped
         """
     else:
         rast_q = """
             SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
-            FROM dem.ws_cdem
+            FROM cdem.ws_cdem
             WHERE ST_Intersects(
                 rast, (
                     SELECT
@@ -605,7 +609,7 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
     return watershed_result
 
 
-def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershed_id: int, fwa_dem_selection_factor=0.3):
+def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershed_id: int, fwa_dem_selection_factor=0.8):
     """
     Augments a DEM-derived watershed (in vector Polygon form) with Freshwater Atlas fundamental
     watersheds.

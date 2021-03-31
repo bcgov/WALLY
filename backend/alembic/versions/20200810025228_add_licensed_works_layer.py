@@ -23,7 +23,6 @@ def upgrade():
     op.execute("""
           WITH ds_id AS (
             INSERT INTO data_source (
-                data_source_id,
                 data_format_code,
                 name,
                 description,
@@ -33,7 +32,6 @@ def upgrade():
                 source_object_id,
                 create_user, create_date, update_user, update_date, effective_date, expiry_date
             ) VALUES (
-                NEXTVAL(pg_get_serial_sequence('data_source','data_source_id')),
                 'json',
                 'Water Licensed Works - Lines',
                 'Province-wide SDE layer showing linear works associated with a Water Licence',
@@ -89,7 +87,6 @@ def upgrade():
     """)
 
     op.execute('SET search_path TO public')
-
 
 
 def downgrade():
