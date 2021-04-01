@@ -39,7 +39,7 @@ params = {
 }
 
 model = XGBRegressor(random_state=42)
-folds = 2
+folds = 15
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
 kf = KFold(n_splits=folds, random_state=None, shuffle=True)
 
@@ -98,7 +98,7 @@ for filename in sorted(os.listdir(directory)):
             size = (8, 6)
 
             # Prediction vs real plot
-            marker_size = 6
+            marker_size = 9
             fig_pred, ax1 = plt.subplots(figsize=size)
             ax1.scatter(range(len(y_pred)), y_pred, label="Prediction", s=marker_size)
             ax1.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
@@ -214,7 +214,7 @@ for filename in sorted(os.listdir(directory)):
 
         fig1, ax1 = pyplot.subplots(figsize=size)
         title = "Zone " + zone_name + " RMSE vs R2"
-        ax1.plot(r2s, rmses, 'o', label=title, s=6)
+        ax1.plot(r2s, rmses, 'o', label=title)
         # ax1.plot(x_axis, results["validation_1"]["rmse"], label="Test")
         ax1.legend()
         pyplot.xlabel("R2")
