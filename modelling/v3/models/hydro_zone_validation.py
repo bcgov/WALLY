@@ -9,14 +9,18 @@ import math
 import itertools
 from ast import literal_eval
 from sklearn.model_selection import GridSearchCV, KFold
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pathlib import Path
+import matplotlib.backends.backend_pdf
 
 directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
-# inputs = ["year","drainage_area","watershed_area","aspect","solar_exposure","potential_evapotranspiration_hamon",]
-inputs = ["average_slope","glacial_coverage","glacial_area","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation"]
+# inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]
+inputs = ["average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation"]
 columns = list(inputs) + [dependant_variable]
 
 show_error_plots = False
@@ -35,7 +39,7 @@ params = {
 }
 
 model = XGBRegressor(random_state=42)
-folds = 15
+folds = 2
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
 kf = KFold(n_splits=folds, random_state=None, shuffle=True)
 
@@ -45,6 +49,7 @@ for filename in sorted(os.listdir(directory)):
         best_inputs = []
         # model = XGBRegressor(random_state=42)
         zone_name = filename.split('_')[1].split('.')[0]
+        output_dir = "./outputs/zone_" + zone_name + "/"
         zone_df = pd.read_csv(os.path.join(directory, filename))
         
         df_inputs =  list(inputs) + [dependant_variable]
@@ -61,7 +66,9 @@ for filename in sorted(os.listdir(directory)):
 
         # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, random_state=42)
 
+        all_models = []
         best_model = None
+        fold_counter = 1
         for train_index, test_index in kf.split(X):
             X_train, X_test = X.iloc[train_index,:], X.iloc[test_index,:]
             y_train, y_test = y.iloc[train_index].values.ravel(), y.iloc[test_index].values.ravel()
@@ -70,7 +77,7 @@ for filename in sorted(os.listdir(directory)):
 
             # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
             model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
-
+            
             # TODO
             # minimum number of years
             # track highest rmse, highest R2/lowest RMSE
@@ -82,26 +89,142 @@ for filename in sorted(os.listdir(directory)):
             r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
             rmse = mean_squared_error(y_test, y_pred, squared=False)
             results = model.evals_result()
-            
+            feat_import = model.feature_importances_
+            print(model.get_booster().feature_names)
+
+            # Report Figures Directory
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
+            pdf = matplotlib.backends.backend_pdf.PdfPages(output_dir + "fold_" + str(fold_counter) + "_stats.pdf")
+            size = (8, 6)
+
+            # Prediction vs real plot
+            marker_size = 6
+            fig_pred, ax1 = plt.subplots(figsize=size)
+            ax1.scatter(range(len(y_pred)), y_pred, label="Prediction", s=marker_size)
+            ax1.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
+            fig_pred.suptitle("Predicted MAR vs Real MAR")
+            ax1.legend()
+            pdf.savefig( fig_pred )
+
+            # Features vs Prediction plots
+            for column in X_test.columns:
+                fig_f, axf = plt.subplots(figsize=size)
+                axf.scatter(y_pred, X_test[column], s=marker_size)
+                axf.set_xlabel('MAR')
+                # axf.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
+                fig_f.suptitle(column + ' vs Predicted MAR')
+                # axf.legend()
+                pdf.savefig( fig_f )
+
+                # fig_txt = plt.figure(figsize=size)
+                # fig_txt.text(0.05,0.95, txt, transform=fig_txt.transFigure, size=12)
+                # fig_txt.text(0.05,0.95, txt, transform=fig_txt.transFigure, size=12)
+                # pdf.savefig( fig_txt )
+
+            # Covariance of Features
+            corr = X.corr()
+            corr.style.background_gradient(cmap='coolwarm')
+            fig_cov, ax = plt.subplots(figsize=size)
+            ax.set_xticks(range(len(corr.columns)))
+            ax.set_yticks(range(len(corr.columns)))
+            fig_cov.suptitle("Feature Correlations")
+            ax = sns.heatmap(
+                corr, 
+                vmin=-1, vmax=1, center=0,
+                cmap=sns.diverging_palette(20, 220, n=200),
+                square=True
+            )
+            ax.set_xticklabels(
+                ax.get_xticklabels(),
+                rotation=45,
+                horizontalalignment='right'
+            )
+            pdf.savefig( fig_cov )
+
+            # Feature Importance plot
+            try:
+                fig_importance = plot_importance(model).figure
+                pdf.savefig( fig_importance )
+            except:
+                pass
+
+            # Training Results plot
+            epochs = len(results["validation_0"]["rmse"])
+            x_axis = range(0, epochs)
+            fig_results, ax = pyplot.subplots(figsize=size)
+            ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+            ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+            ax.legend()
+            txt = 'RMSE: ' + str(rmse) + ' R2: ' + str(r2)
+            fig_results.suptitle(txt)
+            pdf.savefig( fig_results )
+
+            pdf.close()
+            # plt.show()
+            # fig.savefig(output_dir + "fold_" + str(fold_counter) + "_stats.png", bbox_inches='tight')
+            # fip.figure.savefig(output_dir + "fold_" + str(fold_counter) + "_feature_importance.png", bbox_inches='tight')
+
             model_test = { 
                 "model": model,
                 "mean_mar": mean_mar,
                 "r2": round(r2,4),
                 "rmse": round(rmse,6),
-                "results": results
+                "results": results,
+                "gain": feat_import,
+                "fold": fold_counter
             }
+
+            all_models.append(model_test)
 
             if best_model is None:
                 best_model = model_test
             elif rmse < best_model['rmse']:
                 best_model = model_test
 
+            fold_counter += 1
 
         model = best_model['model']
         results = best_model['results']
         rmse = best_model['rmse']
         r2 = best_model['r2']
         mean_mar = best_model['mean_mar']
+
+        r2s = []
+        rmses = []
+        foldsArr = []
+        for item in all_models:
+            # if item["r2"] > 0:
+            r2s.append(item["r2"])
+            rmses.append(item["rmse"])
+            foldsArr.append(item["fold"])
+
+        # rmses = [o.rmse for o in all_models]
+        # r2s = all_models.map('r2')
+        # rmses = all_models.map('rmse')
+
+        # TODO
+        # 1. sub plots
+        # predicted value vs real value
+        # predicted value vs every geo stat
+        # 1. every fold show every pred vs real
+        # determine whats happening
+        # 2. which grouping of hydro zones are complement vs non-complement
+        # 3. collapse rows down of stations
+
+
+        fig1, ax1 = pyplot.subplots(figsize=size)
+        title = "Zone " + zone_name + " RMSE vs R2"
+        ax1.plot(r2s, rmses, 'o', label=title, s=6)
+        # ax1.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+        ax1.legend()
+        pyplot.xlabel("R2")
+        pyplot.ylabel("RMSE")
+        pyplot.title(title)
+        for i, fold in enumerate(foldsArr):
+            ax1.annotate(str(fold), (r2s[i], rmses[i]))
+        # pyplot.show()
+
+        fig1.savefig(output_dir + zone_name + "_summary.png", bbox_inches='tight')
         
         # results = grid.cv_results_
         # print(results)
