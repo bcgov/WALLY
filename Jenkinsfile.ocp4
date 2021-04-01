@@ -1,5 +1,5 @@
 #!groovy
-@Library('bcgov-library') _
+@Library('bcdevops-jenkins-shared-library') _
 import bcgov.GitHubHelper
 
 // Notify stage status and pass to Jenkins-GitHub library
