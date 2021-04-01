@@ -1,0 +1,70 @@
+---
+kind: Template
+apiVersion: v1
+labels:
+  app: jenkins
+metadata:
+  name: jenkins
+objects:
+- apiVersion: v1
+  data:
+    project.dev: "${DEV}"
+    project.test: "${TEST}"
+    project.prod: "${PROD}"
+    project.tools: "${TOOLS}"
+  kind: ConfigMap
+  metadata:
+    name: ns-config
+- apiVersion: v1
+  data:
+    app.name: "${APP_NAME}"
+    app.domain: "${APP_DOMAIN}"
+    repo.name: "${REPO_NAME}"
+    repo.owner: "${REPO_OWNER}"
+  kind: ConfigMap
+  metadata:
+    name: jobs-config
+parameters:
+- name: DEV
+  displayName: Dev Project Namespace
+  description: Project/Namespace for Dev. Environment
+  required: true
+  value: d1b5d2-dev
+- name: TEST
+  displayName: Test Project Namespace
+  description: Project/Namespace for Test Environment
+  required: true
+  value: d1b5d2-test
+- name: PROD
+  displayName: Prod Project Namespace
+  description: Project/Namespace for Prod. Environment
+  required: true
+  value: d1b5d2-prod
+- name: TOOLS
+  displayName: Tools Project Namespace
+  description: Project/Namespace for Tools Environment
+  required: true
+  value: d1b5d2-tools
+- name: NAME
+  displayName: Name
+  description: A name used for all objects
+  required: true
+  value: jenkins
+- name: REPO_OWNER
+  displayName: Application Repository Owner
+  description: A name of the github repo owner
+  required: true
+  value: bcgov
+- name: REPO_NAME
+  displayName: Application Repository Name
+  description: Name of the application repository (code to build)
+  required: true
+  value: wally
+- name: APP_NAME
+  description: Short name (one word, lowercase) of the application
+  required: true
+  value: wally
+- name: APP_DOMAIN
+  description: Internet domain for the application
+  required: true
+  value: wally.apps.silver.devops.gov.bc.ca
