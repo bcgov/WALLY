@@ -4,42 +4,42 @@ import bcgov.GitHubHelper
 
 // Notify stage status and pass to Jenkins-GitHub library
 void notifyStageStatus (String name, String status) {
-    GitHubHelper.createCommitStatus(
-        this,
-        sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
-        status,
-        "${BUILD_URL}",
-        "Stage: ${name}",
-        "${name}"
-    )
+    // GitHubHelper.createCommitStatus(
+    //     this,
+    //     sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
+    //     status,
+    //     "${BUILD_URL}",
+    //     "Stage: ${name}",
+    //     "${name}"
+    // )
 }
 
 // createDeployment gets a new deployment ID from GitHub.
 // this lets us display notifications on GitHub when new environments
 // are deployed (e.g. on a pull request page)
 Long createDeployment (String suffix, String gitRef) {
-    def ghDeploymentId = new GitHubHelper().createDeployment(
-        this,
-        gitRef,
-        [
-            'environment':"${suffix}",
-            'task':"deploy:${gitRef}"
-        ]
-    )
-    echo "deployment ID: ${ghDeploymentId}"
-    return ghDeploymentId
-
+    // def ghDeploymentId = new GitHubHelper().createDeployment(
+    //     this,
+    //     gitRef,
+    //     [
+    //         'environment':"${suffix}",
+    //         'task':"deploy:${gitRef}"
+    //     ]
+    // )
+    // echo "deployment ID: ${ghDeploymentId}"
+    // return ghDeploymentId
+  return 1
 }
 
 // Create deployment status for a deployment ID (call createDeployment first)
 void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl) {
-    echo "creating deployment status (${status})"
-    new GitHubHelper().createDeploymentStatus(
-        this,
-        ghDeploymentId,
-        "${status}",
-        ['targetUrl':"https://${stageUrl}/"]
-    )
+    // echo "creating deployment status (${status})"
+    // new GitHubHelper().createDeploymentStatus(
+    //     this,
+    //     ghDeploymentId,
+    //     "${status}",
+    //     ['targetUrl':"https://${stageUrl}/"]
+    // )
 
 }
 
@@ -94,10 +94,10 @@ pipeline {
     NAME = JOB_BASE_NAME.toLowerCase()
 
     // project names
-    TOOLS_PROJECT = "bfpeyx-tools"
-    DEV_PROJECT = "bfpeyx-dev"
-    TEST_PROJECT = "bfpeyx-test"
-    PROD_PROJECT = "bfpeyx-prod"
+    TOOLS_PROJECT = "d1b5d2-tools"
+    DEV_PROJECT = "d1b5d2-dev"
+    TEST_PROJECT = "d1b5d2-test"
+    PROD_PROJECT = "d1b5d2-prod"
   }
   stages {
     stage('Build') {
@@ -292,7 +292,7 @@ pipeline {
                     containers: [
                         containerTemplate(
                             name: 'jnlp',
-                            image: 'docker-registry.default.svc:5000/bfpeyx-tools/apitest',
+                            image: 'docker-registry.default.svc:5000/d1b5d2-tools/apitest',
                             imagePullPolicy: 'Always',
                             resourceRequestCpu: '500m',
                             resourceLimitCpu: '800m',
