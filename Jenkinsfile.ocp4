@@ -186,7 +186,7 @@ pipeline {
       steps {
         script {
           def project = DEV_PROJECT
-          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
+          def host = "wally-${NAME}.apps.silver.devops.gov.bc.ca"
           def ref = "pull/${CHANGE_ID}/head"
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
@@ -286,7 +286,7 @@ pipeline {
       }
       steps {
         script {
-          def host = "wally-${NAME}.pathfinder.gov.bc.ca"
+          def host = "wally-${NAME}.apps.silver.devops.gov.bc.ca"
           openshift.withCluster() {
             openshift.withProject(TOOLS_PROJECT) {
               withStatus(env.STAGE_NAME) {
@@ -394,7 +394,7 @@ pipeline {
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
           def project = TEST_PROJECT
           def env_name = "staging"
-          def host = "wally-staging.pathfinder.gov.bc.ca"
+          def host = "wally-staging.apps.silver.gov.bc.ca"
           def ref = "refs/heads/master"
           openshift.withCluster() {
             openshift.withProject(project) {
@@ -523,7 +523,7 @@ pipeline {
           def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
           def project = PROD_PROJECT
           def env_name = "production"
-          def host = "wally.pathfinder.gov.bc.ca"
+          def host = "wally.apps.silver.devops.gov.bc.ca"
           def ref = "refs/heads/master"
           openshift.withCluster() {
             openshift.withProject(project) {
