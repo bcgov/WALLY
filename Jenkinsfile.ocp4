@@ -98,6 +98,8 @@ pipeline {
     DEV_PROJECT = "d1b5d2-dev"
     TEST_PROJECT = "d1b5d2-test"
     PROD_PROJECT = "d1b5d2-prod"
+
+    TEMPLATE_DIR = "openshift/ocp4"
   }
   stages {
     stage('Build') {
@@ -123,14 +125,14 @@ pipeline {
               withStatus(env.STAGE_NAME) {
                 echo "Applying templates"
                 def bcWebTemplate = openshift.process('-f',
-                  'openshift/frontend.build.yaml',
+                  "${TEMPLATE_DIR}/frontend.build.yaml",
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
                   "GIT_REF=${ref}"
                 )
 
                 def bcApiTemplate = openshift.process('-f',
-                  'openshift/backend.build.yaml',
+                  "${TEMPLATE_DIR}/backend.build.yaml",
                   "NAME=${NAME}",
                   "GIT_REPO=${GIT_REPO}",
                   "GIT_REF=${ref}"
@@ -205,7 +207,7 @@ pipeline {
                 // apply database service account.
                 // this is a pre-requisite for the database statefulset.
                 openshift.apply(openshift.process("-f",
-                  "openshift/database.rolebinding.yaml",
+                  "${TEMPLATE_DIR}/database.rolebinding.yaml",
                   "NAME=wally-psql",
                   "SUFFIX=-${NAME}"
                 ))
@@ -214,7 +216,7 @@ pipeline {
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
-                  "openshift/frontend.deploy.yaml",
+                  "${TEMPLATE_DIR}/frontend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "REPLICAS=1",
@@ -223,7 +225,7 @@ pipeline {
 
                 // apply database template
                 def database = openshift.apply(openshift.process("-f",
-                  "openshift/database.deploy.yaml",
+                  "${TEMPLATE_DIR}/database.deploy.yaml",
                   "NAME=wally-psql",
                   "REPLICAS=1",
                   "CPU_REQUEST=100m",
@@ -234,7 +236,7 @@ pipeline {
                 ))
 
                 def backend = openshift.apply(openshift.process("-f",
-                  "openshift/backend.deploy.yaml",
+                  "${TEMPLATE_DIR}/backend.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -244,7 +246,7 @@ pipeline {
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
-                  "openshift/gatekeeper.deploy.yaml",
+                  "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -402,7 +404,7 @@ pipeline {
                 // apply database service account.
                 // this is a pre-requisite for the database statefulset.
                 openshift.apply(openshift.process("-f",
-                  "openshift/database.rolebinding.yaml",
+                  "${TEMPLATE_DIR}/database.rolebinding.yaml",
                   "NAME=wally-psql",
                   "SUFFIX=-${env_name}"
                 ))
@@ -411,7 +413,7 @@ pipeline {
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
-                  "openshift/frontend.deploy.yaml",
+                  "${TEMPLATE_DIR}/frontend.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -420,7 +422,7 @@ pipeline {
 
                 // apply database template
                 def database = openshift.apply(openshift.process("-f",
-                  "openshift/database.deploy.yaml",
+                  "${TEMPLATE_DIR}/database.deploy.yaml",
                   "NAME=wally-psql",
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
@@ -433,7 +435,7 @@ pipeline {
                 ))
 
                 def backend = openshift.apply(openshift.process("-f",
-                  "openshift/backend.deploy.yaml",
+                  "${TEMPLATE_DIR}/backend.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -443,7 +445,7 @@ pipeline {
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
-                  "openshift/gatekeeper.deploy.yaml",
+                  "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -513,7 +515,7 @@ pipeline {
                 // apply database service account.
                 // this is a pre-requisite for the database statefulset.
                 openshift.apply(openshift.process("-f",
-                  "openshift/database.rolebinding.yaml",
+                  "${TEMPLATE_DIR}/database.rolebinding.yaml",
                   "NAME=wally-psql",
                   "SUFFIX=-${env_name}"
                 ))
@@ -522,7 +524,7 @@ pipeline {
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
-                  "openshift/frontend.deploy.yaml",
+                  "${TEMPLATE_DIR}/frontend.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -531,7 +533,7 @@ pipeline {
 
                 // apply database template
                 def database = openshift.apply(openshift.process("-f",
-                  "openshift/database.deploy.yaml",
+                  "${TEMPLATE_DIR}/database.deploy.yaml",
                   "NAME=wally-psql",
                   "REPLICAS=3",
                   "SUFFIX=-${env_name}",
@@ -544,7 +546,7 @@ pipeline {
                 ))
 
                 def backend = openshift.apply(openshift.process("-f",
-                  "openshift/backend.deploy.yaml",
+                  "${TEMPLATE_DIR}/backend.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
@@ -554,7 +556,7 @@ pipeline {
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
-                  "openshift/gatekeeper.deploy.yaml",
+                  "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
