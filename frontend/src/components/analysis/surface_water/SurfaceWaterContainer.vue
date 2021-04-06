@@ -22,6 +22,26 @@
         <span>Exit</span>
       </v-tooltip>
     </v-toolbar>
+    <div>
+      <v-row>
+        <v-col>
+          Advanced options:
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <div>Upstream catchment estimation method</div>
+          <v-radio-group v-model="upstreamMethod">
+            <v-radio
+              v-for="(c, i) in upstreamMethodChoices"
+              :key="`upstreamOption${i}`"
+              :label="c.label"
+              :value="c.value"
+            ></v-radio>
+          </v-radio-group>
+        </v-col>
+      </v-row>
+    </div>
     <div
     v-if="pointOfInterest && pointOfInterest.display_data_name === 'point_of_interest'">
       <div>
@@ -40,7 +60,7 @@
             </v-expansion-panel>
           </v-expansion-panels>
       </div>
-      <SurfaceWaterV2 v-if="this.app.config && this.app.config.surface_water_design_v2"></SurfaceWaterV2>
+      <SurfaceWaterV2 v-if="this.app.config && this.app.config.surface_water_design_v2" :upstreamMethod=upstreamMethod></SurfaceWaterV2>
     </div>
     <div v-else>
       <v-row class="mt-3">
@@ -77,11 +97,30 @@ export default {
     SurfaceWaterInstructions
   },
   data: () => ({
+    upstreamMethod: 'DEM+FWA',
     licencesLayerAutomaticallyEnabled: false,
     hydatLayerAutomaticallyEnabled: false,
     applicationsLayerAutomaticallyEnabled: false,
     fishLayerAutomaticallyEnabled: false,
-    approvalLayerAutomaticallyEnabled: false
+    approvalLayerAutomaticallyEnabled: false,
+    upstreamMethodChoices: [
+      {
+        label: 'Freshwater Atlas (Current polygon plus upstream)',
+        value: 'FWA+UPSTREAM'
+      },
+      {
+        label: 'Freshwater Atlas (Entire catchment of selected stream)',
+        value: 'FWA+FULLSTREAM'
+      },
+      {
+        label: 'Digital Elevation Model (WhiteBoxTools)',
+        value: 'DEM'
+      },
+      {
+        label: 'Digital Elevation Model (WhiteBoxTools), refine using Freshwater Atlas',
+        value: 'DEM+FWA'
+      }
+    ]
   }),
   methods: {
     enableApplicationsLayer () {

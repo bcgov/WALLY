@@ -1,5 +1,11 @@
 <template>
   <div id="surfaceWater">
+    <v-row v-if="watershedLoading">
+      <v-col>
+        <div>Estimating catchment area...</div>
+        <v-progress-linear indeterminate show></v-progress-linear>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col class="pb-0">
         <v-alert type="info" dense class="mb-0" outlined dismissible>
@@ -57,6 +63,7 @@
     <template v-if="watersheds && watersheds.length">
       <div class="watershedInfo" v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
+          <div>Gathering data for selected catchment area...</div>
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
@@ -192,6 +199,12 @@ export default {
     WatershedLicencedQty,
     SavedAnalysesCreateModal
   },
+  props: {
+    upstreamMethod: {
+      type: String,
+      default: 'DEM+FWA'
+    }
+  },
   data: () => ({
     tab: null,
     infoTabs: null,
@@ -226,6 +239,13 @@ export default {
     }
   }),
   watch: {
+    upstreamMethod: {
+      immediate: true,
+      deep: true,
+      handler () {
+        this.recalculateWatershed()
+      }
+    },
     selectedWatershed (v) {
       this.filterWatershed(v)
       this.fetchWatershedDetails()
@@ -366,7 +386,8 @@ export default {
       this.watershedLoading = true
       const params = {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
-        include_self: this.includePOIPolygon
+        include_self: this.includePOIPolygon,
+        upstream_method: this.upstreamMethod
       }
 
       this.$router.push({

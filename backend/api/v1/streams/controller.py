@@ -80,31 +80,31 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
     # Get the nearest 10 streams to the point
     sql = text("""
       SELECT
-        nearest_streams."OGC_FID" as id, 
-        nearest_streams."OGC_FID" as ogc_fid,
-        nearest_streams."LENGTH_METRE" as length_metre,
-        nearest_streams."FEATURE_SOURCE" as feature_source,
-        nearest_streams."GNIS_NAME" as gnis_name,
-        nearest_streams."LINEAR_FEATURE_ID" as linear_feature_id,
-        nearest_streams."LEFT_RIGHT_TRIBUTARY" as left_right_tributary,
-        nearest_streams."GEOMETRY.LEN" as geometry_length,
-        ST_AsText(nearest_streams."GEOMETRY") as geometry,
-        nearest_streams."WATERSHED_GROUP_CODE" as watershed_group_code, 
-        nearest_streams."FWA_WATERSHED_CODE" as fwa_watershed_code,
-        ST_Distance(nearest_streams."GEOMETRY",
+        nearest_streams.linear_feature_id as id, 
+        nearest_streams.linear_feature_id as ogc_fid,
+        nearest_streams.length_metre,
+        nearest_streams.feature_source,
+        nearest_streams.gnis_name,
+        nearest_streams.linear_feature_id,
+        nearest_streams.left_right_tributary,
+        st_length(nearest_streams.geom) as geometry_length,
+        ST_AsText(nearest_streams.geom) as geometry,
+        nearest_streams.watershed_group_code as watershed_group_code, 
+        nearest_streams.fwa_watershed_code as fwa_watershed_code,
+        ST_Distance(ST_Transform(nearest_streams.geom, 4326),
           ST_SetSRID(ST_GeomFromText(:search_point), 4326)
         ) AS distance_degrees,
-        ST_Distance(nearest_streams."GEOMETRY"::geography,
-          ST_SetSRID(ST_GeographyFromText(:search_point), 4326)
+        ST_Distance(nearest_streams.geom,
+          ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
         ) AS distance,
         ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
         ST_AsGeoJSON(ST_ClosestPoint(
-        nearest_streams."GEOMETRY", 
-        ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
+        nearest_streams.geom, 
+        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005))) as closest_stream_point
       FROM
-      freshwater_atlas_stream_networks  as nearest_streams
-      ORDER BY nearest_streams."GEOMETRY" <#>
-        ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+      whse_basemapping.fwa_stream_networks_sp  as nearest_streams
+      ORDER BY nearest_streams.geom <#>
+        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
       LIMIT :limit 
     """)
     rp_nearest_streams = db.execute(

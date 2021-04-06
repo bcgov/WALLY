@@ -33,7 +33,6 @@ logger = logging.getLogger("aggregator")
 API_DATASOURCES = {
     "HYDAT": StreamStation,
     "hydrometric_stream_flow": StreamStation,
-    "freshwater_atlas_stream_networks": FreshwaterAtlasStreamNetworks,
     "normal_annual_runoff_isolines": NormalAnnualRunoffIsolines
 }
 

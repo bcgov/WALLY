@@ -395,16 +395,47 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         logger.info(
             "Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
 
-    q = """
-        select ST_AsGeojson(
-            coalesce(
-                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
-                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
-            )
-        ) as geom """
+    # old method: may still be faster.  more testing required.
+    # note:  there is a bug in these methods.  if the point on the stream is near the mouth of the stream
+    # at the confluence with the next river, the LOCAL_WATERSHED_CODE appears to have one fewer label (this is because
+    # the "next downstream watershed code" is at position 0... or in other words, the start of the selected stream).
+    # these methods don't take that into account yet.
+    # once this is solved, the distinction between "starting upstream" and "starting downstream" will be more reliable.
+    # q = """
+    #     select ST_AsGeojson(
+    #         coalesce(
+    #             (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, NULL)),
+    #             (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
+    #         )
+    #     ) as geom """
 
-    res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
-                         "include": watershed_feature_id if include_self else None})
+    # START HERE!!! INDEX POSITIONS ARE WRONG
+    # test with 9643773
+    q = """
+        with subwscode_ltree as (
+            SELECT  watershed_feature_id as origin_id,
+                    wscode_ltree as origin_wscode,
+                    localcode_ltree as origin_localcode,
+                    ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
+                    nlevel(localcode_ltree) as downstream_tributary_code_pos
+            FROM    whse_basemapping.fwa_watersheds_poly
+            WHERE   "watershed_feature_id" = :watershed_feature_id
+        )
+        SELECT
+            ST_AsGeoJSON(ST_Transform(ST_Union(geom), 4326)) as geom
+            -- watershed_feature_id, wscode_ltree, localcode_ltree, (select origin_localcode from subwscode_ltree)
+        FROM    whse_basemapping.fwa_watersheds_poly
+        WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+        AND     ltree2text(subltree(
+                    localcode_ltree || '000000'::ltree,
+                    (select downstream_tributary_code_pos from subwscode_ltree) - 1,
+                    (select downstream_tributary_code_pos from subwscode_ltree) - 0
+                ))::integer >= (select downstream_tributary from subwscode_ltree)
+        AND (NOT wscode_ltree <@ (select origin_localcode from subwscode_ltree) OR (select origin_wscode from subwscode_ltree) = (select origin_localcode from subwscode_ltree))
+
+    """
+
+    res = db.execute(q, {"watershed_feature_id": watershed_feature_id})
 
     if WATERSHED_DEBUG:
         logger.info("Upstream catchment query finished %s", res)
@@ -419,17 +450,8 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
             'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
-    feature = Feature(
-        geometry=shape(
-            geojson.loads(record[0])
-        ),
-        id=f"generated.{watershed_feature_id}",
-        properties={
-            "name": "Estimated catchment area",
-            "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
-            "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
-            "and LOCAL_WATERSHED_CODE properties."
-        }
+    feature = shape(
+        geojson.loads(record[0])
     )
     if WATERSHED_DEBUG:
         logger.info("Generated watershed feature %s", feature)
@@ -437,62 +459,51 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     return feature
 
 
-def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=True):
+def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
     """
 
-    nearest_stream = get_nearest_streams(db, point, limit=1)[0]
+    nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
 
     # testing for use with fwapg
     nearest_stream_blue_line_key = None
     nearest_stream_drm = None
     nearest_stream_point = nearest_stream.get('closest_stream_point')
 
-    point = shape(nearest_stream_point)
+    point = transform(transform_3005_4326, shape(nearest_stream_point))
 
-    rast_q = ""
-    if clip_dem:
-        rast_q = """
-            SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
-            FROM (
-                SELECT ST_Clip(
-                    rast, (
-                        SELECT
-                            ST_Union(ST_Transform("GEOMETRY", 4140)) as geom
-                        FROM    freshwater_atlas_watersheds
-                        WHERE   "FWA_WATERSHED_CODE" ilike (
-                            SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
-                            FROM    freshwater_atlas_watersheds fwa2
-                            WHERE   "WATERSHED_FEATURE_ID" = :upstream_from
-                        )
-                    )
-                ) as rast FROM cdem.ws_cdem
-            ) cdem_clipped
-        """
-    else:
-        rast_q = """
-            SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
-            FROM cdem.ws_cdem
-            WHERE ST_Intersects(
-                rast, (
-                    SELECT
-                        ST_Union(ST_Transform("GEOMETRY", 4140)) as geom
-                    FROM    freshwater_atlas_watersheds
-                    WHERE   "FWA_WATERSHED_CODE" ilike (
-                        SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
-                        FROM    freshwater_atlas_watersheds fwa2
-                        WHERE   "WATERSHED_FEATURE_ID" = :upstream_from
-                    )
-                )
+    if WATERSHED_DEBUG:
+        logger.info('--------- nearest stream -------------')
+        logger.info(point)
+        logger.info('distance: %s', point.distance(click_point))
+        logger.info('--------------------------------------')
+
+    rast_q = """
+        with subwscode_ltree as (
+            SELECT  wscode_ltree as origin_wscode
+            FROM    whse_basemapping.fwa_watersheds_poly
+            WHERE   "watershed_feature_id" = :upstream_from
+        )
+        SELECT ST_AsGDALRaster(ST_Transform(ST_Union(rast), 4326), 'GTiff') As rastjpg
+        FROM dem.x_ws_cdem
+        WHERE ST_Intersects(
+            rast, (
+                SELECT
+                    ST_Union(geom) as geom
+                FROM    whse_basemapping.fwa_watersheds_poly
+                WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
             )
-        """
+        )
+    """
+
+    logger.info(rast_q)
 
     res = db.execute(rast_q, {"upstream_from": watershed_id})
     data = res.first()['rastjpg'].tobytes()
 
     file_010_dem = NamedTemporaryFile(
-        suffix='.tif', prefix="010_dem_")
+        suffix='.tif', prefix="010_dem_", delete=False)
     file_010_dem.write(data)
     dem_length = file_010_dem.tell()
 
@@ -500,45 +511,29 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
         raise ValueError("Did not receive any DEM data. Try again with clip_dem=False and clip " +
                          "using augment_dem_watershed_with_fwa")
 
-    # with rasterio.open(dem_data.name) as dataset:
-    #     data_array = dataset.read()
-
-    # # Register GDAL format drivers and configuration options with a
-    # # context manager.
-    # with rasterio.Env():
-
-    #     # Write an array as a raster band to a new 8-bit file. For
-    #     # the new file's profile, we start with the profile of the source
-    #     profile = data_array.profile
-
-    #     # And then change the band count to 1, set the
-    #     # dtype to uint8, and specify LZW compression.
-    #     profile.update(
-    #         dtype=rasterio.uint8,
-    #         count=1,
-    #         compress='lzw')
-
-    #     with rasterio.open(file_010_dem.name, 'w', **profile) as dem_gtiff:
-    #         dem_gtiff.write(array.astype(rasterio.uint8), 1)
-
     file_011_dem_burned = NamedTemporaryFile(suffix='.tif')
     file_020_dem_filled = NamedTemporaryFile(suffix='.tif')
     file_030_fdr = NamedTemporaryFile(suffix='.tif')
     file_040_far = NamedTemporaryFile(suffix='.tif')
     file_050_point_shp = TemporaryDirectory()
     file_060_snapped_pour_point = NamedTemporaryFile(suffix='.shp')
-    file_070_watershed = NamedTemporaryFile(suffix='.tif')
+    file_070_watershed = NamedTemporaryFile(
+        suffix='.tif', prefix="070_ws_", delete=False)
     file_080_result = NamedTemporaryFile(suffix='.shp')
+
+    def wbt_suppress_progress_output(value):
+        if not "%" in value:
+            logger.info(value)
 
     accum_result = wbt.flow_accumulation_full_workflow(
         file_010_dem.name,
         file_020_dem_filled.name,
         file_030_fdr.name,
         file_040_far.name,
-        out_type="Specific Contributing Area", log=False, clip=False, esri_pntr=False, callback=None)
+        out_type="Specific Contributing Area", log=False, clip=False, esri_pntr=False, callback=wbt_suppress_progress_output)
 
     if WATERSHED_DEBUG:
-        logger.info('accum result: %', accum_result)  # 0 or 1; 1 is an error
+        logger.info('accum result: %s', accum_result)  # 0 or 1; 1 is an error
 
     # Define a point feature geometry with one attribute
     shp_schema = {
@@ -561,16 +556,25 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
         f"{file_050_point_shp.name}/{point_shp_file}.shp",
         file_040_far.name,
         file_060_snapped_pour_point.name,
-        15.0, callback=None)
+        0.1, callback=wbt_suppress_progress_output)
 
     if WATERSHED_DEBUG:
         logger.info('Wrote snapped point')
         logger.info(snap_result)
 
+        with fiona.open(file_060_snapped_pour_point.name, 'r', 'ESRI Shapefile') as snp:
+            snapped_pt = shape(next(iter(snp)).get('geometry'))
+
+        logger.info('----- snap distance from stream point: %s', transform(transform_4326_3005,
+                    snapped_pt).distance(transform(transform_4326_3005, point)))
+        logger.info('----- snap distance from original click point: %s', transform(transform_4326_3005,
+                    snapped_pt).distance(transform(transform_4326_3005, click_point)))
+        logger.info('--------------------------------------------------')
+
     watershed_result = wbt.watershed(
         file_030_fdr.name,
         file_060_snapped_pour_point.name,
-        file_070_watershed.name, esri_pntr=False, callback=None)
+        file_070_watershed.name, esri_pntr=False, callback=wbt_suppress_progress_output)
 
     logger.info('------------------')
     logger.info('%s %s', file_010_dem.name, os.stat(file_010_dem.name).st_size)
@@ -586,7 +590,7 @@ def wbt_calculate_watershed(db: Session, point: Point, watershed_id, clip_dem=Tr
 
     wbt.raster_to_vector_polygons(
         file_070_watershed.name,
-        file_080_result.name
+        file_080_result.name, callback=wbt_suppress_progress_output
     )
 
     with fiona.open(file_080_result.name, 'r', 'ESRI Shapefile') as ws_result:
@@ -636,22 +640,27 @@ def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershe
     will be used in that area.
     """
 
+    logger.info("--------------------------------")
+    logger.info("WATERSHED_ID: %s", watershed_id)
+    logger.info("--------------------------------")
+
     q = """
         WITH
+        subwscode_ltree as (
+                SELECT  wscode_ltree as origin_wscode
+                FROM    whse_basemapping.fwa_watersheds_poly
+                WHERE   "watershed_feature_id" = :watershed_id
+        ),
         watershed_fwa_polygons AS (
-            SELECT
-                "GEOMETRY" as geom,
-                "FEATURE_AREA_SQM" as area,
-                "WATERSHED_FEATURE_ID" as id
-            FROM    freshwater_atlas_watersheds
-            WHERE   "FWA_WATERSHED_CODE" ilike (
-                SELECT  left(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), strpos(regexp_replace("FWA_WATERSHED_CODE", '000000', '%'), '%')) as fwa_local_code
-                FROM    freshwater_atlas_watersheds fwa2
-                WHERE   "WATERSHED_FEATURE_ID" = :upstream_from
-            )
+                SELECT
+                    watershed_feature_id,
+                    geom,
+                    ST_Area(geom) as area
+                FROM    whse_basemapping.fwa_watersheds_poly
+                WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
         ),
         dem_watershed AS (
-            SELECT ST_Intersection(ST_Transform(ST_Simplify(ST_Transform(ST_ChaikinSmoothing(ST_SetSRID(ST_GeomFromText(:dem_watershed), 4326)), 3005), 50), 4326), (select ST_Union(geom) from watershed_fwa_polygons)) as geom
+            SELECT ST_Intersection(ST_Simplify(ST_Transform(ST_ChaikinSmoothing(ST_SetSRID(ST_GeomFromText(:dem_watershed), 4326)), 3005), 50), (select ST_Union(geom) from watershed_fwa_polygons)) as geom
         ),
         upstream_fwa_polygons AS (
             SELECT
@@ -660,9 +669,9 @@ def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershe
             FROM    watershed_fwa_polygons
             WHERE   ST_Intersects(geom, (select geom from dem_watershed))
             AND     (st_area(st_intersection(geom, (select geom from dem_watershed)))/st_area(geom)) > :factor
-            AND     id != :upstream_from
+            AND     watershed_feature_id != :watershed_id
         )
-        SELECT ST_AsGeoJSON(ST_Union(geom)) FROM
+        SELECT ST_AsGeoJSON(ST_Transform(ST_Union(geom), 4326)) FROM
         (
             SELECT geom FROM dem_watershed
             UNION SELECT geom from upstream_fwa_polygons
@@ -671,7 +680,7 @@ def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershe
     """
 
     res = db.execute(q, {
-        "upstream_from": watershed_id,
+        "watershed_id": watershed_id,
         "dem_watershed": dem_watershed.wkt,
         "factor": fwa_dem_selection_factor
     })
@@ -683,22 +692,74 @@ def augment_dem_watershed_with_fwa(db: Session, dem_watershed: Polygon, watershe
         return None
 
     # return a Shapely shape of the result (Polygon). This can be loaded into a GeoJSON Feature.
-    return shape(
+    feature = shape(
         geojson.loads(record[0])
     )
+
+    logger.info("-----------------------------------")
+    logger.info("AUGMENTED DEM+FWA WATERSHED AREA: %s", feature.area)
+    logger.info("-----------------------------------")
+    return feature
+
+
+def calculate_catchment_of_full_stream(db, watershed_id):
+    """
+    returns the catchment of the entire selected stream.
+    """
+
+    q = """
+                with subwscode_ltree as (
+                    SELECT  wscode_ltree as origin_wscode
+                    FROM    whse_basemapping.fwa_watersheds_poly
+                    WHERE   "watershed_feature_id" = :watershed_id
+                )
+
+                SELECT
+                    ST_AsGEOJSON(ST_Union(geom)) as geom
+                FROM    whse_basemapping.fwa_watersheds_poly
+                WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+
+    """
+
+    if WATERSHED_DEBUG:
+        logger.info(
+            "Getting entire stream catchment area from database, feature id: %s", watershed_id)
+
+    res = db.execute(q, {"watershed_id": watershed_id})
+
+    if WATERSHED_DEBUG:
+        logger.info("Whole stream catchment query finished %s", res)
+
+    record = res.fetchone()
+
+    if WATERSHED_DEBUG:
+        logger.info("Whole stream catchment record %s", record)
+
+    if not record or not record[0]:
+        logger.warning(
+            'unable to calculate watershed from watershed feature id %s', watershed_id)
+        return None
+
+    return transform(
+        transform_3005_4326, shape(
+            geojson.loads(record[0])
+        ))
 
 
 def calculate_watershed(
     db: Session,
-    point: Point,
+    point: Point = None,
+    watershed_id: int = None,
     include_self: bool = False,
-    method='DEM+FWA'
+    upstream_method='DEM'
 ):
     """ estimates the watershed area upstream of a POI
 
         Optional arguments:
-        method: 'FWA', 'DEM', or 'DEM+FWA'.
-            FWA: Estimate the upstream catchment area using only the Freshwater Atlas.
+        upstream_method: 'FWA', 'DEM', or 'DEM+FWA'.
+            FWA+FULLSTREAM: Use the Freshwater Atlas to return the catchment area of the entire
+                        selected stream.
+            FWA+UPSTREAM: Estimate the upstream catchment area using only the Freshwater Atlas.
                  This will be accurate to the FWA linework around the outer perimeter
                  but will over or under-estimate the area around the point of interest (because
                  the watershed polygons forming the catchment area will not be split, even if
@@ -714,69 +775,94 @@ def calculate_watershed(
                      to the point of interest, and the FWA around the outer perimeter. This
                      is the default.
     """
+
+    if point and watershed_id:
+        raise ValueError(
+            "Do not provide both point and watershed_id at the same time")
+
+    if not point and not watershed_id:
+        raise ValueError(
+            "Must provide either a starting point (lat, long) or a starting watershed ID")
+
+    if watershed_id and not upstream_method.startswith("FWA"):
+        raise ValueError(
+            f"Starting watershed ID incompatible with {upstream_method}. Use only FWA methods.")
+
     if WATERSHED_DEBUG:
         logger.info("calculating watershed")
 
-    # first get the ID of the watershed we are starting in.
-    # this will be used later to help with queries against the fundamental watersheds.
-    q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
-        func.ST_Contains(
-            FreshwaterAtlasWatersheds.GEOMETRY,
-            func.ST_GeomFromText(point.wkt, 4326)
+    if point:
+        # first get the ID of the watershed we are starting in.
+        # this will be used later to help with queries against the fundamental watersheds.
+        q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
+            func.ST_Contains(
+                FreshwaterAtlasWatersheds.GEOMETRY,
+                func.ST_Transform(func.ST_GeomFromText(point.wkt, 4326), 3005)
+            )
         )
-    )
 
-    if WATERSHED_DEBUG:
-        logger.info("watershed query %s", q)
+        if WATERSHED_DEBUG:
+            logger.info("watershed query %s", q)
 
-    watershed_id = q.first()
+        watershed_id = q.first()
+        if not watershed_id:
+            if WATERSHED_DEBUG:
+                logger.warning("No watershed found")
+            return None
+        watershed_id = watershed_id[0]
 
     if WATERSHED_DEBUG:
         logger.info("watershed id %s", watershed_id)
 
-    if not watershed_id:
-        if WATERSHED_DEBUG:
-            logger.warning("No watershed found")
-        return None
-
-    watershed_id = watershed_id[0]
-    watershed_source = ""
-    generated_method = ""
-    watershed_point = base64.urlsafe_b64encode(point.wkb).decode('utf-8')
+    watershed_point = None
     watershed = None
-
+    stream_name = get_watershed_stream_name(db, watershed_id)
     # choose method based on function argument.
-    if method.startswith('DEM'):
+
+    if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
         watershed = wbt_calculate_watershed(
-            db, point, watershed_id, clip_dem=not method == 'DEM+FWA')
+            db, point, watershed_id, clip_dem=not upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
+        watershed_point = base64.urlsafe_b64encode(point.wkb).decode('utf-8')
 
         # optionally augment the watershed using the FWA.
-        if method == 'DEM+FWA':
+        if upstream_method == 'DEM+FWA':
             watershed = augment_dem_watershed_with_fwa(
                 db, watershed, watershed_id)
             watershed_source = "Estimated by combining the result from CDEM/WhiteboxTools " + \
                                "with Freshwater Atlas fundamental watershed polygons."
             generated_method = 'generated_dem_fwa'
 
-    else:
-        watershed = get_upstream_catchment_area(
-            db, watershed_id, include_self=include_self)
+    elif upstream_method == 'FWA+UPSTREAM':
+        watershed = get_upstream_catchment_area(db, watershed_id)
         watershed_source = "Estimated by combining Freshwater Atlas watershed polygons that are " + \
-            "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " + \
-            "and LOCAL_WATERSHED_CODE properties."
+            "determined to be part of the selected stream based on FWA_WATERSHED_CODE and upstream " + \
+            "of the selected point based on LOCAL_WATERSHED_CODE. Note: the watershed polygon " + \
+            "containing the selected point is included."
         generated_method = 'generated'
         watershed_point = watershed_id
+
+    elif upstream_method == 'FWA+FULLSTREAM':
+        watershed = calculate_catchment_of_full_stream(db, watershed_id)
+        watershed_source = "Estimated by combining Freshwater Atlas watershed polygons that are " + \
+            "determined to be part of the selected stream based on FWA_WATERSHED_CODE."
+        generated_method = 'generated_full_stream'
+        watershed_point = watershed_id
+
+    else:
+        raise ValueError(
+            f"Invalid method {upstream_method}. Valid methods are DEM, DEM+FWA, FWA+UPSTREAM, FWA+FULLSTREAM")
 
     # combined_result = wbt_clipped_polygon.union(feat)
     feature = Feature(
         geometry=watershed,
         id=f"{generated_method}.{watershed_point}",
         properties={
-            "name": "Estimated catchment area",
-            "watershed_source": watershed_source
+            "name": f"Estimated catchment area {f'({stream_name})' if stream_name else ''}",
+            "watershed_source": watershed_source,
+            "stream_name": stream_name
         }
     )
     if not feature:
@@ -921,16 +1007,24 @@ def get_watershed(db: Session, watershed_feature: str):
     # if we generated this watershed, use the catchment area
     # generation function to get the shape.
     if watershed_layer == 'generated':
-        watershed = get_upstream_catchment_area(db, watershed_feature_id[0])
+        watershed_id = int(watershed_feature_id[0])
+        watershed = calculate_watershed(
+            db, watershed_id=watershed_id, upstream_method='FWA+UPSTREAM')
 
     elif watershed_layer == 'generated_dem_fwa':
         logger.info(watershed_feature_id[0])
         point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
-        watershed = calculate_watershed(db, point, method='DEM+FWA')
+        watershed = calculate_watershed(
+            db, point=point, upstream_method='DEM+FWA')
 
     elif watershed_layer == 'generated_dem':
-        point = wkb.loads(base64.b64decode(watershed_feature_id[0]))
-        watershed = calculate_watershed(db, point, method='DEM')
+        point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
+        watershed = calculate_watershed(db, point=point, upstream_method='DEM')
+
+    elif watershed_layer == 'generated_full_stream':
+        watershed_id = watershed_feature_id[0]
+        watershed = calculate_watershed(
+            db, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
 
     # otherwise, fetch the watershed from DataBC. The layer is encoded in the
     # feature id.

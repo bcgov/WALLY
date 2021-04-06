@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 
 from shapely.geometry import shape, MultiPolygon, Polygon, Point
 from shapely.ops import transform
-
+from urllib.parse import unquote
 
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation
@@ -98,7 +98,11 @@ def get_watersheds(
         "", title="Search point",
         description="Point to search within"),
     include_self: bool = Query(
-        False, title="Include the area around the point of interest in generated polygons")
+        False, title="Include the area around the point of interest in generated polygons"),
+    upstream_method: str = Query(
+        "DEM+FWA", title="Upstream catchment estimation method",
+        description="Method for estimating upstream catchment area. See watersheds/controller.py"
+    )
 ):
     """ returns a list of watersheds at this point, if any.
     Watersheds are sourced from the following datasets:
@@ -122,23 +126,26 @@ def get_watersheds(
         point_parsed = json.loads(point)
         point = Point(point_parsed)
 
-    watersheds = databc_feature_search(search_layers, search_area=point)
+    # watersheds = databc_feature_search(search_layers, search_area=point)
 
     watershed_features = []
 
-    calculated_ws = calculate_watershed(db, point, include_self=include_self)
+    upstream_method = unquote(upstream_method)
+
+    calculated_ws = calculate_watershed(
+        db, point, include_self=include_self, upstream_method=upstream_method)
 
     if calculated_ws:
         watershed_features.append(calculated_ws)
 
-    for ws in watersheds.features:
-        watershed_features.append(
-            Feature(
-                geometry=transform(transform_3005_4326, shape(ws.geometry)),
-                properties=dict(ws.properties),
-                id=ws.id
-            )
-        )
+    # for ws in watersheds.features:
+    #     watershed_features.append(
+    #         Feature(
+    #             geometry=transform(transform_3005_4326, shape(ws.geometry)),
+    #             properties=dict(ws.properties),
+    #             id=ws.id
+    #         )
+    #     )
 
     return FeatureCollection(watershed_features)
 
@@ -164,7 +171,7 @@ def watershed_stats(
     watershed_poly = shape(watershed.geometry)
 
     watershed_details = get_watershed_details(db, watershed)
-    wd = watershed_details # purely for shorthand below
+    wd = watershed_details  # purely for shorthand below
 
     # isoline model outputs
     isoline_runoff_model = calculate_runoff_in_area(db, watershed_poly)
