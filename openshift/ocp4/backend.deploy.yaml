@@ -88,7 +88,7 @@ objects:
                   key: app-db-name
                   name: wally-psql
             - name: POSTGRES_SERVER
-              value: wally-psql-master-${NAME}
+              value: wally-psql-${NAME}
             - name: WALLY_ENV
               value: "${ENVIRONMENT}"
       type: Rolling
@@ -173,7 +173,7 @@ objects:
                 key: WATERSHED_DEBUG
                 name: wally-debug
           - name: POSTGRES_SERVER
-            value: wally-psql-master-${NAME}
+            value: wally-psql-${NAME}
           - name: WALLY_ENV
             value: "${ENVIRONMENT}"
           - name: WALLY_VERSION
