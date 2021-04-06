@@ -11,7 +11,7 @@ COPY . .
 # run unit tests and build
 RUN npm run test:unit && npm run build
 
-FROM nginx:1.12
+FROM nginx:1.16
 
 COPY --from=build /app/dist/ /tmp/src
 COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
