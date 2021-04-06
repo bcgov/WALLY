@@ -258,7 +258,7 @@ parameters:
   displayName: ImageStream Namespace
   name: IMAGE_STREAM_NAMESPACE
   required: true
-  value: bfpeyx-tools
+  value: d1b5d2-tools
 - name: IMAGE_STREAM_TAG
   description: Patroni ImageTag
   value: patroni-postgis:10-postgis2.5

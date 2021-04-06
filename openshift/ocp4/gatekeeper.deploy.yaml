@@ -14,7 +14,7 @@ parameters:
   displayName: Namespace
   description: The namespace to apply this template to.
   required: true
-  value: bfpeyx-test
+  value: d1b5d2-test
 - name: ENVIRONMENT
   displayName: Environment
   description: The environment that these template objects will run in (e.g. dev, test, prod)

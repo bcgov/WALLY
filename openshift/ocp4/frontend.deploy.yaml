@@ -14,7 +14,7 @@ parameters:
   displayName: Namespace
   description: The namespace to apply this template to.
   required: true
-  value: bfpeyx-test
+  value: d1b5d2-test
 - name: REPLICAS
   value: '1'
 objects:
