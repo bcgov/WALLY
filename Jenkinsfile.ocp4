@@ -223,9 +223,9 @@ pipeline {
                   "NAMESPACE=${project}"
                 ))
 
-                echo "Processing database deployment (using folder ${templateDir}"
+                echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
                 def deployDBTemplate = openshift.process("-f",
-                    "${templateDir}/crunchy-postgres/postgres.deploy.yaml",
+                    "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
                     "DATABASE_SERVICE_NAME=wally-psql-${NAME}",
                     "IMAGE_STREAM_NAMESPACE=${project}",
                     "IMAGE_STREAM_NAME=crunchy-postgres-gis",
@@ -440,9 +440,9 @@ pipeline {
                 // ))
 
                 // Process postgres deployment config (sub in vars, create list items)
-                echo "Processing database deployment (using folder ${templateDir}"
+                echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
                 def deployDBTemplate = openshift.process("-f",
-                    "${templateDir}/crunchy-postgres/postgres.deploy.yaml",
+                    "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
                     "DATABASE_SERVICE_NAME=wally-psql-${env_name}",
                     "IMAGE_STREAM_NAMESPACE=${project}",
                     "IMAGE_STREAM_NAME=crunchy-postgres-gis",
@@ -569,9 +569,9 @@ pipeline {
                 // ))
 
                 // Process postgres deployment config (sub in vars, create list items)
-                echo "Processing database deployment (using folder ${templateDir}"
+                echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
                 def deployDBTemplate = openshift.process("-f",
-                    "${templateDir}/crunchy-postgres/postgres.deploy.yaml",
+                    "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
                     "DATABASE_SERVICE_NAME=wally-psql-${env_name}",
                     "IMAGE_STREAM_NAMESPACE=${project}",
                     "IMAGE_STREAM_NAME=crunchy-postgres-gis",
