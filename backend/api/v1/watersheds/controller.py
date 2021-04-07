@@ -462,13 +462,29 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
 def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
+
+    First generate an overestimate of the catchment using a full stream
+    catchment query (full stream because it's a fast query). We also add
+    Hydrosheds starting from the original FWA fundamental polygon to ensure
+    we capture the cross border area, if applicable (note: could be refined to
+    select Hydrosheds only if we detect that we are hitting a border).
+
+    Next, export a new raster from the DEM (a pre-processed DEM with burned streams)
+    for tiles that intersect with the above over-estimated catchment.  The catchment
+    is then refined using the Whitebox Tools functions FlowAccumulationFullWorkflow,
+    JensonSnapPoints and Watershed. The Whitebox Tools raster to vector function is
+    used to return a vector format watershed.
+
+    The resulting watershed will show a "pixelated" pattern around the edges corresponding
+    to the size of the pixels (or the resolution) of the source DEM (e.g. 30m or 90m edges etc.).
+
+    Hydrosheds data:  https://www.hydrosheds.org/ via FWAPG https://github.com/smnorris/fwapg
+    Whitebox Tools: https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html
+    Hydrosheds recursive query from https://github.com/smnorris/fwapg
     """
 
     nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
 
-    # testing for use with fwapg
-    nearest_stream_blue_line_key = None
-    nearest_stream_drm = None
     nearest_stream_point = nearest_stream.get('closest_stream_point')
 
     point = transform(transform_3005_4326, shape(nearest_stream_point))
@@ -480,19 +496,42 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
         logger.info('--------------------------------------')
 
     rast_q = """
-        with subwscode_ltree as (
+        WITH RECURSIVE hydrosheds_walkup (hybas_id, geom) AS
+        (
+            SELECT hybas_id, wsd.geom
+            FROM hydrosheds.hybas_lev12_v1c wsd
+            INNER JOIN (
+                select ST_Centroid(geom) as centroid from whse_basemapping.fwa_watersheds_poly
+                where "watershed_feature_id" = :upstream_from
+                ) as pt
+            ON ST_Intersects(wsd.geom, pt.centroid)
+
+            UNION ALL
+
+            SELECT b.hybas_id, b.geom
+            FROM hydrosheds.hybas_lev12_v1c b,
+            hydrosheds_walkup w
+            WHERE b.next_down = w.hybas_id
+        ),
+        subwscode_ltree as (
             SELECT  wscode_ltree as origin_wscode
             FROM    whse_basemapping.fwa_watersheds_poly
             WHERE   "watershed_feature_id" = :upstream_from
+        ),
+        combined as (
+            SELECT  geom
+            FROM    whse_basemapping.fwa_watersheds_poly
+            WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+            UNION   
+            SELECT  geom FROM hydrosheds_walkup
         )
         SELECT ST_AsGDALRaster(ST_Transform(ST_Union(rast), 4326), 'GTiff') As rastjpg
         FROM dem.x_ws_cdem
         WHERE ST_Intersects(
             rast, (
                 SELECT
-                    ST_Union(geom) as geom
-                FROM    whse_basemapping.fwa_watersheds_poly
-                WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+                    ST_Collect(geom) as geom
+                FROM    combined
             )
         )
     """
@@ -816,7 +855,8 @@ def calculate_watershed(
 
     watershed_point = None
     watershed = None
-    stream_name = get_watershed_stream_name(db, watershed_id)
+    # stream_name = get_watershed_stream_name(db, watershed_id)
+    stream_name = ""
     # choose method based on function argument.
 
     if upstream_method.startswith('DEM'):
