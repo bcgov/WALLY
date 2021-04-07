@@ -13,6 +13,15 @@ Most resources that need to be created in the environments but are not stored in
 * wally-github-token (GitHub token)
 * apitest-test-creds (test account for CI/CD API tests)
 
+### dev namespace
+
+* common-docgen
+* wally-psql
+* minio
+* keycloak-config
+* gatekeeper-credentials
+* wally-debug
+
 ## Import images
 
 The following external/community images don't have BuildConfigs and need to be imported:
