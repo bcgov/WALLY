@@ -225,7 +225,7 @@ pipeline {
                 ))
 
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
-                def deployDBTemplate = openshift.process("-f",
+                def database = openshift.process("-f",
                     "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
                     "DATABASE_SERVICE_NAME=wally-psql-${NAME}",
                     "IMAGE_STREAM_NAMESPACE=${project}",
@@ -442,7 +442,7 @@ pipeline {
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
-                def deployDBTemplate = openshift.process("-f",
+                def database = openshift.process("-f",
                     "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
                     "DATABASE_SERVICE_NAME=wally-psql-${env_name}",
                     "IMAGE_STREAM_NAMESPACE=${project}",
@@ -571,7 +571,7 @@ pipeline {
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
-                def deployDBTemplate = openshift.process("-f",
+                def database = openshift.process("-f",
                     "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
                     "DATABASE_SERVICE_NAME=wally-psql-${env_name}",
                     "IMAGE_STREAM_NAMESPACE=${project}",
