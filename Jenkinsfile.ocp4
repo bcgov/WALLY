@@ -28,7 +28,8 @@ Long createDeployment (String suffix, String gitRef) {
     // )
     // echo "deployment ID: ${ghDeploymentId}"
     // return ghDeploymentId
-  return new Long(1)
+  long l = 1
+  return l
 }
 
 // Create deployment status for a deployment ID (call createDeployment first)
