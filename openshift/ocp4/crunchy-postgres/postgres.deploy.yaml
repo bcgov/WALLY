@@ -145,23 +145,6 @@ objects:
         appver: wally${NAME_SUFFIX}
       name: ${DATABASE_SERVICE_NAME}-setupcfg
   - apiVersion: v1
-    kind: Secret
-    metadata:
-      annotations:
-        template.openshift.io/expose-database_name: "{.data['database-name']}"
-        template.openshift.io/expose-password: "{.data['database-password']}"
-        template.openshift.io/expose-username: "{.data['database-user']}"
-        as-copy-of: wally-database-secrets
-      name: ${DATABASE_SERVICE_NAME}
-    stringData:
-      database-name: ${POSTGRESQL_DATABASE}
-      database-password: ${POSTGRESQL_PASSWORD}
-      database-user: ${POSTGRESQL_USER}
-      fdw-database-user: null
-      fdw-database-password: null
-      fdw-database-server: null
-      fdw-database-schema: null
-  - apiVersion: v1
     kind: Service
     metadata:
       annotations:
@@ -224,41 +207,31 @@ objects:
                   value: userdata
                 - name: PGHOST
                   value: /tmp
-                - name: PG_DATABASE
-                  valueFrom:
-                    secretKeyRef:
-                        key: database-name
-                        name: ${DATABASE_SERVICE_NAME}
-                - name: PG_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                        key: database-password
-                        name: ${DATABASE_SERVICE_NAME}
-                - name: PG_USER
-                  valueFrom:
-                    secretKeyRef:
-                        key: database-user
-                        name: ${DATABASE_SERVICE_NAME}
-                - name: PG_MODE
-                  valueFrom:
-                    secretKeyRef:
-                        key: PG_MODE
-                        name: crunchy-db-credentials
-                - name: PG_PRIMARY_PASSWORD
-                  valueFrom:
-                    secretKeyRef:
-                        key: PG_PRIMARY_PASSWORD
-                        name: crunchy-db-credentials
                 - name: PG_PRIMARY_USER
                   valueFrom:
                     secretKeyRef:
-                        key: PG_PRIMARY_USER
-                        name: crunchy-db-credentials
-                - name: PG_ROOT_PASSWORD
+                      key: superuser-username
+                      name: wally-psql
+                - name: PG_PRIMARY_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                        key: PG_ROOT_PASSWORD
-                        name: crunchy-db-credentials
+                      key: superuser-password
+                      name: wally-psql
+                - name: PG_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: app-db-username
+                      name: wally-psql
+                - name: PG_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: app-db-password
+                      name: wally-psql
+                - name: PG_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      key: app-db-name
+                      name: wally-psql
               image: " "
               imagePullPolicy: IfNotPresent
               livenessProbe:
