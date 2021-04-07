@@ -480,7 +480,7 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
 
     Hydrosheds data:  https://www.hydrosheds.org/ via FWAPG https://github.com/smnorris/fwapg
     Whitebox Tools: https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html
-    Hydrosheds recursive query from https://github.com/smnorris/fwapg
+    Hydrosheds recursive query from https://github.com/smnorris/fwapg/blob/main/sql/functions/FWA_WatershedExBC.sql
     """
 
     nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
