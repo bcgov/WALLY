@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Template
 labels:
-  app: wally${SUFFIX}
-  instance: ${NAME}${SUFFIX}
+  app: wally${NAME_SUFFIX}
+  instance: ${NAME_SUFFIX}
   component: database
-  name: ${NAME}${SUFFIX}
+  name: ${DATABASE_SERVICE_NAME}
 metadata:
   name: wally-postgresql-dc
 parameters:
