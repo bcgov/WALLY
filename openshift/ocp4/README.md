@@ -6,21 +6,27 @@ Note: These are the steps required to stand up WALLY from scratch on OCP4, but m
 
 Most resources that need to be created in the environments but are not stored in templates in the repo (such as secrets) can be retrieved from OCP3 using `oc get secret wally-at-github -o yaml`.
 
-## Create or import secrets
+## Create or import secrets/configmaps
 
 ### tools namespace
+#### secrets
 * wally-at-github (GitHub SSH key)
 * wally-github-token (GitHub token)
 * apitest-test-creds (test account for CI/CD API tests)
 
 ### dev namespace
-
+#### secrets
 * common-docgen
 * wally-psql
 * minio
 * keycloak-config
 * gatekeeper-credentials
 * wally-debug
+* mapbox-access-token
+
+#### configmaps
+* gatekeeper-config
+* promtail-config
 
 ## Import images
 
