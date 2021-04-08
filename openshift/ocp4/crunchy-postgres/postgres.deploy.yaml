@@ -211,15 +211,15 @@ objects:
                   value: userdata
                 - name: PGHOST
                   value: /tmp
-                - name: PG_PRIMARY_USER
-                  valueFrom:
-                    secretKeyRef:
-                      key: superuser-username
-                      name: wally-psql
                 - name: PG_ROOT_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       key: superuser-password
+                      name: wally-psql
+                - name: PG_PRIMARY_USER
+                  valueFrom:
+                    secretKeyRef:
+                      key: primaryuser-username
                       name: wally-psql
                 - name: PG_PRIMARY_PASSWORD
                   valueFrom:
