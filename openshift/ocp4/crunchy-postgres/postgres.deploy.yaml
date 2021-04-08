@@ -232,7 +232,7 @@ objects:
                     secretKeyRef:
                       key: app-db-name
                       name: wally-psql
-              image: "image-registry.openshift-image-registry.svc:5000/d1b5d2-dev/crunchy-postgres-gis:centos8-13.2-3.0-4.6.2"
+              image: "${IMAGE_REGISTRY}/${IMAGE_STREAM_NAMESPACE/${IMAGE_STREAM_NAME}:${IMAGE_STREAM_VERSION}"
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 3
