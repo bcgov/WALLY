@@ -199,6 +199,8 @@ objects:
               env:
                 - name: MODE
                   value: postgres
+                - name: PG_MODE
+                  value: primary
                 - name: PG_PRIMARY_PORT
                   value: "5432"
                 - name: CONTAINER_NAME
