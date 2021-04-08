@@ -216,10 +216,15 @@ objects:
                     secretKeyRef:
                       key: superuser-username
                       name: wally-psql
-                - name: PG_PRIMARY_PASSWORD
+                - name: PG_ROOT_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       key: superuser-password
+                      name: wally-psql
+                - name: PG_PRIMARY_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      key: primaryuser-password
                       name: wally-psql
                 - name: PG_USER
                   valueFrom:
