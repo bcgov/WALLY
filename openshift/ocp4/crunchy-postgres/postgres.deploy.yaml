@@ -197,6 +197,8 @@ objects:
           containers:
             - capabilities: {}
               env:
+                - name: MODE
+                  value: postgres
                 - name: PG_PRIMARY_PORT
                   value: "5432"
                 - name: CONTAINER_NAME
