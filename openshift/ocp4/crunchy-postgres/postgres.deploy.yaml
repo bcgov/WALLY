@@ -232,7 +232,7 @@ objects:
                     secretKeyRef:
                       key: app-db-name
                       name: wally-psql
-              image: "${IMAGE_REGISTRY}/${IMAGE_STREAM_NAMESPACE/${IMAGE_STREAM_NAME}:${IMAGE_STREAM_VERSION}"
+              image: "${IMAGE_REGISTRY}/${IMAGE_STREAM_NAMESPACE}/${IMAGE_STREAM_NAME}:${IMAGE_STREAM_VERSION}"
               imagePullPolicy: IfNotPresent
               livenessProbe:
                 failureThreshold: 3
