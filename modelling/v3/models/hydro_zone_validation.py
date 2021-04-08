@@ -1,6 +1,7 @@
 import os
 import json
 import pandas as pd
+import numpy as np
 from xgboost import XGBRegressor, plot_importance
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
@@ -14,7 +15,8 @@ import seaborn as sns
 from pathlib import Path
 import matplotlib.backends.backend_pdf
 
-directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
+# directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
+directory = './flattened_data/annual/'
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
@@ -25,23 +27,31 @@ columns = list(inputs) + [dependant_variable]
 
 show_error_plots = False
 
-params = {
-  'nthread':[6], #when use hyperthread, xgboost may become slower
-  'objective':['reg:squarederror'],
-  'learning_rate': [.03, 0.05, .07], #so called `eta` value
-  'max_depth': [5, 6, 7],
-  'min_child_weight': [4, 5, 6],
-  # 'subsample': [0.7, 0.85, 0.95],
-  'subsample': [0.7],
-  # 'colsample_bytree': [0.7, 0.85, 0.95],
-  'colsample_bytree': [0.7],
-  'n_estimators': [300]
+# params = {
+#   'nthread':[6], #when use hyperthread, xgboost may become slower
+#   'objective':['reg:squarederror'],
+#   'learning_rate': [.03, 0.05, .07], #so called `eta` value
+#   'max_depth': [5, 6, 7],
+#   'min_child_weight': [4, 5, 6],
+#   # 'subsample': [0.7, 0.85, 0.95],
+#   'subsample': [0.7],
+#   # 'colsample_bytree': [0.7, 0.85, 0.95],
+#   'colsample_bytree': [0.7],
+#   'n_estimators': [300]
+# }
+
+xgb_params = {
+  'n_estimators': 2000,
+  'eta': 0.001,
+  'max_depth': 8,
+  'min_child_weight': 10,
+  'subsample': 0.75,
+  'colsample_bytree': 0.95,
+  'colsample_bylevel': 0.95,
 }
 
-model = XGBRegressor(random_state=42)
-folds = 15
+model = XGBRegressor(**xgb_params, random_state=42)
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
-kf = KFold(n_splits=folds, random_state=None, shuffle=True)
 
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
@@ -55,7 +65,9 @@ for filename in sorted(os.listdir(directory)):
         df_inputs =  list(inputs) + [dependant_variable]
         print(df_inputs)
         features_df = zone_df[df_inputs]
-        X = features_df.dropna(subset=df_inputs) # drop NaNs
+
+        # X = features_df.dropna(subset=df_inputs) # drop NaNs
+        X = features_df
 
         y = X[dependant_variable] # dependant
         X = X.drop([dependant_variable], axis=1) # independant
@@ -69,6 +81,10 @@ for filename in sorted(os.listdir(directory)):
         all_models = []
         best_model = None
         fold_counter = 1
+        
+        folds = 20
+        folds = min(folds, len(X.index))
+        kf = KFold(n_splits=folds, random_state=None, shuffle=True)
         for train_index, test_index in kf.split(X):
             X_train, X_test = X.iloc[train_index,:], X.iloc[test_index,:]
             y_train, y_test = y.iloc[train_index].values.ravel(), y.iloc[test_index].values.ravel()
@@ -76,7 +92,7 @@ for filename in sorted(os.listdir(directory)):
             eval_set = [(X_train, y_train), (X_test, y_test)]
 
             # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
-            model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
+            model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=50)
             
             # TODO
             # minimum number of years
@@ -100,17 +116,35 @@ for filename in sorted(os.listdir(directory)):
             # Prediction vs real plot
             marker_size = 9
             fig_pred, ax1 = plt.subplots(figsize=size)
-            ax1.scatter(range(len(y_pred)), y_pred, label="Prediction", s=marker_size)
-            ax1.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
+            # ax1.scatter(y_pred, y_test, label="Prediction", s=marker_size)
+            ax1 = sns.regplot(y_pred, y_test, fit_reg=True, truncate=True) 
+            # ax1.scatter(range(len(y_pred)), y_pred, label="Prediction", s=marker_size)
+            # ax1.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
             fig_pred.suptitle("Predicted MAR vs Real MAR")
+            # Set x y plot axis limits
+            xlim = ax1.get_xlim()[1]
+            ylim = ax1.get_ylim()[1]
+            max_size = max(xlim, ylim)
+            ax1.set_xlim([0, max_size])
+            ax1.set_ylim([0, max_size])
+            ax1.set_xlabel('Pred MAR')
+            ax1.set_ylabel('Real MAR')
+
+            lx = np.linspace(0,max_size/2,100)
+            ly = lx
+            ax1.plot(lx, ly, ':')
+
             ax1.legend()
             pdf.savefig( fig_pred )
+            # plt.show()
 
             # Features vs Prediction plots
             for column in X_test.columns:
                 fig_f, axf = plt.subplots(figsize=size)
-                axf.scatter(y_pred, X_test[column], s=marker_size)
-                axf.set_xlabel('MAR')
+                axf = sns.regplot(X_test[column], y_pred, fit_reg=True) 
+                # axf.scatter(y_pred, X_test[column], s=marker_size)
+                axf.set_xlabel(column)
+                axf.set_ylabel('MAR')
                 # axf.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
                 fig_f.suptitle(column + ' vs Predicted MAR')
                 # axf.legend()
@@ -211,15 +245,38 @@ for filename in sorted(os.listdir(directory)):
         # 2. which grouping of hydro zones are complement vs non-complement
         # 3. collapse rows down of stations
 
+        # fig1, ax1 = pyplot.subplots(figsize=size)
+        # title = "Zone " + zone_name + " RMSE vs R2"
+        # ax1.plot(r2s, rmses, 'o', label=title)
+        # # ax1.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+        # ax1.legend()
+        # pyplot.xlabel("R2")
+        # pyplot.ylabel("RMSE")
+        # pyplot.title(title)
 
-        fig1, ax1 = pyplot.subplots(figsize=size)
-        title = "Zone " + zone_name + " RMSE vs R2"
-        ax1.plot(r2s, rmses, 'o', label=title)
-        # ax1.plot(x_axis, results["validation_1"]["rmse"], label="Test")
-        ax1.legend()
-        pyplot.xlabel("R2")
-        pyplot.ylabel("RMSE")
-        pyplot.title(title)
+        fig1, (ax1, ax2, ax3) = pyplot.subplots(3, 1, figsize=(10,20))
+        fig1.subplots_adjust(hspace=0.4)
+
+        ax1.plot(r2s, rmses, 'o')
+        ax1.set_xlabel("R2")
+        ax1.set_ylabel("RMSE")
+        ax1.title.set_text('RMSE vs R2')
+
+        xrng = range(1,folds+1)
+
+        ax2.plot(xrng, r2s, 'o')
+        avg = sum(r2s) / len(r2s)
+        ax2.plot(xrng, [avg] * len(xrng), ':')
+        ax2.set_xlabel("FOLDS")
+        ax2.set_ylabel("R2")
+        ax2.title.set_text('Average R2')
+
+        ax3.plot(xrng, rmses, 'o')
+        avg = sum(rmses) / len(rmses)
+        ax3.plot(xrng, [avg] * len(xrng), ':')
+        ax3.set_xlabel("FOLDS")
+        ax3.set_ylabel("RMSE")
+        ax3.title.set_text('Average RMSE')
         for i, fold in enumerate(foldsArr):
             ax1.annotate(str(fold), (r2s[i], rmses[i]))
         # pyplot.show()
