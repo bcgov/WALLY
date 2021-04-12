@@ -307,7 +307,7 @@ pipeline {
                             resourceRequestMemory: '512Mi',
                             resourceLimitMemory: '1Gi',
                             activeDeadlineSeconds: '600',
-                            podRetention: 'never',
+                            podRetention: 'onFailure',
                             workingDir: '/tmp',
                             command: '',
                             args: '${computer.jnlpmac} ${computer.name}',
