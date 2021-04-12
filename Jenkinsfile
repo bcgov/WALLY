@@ -221,16 +221,31 @@ pipeline {
                   "NAMESPACE=${project}"
                 ))
 
-                // apply database template
+//                // apply database template
+//                def database = openshift.apply(openshift.process("-f",
+//                  "openshift/database.deploy.yaml",
+//                  "NAME=wally-psql",
+//                  "REPLICAS=1",
+//                  "CPU_REQUEST=100m",
+//                  "CPU_LIMIT=200m",
+//                  "SUFFIX=-${NAME}",
+//                  "IMAGE_STREAM_NAMESPACE=${project}",
+//                  "STORAGE_CLASS=netapp-file-standard"
+//                ))
+                echo "Processing database deployment (using folder openshift"
                 def database = openshift.apply(openshift.process("-f",
-                  "openshift/database.deploy.yaml",
-                  "NAME=wally-psql",
-                  "REPLICAS=1",
-                  "CPU_REQUEST=100m",
-                  "CPU_LIMIT=200m",
-                  "SUFFIX=-${NAME}",
-                  "IMAGE_STREAM_NAMESPACE=${project}",
-                  "STORAGE_CLASS=netapp-file-standard"
+                    "openshift/crunchy-postgres/postgres.deploy.yaml",
+                    "DATABASE_SERVICE_NAME=wally-psql-${NAME}",
+                    "IMAGE_STREAM_NAMESPACE=${project}",
+                    "IMAGE_STREAM_NAME=crunchy-postgres-gis",
+                    "NAME_SUFFIX=-${NAME}",
+                    "POSTGRESQL_DATABASE=wally",
+                    "VOLUME_CAPACITY=1Gi",
+                    "STORAGE_CLASS=netapp-file-standard",
+                    "REQUEST_CPU=200m",
+                    "REQUEST_MEMORY=512Mi",
+                    "LIMIT_CPU=500m",
+                    "LIMIT_MEMORY=1Gi"
                 ))
 
                 def backend = openshift.apply(openshift.process("-f",
