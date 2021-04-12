@@ -308,8 +308,7 @@ pipeline {
                             resourceRequestMemory: '512Mi',
                             resourceLimitMemory: '1Gi',
                             workingDir: '/tmp',
-                            command: '',
-                            args: '${computer.jnlpmac} ${computer.name}',
+                            command: '/bin/bash -c sleep 3600',
                             envVars: [
                                 envVar(
                                     key:'BASE_URL',
