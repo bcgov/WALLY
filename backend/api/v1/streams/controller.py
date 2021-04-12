@@ -79,6 +79,13 @@ def get_streams_with_apportionment(
 def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
     # Get the nearest 10 streams to the point
     sql = text("""
+      WITH closest_candidates AS (
+          select    *
+          from      whse_basemapping.fwa_stream_networks_sp streams
+          order by  streams.geom <#>
+                        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
+          limit     10
+      )
       SELECT
         nearest_streams.linear_feature_id as id, 
         nearest_streams.linear_feature_id as ogc_fid,
@@ -88,7 +95,7 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
         nearest_streams.linear_feature_id,
         nearest_streams.left_right_tributary,
         st_length(nearest_streams.geom) as geometry_length,
-        ST_AsText(nearest_streams.geom) as geometry,
+        ST_AsText(ST_Transform(nearest_streams.geom, 4326)) as geometry,
         nearest_streams.watershed_group_code as watershed_group_code, 
         nearest_streams.fwa_watershed_code as fwa_watershed_code,
         ST_Distance(ST_Transform(nearest_streams.geom, 4326),
@@ -98,13 +105,12 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
           ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
         ) AS distance,
         ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
-        ST_AsGeoJSON(ST_ClosestPoint(
+        ST_AsGeoJSON(ST_Transform(ST_ClosestPoint(
         nearest_streams.geom, 
-        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005))) as closest_stream_point
+        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)), 4326)) as closest_stream_point
       FROM
-      whse_basemapping.fwa_stream_networks_sp  as nearest_streams
-      ORDER BY nearest_streams.geom <#>
-        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
+      closest_candidates  as nearest_streams
+      ORDER BY  ST_Distance(nearest_streams.geom, ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)) ASC
       LIMIT :limit 
     """)
     rp_nearest_streams = db.execute(
