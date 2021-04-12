@@ -459,7 +459,7 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     return feature
 
 
-def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True):
+def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
 
@@ -487,12 +487,15 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
 
     nearest_stream_point = nearest_stream.get('closest_stream_point')
 
-    point = transform(transform_3005_4326, shape(nearest_stream_point))
+    point = shape(nearest_stream_point)
 
     if WATERSHED_DEBUG:
         logger.info('--------- nearest stream -------------')
         logger.info(point)
-        logger.info('distance: %s', point.distance(click_point))
+        logger.info('distance: %s', transform(
+            transform_4326_3005, point
+        ).distance(
+            transform(transform_4326_3005, click_point)))
         logger.info('--------------------------------------')
 
     rast_q = """
@@ -525,8 +528,49 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
             UNION   
             SELECT  geom FROM hydrosheds_walkup
         )
-        SELECT ST_AsGDALRaster(ST_Transform(ST_Union(rast), 4326), 'GTiff') As rastjpg
+        SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
         FROM dem.x_ws_cdem
+        WHERE ST_Intersects(
+            rast, (
+                SELECT
+                    ST_Transform(ST_Collect(geom), 4326) as geom
+                FROM    combined
+            )
+        )
+    """
+
+    srtm_q = """
+        WITH RECURSIVE hydrosheds_walkup (hybas_id, geom) AS
+        (
+            SELECT hybas_id, wsd.geom
+            FROM hydrosheds.hybas_lev12_v1c wsd
+            INNER JOIN (
+                select ST_Centroid(geom) as centroid from whse_basemapping.fwa_watersheds_poly
+                where "watershed_feature_id" = :upstream_from
+                ) as pt
+            ON ST_Intersects(wsd.geom, pt.centroid)
+
+            UNION ALL
+
+            SELECT b.hybas_id, b.geom
+            FROM hydrosheds.hybas_lev12_v1c b,
+            hydrosheds_walkup w
+            WHERE b.next_down = w.hybas_id
+        ),
+        subwscode_ltree as (
+            SELECT  wscode_ltree as origin_wscode
+            FROM    whse_basemapping.fwa_watersheds_poly
+            WHERE   "watershed_feature_id" = :upstream_from
+        ),
+        combined as (
+            SELECT  geom
+            FROM    whse_basemapping.fwa_watersheds_poly
+            WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+            UNION   
+            SELECT  geom FROM hydrosheds_walkup
+        )
+        SELECT ST_AsGDALRaster(ST_Transform(ST_Union(rast), 4326, 'Cubic'), 'GTiff') As rastjpg
+        FROM dem.x_ws_srtm
         WHERE ST_Intersects(
             rast, (
                 SELECT
@@ -535,6 +579,9 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
             )
         )
     """
+
+    if dem_source == 'srtm':
+        rast_q = srtm_q
 
     logger.info(rast_q)
 
@@ -597,13 +644,11 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
         file_060_snapped_pour_point.name,
         0.1, callback=wbt_suppress_progress_output)
 
+    with fiona.open(file_060_snapped_pour_point.name, 'r', 'ESRI Shapefile') as snp:
+        snapped_pt = shape(next(iter(snp)).get('geometry'))
+
     if WATERSHED_DEBUG:
         logger.info('Wrote snapped point')
-        logger.info(snap_result)
-
-        with fiona.open(file_060_snapped_pour_point.name, 'r', 'ESRI Shapefile') as snp:
-            snapped_pt = shape(next(iter(snp)).get('geometry'))
-
         logger.info('----- snap distance from stream point: %s', transform(transform_4326_3005,
                     snapped_pt).distance(transform(transform_4326_3005, point)))
         logger.info('----- snap distance from original click point: %s', transform(transform_4326_3005,
@@ -790,7 +835,8 @@ def calculate_watershed(
     point: Point = None,
     watershed_id: int = None,
     include_self: bool = False,
-    upstream_method='DEM'
+    upstream_method='DEM',
+    dem_source='srtm'
 ):
     """ estimates the watershed area upstream of a POI
 
