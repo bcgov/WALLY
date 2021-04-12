@@ -297,7 +297,6 @@ pipeline {
                     serviceAccount: 'jenkins',
                     cloud: 'openshift',
                     activeDeadlineSeconds: 1800,
-                    podRetention: 'onFailure',
                     containers: [
                         containerTemplate(
                             name: 'jnlp',
