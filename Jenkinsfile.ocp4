@@ -291,12 +291,18 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject(TOOLS_PROJECT) {
               withStatus(env.STAGE_NAME) {
-                podTemplate(yaml:"""
-                          metadata:
-                            name: apitest-${NAME}-${BUILD_NUMBER}
-                            labels:
-                              jenkins: slave
-                              jenkins/label: apitest-${NAME}-${BUILD_NUMBER}
+                          // metadata:
+                          //   name: apitest-${NAME}-${BUILD_NUMBER}
+                          //   labels:
+                          //     jenkins: slave
+                          //     jenkins/label: apitest-${NAME}-${BUILD_NUMBER}
+                podTemplate(
+                  label: "nodejs-${appName}-${envSuffix}-${prNumber}",
+                  name: "nodejs-${appName}-${envSuffix}-${prNumber}",
+                  serviceAccount: 'jenkins',
+                  cloud: "openshift",
+                  activeDeadlineSeconds: 1800,
+                  yaml:"""
                           spec:
                             containers:
                             - name: jnlp
@@ -326,36 +332,36 @@ pipeline {
                             - name: home-volume
                               emptyDir: {}
                 """) {
-                    node("apitest-${NAME}-${BUILD_NUMBER}") {
-                        container('apitest') {
-                          checkout scm
-                          dir('backend/api-tests') {
-                            try {
-                                sh """
-                                  apitest -f data_endpoints.apitest.yaml \
-                                  -e host=$BASE_URL \
-                                  -e auth_user=$AUTH_USER \
-                                  -e auth_pass=$AUTH_PASS \
-                                  -e auth_url=$AUTH_HOST \
-                                  -e auth_id=$CLIENT_ID \
-                                  -e auth_secret=$CLIENT_SECRET &&
-                                  apitest -f geocoder.apitest.yaml \
-                                  -e host=$BASE_URL \
-                                  -e auth_user=$AUTH_USER \
-                                  -e auth_pass=$AUTH_PASS \
-                                  -e auth_url=$AUTH_HOST \
-                                  -e auth_id=$CLIENT_ID \
-                                  -e auth_secret=$CLIENT_SECRET &&
-                                  apitest -f catalogue.apitest.yaml \
-                                  -e host=$BASE_URL \
-                                  -e auth_user=$AUTH_USER \
-                                  -e auth_pass=$AUTH_PASS \
-                                  -e auth_url=$AUTH_HOST \
-                                  -e auth_id=$CLIENT_ID \
-                                  -e auth_secret=$CLIENT_SECRET
-                                  """
-                                }
-                            finally {}
+                  node("apitest-${NAME}-${BUILD_NUMBER}") {
+                    container('apitest') {
+                      checkout scm
+                      dir('backend/api-tests') {
+                        try {
+                            sh """
+                              apitest -f data_endpoints.apitest.yaml \
+                              -e host=$BASE_URL \
+                              -e auth_user=$AUTH_USER \
+                              -e auth_pass=$AUTH_PASS \
+                              -e auth_url=$AUTH_HOST \
+                              -e auth_id=$CLIENT_ID \
+                              -e auth_secret=$CLIENT_SECRET &&
+                              apitest -f geocoder.apitest.yaml \
+                              -e host=$BASE_URL \
+                              -e auth_user=$AUTH_USER \
+                              -e auth_pass=$AUTH_PASS \
+                              -e auth_url=$AUTH_HOST \
+                              -e auth_id=$CLIENT_ID \
+                              -e auth_secret=$CLIENT_SECRET &&
+                              apitest -f catalogue.apitest.yaml \
+                              -e host=$BASE_URL \
+                              -e auth_user=$AUTH_USER \
+                              -e auth_pass=$AUTH_PASS \
+                              -e auth_url=$AUTH_HOST \
+                              -e auth_id=$CLIENT_ID \
+                              -e auth_secret=$CLIENT_SECRET
+                              """
+                            }
+                        finally {}
                       }
                     }
                   }
