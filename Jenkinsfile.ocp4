@@ -297,8 +297,8 @@ pipeline {
                           //     jenkins: slave
                           //     jenkins/label: apitest-${NAME}-${BUILD_NUMBER}
                 podTemplate(
-                  label: "nodejs-${appName}-${envSuffix}-${prNumber}",
-                  name: "nodejs-${appName}-${envSuffix}-${prNumber}",
+                  label: "apitest-${NAME}-${BUILD_NUMBER}",
+                  name: "apitest-${NAME}-${BUILD_NUMBER}",
                   serviceAccount: 'jenkins',
                   cloud: "openshift",
                   activeDeadlineSeconds: 1800,
