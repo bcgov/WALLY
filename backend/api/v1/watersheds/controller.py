@@ -31,8 +31,8 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
-from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatershedsFWAPG as FreshwaterAtlasWatersheds
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworksFWAPG as FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
@@ -395,22 +395,6 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         logger.info(
             "Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
 
-    # old method: may still be faster.  more testing required.
-    # note:  there is a bug in these methods.  if the point on the stream is near the mouth of the stream
-    # at the confluence with the next river, the LOCAL_WATERSHED_CODE appears to have one fewer label (this is because
-    # the "next downstream watershed code" is at position 0... or in other words, the start of the selected stream).
-    # these methods don't take that into account yet.
-    # once this is solved, the distinction between "starting upstream" and "starting downstream" will be more reliable.
-    # q = """
-    #     select ST_AsGeojson(
-    #         coalesce(
-    #             (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, NULL)),
-    #             (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
-    #         )
-    #     ) as geom """
-
-    # START HERE!!! INDEX POSITIONS ARE WRONG
-    # test with 9643773
     q = """
         with subwscode_ltree as (
             SELECT  watershed_feature_id as origin_id,
@@ -423,7 +407,6 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
         )
         SELECT
             ST_AsGeoJSON(ST_Transform(ST_Union(geom), 4326)) as geom
-            -- watershed_feature_id, wscode_ltree, localcode_ltree, (select origin_localcode from subwscode_ltree)
         FROM    whse_basemapping.fwa_watersheds_poly
         WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
         AND     ltree2text(subltree(

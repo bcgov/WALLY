@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from api import config
-from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworksFWAPG as FreshwaterAtlasStreamNetworks
 from geojson import Point, Feature, FeatureCollection
 import shapely.wkt
 import json
