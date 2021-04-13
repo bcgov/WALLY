@@ -307,7 +307,8 @@ pipeline {
                             resourceRequestMemory: '512Mi',
                             resourceLimitMemory: '1Gi',
                             workingDir: '/tmp',
-                            command: '/bin/bash -c "sleep 3600"',
+                            command: '',
+                            entrypoint: '/bin/bash -c "sleep 3600"'
                             envVars: [
                                 envVar(
                                     key:'BASE_URL',
