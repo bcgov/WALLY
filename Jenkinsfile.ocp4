@@ -338,7 +338,7 @@ pipeline {
                             - name: home-volume
                               emptyDir: {}
                 """) {
-                  node(POD_LABEL) {
+                  node("apitest-${NAME}-${BUILD_NUMBER}") {
                     container('apitest') {
                       checkout scm
                       dir('backend/api-tests') {
