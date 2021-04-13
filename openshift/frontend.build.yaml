@@ -49,7 +49,7 @@ objects:
         dockerStrategy:
           from:
             kind: ImageStreamTag
-            name: 'nginx:1.16'
+            name: 'nginx:1.12'
             namespace: openshift
         type: Docker
       successfulBuildsHistoryLimit: 5

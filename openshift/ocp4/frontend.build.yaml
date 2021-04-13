@@ -39,6 +39,7 @@ objects:
       runPolicy: SerialLatestOnly
       source:
         contextDir: frontend
+        dockerfile: Dockerfile.ocp4
         git:
           ref: "${GIT_REF}"
           uri: "${GIT_REPO}"

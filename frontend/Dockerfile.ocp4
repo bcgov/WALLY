@@ -1,4 +1,4 @@
-FROM node:10 as build
+FROM image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/node:10 as build
 
 WORKDIR /app
 
@@ -11,11 +11,11 @@ COPY . .
 # run unit tests and build
 RUN npm run test:unit && npm run build
 
-FROM nginx:1.12
+FROM nginx:1.16
 
 COPY --from=build /app/dist/ /tmp/src
 COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
-COPY --from=build /app/nginx.conf.tmpl /opt/app-root/etc/nginx.conf.tmpl
+COPY --from=build /app/nginx.conf.tmpl.ocp4 /opt/app-root/etc/nginx.conf.tmpl
 
 RUN /usr/libexec/s2i/assemble
 
