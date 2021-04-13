@@ -47,6 +47,9 @@ class FreshwaterAtlasStreamNetworks(BaseLayerTable):
 
 
 class FreshwaterAtlasStreamNetworksFWAPG(BaseLayerTable):
+    """
+    Model for FreshwaterAtlasStreamNetworks using the FWAPG dataset (includes LTREE columns)
+    """
     __tablename__ = 'fwa_stream_networks_sp'
 
     LINEAR_FEATURE_ID = Column(
