@@ -11,7 +11,10 @@ services:
           - ${DOMAIN}
     command: /app/start-reload.sh
     volumes:
-      - ./backend:/app
+      - type: bind
+        source: ./backend
+        target: /app
+        consistency: cached
     env_file:
       - env-postgres.env
       - env-backend.env
@@ -31,11 +34,16 @@ services:
     depends_on: 
       - db
   db:
-    image: postgis/postgis:13-3.1
+    image: crunchydata/crunchy-postgres-gis:centos8-13.2-3.0-4.6.2
     env_file:
       - env-postgres.env
     volumes:
-      - ./.tmp/postgis-dev:/var/lib/postgresql/dat
-      - ./scripts/database/dev/init-dev.sql:/docker-entrypoint-initdb.d/99_init-dev.sql
+      - pgdata-volume:/pgdata:z
+      - type: bind
+        source: ./scripts/database/dev/setup.sql
+        target: /pgconf/setup.sql
+        consistency: cached
     ports:
       - '5432:5432'
+volumes:
+  pgdata-volume:
