@@ -308,7 +308,7 @@ pipeline {
                             resourceLimitMemory: '1Gi',
                             workingDir: '/tmp',
                             command: '',
-                            entrypoint: '/bin/bash -c "sleep 3600"'
+                            entrypoint: '/bin/bash -c "trap : TERM INT; sleep 900 & wait"',
                             envVars: [
                                 envVar(
                                     key:'BASE_URL',
