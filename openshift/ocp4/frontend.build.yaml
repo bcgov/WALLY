@@ -39,7 +39,6 @@ objects:
       runPolicy: SerialLatestOnly
       source:
         contextDir: frontend
-        dockerfilePath: Dockerfile.ocp4
         git:
           ref: "${GIT_REF}"
           uri: "${GIT_REPO}"
@@ -48,6 +47,7 @@ objects:
         type: Git
       strategy:
         dockerStrategy:
+          dockerfilePath: Dockerfile.ocp4
           from:
             kind: ImageStreamTag
             name: 'nginx:1.16'
