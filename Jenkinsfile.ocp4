@@ -306,7 +306,7 @@ pipeline {
                           spec:
                             containers:
                             - name: jnlp
-                              image: jenkins/inbound-agent:4.3-4
+                              image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/inbound-agent:4.3-4
                               volumeMounts:
                               - name: home-volume
                                 mountPath: /home/jenkins
