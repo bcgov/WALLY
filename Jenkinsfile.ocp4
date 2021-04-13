@@ -291,61 +291,45 @@ pipeline {
           openshift.withCluster() {
             openshift.withProject(TOOLS_PROJECT) {
               withStatus(env.STAGE_NAME) {
-                podTemplate(
-                    label: "apitest-${NAME}-${BUILD_NUMBER}",
-                    name: "apitest-${NAME}-${BUILD_NUMBER}",
-                    serviceAccount: 'jenkins',
-                    cloud: 'openshift',
-                    activeDeadlineSeconds: 1800,
-                    containers: [
-                        containerTemplate(
-                            name: 'jnlp',
-                            image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
-                            imagePullPolicy: 'Always',
-                            resourceRequestCpu: '500m',
-                            resourceLimitCpu: '800m',
-                            resourceRequestMemory: '512Mi',
-                            resourceLimitMemory: '1Gi',
-                            workingDir: '/tmp',
-                            ttyEnabled: true,
-                            command: 'cat',
-                            envVars: [
-                                envVar(
-                                    key:'BASE_URL',
-                                    value: "https://${host}"
-                                ),
-                                secretEnvVar(
-                                    key: 'AUTH_HOST',
-                                    secretName: 'apitest-test-creds',
-                                    secretKey: 'AUTH_HOST'
-                                ),
-                                secretEnvVar(
-                                    key: 'AUTH_PASS',
-                                    secretName: 'apitest-test-creds',
-                                    secretKey: 'AUTH_PASS'
-                                ),
-                                secretEnvVar(
-                                    key: 'AUTH_USER',
-                                    secretName: 'apitest-test-creds',
-                                    secretKey: 'AUTH_USER'
-                                ),
-                                secretEnvVar(
-                                    key: 'CLIENT_ID',
-                                    secretName: 'apitest-test-creds',
-                                    secretKey: 'CLIENT_ID'
-                                ),
-                                secretEnvVar(
-                                    key: 'CLIENT_SECRET',
-                                    secretName: 'apitest-test-creds',
-                                    secretKey: 'CLIENT_SECRET'
-                                ),
-                            ]
-                        )
-                    ]
-                ) {
+                podTemplate(yaml:"""
+                          metadata:
+                            name: apitest-${NAME}-${BUILD_NUMBER}
+                            labels:
+                              jenkins: slave
+                              jenkins/label: apitest-${NAME}-${BUILD_NUMBER}
+                          spec:
+                            containers:
+                            - name: jnlp
+                              image: jenkins/inbound-agent:4.3-4
+                              volumeMounts:
+                              - name: home-volume
+                                mountPath: /home/jenkins
+                              env:
+                              - name: HOME
+                                value: /home/jenkins
+                            - name: apitest
+                              image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest
+                              command: ['sleep']
+                              args: ['9999999']
+                              volumeMounts:
+                              - name: home-volume
+                                mountPath: /home/jenkins
+                              env:
+                              - name: HOME
+                                value: /home/jenkins
+                              - name: BASE_URL
+                                value: https://${host}
+                              envFrom:
+                              - secretRef:
+                                name: apitest-test-creds
+                            volumes:
+                            - name: home-volume
+                              emptyDir: {}
+                """) {
                     node("apitest-${NAME}-${BUILD_NUMBER}") {
-                        checkout scm
-                        dir('backend/api-tests') {
+                        container('apitest') {
+                          checkout scm
+                          dir('backend/api-tests') {
                             try {
                                 sh """
                                   apitest -f data_endpoints.apitest.yaml \
@@ -371,7 +355,7 @@ pipeline {
                                   -e auth_secret=$CLIENT_SECRET
                                   """
                                 }
-                            finally {
+                            finally {}
                       }
                     }
                   }
