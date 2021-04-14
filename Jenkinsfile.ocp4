@@ -331,7 +331,7 @@ pipeline {
                         envVar(
                           key: 'BASE_URL',
                           value: "https://${host}"
-                        )
+                        ),
                         secretEnvVar(
                             key: 'AUTH_HOST',
                             secretName: 'apitest-test-creds',
