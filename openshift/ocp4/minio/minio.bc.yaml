@@ -42,6 +42,8 @@ objects:
         ref: "${SRC_REPO_BRANCH}"
         uri: "${SRC_REPO_URL}"
       type: Git
+      sourceSecret:
+        name: wally-github-token
     strategy:
       type: Docker
     output:
