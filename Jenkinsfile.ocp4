@@ -297,6 +297,8 @@ pipeline {
                           //     jenkins: slave
                           //     jenkins/label: apitest-${NAME}-${BUILD_NUMBER}
                           // label: "apitest-${NAME}-${BUILD_NUMBER}",
+                          // 
+                          //   args: ${computer.jnlpmac} ${computer.name}
                 def label = "apitest-${UUID.randomUUID().toString()}"
                 podTemplate(
                   name: "apitest-${NAME}-${BUILD_NUMBER}",
@@ -318,7 +320,6 @@ pipeline {
                         - name: HOME
                           value: /home/jenkins
                         command: ''
-                        args: ${computer.jnlpmac} ${computer.name}
                       - name: apitest
                         image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest
                         command: ['sleep']
