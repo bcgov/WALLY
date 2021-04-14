@@ -300,7 +300,7 @@ pipeline {
                     containers: [
                         containerTemplate(
                             name: 'jnlp',
-                            image: 'docker-registry.default.svc:5000/bfpeyx-tools/apitest',
+                            image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
                             imagePullPolicy: 'Always',
                             resourceRequestCpu: '500m',
                             resourceLimitCpu: '800m',
