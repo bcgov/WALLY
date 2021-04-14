@@ -317,6 +317,8 @@ pipeline {
                         env:
                         - name: HOME
                           value: /home/jenkins
+                        command: ''
+                        args: ${computer.jnlpmac} ${computer.name}
                       - name: apitest
                         image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest
                         command: ['sleep']
