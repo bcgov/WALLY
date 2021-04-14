@@ -11,7 +11,10 @@
 #    See the License for the specific language governing permissions and
 #    limitations under the License.
 
-mkdir -p $MINIO_DATA_DIR/modelling
-mkdir -p $MINIO_DATA_DIR/rasters
+mkdir -p $MINIO_DATA_DIR/files
+mkdir -p $MINIO_DATA_DIR/raster
+mkdir -p $MINIO_DATA_DIR/other
+mkdir -p $MINIO_DATA_DIR/geojson
+mkdir -p $MINIO_DATA_DIR/mbtiles
 
 /usr/bin/docker-entrypoint.sh $@
