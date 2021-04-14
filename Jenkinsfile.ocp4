@@ -326,38 +326,37 @@ pipeline {
                       image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
                       command: 'sleep',
                       args: '99999999',
-
                       envVars: [
-                        envVar(
-                          key: 'BASE_URL',
-                          value: "https://${host}"
-                        ),
-                        secretEnvVar(
-                            key: 'AUTH_HOST',
-                            secretName: 'apitest-test-creds',
-                            secretKey: 'AUTH_HOST'
-                        ),
-                        secretEnvVar(
-                            key: 'AUTH_PASS',
-                            secretName: 'apitest-test-creds',
-                            secretKey: 'AUTH_PASS'
-                        ),
-                        secretEnvVar(
-                            key: 'AUTH_USER',
-                            secretName: 'apitest-test-creds',
-                            secretKey: 'AUTH_USER'
-                        ),
-                        secretEnvVar(
-                            key: 'CLIENT_ID',
-                            secretName: 'apitest-test-creds',
-                            secretKey: 'CLIENT_ID'
-                        ),
-                        secretEnvVar(
-                            key: 'CLIENT_SECRET',
-                            secretName: 'apitest-test-creds',
-                            secretKey: 'CLIENT_SECRET'
-                        ),
-                      ]
+                                envVar(
+                                    key:'BASE_URL',
+                                    value: "https://${host}"
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_HOST',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_HOST'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_PASS',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_PASS'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_USER',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_USER'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_ID',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_ID'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_SECRET',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_SECRET'
+                                ),
+                            ]
                     )
                 ]) {
                   node(label) {
