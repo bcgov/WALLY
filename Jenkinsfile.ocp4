@@ -306,38 +306,56 @@ pipeline {
                   serviceAccount: 'jenkins',
                   cloud: "openshift",
                   activeDeadlineSeconds: 1800,
-                  yaml:"""
-                    apiVersion: v1
-                    kind: Pod
-                    spec:
-                      containers:
-                      - name: jnlp
-                        image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/inbound-agent:4.3-4
-                        volumeMounts:
-                        - name: home-volume
-                          mountPath: /home/jenkins
-                        env:
-                        - name: HOME
-                          value: /home/jenkins
-                      - name: apitest
-                        image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest
-                        command: ['sleep']
-                        args: ['9999999']
-                        volumeMounts:
-                        - name: home-volume
-                          mountPath: /home/jenkins
-                        env:
-                        - name: HOME
-                          value: /home/jenkins
-                        - name: BASE_URL
-                          value: https://${host}
-                        envFrom:
-                        - secretRef:
-                          name: apitest-test-creds
-                      volumes:
-                      - name: home-volume
-                        emptyDir: {}
-                """) {
+                  containers: [
+                    containerTemplate(
+                      name: 'jnlp',
+                      image: 'registry.access.redhat.com/openshift3/jenkins-agent-nodejs-8-rhel7',
+                      activeDeadlineSeconds: '600',
+                      podRetention: 'never',
+                      workingDir: '/tmp',
+                      command: '',
+                      args: '${computer.jnlpmac} ${computer.name}',
+                    ),
+                    containerTemplate(
+                      name: 'apitest',
+                      resourceRequestCpu: '500m',
+                      resourceLimitCpu: '800m',
+                      resourceRequestMemory: '512Mi',
+                      resourceLimitMemory: '1Gi',
+                      workingDir: '/tmp',
+                      image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
+                      command: 'sleep',
+                      args: '99999999',
+
+                      envVars: [
+                        secretEnvVar(
+                            key: 'AUTH_HOST',
+                            secretName: 'apitest-test-creds',
+                            secretKey: 'AUTH_HOST'
+                        ),
+                        secretEnvVar(
+                            key: 'AUTH_PASS',
+                            secretName: 'apitest-test-creds',
+                            secretKey: 'AUTH_PASS'
+                        ),
+                        secretEnvVar(
+                            key: 'AUTH_USER',
+                            secretName: 'apitest-test-creds',
+                            secretKey: 'AUTH_USER'
+                        ),
+                        secretEnvVar(
+                            key: 'CLIENT_ID',
+                            secretName: 'apitest-test-creds',
+                            secretKey: 'CLIENT_ID'
+                        ),
+                        secretEnvVar(
+                            key: 'CLIENT_SECRET',
+                            secretName: 'apitest-test-creds',
+                            secretKey: 'CLIENT_SECRET'
+                        ),
+                      ]
+                    )
+                ]) {
                   node(label) {
                     container('apitest') {
                       checkout scm
