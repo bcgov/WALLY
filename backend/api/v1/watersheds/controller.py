@@ -442,7 +442,7 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     return feature
 
 
-def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
+def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='srtm'):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
 
@@ -552,7 +552,7 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
             UNION   
             SELECT  geom FROM hydrosheds_walkup
         )
-        SELECT ST_AsGDALRaster(ST_Transform(ST_Union(rast), 4326, 'Cubic'), 'GTiff') As rastjpg
+        SELECT ST_AsGDALRaster(ST_Union(rast), 'GTiff') As rastjpg
         FROM dem.x_ws_srtm
         WHERE ST_Intersects(
             rast, (
@@ -565,6 +565,7 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
 
     if dem_source == 'srtm':
         rast_q = srtm_q
+        point = transform(transform_4326_3005, point)
 
     logger.info(rast_q)
 
@@ -625,17 +626,17 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
         f"{file_050_point_shp.name}/{point_shp_file}.shp",
         file_040_far.name,
         file_060_snapped_pour_point.name,
-        0.1, callback=wbt_suppress_progress_output)
+        200, callback=wbt_suppress_progress_output)
 
     with fiona.open(file_060_snapped_pour_point.name, 'r', 'ESRI Shapefile') as snp:
         snapped_pt = shape(next(iter(snp)).get('geometry'))
 
     if WATERSHED_DEBUG:
         logger.info('Wrote snapped point')
-        logger.info('----- snap distance from stream point: %s', transform(transform_4326_3005,
-                    snapped_pt).distance(transform(transform_4326_3005, point)))
-        logger.info('----- snap distance from original click point: %s', transform(transform_4326_3005,
-                    snapped_pt).distance(transform(transform_4326_3005, click_point)))
+        logger.info('----- snap distance from stream point: %s',
+                    snapped_pt.distance(point))
+        logger.info('----- snap distance from original click point: %s',
+                    snapped_pt.distance(click_point))
         logger.info('--------------------------------------------------')
 
     watershed_result = wbt.watershed(
@@ -662,7 +663,8 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
 
     with fiona.open(file_080_result.name, 'r', 'ESRI Shapefile') as ws_result:
 
-        ws_result_list = [shape(poly['geometry']) for poly in ws_result]
+        ws_result_list = [transform(transform_3005_4326, shape(
+            poly['geometry'])) for poly in ws_result]
         watershed_result = MultiPolygon(ws_result_list)
 
         # feature = Feature(
