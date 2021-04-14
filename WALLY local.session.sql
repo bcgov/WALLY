@@ -1,0 +1,1 @@
+select distinct purpose_use_code, purpose_use, monthly_coefficients from modeling.water_allocation_coefficients;

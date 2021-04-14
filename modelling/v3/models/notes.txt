@@ -1,0 +1,6 @@
+Target -> mean monthly flow divided by MAD % 
+x mean annual discharge
+rather than MAR
+
+ex. peak june
+

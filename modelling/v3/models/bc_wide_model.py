@@ -27,6 +27,17 @@ columns = list(inputs) + [dependant_variable]
 
 show_error_plots = False
 
+# TODO 7 Day low flow
+# log log 
+# rolling 7 day average, minimum every year within summer months July-sept
+# minimum of those 3 months
+# 10th percentile for a point, 
+# calculate for each stations
+# run a model for low flow
+# only stations that have 20 years of data (or 10 years)
+# look into prob distro function for extrapolating out beyond dataset
+# feature idea, text entry box -> minimum number of years
+
 # params = {
 #   'nthread':[6], #when use hyperthread, xgboost may become slower
 #   'objective':['reg:squarederror'],
@@ -90,7 +101,7 @@ for train_index, test_index in kf.split(X):
     eval_set = [(X_train, y_train), (X_test, y_test)]
 
     # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
-    model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=100)
+    model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["logloss", "rmse"], early_stopping_rounds=50)
     
     # TODO
     # minimum number of years
@@ -98,6 +109,8 @@ for train_index, test_index in kf.split(X):
     # choose model with highest minimum r2
     # look at furthest outlier, compare the two versions
     # build comparison graph, 
+    X_test = X
+    y_test = y
 
     y_pred = model.predict(X_test)
     r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
@@ -124,8 +137,8 @@ for train_index, test_index in kf.split(X):
     xlim = ax1.get_xlim()[1]
     ylim = ax1.get_ylim()[1]
     max_size = max(xlim, ylim)
-    ax1.set_xlim([0, max_size])
-    ax1.set_ylim([0, max_size])
+    # ax1.set_xlim([0, max_size])
+    # ax1.set_ylim([0, max_size])
     ax1.set_xlabel('Pred MAR')
     ax1.set_ylabel('Real MAR')
 
@@ -138,12 +151,12 @@ for train_index, test_index in kf.split(X):
     ax1.legend()
     pdf.savefig( fig_pred )
     # plt.show()
-
+    
     # Features vs Prediction plots
     for column in X_test.columns:
         fig_f, axf = plt.subplots(figsize=size)
         # axf.scatter(y_pred, X_test[column], s=marker_size)
-        axf = sns.regplot(X_test[column], y_pred, fit_reg=True, truncate=True) 
+        axf = sns.regplot(X_test[column], y_pred, fit_reg=True) 
         axf.set_xlabel(column)
         axf.set_ylabel('MAR')
         # axf.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
@@ -223,6 +236,7 @@ results = best_model['results']
 rmse = best_model['rmse']
 r2 = best_model['r2']
 mean_mar = best_model['mean_mar']
+best_fold = best_model['fold']
 
 r2s = []
 rmses = []
@@ -280,6 +294,7 @@ print("r2 score", r2)
 rmse = results["validation_1"]["rmse"][-1]
 rmse_95_p = rmse * 2
 print("RMSE 95%", rmse_95_p)
+print("Best fold", best_fold)
 
 if show_error_plots:
     epochs = len(results["validation_0"]["rmse"])

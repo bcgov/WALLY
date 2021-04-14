@@ -22,7 +22,7 @@ zone_scores = {}
 count = 0
 
 # inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]
-inputs = ["average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation"]
+inputs = ["drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation","aspect","solar_exposure"]
 columns = list(inputs) + [dependant_variable]
 
 show_error_plots = False
@@ -47,7 +47,7 @@ xgb_params = {
   'min_child_weight': 10,
   'subsample': 0.75,
   'colsample_bytree': 0.95,
-  'colsample_bylevel': 0.95,
+  'colsample_bylevel': 0.95
 }
 
 model = XGBRegressor(**xgb_params, random_state=42)
@@ -66,12 +66,15 @@ for filename in sorted(os.listdir(directory)):
         print(df_inputs)
         features_df = zone_df[df_inputs]
 
-        # X = features_df.dropna(subset=df_inputs) # drop NaNs
-        X = features_df
+        X = features_df.dropna(subset=df_inputs) # drop NaNs
+        # X = features_df
 
         y = X[dependant_variable] # dependant
         X = X.drop([dependant_variable], axis=1) # independant
         mean_mar = round(y.mean(),4)
+
+        print(y)
+        print(X)
 
         if len(X.index) <=1:
             continue
@@ -82,7 +85,7 @@ for filename in sorted(os.listdir(directory)):
         best_model = None
         fold_counter = 1
         
-        folds = 20
+        folds = 5
         folds = min(folds, len(X.index))
         kf = KFold(n_splits=folds, random_state=None, shuffle=True)
         for train_index, test_index in kf.split(X):
@@ -92,7 +95,7 @@ for filename in sorted(os.listdir(directory)):
             eval_set = [(X_train, y_train), (X_test, y_test)]
 
             # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
-            model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=50)
+            model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["logloss", "rmse"], early_stopping_rounds=50)
             
             # TODO
             # minimum number of years
@@ -100,6 +103,8 @@ for filename in sorted(os.listdir(directory)):
             # choose model with highest minimum r2
             # look at furthest outlier, compare the two versions
             # build comparison graph, 
+            X_test = X
+            y_test = y
 
             y_pred = model.predict(X_test)
             r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
@@ -125,8 +130,8 @@ for filename in sorted(os.listdir(directory)):
             xlim = ax1.get_xlim()[1]
             ylim = ax1.get_ylim()[1]
             max_size = max(xlim, ylim)
-            ax1.set_xlim([0, max_size])
-            ax1.set_ylim([0, max_size])
+            # ax1.set_xlim([0, max_size])
+            # ax1.set_ylim([0, max_size])
             ax1.set_xlabel('Pred MAR')
             ax1.set_ylabel('Real MAR')
 
