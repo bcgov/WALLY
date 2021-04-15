@@ -14,6 +14,7 @@ void notifyStageStatus (String name, String status) {
     // )
 }
 
+// this is commented out because the new version of GitHubHelper doesn't support creating deployments this way!
 // createDeployment gets a new deployment ID from GitHub.
 // this lets us display notifications on GitHub when new environments
 // are deployed (e.g. on a pull request page)
