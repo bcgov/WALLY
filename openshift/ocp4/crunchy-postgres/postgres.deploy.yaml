@@ -120,17 +120,6 @@ objects:
 
         \c "PG_DATABASE" "PG_USER";
 
-        create table testtable (
-          name varchar(30) primary key,
-          value varchar(50) not null,
-          updatedt timestamp not null
-        );
-
-        insert into testtable (name, value, updatedt) values ('CPU', '256', now());
-        insert into testtable (name, value, updatedt) values ('MEM', '512m', now());
-
-        grant all on testtable to "PG_PRIMARY_USER";
-
         create schema postgis_ftw;
         grant usage on schema postgis_ftw to ftw_reader;
         ALTER DEFAULT PRIVILEGES IN SCHEMA postgis_ftw GRANT SELECT ON TABLES TO ftw_reader;
