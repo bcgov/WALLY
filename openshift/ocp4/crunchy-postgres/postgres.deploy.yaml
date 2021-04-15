@@ -125,7 +125,6 @@ objects:
         ALTER DEFAULT PRIVILEGES IN SCHEMA postgis_ftw GRANT SELECT ON TABLES TO ftw_reader;
 
         create schema whse_basemapping;
-        
 
     kind: ConfigMap
     metadata:
@@ -201,6 +200,16 @@ objects:
                   value: userdata
                 - name: PGHOST
                   value: /tmp
+                - name: TEMP_BUFFERS
+                  value: 9MB
+                - name: MAX_CONNECTIONS
+                  value: 101
+                - name: SHARED_BUFFERS
+                  value: 129MB
+                - name: MAX_WAL_SENDERS
+                  value: 7
+                - name: WORK_MEM
+                  value: 5MB
                 - name: PG_ROOT_PASSWORD
                   valueFrom:
                     secretKeyRef:
