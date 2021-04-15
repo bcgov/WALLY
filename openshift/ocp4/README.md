@@ -27,6 +27,33 @@ Most resources that need to be created in the environments but are not stored in
 #### configmaps
 * gatekeeper-config
 * promtail-config
+* loki-config
+* wally-config
+
+
+### test/prod
+
+#### secrets
+* common-docgen
+* wally-psql
+* minio
+* keycloak-config
+* gatekeeper-credentials
+* wally-debug
+* mapbox-access-token
+
+#### configmaps
+* gatekeeper-config
+* promtail-config
+* loki-config
+* wally-config
+* wally-grafana
+* wally-grafana-cfg
+* wally-grafana-dashboards
+* wally-grafana-datasources
+* wally-grafana-notifiers
+* wally-prometheus
+* apitest-monitors
 
 ## Import images
 
@@ -34,8 +61,11 @@ The following external/community images don't have BuildConfigs and need to be i
 Example import command: `oc4 -n d1b5d2-tools import-image --from=python:3.7 python:3.7 --reference-policy=local --confirm`
 
 * `python:3.7`
-* `crunchy-postgres-gis:centos8-13.2-3.0-4.6.2` - note: this image was not used for Wally on OpenShift 3. It's new for OCP4.  Database templates in openshift/ocp4/ will be updated to reflect this new image.
+* `crunchy-postgres-gis:centos8-13.2-3.0-4.6.2` - note: this image was not used for Wally on OpenShift 3. It's new for OCP4.  Database templates for this new image are in openshift/ocp4/crunchy-postgres .
 * `promtail:v1.3.0` - Log exporter for Loki
+* `apitest` - Warning: technical debt: this image needs a BuildConfig to be built using source code from github.com/stephenhillier/apitest onto a Red Hat Jenkins agent image.  The current image was transferred from OCP3.
+
+Refer to https://github.com/BCDevOps/OpenShift4-Migration/issues/51 for instructions on how to enable pull secrets for builds using Docker Hub images.
 
 ## Set up NetworkPolicy
 
