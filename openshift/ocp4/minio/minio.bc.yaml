@@ -46,6 +46,9 @@ objects:
         name: wally-github-token
     strategy:
       type: Docker
+      dockerStrategy:
+        pullSecret:
+            name: artifactory-creds
     output:
       to:
         kind: ImageStreamTag
