@@ -32,6 +32,7 @@ Long createDeployment (String suffix, String gitRef) {
   return l
 }
 
+// this is commented out because the new version of GitHubHelper doesn't support creating deployments this way!
 // Create deployment status for a deployment ID (call createDeployment first)
 void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl) {
     // echo "creating deployment status (${status})"
@@ -223,6 +224,8 @@ pipeline {
                   "REPLICAS=1",
                   "NAMESPACE=${project}"
                 ))
+
+                // placeholder for Minio deployment
 
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
                 def database = openshift.apply(openshift.process("-f",
@@ -426,19 +429,7 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                // apply database template
-                // def database = openshift.apply(openshift.process("-f",
-                //   "${TEMPLATE_DIR}/database.deploy.yaml",
-                //   "NAME=wally-psql",
-                //   "REPLICAS=3",
-                //   "SUFFIX=-${env_name}",
-                //   "PVC_SIZE=30Gi",
-                //   "CPU_REQUEST=200m",
-                //   "CPU_LIMIT=2",
-                //   "MEMORY_REQUEST=1Gi",
-                //   "MEMORY_LIMIT=3Gi",
-                //   "IMAGE_STREAM_NAMESPACE=${project}"
-                // ))
+                // placeholder for Minio deployment
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
@@ -555,19 +546,7 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                // // apply database template
-                // def database = openshift.apply(openshift.process("-f",
-                //   "${TEMPLATE_DIR}/database.deploy.yaml",
-                //   "NAME=wally-psql",
-                //   "REPLICAS=3",
-                //   "SUFFIX=-${env_name}",
-                //   "PVC_SIZE=40Gi",
-                //   "CPU_REQUEST=500m",
-                //   "CPU_LIMIT='3'",
-                //   "MEMORY_REQUEST=1Gi",
-                //   "MEMORY_LIMIT=4Gi",
-                //   "IMAGE_STREAM_NAMESPACE=${project}"
-                // ))
+                // placeholder for Minio deployment
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
