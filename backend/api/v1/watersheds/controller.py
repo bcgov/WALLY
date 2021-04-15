@@ -562,10 +562,11 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
             )
         )
     """
-
+    jenson_radius = 0.1  # degrees
     if dem_source == 'srtm':
         rast_q = srtm_q
         point = transform(transform_4326_3005, point)
+        jenson_radius = 1000  # metres
 
     logger.info(rast_q)
 
@@ -584,7 +585,7 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
     file_011_dem_burned = NamedTemporaryFile(suffix='.tif')
     file_020_dem_filled = NamedTemporaryFile(suffix='.tif')
     file_030_fdr = NamedTemporaryFile(suffix='.tif')
-    file_040_far = NamedTemporaryFile(suffix='.tif')
+    file_040_fac = NamedTemporaryFile(suffix='.tif')
     file_050_point_shp = TemporaryDirectory()
     file_060_snapped_pour_point = NamedTemporaryFile(suffix='.shp')
     file_070_watershed = NamedTemporaryFile(
@@ -595,15 +596,30 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
         if not "%" in value:
             logger.info(value)
 
-    accum_result = wbt.flow_accumulation_full_workflow(
+    # accum_result = wbt.flow_accumulation_full_workflow(
+    #     file_010_dem.name,
+    #     file_020_dem_filled.name,
+    #     file_030_fdr.name,
+    #     file_040_fac.name,
+    #     out_type="Specific Contributing Area", log=True, clip=False, esri_pntr=False, callback=wbt_suppress_progress_output)
+
+    wbt.breach_depressions(
         file_010_dem.name,
         file_020_dem_filled.name,
-        file_030_fdr.name,
-        file_040_far.name,
-        out_type="Specific Contributing Area", log=False, clip=False, esri_pntr=False, callback=wbt_suppress_progress_output)
+        callback=wbt_suppress_progress_output
+    )
 
-    if WATERSHED_DEBUG:
-        logger.info('accum result: %s', accum_result)  # 0 or 1; 1 is an error
+    wbt.d8_pointer(
+        file_020_dem_filled.name,
+        file_030_fdr.name,
+        callback=wbt_suppress_progress_output
+    )
+
+    wbt.d8_flow_accumulation(
+        file_030_fdr.name,
+        file_040_fac.name,
+        log=True, pntr=True, callback=wbt_suppress_progress_output
+    )
 
     # Define a point feature geometry with one attribute
     shp_schema = {
@@ -624,9 +640,9 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
 
     snap_result = wbt.jenson_snap_pour_points(
         f"{file_050_point_shp.name}/{point_shp_file}.shp",
-        file_040_far.name,
+        file_040_fac.name,
         file_060_snapped_pour_point.name,
-        200, callback=wbt_suppress_progress_output)
+        jenson_radius, callback=wbt_suppress_progress_output)
 
     with fiona.open(file_060_snapped_pour_point.name, 'r', 'ESRI Shapefile') as snp:
         snapped_pt = shape(next(iter(snp)).get('geometry'))
@@ -649,7 +665,7 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
     logger.info('%s %s', file_020_dem_filled.name,
                 os.stat(file_020_dem_filled.name).st_size)
     logger.info('%s %s', file_030_fdr.name, os.stat(file_030_fdr.name).st_size)
-    logger.info('%s %s', file_040_far.name, os.stat(file_040_far.name).st_size)
+    logger.info('%s %s', file_040_fac.name, os.stat(file_040_fac.name).st_size)
     logger.info('%s %s', file_060_snapped_pour_point.name,
                 os.stat(file_060_snapped_pour_point.name).st_size)
     logger.info('%s %s', file_070_watershed.name,
@@ -663,8 +679,13 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
 
     with fiona.open(file_080_result.name, 'r', 'ESRI Shapefile') as ws_result:
 
-        ws_result_list = [transform(transform_3005_4326, shape(
-            poly['geometry'])) for poly in ws_result]
+        watershed_result = None
+        ws_result_list = None
+        if dem_source == 'srtm':
+            ws_result_list = [transform(transform_3005_4326, shape(
+                poly['geometry'])) for poly in ws_result]
+        else:
+            ws_result_list = [shape(poly['geometry']) for poly in ws_result]
         watershed_result = MultiPolygon(ws_result_list)
 
         # feature = Feature(
