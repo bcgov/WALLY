@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Template
+parameters:
+- name: NAME
+  displayName: Name
+  description: The name assigned to all of the resources defined in this template.
+  required: true
+  value: test
+- name: GIT_REPO
+  displayName: Git Repo URL
+  description: The URL to your Git repo.
+  required: true
+  value: https://github.com/bcgov-c/wally.git
+- name: GIT_REF
+  displayName: Git Reference
+  description: The git reference or branch.
+  required: true
+  value: master
+objects:
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    labels:
+      component: api
+      name: wally-${NAME}-api
+      env: "${NAME}"
+      app: wally-${NAME}
+    name: wally-${NAME}-api
+  spec:
+    failedBuildsHistoryLimit: 5
+    completionDeadlineSeconds: 900
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: wally-api:${NAME}
+    postCommit: {}
+    resources:
+      requests:
+        cpu: 500m
+      limits:
+        cpu: '1'
+    runPolicy: SerialLatestOnly
+    source:
+      contextDir: backend
+      git:
+        ref: "${GIT_REF}"
+        uri: "${GIT_REPO}"
+      sourceSecret:
+        name: wally-github-token
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: python:3.7
+          namespace: d1b5d2-tools
+      type: Docker
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - type: ConfigChange
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    generation: 1
+    labels:
+      app: wally-api
+    name: wally-api
+  spec:
+    lookupPolicy:
+      local: false
+metadata:
+  name: wally-backend-build-template
