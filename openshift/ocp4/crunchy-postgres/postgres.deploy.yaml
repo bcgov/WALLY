@@ -203,11 +203,11 @@ objects:
                 - name: TEMP_BUFFERS
                   value: 9MB
                 - name: MAX_CONNECTIONS
-                  value: 101
+                  value: "101"
                 - name: SHARED_BUFFERS
                   value: 129MB
                 - name: MAX_WAL_SENDERS
-                  value: 7
+                  value: "7"
                 - name: WORK_MEM
                   value: 5MB
                 - name: PG_ROOT_PASSWORD
