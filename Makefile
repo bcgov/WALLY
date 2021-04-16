@@ -11,4 +11,4 @@ makemigrations:
 	docker-compose exec -T backend /bin/bash -c "alembic -c alembic/alembic.ini revision --autogenerate -m '$(name)'"
 
 psql:
-	docker-compose exec db /bin/bash -c "psql -U wally -d wally"
+	docker-compose exec db /bin/bash -c "psql postgres://wally:test_pw@localhost:5432/wally"
