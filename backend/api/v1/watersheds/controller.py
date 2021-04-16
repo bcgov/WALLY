@@ -442,7 +442,32 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     return feature
 
 
-def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='srtm'):
+def wbt_calculate_watershed(
+        data: bytes,
+        starting_point: Point,
+        log: bool = False,
+        snap_distance: float = 1000) -> (Point, MultiPolygon):
+    """
+    Given a raster file `data` (as bytes) and a starting point, use WhiteboxTools to generate
+    an upstream watershed from the point.  Returns a tuple containing a snapped starting point
+    and a watershed polygon.
+
+    Optional arguments:
+    `log`:  run WhiteboxTools D8FlowAccumulation with the --log flag.  Tranforms raster values
+    using log to prevent saturating areas with max values.
+    See https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8flowaccumulation
+
+    `snap_distance`: the max distance that JensonSnapPourPoints should search for a suitable stream.
+    Always use an appropriate value for the map unit (e.g. 1000 m for EPSG:3005; 0.01 deg for EPSG:4326).
+    Otherwise this value doesn't appear to need much tweaking. Smaller values are faster but not
+    significantly so unless using inappropriate values (like 1000 combined with a raster that
+    uses degrees as the base unit)
+
+    `use_pntr`: Use the output from D8Pointer as input for D8FlowAccumulation.
+    """
+
+
+def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
 
@@ -456,10 +481,17 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
     for tiles that intersect with the above over-estimated catchment.  The catchment
     is then refined using the Whitebox Tools functions FlowAccumulationFullWorkflow,
     JensonSnapPoints and Watershed. The Whitebox Tools raster to vector function is
-    used to return a vector format watershed.
+    used to return a vector format watershed.  See `wbt_calculate_watershed` for more
+    on this step.
 
     The resulting watershed will show a "pixelated" pattern around the edges corresponding
     to the size of the pixels (or the resolution) of the source DEM (e.g. 30m or 90m edges etc.).
+
+    `dem_source`: either cdem or srtm.  CDEM data is generally lower resolution but may have
+    fewer gaps in data further away from the US border. SRTM data is good near the US border but
+    data quality needs to be investigated further north.
+    `cdem` requires a stream-burned raster to be loaded in the `dem.x_ws_cdem` table.
+    `srtm` requires a stream-burned raster in the `dem.x_ws_srtm` table.
 
     Hydrosheds data:  https://www.hydrosheds.org/ via FWAPG https://github.com/smnorris/fwapg
     Whitebox Tools: https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html
@@ -562,11 +594,11 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
             )
         )
     """
-    jenson_radius = 0.1  # degrees
+    jenson_radius = 0.001  # degrees
     if dem_source == 'srtm':
         rast_q = srtm_q
         point = transform(transform_4326_3005, point)
-        jenson_radius = 1000  # metres
+        jenson_radius = 500  # metres
 
     logger.info(rast_q)
 
@@ -618,6 +650,7 @@ def wbt_calculate_watershed(db: Session, click_point: Point, watershed_id, clip_
     wbt.d8_flow_accumulation(
         file_030_fdr.name,
         file_040_fac.name,
+        out_type='sca',
         log=True, pntr=True, callback=wbt_suppress_progress_output
     )
 
@@ -857,7 +890,7 @@ def calculate_watershed(
                  the point of interest is in the middle of a polygon)
 
             DEM: Use the DEM (Digital Elevation Model) to delineate the catchment.
-                 WhiteboxTools is used. See `wbt_calculate_watershed` for more info.
+                 WhiteboxTools is used. See `get_watershed_using_dem` for more info.
                  This is more accurate around the point of interest but the outer reaches
                  are less smooth than the FWA linework and may slightly under or overestimate
                  around the outer perimeter of the watershed.
@@ -913,7 +946,7 @@ def calculate_watershed(
 
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
-        watershed = wbt_calculate_watershed(
+        watershed = get_watershed_using_dem(
             db, point, watershed_id, clip_dem=not upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
