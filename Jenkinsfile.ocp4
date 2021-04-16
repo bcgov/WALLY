@@ -206,17 +206,6 @@ pipeline {
 
                 echo git_tag
 
-
-                // apply database service account.
-                // this is a pre-requisite for the database statefulset.
-                openshift.apply(openshift.process("-f",
-                  "${TEMPLATE_DIR}/database.rolebinding.yaml",
-                  "NAME=wally-psql",
-                  "SUFFIX=-${NAME}"
-                ))
-
-                sleep(3)
-
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
                   "${TEMPLATE_DIR}/frontend.deploy.yaml",
@@ -411,16 +400,6 @@ pipeline {
                 def deployment = createDeployment('staging', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
 
-                // apply database service account.
-                // this is a pre-requisite for the database statefulset.
-                openshift.apply(openshift.process("-f",
-                  "${TEMPLATE_DIR}/database.rolebinding.yaml",
-                  "NAME=wally-psql",
-                  "SUFFIX=-${env_name}"
-                ))
-
-                sleep(3)
-
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
                   "${TEMPLATE_DIR}/frontend.deploy.yaml",
@@ -527,16 +506,6 @@ pipeline {
                 // is pending.
                 def deployment = createDeployment('production', ref)
                 createDeploymentStatus(deployment, 'PENDING', host)
-
-                // apply database service account.
-                // this is a pre-requisite for the database statefulset.
-                openshift.apply(openshift.process("-f",
-                  "${TEMPLATE_DIR}/database.rolebinding.yaml",
-                  "NAME=wally-psql",
-                  "SUFFIX=-${env_name}"
-                ))
-
-                sleep(3)
 
                 // apply frontend application template
                 def frontend = openshift.apply(openshift.process("-f",
