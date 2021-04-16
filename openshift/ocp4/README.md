@@ -61,7 +61,7 @@ The following external/community images don't have BuildConfigs and need to be i
 Example import command: `oc4 -n d1b5d2-tools import-image --from=python:3.7 python:3.7 --reference-policy=local --confirm`
 
 * `python:3.7`
-* `crunchy-postgres-gis:centos8-13.2-3.0-4.6.2` - note: this image was not used for Wally on OpenShift 3. It's new for OCP4.  Database templates for this new image are in openshift/ocp4/crunchy-postgres .
+* `crunchy-postgres-gis:centos7-12.5-3.0-4.4.2` - note: this image was not used for Wally on OpenShift 3. It's new for OCP4.  Database templates for this new image are in openshift/ocp4/crunchy-postgres .
 * `promtail:v1.3.0` - Log exporter for Loki
 * `apitest` - Warning: technical debt: this image needs a BuildConfig to be built using source code from github.com/stephenhillier/apitest onto a Red Hat Jenkins agent image.  The current image was transferred from OCP3.
 

@@ -34,7 +34,7 @@ services:
     depends_on: 
       - db
   db:
-    image: crunchydata/crunchy-postgres-gis:centos8-13.2-3.0-4.6.2
+    image: crunchydata/crunchy-postgres-gis:centos7-12.5-3.0-4.4.2
     env_file:
       - env-postgres.env
     volumes:
