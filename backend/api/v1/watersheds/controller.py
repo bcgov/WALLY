@@ -849,7 +849,7 @@ def augment_dem_watershed_with_fwa(
                     nlevel(localcode_ltree) as downstream_tributary_code_pos
             FROM    whse_basemapping.fwa_stream_networks_sp
             WHERE   "linear_feature_id" = :stream_feature_id
-        ), 
+        ),
         polygons_touching_click_point as (
             SELECT w.geom, w.watershed_feature_id, ST_Area(w.geom) as area
             FROM   whse_basemapping.fwa_watersheds_poly w, stream_subwscode_ltree s
@@ -999,7 +999,7 @@ def calculate_catchment_of_full_stream(db, watershed_id):
 
     return transform(
         transform_3005_4326, shape(
-            wkb.loads(record[0])
+            wkb.loads(record[0].tobytes())
         ))
 
 
