@@ -46,5 +46,15 @@ services:
         consistency: cached
     ports:
       - '5432:5432'
+  tileserv:
+    hostname: tileserv
+    depends_on:
+      - db
+    image: pramsey/pg_tileserv:latest
+    environment:
+      DATABASE_URL: postgres://ftw_reader:test_pw@db:5432/wally
+    ports:
+      - "7800:7800"
+    entrypoint: sh -c "sleep 10; /app/pg_tileserv"
 volumes:
   pgdata-volume:
