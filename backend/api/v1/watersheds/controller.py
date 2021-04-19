@@ -447,7 +447,7 @@ def wbt_calculate_watershed(
         watershed_area: MultiPolygon,
         point: Point,
         dem_file: str,
-        log: bool = False,
+        log: bool = True,
         pntr: bool = True,
         accum_out_type: str = 'sca',
         snap_distance: float = 1000,
@@ -496,7 +496,7 @@ def wbt_calculate_watershed(
     file_050_point_shp = TemporaryDirectory()
     file_060_directory = TemporaryDirectory()
     file_060_snapped_pour_point = NamedTemporaryFile(
-        dir=file_060_directory.name, suffix='.shp', prefix='060_snapped_')
+        suffix='.shp', prefix='060_snapped_', delete=not debugging_watershed_delineation)
     file_070_watershed = NamedTemporaryFile(
         suffix='.tif', prefix="070_ws_", delete=not debugging_watershed_delineation)
     file_080_directory = TemporaryDirectory()
@@ -514,11 +514,6 @@ def wbt_calculate_watershed(
             'properties': {'id': 123},
         })
         extent_shp_file = c.name
-
-    # src_srs = "EPSG:4326"
-    # if using_srid == 3005:
-    #     logger.info("using SRID 3005")
-    #     src_srs = "EPSG:3005"
 
     gdal.Warp(
         destNameOrDestDS=file_010_dem.name,
@@ -571,8 +566,9 @@ def wbt_calculate_watershed(
             logger.info('Wrote shapefile')
         point_shp_file = c.name
 
+    #
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#JensonSnapPourPoints
-    snap_result = wbt.jenson_snap_pour_points(
+    snap_result = wbt.snap_pour_points(
         f"{file_050_point_shp.name}/{point_shp_file}.shp",
         file_040_fac.name,
         file_060_snapped_pour_point.name,
@@ -736,7 +732,7 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
     Next, export a new raster from the DEM (a pre-processed DEM with burned streams)
     for tiles that intersect with the above over-estimated catchment.  The catchment
     is then refined using the Whitebox Tools functions FlowAccumulationFullWorkflow,
-    JensonSnapPoints and Watershed. The Whitebox Tools raster to vector function is
+    SnapPourPoints and Watershed. The Whitebox Tools raster to vector function is
     used to return a vector format watershed.  See `wbt_calculate_watershed` for more
     on this step.
 
@@ -779,23 +775,29 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
     if cross_border:
         logger.info("---- using cross border -----")
         upstream_area = get_cross_border_catchment_area(
-            db, transform(transform_4326_3005, point))
+            db, transform(transform_4326_3005, point)).envelope
 
     else:
-        upstream_area = get_upstream_catchment_area(db, watershed_id)
+        upstream_area = get_upstream_catchment_area(db, watershed_id).envelope
 
     # setup config to be used with WBT and the spatial features.
-    # CDEM uses SRID 4326, so jenson_radius must be in degrees
-    # our SRTM source uses 3005, so set jenson_radius to meters.
+    # CDEM uses SRID 4326, so snap_distance must be in degrees
+    # our SRTM source uses 3005, so set snap_distance to meters.
     using_srid = 4326
-    jenson_radius = 0.001  # degrees
+    snap_distance = 0.001  # degrees
     dem_file = CDEM_FILE
     if dem_source == 'srtm':
         dem_file = SRTM_FILE
         point = transform(transform_4326_3005, point)
-        jenson_radius = 500  # metres
+        snap_distance = 100  # metres
         using_srid = 3005
-        upstream_area = transform(transform_4326_3005, upstream_area)
+        upstream_area = transform(
+            transform_4326_3005, upstream_area).buffer(1000)
+    else:
+        # create a buffer around the catchment.  this helps prevent accidently cutting
+        # too close
+        upstream_area = transform(transform_3005_4326, transform(
+            transform_4326_3005, upstream_area).buffer(1000))
 
     # further settings for WhiteboxTools.
     # we hopefully get a valid watershed using the first set
@@ -806,15 +808,15 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
     # the watersheds are relatively repeatable.
     config_matrix = [
         wbt_options(log=True, pntr=True, accum_out_type='sca',
-                    snap_distance=jenson_radius),
+                    snap_distance=snap_distance),
         # wbt_options(log=True, pntr=True, accum_out_type='ca',
-        #             snap_distance=jenson_radius),
+        #             snap_distance=snap_distance),
         # wbt_options(log=True, pntr=True, accum_out_type='cells',
-        #             snap_distance=jenson_radius),
+        #             snap_distance=snap_distance),
         # wbt_options(log=True, pntr=False, accum_out_type='sca',
-        #             snap_distance=jenson_radius),
+        #             snap_distance=snap_distance),
         # wbt_options(log=False, pntr=True, accum_out_type='sca',
-        #             snap_distance=jenson_radius),
+        #             snap_distance=snap_distance),
     ]
 
     for config in config_matrix:
