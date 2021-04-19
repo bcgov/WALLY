@@ -30,6 +30,7 @@ services:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
       MINIO_HOST_URL: "${MINIO_HOST_URL}"
+      GDAL_DATA: /usr/share/gdal/
     ports:
       - '8000:8000'
     depends_on:

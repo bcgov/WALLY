@@ -22,7 +22,7 @@ from typing import Tuple, List
 from urllib.parse import urlencode, unquote
 from geojson import FeatureCollection, Feature
 from operator import add
-from osgeo import gdal, ogr
+from osgeo import gdal, ogr, osr
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform, unary_union
 from starlette.responses import Response
@@ -60,6 +60,8 @@ wbt = WhiteboxTools()
 
 # the whitebox_tools cli is installed to /usr/local/bin by the Dockerfile.
 wbt.set_whitebox_dir('/usr/local/bin/')
+CDEM_FILE = "/app/api/v1/watersheds/test/Burned_CDEM_BC_49_51.tif"
+SRTM_FILE = "/app/api/v1/watersheds/test/Burned_SRTM_BC_48_51_3005.tif"
 
 
 def calculate_glacial_area(db: Session, polygon: MultiPolygon) -> Tuple[float, float]:
@@ -444,15 +446,16 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
 def wbt_calculate_watershed(
         watershed_area: MultiPolygon,
         point: Point,
+        dem_file: str,
         log: bool = False,
         pntr: bool = True,
         accum_out_type: str = 'sca',
         snap_distance: float = 1000,
         using_srid: int = 3005) -> (Point, MultiPolygon):
     """
-    Given a watershed region (an overestimate to crop the original DEM raster to) and a starting point,
-    use WhiteboxTools to generate an upstream watershed from the point.  Returns a tuple containing a
-    snapped starting point and a watershed polygon.
+    Given a watershed region (an overestimate to crop the original DEM raster to), a starting point,
+    and a path to a DEM file (`dem_file`), use WhiteboxTools to generate an upstream watershed from the point.
+    Returns a tuple containing a snapped starting point and a watershed polygon.
 
     Use `get_upstream_catchment_area()` or a query like `WHERE FWA_WATERSHED_CODE LIKE 100-123456-%`
     (for example) to generate an overestimate. The input stream-burned DEM file will be cropped to
@@ -479,19 +482,23 @@ def wbt_calculate_watershed(
         if not "%" in value:
             logger.info(value)
 
+    debugging_watershed_delineation = True
+
     file_000_extent = TemporaryDirectory()
     file_010_dem = NamedTemporaryFile(
-        suffix='.tif', prefix="010_dem_")
+        suffix='.tif', prefix="010_dem_", delete=not debugging_watershed_delineation)
     file_020_dem_filled = NamedTemporaryFile(
         suffix='.tif', prefix='020_filled_')
-    file_030_fdr = NamedTemporaryFile(suffix='.tif', prefix='030_fdr_')
-    file_040_fac = NamedTemporaryFile(suffix='.tif', prefix='040_fac_')
+    file_030_fdr = NamedTemporaryFile(
+        suffix='.tif', prefix='030_fdr_', delete=not debugging_watershed_delineation)
+    file_040_fac = NamedTemporaryFile(
+        suffix='.tif', prefix='040_fac_', delete=not debugging_watershed_delineation)
     file_050_point_shp = TemporaryDirectory()
     file_060_directory = TemporaryDirectory()
     file_060_snapped_pour_point = NamedTemporaryFile(
         dir=file_060_directory.name, suffix='.shp', prefix='060_snapped_')
     file_070_watershed = NamedTemporaryFile(
-        suffix='.tif', prefix="070_ws_")
+        suffix='.tif', prefix="070_ws_", delete=not debugging_watershed_delineation)
     file_080_directory = TemporaryDirectory()
 
     # Define a point feature geometry with one attribute
@@ -508,11 +515,16 @@ def wbt_calculate_watershed(
         })
         extent_shp_file = c.name
 
+    # src_srs = "EPSG:4326"
+    # if using_srid == 3005:
+    #     logger.info("using SRID 3005")
+    #     src_srs = "EPSG:3005"
+
     gdal.Warp(
-        file_010_dem.name,
-        "/app/api/v1/watersheds/test/Burned_CDEM_BC_49_51.tif",
+        destNameOrDestDS=file_010_dem.name,
+        srcDSOrSrcDSTab=dem_file,
         cutlineDSName=f"{file_000_extent.name}/{extent_shp_file}.shp",
-        cropToCutline=True,
+        cropToCutline=True
     )
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressionsleastcost
@@ -629,7 +641,7 @@ def wbt_calculate_watershed(
         else:
             ws_result_list = [shape(poly['geometry']) for poly in ws_result]
         watershed_result = MultiPolygon(ws_result_list)
-    return watershed_result
+    return (snapped_pt, watershed_result)
 
 
 def watershed_touches_border(db: Session, watershed_feature_id: int) -> List[str]:
@@ -680,7 +692,38 @@ def wbt_options(log: bool = True, pntr: bool = True, accum_out_type: str = 'sca'
     }
 
 
-def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
+def get_cross_border_catchment_area(db: Session, point: Point):
+    """
+        returns a polygon comprised of Hydrosheds originating from a point
+    """
+    q = """
+        WITH RECURSIVE hydrosheds_walkup (hybas_id, geom) AS
+        (
+            SELECT hybas_id, wsd.geom
+            FROM hydrosheds.hybas_lev12_v1c wsd
+            WHERE ST_intersects(geom, ST_SetSRID(ST_GeomFromText(:point_wkt), 3005))
+
+            UNION ALL
+
+            SELECT b.hybas_id, b.geom
+            FROM hydrosheds.hybas_lev12_v1c b,
+            hydrosheds_walkup w
+            WHERE b.next_down = w.hybas_id
+        )
+        SELECT ST_AsBinary(ST_Transform(ST_Collect(geom), 4326))
+        FROM hydrosheds_walkup
+    """
+    res = db.execute(q, {"point_wkt": point.wkt})
+    record = res.fetchone()
+
+    feature = shape(
+        wkb.loads(record[0].tobytes())
+    )
+
+    return feature
+
+
+def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='srtm'):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
 
@@ -727,28 +770,32 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
             transform(transform_4326_3005, click_point)))
         logger.info('--------------------------------------')
 
+    cross_border = bool(len(watershed_touches_border(db, watershed_id)))
+    upstream_area = None
+
     # get an overestimate of the catchment area so that we can crop
     # the DEM to a more manageable size.
-    fwa_upstream_area = get_upstream_catchment_area(db, watershed_id)
+
+    if cross_border:
+        logger.info("---- using cross border -----")
+        upstream_area = get_cross_border_catchment_area(
+            db, transform(transform_4326_3005, point))
+
+    else:
+        upstream_area = get_upstream_catchment_area(db, watershed_id)
 
     # setup config to be used with WBT and the spatial features.
     # CDEM uses SRID 4326, so jenson_radius must be in degrees
     # our SRTM source uses 3005, so set jenson_radius to meters.
     using_srid = 4326
     jenson_radius = 0.001  # degrees
+    dem_file = CDEM_FILE
     if dem_source == 'srtm':
-        rast_q = srtm_q
+        dem_file = SRTM_FILE
         point = transform(transform_4326_3005, point)
         jenson_radius = 500  # metres
         using_srid = 3005
-
-    # TODO: ensure that we use SRTM or at least bring in
-    # the US watershed data if we are hitting a border.
-    if WATERSHED_DEBUG:
-        logger.info('---------------------------------')
-        logger.info('WS CROSSES BORDER?  %s',
-                    watershed_touches_border(db, watershed_id))
-        logger.info('---------------------------------')
+        upstream_area = transform(transform_4326_3005, upstream_area)
 
     # further settings for WhiteboxTools.
     # we hopefully get a valid watershed using the first set
@@ -772,11 +819,14 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
 
     for config in config_matrix:
         logger.info('Using WhiteboxTools with settings %s', config)
-        result = wbt_calculate_watershed(fwa_upstream_area, point, **config)
+        (_, result) = wbt_calculate_watershed(
+            upstream_area, point, dem_file, **config)
 
-        if transform(transform_4326_3005, result).area > 5000:
-            if WATERSHED_DEBUG:
-                logger.info("Generated watershed from DEM")
+        if dem_source == 'srtm':
+            if result.area > 5000:
+                return transform(transform_3005_4326, result)
+
+        elif transform(transform_4326_3005, result).area > 5000:
             return result
 
     # did not get a result from any config setting.
@@ -922,15 +972,6 @@ def augment_dem_watershed_with_fwa(
         END
         AS watershed
 
-    """
-
-    """
-    (
-                SELECT geom FROM dem_watershed
-                UNION   SELECT  geom from watershed_mask
-                UNION   SELECT  ST_Intersection(p.geom, d.geom) as geom
-                        FROM    dem_watershed d, polygons_touching_click_point p
-            ) combined
     """
 
     res = db.execute(q, {
