@@ -219,7 +219,7 @@ pipeline {
                 // apply minio application template
                 def minio = openshift.apply(openshift.process("-f",
                     "${TEMPLATE_DIR}/minio/minio.dc.yaml",
-                    "NAME_SUFFIX=-${env_name}",
+                    "NAME_SUFFIX=-${NAME}",
                     "DEST_PVC_SIZE=1Gi",
                     "HOSTNAME=minio-${project}.apps.silver.devops.gov.bc.ca"
                 ))
