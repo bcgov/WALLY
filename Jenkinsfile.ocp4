@@ -1,0 +1,579 @@
+#!groovy
+@Library('bcdevops-jenkins-shared-library') _
+import bcgov.GitHubHelper
+
+// Notify stage status and pass to Jenkins-GitHub library
+void notifyStageStatus (String name, String status) {
+    // GitHubHelper.createCommitStatus(
+    //     this,
+    //     sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
+    //     status,
+    //     "${BUILD_URL}",
+    //     "Stage: ${name}",
+    //     "${name}"
+    // )
+}
+
+// this is commented out because the new version of GitHubHelper doesn't support creating deployments this way!
+// createDeployment gets a new deployment ID from GitHub.
+// this lets us display notifications on GitHub when new environments
+// are deployed (e.g. on a pull request page)
+Long createDeployment (String suffix, String gitRef) {
+    // def ghDeploymentId = new GitHubHelper().createDeployment(
+    //     this,
+    //     gitRef,
+    //     [
+    //         'environment':"${suffix}",
+    //         'task':"deploy:${gitRef}"
+    //     ]
+    // )
+    // echo "deployment ID: ${ghDeploymentId}"
+    // return ghDeploymentId
+  long l = 1
+  return l
+}
+
+// this is commented out because the new version of GitHubHelper doesn't support creating deployments this way!
+// Create deployment status for a deployment ID (call createDeployment first)
+void createDeploymentStatus (Long ghDeploymentId, String status, String stageUrl) {
+    // echo "creating deployment status (${status})"
+    // new GitHubHelper().createDeploymentStatus(
+    //     this,
+    //     ghDeploymentId,
+    //     "${status}",
+    //     ['targetUrl':"https://${stageUrl}/"]
+    // )
+
+}
+
+// Run an action in a stage with GitHub notifications and stage retries on failure.
+// Because the GitHub notification uses the `name` argument, make sure name is unique
+// each time using this wrapper.
+def withStatus(String name, Closure body) {
+  waitUntil {
+      notifyStageStatus (name, 'PENDING')
+      boolean isDone=false
+      try {
+          body()
+          isDone=true
+          notifyStageStatus(name, 'SUCCESS')
+          echo "Completed Stage '${name}'"
+      } catch (error){
+          notifyStageStatus(name, 'FAILURE')
+          echo "${stackTraceAsString(error)}"
+          def inputAction = input(
+              message: "This step (${name}) has failed. See related messages.",
+              ok: 'Confirm',
+              parameters: [
+                  choice(
+                      name: 'action',
+                      choices: 'Re-run\nIgnore',
+                      description: 'What would you like to do?'
+                  )
+              ]
+          )
+          if ('Ignore'.equalsIgnoreCase(inputAction)){
+              isDone=true
+          }
+      }
+      return isDone
+  }
+}
+
+
+// Print stack trace of error
+@NonCPS
+private static String stackTraceAsString(Throwable t) {
+    StringWriter sw = new StringWriter();
+    t.printStackTrace(new PrintWriter(sw));
+    return sw.toString()
+}
+
+
+pipeline {
+  agent any
+  environment {
+    GIT_REPO = "https://github.com/bcgov-c/wally.git"
+    NAME = JOB_BASE_NAME.toLowerCase()
+
+    // project names
+    TOOLS_PROJECT = "d1b5d2-tools"
+    DEV_PROJECT = "d1b5d2-dev"
+    TEST_PROJECT = "d1b5d2-test"
+    PROD_PROJECT = "d1b5d2-prod"
+
+    TEMPLATE_DIR = "openshift/ocp4"
+  }
+  stages {
+    stage('Build') {
+      steps {
+        script {
+          // checkout git repo with tags
+          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+          echo "Cancelling previous builds..."
+          timeout(10) {
+              abortAllPreviousBuildInProgress(currentBuild)
+          }
+          echo "Previous builds cancelled"
+
+          // ref defaults to the master branch, but if this is a pull
+          // request, set the git ref to the pull request ref.
+          def ref = "master"
+          if (env.JOB_BASE_NAME != 'master') {
+            ref = "pull/${CHANGE_ID}/head"
+          }
+
+          openshift.withCluster() {
+            openshift.withProject() {
+              withStatus(env.STAGE_NAME) {
+                echo "Applying templates"
+                def bcWebTemplate = openshift.process('-f',
+                  "${TEMPLATE_DIR}/frontend.build.yaml",
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=${ref}"
+                )
+
+                def bcApiTemplate = openshift.process('-f',
+                  "${TEMPLATE_DIR}/backend.build.yaml",
+                  "NAME=${NAME}",
+                  "GIT_REPO=${GIT_REPO}",
+                  "GIT_REF=${ref}"
+                )
+
+                timeout(15) {
+                  echo "Starting builds"
+                  def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
+                  def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
+                  def webBuilds = bcWeb.narrow('builds')
+                  def apiBuilds = bcApi.narrow('builds')
+
+                  sleep(5)
+
+                  // wait for builds to run.
+                  webBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
+                  }
+                  apiBuilds.untilEach(1) {
+                      return it.object().status.phase == "Complete" || it.object().status.phase == "Failed"
+                  }
+
+                  // the previous step waited for builds to finish (whether successful or not),
+                  // so here we check for errors.
+                  webBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcWeb.logs()
+                      error('Frontend build failed')
+                    }
+                  }
+
+                  apiBuilds.withEach {
+                    if (it.object().status.phase == "Failed") {
+                      bcApi.logs()
+                      error('Backend build failed')
+                    }
+                  }
+
+                }
+                echo "Success! Builds completed."
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy') {
+      when {
+          expression { env.JOB_BASE_NAME != 'master' }
+      }
+      steps {
+        script {
+          def project = DEV_PROJECT
+          def host = "wally-${NAME}.apps.silver.devops.gov.bc.ca"
+          def ref = "pull/${CHANGE_ID}/head"
+          // Get full describe info including # of commits & last commit hash
+          def git_tag = sh(returnStdout: true, script: 'git describe').trim()
+
+          openshift.withCluster() {
+            openshift.withProject(project) {
+              withStatus(env.STAGE_NAME) {
+
+                // create deployment object at GitHub and give it a pending status.
+                // this creates a notice on the pull request page indicating that a deployment
+                // is pending.
+                def deployment = createDeployment('dev', ref)
+                createDeploymentStatus(deployment, 'PENDING', host)
+
+                echo git_tag
+
+                // apply frontend application template
+                def frontend = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/frontend.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "REPLICAS=1",
+                  "NAMESPACE=${project}"
+                ))
+
+                // placeholder for Minio deployment
+
+                echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
+                def database = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
+                    "DATABASE_SERVICE_NAME=wally-psql-${NAME}",
+                    "IMAGE_STREAM_NAMESPACE=${project}",
+                    "IMAGE_STREAM_NAME=crunchy-postgres-gis",
+                    "NAME_SUFFIX=-${NAME}",
+                    "POSTGRESQL_DATABASE=wally",
+                    "VOLUME_CAPACITY=1Gi",
+                    "STORAGE_CLASS=netapp-file-standard",
+                    "REQUEST_CPU=200m",
+                    "REQUEST_MEMORY=512Mi",
+                    "LIMIT_CPU=500m",
+                    "LIMIT_MEMORY=1Gi"
+                ))
+
+
+                def backend = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/backend.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "REPLICAS=1",
+                  "ENVIRONMENT=DEV",
+                  "WALLY_VERSION=${git_tag}",
+                ))
+
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
+                  "NAME=${NAME}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "REPLICAS=1",
+                  "ENVIRONMENT=DEV"
+                ))
+                
+                echo "Deploying to a dev environment"
+
+                // tag images into dev project.  This triggers re-deploy.
+                openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${DEV_PROJECT}/wally-web:${NAME}")
+                openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${DEV_PROJECT}/wally-api:${NAME}")
+
+                // wait for any deployments to finish updating.
+                frontend.narrow('dc').rollout().status()
+                database.narrow('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
+
+                // update GitHub deployment status.
+                createDeploymentStatus(deployment, 'SUCCESS', host)
+                echo "Successfully deployed"
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('API tests') {
+      when {
+          expression { env.JOB_BASE_NAME != 'master' }
+      }
+      steps {
+        script {
+          def host = "wally-${NAME}.apps.silver.devops.gov.bc.ca"
+          openshift.withCluster() {
+            openshift.withProject(TOOLS_PROJECT) {
+              withStatus(env.STAGE_NAME) {
+                podTemplate(
+                    label: "apitest-${NAME}-${BUILD_NUMBER}",
+                    name: "apitest-${NAME}-${BUILD_NUMBER}",
+                    serviceAccount: 'jenkins',
+                    cloud: 'openshift',
+                    activeDeadlineSeconds: 1800,
+                    containers: [
+                        containerTemplate(
+                            name: 'jnlp',
+                            image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
+                            imagePullPolicy: 'Always',
+                            resourceRequestCpu: '500m',
+                            resourceLimitCpu: '800m',
+                            resourceRequestMemory: '512Mi',
+                            resourceLimitMemory: '1Gi',
+                            activeDeadlineSeconds: '600',
+                            podRetention: 'never',
+                            workingDir: '/tmp',
+                            command: '',
+                            args: '${computer.jnlpmac} ${computer.name}',
+                            envVars: [
+                                envVar(
+                                    key:'BASE_URL',
+                                    value: "https://${host}"
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_HOST',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_HOST'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_PASS',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_PASS'
+                                ),
+                                secretEnvVar(
+                                    key: 'AUTH_USER',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'AUTH_USER'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_ID',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_ID'
+                                ),
+                                secretEnvVar(
+                                    key: 'CLIENT_SECRET',
+                                    secretName: 'apitest-test-creds',
+                                    secretKey: 'CLIENT_SECRET'
+                                ),
+                            ]
+                        )
+                    ]
+                ) {
+                    node("apitest-${NAME}-${BUILD_NUMBER}") {
+                        checkout scm
+                        dir('backend/api-tests') {
+                            try {
+                                sh """
+                                  apitest -f data_endpoints.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET &&
+                                  apitest -f geocoder.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET &&
+                                  apitest -f catalogue.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET
+                                  """
+                                }
+                            finally {
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('Deploy to staging') {
+      when {
+          expression { env.JOB_BASE_NAME == 'master' }
+      }
+      steps {
+        script {
+          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+          // Get full describe info including # of commits & last commit hash
+          def git_tag = sh(returnStdout: true, script: 'git describe').trim()
+          def project = TEST_PROJECT
+          def env_name = "staging"
+          def host = "wally-staging.apps.silver.gov.bc.ca"
+          def ref = "refs/heads/master"
+          openshift.withCluster() {
+            openshift.withProject(project) {
+              withStatus(env.STAGE_NAME) {
+
+                // create deployment object at GitHub and give it a pending status.
+                // this creates a notice on the pull request page indicating that a deployment
+                // is pending.
+                def deployment = createDeployment('staging', ref)
+                createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply frontend application template
+                def frontend = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/frontend.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "REPLICAS=2"
+                ))
+
+                // placeholder for Minio deployment
+
+                // Process postgres deployment config (sub in vars, create list items)
+                echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
+                def database = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
+                    "DATABASE_SERVICE_NAME=wally-psql-${env_name}",
+                    "IMAGE_STREAM_NAMESPACE=${project}",
+                    "IMAGE_STREAM_NAME=crunchy-postgres-gis",
+                    "NAME_SUFFIX=-${env_name}",
+                    "POSTGRESQL_DATABASE=wally",
+                    "VOLUME_CAPACITY=40Gi",
+                    "STORAGE_CLASS=netapp-file-standard",
+                    "REQUEST_CPU=200m",
+                    "REQUEST_MEMORY=1Gi",
+                    "LIMIT_CPU=2",
+                    "LIMIT_MEMORY=3Gi"
+                ))
+
+
+                def backend = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/backend.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=STAGING",
+                  "WALLY_VERSION=${git_tag}",
+                  "REPLICAS=2"
+                ))
+
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=STAGING",
+                  "REPLICAS=2"
+                ))
+                
+                echo "Deploying to a dev environment"
+
+                // tag images into dev project.  This triggers re-deploy.
+                openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${project}/wally-web:${env_name}")
+                openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${project}/wally-api:${env_name}")
+
+                // wait for any deployments to finish updating.
+                frontend.narrow('dc').rollout().status()
+                database.narrow('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
+
+                // update GitHub deployment status.
+                createDeploymentStatus(deployment, 'SUCCESS', host)
+                echo "Successfully deployed"
+              }
+            }
+          }
+        }
+      }
+    }
+//     stage('Auto Deploy tag to prod'){
+//       when {
+//         allOf {
+//           tag "v*";
+//           expression { env.JOB_BASE_NAME != 'master' }
+//         }
+//       }
+//       steps {
+//         script{
+//           def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
+//           echo "Automatically deployed! ${git_tag}"
+//         }
+//       }
+//     }
+    stage('Deploy to production') {
+      when {
+          expression { env.JOB_BASE_NAME == 'master' }
+      }
+      steps {
+        script {
+
+          input "Deploy to production?"
+
+          def git_tag = sh(returnStdout: true, script: 'git describe --abbrev=0').trim()
+          def project = PROD_PROJECT
+          def env_name = "production"
+          def host = "wally.apps.silver.devops.gov.bc.ca"
+          def ref = "refs/heads/master"
+          openshift.withCluster() {
+            openshift.withProject(project) {
+              withStatus(env.STAGE_NAME) {
+
+                // create deployment object at GitHub and give it a pending status.
+                // this creates a notice on the pull request page indicating that a deployment
+                // is pending.
+                def deployment = createDeployment('production', ref)
+                createDeploymentStatus(deployment, 'PENDING', host)
+
+                // apply frontend application template
+                def frontend = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/frontend.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "REPLICAS=2"
+                ))
+
+                // placeholder for Minio deployment
+
+                // Process postgres deployment config (sub in vars, create list items)
+                echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
+                def database = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/crunchy-postgres/postgres.deploy.yaml",
+                    "DATABASE_SERVICE_NAME=wally-psql-${env_name}",
+                    "IMAGE_STREAM_NAMESPACE=${project}",
+                    "IMAGE_STREAM_NAME=crunchy-postgres-gis",
+                    "NAME_SUFFIX=-${env_name}",
+                    "POSTGRESQL_DATABASE=wally",
+                    "VOLUME_CAPACITY=50Gi",
+                    "STORAGE_CLASS=netapp-file-standard",
+                    "REQUEST_CPU=1",
+                    "REQUEST_MEMORY=1Gi",
+                    "LIMIT_CPU=4",
+                    "LIMIT_MEMORY=8Gi"
+                ))
+
+                def backend = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/backend.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=PRODUCTION",
+                  "WALLY_VERSION=${git_tag}",
+                  "REPLICAS=2"
+                ))
+
+                def gatekeeper = openshift.apply(openshift.process("-f",
+                  "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
+                  "NAME=${env_name}",
+                  "HOST=${host}",
+                  "NAMESPACE=${project}",
+                  "ENVIRONMENT=PRODUCTION",
+                  "REPLICAS=2"
+                ))
+                
+                echo "Deploying to a dev environment"
+
+                // tag images into dev project.  This triggers re-deploy.
+                openshift.tag("${TOOLS_PROJECT}/wally-web:${NAME}", "${project}/wally-web:${env_name}")
+                openshift.tag("${TOOLS_PROJECT}/wally-api:${NAME}", "${project}/wally-api:${env_name}")
+
+                // wait for any deployments to finish updating.
+                frontend.narrow('dc').rollout().status()
+                database.narrow('dc').rollout().status()
+                backend.narrow('dc').rollout().status()
+                gatekeeper.narrow('dc').rollout().status()
+
+                // update GitHub deployment status.
+                createDeploymentStatus(deployment, 'SUCCESS', host)
+                echo "Successfully deployed"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,66 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: wally-cdem-job
+parameters:
+- description: Environment name (staging or production)
+  displayName: Environment name
+  name: ENV_NAME
+  value: staging
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: wally-cdem
+      labels:
+        component: importer
+        job: cdem
+        name: wally-cdem
+    spec:
+      backoffLimit: 3
+      parallelism: 1    
+      completions: 1    
+      template:         
+        metadata:
+          name: wally-cdem
+        spec:
+          containers:
+          - name: importer
+            image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
+            command: ['/dataload/load_cdem.sh']
+            resources:
+              requests:
+                cpu: 200m
+                memory: 4Gi
+              limits:
+                cpu: '1'
+                memory: 4Gi
+            env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-username
+                  name: wally-psql
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-password
+                  name: wally-psql
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  key: app-db-name
+                  name: wally-psql
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioAccessKey
+                  name: minio
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioSecretKey
+                  name: minio
+            - name: POSTGRES_SERVER
+              value: wally-psql-master-${ENV_NAME}
+          restartPolicy: Never
