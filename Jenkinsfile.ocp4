@@ -396,7 +396,7 @@ pipeline {
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
           def project = TEST_PROJECT
           def env_name = "staging"
-          def host = "wally-staging.apps.silver.gov.bc.ca"
+          def host = "wally-staging.apps.silver.devops.gov.bc.ca"
           def ref = "refs/heads/master"
           openshift.withCluster() {
             openshift.withProject(project) {
