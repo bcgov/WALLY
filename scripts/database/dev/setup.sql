@@ -33,7 +33,7 @@ create extension pg_stat_statements;
 create extension pgaudit;
 create extension plr;
 create extension ltree;
-create extension gin_trgm_ops;
+create extension pg_trgm;
 
 \c "PG_DATABASE" "PG_USER";
 
