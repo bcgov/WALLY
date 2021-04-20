@@ -8,14 +8,14 @@ Most resources that need to be created in the environments but are not stored in
 
 ## Create or import secrets/configmaps
 
-### tools namespace
-#### secrets
+### Tools namespace
+#### Secrets
 * wally-at-github (GitHub SSH key)
 * wally-github-token (GitHub token)
 * apitest-test-creds (test account for CI/CD API tests)
 
-### dev namespace
-#### secrets
+### Dev namespace
+#### Secrets
 * common-docgen
 * wally-psql
 * minio
@@ -24,25 +24,47 @@ Most resources that need to be created in the environments but are not stored in
 * wally-debug
 * mapbox-access-token
 
-#### configmaps
+#### ConfigMaps
 * gatekeeper-config
 * promtail-config
 * loki-config
 * wally-config
 
 
-### test/prod
+### Test
 
-#### secrets
+#### Secrets
 * common-docgen
 * wally-psql
 * minio
-* keycloak-config
 * gatekeeper-credentials
 * wally-debug
 * mapbox-access-token
 
-#### configmaps
+#### ConfigMaps
+* gatekeeper-config
+* promtail-config
+* loki-config
+* wally-config
+* wally-staging-grafana
+* wally-staging-grafana-cfg
+* wally-staging-grafana-dashboards
+* wally-staging-grafana-datasources
+* wally-grafana-notifiers
+* wally-staging-prometheus
+* apitest-monitors
+
+### Prod
+
+#### Secrets
+* common-docgen
+* wally-psql
+* minio
+* gatekeeper-credentials
+* wally-debug
+* mapbox-access-token
+
+#### ConfigMaps
 * gatekeeper-config
 * promtail-config
 * loki-config
