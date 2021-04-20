@@ -190,6 +190,7 @@ pipeline {
         script {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.apps.silver.devops.gov.bc.ca"
+          def env_name = "dev"
           def ref = "pull/${CHANGE_ID}/head"
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
@@ -215,7 +216,13 @@ pipeline {
                   "NAMESPACE=${project}"
                 ))
 
-                // placeholder for Minio deployment
+                // apply minio application template
+                def minio = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/minio/minio.dc.yaml",
+                    "NAME_SUFFIX=-${NAME}",
+                    "DEST_PVC_SIZE=1Gi",
+                    "HOSTNAME=wally-minio-${NAME}.apps.silver.devops.gov.bc.ca"
+                ))
 
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
                 def database = openshift.apply(openshift.process("-f",
@@ -261,6 +268,7 @@ pipeline {
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
+                minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
@@ -409,7 +417,13 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                // placeholder for Minio deployment
+                // apply minio application template
+                def minio = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/minio/minio.dc.yaml",
+                    "NAME_SUFFIX=-${env_name}",
+                    "DEST_PVC_SIZE=10Gi",
+                    "HOSTNAME=wally-minio-${env_name}.apps.silver.devops.gov.bc.ca"
+                ))
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
@@ -456,6 +470,7 @@ pipeline {
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
+                minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
@@ -516,7 +531,13 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                // placeholder for Minio deployment
+                // apply minio application template
+                def minio = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/minio/minio.dc.yaml",
+                    "NAME_SUFFIX=-${env_name}",
+                    "DEST_PVC_SIZE=10Gi",
+                    "HOSTNAME=wally-minio.apps.silver.devops.gov.bc.ca"
+                ))
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
@@ -562,6 +583,7 @@ pipeline {
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
+                minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
