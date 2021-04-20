@@ -482,23 +482,21 @@ def wbt_calculate_watershed(
         if not "%" in value:
             logger.info(value)
 
-    debugging_watershed_delineation = True
-
     file_000_extent = TemporaryDirectory()
     file_010_dem = NamedTemporaryFile(
-        suffix='.tif', prefix="010_dem_", delete=not debugging_watershed_delineation)
+        suffix='.tif', prefix="010_dem_")
     file_020_dem_filled = NamedTemporaryFile(
         suffix='.tif', prefix='020_filled_')
     file_030_fdr = NamedTemporaryFile(
-        suffix='.tif', prefix='030_fdr_', delete=not debugging_watershed_delineation)
+        suffix='.tif', prefix='030_fdr_')
     file_040_fac = NamedTemporaryFile(
-        suffix='.tif', prefix='040_fac_', delete=not debugging_watershed_delineation)
+        suffix='.tif', prefix='040_fac_')
     file_050_point_shp = TemporaryDirectory()
     file_060_directory = TemporaryDirectory()
     file_060_snapped_pour_point = NamedTemporaryFile(
-        suffix='.shp', prefix='060_snapped_', delete=not debugging_watershed_delineation)
+        dir=file_060_directory.name, suffix='.shp', prefix='060_snapped_')
     file_070_watershed = NamedTemporaryFile(
-        suffix='.tif', prefix="070_ws_", delete=not debugging_watershed_delineation)
+        suffix='.tif', prefix="070_ws_")
     file_080_directory = TemporaryDirectory()
 
     # Define a point feature geometry with one attribute
