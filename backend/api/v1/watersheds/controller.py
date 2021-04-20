@@ -60,7 +60,7 @@ wbt = WhiteboxTools()
 
 # the whitebox_tools cli is installed to /usr/local/bin by the Dockerfile.
 wbt.set_whitebox_dir('/usr/local/bin/')
-CDEM_FILE = "/app/api/v1/watersheds/test/Burned_CDEM_BC_49_51.tif"
+CDEM_FILE = "/app/api/v1/watersheds/test/Burned_CDEM_BC_Area_4326.tif"
 SRTM_FILE = "/app/api/v1/watersheds/test/Burned_SRTM_BC_48_51_3005.tif"
 
 
@@ -464,7 +464,8 @@ def wbt_calculate_watershed(
     Optional arguments:
     `log`:  run WhiteboxTools D8FlowAccumulation with the --log flag.  Tranforms raster values
     using log to prevent saturating areas with max values.
-    See https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8flowaccumulation
+    # d8flowaccumulation
+    See https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html
 
     `snap_distance`: the max distance that JensonSnapPourPoints should search for a suitable stream.
     Always use an appropriate value for the map unit (e.g. 1000 m for EPSG:3005; 0.01 deg for EPSG:4326).
@@ -675,17 +676,6 @@ def watershed_touches_border(db: Session, watershed_feature_id: int) -> List[str
     return [row['border'] for row in res]
 
 
-def wbt_options(log: bool = True, pntr: bool = True, accum_out_type: str = 'sca', snap_distance: float = '1000', using_srid: int = 3005):
-    """ returns an object with WBT Watershed settings"""
-    return {
-        "log": log,
-        "pntr": pntr,
-        "accum_out_type": accum_out_type,
-        "snap_distance": snap_distance,
-        "using_srid": using_srid
-    }
-
-
 def get_cross_border_catchment_area(db: Session, point: Point):
     """
         returns a polygon comprised of Hydrosheds originating from a point
@@ -717,7 +707,7 @@ def get_cross_border_catchment_area(db: Session, point: Point):
     return feature
 
 
-def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='srtm'):
+def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
 
@@ -764,16 +754,25 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
             transform(transform_4326_3005, click_point)))
         logger.info('--------------------------------------')
 
-    cross_border = bool(len(watershed_touches_border(db, watershed_id)))
+    border_crossings = list(set(watershed_touches_border(db, watershed_id)))
     upstream_area = None
 
     # get an overestimate of the catchment area so that we can crop
     # the DEM to a more manageable size.
 
-    if cross_border:
-        logger.info("---- using cross border -----")
+    if len(border_crossings):
+        logger.info("--------- using cross border ---------")
+        logger.info("- border crossings: %s", border_crossings)
+
+        if 'USA_49' in border_crossings:
+            logger.info(
+                "- Stream crosses US border.  Forcing use of SRTM as DEM source.")
+            dem_source = 'srtm'
+
         upstream_area = get_cross_border_catchment_area(
             db, transform(transform_4326_3005, point)).envelope
+
+        logger.info("--------------------------------------")
 
     else:
         upstream_area = get_upstream_catchment_area(db, watershed_id).envelope
@@ -782,7 +781,7 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
     # CDEM uses SRID 4326, so snap_distance must be in degrees
     # our SRTM source uses 3005, so set snap_distance to meters.
     using_srid = 4326
-    snap_distance = 0.001  # degrees
+    snap_distance = 0.002  # degrees
     dem_file = CDEM_FILE
     if dem_source == 'srtm':
         dem_file = SRTM_FILE
@@ -797,39 +796,22 @@ def get_watershed_using_dem(db: Session, click_point: Point, watershed_id, clip_
         upstream_area = transform(transform_3005_4326, transform(
             transform_4326_3005, upstream_area).buffer(1000))
 
-    # further settings for WhiteboxTools.
-    # we hopefully get a valid watershed using the first set
-    # of settings, but sometimes we get a one-cell (small "stub")
-    # watershed.  If that happens, we can run through a few different
-    # settings quickly to see if we can get a full watershed.
-    # NOTE: not sure if this is a good idea.  we want to make sure
-    # the watersheds are relatively repeatable.
-    config_matrix = [
-        wbt_options(log=True, pntr=True, accum_out_type='sca',
-                    snap_distance=snap_distance),
-        # wbt_options(log=True, pntr=True, accum_out_type='ca',
-        #             snap_distance=snap_distance),
-        # wbt_options(log=True, pntr=True, accum_out_type='cells',
-        #             snap_distance=snap_distance),
-        # wbt_options(log=True, pntr=False, accum_out_type='sca',
-        #             snap_distance=snap_distance),
-        # wbt_options(log=False, pntr=True, accum_out_type='sca',
-        #             snap_distance=snap_distance),
-    ]
+    (_, result) = wbt_calculate_watershed(
+        upstream_area, point, dem_file,
+        log=True,
+        pntr=True,
+        accum_out_type='sca',
+        snap_distance=snap_distance, using_srid=using_srid
+    )
 
-    for config in config_matrix:
-        logger.info('Using WhiteboxTools with settings %s', config)
-        (_, result) = wbt_calculate_watershed(
-            upstream_area, point, dem_file, **config)
+    if dem_source == 'srtm':
+        if result.area > 5000:
+            return transform(transform_3005_4326, result)
 
-        if dem_source == 'srtm':
-            if result.area > 5000:
-                return transform(transform_3005_4326, result)
+    elif transform(transform_4326_3005, result).area > 5000:
+        return result
 
-        elif transform(transform_4326_3005, result).area > 5000:
-            return result
-
-    # did not get a result from any config setting.
+    # did not get a valid result.
     return None
 
 
@@ -1099,9 +1081,6 @@ def calculate_watershed(
                 func.ST_Transform(func.ST_GeomFromText(point.wkt, 4326), 3005)
             )
         )
-
-        if WATERSHED_DEBUG:
-            logger.info("watershed query %s", q)
 
         watershed_id = q.first()
         if not watershed_id:
