@@ -12,6 +12,7 @@
 #    limitations under the License.
 
 mkdir -p $MINIO_DATA_DIR/files
+mkdir -p $MINIO_DATA_DIR/projects
 mkdir -p $MINIO_DATA_DIR/raster
 mkdir -p $MINIO_DATA_DIR/other
 mkdir -p $MINIO_DATA_DIR/geojson
