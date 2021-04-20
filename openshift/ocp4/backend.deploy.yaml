@@ -163,7 +163,7 @@ objects:
                 key: minioSecretKey
                 name: minio
           - name: MINIO_HOST_URL
-            value: wally-minio-${NAME}
+            value: "wally-minio-${NAME}:9000"
           - name: WATERSHED_DEBUG
             valueFrom:
               secretKeyRef:
