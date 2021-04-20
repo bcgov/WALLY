@@ -221,7 +221,7 @@ pipeline {
                     "${TEMPLATE_DIR}/minio/minio.dc.yaml",
                     "NAME_SUFFIX=-${NAME}",
                     "DEST_PVC_SIZE=1Gi",
-                    "HOSTNAME=minio-${project}.apps.silver.devops.gov.bc.ca"
+                    "HOSTNAME=wally-minio-${NAME}.apps.silver.devops.gov.bc.ca"
                 ))
 
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
@@ -422,7 +422,7 @@ pipeline {
                     "${TEMPLATE_DIR}/minio/minio.dc.yaml",
                     "NAME_SUFFIX=-${env_name}",
                     "DEST_PVC_SIZE=10Gi",
-                    "HOSTNAME=minio-${project}.apps.silver.devops.gov.bc.ca"
+                    "HOSTNAME=wally-minio-${env_name}.apps.silver.devops.gov.bc.ca"
                 ))
 
                 // Process postgres deployment config (sub in vars, create list items)
@@ -536,7 +536,7 @@ pipeline {
                     "${TEMPLATE_DIR}/minio/minio.dc.yaml",
                     "NAME_SUFFIX=-${env_name}",
                     "DEST_PVC_SIZE=10Gi",
-                    "HOSTNAME=minio-${project}.apps.silver.devops.gov.bc.ca"
+                    "HOSTNAME=wally-minio.apps.silver.devops.gov.bc.ca"
                 ))
 
                 // Process postgres deployment config (sub in vars, create list items)
