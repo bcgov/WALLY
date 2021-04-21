@@ -12,6 +12,6 @@ RUN chmod g+rwx /var/cache/nginx /var/run /var/log/nginx
 RUN sed -i.bak 's/listen\(.*\)80;/listen 8080;/' /etc/nginx/conf.d/default.conf
 
 # Copy config from source to container
-ADD docker/nginx/nginx.conf /etc/nginx/
+ADD openshift/matomo/docker/nginx/nginx.conf /etc/nginx/
 
 EXPOSE 8080
