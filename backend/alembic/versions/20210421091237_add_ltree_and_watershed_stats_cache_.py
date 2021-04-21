@@ -6,6 +6,7 @@ Create Date: 2021-04-21 09:12:37.345503
 
 """
 from alembic import op
+import geoalchemy2
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
 from sqlalchemy_utils import LtreeType
@@ -31,15 +32,15 @@ def upgrade():
     # this group of operations takes a LONG while!
     op.add_column('freshwater_atlas_watersheds', sa.Column('wscode_ltree', LtreeType, sa.Computed(
         "(replace(replace((\"FWA_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree", persisted=True), autoincrement=False, nullable=True), schema='public')
-    op.add_column('fwa_watersheds_poly', sa.Column('localcode_ltree', LtreeType, sa.Computed(
+    op.add_column('freshwater_atlas_watersheds', sa.Column('localcode_ltree', LtreeType, sa.Computed(
         "(replace(replace((\"LOCAL_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree", persisted=True), autoincrement=False, nullable=True), schema='public')
-    op.create_index('fwa_watersheds_poly_localcode_ltree_idx1', 'freshwater_atlas_watersheds', [
+    op.create_index('freshwater_atlas_watersheds_localcode_ltree_idx1', 'freshwater_atlas_watersheds', [
                     'localcode_ltree'], unique=False, schema='public')
-    op.create_index('fwa_watersheds_poly_localcode_ltree_idx', 'freshwater_atlas_watersheds', [
+    op.create_index('freshwater_atlas_watersheds_localcode_ltree_idx', 'freshwater_atlas_watersheds', [
                     'localcode_ltree'], unique=False, schema='public')
-    op.create_index('fwa_watersheds_poly_wscode_ltree_idx', 'freshwater_atlas_watersheds', [
+    op.create_index('freshwater_atlas_watersheds_wscode_ltree_idx', 'freshwater_atlas_watersheds', [
                     'wscode_ltree'], unique=False, schema='public')
-    op.create_index('fwa_watersheds_poly_wscode_ltree_gist_idx', 'freshwater_atlas_watersheds', [
+    op.create_index('freshwater_atlas_watersheds_wscode_ltree_gist_idx', 'freshwater_atlas_watersheds', [
                     'wscode_ltree'], unique=False, schema='public')
 
     # approx borders.  From https://github.com/smnorris/fwapg
@@ -53,7 +54,7 @@ def upgrade():
                     )
 
     op.execute("""
-            INSERT INTO whse_basemapping.fwa_approx_borders
+            INSERT INTO fwa_approx_borders
         (border, geom)
         SELECT
         'USA_49' as border,
