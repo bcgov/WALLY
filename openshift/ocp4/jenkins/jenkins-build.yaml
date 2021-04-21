@@ -1,0 +1,53 @@
+---
+apiVersion: template.openshift.io/v1
+kind: Template
+labels:
+  app: jenkins
+metadata:
+  name: jenkins
+objects:
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    name: jenkins
+    namespace: d1b5d2-tools
+  spec:
+    failedBuildsHistoryLimit: 2
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: jenkins:20210331
+    resources:
+      limits:
+        cpu: "4"
+        memory: 4Gi
+      requests:
+        cpu: "1"
+        memory: 1Gi
+    runPolicy: SerialLatestOnly
+    source:
+      contextDir: cicd/jenkins-basic/docker
+      git:
+        ref: master
+        uri: https://github.com/BCDevOps/openshift-components.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: DockerImage
+          name: registry.redhat.io/ubi8/ubi:8.2
+      type: Docker
+    successfulBuildsHistoryLimit: 2
+    triggers:
+    - type: ConfigChange
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    creationTimestamp: null
+    labels:
+      shared: "true"
+    name: jenkins
+  spec:
+    lookupPolicy:
+      local: false

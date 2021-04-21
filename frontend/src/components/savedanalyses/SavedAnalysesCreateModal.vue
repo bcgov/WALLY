@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="dialog" width="650">
+  <v-dialog v-model="dialog" width="650" v-if="app.config && app.config.saved_analysis">
     <template v-slot:activator="{ on, attrs }">
         <v-btn
           outlined
@@ -84,7 +84,8 @@ export default {
     description: ''
   }),
   computed: {
-    ...mapGetters('map', ['map', 'activeMapLayers'])
+    ...mapGetters('map', ['map', 'activeMapLayers']),
+    ...mapGetters(['app'])
   },
   methods: {
     ...mapActions(['getSavedAnalyses']),
