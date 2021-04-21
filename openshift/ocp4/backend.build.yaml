@@ -41,7 +41,7 @@ objects:
       requests:
         cpu: 500m
       limits:
-        cpu: '1'
+        cpu: '2'
     runPolicy: SerialLatestOnly
     source:
       contextDir: backend
