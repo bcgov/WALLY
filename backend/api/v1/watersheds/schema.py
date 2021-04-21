@@ -77,3 +77,18 @@ class WatershedDataWarning(BaseModel):
     """ warning messages for users interacting with watersheds """
     message: str
     debug_only: bool = False
+
+
+class GeneratedWatershed(BaseModel):
+    warnings: List[WatershedDataWarning]
+    watershed: Feature
+    wally_watershed_id: str
+    upstream_method: str
+    from_cache: bool
+    click_point: str
+    snapped_point: str
+    fwa_watershed_id: Optional[int]
+    is_near_border: bool
+
+    class Config:
+        arbitrary_types_allowed = True

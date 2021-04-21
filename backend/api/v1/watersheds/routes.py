@@ -45,7 +45,8 @@ from api.v1.watersheds.schema import (
     WatershedDetails,
     LicenceDetails,
     SurficialGeologyDetails,
-    SurficialGeologyTypeSummary
+    SurficialGeologyTypeSummary,
+    GeneratedWatershed
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
@@ -91,7 +92,7 @@ def get_streamflow_inventory_report_link(
     }
 
 
-@router.get('/')
+@router.get('/', response_model=GeneratedWatershed)
 def get_watersheds(
     db: Session = Depends(get_db),
     point: str = Query(
@@ -110,13 +111,6 @@ def get_watersheds(
     https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries
 
     """
-    assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
-    hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
-
-    search_layers = ','.join([
-        assessment_watershed_layer_id,
-        hydrometric_watershed_layer_id
-    ])
 
     if not point:
         raise HTTPException(
@@ -126,28 +120,10 @@ def get_watersheds(
         point_parsed = json.loads(point)
         point = Point(point_parsed)
 
-    # watersheds = databc_feature_search(search_layers, search_area=point)
-
-    watershed_features = []
-
     upstream_method = unquote(upstream_method)
 
-    calculated_ws = calculate_watershed(
+    return calculate_watershed(
         db, point, include_self=include_self, upstream_method=upstream_method)
-
-    if calculated_ws:
-        watershed_features.append(calculated_ws)
-
-    # for ws in watersheds.features:
-    #     watershed_features.append(
-    #         Feature(
-    #             geometry=transform(transform_3005_4326, shape(ws.geometry)),
-    #             properties=dict(ws.properties),
-    #             id=ws.id
-    #         )
-    #     )
-
-    return FeatureCollection(watershed_features)
 
 
 @router.get('/{watershed_feature}')
@@ -167,7 +143,7 @@ def watershed_stats(
         logger.warning("Watershed Details - Request Started")
 
     # watershed area calculations
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, watershed_feature).watershed
     watershed_poly = shape(watershed.geometry)
 
     watershed_details = get_watershed_details(db, watershed)
@@ -265,7 +241,7 @@ def get_50k_watershed_codes(
 ):
     """ returns 50k (old) watershed codes. Useful for searching legacy applications """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, watershed_feature).watershed
 
     return find_50k_watershed_codes(db, shape(watershed.geometry))
 
@@ -279,7 +255,7 @@ def get_watershed_demand(
 ):
     """ returns data about watershed demand by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, watershed_feature).watershed
 
     return surface_water_rights_licences(shape(watershed.geometry))
 
@@ -293,7 +269,7 @@ def get_watershed_short_term_demand(
 ):
     """ returns data about watershed demand by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, watershed_feature).watershed
 
     return surface_water_approval_points(shape(watershed.geometry))
 
@@ -307,7 +283,7 @@ def get_surficial_geology(
 ):
     """ returns data about watershed demand by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, watershed_feature).watershed
 
     surf_geol_summary = surficial_geology(shape(watershed.geometry))
 
@@ -323,7 +299,7 @@ def get_fish_observations(
 ):
     """ returns data about fish observations within a watershed by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, watershed_feature).watershed
 
     watershed_fish_observations = known_fish_observations(
         shape(watershed.geometry))

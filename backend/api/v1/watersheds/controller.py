@@ -46,7 +46,8 @@ from api.v1.watersheds.schema import (
     SurficialGeologyDetails,
     FishObservationsDetails,
     WaterApprovalDetails,
-    WatershedDataWarning
+    WatershedDataWarning,
+    GeneratedWatershed
 )
 from api.v1.watersheds.delineate_watersheds import (
     augment_dem_watershed_with_fwa,
@@ -54,7 +55,8 @@ from api.v1.watersheds.delineate_watersheds import (
     get_cross_border_catchment_area,
     get_upstream_catchment_area,
     get_watershed_using_dem,
-    wbt_calculate_watershed
+    wbt_calculate_watershed,
+    watershed_touches_border
 )
 
 
@@ -380,7 +382,7 @@ def surface_water_approval_points(polygon: Polygon):
 
 def calculate_watershed(
     db: Session,
-    point: Point = None,
+    click_point: Point = None,
     watershed_id: int = None,
     include_self: bool = False,
     upstream_method='DEM',
@@ -411,11 +413,11 @@ def calculate_watershed(
 
     warnings = []
 
-    if point and watershed_id:
+    if click_point and watershed_id:
         raise ValueError(
             "Do not provide both point and watershed_id at the same time")
 
-    if not point and not watershed_id:
+    if not click_point and not watershed_id:
         raise ValueError(
             "Must provide either a starting point (lat, long) or a starting watershed ID")
 
@@ -427,12 +429,13 @@ def calculate_watershed(
         logger.info("calculating watershed")
 
     stream_name = ''
+    point_on_stream = None
 
-    if point:
+    if click_point:
         # move the click point to the nearest stream based on the FWA Stream Networks.
         # this will make it easier to snap the point to the Flow Accumulation raster
         # we will generate.
-        nearest_stream = get_nearest_streams(db, point, limit=1)[0]
+        nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
         nearest_stream_point = nearest_stream.get('closest_stream_point')
         stream_name = nearest_stream.get('gnis_name', '')
         point_on_stream = shape(nearest_stream_point)
@@ -440,17 +443,15 @@ def calculate_watershed(
         stream_distance = transform(
             transform_4326_3005, point_on_stream
         ).distance(
-            transform(transform_4326_3005, point))
-
-        point = point_on_stream
+            transform(transform_4326_3005, click_point))
 
         if WATERSHED_DEBUG:
             logger.info('--------- nearest stream -------------')
-            logger.info(point)
+            logger.info(click_point)
             logger.info('distance: %s', stream_distance)
             logger.info('--------------------------------------')
 
-        stream_distance_warning_threshold = 1000
+        stream_distance_warning_threshold = 500
 
         if stream_distance > stream_distance_warning_threshold:
             point_not_on_stream_warning = WatershedDataWarning(
@@ -467,7 +468,8 @@ def calculate_watershed(
         q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
             func.ST_Contains(
                 FreshwaterAtlasWatersheds.GEOMETRY,
-                func.ST_Transform(func.ST_GeomFromText(point.wkt, 4326), 3005)
+                func.ST_Transform(func.ST_GeomFromText(
+                    point_on_stream.wkt, 4326), 3005)
             )
         )
 
@@ -484,20 +486,32 @@ def calculate_watershed(
     watershed_point = None
     watershed = None
 
+    is_near_border = bool(len(watershed_touches_border(db, watershed_id)))
+
     # choose method based on function argument.
 
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
         watershed = get_watershed_using_dem(
-            db, point, watershed_id, clip_dem=not upstream_method == 'DEM+FWA')
+            db, point_on_stream, watershed_id, clip_dem=not upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
-        watershed_point = base64.urlsafe_b64encode(point.wkb).decode('utf-8')
+        watershed_point = base64.urlsafe_b64encode(
+            point_on_stream.wkb).decode('utf-8')
+
+        # ensure that we stop here if the watershed touches a border.
+        if upstream_method == 'DEM+FWA' and is_near_border:
+            no_cross_border_fwa_warning = WatershedDataWarning(
+                message=f"This watershed was delineated from a DEM without using the Freshwater Atlas" +
+                " because it is close to or crosses a boundary with another jurisdiction where FWA data" +
+                " is not available. Please verify estimated watershed boundary."
+            )
+            warnings.append(no_cross_border_fwa_warning)
 
         # optionally augment the watershed using the FWA.
-        if upstream_method == 'DEM+FWA':
+        elif upstream_method == 'DEM+FWA':
             watershed = augment_dem_watershed_with_fwa(
-                db, watershed, watershed_id, point)
+                db, watershed, watershed_id, point_on_stream)
             watershed_source = "Estimated by combining the result from CDEM/WhiteboxTools " + \
                                "with Freshwater Atlas fundamental watershed polygons."
             generated_method = 'generated_dem_fwa'
@@ -542,7 +556,18 @@ def calculate_watershed(
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
-    return feature
+    watershed_resp = GeneratedWatershed(
+        warnings=warnings,
+        watershed=feature,
+        click_point=geojson.dumps(click_point),
+        snapped_point=geojson.dumps(point_on_stream),
+        from_cache=False,
+        fwa_watershed_id=watershed_id,
+        wally_watershed_id=f"{generated_method}.{watershed_point}",
+        upstream_method=generated_method,
+        is_near_border=is_near_border)
+
+    return watershed_resp
 
 
 def get_databc_watershed(watershed_id: str):
@@ -661,7 +686,7 @@ def surficial_geology(polygon: Polygon):
     )
 
 
-def get_watershed(db: Session, watershed_feature: str):
+def get_watershed(db: Session, watershed_feature: str) -> GeneratedWatershed:
     """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
@@ -681,24 +706,21 @@ def get_watershed(db: Session, watershed_feature: str):
         logger.info(watershed_feature_id[0])
         point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
         watershed = calculate_watershed(
-            db, point=point, upstream_method='DEM+FWA')
+            db, click_point=point, upstream_method='DEM+FWA')
 
     elif watershed_layer == 'generated_dem':
         point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
-        watershed = calculate_watershed(db, point=point, upstream_method='DEM')
+        watershed = calculate_watershed(
+            db, click_point=point, upstream_method='DEM')
 
     elif watershed_layer == 'generated_full_stream':
         watershed_id = watershed_feature_id[0]
         watershed = calculate_watershed(
             db, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
 
-    # otherwise, fetch the watershed from DataBC. The layer is encoded in the
-    # feature id.
     else:
-        watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(
-            transform_3005_4326, shape(watershed.geometry))
-        watershed.geometry = mapping(watershed_poly)
+        raise HTTPException(
+            status_code=500, detail="Unable to determine type of watershed. Please contact the WALLY team.")
 
     return watershed
 
