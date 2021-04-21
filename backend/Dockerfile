@@ -10,8 +10,14 @@ COPY ./requirements.txt /
 RUN pip install -r /requirements.txt
 
 COPY . /app
-ENV PYTHONPATH=/app
 
+# whitebox_tools is added to /tmp by the BuildConfig, which
+# copies it from the whiteboxtools:latest imagestream.
+# the BuildConfig also copies whitebox_tools.py (WBT Python bindings)
+# into the context dir so it gets copied by the COPY directive above.
+COPY /tmp/whitebox_tools /usr/local/bin
+
+ENV PYTHONPATH=/app
 RUN pytest /app/tests/ -W ignore::DeprecationWarning
 
 EXPOSE 8000

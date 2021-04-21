@@ -44,6 +44,15 @@ objects:
         cpu: '1'
     runPolicy: SerialLatestOnly
     source:
+      images:
+      - from: 
+          kind: ImageStreamTag
+          name: whiteboxtools:latest
+        paths: 
+        - sourcePath: /wbt/whitebox_tools.py
+          destinationDir: "."
+        - sourcePath: /wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools
+          destinationDir: "/tmp"
       contextDir: backend
       git:
         ref: "${GIT_REF}"
