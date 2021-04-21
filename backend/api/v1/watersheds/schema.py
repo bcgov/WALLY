@@ -71,3 +71,9 @@ class FishObservationsDetails(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class WatershedDataWarning(BaseModel):
+    """ warning messages for users interacting with watersheds """
+    message: str
+    debug_only: bool = False
