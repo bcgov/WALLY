@@ -8,7 +8,7 @@
     </v-row>
     <v-row>
       <v-col class="pb-0">
-        <v-alert type="info" dense class="mb-0" outlined dismissible>
+        <v-alert type="info" dense class="my-1" outlined dismissible>
           This modelling output has not been peer reviewed and is still considered
           experimental. Use the values generated with your own discretion.
         </v-alert>
@@ -45,19 +45,15 @@
               {{watershedSource}}
             </v-col>
           </v-row>
+          <v-row v-if="watershedWarnings.length">
+            <v-col>
+              <v-alert v-for="(w, i) in watershedWarnings" :key="`watershedWarning${i}`" type="info" dense outlined dismissible>
+                {{w.message}}
+              </v-alert>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
-      <!-- TODO remove multiple watersheds dropdown at future date once confirmed to be not needed -->
-      <!-- <v-select
-        class="watershedInfo"
-        v-model="selectedWatershed"
-        :items="watershedOptions"
-        :menu-props="{ maxHeight: '400' }"
-        label="Watershed"
-        item-text="label"
-        item-value="value"
-        hint="Select from available watersheds at this location"
-      ></v-select> -->
     </v-card>
 
     <template v-if="watersheds && watersheds.length">
@@ -70,7 +66,6 @@
           <v-tabs
             vertical
             v-model="tab"
-            dark
             show-arrows
           >
             <v-tab class="text-left">
@@ -213,6 +208,7 @@ export default {
     assessmentWatershed: null,
     hydrometricWatershed: null,
     watersheds: [],
+    watershedWarnings: [],
     geojsonLayersAdded: [],
     includePOIPolygon: false,
     watershedDetailsLoading: false,
@@ -240,7 +236,6 @@ export default {
   }),
   watch: {
     upstreamMethod: {
-      immediate: true,
       deep: true,
       handler () {
         this.recalculateWatershed()
@@ -397,7 +392,8 @@ export default {
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
-          this.watersheds = data.features
+          this.watersheds = [data.watershed]
+          this.watershedWarnings = data.warnings || []
           this.watersheds.forEach((ws, i) => {
             if (i === 0) this.selectedWatershed = ws.id
             this.addSingleWatershedLayer(ws, `ws-${ws.id}`)
@@ -435,6 +431,7 @@ export default {
       this.watersheds = []
       this.geojsonLayersAdded = []
       this.selectedWatershed = null
+      this.watershedWarnings = []
     },
     recalculateWatershed () {
       this.resetGeoJSONLayers()
@@ -516,6 +513,11 @@ export default {
   color: white;
 }
 #surfaceWater .v-tabs .v-item-group.v-tabs-bar {
-  background-color: #085599;
+  border-right: 2px solid #085599;
+}
+.v-tabs-slider-wrapper {
+  left: auto !important;
+  right: 0;
+  color: #085599 !important;
 }
 </style>

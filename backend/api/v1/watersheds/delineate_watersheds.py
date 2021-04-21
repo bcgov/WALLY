@@ -583,10 +583,13 @@ def wbt_calculate_watershed(
         cropToCutline=True
     )
 
+    breach_dist = 100
+
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressionsleastcost
-    wbt.breach_depressions(
+    wbt.breach_depressions_least_cost(
         file_010_dem.name,
         file_020_dem_filled.name,
+        breach_dist, max_cost=10, min_dist=True,
         callback=wbt_suppress_progress_output
     )
 
