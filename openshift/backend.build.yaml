@@ -52,7 +52,7 @@ objects:
         - sourcePath: /wbt/whitebox_tools.py
           destinationDir: "."
         - sourcePath: /wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools
-          destinationDir: "/tmp"
+          destinationDir: "."
       contextDir: backend
       git:
         ref: "${GIT_REF}"
