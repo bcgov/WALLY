@@ -22,7 +22,7 @@ zone_scores = {}
 count = 0
 
 # inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]
-inputs = ["drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation","aspect","solar_exposure"]
+inputs = ["drainage_area","average_slope","drainage_area_gross","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation","aspect","solar_exposure"]
 columns = list(inputs) + [dependant_variable]
 
 show_error_plots = False
@@ -66,6 +66,9 @@ for filename in sorted(os.listdir(directory)):
         print(df_inputs)
         features_df = zone_df[df_inputs]
 
+        indexNames = features_df[((features_df['drainage_area'] / features_df['drainage_area_gross']) - 1).abs() > 0.2].index
+        print(indexNames)
+        features_df.drop(indexNames , inplace=True)
         X = features_df.dropna(subset=df_inputs) # drop NaNs
         # X = features_df
 
