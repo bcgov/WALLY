@@ -513,11 +513,6 @@ export default {
   color: white;
 }
 #surfaceWater .v-tabs .v-item-group.v-tabs-bar {
-  border-right: 2px solid #085599;
-}
-.v-tabs-slider-wrapper {
-  left: auto !important;
-  right: 0;
-  color: #085599 !important;
+  background-color: #085599;
 }
 </style>
