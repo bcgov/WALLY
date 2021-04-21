@@ -1,4 +1,4 @@
-FROM docker-remote.artifacts.developer.gov.bc.ca/nginx/nginx:stable
+FROM docker-remote.artifacts.developer.gov.bc.ca/nginx:stable
 
 # Required for HTTP Basic feature
 RUN apt-get update -y && \
