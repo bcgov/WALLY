@@ -202,7 +202,7 @@ export default {
   },
   computed: {
     displayAdvancedUpstreamOptions () {
-      return !global.config.isProduction
+      return true
     },
     isLicencesLayerEnabled () {
       return this.isMapLayerActive('water_rights_licences')
