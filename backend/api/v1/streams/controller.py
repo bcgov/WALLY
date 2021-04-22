@@ -5,7 +5,7 @@ from shapely.geometry import Point
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
 from api import config
-from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworksFWAPG as FreshwaterAtlasStreamNetworks
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from geojson import Point, Feature, FeatureCollection
 import shapely.wkt
 import json
@@ -79,39 +79,38 @@ def get_streams_with_apportionment(
 def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
     # Get the nearest 10 streams to the point
     sql = text("""
-      WITH closest_candidates AS (
+      WITH nearest_streams AS (
           select    *
-          from      whse_basemapping.fwa_stream_networks_sp streams
-          order by  streams.geom <#>
-                        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
+          from      freshwater_atlas_stream_networks streams
+          order by  streams."GEOMETRY" <#>
+                        ST_SetSRID(ST_GeomFromText(:search_point), 4326)
           limit     10
       )
-      SELECT
-        nearest_streams.linear_feature_id as id, 
-        nearest_streams.linear_feature_id as ogc_fid,
-        nearest_streams.length_metre,
-        nearest_streams.feature_source,
-        nearest_streams.gnis_name,
-        nearest_streams.linear_feature_id,
-        nearest_streams.left_right_tributary,
-        st_length(nearest_streams.geom) as geometry_length,
-        ST_AsText(ST_Transform(nearest_streams.geom, 4326)) as geometry,
-        nearest_streams.watershed_group_code as watershed_group_code, 
-        nearest_streams.fwa_watershed_code as fwa_watershed_code,
-        ST_Distance(ST_Transform(nearest_streams.geom, 4326),
-          ST_SetSRID(ST_GeomFromText(:search_point), 4326)
-        ) AS distance_degrees,
-        ST_Distance(nearest_streams.geom,
-          ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
-        ) AS distance,
-        ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
-        ST_AsGeoJSON(ST_Transform(ST_ClosestPoint(
-        nearest_streams.geom, 
-        ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)), 4326)) as closest_stream_point
-      FROM
-      closest_candidates  as nearest_streams
-      ORDER BY  ST_Distance(nearest_streams.geom, ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)) ASC
-      LIMIT :limit 
+      SELECT    nearest_streams."LINEAR_FEATURE_ID" as id, 
+                nearest_streams."LINEAR_FEATURE_ID" as ogc_fid,
+                nearest_streams."LENGTH_METRE",
+                nearest_streams."FEATURE_SOURCE",
+                nearest_streams."GNIS_NAME",
+                nearest_streams."LINEAR_FEATURE_ID",
+                nearest_streams."LEFT_RIGHT_TRIBUTARY",
+                st_length(nearest_streams."GEOMETRY") as geometry_length,
+                ST_AsText(nearest_streams."GEOMETRY") as geometry,
+                nearest_streams."WATERSHED_GROUP_CODE" as watershed_group_code, 
+                nearest_streams."FWA_WATERSHED_CODE" as fwa_watershed_code,
+                ST_Distance(nearest_streams."GEOMETRY",
+                ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+                ) AS distance_degrees,
+                ST_Distance(
+                    ST_Transform(nearest_streams."GEOMETRY", 3005),
+                    ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
+                ) AS distance,
+                ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
+                ST_AsGeoJSON(ST_ClosestPoint(
+                nearest_streams."GEOMETRY", 
+                ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
+      FROM      nearest_streams
+      ORDER BY  ST_Distance(nearest_streams."GEOMETRY", ST_SetSRID(ST_GeomFromText(:search_point), 4326)) ASC
+      LIMIT     :limit 
     """)
     rp_nearest_streams = db.execute(
         sql, {'search_point': search_point.wkt, 'limit': limit})

@@ -31,10 +31,10 @@ from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
-from api.config import WATERSHED_DEBUG
+from api.config import WATERSHED_DEBUG, RASTER_FILE_DIR
 from api.utils import normalize_quantity
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatershedsFWAPG as FreshwaterAtlasWatersheds
-from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworksFWAPG as FreshwaterAtlasStreamNetworks
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
@@ -60,8 +60,8 @@ wbt = WhiteboxTools()
 
 # the whitebox_tools cli is installed to /usr/local/bin by the Dockerfile.
 wbt.set_whitebox_dir('/usr/local/bin/')
-CDEM_FILE = "/app/api/v1/watersheds/test/Burned_CDEM_BC_Area_4326.tif"
-SRTM_FILE = "/app/api/v1/watersheds/test/Burned_SRTM_BC_48_51_3005.tif"
+CDEM_FILE = f"{RASTER_FILE_DIR}/Burned_CDEM_4326.tif"
+SRTM_FILE = f"{RASTER_FILE_DIR}/Burned_SRTM_3005.tif"
 
 
 def augment_dem_watershed_with_fwa(
@@ -108,39 +108,47 @@ def augment_dem_watershed_with_fwa(
     logger.info("--------------------------------")
 
     nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
-    nearest_stream_point = nearest_stream.get('id')
+    nearest_stream_id = nearest_stream.get('id')
+    logger.info("-----stream:  %s", nearest_stream_id)
 
+    logger.info(dem_watershed)
     q = """
         with subwscode_ltree as (
-            SELECT  watershed_feature_id as origin_id,
+            SELECT  "WATERSHED_FEATURE_ID" as origin_id,
                     wscode_ltree as origin_wscode,
                     localcode_ltree as origin_localcode,
                     ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
                     nlevel(localcode_ltree) as downstream_tributary_code_pos
-            FROM    whse_basemapping.fwa_watersheds_poly
-            WHERE   "watershed_feature_id" = :watershed_feature_id
+            FROM    freshwater_atlas_watersheds
+            WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
         ),
         stream_subwscode_ltree as (
             SELECT  
                     geom,
-                    linear_feature_id as origin_id,
+                    origin_id,
                     wscode_ltree as origin_wscode,
                     localcode_ltree as origin_localcode,
                     ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
                     nlevel(localcode_ltree) as downstream_tributary_code_pos
-            FROM    whse_basemapping.fwa_stream_networks_sp
-            WHERE   "linear_feature_id" = :stream_feature_id
+            FROM (
+                select  "LINEAR_FEATURE_ID" as origin_id,
+                        "GEOMETRY" as geom,
+                        (replace(replace(("FWA_WATERSHED_CODE")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree as wscode_ltree,
+                        (replace(replace(("LOCAL_WATERSHED_CODE")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree as localcode_ltree
+                FROM    freshwater_atlas_stream_networks
+                WHERE   "LINEAR_FEATURE_ID" = :stream_feature_id
+            ) streams_ltree 
         ),
         polygons_touching_click_point as (
-            SELECT w.geom, w.watershed_feature_id, ST_Area(w.geom) as area
-            FROM   whse_basemapping.fwa_watersheds_poly w, stream_subwscode_ltree s
-            WHERE  ST_Intersects(w.geom, s.geom)
+            SELECT w."GEOMETRY" as geom, w."WATERSHED_FEATURE_ID" as linear_feature_id, ST_Area(w."GEOMETRY") as area
+            FROM   freshwater_atlas_watersheds w, stream_subwscode_ltree s
+            WHERE  ST_Intersects(w."GEOMETRY", s.geom)
         ),
         watershed_fwa_polygons as (
-            SELECT  watershed_feature_id,
-                    geom,
-                    ST_Area(geom) as area
-            FROM    whse_basemapping.fwa_watersheds_poly
+            SELECT  "WATERSHED_FEATURE_ID" as watershed_feature_id,
+                    "GEOMETRY" as geom,
+                    ST_Area("GEOMETRY") as area
+            FROM    freshwater_atlas_watersheds
             WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
             AND     ltree2text(subltree(
                         localcode_ltree || '000000'::ltree,
@@ -150,10 +158,10 @@ def augment_dem_watershed_with_fwa(
             AND (NOT wscode_ltree <@ (select origin_localcode from subwscode_ltree) OR (select origin_wscode from subwscode_ltree) = (select origin_localcode from subwscode_ltree))
         ),
         polygons_upstream_by_stream_point as (
-            SELECT  watershed_feature_id,
-                    geom,
-                    ST_Area(geom) as area
-            FROM    whse_basemapping.fwa_watersheds_poly
+            SELECT  "WATERSHED_FEATURE_ID" as watershed_feature_id,
+                    "GEOMETRY" as geom,
+                    ST_Area("GEOMETRY") as area
+            FROM    freshwater_atlas_watersheds
             WHERE   wscode_ltree <@ (select origin_wscode from stream_subwscode_ltree)
             AND     ltree2text(subltree(
                         localcode_ltree || '000000'::ltree,
@@ -163,7 +171,7 @@ def augment_dem_watershed_with_fwa(
             AND (NOT wscode_ltree <@ (select origin_localcode from stream_subwscode_ltree) OR (select origin_wscode from stream_subwscode_ltree) = (select origin_localcode from stream_subwscode_ltree))
         ),
         dem_watershed AS (
-            SELECT ST_Intersection(ST_Simplify(ST_Transform(ST_ChaikinSmoothing(ST_SetSRID(ST_GeomFromText(:dem_watershed), 4326)), 3005), 50), (
+            SELECT ST_Intersection(ST_Simplify(ST_SetSRID(ST_GeomFromText(:dem_watershed), 4326), 0.001), (
                 select ST_Union(geom) from (
                     select geom from watershed_fwa_polygons
                     UNION SELECT geom
@@ -175,29 +183,35 @@ def augment_dem_watershed_with_fwa(
             SELECT  geom,
                     area
             FROM    polygons_upstream_by_stream_point
-            WHERE   NOT ST_Intersects(geom, ST_Buffer(
-                (select geom from whse_basemapping.fwa_watersheds_poly where watershed_feature_id = :watershed_feature_id),
-                :buffer_distance
-            ))
+            WHERE   NOT ST_Intersects(
+                geom,
+                ST_Transform(
+                    ST_Buffer(
+                        ST_Transform(
+                            (select "GEOMETRY" from freshwater_atlas_watersheds where "WATERSHED_FEATURE_ID" = :watershed_feature_id),
+                            3005
+                        ),
+                        :buffer_distance
+                    ),
+                    4326
+                )
+            )
         )
         SELECT
         CASE
-            WHEN ST_area((select geom from dem_watershed)) / ST_Area((select ST_Collect(geom) from watershed_fwa_polygons)) > :min_area_ratio
-            AND ST_area((select geom from dem_watershed)) > :min_valid_area
+            WHEN ST_area((select ST_Transform(geom, 3005) from dem_watershed)) / ST_Area(ST_Transform((select ST_Collect(geom) from watershed_fwa_polygons), 3005)) > :min_area_ratio
+            AND ST_area(ST_Transform((select geom from dem_watershed), 3005)) > :min_valid_area
         THEN (
-            Select ST_AsBinary(ST_Transform(ST_Union(geom), 4326))
+            Select ST_AsBinary(ST_Union(geom))
             FROM (
-                SELECT geom FROM dem_watershed
-                UNION   SELECT  geom from watershed_mask
-                UNION   SELECT  ST_Intersection(p.geom, d.geom) as geom
-                        FROM    dem_watershed d, polygons_touching_click_point p
+                SELECT          geom FROM dem_watershed
+                UNION SELECT    geom from watershed_mask
+                UNION SELECT    ST_Intersection(p.geom, d.geom) as geom
+                FROM            dem_watershed d, polygons_touching_click_point p
             ) combined
         )
-        --/**  If the condition for the first case failed, we don't think the DEM watershed is valid.
-        --*    Fall back on using the FWA Upstream polygons estimate.
-        --**/
         ELSE (  
-            SELECT ST_AsBinary(ST_Transform(ST_Union(geom), 4326))
+            SELECT ST_AsBinary(ST_Union(geom))
             FROM watershed_fwa_polygons
         )
         END
@@ -207,7 +221,7 @@ def augment_dem_watershed_with_fwa(
 
     res = db.execute(q, {
         "watershed_feature_id": watershed_id,
-        "stream_feature_id": nearest_stream_point,
+        "stream_feature_id": nearest_stream_id,
         "dem_watershed": dem_watershed.wkt,
         "buffer_distance": start_polygon_buffer_distance,
         "min_valid_area": min_valid_area,
@@ -270,13 +284,13 @@ def get_full_stream_catchment_area(db, watershed_id):
     q = """
                 with subwscode_ltree as (
                     SELECT  wscode_ltree as origin_wscode
-                    FROM    whse_basemapping.fwa_watersheds_poly
-                    WHERE   "watershed_feature_id" = :watershed_id
+                    FROM    freshwater_atlas_watersheds
+                    WHERE   "WATERSHED_FEATURE_ID" = :watershed_id
                 )
 
                 SELECT
                     ST_AsBinary(ST_Union(geom)) as geom
-                FROM    whse_basemapping.fwa_watersheds_poly
+                FROM    freshwater_atlas_watersheds
                 WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
 
     """
@@ -334,17 +348,17 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
 
     q = """
         with subwscode_ltree as (
-            SELECT  watershed_feature_id as origin_id,
+            SELECT  "WATERSHED_FEATURE_ID" as origin_id,
                     wscode_ltree as origin_wscode,
                     localcode_ltree as origin_localcode,
                     ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
                     nlevel(localcode_ltree) as downstream_tributary_code_pos
-            FROM    whse_basemapping.fwa_watersheds_poly
-            WHERE   "watershed_feature_id" = :watershed_feature_id
+            FROM    freshwater_atlas_watersheds
+            WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
         )
         SELECT
-            ST_AsBinary(ST_Transform(ST_Union(geom), 4326)) as geom
-        FROM    whse_basemapping.fwa_watersheds_poly
+            ST_AsBinary(ST_Transform(ST_Union("GEOMETRY"), 4326)) as geom
+        FROM    freshwater_atlas_watersheds
         WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
         AND     ltree2text(subltree(
                     localcode_ltree || '000000'::ltree,
@@ -452,7 +466,7 @@ def get_watershed_using_dem(db: Session, point: Point, watershed_id, clip_dem=Tr
     (_, result) = wbt_calculate_watershed(
         upstream_area, point, dem_file,
         log=True,
-        pntr=True,
+        pntr=False,
         accum_out_type='sca',
         snap_distance=snap_distance, using_srid=using_srid
     )
@@ -476,17 +490,17 @@ def watershed_touches_border(db: Session, watershed_feature_id: int) -> List[str
 
     q = """
     with subwscode_ltree as (
-            SELECT  watershed_feature_id as origin_id,
+            SELECT  "WATERSHED_FEATURE_ID" as origin_id,
                     wscode_ltree as origin_wscode,
                     localcode_ltree as origin_localcode,
                     ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
                     nlevel(localcode_ltree) as downstream_tributary_code_pos
-            FROM    whse_basemapping.fwa_watersheds_poly
-            WHERE   "watershed_feature_id" = :watershed_feature_id
+            FROM    freshwater_atlas_watersheds
+            WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
         ),
         upstream as (
-            SELECT  geom
-            FROM    whse_basemapping.fwa_watersheds_poly
+            SELECT  "GEOMETRY" as geom
+            FROM    freshwater_atlas_watersheds
             WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
             AND     ltree2text(subltree(
                         localcode_ltree || '000000'::ltree,
@@ -497,7 +511,7 @@ def watershed_touches_border(db: Session, watershed_feature_id: int) -> List[str
         )
 
     SELECT border
-    FROM whse_basemapping.fwa_approx_borders b
+    FROM fwa_approx_borders b
     INNER JOIN upstream w ON ST_Intersects(b.geom, w.geom)
     """
     borders = []
@@ -529,7 +543,7 @@ def wbt_calculate_watershed(
     # d8flowaccumulation
     See https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html
 
-    `snap_distance`: the max distance that JensonSnapPourPoints should search for a suitable stream.
+    `snap_distance`: the max distance that SnapPourPoints should search for a suitable stream.
     Always use an appropriate value for the map unit (e.g. 1000 m for EPSG:3005; 0.01 deg for EPSG:4326).
     If the value is too large, the point might get snapped to a larger nearby stream.
 
@@ -583,14 +597,21 @@ def wbt_calculate_watershed(
         cropToCutline=True
     )
 
-    breach_dist = 100
-
+    # use either BreachDepressionsLeastCost or BreachDepressions, not both.
+    # Author recommends BreachDepressionsLeastCost but worth testing both.
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressionsleastcost
-    wbt.breach_depressions_least_cost(
+    # breach_dist = 100
+    # wbt.breach_depressions_least_cost(
+    #     file_010_dem.name,
+    #     file_020_dem_filled.name,
+    #     breach_dist, max_cost=10, min_dist=True,
+    #     callback=wbt_suppress_progress_output
+    # )
+
+    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressions
+    wbt.breach_depressions(
         file_010_dem.name,
         file_020_dem_filled.name,
-        breach_dist, max_cost=10, min_dist=True,
-        callback=wbt_suppress_progress_output
     )
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8pointer
@@ -606,7 +627,7 @@ def wbt_calculate_watershed(
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#D8FlowAccumulation
     wbt.d8_flow_accumulation(
-        file_030_fdr.name,
+        accum_input_file,
         file_040_fac.name,
         out_type=accum_out_type,
         log=log, pntr=pntr, callback=wbt_suppress_progress_output
@@ -632,6 +653,7 @@ def wbt_calculate_watershed(
 
     #
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#JensonSnapPourPoints
+    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#SnapPourPoints
     snap_result = wbt.snap_pour_points(
         f"{file_050_point_shp.name}/{point_shp_file}.shp",
         file_040_fac.name,

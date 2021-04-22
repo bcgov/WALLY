@@ -34,6 +34,8 @@ def upgrade():
         "(replace(replace((\"FWA_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree", persisted=True), autoincrement=False, nullable=True), schema='public')
     op.add_column('freshwater_atlas_watersheds', sa.Column('localcode_ltree', LtreeType, sa.Computed(
         "(replace(replace((\"LOCAL_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree", persisted=True), autoincrement=False, nullable=True), schema='public')
+    op.add_column('freshwater_atlas_watersheds', sa.Column('fme_feature_type', sa.VARCHAR(),
+                                                           autoincrement=False, nullable=True))
     op.create_index('freshwater_atlas_watersheds_localcode_ltree_idx1', 'freshwater_atlas_watersheds', [
                     'localcode_ltree'], unique=False, schema='public')
     op.create_index('freshwater_atlas_watersheds_localcode_ltree_idx', 'freshwater_atlas_watersheds', [

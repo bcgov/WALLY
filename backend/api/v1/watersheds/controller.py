@@ -33,8 +33,8 @@ from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
 from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatershedsFWAPG as FreshwaterAtlasWatersheds
-from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworksFWAPG as FreshwaterAtlasStreamNetworks
+from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
+from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
@@ -468,8 +468,8 @@ def calculate_watershed(
         q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
             func.ST_Contains(
                 FreshwaterAtlasWatersheds.GEOMETRY,
-                func.ST_Transform(func.ST_GeomFromText(
-                    point_on_stream.wkt, 4326), 3005)
+                func.ST_GeomFromText(
+                    point_on_stream.wkt, 4326)
             )
         )
 

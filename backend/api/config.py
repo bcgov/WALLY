@@ -58,6 +58,8 @@ MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
 
+RASTER_FILE_DIR = os.getenv(
+    "RASTER_FILE_DIR", "/app/fixtures/rasters/")
 
 # Use Pydantic's settings management
 class Settings(BaseSettings):
