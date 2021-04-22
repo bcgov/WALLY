@@ -5,8 +5,8 @@ FROM python:3.7
 # copies it from the whiteboxtools:latest imagestream.
 # the BuildConfig also copies whitebox_tools.py (WBT Python bindings)
 # into the context dir so it gets copied by the COPY directive below.
-COPY ./wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools /usr/local/bin
-COPY ./wbt/whitebox_tools.py /app
+COPY ./target/x86_64-unknown-linux-musl/release/whitebox_tools /usr/local/bin
+COPY ./whitebox_tools.py /app
 
 WORKDIR /app/
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /app \
