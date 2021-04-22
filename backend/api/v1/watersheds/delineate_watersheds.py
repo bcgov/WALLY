@@ -103,15 +103,12 @@ def augment_dem_watershed_with_fwa(
     catchment.
     """
 
-    logger.info("--------------------------------")
-    logger.info("WATERSHED_ID: %s", watershed_id)
-    logger.info("--------------------------------")
+    logger.debug("WATERSHED_ID: %s", watershed_id)
 
     nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
     nearest_stream_id = nearest_stream.get('id')
-    logger.info("-----stream:  %s", nearest_stream_id)
+    logger.debug("Nearest stream linear_feature_id:  %s", nearest_stream_id)
 
-    logger.info(dem_watershed)
     q = """
         with subwscode_ltree as (
             SELECT  "WATERSHED_FEATURE_ID" as origin_id,
@@ -235,13 +232,9 @@ def augment_dem_watershed_with_fwa(
         return None
 
     # return a Shapely shape of the result (Polygon). This can be loaded into a GeoJSON Feature.
-    feature = shape(
-        wkb.loads(record['watershed'].tobytes())
-    )
+    feature = wkb.loads(record['watershed'].tobytes())
 
-    logger.info("-----------------------------------")
-    logger.info("AUGMENTED DEM+FWA WATERSHED AREA: %s", feature.area)
-    logger.info("-----------------------------------")
+    logger.debug("AUGMENTED DEM+FWA WATERSHED AREA: %s", feature.area)
     return feature
 
 
@@ -269,11 +262,7 @@ def get_cross_border_catchment_area(db: Session, point: Point):
     res = db.execute(q, {"point_wkt": point.wkt})
     record = res.fetchone()
 
-    feature = shape(
-        wkb.loads(record[0].tobytes())
-    )
-
-    return feature
+    return wkb.loads(record[0].tobytes())
 
 
 def get_full_stream_catchment_area(db, watershed_id):
@@ -296,18 +285,11 @@ def get_full_stream_catchment_area(db, watershed_id):
     """
 
     if WATERSHED_DEBUG:
-        logger.info(
+        logger.debug(
             "Getting entire stream catchment area from database, feature id: %s", watershed_id)
 
     res = db.execute(q, {"watershed_id": watershed_id})
-
-    if WATERSHED_DEBUG:
-        logger.info("Whole stream catchment query finished %s", res)
-
     record = res.fetchone()
-
-    if WATERSHED_DEBUG:
-        logger.info("Whole stream catchment record %s", record)
 
     if not record or not record[0]:
         logger.warning(
@@ -315,9 +297,8 @@ def get_full_stream_catchment_area(db, watershed_id):
         return None
 
     return transform(
-        transform_3005_4326, shape(
-            wkb.loads(record[0].tobytes())
-        ))
+        transform_3005_4326, wkb.loads(record[0].tobytes())
+    )
 
 
 def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
@@ -371,23 +352,14 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
 
     res = db.execute(q, {"watershed_feature_id": watershed_feature_id})
 
-    if WATERSHED_DEBUG:
-        logger.info("Upstream catchment query finished %s", res)
-
     record = res.fetchone()
-
-    if WATERSHED_DEBUG:
-        logger.info("Upstream catchment record %s", record)
 
     if not record or not record[0]:
         logger.warning(
             'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
         return None
 
-    feature = shape(
-        wkb.loads(record[0].tobytes())
-    )
-    return feature
+    return wkb.loads(record[0].tobytes())
 
 
 def get_watershed_using_dem(db: Session, point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
@@ -428,18 +400,15 @@ def get_watershed_using_dem(db: Session, point: Point, watershed_id, clip_dem=Tr
     # the DEM to a more manageable size.
 
     if len(border_crossings):
-        logger.info("--------- using cross border ---------")
-        logger.info("- border crossings: %s", border_crossings)
+        logger.debug("- border crossings: %s", border_crossings)
 
         if 'USA_49' in border_crossings:
-            logger.info(
+            logger.debug(
                 "- Stream crosses US border.  Forcing use of SRTM as DEM source.")
             dem_source = 'srtm'
 
         upstream_area = get_cross_border_catchment_area(
             db, transform(transform_4326_3005, point)).envelope
-
-        logger.info("--------------------------------------")
 
     else:
         upstream_area = get_upstream_catchment_area(db, watershed_id).envelope
@@ -557,7 +526,7 @@ def wbt_calculate_watershed(
     # callback function to suppress progress output.
     def wbt_suppress_progress_output(value):
         if not "%" in value:
-            logger.info(value)
+            logger.debug(value)
 
     file_000_extent = TemporaryDirectory()
     file_010_dem = NamedTemporaryFile(
@@ -648,7 +617,7 @@ def wbt_calculate_watershed(
         })
 
         if WATERSHED_DEBUG:
-            logger.info('Wrote shapefile')
+            logger.debug('Wrote shapefile')
         point_shp_file = c.name
 
     #
@@ -664,10 +633,9 @@ def wbt_calculate_watershed(
         snapped_pt = shape(next(iter(snp)).get('geometry'))
 
     if WATERSHED_DEBUG:
-        logger.info('Wrote snapped point')
-        logger.info('----- snap distance from stream point: %s',
-                    snapped_pt.distance(point))
-        logger.info('--------------------------------------------------')
+        logger.debug('Wrote snapped point')
+        logger.debug('-- snap distance from stream point: %s',
+                     snapped_pt.distance(point))
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#watershed
     watershed_result = wbt.watershed(
@@ -677,20 +645,20 @@ def wbt_calculate_watershed(
 
     # file statistics
     if WATERSHED_DEBUG:
-        logger.info('-------Watershed analysis file statistics-------')
-        logger.info('%s %s', file_010_dem.name,
-                    os.stat(file_010_dem.name).st_size)
-        logger.info('%s %s', file_020_dem_filled.name,
-                    os.stat(file_020_dem_filled.name).st_size)
-        logger.info('%s %s', file_030_fdr.name,
-                    os.stat(file_030_fdr.name).st_size)
-        logger.info('%s %s', file_040_fac.name,
-                    os.stat(file_040_fac.name).st_size)
-        logger.info('%s %s', file_060_snapped_pour_point.name,
-                    os.stat(file_060_snapped_pour_point.name).st_size)
-        logger.info('%s %s', file_070_watershed.name,
-                    os.stat(file_070_watershed.name).st_size)
-        logger.info('------------------------------------------------')
+        logger.debug('-------Watershed analysis file statistics-------')
+        logger.debug('%s %s', file_010_dem.name,
+                     os.stat(file_010_dem.name).st_size)
+        logger.debug('%s %s', file_020_dem_filled.name,
+                     os.stat(file_020_dem_filled.name).st_size)
+        logger.debug('%s %s', file_030_fdr.name,
+                     os.stat(file_030_fdr.name).st_size)
+        logger.debug('%s %s', file_040_fac.name,
+                     os.stat(file_040_fac.name).st_size)
+        logger.debug('%s %s', file_060_snapped_pour_point.name,
+                     os.stat(file_060_snapped_pour_point.name).st_size)
+        logger.debug('%s %s', file_070_watershed.name,
+                     os.stat(file_070_watershed.name).st_size)
+        logger.debug('------------------------------------------------')
 
     start = time.perf_counter()
 
@@ -709,9 +677,7 @@ def wbt_calculate_watershed(
 
     elapsed = (time.perf_counter() - start)
 
-    logger.info('-------------------------------')
-    logger.info('VECTORIZING TOOK %s', elapsed)
-    logger.info('-------------------------------')
+    logger.debug('VECTORIZING TOOK %s', elapsed)
 
     with fiona.open(f"{file_080_directory.name}/watershed_result.shp", 'r', 'ESRI Shapefile') as ws_result:
 

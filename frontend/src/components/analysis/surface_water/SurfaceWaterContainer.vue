@@ -23,22 +23,30 @@
       </v-tooltip>
     </v-toolbar>
     <div>
-      <v-row>
+      <v-row v-if="displayAdvancedUpstreamOptions">
         <v-col>
-          Advanced options:
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <div>Upstream catchment estimation method</div>
-          <v-radio-group v-model="upstreamMethod">
-            <v-radio
-              v-for="(c, i) in upstreamMethodChoices"
-              :key="`upstreamOption${i}`"
-              :label="c.label"
-              :value="c.value"
-            ></v-radio>
-          </v-radio-group>
+          <v-expansion-panels>
+            <v-expansion-panel>
+              <v-expansion-panel-header>
+                Advanced options
+              </v-expansion-panel-header>
+              <v-expansion-panel-content>
+                <v-card flat>
+                  <v-card-text>
+                    <div>Upstream catchment estimation method</div>
+                    <v-radio-group v-model="upstreamMethod">
+                      <v-radio
+                        v-for="(c, i) in upstreamMethodChoices"
+                        :key="`upstreamOption${i}`"
+                        :label="c.label"
+                        :value="c.value"
+                      ></v-radio>
+                    </v-radio-group>
+                  </v-card-text>
+                </v-card>
+              </v-expansion-panel-content>
+            </v-expansion-panel>
+          </v-expansion-panels>
         </v-col>
       </v-row>
     </div>
@@ -193,6 +201,9 @@ export default {
     ...mapActions(['exitFeature'])
   },
   computed: {
+    displayAdvancedUpstreamOptions () {
+      return !global.config.isProduction
+    },
     isLicencesLayerEnabled () {
       return this.isMapLayerActive('water_rights_licences')
     },
