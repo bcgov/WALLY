@@ -86,28 +86,28 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
                         ST_SetSRID(ST_GeomFromText(:search_point), 4326)
           limit     10
       )
-      SELECT    nearest_streams."LINEAR_FEATURE_ID" as id, 
-                nearest_streams."LINEAR_FEATURE_ID" as ogc_fid,
-                nearest_streams."LENGTH_METRE",
-                nearest_streams."FEATURE_SOURCE",
-                nearest_streams."GNIS_NAME",
-                nearest_streams."LINEAR_FEATURE_ID",
-                nearest_streams."LEFT_RIGHT_TRIBUTARY",
-                st_length(nearest_streams."GEOMETRY") as geometry_length,
-                ST_AsText(nearest_streams."GEOMETRY") as geometry,
-                nearest_streams."WATERSHED_GROUP_CODE" as watershed_group_code, 
-                nearest_streams."FWA_WATERSHED_CODE" as fwa_watershed_code,
-                ST_Distance(nearest_streams."GEOMETRY",
-                ST_SetSRID(ST_GeomFromText(:search_point), 4326)
-                ) AS distance_degrees,
-                ST_Distance(
-                    ST_Transform(nearest_streams."GEOMETRY", 3005),
-                    ST_Transform(ST_SetSRID(ST_GeomFromText(:search_point), 4326), 3005)
-                ) AS distance,
-                ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
-                ST_AsGeoJSON(ST_ClosestPoint(
-                nearest_streams."GEOMETRY", 
-                ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
+      SELECT 
+        nearest_streams."OGC_FID" as id, 
+        nearest_streams."OGC_FID" as ogc_fid,
+        nearest_streams."LENGTH_METRE" as length_metre,
+        nearest_streams."FEATURE_SOURCE" as feature_source,
+        nearest_streams."GNIS_NAME" as gnis_name,
+        nearest_streams."LINEAR_FEATURE_ID" as linear_feature_id,
+        nearest_streams."LEFT_RIGHT_TRIBUTARY" as left_right_tributary,
+        nearest_streams."GEOMETRY.LEN" as geometry_length,
+        ST_AsText(nearest_streams."GEOMETRY") as geometry,
+        nearest_streams."WATERSHED_GROUP_CODE" as watershed_group_code, 
+        nearest_streams."FWA_WATERSHED_CODE" as fwa_watershed_code,
+        ST_Distance(nearest_streams."GEOMETRY",
+          ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+        ) AS distance_degrees,
+        ST_Distance(nearest_streams."GEOMETRY"::geography,
+          ST_SetSRID(ST_GeographyFromText(:search_point), 4326)
+        ) AS distance,
+        ST_AsText(ST_SetSRID(ST_GeomFromText(:search_point), 4326)) as search_point,
+        ST_AsGeoJSON(ST_ClosestPoint(
+        nearest_streams."GEOMETRY", 
+        ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
       FROM      nearest_streams
       ORDER BY  ST_Distance(nearest_streams."GEOMETRY", ST_SetSRID(ST_GeomFromText(:search_point), 4326)) ASC
       LIMIT     :limit 
