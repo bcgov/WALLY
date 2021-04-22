@@ -66,6 +66,7 @@
           <v-tabs
             vertical
             v-model="tab"
+            dark
             show-arrows
           >
             <v-tab class="text-left">
