@@ -3,7 +3,7 @@ FROM python:3.7
 WORKDIR /app/
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /app \
   && chown -R wally:root /app \ 
-  && apt-get update && apt-get -y install ca-certificates libgdal-dev=2.4.0+dfsg-1 gdal-bin=2.4.0+dfsg-1
+  && apt-get update && apt-get -y install ca-certificates libgdal-dev gdal-bin
 
 COPY ./requirements.txt /
 
