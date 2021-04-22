@@ -15,7 +15,7 @@ COPY . /app
 # copies it from the whiteboxtools:latest imagestream.
 # the BuildConfig also copies whitebox_tools.py (WBT Python bindings)
 # into the context dir so it gets copied by the COPY directive above.
-COPY whitebox_tools /usr/local/bin
+COPY ./whitebox_tools /usr/local/bin
 
 ENV PYTHONPATH=/app
 RUN pytest /app/tests/ -W ignore::DeprecationWarning
