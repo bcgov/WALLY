@@ -1,22 +1,14 @@
 from geoalchemy2 import Geometry, MultiPolygon, Point
 from sqlalchemy import String, Column, DateTime, ARRAY, TEXT, Integer, ForeignKey, Boolean, Numeric
 from sqlalchemy.ext.declarative import declarative_base
-from api.db.base_class import BaseTable
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from api.db.base_class import BaseTable
 from api.v1.user.db_models import User
-
 import uuid
 
 
-class Base(object):
-    pass
-
-
-Base = declarative_base(cls=Base, metadata=BaseTable.metadata)
-
-
-class GeneratedWatershed(Base):
+class GeneratedWatershed(BaseTable):
     __tablename__ = 'generated_watershed'
     __table_args__ = {'schema': 'public'}
 
@@ -45,7 +37,7 @@ class GeneratedWatershed(Base):
         "WatershedPolygonCache", backref="generated_watershed", passive_deletes=True, lazy='joined')
 
 
-class ApproxBorders(Base):
+class ApproxBorders(BaseTable):
     """ approximate border locations with WA/ID/MT/AB/NWT/YK/AK
         note that these may be drawn within BC, near the actual border, to help warn when approaching a boundary.
     """
@@ -57,7 +49,7 @@ class ApproxBorders(Base):
         geometry_type='LINESTRING', srid=3005, spatial_index=True))
 
 
-class WatershedPolygonCache(Base):
+class WatershedPolygonCache(BaseTable):
     __tablename__ = 'watershed_cache'
     __table_args__ = {'schema': 'public'}
 
