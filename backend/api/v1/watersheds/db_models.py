@@ -3,12 +3,12 @@ from sqlalchemy import String, Column, DateTime, ARRAY, TEXT, Integer, ForeignKe
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
-from api.db.base_class import BaseTable
+from api.db.base_class import BaseTable, BaseAudit
 from api.v1.user.db_models import User
 import uuid
 
 
-class GeneratedWatershed(BaseTable):
+class GeneratedWatershed(BaseAudit):
     __tablename__ = 'generated_watershed'
     __table_args__ = {'schema': 'public'}
 
@@ -16,11 +16,6 @@ class GeneratedWatershed(BaseTable):
     wally_watershed_id = Column(String, comment='WALLY watershed identifier used to recreate watersheds. '
                                                 'The format is the upstream delineation method followed by '
                                                 'the POI encoded as base64.')
-    create_date = Column(
-        DateTime, comment='Date and time (UTC) when the physical record was created in the database.')
-    create_user = Column(UUID, ForeignKey(User.user_uuid),
-                         comment='User who generated this watershed')
-
     processing_time = Column(
         Numeric, comment='How long it took to calculate this watershed.')
     upstream_method = Column(
@@ -56,4 +51,5 @@ class WatershedPolygonCache(BaseTable):
     generated_watershed_id = Column(Integer, ForeignKey(GeneratedWatershed.generated_watershed_id),
                                     comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True)
     geom = Column(geoalchemy2.types.Geometry(
-        geometry_type='MULTIPOLYGON', srid=4326))
+        geometry_type='MULTIPOLYGON', srid=4326), nullable=False)
+    last_accessed_date: Column(DateTime, nullable=False)

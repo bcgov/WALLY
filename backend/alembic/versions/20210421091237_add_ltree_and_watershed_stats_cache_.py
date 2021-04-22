@@ -145,9 +145,11 @@ def upgrade():
                               'The format is the upstream delineation method followed by '
                               'the POI encoded as base64.'),
                     sa.Column('create_date',
-                              sa.DateTime, comment='Date and time (UTC) when the physical record was created in the database.'),
-                    sa.Column('create_user', postgresql.UUID, sa.ForeignKey('user.user_uuid'),
-                              comment='User who generated this watershed'),
+                              sa.DateTime, comment='Date and time (UTC) when the physical record was created in the database.', nullable=False),
+                    sa.Column('create_user', sa.String,
+                              comment='User who generated this watershed', nullable=False),
+                    sa.Column('update_user', sa.String, nullable=False),
+                    sa.Column('update_date', sa.DateTime, nullable=False),
                     sa.Column('processing_time',
                               sa.Numeric, comment='How long it took to calculate this watershed.'),
                     sa.Column('upstream_method',
@@ -166,9 +168,10 @@ def upgrade():
                     sa.Column('generated_watershed_id', sa.Integer, sa.ForeignKey('generated_watershed.generated_watershed_id'),
                               comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True),
                     sa.Column('geom', geoalchemy2.types.Geometry(
-                        geometry_type='MULTIPOLYGON', srid=4326)),
+                        geometry_type='MULTIPOLYGON', srid=4326), nullable=False),
                     sa.Column('last_accessed_date', sa.DateTime,
-                              comment='The date this cached record was last accessed.')
+                              comment='The date this cached record was last accessed.', nullable=False
+                              )
                     )
 
     op.execute("""
