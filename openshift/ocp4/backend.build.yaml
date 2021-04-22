@@ -50,7 +50,7 @@ objects:
           name: whiteboxtools:latest
         paths: 
         - sourcePath: /wbt
-          destinationDir: "tmp/build/inputs/backend/"
+          destinationDir: "backend"
       contextDir: backend
       git:
         ref: "${GIT_REF}"
