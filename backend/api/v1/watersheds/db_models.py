@@ -1,8 +1,8 @@
-from geoalchemy2 import Geometry, MultiPolygon, Point
+import geoalchemy2
 from sqlalchemy import String, Column, DateTime, ARRAY, TEXT, Integer, ForeignKey, Boolean, Numeric
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID, JSONB
 from api.db.base_class import BaseTable, BaseAudit
 from api.v1.user.db_models import User
 import uuid
@@ -29,7 +29,7 @@ class GeneratedWatershed(BaseAudit):
         geometry_type='POINT', srid=4326), comment='The coordinates used for delineation after snapping to a Flow Accumulation raster stream line.')
     area_sqm = Column(Numeric, comment='Area in square metres')
     cached_polygon = relationship(
-        "WatershedPolygonCache", backref="generated_watershed", passive_deletes=True, lazy='joined')
+        "WatershedCache", backref="generated_watershed", passive_deletes=True)
 
 
 class ApproxBorders(BaseTable):
@@ -38,18 +38,17 @@ class ApproxBorders(BaseTable):
     """
     __tablename__ = 'fwa_approx_borders'
     __table_args__ = {'schema': 'public'}
-    approx_border_id = Column(Integer, primary_key=True),
-    border = Column(TEXT,  autoincrement=False, nullable=True),
+    approx_border_id = Column(Integer, primary_key=True)
+    border = Column(TEXT,  autoincrement=False, nullable=True)
     geom = Column(geoalchemy2.types.Geometry(
         geometry_type='LINESTRING', srid=3005, spatial_index=True))
 
 
-class WatershedPolygonCache(BaseTable):
+class WatershedCache(BaseTable):
     __tablename__ = 'watershed_cache'
     __table_args__ = {'schema': 'public'}
 
     generated_watershed_id = Column(Integer, ForeignKey(GeneratedWatershed.generated_watershed_id),
                                     comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True)
-    geom = Column(geoalchemy2.types.Geometry(
-        geometry_type='MULTIPOLYGON', srid=4326), nullable=False)
+    watershed = Column(JSONB, nullable=False)
     last_accessed_date: Column(DateTime, nullable=False)

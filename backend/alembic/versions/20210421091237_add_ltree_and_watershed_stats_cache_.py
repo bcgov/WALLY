@@ -48,8 +48,8 @@ def upgrade():
     # approx borders.  From https://github.com/smnorris/fwapg
     op.create_table('fwa_approx_borders',
                     sa.Column('approx_border_id',
-                              sa.INTEGER(), primary_key=True),
-                    sa.Column('border', sa.TEXT(),
+                              sa.Integer, primary_key=True),
+                    sa.Column('border', sa.TEXT,
                               autoincrement=False, nullable=True),
                     sa.Column('geom', geoalchemy2.types.Geometry(
                         geometry_type='LINESTRING', srid=3005, spatial_index=True)),
@@ -164,29 +164,27 @@ def upgrade():
                               comment='Area in square metres')
                     )
 
-    op.create_table('watershed_polygon_cache',
+    op.create_table('watershed_cache',
                     sa.Column('generated_watershed_id', sa.Integer, sa.ForeignKey('generated_watershed.generated_watershed_id'),
                               comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True),
-                    sa.Column('geom', geoalchemy2.types.Geometry(
-                        geometry_type='MULTIPOLYGON', srid=4326), nullable=False),
-                    sa.Column('last_accessed_date', sa.DateTime,
-                              comment='The date this cached record was last accessed.', nullable=False
-                              )
+                    sa.Column('watershed', postgresql.JSONB, nullable=False),
+                    sa.Column('last_accessed_date', sa.DateTime(timezone=True),
+                              comment='The date this cached record was last accessed.', nullable=False, server_default=sa.func.now())
                     )
 
     op.execute("""
-    CREATE OR REPLACE FUNCTION prune_watershed_polygon_cache() RETURNS trigger
+    CREATE OR REPLACE FUNCTION prune_watershed_cache() RETURNS trigger
         LANGUAGE plpgsql
         AS $$
     BEGIN
-    DELETE FROM watershed_polygon_cache WHERE last_accessed_date < NOW() - INTERVAL '1 days';
+    DELETE FROM watershed_cache WHERE last_accessed_date < NOW() - INTERVAL '1 hour';
     RETURN NULL;
     END;
     $$;
 
-    CREATE TRIGGER trigger_prune_watershed_polygon_cache
-    AFTER INSERT ON watershed_polygon_cache
-    EXECUTE PROCEDURE prune_watershed_polygon_cache();
+    CREATE TRIGGER trigger_prune_watershed_cache
+    AFTER INSERT ON watershed_cache
+    EXECUTE PROCEDURE prune_watershed_cache();
     """)
 
 

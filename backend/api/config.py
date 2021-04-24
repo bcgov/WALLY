@@ -62,6 +62,8 @@ RASTER_FILE_DIR = os.getenv(
     "RASTER_FILE_DIR", "/app/fixtures/rasters/")
 
 # Use Pydantic's settings management
+
+
 class Settings(BaseSettings):
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""
@@ -74,6 +76,12 @@ class Settings(BaseSettings):
     projects = False
     saved_analysis = False
     hydraulic_connectivity_custom_stream_points = False
+
+    # allow users to select upstream catchment area delineation method.
+    # default is False; WALLY will default to DEM+FWA which should be the best
+    # estimate in all cases.  Other options are mostly for debugging intermediate steps.
+    # see api/v1/watersheds/delineate_watershed.py for more info.
+    surface_water_debug_upstream_method = False
 
     # Keep this set to true, we need to retire the old design
     surface_water_design_v2 = True

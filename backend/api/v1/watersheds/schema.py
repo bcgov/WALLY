@@ -83,12 +83,14 @@ class GeneratedWatershed(BaseModel):
     warnings: List[WatershedDataWarning]
     watershed: Feature
     wally_watershed_id: str
+    generated_watershed_id: Optional[int]
     upstream_method: str
     from_cache: bool
     click_point: str
     snapped_point: str
     fwa_watershed_id: Optional[int]
     is_near_border: bool
+    processing_time: float
 
     class Config:
         arbitrary_types_allowed = True

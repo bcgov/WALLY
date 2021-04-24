@@ -202,7 +202,7 @@ export default {
   },
   computed: {
     displayAdvancedUpstreamOptions () {
-      return true
+      return this.app && this.app.config.surface_water_debug_upstream_method
     },
     isLicencesLayerEnabled () {
       return this.isMapLayerActive('water_rights_licences')
