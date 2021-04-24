@@ -581,6 +581,7 @@ def wbt_calculate_watershed(
     wbt.breach_depressions(
         file_010_dem.name,
         file_020_dem_filled.name,
+        callback=wbt_suppress_progress_output
     )
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8pointer

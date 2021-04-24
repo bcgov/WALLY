@@ -7,13 +7,17 @@
     </v-card-title>
 
     <WaterRightsLicences :modelOutputs="modelOutputs"
+                         :generatedWatershedID="generatedWatershedID"
                          :watershedID="watershedID"/>
 
     <v-card-text>
       <v-divider class="mt-3 mb-3"></v-divider>
     </v-card-text>
 
-    <WaterApprovalPoints :watershedID="watershedID"/>
+    <WaterApprovalPoints
+                :watershedID="watershedID"
+                :generatedWatershedID="generatedWatershedID"
+    />
 
     <v-card-text>
       <v-divider class="mt-3 mb-3"></v-divider>
@@ -35,7 +39,7 @@ export default {
     WaterApprovalPoints,
     AvailabilityVsLicencedQty
   },
-  props: ['watershedID', 'modelOutputs'],
+  props: ['watershedID', 'modelOutputs', 'generatedWatershedID'],
   data: () => ({
 
   }),

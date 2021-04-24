@@ -14,11 +14,13 @@ import uuid
 import rasterio
 import fiona
 import time
+import sqlalchemy as sa
+from geoalchemy2.elements import WKTElement
 from shapely import wkt, wkb
 from rasterio.features import shapes
 from whitebox_tools import WhiteboxTools
 from tempfile import NamedTemporaryFile, TemporaryDirectory
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from urllib.parse import urlencode, unquote
 from geojson import FeatureCollection, Feature
 from operator import add
@@ -27,7 +29,7 @@ from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
 from shapely.ops import transform, unary_union
 from starlette.responses import Response
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, update, insert, select
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
@@ -39,6 +41,7 @@ from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, 
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
+from api.v1.watersheds.db_models import GeneratedWatershed as GeneratedWatershedDB, WatershedCache
 from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.watersheds.cdem import CDEM
 from api.v1.watersheds.schema import (
@@ -382,11 +385,12 @@ def surface_water_approval_points(polygon: Polygon):
 
 def calculate_watershed(
     db: Session,
+    user,
     click_point: Point = None,
     watershed_id: int = None,
     include_self: bool = False,
-    upstream_method='DEM',
-    dem_source='srtm'
+    upstream_method='DEM+FWA',
+    dem_source='cdem'
 ):
     """ estimates the watershed area upstream of a POI
 
@@ -410,7 +414,7 @@ def calculate_watershed(
                      to the point of interest, and the FWA around the outer perimeter. This
                      is the default.
     """
-
+    start = time.perf_counter()
     warnings = []
 
     if click_point and watershed_id:
@@ -556,16 +560,22 @@ def calculate_watershed(
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
+    elapsed = (time.perf_counter() - start)
+
     watershed_resp = GeneratedWatershed(
         warnings=warnings,
         watershed=feature,
-        click_point=geojson.dumps(click_point),
-        snapped_point=geojson.dumps(point_on_stream),
+        click_point=click_point.wkt,
+        snapped_point=point_on_stream.wkt,
         from_cache=False,
         fwa_watershed_id=watershed_id,
         wally_watershed_id=f"{generated_method}.{watershed_point}",
         upstream_method=generated_method,
-        is_near_border=is_near_border)
+        is_near_border=is_near_border,
+        processing_time=elapsed)
+
+    watershed_resp.generated_watershed_id = store_generated_watershed(
+        db, user, watershed_resp)
 
     return watershed_resp
 
@@ -686,37 +696,121 @@ def surficial_geology(polygon: Polygon):
     )
 
 
-def get_watershed(db: Session, watershed_feature: str) -> GeneratedWatershed:
-    """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
+def get_cached_watershed(db: Session, generated_watershed_id):
+    """
+    Check for a cached watershed, returning a feature or None
+    """
+
+    q = """
+    update      watershed_cache
+    set         last_accessed_date = now()
+    where       generated_watershed_id = :generated_watershed_id
+    returning   generated_watershed_id, watershed
+    """
+    res = db.execute(q, {"generated_watershed_id": generated_watershed_id})
+    row = res.one_or_none()
+
+    if not row:
+        return None
+
+    data = json.loads(row['watershed'])
+    feat = data.pop('watershed')
+    geom = shape(feat.pop('geometry'))
+
+    # at the time we inserted the json representation of the cached watershed,
+    # the json itself did not contain the generated watershed id. However, it was given
+    # to the generated_watershed_id column on insert.
+    # If this is confusing, we could alter to the `store_generated_watershed` SQL
+    # to update the JSON field after we are assigned the ID.
+    data['generated_watershed_id'] = row['generated_watershed_id']
+    data['watershed'] = Feature(
+        id=feat['id'], geometry=geom, properties=feat['properties'])
+
+    ws = GeneratedWatershed(**data)
+    ws.from_cache = True
+    return ws
+
+
+def store_generated_watershed(db: Session, user, watershed: GeneratedWatershed):
+    """
+    store generated watershed metadata, and put a copy in the temporary cache.
+    """
+
+    generated_watershed = insert(GeneratedWatershedDB) \
+        .values(
+        create_user=user.user_uuid,
+        update_user=user.user_uuid,
+        wally_watershed_id=watershed.wally_watershed_id,
+        processing_time=watershed.processing_time,
+        upstream_method=watershed.upstream_method,
+        is_near_border=watershed.is_near_border,
+        click_point=WKTElement(watershed.click_point, srid=4326),
+        snapped_point=WKTElement(watershed.snapped_point, srid=4326),
+        area_sqm=watershed.watershed.properties['FEATURE_AREA_SQM']
+    ) \
+        .returning(GeneratedWatershedDB.generated_watershed_id) \
+        .cte('generated_metadata')
+
+    q = insert(WatershedCache) \
+        .values(
+        generated_watershed_id=select(
+            [sa.column('generated_watershed_id')]).select_from(generated_watershed),
+        watershed=watershed.json()) \
+        .returning(WatershedCache.generated_watershed_id)
+
+    res = db.execute(q)
+    generated_watershed_id = res.first()[0]
+    db.commit()
+    return generated_watershed_id
+
+
+def get_watershed(db: Session, user, watershed_feature: str, generated_watershed_id: Optional[int] = None) -> GeneratedWatershed:
+    """ finds a watershed by either generating it or looking it up in cache """
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
     watershed = None
 
     if WATERSHED_DEBUG:
-        logger.info(watershed_feature_id)
+        logger.debug("watershed_feature_id:  %s ;  generated_watershed_id:  %s",
+                     watershed_feature_id, generated_watershed_id)
+
+    # if we have this catchment's generated watershed ID, check to see if there's a cached
+    # copy.
+    # conservatively use generated_watershed_id instead of watershed_feature.
+    # this ensures a user's watershed is cached during their Surface Water session
+    # but prevents potential conflicts if the catchment functions were somehow called
+    # with different settings.
+    cached_watershed = None
+    if generated_watershed_id:
+        cached_watershed = get_cached_watershed(db, generated_watershed_id)
+
+    if cached_watershed:
+        logger.info('-- returning cached watershed from generated_watershed_id=%s',
+                    cached_watershed.generated_watershed_id)
+        return cached_watershed
 
     # if we generated this watershed, use the catchment area
     # generation function to get the shape.
     if watershed_layer == 'generated':
         watershed_id = int(watershed_feature_id[0])
         watershed = calculate_watershed(
-            db, watershed_id=watershed_id, upstream_method='FWA+UPSTREAM')
+            db, user, watershed_id=watershed_id, upstream_method='FWA+UPSTREAM')
 
     elif watershed_layer == 'generated_dem_fwa':
         logger.info(watershed_feature_id[0])
         point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
         watershed = calculate_watershed(
-            db, click_point=point, upstream_method='DEM+FWA')
+            db, user, click_point=point, upstream_method='DEM+FWA')
 
     elif watershed_layer == 'generated_dem':
         point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
         watershed = calculate_watershed(
-            db, click_point=point, upstream_method='DEM')
+            db, user, click_point=point, upstream_method='DEM')
 
     elif watershed_layer == 'generated_full_stream':
         watershed_id = watershed_feature_id[0]
         watershed = calculate_watershed(
-            db, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
+            db, user, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
 
     else:
         raise HTTPException(

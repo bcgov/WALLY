@@ -116,7 +116,9 @@
             </v-tab-item>
             <!-- Monthly Discharge -->
             <v-tab-item>
-              <WatershedMonthlyDischarge :modelOutputs="modelOutputs"/>
+              <WatershedMonthlyDischarge
+                :modelOutputs="modelOutputs"
+                />
             </v-tab-item>
 
             <!-- Hydrometric Stations -->
@@ -130,6 +132,7 @@
             <!-- Licenced Quantity -->
             <v-tab-item>
               <WatershedLicencedQty :modelOutputs="modelOutputs"
+                                    :generatedWatershedID="generatedWatershedID"
                                     :watershedID="selectedWatershed"/>
             </v-tab-item>
 
@@ -151,6 +154,7 @@
             <!-- Known BC Fish Observations -->
             <v-tab-item>
               <FishObservations :watershedID="selectedWatershed"
+                                :generatedWatershedID="generatedWatershedID"
                                 :surface_water_design_v2="true"/>
             </v-tab-item>
 
@@ -206,6 +210,7 @@ export default {
     infoTabs: null,
     watershedLoading: false,
     selectedWatershed: null,
+    generatedWatershedID: null,
     assessmentWatershed: null,
     hydrometricWatershed: null,
     watersheds: [],
@@ -319,7 +324,8 @@ export default {
         'download'])
 
       const params = {
-        format: 'xlsx'
+        format: 'xlsx',
+        generated_watershed_id: this.generatedWatershedID
       }
 
       this.spreadsheetLoading = true
@@ -393,13 +399,21 @@ export default {
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
-          this.watersheds = [data.watershed]
+          const ws = data.watershed
+          this.generatedWatershedID = data.generated_watershed_id
+
+          // an array of watersheds is used because there were previously
+          // several different watershed options. Some components expect the array
+          // plus the index of the selected watershed.
+          // TODO: clean this up. We will probably only use one watershed from now on,
+          // so an array is not necessary.
+          this.watersheds = [ws]
           this.watershedWarnings = data.warnings || []
-          this.watersheds.forEach((ws, i) => {
-            if (i === 0) this.selectedWatershed = ws.id
-            this.addSingleWatershedLayer(ws, `ws-${ws.id}`)
-            this.geojsonLayersAdded.push(`ws-${ws.id}`)
-          })
+
+          this.selectedWatershed = ws.id
+          this.addSingleWatershedLayer(ws, `ws-${ws.id}`)
+          this.geojsonLayersAdded.push(`ws-${ws.id}`)
+
           this.watershedLoading = false
         })
         .catch(e => {
@@ -410,7 +424,10 @@ export default {
     fetchWatershedDetails () {
       this.error.watershedSummary = false
       this.watershedDetailsLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}?${qs.stringify(params)}`)
         .then(r => {
           this.watershedDetailsLoading = false
           if (!r.data) {
@@ -432,6 +449,7 @@ export default {
       this.watersheds = []
       this.geojsonLayersAdded = []
       this.selectedWatershed = null
+      this.generatedWatershedID = null
       this.watershedWarnings = []
     },
     recalculateWatershed () {
