@@ -734,6 +734,8 @@ def get_cached_watershed(db: Session, generated_watershed_id):
 def store_generated_watershed(db: Session, user, watershed: GeneratedWatershed):
     """
     store generated watershed metadata, and put a copy in the temporary cache.
+    The cache is cleared by the database trigger "prune_watershed_cache".
+    Cached copies that haven't been accessed in over 1 hour are cleared on insert.
     """
 
     generated_watershed = insert(GeneratedWatershedDB) \
