@@ -43,7 +43,7 @@ class DataStore(Base):
     last_updated = Column(
         DateTime, comment='last time data store was updated from sources')
 
-    data_sources = relationship("DataSource")
+    data_sources = relationship("DataSource", back_populates="data_store")
 
 
 class DataFormatCode(Base):
@@ -58,7 +58,7 @@ class DataSource(Base):
 
     data_source_id = Column(Integer, primary_key=True)
     layer = Column(String(200), unique=False,
-                          comment='This is the name of the source used in the application')
+                   comment='This is the name of the source used in the application')
     name = Column(String, comment='data source detail name', index=True)
     description = Column(
         String, comment='explanation behind data source and use case')
@@ -70,7 +70,7 @@ class DataSource(Base):
 
     data_store_id = Column(Integer, ForeignKey('metadata.data_store.data_store_id'),
                            comment='related data store where this sources data is held after ETL')
-    data_store = relationship("DataStore")
+    data_store = relationship("DataStore", back_populates="data_sources")
 
     source_object_name = Column(String, nullable=True,
                                 comment='The object name reference at the external data source.  This is used to lookup datasets on directories like DataBC, e.g. WHSE_WATER_MANAGEMENT.GW_AQUIFERS_CLASSIFICATION_SVW')
@@ -137,7 +137,8 @@ class DisplayCatalogue(Base):
                               comment='references wms catalogue item')
     wms_catalogue = relationship("WmsCatalogue")
 
-    use_wms = Column(Boolean, comment='Determines whether the client should query wms or use a vector layer')
+    use_wms = Column(
+        Boolean, comment='Determines whether the client should query wms or use a vector layer')
 
     vector_catalogue_id = Column(Integer, ForeignKey('metadata.vector_catalogue.vector_catalogue_id'),
                                  comment='references vector catalogue item')
@@ -155,7 +156,8 @@ class DisplayCatalogue(Base):
     data_source = relationship("DataSource")
     required_map_properties = Column(ARRAY(TEXT), nullable=False, server_default='{}',
                                      comment='Properties that are required by the map for rendering markers/shapes, e.g. for colouring markers based on a value or property like POD_SUBTYPE')
-    mapbox_source_id = Column(String, ForeignKey('metadata.mapbox_source.mapbox_source_id'), nullable=True)
+    mapbox_source_id = Column(String, ForeignKey(
+        'metadata.mapbox_source.mapbox_source_id'), nullable=True)
 
 
 class DisplayTemplate(Base):
