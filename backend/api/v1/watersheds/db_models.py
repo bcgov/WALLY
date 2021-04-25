@@ -22,6 +22,8 @@ class GeneratedWatershed(BaseAudit):
         String, comment='The method used to calculate this watershed e.g. FWA+UPSTREAM, DEM+FWA etc.')
     is_near_border = Column(Boolean, comment='Indicates whether this watershed was determined to be near a border. '
                             'This affects how it was generated and refined.')
+    dem_source = Column(
+        String, comment='The name of the Digital Elevation Model used, e.g. CDEM or SRTM', nullable=True)
     click_point = Column(
         geoalchemy2.types.Geometry(
             geometry_type='POINT', srid=4326), comment='The coordinates of the original click point.')

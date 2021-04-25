@@ -146,9 +146,10 @@ def upgrade():
                               'the POI encoded as base64.'),
                     sa.Column('create_date',
                               sa.DateTime, comment='Date and time (UTC) when the physical record was created in the database.', nullable=False),
-                    sa.Column('create_user', sa.String,
+                    sa.Column('create_user', postgresql.UUID(), sa.ForeignKey('user.user_uuid'),
                               comment='User who generated this watershed', nullable=False),
-                    sa.Column('update_user', sa.String, nullable=False),
+                    sa.Column('update_user', postgresql.UUID(), sa.ForeignKey(
+                        'user.user_uuid'), nullable=False),
                     sa.Column('update_date', sa.DateTime, nullable=False),
                     sa.Column('processing_time',
                               sa.Numeric, comment='How long it took to calculate this watershed.'),
@@ -156,6 +157,7 @@ def upgrade():
                               sa.String, comment='The method used to calculate this watershed e.g. FWA+UPSTREAM, DEM+FWA etc.'),
                     sa.Column('is_near_border', sa.Boolean, comment='Indicates whether this watershed was determined to be near a border. '
                               'This affects how it was generated and refined.'),
+                    sa.Column('dem_source', sa.String, nullable=True),
                     sa.Column('click_point', geoalchemy2.types.Geometry(
                         geometry_type='POINT', srid=4326), comment='The coordinates of the original click point.'),
                     sa.Column('snapped_point', geoalchemy2.types.Geometry(

@@ -89,7 +89,7 @@ def augment_dem_watershed_with_fwa(
 
     Arguments:
     start_polygon_buffer_distance: a buffer distance that is added to the starting polygon to ensure
-    that other polygons that are very close to the start point are caught by ST_Intersects. This is 
+    that other polygons that are very close to the start point are caught by ST_Intersects. This is
     primarily so that face units and watershed polygons that represent the river width for larger
     rivers are both caught by ST_Intersects.
 
@@ -106,8 +106,8 @@ def augment_dem_watershed_with_fwa(
     logger.debug("WATERSHED_ID: %s", watershed_id)
 
     nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
-    nearest_stream_id = nearest_stream.get('id')
-    logger.debug("Nearest stream linear_feature_id:  %s", nearest_stream_id)
+    nearest_stream_id = nearest_stream.get('linear_feature_id')
+    logger.info("Nearest stream linear_feature_id:  %s", nearest_stream_id)
 
     q = """
         with subwscode_ltree as (
@@ -120,7 +120,7 @@ def augment_dem_watershed_with_fwa(
             WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
         ),
         stream_subwscode_ltree as (
-            SELECT  
+            SELECT
                     geom,
                     origin_id,
                     wscode_ltree as origin_wscode,
@@ -134,7 +134,7 @@ def augment_dem_watershed_with_fwa(
                         (replace(replace(("LOCAL_WATERSHED_CODE")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree as localcode_ltree
                 FROM    freshwater_atlas_stream_networks
                 WHERE   "LINEAR_FEATURE_ID" = :stream_feature_id
-            ) streams_ltree 
+            ) streams_ltree
         ),
         polygons_touching_click_point as (
             SELECT w."GEOMETRY" as geom, w."WATERSHED_FEATURE_ID" as linear_feature_id, ST_Area(w."GEOMETRY") as area
@@ -207,7 +207,7 @@ def augment_dem_watershed_with_fwa(
                 FROM            dem_watershed d, polygons_touching_click_point p
             ) combined
         )
-        ELSE (  
+        ELSE (
             SELECT ST_AsBinary(ST_Union(geom))
             FROM watershed_fwa_polygons
         )
@@ -362,7 +362,7 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_
     return wkb.loads(record[0].tobytes())
 
 
-def get_watershed_using_dem(db: Session, point: Point, watershed_id, clip_dem=True, dem_source='cdem'):
+def get_watershed_using_dem(db: Session, point: Point, watershed_id, dem_source='cdem'):
     """
     Use Whitebox Tools to calculate the upstream drainage area from point
 
@@ -395,6 +395,7 @@ def get_watershed_using_dem(db: Session, point: Point, watershed_id, clip_dem=Tr
 
     border_crossings = list(set(watershed_touches_border(db, watershed_id)))
     upstream_area = None
+    upstream_area_buffered = None
 
     # get an overestimate of the catchment area so that we can crop
     # the DEM to a more manageable size.
@@ -417,38 +418,46 @@ def get_watershed_using_dem(db: Session, point: Point, watershed_id, clip_dem=Tr
     # CDEM uses SRID 4326, so snap_distance must be in degrees
     # our SRTM source uses 3005, so set snap_distance to meters.
     using_srid = 4326
-    snap_distance = 0.002  # degrees
+    snap_distance = 0.001  # degrees
     dem_file = CDEM_FILE
     if dem_source == 'srtm':
         dem_file = SRTM_FILE
         point = transform(transform_4326_3005, point)
         snap_distance = 100  # metres
         using_srid = 3005
-        upstream_area = transform(
+        upstream_area_buffered = transform(
             transform_4326_3005, upstream_area).buffer(1000)
     else:
-        # create a buffer around the catchment.  this helps prevent accidently cutting
+        # create a buffer around the catchment.  this helps prevent accidently cropping the DEM
         # too close
-        upstream_area = transform(transform_3005_4326, transform(
+        upstream_area_buffered = transform(transform_3005_4326, transform(
             transform_4326_3005, upstream_area).buffer(1000))
 
-    (_, result) = wbt_calculate_watershed(
-        upstream_area, point, dem_file,
-        log=True,
-        pntr=False,
-        accum_out_type='sca',
-        snap_distance=snap_distance, using_srid=using_srid
-    )
+    for n in range(3):
+        (result, snapped_point) = wbt_calculate_watershed(
+            upstream_area_buffered, point, dem_file,
+            log=True,
+            pntr=False,
+            accum_out_type='sca',
+            snap_distance=snap_distance, using_srid=using_srid
+        )
+        # if the resulting DEM-delineated watershed area is less than 1% of the upstream overestimate,
+        # try again with an increased snap distance.
+        # Even though we expect the DEM derived watershed to be smaller than the upstream overestimate,
+        # we assume that an error occurred if it is 1% or less of the size. The most common error is
+        # that the snapped point did not hit the the target stream in the Flow Accumulation raster, so
+        # increasing the distance has a good chance of returning a good watershed.
+        if result.area / upstream_area.area > 0.01:
+            break
+        else:
+            snap_distance *= 2
+            logger.info(
+                '-- watershed less than 1%% of the upstream area overestimate, trying again with a larger snap point radius: %s', snap_distance)
 
     if dem_source == 'srtm':
-        if result.area > 5000:
-            return transform(transform_3005_4326, result)
+        return (transform(transform_3005_4326, result), transform(transform_3005_4326, snapped_point))
 
-    elif transform(transform_4326_3005, result).area > 5000:
-        return result
-
-    # did not get a valid result.
-    return None
+    return (result, snapped_point)
 
 
 def watershed_touches_border(db: Session, watershed_feature_id: int) -> List[str]:
@@ -539,8 +548,8 @@ def wbt_calculate_watershed(
         suffix='.tif', prefix='040_fac_')
     file_050_point_shp = TemporaryDirectory()
     file_060_directory = TemporaryDirectory()
-    file_060_snapped_pour_point = NamedTemporaryFile(
-        dir=file_060_directory.name, suffix='.shp', prefix='060_snapped_')
+    # file_060_snapped_pour_point = NamedTemporaryFile(
+    #     dir=file_060_directory.name, suffix='.shp', prefix='060_snapped_')
     file_070_watershed = NamedTemporaryFile(
         suffix='.tif', prefix="070_ws_")
     file_080_directory = TemporaryDirectory()
@@ -552,7 +561,7 @@ def wbt_calculate_watershed(
     }
 
     # Write a new Shapefile with the envelope.
-    with fiona.open(f"{file_000_extent.name}/extent.shp", 'w', 'ESRI Shapefile', poly_schema) as c:
+    with fiona.open(f"{file_000_extent.name}/extent.shp", 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
         c.write({
             'geometry': mapping(watershed_area.envelope),
             'properties': {'id': 123},
@@ -627,10 +636,10 @@ def wbt_calculate_watershed(
     snap_result = wbt.snap_pour_points(
         f"{file_050_point_shp.name}/{point_shp_file}.shp",
         file_040_fac.name,
-        file_060_snapped_pour_point.name,
+        f"{file_060_directory.name}/snapped.shp",
         snap_distance, callback=wbt_suppress_progress_output)
 
-    with fiona.open(file_060_snapped_pour_point.name, 'r', 'ESRI Shapefile') as snp:
+    with fiona.open(f"{file_060_directory.name}/snapped.shp", 'r', 'ESRI Shapefile') as snp:
         snapped_pt = shape(next(iter(snp)).get('geometry'))
 
     if WATERSHED_DEBUG:
@@ -641,7 +650,7 @@ def wbt_calculate_watershed(
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#watershed
     watershed_result = wbt.watershed(
         file_030_fdr.name,
-        file_060_snapped_pour_point.name,
+        f"{file_060_directory.name}/snapped.shp",
         file_070_watershed.name, esri_pntr=False, callback=wbt_suppress_progress_output)
 
     # file statistics
@@ -655,8 +664,8 @@ def wbt_calculate_watershed(
                      os.stat(file_030_fdr.name).st_size)
         logger.debug('%s %s', file_040_fac.name,
                      os.stat(file_040_fac.name).st_size)
-        logger.debug('%s %s', file_060_snapped_pour_point.name,
-                     os.stat(file_060_snapped_pour_point.name).st_size)
+        logger.debug('%s %s', f"{file_060_directory.name}/snapped.shp",
+                     os.stat(f"{file_060_directory.name}/snapped.shp").st_size)
         logger.debug('%s %s', file_070_watershed.name,
                      os.stat(file_070_watershed.name).st_size)
         logger.debug('------------------------------------------------')
@@ -690,4 +699,5 @@ def wbt_calculate_watershed(
         else:
             ws_result_list = [shape(poly['geometry']) for poly in ws_result]
         watershed_result = MultiPolygon(ws_result_list)
-    return (snapped_pt, watershed_result)
+
+    return (watershed_result, snapped_pt)

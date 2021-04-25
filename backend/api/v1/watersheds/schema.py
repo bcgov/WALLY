@@ -91,6 +91,7 @@ class GeneratedWatershed(BaseModel):
     fwa_watershed_id: Optional[int]
     is_near_border: bool
     processing_time: float
+    dem_source: Optional[str]
 
     class Config:
         arbitrary_types_allowed = True

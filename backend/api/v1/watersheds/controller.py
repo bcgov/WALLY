@@ -462,8 +462,7 @@ def calculate_watershed(
                 message=f"This point is more than {stream_distance_warning_threshold} m from the nearest stream" +
                 " (based on Freshwater Atlas stream mapping)." +
                 " WALLY's Surface Water Analysis is applicable to points of interest along streams." +
-                " If you believe this is an error or if you are working with a point of diversion on a lake," +
-                " please contact the WALLY team."
+                " If you believe this is an error, please contact the WALLY team."
             )
             warnings.append(point_not_on_stream_warning)
 
@@ -492,12 +491,18 @@ def calculate_watershed(
 
     is_near_border = bool(len(watershed_touches_border(db, watershed_id)))
 
-    # choose method based on function argument.
+    # the location of point after correcting/snapping to a stream.
+    # This means either snapping to a vector FWA stream or using a SnapPourPoint
+    # routine (SnapPourPoints or JensonSnapPourPoints).  If both, this value
+    # will be from the SnapPourPoint routine since that will be done after
+    # moving the point to a stream.
+    snapped_point = point_on_stream or click_point
 
+    # choose method based on function argument.
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
-        watershed = get_watershed_using_dem(
-            db, point_on_stream, watershed_id, clip_dem=not upstream_method == 'DEM+FWA')
+        (watershed, snapped_point) = get_watershed_using_dem(
+            db, point_on_stream, watershed_id)
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
         watershed_point = base64.urlsafe_b64encode(
@@ -566,7 +571,8 @@ def calculate_watershed(
         warnings=warnings,
         watershed=feature,
         click_point=click_point.wkt,
-        snapped_point=point_on_stream.wkt,
+        snapped_point=snapped_point.wkt,
+        dem_source=dem_source,
         from_cache=False,
         fwa_watershed_id=watershed_id,
         wally_watershed_id=f"{generated_method}.{watershed_point}",
@@ -748,6 +754,7 @@ def store_generated_watershed(db: Session, user, watershed: GeneratedWatershed):
         is_near_border=watershed.is_near_border,
         click_point=WKTElement(watershed.click_point, srid=4326),
         snapped_point=WKTElement(watershed.snapped_point, srid=4326),
+        dem_source=watershed.dem_source,
         area_sqm=watershed.watershed.properties['FEATURE_AREA_SQM']
     ) \
         .returning(GeneratedWatershedDB.generated_watershed_id) \
@@ -756,7 +763,7 @@ def store_generated_watershed(db: Session, user, watershed: GeneratedWatershed):
     q = insert(WatershedCache) \
         .values(
         generated_watershed_id=select(
-            [sa.column('generated_watershed_id')]).select_from(generated_watershed),
+            [sa.column('generated_watershed_id')]).scalar_subquery().select_from(generated_watershed),
         watershed=watershed.json()) \
         .returning(WatershedCache.generated_watershed_id)
 
