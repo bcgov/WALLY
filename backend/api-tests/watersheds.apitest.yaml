@@ -1,0 +1,87 @@
+environment:
+  vars:
+    host: http://localhost:8000
+    auth_token: test
+  headers:
+    Authorization: Bearer {{auth_token}}
+requests:
+  - name: Log in
+    url: "{{auth_url}}"
+    method: post
+    contentType: application/x-www-form-urlencoded
+    body:
+      client_id: "{{auth_id}}"
+      client_secret: "{{auth_secret}}"
+      grant_type: password
+      username: "{{auth_user}}"
+      password: "{{auth_pass}}"
+    expect:
+      status: 200
+    set:
+      - var: auth_token # set the {{auth_token}} here
+        from: access_token
+  - name: Watershed at point 1 (using DEM)
+    url: "{{host}}/api/v1/watersheds/?point=%5B-123.00569724659113%2C50.14366252500119%5D&include_self=false&upstream_method=DEM"
+    method: get
+    expect:
+      status: 200
+      values:
+        upstream_method: "generated_dem"
+        watershed.properties.FEATURE_AREA_SQM:
+          gt: 24849800
+          lt: 24849900  # float field.  use range to check value is valid.
+  - name: Watershed at point 2 (using DEM and refine with FWA)
+    url: "{{host}}/api/v1/watersheds/?point=%5B-122.95641297167052%2C50.16143334016911%5D&include_self=false&upstream_method=DEM%2BFWA"
+    method: get
+    expect:
+      status: 200
+      values:
+        upstream_method: "generated_dem_fwa"
+        watershed.properties.FEATURE_AREA_SQM:
+          gt: 635899
+          lt: 635900
+  - name: Watershed at point 3 (using DEM and refine with FWA)
+    url: "{{host}}/api/v1/watersheds/?point=%5B-122.90906363692298%2C50.07010783054966%5D&include_self=false&upstream_method=DEM%2BFWA"
+    method: get
+    expect:
+      status: 200
+      values:
+        upstream_method: "generated_dem_fwa"
+        watershed.properties.FEATURE_AREA_SQM:
+          gt: 49815194
+          lt: 49815195
+    set:
+      - var: watershed_id
+        from: watershed.id
+      - var: generated_watershed_id
+        from: generated_watershed_id
+  - name: Watershed at point 3 - licences
+    url: "{{host}}/api/v1/watersheds/{{watershed_id}}/licences?generated_id={{generated_watershed_id}}"
+    method: get
+    expect:
+      status: 200
+      values:
+        licences.type: "FeatureCollection"
+  - name: Watershed at point 3 - Water rights approvals
+    url: "{{host}}/api/v1/watersheds/{{watershed_id}}/approvals?generated_id={{generated_watershed_id}}"
+    method: get
+    expect:
+      status: 200
+      values:
+        approvals.type: "FeatureCollection"
+  - name: Watershed at point 3 - Fish observations
+    url: "{{host}}/api/v1/watersheds/{{watershed_id}}/fish_observations?generated_id={{generated_watershed_id}}"
+    method: get
+    expect:
+      status: 200
+      values:
+        fish_observations.type: "FeatureCollection"
+  - name: Streamflow Inventory report at point
+    url: "{{host}}/api/v1/watersheds/streamflow_inventory?point=%5B-123.1688685736714%2C49.87612710876371%5D"
+    method: get
+    expect:
+      status: 200
+      values:
+        report_link: https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344
+        report_name: Inventory of Streamflow in the South Coast and West Coast Regions
+        hydrologic_zone: 26
