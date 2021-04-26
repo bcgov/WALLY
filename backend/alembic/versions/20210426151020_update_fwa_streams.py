@@ -24,7 +24,6 @@ def upgrade():
                     existing_type=geoalchemy2.types.Geometry(),
                     type_=geoalchemy2.types.Geometry(
                         geometry_type='MULTIPOLYGON', srid=4326),
-                    comment='',
                     existing_nullable=True)
     op.alter_column('freshwater_atlas_stream_networks', 'GEOMETRY',
                     existing_type=geoalchemy2.types.Geometry(
