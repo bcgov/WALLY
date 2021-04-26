@@ -17,7 +17,7 @@ dataset="$1"
 pg_host="postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally"
 
 echo "(1/3) Setting up Minio host"
-mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+mc --config-dir=./.mc config host add minio http://${MINIO_HOST_URL}:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 echo "(2/3) Copying PRISM raster data from Minio"
 mc --config-dir=./.mc cp "minio/raster/prism_$dataset.asc" "./"
