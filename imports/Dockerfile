@@ -11,7 +11,7 @@ COPY ./tiles/upload_tileset.sh /dataload/
 
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
   && chown -R wally:root /dataload \
-  && apt-get update && apt-get install -y pgloader jq curl git zip unzip sqlite3 binutils libproj-dev postgis python3 python3-pip \
+  && apt-get update && apt-get install -y jq curl git zip unzip sqlite3 binutils libproj-dev postgis python3 python3-pip \
                                           build-essential libsqlite3-dev zlib1g-dev postgresql-client \
                                           sbcl make gawk freetds-dev libzip-dev \
   && rm -rf /var/lib/apt/lists/* \
