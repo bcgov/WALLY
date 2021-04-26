@@ -179,6 +179,8 @@ objects:
             value: "${WALLY_BUILD}"
           - name: API_VERSION
             value: "${API_VERSION}"
+          - name: GDAL_DATA
+            value: "/usr/share/gdal/"
           image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api
