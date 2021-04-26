@@ -1,10 +1,12 @@
 # Migrating from OCP3 to OCP4
 
-Note: These are the steps required to stand up WALLY from scratch on OCP4, but many of these steps are not OCP4 specific (e.g. they should have been documented for OCP3 too...).
+Note: These are the steps required to stand up WALLY on a new platform environment. The instructions are for an OpenShift multitenant platform
+with 4 namespaces:  `<project_id>-tools`, `<project_id>-dev`, `<project_id>-test` and `<project_id>-prod`.  Supporting services like Jenkins
+as well as all the build resources and secrets for pulling from GitHub and container registries go in the Tools namespace.
 
 # Prerequisites for TOOLS/DEV/TEST/PROD namespaces
 
-Most resources that need to be created in the environments but are not stored in templates in the repo (such as secrets) can be retrieved from OCP3 using `oc get secret wally-at-github -o yaml`.
+Note for migrating: Most resources that need to be created in the environments but are not stored in templates in the repo (such as secrets) can be retrieved from OCP3 using `oc get secret wally-at-github -o yaml`.
 
 ## Create or import secrets/configmaps
 
@@ -82,6 +84,9 @@ Most resources that need to be created in the environments but are not stored in
 The following external/community images don't have BuildConfigs and need to be imported:
 Example import command: `oc4 -n d1b5d2-tools import-image --from=python:3.7 python:3.7 --reference-policy=local --confirm`
 
+Note: see https://github.com/BCDevOps/OpenShift4-Migration/issues/51.  With Artifactory credentials the `--from=python:3.7` above can be replaced
+with `--from=docker-remote.artifacts.developer.gov.bc.ca`
+
 * `python:3.7`
 * `crunchy-postgres-gis:centos7-12.5-3.0-4.4.2` - note: this image was not used for Wally on OpenShift 3. It's new for OCP4.  Database templates for this new image are in openshift/ocp4/crunchy-postgres .
 * `promtail:v1.3.0` - Log exporter for Loki
@@ -93,3 +98,64 @@ Refer to https://github.com/BCDevOps/OpenShift4-Migration/issues/51 for instruct
 
 * there is a quickstart set of NetworkPolicies, see `quickstart-network-policy.yaml`. Must be applied to each namespace.
 * TODO: set finer grained rules.
+
+## Create BuildConfigs
+
+The core application BuildConfigs will be created by Jenkins (see the Jenkinsfile).  Some supporting BuildConfigs need to be created manually once when deploying
+to a new platform environment.
+
+* `openshift/import-jobs/importer.build.yaml` - this allows using the jobs in `openshift/import-jobs` to populate the database.
+
+## Upload data required by Wally
+
+Wally requires data from the Freshwater Atlas, PRISM, Hydat (Water Survey of Canada database), and the 12 arcsecond CDEM.
+
+These files need to be uploaded to Minio:
+```
+/geojson/freshwater_atlas_watersheds.zip
+/geojson/freshwater_atlas_stream_networks.zip
+/raster/prism_pr.asc
+/raster/prism_pr.prj
+/raster/BC_Area_CDEM.tif
+```
+
+`freshwater_atlas_watersheds.zip` - Freshwater Atlas Watersheds:
+* Download from the GeoBC ftp site: `ftp://ftp.gdbc.gov.bc.ca/sections/outgoing/bmgs/FWA_Public/FWA_WATERSHEDS_POLY.gdb/`
+* Rename to `freshwater_atlas_watersheds.gdb/`.  This step helps the script match the file to the WALLY database table "freshwater_atlas_watersheds".
+* zip: `zip -r freshwater_atlas_watersheds freshwater_atlas_watersheds.gdb`
+* Upload to the `geojson` bucket.  This isn't a geojson file, but the bucket for data dumps was previously named geojson. TODO: rename to a more general name.
+
+`freshwater_atlas_stream_networks.zip` - Freshwater Atlas Stream Networks:
+* Download from `ftp://ftp.gdbc.gov.bc.ca/sections/outgoing/bmgs/FWA_Public/FWA_STREAM_NETWORKS_SP.gdb/`
+* rename to `freshwater_atlas_stream_networks.gdb` and zip
+* follow rest of instructions as above.
+
+`prism_pr.asc` and `prism_pr.prj` - PRISM precipitation.
+* Download from Pacific Climate Impacts Consortium
+* upload to the `raster` bucket.
+
+`BC_Area_CDEM.tif`:
+* Download from `https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/archive/`.
+* 12 second is sufficient for the functions that use the DEM directly
+* Reproject to EPSG:4326 and crop to approximate BC area (TODO: add a command e.g. `gdalwarp -t_srs EPSG:4326 -te <xmin ymin xmax ymax> cdem.tif`).
+* Ensure that enough of Alberta, NWT, Yukon are included since some watersheds originate outside BC. (TODO: confirm bounds required to not clip any watersheds that drain to BC)
+
+
+## Populate databases
+
+The following needs to be done for both staging and prod.
+
+### Freshwater Atlas
+Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
+
+```sh
+oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds -p SCRIPT_PATH=/dataload/fwa.sh | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks -p SCRIPT_PATH=/dataload/fwa.sh | oc apply -f -
+```
+
+### Raster data
+
+```sh
+oc process -f prism.job.yaml -p ENV_NAME=staging | oc apply -f -
+oc process -f cdem.job.yaml -p ENV_NAME=staging | oc apply -f -
+```
