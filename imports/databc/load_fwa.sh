@@ -24,7 +24,7 @@ echo "Copying layer from Minio storage..."
 
 echo "Loading data with ogr2ogr"
 ogr2ogr -f "PostgreSQL" PG:"host=$POSTGRES_SERVER port=5432 dbname=wally user=wally password=$POSTGRES_PASSWORD" "/vsizip/$1.zip/$1.gdb" \
--nln "$1" -t_srs EPSG:4326 -append -progress -skipfailures --config OGR_TRUNCATE YES --config PG_USE_COPY YES
+-nln "$1" -t_srs EPSG:4326 -append -progress -skipfailures --config OGR_TRUNCATE YES --config PG_USE_COPY YES -nlt PROMOTE_TO_MULTI
 
 echo "Finished loading data. Updating Wally metadata table".
 
@@ -36,8 +36,3 @@ last_updated=$(./mc --config-dir=./.mc ls "minio/geojson/$1.zip" --json | jq .la
 psql "postgres://wally:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/wally" -c "UPDATE metadata.data_source SET last_updated_data = '$last_updated' WHERE data_table_name = '$1';"
 
 echo "Finished."
-
-
-
-ogr2ogr -f "PostgreSQL" PG:"host=localhost port=5432 dbname=wally user=wally password=test_pw" /vsizip/$1.zip/$1.gdb \
--nln freshwater_atlas_watersheds -t_srs EPSG:4326 -append -progress -skipfailures --config OGR_TRUNCATE YES --config PG_USE_COPY YES
