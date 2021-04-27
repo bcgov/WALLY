@@ -116,7 +116,7 @@
       "displayName": "Docker File Path",
       "description": "The path to the docker file.",
       "required": true,
-      "value": "openshift/matomo/docker/nginx/Dockerfile"
+      "value": "openshift/ocp4/matomo/docker/nginx/Dockerfile"
     },
     {
       "name": "CPU_LIMIT",
