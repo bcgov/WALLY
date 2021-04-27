@@ -8,8 +8,10 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class FreshwaterAtlasWatersheds(BaseLayerTable):
     __tablename__ = 'freshwater_atlas_watersheds'
 
-    WATERSHED_FEATURE_ID = Column(Integer, primary_key=True, autoincrement=False, comment='A unique identifier for each watershed '
-                                                                     'in the layer.')
+    WATERSHED_FEATURE_ID = Column(
+        Integer, primary_key=True, autoincrement=False,
+        comment='A unique identifier for each watershed '
+        'in the layer.')
     WATERSHED_GROUP_ID = Column(Integer, comment='An automatically generate id that uniquely identifies '
                                                  'the watershed group feature.')
     WATERSHED_TYPE = Column(String, comment='The type of watershed. This has yet to be determined for FWA '
@@ -70,7 +72,8 @@ class FreshwaterAtlasWatersheds(BaseLayerTable):
     FEATURE_CODE = Column(String, comment='FEATURE CODE contains a value based on the Canadian Council '
                                           'of Surveys and Mappings (CCSM) system for classification of '
                                           'geographic features.')
-    GEOMETRY = Column(Geometry(srid=4326), comment='')
+    GEOMETRY = Column(
+        Geometry(geometry_type='MULTIPOLYGON', srid=4326), comment='')
     OBJECTID = Column(Integer, comment='')
     SE_ANNO_CAD_DATA = Column(BYTEA, comment='')
     FEATURE_AREA_SQM = Column(Float, comment='FEATURE_AREA_SQM is the system calculated area of a '
