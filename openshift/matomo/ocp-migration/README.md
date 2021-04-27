@@ -45,6 +45,10 @@ oc process -f matomo-migrator.dc.yaml -p NAMESPACE=$NAMESPACE4 | oc apply -f -
 ### Running the migration script
 **NOTE:** You need your Pathfinder auth token and Silver auth token. Have it handy beforehand.
 
+```bash
+. rsh_matomo_migrator_cli.sh
+```
+
 Inside the `matomo-migrator-cli` pod:
 ```/bin/bash
 cd scripts
@@ -69,26 +73,13 @@ cd scripts
 ./db_copy_and_restore.sh [test/prod]
 ```
 
+### GUI Setup 
+Once the database has been migrated, open up the Matomo GUI website in Silver to continue the installation.
+- Make sure to "reuse existing tables" to ensure the newly migrated data is not overwritten.
+- Once Matomo has been setup you will be re-directed to login, because we migrated the whole previous database
+    ** THE ADMIN CREDS ARE THE ONES FROM PATHFINDER **
+- ** So these values should be updated in the secret matomo-admin for future reference **
 
-
-
-**`scale_down.sh`**
-```bash
-# Scales down the `gwells-staging` application on Silver 
-./activate_proxy.sh [test/prod]
-
-# To scale it up, add `--revert` at the end
-./activate_proxy.sh [test/prod] --revert
-```
-
-**`scale_up.sh`**
-```bash
-# Scales up the `gwells-staging` application on Silver 
-./activate_proxy.sh [test/prod]
-
-# To scale it up, add `--revert` at the end
-./activate_proxy.sh [test/prod] --revert
-```
 
 #### Issues, tips and tricks
 **Login to the migrator-cli pod terminal quickly**

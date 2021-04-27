@@ -26,7 +26,8 @@ echo "--------------------------------------------------------------------------
 
 # Reload database
 SECONDS=0
-oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$MATOMO4_DB_POD" -c "mysql -u $MATOMO_4_USER -p$MATOMO_4_PASSWORD" -- bash -c "drop database matomo;" -c "create database matomo;" -c "matomo < $DB_DUMPFILE"
+oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$MATOMO4_DB_POD" -- bash -c "mysql -h matomo-db -u $MATOMO_4_USER -p$MATOMO_4_PASSWORD -e 'drop database matomo; create database matomo;'"
+oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$MATOMO4_DB_POD" -- bash -c "mysql -h matomo-db -u $MATOMO_4_USER -p$MATOMO_4_PASSWORD matomo < /tmp/backup/matomo-$ENVIRONMENT-mariadb-backup.sql"
 
 duration=$SECONDS
 echo "------------------------------------------------------------------------------"
