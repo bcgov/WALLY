@@ -6,7 +6,7 @@ parameters:
 - description: Environment name (staging or production)
   displayName: Environment name
   name: ENV_NAME
-  value: wally-psql-master-staging
+  value: staging
 objects:
   - apiVersion: batch/v1
     kind: Job
