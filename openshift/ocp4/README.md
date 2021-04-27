@@ -149,8 +149,8 @@ The following needs to be done for both staging and prod.
 Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
 
 ```sh
-oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds -p SCRIPT_PATH=/dataload/fwa.sh | oc apply -f -
-oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks -p SCRIPT_PATH=/dataload/fwa.sh | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds -p SCRIPT_PATH=/dataload/load_fwa.sh | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks -p SCRIPT_PATH=/dataload/load_fwa.sh | oc apply -f -
 ```
 
 ### Raster data
