@@ -156,6 +156,7 @@ oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_N
 ### Raster data
 
 ```sh
-oc process -f prism.job.yaml -p ENV_NAME=staging | oc apply -f -
-oc process -f cdem.job.yaml -p ENV_NAME=staging | oc apply -f -
+oc4 process -f prism.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000  | oc apply -f -
+oc4 process -f cdem.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
+oc4 process -f hydat.job.yaml -p ENV_NAME=staging | oc apply -f -
 ```
