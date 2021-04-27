@@ -1,4 +1,4 @@
-# Migration
+# Matomo Migration
 
 ## Assumptions
 1. The steps included here depend on having the matomo and motomo-db deployments already deployed on the OCP4 Silver platform. The instructions for this are included in the parent directory.
