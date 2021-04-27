@@ -18,16 +18,18 @@ depends_on = None
 
 
 def upgrade():
+
     op.alter_column('freshwater_atlas_watersheds', 'GEOMETRY',
                     existing_type=geoalchemy2.types.Geometry(),
                     type_=geoalchemy2.types.Geometry(
-                        geometry_type='MULTIPOLYGON', srid=4326),
+                        geometry_type='MULTIPOLYGON', srid=4326), postgresql_using='ST_Multi("GEOMETRY")',
                     existing_nullable=True)
     op.alter_column('freshwater_atlas_stream_networks', 'GEOMETRY',
                     existing_type=geoalchemy2.types.Geometry(
                         geometry_type='LINESTRINGZ', srid=4326),
                     type_=geoalchemy2.types.Geometry(
                         geometry_type='MULTILINESTRINGZ', srid=4326),
+                    postgresql_using='ST_Multi("GEOMETRY")',
                     existing_nullable=True)
 
 
