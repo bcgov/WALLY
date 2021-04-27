@@ -25,7 +25,7 @@ objects:
     kind: Route
     metadata:
       labels:
-        app: wally-proxy-${NAME_SUFFIX}
+        app: wally-proxy${NAME_SUFFIX}
         name: wally-redirect${NAME_SUFFIX}
       name: wally-redirect${NAME_SUFFIX}
     spec:
@@ -145,7 +145,7 @@ objects:
 parameters:
   - displayName: Name
     name: NAME_SUFFIX
-    required: true
+    required: false
   - name: DESTINATION_HOST_NAME
     description:
       The destination address that is being proxied.

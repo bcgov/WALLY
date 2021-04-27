@@ -3,14 +3,14 @@
 # Sample usage: 
 #    ./deploy_redirect.sh bfpeyx-dev dev
 #    ./deploy_redirect.sh bfpeyx-test staging
-#    ./deploy_redirect.sh bfpeyx-prod
+#    ./deploy_redirect.sh bfpeyx-prod prod
 
 PROJECT=${1:-}
 ENV=${2:-}
 
 # Destination will be the URL in the silver cluster
 DEST_URL=wally.nrs.gov.bc.ca
-NAME_SUFFIX=
+NAME_SUFFIX=''
 
 if [ "$ENV" != 'prod' ]; then
   NAME_SUFFIX="-$2"
