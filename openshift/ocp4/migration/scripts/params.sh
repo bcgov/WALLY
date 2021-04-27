@@ -44,7 +44,6 @@ fi
 NAMESPACE="bfpeyx-$ENVIRONMENT"
 
 # Silver namespace
-# NAMESPACE4="d1b5d2-$ENVIRONMENT"
-NAMESPACE4="d1b5d2-dev"
+NAMESPACE4="d1b5d2-$ENVIRONMENT"
 
 DB_DUMPFILE="/tmp/matomo-$ENVIRONMENT-mariadb-backup.sql"
