@@ -32,14 +32,14 @@ You need:
 NAMESPACE4="d1b5d2-dev"
 
 # Create a config map from the migration scripts
-oc -n $NAMESPACE4 create configmap matomo-migration-scripts \
+oc -n $NAMESPACE4 create configmap migration-scripts \
 --from-file=scripts/
 ```
 
 **migrator-cli (importer.dc.yaml)**
 ```bash
 # Deploy migrator dc with oc cli
-oc process -f matomo-migrator.dc.yaml -p NAMESPACE=$NAMESPACE4 | oc apply -f -
+oc process -f migrator.dc.yaml -p NAMESPACE=$NAMESPACE4 | oc apply -f -
 ```
 
 ### Running the migration script
@@ -49,7 +49,7 @@ oc process -f matomo-migrator.dc.yaml -p NAMESPACE=$NAMESPACE4 | oc apply -f -
 . rsh_matomo_migrator_cli.sh
 ```
 
-Inside the `matomo-migrator-cli` pod:
+Inside the `migrator-cli` pod:
 ```/bin/bash
 cd scripts
 

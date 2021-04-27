@@ -14,8 +14,8 @@
 
 # Dump and copy the matomo mysql database .sql file 
 # from Pathfinder to the migrator pod
-. ./db_dump_and_copy.sh
+. ./matomo_db_dump_and_copy.sh
 
 # Copy and restore the matomo mysql database .sql file 
 # from the migrator pod to Silver matomo-db
-. ./db_copy_and_restore.sh
+. ./matomo_db_copy_and_restore.sh

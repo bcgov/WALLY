@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Template
 labels:
-  template: matomo-migrator-cli
+  template: migrator-cli
 metadata:
   creationTimestamp: null
-  name: matomo-migrator-cli
+  name: migrator-cli
 parameters:
   - name: NAMESPACE
     required: true
   - name: NAME
-    value: matomo-migrator-cli
+    value: migrator-cli
   - description: Storage class for PVCs.
     displayName: Storage class for PVCs.
     name: STORAGE_CLASS
@@ -51,9 +51,9 @@ objects:
             - name: cli-db-volume
               persistentVolumeClaim:
                 claimName: ${NAME}
-            - name: matomo-migration-scripts
+            - name: migration-scripts
               configMap:
-                name: matomo-migration-scripts
+                name: migration-scripts
                 defaultMode: 0777
           containers:
             - name: ${NAME}
@@ -67,7 +67,7 @@ objects:
               volumeMounts:
                 - name: cli-db-volume
                   mountPath: /mnt
-                - name: matomo-migration-scripts
+                - name: migration-scripts
                   mountPath: /scripts
               terminationMessagePath: /dev/termination-log
               terminationMessagePolicy: File
