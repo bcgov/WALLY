@@ -55,7 +55,7 @@
       "displayName": "Output Image Tag",
       "description": "The tag given to the built image.",
       "required": true,
-      "value": "3.13.5-fpm"
+      "value": "3.14.0-fpm"
     },
     {
       "name": "SOURCE_IMAGE_KIND",
@@ -69,14 +69,14 @@
       "displayName": "Source Image Name",
       "description": "The name of the source image.",
       "required": true,
-      "value": "docker.io/matomo"
+      "value": "docker-remote.artifacts.developer.gov.bc.ca/matomo"
     },
     {
       "name": "SOURCE_IMAGE_TAG",
       "displayName": "Source Image Tag",
       "description": "The tag of the source image.",
       "required": true,
-      "value": "3.13.5-fpm"
+      "value": "3.14.0-fpm"
     }
   ]
 }
