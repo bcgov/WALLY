@@ -149,14 +149,46 @@ The following needs to be done for both staging and prod.
 Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
 
 ```sh
-oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds -p SCRIPT_PATH=/dataload/load_fwa.sh | oc apply -f -
-oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks -p SCRIPT_PATH=/dataload/load_fwa.sh | oc apply -f -
+# fwa watersheds
+# requires freshwater_atlas_watersheds.zip (containing freshwater_atlas_watersheds.gdb). See above for instructions.
+oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds \
+   -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
+
+# fwa stream networks
+# requires freshwater_atlas_stream_networks.zip (containing freshwater_atlas_stream_networks.gdb).  See above.
+oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks \
+ -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc4 apply -f -
 ```
 
 ### Raster data
 
 ```sh
+# prism
+# requires raster/prism_pr.asc and raster/prism_pr.prj in Minio storage
 oc4 process -f prism.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000  | oc apply -f -
+
+# CDEM
+# requires raster/BC_Area_CDEM.tif in Minio storage
 oc4 process -f cdem.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
+
+# Hydat
+# downloads its own data, but the link has to be updated for new HYDAT versions (approximately quarterly). See wally/imports/hydat/load_hydat.sh
 oc4 process -f hydat.job.yaml -p ENV_NAME=staging | oc apply -f -
+```
+
+### Prod data
+This is an abbreviated version of the above for PROD.  Refer to the above for instructions. The same files need
+to be on Minio in the prod namespace.
+```sh
+oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=production -p LAYER_NAME=freshwater_atlas_watersheds \
+   -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
+
+oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=production -p LAYER_NAME=freshwater_atlas_stream_networks \
+ -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc4 apply -f -
+
+oc4 process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000  | oc apply -f -
+oc4 process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
+oc4 process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
+
+
 ```
