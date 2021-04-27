@@ -391,7 +391,7 @@ pipeline {
       }
       steps {
         script {
-          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+          git url: GIT_REPO, credentialsId: 'github-account', branch: env.JOB_BASE_NAME
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
           def project = TEST_PROJECT
