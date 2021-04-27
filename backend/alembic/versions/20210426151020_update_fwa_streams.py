@@ -5,6 +5,7 @@ Revises: a691dfe51337
 Create Date: 2021-04-26 15:10:20.681440
 
 """
+from sqlalchemy.orm.session import Session
 from alembic import op
 import geoalchemy2
 import sqlalchemy as sa
@@ -18,7 +19,13 @@ depends_on = None
 
 
 def upgrade():
-
+    session = Session(bind=op.get_bind())
+    session.begin()
+    session.execute(
+        """
+        select updategeometrysrid('freshwater_atlas_watersheds', 'GEOMETRY', 4326)
+        """
+    )
     op.alter_column('freshwater_atlas_watersheds', 'GEOMETRY',
                     existing_type=geoalchemy2.types.Geometry(),
                     type_=geoalchemy2.types.Geometry(
@@ -31,6 +38,8 @@ def upgrade():
                         geometry_type='MULTILINESTRINGZ', srid=4326),
                     postgresql_using='ST_Multi("GEOMETRY")',
                     existing_nullable=True)
+
+    session.commit()
 
 
 def downgrade():
