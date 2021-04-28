@@ -216,4 +216,16 @@ oc4 process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wa
 oc4 process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
 oc4 process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
 
+
+# Download FN data
+oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+# Load FN data
+oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+
 ```
