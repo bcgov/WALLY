@@ -75,4 +75,6 @@ objects:
                   name: minio
             - name: POSTGRES_SERVER
               value: wally-psql-${ENV_NAME}
+            - name: MINIO_HOST_URL
+              value: ${MINIO_HOST_URL}
           restartPolicy: Never

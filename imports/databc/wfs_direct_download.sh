@@ -80,7 +80,7 @@ echo "Zipping layer $DATABC_LAYER_NAME into $WALLY_LAYER_NAME.zip"
 zip "./out/$WALLY_LAYER_NAME.zip" "./out/$DATABC_LAYER_NAME.geojson"
 
 echo "Copying zipped layer to Minio storage..."
-./mc --config-dir=./.mc config host add minio ${MINIO_HOST_URL} "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+./mc --config-dir=./.mc config host add minio "$MINIO_HOST_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 ./mc --config-dir=./.mc cp "./out/$WALLY_LAYER_NAME.zip" "minio/geojson"
 
 rm "./out/$DATABC_LAYER_NAME.geojson"
