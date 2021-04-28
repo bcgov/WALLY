@@ -19,3 +19,6 @@
 # Copy and restore the matomo mysql database .sql file 
 # from the migrator pod to Silver matomo-db
 . ./matomo_db_copy_and_restore.sh
+
+# Migrate user map layers, projects, and saved analyses
+. ./wally_migrate_user_data.sh

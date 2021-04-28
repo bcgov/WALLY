@@ -44,7 +44,14 @@ fi
 NAMESPACE="bfpeyx-$ENVIRONMENT"
 
 # Silver namespace
-# NAMESPACE4="d1b5d2-$ENVIRONMENT"
-NAMESPACE4="d1b5d2-dev"
+NAMESPACE4="d1b5d2-$ENVIRONMENT"
 
-DB_DUMPFILE="/tmp/matomo-$ENVIRONMENT-mariadb-backup.sql"
+DB_DUMPFILE_MATOMO="/tmp/matomo-$ENVIRONMENT-mariadb-backup.sql"
+DB_DUMPFILE_WALLY="/tmp/wally_data_dump.sql"
+DB_DUMPFILE_WALLY4="/tmp/backup/wally_data_dump.sql"
+
+# Pod suffix i.e. wally-psql-staging, wally-psql-production
+POD_SUFFIX='staging'
+if [ "$ENVIRONMENT" == 'prod' ]; then
+  POD_SUFFIX='production'
+fi

@@ -46,7 +46,7 @@ oc process -f migrator.dc.yaml -p NAMESPACE=$NAMESPACE4 | oc apply -f -
 **NOTE:** You need your Pathfinder auth token and Silver auth token. Have it handy beforehand.
 
 ```bash
-. rsh_matomo_migrator_cli.sh
+. rsh_migrator_cli.sh
 ```
 
 Inside the `migrator-cli` pod:
@@ -60,17 +60,17 @@ cd scripts
 ```
 
 #### Smaller migration scripts
-**`db_dump_and_copy.sh`**
+**`matomo_db_dump_and_copy.sh`**
 ```bash
 # Runs `mysqldump` on Pathfinder and copies to migrator container
-./db_dump_and_copy.sh [test/prod]
+./matomo_db_dump_and_copy.sh [test/prod]
 ```
 
-**`db_copy_and_restore.sh`**
+**`matomo_db_copy_and_restore.sh`**
 ```bash
 # Copies the dump file from the migrator volume onto the Silver matomo-db pod volume
 # Commits the .sql file insert into the matomo mysql database
-./db_copy_and_restore.sh [test/prod]
+./matomo_db_copy_and_restore.sh [test/prod]
 ```
 
 ### GUI Setup 
