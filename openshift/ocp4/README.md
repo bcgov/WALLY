@@ -145,6 +145,27 @@ These files need to be uploaded to Minio:
 
 The following needs to be done for both staging and prod.
 
+
+### Layer data
+
+Most layer data (e.g. point of interest, polygon search etc) pull directly from DataBC except for the following
+* First Nations treaty areas
+* First Nations communities
+* First Nations treaty lands
+
+
+```sh
+# job to automatically download and store on Minio
+oc process -f wfs.job.yaml -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f wfs.job.yaml -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f wfs.job.yaml -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+# job to load into Postgres
+oc process -f import.job.yaml -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+```
+
 ### Freshwater Atlas
 Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
 
