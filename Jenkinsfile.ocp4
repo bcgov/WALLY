@@ -434,7 +434,7 @@ pipeline {
                     "IMAGE_STREAM_NAME=crunchy-postgres-gis",
                     "NAME_SUFFIX=-${env_name}",
                     "POSTGRESQL_DATABASE=wally",
-                    "VOLUME_CAPACITY=50Gi",
+                    "VOLUME_CAPACITY=40Gi",
                     "STORAGE_CLASS=netapp-file-standard",
                     "REQUEST_CPU=200m",
                     "REQUEST_MEMORY=1Gi",
