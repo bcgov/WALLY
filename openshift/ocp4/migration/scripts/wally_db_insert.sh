@@ -26,7 +26,7 @@ echo "--------------------------------------------------------------------------
 
 # Reload database
 SECONDS=0
-oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$WALLY4_DB_POD" -c postgresql -- bash -c "psql wally -c \"DELETE FROM user\""
+oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$WALLY4_DB_POD" -c postgresql -- bash -c "psql wally -c \"DELETE FROM public.user\""
 oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$WALLY4_DB_POD" -c postgresql -- bash -c "psql wally -c \"DELETE FROM user_map_layer\""
 oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$WALLY4_DB_POD" -c postgresql -- bash -c "psql wally -c \"DELETE FROM project\""
 oc --kubeconfig="$KUBECONFIGSILVER" exec -n "$NAMESPACE4" "$WALLY4_DB_POD" -c postgresql -- bash -c "psql wally -c \"DELETE FROM saved_analysis\""
