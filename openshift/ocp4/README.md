@@ -148,6 +148,11 @@ The following needs to be done for both staging and prod.
 ### Freshwater Atlas
 Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
 
+**Warning:**
+Loading data will create very large log files in `/pgdata/userdata/pg_log`. They can/should be removed.
+Be careful that they don't fill up the disk.
+TODO:  investigate turning down statement logging while loading data.
+
 ```sh
 # fwa watersheds
 # requires freshwater_atlas_watersheds.zip (containing freshwater_atlas_watersheds.gdb). See above for instructions.
@@ -189,6 +194,5 @@ oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=production -p LAYE
 oc4 process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000  | oc apply -f -
 oc4 process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
 oc4 process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
-
 
 ```
