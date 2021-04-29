@@ -200,6 +200,9 @@ oc4 process -f cdem.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-
 # Hydat
 # downloads its own data, but the link has to be updated for new HYDAT versions (approximately quarterly). See wally/imports/hydat/load_hydat.sh
 oc4 process -f hydat.job.yaml -p ENV_NAME=staging | oc apply -f -
+
+# Watershed DEMs
+oc4 process -f wsdem.job.yaml -p ENV_NAME=staging | oc apply -f -
 ```
 
 ### Prod data
@@ -215,7 +218,7 @@ oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=production -p LAYE
 oc4 process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000  | oc apply -f -
 oc4 process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
 oc4 process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
-
+oc4 process -f wsdem.job.yaml -p ENV_NAME=production | oc apply -f -
 
 # Download FN data
 oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
@@ -226,6 +229,4 @@ oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p M
 oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
 oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
 oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
-
-
 ```
