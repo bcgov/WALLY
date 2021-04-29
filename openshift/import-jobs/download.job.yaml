@@ -39,7 +39,7 @@ objects:
         spec:
           containers:
           - name: importer
-            image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
+            image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-importer:latest
             command: ['/dataload/download_layer.sh']
             args: ['${LAYER_NAME}', '${DOWNLOAD_LINK}']
             resources:

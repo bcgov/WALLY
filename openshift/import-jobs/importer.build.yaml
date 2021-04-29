@@ -41,8 +41,9 @@ objects:
       strategy:
         dockerStrategy:
           from:
-            kind: "DockerImage"
-            name: "debian:latest"
+            kind: ImageStreamTag
+            name: gdal:latest
+            namespace: d1b5d2-tools
         type: Docker
       successfulBuildsHistoryLimit: 5
       triggers:
