@@ -1,7 +1,7 @@
 #!/bin/bash
 # Usage: ./db_dump_and_copy.sh [test/prod]
 
-# This script dumps the old mariadb database and copies it to the matomo-migrator-cli's volume
+# This script dumps the old matomo mysql database and copies it to the migrator-cli's volume
 
 # Get variables from previous scripts or params
 ENVIRONMENT=${ENVIRONMENT:-$1}
@@ -28,7 +28,7 @@ echo "--------------------------------------------------------------------------
 # In Migrator - copy file from Pathfinder
 mkdir -p /tmp/backup
 SECONDS=0
-oc --kubeconfig="$KUBECONFIG" rsync -n "$NAMESPACE" "$MATOMO_DB_POD":"$DB_DUMPFILE" /tmp/backup/
+oc --kubeconfig="$KUBECONFIG" rsync -n "$NAMESPACE" "$MATOMO_DB_POD":"$DB_DUMPFILE_MATOMO" /tmp/backup/
 duration=$SECONDS
 echo "------------------------------------------------------------------------------"
 echo "Rsync took $((duration / 60)) minutes and $((duration % 60)) seconds."
@@ -37,7 +37,7 @@ echo "Rsync took $((duration / 60)) minutes and $((duration % 60)) seconds."
 echo "Cleanup - deleting dump from Pathfinder"
 echo "------------------------------------------------------------------------------"
 
-oc --kubeconfig="$KUBECONFIG" exec -n "$NAMESPACE" "$MATOMO_DB_POD" -- rm -f "$DB_DUMPFILE"
+oc --kubeconfig="$KUBECONFIG" exec -n "$NAMESPACE" "$MATOMO_DB_POD" -- rm -f "$DB_DUMPFILE_MATOMO"
 
 # Scale down the pathfinder matomo database DC
 #oc --kubeconfig="$KUBECONFIG" -n "$NAMESPACE" scale --replicas=0 "dc/matomo-db"

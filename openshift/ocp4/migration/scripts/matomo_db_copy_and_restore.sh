@@ -1,6 +1,6 @@
 #!/bin/bash
 # Usage: ./db_copy_and_restore.sh [test/prod]
-# This script copies the dump from the matomo-migrator-cli volume to the db volume and restores the database using pg_restore
+# This script copies the dump from the migrator-cli volume to the db volume and restores the database using mysql
 
 # Get variables from previous scripts or params
 ENVIRONMENT=${ENVIRONMENT:-$1}
