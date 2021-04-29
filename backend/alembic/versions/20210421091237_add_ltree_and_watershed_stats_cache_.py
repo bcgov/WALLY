@@ -1,7 +1,7 @@
 """add LTREE and watershed stats/cache tables
 
 Revision ID: 702efdc8f3fa
-Revises: a691dfe51337
+Revises: e9e52d4b325d
 Create Date: 2021-04-21 09:12:37.345503
 
 """
@@ -15,7 +15,7 @@ from sqlalchemy.orm import relationship
 
 # revision identifiers, used by Alembic.
 revision = '702efdc8f3fa'
-down_revision = 'a691dfe51337'
+down_revision = 'e9e52d4b325d'
 branch_labels = None
 depends_on = None
 
@@ -28,22 +28,33 @@ def upgrade():
         select updategeometrysrid('freshwater_atlas_watersheds', 'GEOMETRY', 4326)
         """
     )
+    op.alter_column('freshwater_atlas_watersheds', 'GEOMETRY', nullable=False)
 
     # this group of operations takes a LONG while!
-    op.add_column('freshwater_atlas_watersheds', sa.Column('wscode_ltree', LtreeType, sa.Computed(
-        "(replace(replace((\"FWA_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree", persisted=True), autoincrement=False, nullable=True), schema='public')
-    op.add_column('freshwater_atlas_watersheds', sa.Column('localcode_ltree', LtreeType, sa.Computed(
-        "(replace(replace((\"LOCAL_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree", persisted=True), autoincrement=False, nullable=True), schema='public')
+    op.add_column(
+        'freshwater_atlas_watersheds', sa.Column(
+            'wscode_ltree', LtreeType, sa.Computed(
+                "(replace(replace((\"FWA_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree",
+                persisted=True),
+            autoincrement=False, nullable=True),
+        schema='public')
+    op.add_column(
+        'freshwater_atlas_watersheds', sa.Column(
+            'localcode_ltree', LtreeType, sa.Computed(
+                "(replace(replace((\"LOCAL_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree",
+                persisted=True),
+            autoincrement=False, nullable=True),
+        schema='public')
     op.add_column('freshwater_atlas_watersheds', sa.Column('fme_feature_type', sa.VARCHAR(),
                                                            autoincrement=False, nullable=True))
-    op.create_index('freshwater_atlas_watersheds_localcode_ltree_idx1', 'freshwater_atlas_watersheds', [
-                    'localcode_ltree'], unique=False, schema='public')
+    op.create_index('freshwater_atlas_watersheds_localcode_ltree_gist_idx', 'freshwater_atlas_watersheds', [
+                    'localcode_ltree'], unique=False, schema='public', postgresql_using='GIST')
     op.create_index('freshwater_atlas_watersheds_localcode_ltree_idx', 'freshwater_atlas_watersheds', [
                     'localcode_ltree'], unique=False, schema='public')
     op.create_index('freshwater_atlas_watersheds_wscode_ltree_idx', 'freshwater_atlas_watersheds', [
                     'wscode_ltree'], unique=False, schema='public')
     op.create_index('freshwater_atlas_watersheds_wscode_ltree_gist_idx', 'freshwater_atlas_watersheds', [
-                    'wscode_ltree'], unique=False, schema='public')
+                    'wscode_ltree'], unique=False, schema='public', postgresql_using='GIST')
 
     # approx borders.  From https://github.com/smnorris/fwapg
     op.create_table('fwa_approx_borders',
@@ -137,42 +148,51 @@ def upgrade():
     op.create_index('hybas_lev12_v1c_next_down_idx', 'hybas_lev12_v1c', [
                     'next_down'], unique=False, schema='hydrosheds')
 
-    op.create_table('generated_watershed',
+    op.create_table(
+        'generated_watershed', sa.Column('generated_watershed_id', sa.Integer, primary_key=True),
+        sa.Column(
+            'wally_watershed_id', sa.String,
+            comment='WALLY watershed identifier used to recreate watersheds. '
+            'The format is the upstream delineation method followed by '
+            'the POI encoded as base64.'),
+        sa.Column(
+            'create_date', sa.DateTime,
+            comment='Date and time (UTC) when the physical record was created in the database.', nullable=False),
+        sa.Column(
+            'create_user', postgresql.UUID(),
+            sa.ForeignKey('user.user_uuid'),
+            comment='User who generated this watershed', nullable=False),
+        sa.Column('update_user', postgresql.UUID(),
+                  sa.ForeignKey('user.user_uuid'),
+                  nullable=False),
+        sa.Column('update_date', sa.DateTime, nullable=False),
+        sa.Column('processing_time', sa.Numeric, comment='How long it took to calculate this watershed.'),
+        sa.Column(
+            'upstream_method', sa.String,
+            comment='The method used to calculate this watershed e.g. FWA+UPSTREAM, DEM+FWA etc.'),
+        sa.Column(
+            'is_near_border', sa.Boolean,
+            comment='Indicates whether this watershed was determined to be near a border. '
+            'This affects how it was generated and refined.'),
+        sa.Column('dem_source', sa.String, nullable=True),
+        sa.Column(
+            'click_point', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326),
+            comment='The coordinates of the original click point.'),
+        sa.Column(
+            'snapped_point', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326),
+            comment='The coordinates used for delineation after snapping to a Flow Accumulation raster stream line.'),
+        sa.Column('area_sqm', sa.Numeric, comment='Area in square metres'))
 
-                    sa.Column('generated_watershed_id',
-                              sa.Integer, primary_key=True),
-                    sa.Column('wally_watershed_id', sa.String, comment='WALLY watershed identifier used to recreate watersheds. '
-                              'The format is the upstream delineation method followed by '
-                              'the POI encoded as base64.'),
-                    sa.Column('create_date',
-                              sa.DateTime, comment='Date and time (UTC) when the physical record was created in the database.', nullable=False),
-                    sa.Column('create_user', postgresql.UUID(), sa.ForeignKey('user.user_uuid'),
-                              comment='User who generated this watershed', nullable=False),
-                    sa.Column('update_user', postgresql.UUID(), sa.ForeignKey(
-                        'user.user_uuid'), nullable=False),
-                    sa.Column('update_date', sa.DateTime, nullable=False),
-                    sa.Column('processing_time',
-                              sa.Numeric, comment='How long it took to calculate this watershed.'),
-                    sa.Column('upstream_method',
-                              sa.String, comment='The method used to calculate this watershed e.g. FWA+UPSTREAM, DEM+FWA etc.'),
-                    sa.Column('is_near_border', sa.Boolean, comment='Indicates whether this watershed was determined to be near a border. '
-                              'This affects how it was generated and refined.'),
-                    sa.Column('dem_source', sa.String, nullable=True),
-                    sa.Column('click_point', geoalchemy2.types.Geometry(
-                        geometry_type='POINT', srid=4326), comment='The coordinates of the original click point.'),
-                    sa.Column('snapped_point', geoalchemy2.types.Geometry(
-                        geometry_type='POINT', srid=4326), comment='The coordinates used for delineation after snapping to a Flow Accumulation raster stream line.'),
-                    sa.Column('area_sqm', sa.Numeric,
-                              comment='Area in square metres')
-                    )
-
-    op.create_table('watershed_cache',
-                    sa.Column('generated_watershed_id', sa.Integer, sa.ForeignKey('generated_watershed.generated_watershed_id'),
-                              comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True),
-                    sa.Column('watershed', postgresql.JSONB, nullable=False),
-                    sa.Column('last_accessed_date', sa.DateTime(timezone=True),
-                              comment='The date this cached record was last accessed.', nullable=False, server_default=sa.func.now())
-                    )
+    op.create_table('watershed_cache', sa.Column(
+        'generated_watershed_id', sa.Integer, sa.ForeignKey(
+            'generated_watershed.generated_watershed_id'),
+        comment='The GeneratedWatershed record this cached polygon is associated with.',
+        primary_key=True),
+        sa.Column('watershed', postgresql.JSONB, nullable=False),
+        sa.Column(
+        'last_accessed_date', sa.DateTime(timezone=True),
+        comment='The date this cached record was last accessed.', nullable=False,
+        server_default=sa.func.now()))
 
     op.execute("""
     CREATE OR REPLACE FUNCTION prune_watershed_cache() RETURNS trigger
@@ -187,6 +207,14 @@ def upgrade():
     CREATE TRIGGER trigger_prune_watershed_cache
     AFTER INSERT ON watershed_cache
     EXECUTE PROCEDURE prune_watershed_cache();
+    """)
+
+    # technique from FWAPG
+    # https://github.com/smnorris/fwapg/blob/main/sql/data_load/create_indexes.sql#L205
+    # and PostGIS docs
+    # https://postgis.net/docs/performance_tips.html#database_clustering
+    op.execute("""
+    CLUSTER freshwater_atlas_watersheds USING freshwater_atlas_watersheds_localcode_ltree_gist_idx;
     """)
 
 

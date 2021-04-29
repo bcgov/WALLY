@@ -1,7 +1,7 @@
 """update_fwa_streams
 
 Revision ID: e9e52d4b325d
-Revises: 702efdc8f3fa
+Revises: a691dfe51337
 Create Date: 2021-04-26 15:10:20.681440
 
 """
@@ -13,7 +13,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'e9e52d4b325d'
-down_revision = '702efdc8f3fa'
+down_revision = 'a691dfe51337'
 branch_labels = None
 depends_on = None
 

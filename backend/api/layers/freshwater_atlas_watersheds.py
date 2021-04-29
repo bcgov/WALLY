@@ -1,6 +1,7 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, Float
+from sqlalchemy import Integer, String, Column, Float, Computed, text
 from api.db.base_class import BaseLayerTable
+from sqlalchemy_utils import LtreeType
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
@@ -8,8 +9,10 @@ from sqlalchemy.dialects.postgresql import BYTEA
 class FreshwaterAtlasWatersheds(BaseLayerTable):
     __tablename__ = 'freshwater_atlas_watersheds'
 
-    WATERSHED_FEATURE_ID = Column(Integer, primary_key=True, autoincrement=False, comment='A unique identifier for each watershed '
-                                  'in the layer.')
+    WATERSHED_FEATURE_ID = Column(
+        Integer, primary_key=True, autoincrement=False,
+        comment='A unique identifier for each watershed '
+        'in the layer.')
     WATERSHED_GROUP_ID = Column(Integer, comment='An automatically generate id that uniquely identifies '
                                                  'the watershed group feature.')
     WATERSHED_TYPE = Column(String, comment='The type of watershed. This has yet to be determined for FWA '
@@ -89,3 +92,11 @@ class FreshwaterAtlasWatersheds(BaseLayerTable):
     FEATURE_LENGTH_M = Column(Float, comment='FEATURE_LENGTH_M is the system calculated length or perimeter '
                                              'of a geometry in meters')
     fme_feature_type = Column(String)
+    localcode_ltree = Column(LtreeType, Computed(
+        "(replace(replace((\"LOCAL_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree",
+        persisted=True),
+        nullable=True)
+    wscode_ltree = Column(LtreeType, Computed(
+        "(replace(replace((\"FWA_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree",
+        persisted=True),
+        nullable=True)
