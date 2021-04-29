@@ -4,14 +4,14 @@ import bcgov.GitHubHelper
 
 // Notify stage status and pass to Jenkins-GitHub library
 void notifyStageStatus (String name, String status) {
-    // GitHubHelper.createCommitStatus(
-    //     this,
-    //     sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
-    //     status,
-    //     "${BUILD_URL}",
-    //     "Stage: ${name}",
-    //     "${name}"
-    // )
+    GitHubHelper.createCommitStatus(
+        this,
+        sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
+        status,
+        "${BUILD_URL}",
+        "Stage: ${name}",
+        "${name}"
+    )
 }
 
 // this is commented out because the new version of GitHubHelper doesn't support creating deployments this way!
