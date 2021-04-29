@@ -32,7 +32,7 @@ if (global.config.isProduction) {
     host: 'https://matomo-d1b5d2-prod.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router: router,
-    domains: '*.nrs.gov.bc.ca'
+    domains: 'wally.nrs.gov.bc.ca'
   })
 }
 

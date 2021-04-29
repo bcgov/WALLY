@@ -9,7 +9,7 @@ parameters:
   displayName: Host
   description: The hostname to deploy this template to.
   required: true
-  value: wally-test.pathfinder.gov.bc.ca
+  value: wally-staging.apps.silver.devops.gov.bc.ca
 - name: NAMESPACE
   displayName: Namespace
   description: The namespace to apply this template to.
