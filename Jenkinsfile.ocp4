@@ -302,13 +302,10 @@ pipeline {
                         containerTemplate(
                             name: 'jnlp',
                             image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
-                            imagePullPolicy: 'Always',
                             resourceRequestCpu: '500m',
                             resourceLimitCpu: '800m',
                             resourceRequestMemory: '512Mi',
                             resourceLimitMemory: '1Gi',
-                            activeDeadlineSeconds: '600',
-                            podRetention: 'never',
                             workingDir: '/tmp',
                             command: '',
                             args: '${computer.jnlpmac} ${computer.name}',
