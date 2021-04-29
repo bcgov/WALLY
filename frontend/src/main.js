@@ -29,29 +29,29 @@ if (global.config.isProduction) {
       logErrors: true })]
   })
   Vue.use(VueMatomo, {
-    host: 'https://matomo-bfpeyx-prod.pathfinder.gov.bc.ca/',
+    host: 'https://matomo-d1b5d2-prod.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router: router,
-    domains: '*.pathfinder.gov.bc.ca'
+    domains: '*.nrs.gov.bc.ca'
   })
 }
 
 if (global.config.isStaging) {
   Vue.use(VueMatomo, {
-    host: 'https://matomo-bfpeyx-test.pathfinder.gov.bc.ca/',
+    host: 'https://matomo-d1b5d2-test.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router: router,
-    domains: '*.pathfinder.gov.bc.ca'
+    domains: '*.silver.devops.gov.bc.ca'
   })
 }
 
 if (global.config.isDevelopment && global.config.enableAnalytics) {
   // To test matomo actions locally, turn on enableAnalytics
   Vue.use(VueMatomo, {
-    host: 'https://matomo-bfpeyx-test.pathfinder.gov.bc.ca/',
+    host: 'https://matomo-d1b5d2-test.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router: router,
-    domains: '*.pathfinder.gov.bc.ca',
+    domains: '*.silver.devops.gov.bc.ca',
     debug: true
   })
 }
