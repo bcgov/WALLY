@@ -6,10 +6,10 @@ import bcgov.GitHubHelper
 void notifyStageStatus (String name, String status) {
     GitHubHelper.createCommitStatus(
         this,
-        sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
+        GitHubHelper.getPullRequestLastCommitId(this),
         status,
         "${BUILD_URL}",
-        "Stage: ${name}",
+        "Stage '${name}'",
         "${name}"
     )
 }
