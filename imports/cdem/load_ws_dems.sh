@@ -5,8 +5,8 @@
 
 set -euo pipefail
 mkdir -p /waterdata/rasters
-cdem_file="Burned_CDEM_BC_Area_4326.tif"
-srtm_file="Burned_SRTM_BC_48_51_3005.tif"
+cdem_file="Burned_CDEM_4326.tif"
+srtm_file="Burned_SRTM_3005.tif"
 
 echo "(1/3) Setting up Minio host"
 mc --config-dir=./.mc config host add minio "${MINIO_HOST_URL}" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
