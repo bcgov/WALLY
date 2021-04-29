@@ -312,6 +312,11 @@ objects:
     name: wally-${NAME}-data
     annotations:
       template.openshift.io.bcgov/create: "true"
+    labels:
+      app: wally-${NAME}
+      env: ${NAME}
+      component: api
+      name: wally-${NAME}-api
   spec:
     accessModes:
       - ReadWriteMany
