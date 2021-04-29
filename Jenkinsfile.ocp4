@@ -466,7 +466,9 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "WALLY_DATA_DIR=/waterdata",
+                  "STORAGE_CAPACITY=5Gi"
                 ))
                 
                 echo "Deploying to a dev environment"
@@ -570,7 +572,9 @@ pipeline {
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
                   "WALLY_VERSION=${git_tag}",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "WALLY_DATA_DIR=/waterdata",
+                  "STORAGE_CAPACITY=5Gi"
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",

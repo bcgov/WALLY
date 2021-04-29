@@ -24,9 +24,10 @@ WALLY_ENV = os.getenv("WALLY_ENV", ENV_DEV)
 
 SERVER_NAME = os.getenv("SERVER_NAME")
 SERVER_HOST = os.getenv("SERVER_HOST")
-BACKEND_CORS_ORIGINS = os.getenv(
-    "BACKEND_CORS_ORIGINS"
-)  # a string of origins separated by commas, e.g: "http://localhost, http://localhost:4200, http://localhost:3000, http://localhost:8080"
+
+# a string of origins separated by commas
+# e.g: "http://localhost, http://localhost:4200, http://localhost:3000, http://localhost:8080"
+BACKEND_CORS_ORIGINS = os.getenv("BACKEND_CORS_ORIGINS")
 PROJECT_NAME = "Wally"
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 
@@ -58,8 +59,10 @@ MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
 
-RASTER_FILE_DIR = os.getenv(
-    "RASTER_FILE_DIR", "/app/fixtures/rasters/")
+WALLY_DATA_DIR = os.getenv(
+    "WALLY_DATA_DIR", "/app/fixtures/")
+
+RASTER_FILE_DIR = f"{WALLY_DATA_DIR}/rasters/"
 
 # Use Pydantic's settings management
 
