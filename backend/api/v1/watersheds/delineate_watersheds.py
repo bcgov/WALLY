@@ -61,7 +61,6 @@ wbt = WhiteboxTools()
 wbt.set_whitebox_dir('/usr/local/bin/')
 CDEM_FILE = f"{RASTER_FILE_DIR}/Burned_CDEM_4326.tif"
 SRTM_FILE = f"{RASTER_FILE_DIR}/Burned_SRTM_3005.tif"
-COGS_FILE = f"{RASTER_FILE_DIR}/optimized.tif"
 
 
 gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
@@ -573,7 +572,7 @@ def wbt_calculate_watershed(
     ]
 
     gdal.Translate(file_010_dem,
-                   f'/vsis3/{COGS_FILE}',
+                   f'/vsis3/{dem_file}',
                    options=" ".join(translate_options_list))
 
     elapsed = (time.perf_counter() - start)

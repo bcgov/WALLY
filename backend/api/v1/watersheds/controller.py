@@ -773,7 +773,8 @@ def store_generated_watershed(db: Session, user, watershed: GeneratedWatershed):
     return generated_watershed_id
 
 
-def get_watershed(db: Session, user, watershed_feature: str, generated_watershed_id: Optional[int] = None) -> GeneratedWatershed:
+def get_watershed(
+        db: Session, user, watershed_feature: str, generated_watershed_id: Optional[int] = None) -> GeneratedWatershed:
     """ finds a watershed by either generating it or looking it up in cache """
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
