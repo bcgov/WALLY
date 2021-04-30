@@ -4,8 +4,8 @@ const PROD = 'production'
 const STAGING = 'staging'
 const DEV = 'development'
 
-const WALLY_HOSTNAME = 'wally.pathfinder.gov.bc.ca'
-const WALLY_TEST_HOSTNAME = 'wally-staging.pathfinder.gov.bc.ca'
+const WALLY_HOSTNAME = 'wally.nrs.gov.bc.ca'
+const WALLY_TEST_HOSTNAME = 'wally-staging.apps.silver.devops.gov.bc.ca'
 
 config.app.baseUrl = window.location.protocol + '//' +
   location.host.split(':')[0] +
