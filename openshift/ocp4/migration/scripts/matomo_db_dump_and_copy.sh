@@ -17,7 +17,7 @@ echo "--------------------------------------------------------------------------
 
 # On Pathfinder - dump db
 SECONDS=0
-oc --kubeconfig="$KUBECONFIG" exec -n "$NAMESPACE" "$MATOMO_DB_POD" -- bash -c "mysqldump --no-autocommit --single-transaction matomo -h matomo-db -u $MATOMO_USER -p$MATOMO_PASSWORD > $DB_DUMPFILE"
+oc --kubeconfig="$KUBECONFIG" exec -n "$NAMESPACE" "$MATOMO_DB_POD" -- bash -c "mysqldump --no-autocommit --single-transaction matomo -h matomo-db -u $MATOMO_USER -p$MATOMO_PASSWORD > $DB_DUMPFILE_MATOMO"
 
 duration=$SECONDS
 echo "------------------------------------------------------------------------------"
