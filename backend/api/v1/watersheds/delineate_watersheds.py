@@ -201,24 +201,31 @@ def augment_dem_watershed_with_fwa(
             )
         )
         SELECT
-        CASE
-            WHEN ST_area((select ST_Transform(geom, 3005) from dem_watershed)) / ST_Area(ST_Transform((select ST_Collect(geom) from watershed_fwa_polygons), 3005)) > :min_area_ratio
-            AND ST_area(ST_Transform((select geom from dem_watershed), 3005)) > :min_valid_area
-        THEN (
-            Select ST_AsBinary(ST_Union(geom))
-            FROM (
-                SELECT          geom FROM dem_watershed
-                UNION SELECT    geom from watershed_mask
-                UNION SELECT    ST_Intersection(p.geom, d.geom) as geom
-                FROM            dem_watershed d, polygons_touching_click_point p
-            ) combined
-        )
-        ELSE (
-            SELECT ST_AsBinary(ST_Union(geom))
-            FROM watershed_fwa_polygons
-        )
-        END
-        AS watershed
+            CASE
+                WHEN ST_area((select ST_Transform(geom, 3005) from dem_watershed)) / ST_Area(ST_Transform((select ST_Collect(geom) from watershed_fwa_polygons), 3005)) > :min_area_ratio
+                AND ST_area(ST_Transform((select geom from dem_watershed), 3005)) > :min_valid_area
+            THEN (
+                Select ST_AsBinary(ST_Union(geom))
+                FROM (
+                    SELECT          geom FROM dem_watershed
+                    UNION SELECT    geom from watershed_mask
+                    UNION SELECT    ST_Intersection(p.geom, d.geom) as geom
+                    FROM            dem_watershed d, polygons_touching_click_point p
+                ) combined
+            )
+            ELSE (
+                SELECT ST_AsBinary(ST_Union(geom))
+                FROM watershed_fwa_polygons
+            )
+            END
+        AS watershed,
+            CASE
+                WHEN ST_area((select ST_Transform(geom, 3005) from dem_watershed)) / ST_Area(ST_Transform((select ST_Collect(geom) from watershed_fwa_polygons), 3005)) > :min_area_ratio
+                AND ST_area(ST_Transform((select geom from dem_watershed), 3005)) > :min_valid_area
+            THEN (select false)
+            ELSE (select true)
+            END
+        AS error
 
     """
 
@@ -239,9 +246,10 @@ def augment_dem_watershed_with_fwa(
 
     # return a Shapely shape of the result (Polygon). This can be loaded into a GeoJSON Feature.
     feature = wkb.loads(record['watershed'].tobytes())
-
+    watershed_augment_error = bool(record['error'])
     logger.debug("AUGMENTED DEM+FWA WATERSHED AREA: %s", feature.area)
-    return feature
+
+    return (feature, watershed_augment_error)
 
 
 def get_cross_border_catchment_area(db: Session, point: Point):

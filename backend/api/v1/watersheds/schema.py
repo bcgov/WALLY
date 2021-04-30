@@ -92,6 +92,7 @@ class GeneratedWatershed(BaseModel):
     is_near_border: bool
     processing_time: float
     dem_source: Optional[str]
+    dem_error: Optional[bool]
 
     class Config:
         arbitrary_types_allowed = True

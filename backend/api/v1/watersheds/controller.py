@@ -489,6 +489,8 @@ def calculate_watershed(
     watershed_point = None
     watershed = None
 
+    # declare some variables that will be used for watershed metadata.
+    dem_error = None
     is_near_border = bool(len(watershed_touches_border(db, watershed_id)))
 
     # the location of point after correcting/snapping to a stream.
@@ -519,7 +521,7 @@ def calculate_watershed(
 
         # optionally augment the watershed using the FWA.
         elif upstream_method == 'DEM+FWA':
-            watershed = augment_dem_watershed_with_fwa(
+            (watershed, dem_error) = augment_dem_watershed_with_fwa(
                 db, watershed, watershed_id, point_on_stream)
             watershed_source = "Estimated by combining the result from CDEM/WhiteboxTools " + \
                                "with Freshwater Atlas fundamental watershed polygons."
@@ -578,7 +580,8 @@ def calculate_watershed(
         wally_watershed_id=f"{generated_method}.{watershed_point}",
         upstream_method=generated_method,
         is_near_border=is_near_border,
-        processing_time=elapsed)
+        processing_time=elapsed,
+        dem_error=dem_error)
 
     watershed_resp.generated_watershed_id = store_generated_watershed(
         db, user, watershed_resp)
@@ -755,6 +758,7 @@ def store_generated_watershed(db: Session, user, watershed: GeneratedWatershed):
         click_point=WKTElement(watershed.click_point, srid=4326),
         snapped_point=WKTElement(watershed.snapped_point, srid=4326),
         dem_source=watershed.dem_source,
+        dem_error=watershed.dem_error,
         area_sqm=watershed.watershed.properties['FEATURE_AREA_SQM']
     ) \
         .returning(GeneratedWatershedDB.generated_watershed_id) \

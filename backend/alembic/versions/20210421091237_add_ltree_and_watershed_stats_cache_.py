@@ -181,7 +181,14 @@ def upgrade():
         sa.Column(
             'snapped_point', geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326),
             comment='The coordinates used for delineation after snapping to a Flow Accumulation raster stream line.'),
-        sa.Column('area_sqm', sa.Numeric, comment='Area in square metres'))
+        sa.Column('area_sqm', sa.Numeric, comment='Area in square metres'),
+        sa.Column(
+            'dem_error', sa.Boolean,
+            comment='Indicates if an error with the DEM watershed was flagged. '
+            'The generated watershed will fall back on the FWA polygon watershed. '
+            'Only applies to type DEM+FWA.'
+        ),
+    )
 
     op.create_table('watershed_cache', sa.Column(
         'generated_watershed_id', sa.Integer, sa.ForeignKey(

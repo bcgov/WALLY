@@ -27,11 +27,17 @@ class GeneratedWatershed(BaseAudit):
     click_point = Column(
         geoalchemy2.types.Geometry(
             geometry_type='POINT', srid=4326), comment='The coordinates of the original click point.')
-    snapped_point = Column(geoalchemy2.types.Geometry(
-        geometry_type='POINT', srid=4326), comment='The coordinates used for delineation after snapping to a Flow Accumulation raster stream line.')
+    snapped_point = Column(
+        geoalchemy2.types.Geometry(geometry_type='POINT', srid=4326),
+        comment='The coordinates used for delineation after snapping to a Flow Accumulation raster stream line.')
     area_sqm = Column(Numeric, comment='Area in square metres')
     cached_polygon = relationship(
         "WatershedCache", backref="generated_watershed", passive_deletes=True)
+    dem_error = Column(
+        Boolean,
+        comment='Indicates if an error with the DEM watershed was flagged. '
+        'The generated watershed will fall back on the FWA polygon watershed. '
+        'Only applies to type DEM+FWA.')
 
 
 class ApproxBorders(BaseTable):
@@ -50,7 +56,8 @@ class WatershedCache(BaseTable):
     __tablename__ = 'watershed_cache'
     __table_args__ = {'schema': 'public'}
 
-    generated_watershed_id = Column(Integer, ForeignKey(GeneratedWatershed.generated_watershed_id),
-                                    comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True)
+    generated_watershed_id = Column(
+        Integer, ForeignKey(GeneratedWatershed.generated_watershed_id),
+        comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True)
     watershed = Column(JSONB, nullable=False)
     last_accessed_date: Column(DateTime, nullable=False)
