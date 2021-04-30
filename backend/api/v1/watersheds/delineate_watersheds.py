@@ -30,8 +30,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-
-from api.config import WATERSHED_DEBUG, RASTER_FILE_DIR
+from api.config import WATERSHED_DEBUG, RASTER_FILE_DIR, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
@@ -62,7 +61,14 @@ wbt = WhiteboxTools()
 wbt.set_whitebox_dir('/usr/local/bin/')
 CDEM_FILE = f"{RASTER_FILE_DIR}/Burned_CDEM_4326.tif"
 SRTM_FILE = f"{RASTER_FILE_DIR}/Burned_SRTM_3005.tif"
-COGS_FILE = f"rasters/optimized.tif"
+COGS_FILE = f"{RASTER_FILE_DIR}/optimized.tif"
+
+
+gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
+gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', MINIO_SECRET_KEY)
+gdal.SetConfigOption('AWS_S3_ENDPOINT', MINIO_HOST_URL)
+gdal.SetConfigOption('AWS_HTTPS', 'FALSE')
+gdal.SetConfigOption('AWS_VIRTUAL_HOSTING', 'FALSE')
 
 
 def augment_dem_watershed_with_fwa(
@@ -539,102 +545,66 @@ def wbt_calculate_watershed(
         if not "%" in value:
             logger.debug(value)
 
-    file_000_extent = TemporaryDirectory()
-    # file_010_dem = NamedTemporaryFile(
-    #     suffix='.tif', prefix="010_dem_")
-    file_010_dem = TemporaryDirectory()
-    file_020_dem_filled = NamedTemporaryFile(
-        suffix='.tif', prefix='020_filled_')
-    file_030_fdr = NamedTemporaryFile(
-        suffix='.tif', prefix='030_fdr_')
-    file_040_fac = NamedTemporaryFile(
-        suffix='.tif', prefix='040_fac_')
-    file_050_point_shp = TemporaryDirectory()
-    file_060_directory = TemporaryDirectory()
-    # file_060_snapped_pour_point = NamedTemporaryFile(
-    #     dir=file_060_directory.name, suffix='.shp', prefix='060_snapped_')
-    file_070_watershed = NamedTemporaryFile(
-        suffix='.tif', prefix="070_ws_")
-    file_080_directory = TemporaryDirectory()
+    # WhiteboxTools reads and writes files from/to disk.
+    # Set up some filename references in a TemporaryDirectory.
+    watershed_files = TemporaryDirectory()
+    file_010_dem = f"{watershed_files.name}/010_dem.tif"
+    file_020_dem_filled = f"{watershed_files.name}/020_filled_dem.tif"
+    file_030_fdr = f"{watershed_files.name}/030_fdr.tif"
+    file_040_fac = f"{watershed_files.name}/040_fac.tif"
+    file_050_point_shp = f"{watershed_files.name}/050_point.shp"
+    file_060_snapped = f"{watershed_files.name}/060_snapped.shp"
+    file_070_watershed = f"{watershed_files.name}/070_ws_raster.tif"
+    file_080_watershed_vector = f"{watershed_files.name}/080_ws_vector.shp"
 
-    # Define a point feature geometry with one attribute
-    poly_schema = {
-        'geometry': 'Polygon',
-        'properties': {'id': 'int'},
-    }
-    bnds = watershed_area.bounds
-    logger.info('---------------------')
-    logger.info(f'{bnds[0]} {bnds[3]} {bnds[2]} {bnds[1]}')
-    logger.info('---------------------')
-
+    # use gdal.Translate to request a clipped portion of the DEM.
+    # the DEM file must be a Cloud Optimized GeoTIFF.
+    # when using the /vsis3/ S3 virtual filesystem notation together with an extent,
+    # (the projwin <bounds> option), gdal.Translate will download only the area of
+    # interest. For more info, see
+    # https://gdal.org/drivers/raster/cog.html
+    # https://trac.osgeo.org/gdal/wiki/CloudOptimizedGeoTIFF
     start = time.perf_counter()
-
-    # Write a new Shapefile with the envelope.
-    # with fiona.open(f"{file_000_extent.name}/extent.shp", 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
-    #     c.write({
-    #         'geometry': mapping(watershed_area.envelope),
-    #         'properties': {'id': 123},
-    #     })
-    #     extent_shp_file = c.name
-
-    prjwin = f"-projwin {bnds[0]} {bnds[3]} {bnds[2]} {bnds[1]}"
-    options_list = [
+    bnds = watershed_area.bounds
+    translate_options_list = [
         '-of GTiff',
         '-projwin_srs EPSG:4326',
-        prjwin
+        f"-projwin {bnds[0]} {bnds[3]} {bnds[2]} {bnds[1]}"
     ]
-    options_string = " ".join(options_list)
 
-    gdal.Translate(f'{file_010_dem.name}/dem.tif',
-                   '/vsicurl/http://minio:9000/rasters/optimized.tif',
-                   options=options_string)
-
-    # gdal.Warp(
-    #     destNameOrDestDS=file_010_dem.name,
-    #     srcDSOrSrcDSTab=dem_file,
-    #     cutlineDSName=f"{file_000_extent.name}/{extent_shp_file}.shp",
-    #     cropToCutline=True
-    # )
+    gdal.Translate(file_010_dem,
+                   f'/vsis3/{COGS_FILE}',
+                   options=" ".join(translate_options_list))
 
     elapsed = (time.perf_counter() - start)
-
-    logger.info('---------------------------')
-    logger.info('CLIPPING TOOK %s', elapsed)
-    logger.info('---------------------------')
+    logger.debug('CLIPPING TOOK %s', elapsed)
 
     # use either BreachDepressionsLeastCost or BreachDepressions, not both.
     # Author recommends BreachDepressionsLeastCost but worth testing both.
+    # Initial testing: BreachDepressions is working consistently
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressionsleastcost
-    # breach_dist = 100
-    # wbt.breach_depressions_least_cost(
-    #     file_010_dem.name,
-    #     file_020_dem_filled.name,
-    #     breach_dist, max_cost=10, min_dist=True,
-    #     callback=wbt_suppress_progress_output
-    # )
-
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressions
     wbt.breach_depressions(
-        f'{file_010_dem.name}/dem.tif',
-        file_020_dem_filled.name,
+        file_010_dem,
+        file_020_dem_filled,
         callback=wbt_suppress_progress_output
     )
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8pointer
     wbt.d8_pointer(
-        file_020_dem_filled.name,
-        file_030_fdr.name,
+        file_020_dem_filled,
+        file_030_fdr,
         callback=wbt_suppress_progress_output
     )
 
-    accum_input_file = file_030_fdr.name
+    accum_input_file = file_030_fdr
     if not pntr:
-        accum_input_file = file_020_dem_filled.name
+        accum_input_file = file_020_dem_filled
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#D8FlowAccumulation
     wbt.d8_flow_accumulation(
         accum_input_file,
-        file_040_fac.name,
+        file_040_fac,
         out_type=accum_out_type,
         log=log, pntr=pntr, callback=wbt_suppress_progress_output
     )
@@ -647,7 +617,7 @@ def wbt_calculate_watershed(
 
     # Write a new Shapefile for the starting stream point. This will be used as the input vector point
     # to be snapped to the nearest stream pixel of the Flow Accumulation raster.
-    with fiona.open(f"{file_050_point_shp.name}/stream_point.shp", 'w', 'ESRI Shapefile', shp_schema) as c:
+    with fiona.open(file_050_point_shp, 'w', 'ESRI Shapefile', shp_schema) as c:
         c.write({
             'geometry': mapping(point),
             'properties': {'id': 123},
@@ -661,12 +631,12 @@ def wbt_calculate_watershed(
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#JensonSnapPourPoints
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#SnapPourPoints
     snap_result = wbt.snap_pour_points(
-        f"{file_050_point_shp.name}/{point_shp_file}.shp",
-        file_040_fac.name,
-        f"{file_060_directory.name}/snapped.shp",
+        file_050_point_shp,
+        file_040_fac,
+        file_060_snapped,
         snap_distance, callback=wbt_suppress_progress_output)
 
-    with fiona.open(f"{file_060_directory.name}/snapped.shp", 'r', 'ESRI Shapefile') as snp:
+    with fiona.open(file_060_snapped, 'r', 'ESRI Shapefile') as snp:
         snapped_pt = shape(next(iter(snp)).get('geometry'))
 
     if WATERSHED_DEBUG:
@@ -676,47 +646,17 @@ def wbt_calculate_watershed(
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#watershed
     watershed_result = wbt.watershed(
-        file_030_fdr.name,
-        f"{file_060_directory.name}/snapped.shp",
-        file_070_watershed.name, esri_pntr=False, callback=wbt_suppress_progress_output)
-
-    # file statistics
-    if WATERSHED_DEBUG:
-        logger.debug('-------Watershed analysis file statistics-------')
-        logger.debug('%s %s', f'{file_010_dem.name}/dem.tif',
-                     os.stat(f'{file_010_dem.name}/dem.tif').st_size)
-        logger.debug('%s %s', file_020_dem_filled.name,
-                     os.stat(file_020_dem_filled.name).st_size)
-        logger.debug('%s %s', file_030_fdr.name,
-                     os.stat(file_030_fdr.name).st_size)
-        logger.debug('%s %s', file_040_fac.name,
-                     os.stat(file_040_fac.name).st_size)
-        logger.debug('%s %s', f"{file_060_directory.name}/snapped.shp",
-                     os.stat(f"{file_060_directory.name}/snapped.shp").st_size)
-        logger.debug('%s %s', file_070_watershed.name,
-                     os.stat(file_070_watershed.name).st_size)
-        logger.debug('------------------------------------------------')
+        file_030_fdr,
+        file_060_snapped,
+        file_070_watershed, esri_pntr=False, callback=wbt_suppress_progress_output)
 
     start = time.perf_counter()
-
-    # set up GDAL settings for reading the Watershed output raster
-    # and converting it to a polygon.
-    sourceRaster = gdal.Open(file_070_watershed.name)
-    band = sourceRaster.GetRasterBand(1)
-    bandArray = band.ReadAsArray()
-    driver = ogr.GetDriverByName("ESRI Shapefile")
-    outDatasource = driver.CreateDataSource(
-        f"{file_080_directory.name}/watershed_result.shp")
-    outLayer = outDatasource.CreateLayer("watershed", srs=None)
-    gdal.Polygonize(band, band, outLayer, -1, [], callback=None)
-    outDatasource.Destroy()
-    sourceRaster = None
-
+    gdal_raster_to_polygon(file_070_watershed, file_080_watershed_vector)
     elapsed = (time.perf_counter() - start)
 
     logger.debug('VECTORIZING TOOK %s', elapsed)
 
-    with fiona.open(f"{file_080_directory.name}/watershed_result.shp", 'r', 'ESRI Shapefile') as ws_result:
+    with fiona.open(file_080_watershed_vector, 'r', 'ESRI Shapefile') as ws_result:
 
         watershed_result = None
         ws_result_list = None
@@ -728,3 +668,33 @@ def wbt_calculate_watershed(
         watershed_result = MultiPolygon(ws_result_list)
 
     return (watershed_result, snapped_pt)
+
+
+def gdal_raster_to_polygon(in_file, out_file):
+    """
+    use GDAL Polygonize to convert a raster watershed to a vector watershed.
+    Will write to `out_file`.  Use `fiona.open(outfile, 'r', 'ESRI Shapefile')`
+    to read from outfile into Python.
+    """
+    # set up GDAL settings for reading the Watershed output raster
+    # and converting it to a polygon.
+    try:
+        # Read in the raster with the watershed.
+        # the watershed is always in band 1.
+        sourceRaster = gdal.Open(in_file)
+        band = sourceRaster.GetRasterBand(1)
+        bandArray = band.ReadAsArray()
+
+        # create a shapefile with a layer for our watershed.
+        driver = ogr.GetDriverByName("ESRI Shapefile")
+        outDatasource = driver.CreateDataSource(out_file)
+        outLayer = outDatasource.CreateLayer("watershed", srs=None)
+
+        # write polygon to the output layer in `out_file`
+        gdal.Polygonize(band, band, outLayer, -1, [], callback=None)
+
+        # clean up
+        outDatasource.Destroy()
+        sourceRaster = None
+    except:
+        raise Exception("unable to convert from raster watershed to vector watershed")

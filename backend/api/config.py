@@ -58,12 +58,7 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
-
-WALLY_DATA_DIR = os.getenv(
-    "WALLY_DATA_DIR", "/app/fixtures/")
-
-RASTER_FILE_DIR = f"{WALLY_DATA_DIR}/rasters/"
-
+RASTER_FILE_DIR = 'raster'
 # Use Pydantic's settings management
 
 
