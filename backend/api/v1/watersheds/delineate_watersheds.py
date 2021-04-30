@@ -62,6 +62,7 @@ wbt = WhiteboxTools()
 wbt.set_whitebox_dir('/usr/local/bin/')
 CDEM_FILE = f"{RASTER_FILE_DIR}/Burned_CDEM_4326.tif"
 SRTM_FILE = f"{RASTER_FILE_DIR}/Burned_SRTM_3005.tif"
+COGS_FILE = f"rasters/optimized.tif"
 
 
 def augment_dem_watershed_with_fwa(
@@ -452,7 +453,8 @@ def get_watershed_using_dem(db: Session, point: Point, watershed_id, dem_source=
         else:
             snap_distance *= 2
             logger.info(
-                '-- watershed less than 1%% of the upstream area overestimate, trying again with a larger snap point radius: %s', snap_distance)
+                '-- watershed less than 1%% of the upstream area overestimate, trying again with a larger snap point radius: %s',
+                snap_distance)
 
     if dem_source == 'srtm':
         return (transform(transform_3005_4326, result), transform(transform_3005_4326, snapped_point))
@@ -538,8 +540,9 @@ def wbt_calculate_watershed(
             logger.debug(value)
 
     file_000_extent = TemporaryDirectory()
-    file_010_dem = NamedTemporaryFile(
-        suffix='.tif', prefix="010_dem_")
+    # file_010_dem = NamedTemporaryFile(
+    #     suffix='.tif', prefix="010_dem_")
+    file_010_dem = TemporaryDirectory()
     file_020_dem_filled = NamedTemporaryFile(
         suffix='.tif', prefix='020_filled_')
     file_030_fdr = NamedTemporaryFile(
@@ -559,21 +562,45 @@ def wbt_calculate_watershed(
         'geometry': 'Polygon',
         'properties': {'id': 'int'},
     }
+    bnds = watershed_area.bounds
+    logger.info('---------------------')
+    logger.info(f'{bnds[0]} {bnds[3]} {bnds[2]} {bnds[1]}')
+    logger.info('---------------------')
+
+    start = time.perf_counter()
 
     # Write a new Shapefile with the envelope.
-    with fiona.open(f"{file_000_extent.name}/extent.shp", 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
-        c.write({
-            'geometry': mapping(watershed_area.envelope),
-            'properties': {'id': 123},
-        })
-        extent_shp_file = c.name
+    # with fiona.open(f"{file_000_extent.name}/extent.shp", 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
+    #     c.write({
+    #         'geometry': mapping(watershed_area.envelope),
+    #         'properties': {'id': 123},
+    #     })
+    #     extent_shp_file = c.name
 
-    gdal.Warp(
-        destNameOrDestDS=file_010_dem.name,
-        srcDSOrSrcDSTab=dem_file,
-        cutlineDSName=f"{file_000_extent.name}/{extent_shp_file}.shp",
-        cropToCutline=True
-    )
+    prjwin = f"-projwin {bnds[0]} {bnds[3]} {bnds[2]} {bnds[1]}"
+    options_list = [
+        '-of GTiff',
+        '-projwin_srs EPSG:4326',
+        prjwin
+    ]
+    options_string = " ".join(options_list)
+
+    gdal.Translate(f'{file_010_dem.name}/dem.tif',
+                   '/vsicurl/http://minio:9000/rasters/optimized.tif',
+                   options=options_string)
+
+    # gdal.Warp(
+    #     destNameOrDestDS=file_010_dem.name,
+    #     srcDSOrSrcDSTab=dem_file,
+    #     cutlineDSName=f"{file_000_extent.name}/{extent_shp_file}.shp",
+    #     cropToCutline=True
+    # )
+
+    elapsed = (time.perf_counter() - start)
+
+    logger.info('---------------------------')
+    logger.info('CLIPPING TOOK %s', elapsed)
+    logger.info('---------------------------')
 
     # use either BreachDepressionsLeastCost or BreachDepressions, not both.
     # Author recommends BreachDepressionsLeastCost but worth testing both.
@@ -588,7 +615,7 @@ def wbt_calculate_watershed(
 
     # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressions
     wbt.breach_depressions(
-        file_010_dem.name,
+        f'{file_010_dem.name}/dem.tif',
         file_020_dem_filled.name,
         callback=wbt_suppress_progress_output
     )
@@ -656,8 +683,8 @@ def wbt_calculate_watershed(
     # file statistics
     if WATERSHED_DEBUG:
         logger.debug('-------Watershed analysis file statistics-------')
-        logger.debug('%s %s', file_010_dem.name,
-                     os.stat(file_010_dem.name).st_size)
+        logger.debug('%s %s', f'{file_010_dem.name}/dem.tif',
+                     os.stat(f'{file_010_dem.name}/dem.tif').st_size)
         logger.debug('%s %s', file_020_dem_filled.name,
                      os.stat(file_020_dem_filled.name).st_size)
         logger.debug('%s %s', file_030_fdr.name,
