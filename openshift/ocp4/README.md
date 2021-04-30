@@ -145,18 +145,87 @@ These files need to be uploaded to Minio:
 
 The following needs to be done for both staging and prod.
 
+
+### Layer data
+
+Most layer data (e.g. point of interest, polygon search etc) pull directly from DataBC except for the following
+* First Nations treaty areas
+* First Nations communities
+* First Nations treaty lands
+
+
+```sh
+# job to automatically download and store on Minio
+oc process -f wfs.job.yaml -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f wfs.job.yaml -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f wfs.job.yaml -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+# job to load into Postgres
+oc process -f import.job.yaml -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f import.job.yaml -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-staging:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+```
+
 ### Freshwater Atlas
 Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
 
+**Warning:**
+Loading data will create very large log files in `/pgdata/userdata/pg_log`. They can/should be removed.
+Be careful that they don't fill up the disk.
+TODO:  investigate turning down statement logging while loading data.
+
 ```sh
-oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds -p SCRIPT_PATH=/dataload/fwa.sh | oc apply -f -
-oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks -p SCRIPT_PATH=/dataload/fwa.sh | oc apply -f -
+# fwa watersheds
+# requires freshwater_atlas_watersheds.zip (containing freshwater_atlas_watersheds.gdb). See above for instructions.
+oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_watersheds \
+   -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
+
+# fwa stream networks
+# requires freshwater_atlas_stream_networks.zip (containing freshwater_atlas_stream_networks.gdb).  See above.
+oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks \
+ -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc4 apply -f -
 ```
 
 ### Raster data
 
 ```sh
+# prism
+# requires raster/prism_pr.asc and raster/prism_pr.prj in Minio storage
 oc4 process -f prism.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000  | oc apply -f -
+
+# CDEM
+# requires raster/BC_Area_CDEM.tif in Minio storage
 oc4 process -f cdem.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
+
+# Hydat
+# downloads its own data, but the link has to be updated for new HYDAT versions (approximately quarterly). See wally/imports/hydat/load_hydat.sh
 oc4 process -f hydat.job.yaml -p ENV_NAME=staging | oc apply -f -
+```
+
+### Prod data
+This is an abbreviated version of the above for PROD.  Refer to the above for instructions. The same files need
+to be on Minio in the prod namespace.
+```sh
+oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=production -p LAYER_NAME=freshwater_atlas_watersheds \
+   -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
+
+oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=production -p LAYER_NAME=freshwater_atlas_stream_networks \
+ -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc4 apply -f -
+
+oc4 process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000  | oc apply -f -
+oc4 process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
+oc4 process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
+
+
+# Download FN data
+oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+# Load FN data
+oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
+oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
+oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+
 ```
