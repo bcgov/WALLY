@@ -221,8 +221,6 @@ objects:
             mountPath: /app/.log/
           - name: wally-config
             mountPath: /app/.config/
-          - mountPath: /waterdata
-            name: wally-data
         - name: promtail
           image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/promtail:v1.3.0
           args:
@@ -252,9 +250,6 @@ objects:
         - name: wally-config
           configMap:
             name: wally-config
-        - name: wally-data
-          persistentVolumeClaim:
-            claimName: wally-${NAME}-data
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
