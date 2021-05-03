@@ -4,14 +4,17 @@ import bcgov.GitHubHelper
 
 // Notify stage status and pass to Jenkins-GitHub library
 void notifyStageStatus (String name, String status) {
-    // GitHubHelper.createCommitStatus(
-    //     this,
-    //     sh(returnStdout: true, script: 'git rev-parse HEAD'), // this is the most recent commit ID
-    //     status,
-    //     "${BUILD_URL}",
-    //     "Stage: ${name}",
-    //     "${name}"
-    // )
+    if (JOB_BASE_NAME != 'master') {
+      GitHubHelper.createCommitStatus(
+          this,
+          GitHubHelper.getPullRequestLastCommitId(this),
+          status,
+          "${BUILD_URL}",
+          "Stage '${name}'",
+          "${name}"
+      )
+    }
+
 }
 
 // this is commented out because the new version of GitHubHelper doesn't support creating deployments this way!
@@ -109,7 +112,7 @@ pipeline {
       steps {
         script {
           // checkout git repo with tags
-          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+          git url: GIT_REPO, credentialsId: 'github-account', branch: env.JOB_BASE_NAME
           echo "Cancelling previous builds..."
           timeout(10) {
               abortAllPreviousBuildInProgress(currentBuild)
@@ -190,6 +193,7 @@ pipeline {
         script {
           def project = DEV_PROJECT
           def host = "wally-${NAME}.apps.silver.devops.gov.bc.ca"
+          def env_name = "dev"
           def ref = "pull/${CHANGE_ID}/head"
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
@@ -215,7 +219,13 @@ pipeline {
                   "NAMESPACE=${project}"
                 ))
 
-                // placeholder for Minio deployment
+                // apply minio application template
+                def minio = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/minio/minio.dc.yaml",
+                    "NAME_SUFFIX=-${NAME}",
+                    "DEST_PVC_SIZE=1Gi",
+                    "HOSTNAME=wally-minio-${NAME}.apps.silver.devops.gov.bc.ca"
+                ))
 
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
                 def database = openshift.apply(openshift.process("-f",
@@ -261,6 +271,7 @@ pipeline {
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
+                minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
@@ -294,13 +305,10 @@ pipeline {
                         containerTemplate(
                             name: 'jnlp',
                             image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest',
-                            imagePullPolicy: 'Always',
                             resourceRequestCpu: '500m',
                             resourceLimitCpu: '800m',
                             resourceRequestMemory: '512Mi',
                             resourceLimitMemory: '1Gi',
-                            activeDeadlineSeconds: '600',
-                            podRetention: 'never',
                             workingDir: '/tmp',
                             command: '',
                             args: '${computer.jnlpmac} ${computer.name}',
@@ -363,6 +371,13 @@ pipeline {
                                   -e auth_pass=$AUTH_PASS \
                                   -e auth_url=$AUTH_HOST \
                                   -e auth_id=$CLIENT_ID \
+                                  -e auth_secret=$CLIENT_SECRET &&
+                                  apitest -f watersheds.apitest.yaml \
+                                  -e host=$BASE_URL \
+                                  -e auth_user=$AUTH_USER \
+                                  -e auth_pass=$AUTH_PASS \
+                                  -e auth_url=$AUTH_HOST \
+                                  -e auth_id=$CLIENT_ID \
                                   -e auth_secret=$CLIENT_SECRET
                                   """
                                 }
@@ -383,12 +398,12 @@ pipeline {
       }
       steps {
         script {
-          git url: GIT_REPO, credentialsId: 'wally-github-token', branch: env.JOB_BASE_NAME
+          git url: GIT_REPO, credentialsId: 'github-account', branch: env.JOB_BASE_NAME
           // Get full describe info including # of commits & last commit hash
           def git_tag = sh(returnStdout: true, script: 'git describe').trim()
           def project = TEST_PROJECT
           def env_name = "staging"
-          def host = "wally-staging.apps.silver.gov.bc.ca"
+          def host = "wally-staging.apps.silver.devops.gov.bc.ca"
           def ref = "refs/heads/master"
           openshift.withCluster() {
             openshift.withProject(project) {
@@ -409,7 +424,13 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                // placeholder for Minio deployment
+                // apply minio application template
+                def minio = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/minio/minio.dc.yaml",
+                    "NAME_SUFFIX=-${env_name}",
+                    "DEST_PVC_SIZE=10Gi",
+                    "HOSTNAME=wally-minio-${env_name}.apps.silver.devops.gov.bc.ca"
+                ))
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
@@ -445,7 +466,9 @@ pipeline {
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "WALLY_DATA_DIR=/waterdata",
+                  "STORAGE_CAPACITY=5Gi"
                 ))
                 
                 echo "Deploying to a dev environment"
@@ -456,6 +479,7 @@ pipeline {
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
+                minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()
@@ -516,7 +540,13 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                // placeholder for Minio deployment
+                // apply minio application template
+                def minio = openshift.apply(openshift.process("-f",
+                    "${TEMPLATE_DIR}/minio/minio.dc.yaml",
+                    "NAME_SUFFIX=-${env_name}",
+                    "DEST_PVC_SIZE=10Gi",
+                    "HOSTNAME=wally-minio.apps.silver.devops.gov.bc.ca"
+                ))
 
                 // Process postgres deployment config (sub in vars, create list items)
                 echo "Processing database deployment (using folder ${TEMPLATE_DIR}"
@@ -542,7 +572,9 @@ pipeline {
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
                   "WALLY_VERSION=${git_tag}",
-                  "REPLICAS=2"
+                  "REPLICAS=2",
+                  "WALLY_DATA_DIR=/waterdata",
+                  "STORAGE_CAPACITY=5Gi"
                 ))
 
                 def gatekeeper = openshift.apply(openshift.process("-f",
@@ -562,6 +594,7 @@ pipeline {
 
                 // wait for any deployments to finish updating.
                 frontend.narrow('dc').rollout().status()
+                minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
                 gatekeeper.narrow('dc').rollout().status()

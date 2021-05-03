@@ -135,7 +135,7 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
-
+import qs from 'querystring'
 import Dialog from '../../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
@@ -158,7 +158,7 @@ export default {
     WatershedIndividualLicences,
     Dialog
   },
-  props: ['watershedID'],
+  props: ['watershedID', 'generatedWatershedID'],
   data: () => ({
     licencesLoading: false,
     licenceData: null,
@@ -261,7 +261,10 @@ export default {
     },
     fetchDemandData () {
       this.licencesLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences?${qs.stringify(params)}`)
         .then(r => {
           this.licenceData = r.data
           const max = Math.max(...r.data.licences.features.map(x => Number(x.properties.qty_m3_yr)))

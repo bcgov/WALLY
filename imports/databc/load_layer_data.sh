@@ -13,7 +13,7 @@
 set -e
 cd /dataload
 echo "Setting up Minio host"
-./mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+./mc --config-dir=./.mc config host add minio "$MINIO_HOST_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 echo "Copying layer from Minio storage..."
 ./mc --config-dir=./.mc cp "minio/geojson/$1.zip" "./"

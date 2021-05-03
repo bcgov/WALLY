@@ -35,7 +35,8 @@ class FreshwaterAtlasStreamNetworks(BaseLayerTable):
     FEATURE_LENGTH_M = Column(Float(53))
     GEOMETRY_LEN = Column('GEOMETRY.LEN', Integer)
     fme_feature_type = Column(String)
-    GEOMETRY = Column(Geometry(srid=4326), index=True)
+    GEOMETRY = Column(
+        Geometry(geometry_type='MultiLineStringZ', srid=4326), index=True)
 
     def row2dict(self):
         d = {}

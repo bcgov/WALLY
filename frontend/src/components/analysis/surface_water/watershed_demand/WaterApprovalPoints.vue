@@ -75,7 +75,7 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
-
+import qs from 'querystring'
 import Dialog from '../../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
@@ -97,7 +97,7 @@ export default {
     ShortTermMonthlyAllocationTable,
     Dialog
   },
-  props: ['watershedID'],
+  props: ['watershedID', 'generatedWatershedID'],
   data: () => ({
     approvalsLoading: false,
     shortTermLicenceData: null,
@@ -195,7 +195,10 @@ export default {
     },
     fetchShortTermLicenceData () {
       this.approvalsLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/approvals`)
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/approvals?${qs.stringify(params)}`)
         .then(r => {
           this.shortTermLicenceData = r.data
           const max = Math.max(...r.data.approvals.features.map(x => Number(x.properties.qty_m3_yr)))

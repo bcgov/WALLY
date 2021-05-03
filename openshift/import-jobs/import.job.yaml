@@ -16,6 +16,10 @@ parameters:
   name: JOB_NAME
   required: true
   value: dataload
+- name: SCRIPT_PATH
+  value: /dataload/load_layer_data.sh
+- name: MINIO_HOST_URL
+  value: "http://minio:9000"
 objects:
   - apiVersion: batch/v1
     kind: Job
@@ -35,8 +39,8 @@ objects:
         spec:
           containers:
           - name: importer
-            image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
-            command: ['/dataload/load_layer_data.sh']
+            image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-importer:latest
+            command: ['${SCRIPT_PATH}']
             args: ['${LAYER_NAME}']
             resources:
               requests:
@@ -72,5 +76,7 @@ objects:
                   key: minioSecretKey
                   name: minio
             - name: POSTGRES_SERVER
-              value: wally-psql-master-${ENV_NAME}
+              value: wally-psql-${ENV_NAME}
+            - name: MINIO_HOST_URL
+              value: "${MINIO_HOST_URL}"
           restartPolicy: Never

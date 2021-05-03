@@ -24,9 +24,10 @@ WALLY_ENV = os.getenv("WALLY_ENV", ENV_DEV)
 
 SERVER_NAME = os.getenv("SERVER_NAME")
 SERVER_HOST = os.getenv("SERVER_HOST")
-BACKEND_CORS_ORIGINS = os.getenv(
-    "BACKEND_CORS_ORIGINS"
-)  # a string of origins separated by commas, e.g: "http://localhost, http://localhost:4200, http://localhost:3000, http://localhost:8080"
+
+# a string of origins separated by commas
+# e.g: "http://localhost, http://localhost:4200, http://localhost:3000, http://localhost:8080"
+BACKEND_CORS_ORIGINS = os.getenv("BACKEND_CORS_ORIGINS")
 PROJECT_NAME = "Wally"
 SENTRY_DSN = os.getenv("SENTRY_DSN")
 
@@ -56,10 +57,11 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
 MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
 
-WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", False)
-
-
+WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
+RASTER_FILE_DIR = 'raster'
 # Use Pydantic's settings management
+
+
 class Settings(BaseSettings):
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""
@@ -72,6 +74,12 @@ class Settings(BaseSettings):
     projects = False
     saved_analysis = False
     hydraulic_connectivity_custom_stream_points = False
+
+    # allow users to select upstream catchment area delineation method.
+    # default is False; WALLY will default to DEM+FWA which should be the best
+    # estimate in all cases.  Other options are mostly for debugging intermediate steps.
+    # see api/v1/watersheds/delineate_watershed.py for more info.
+    surface_water_debug_upstream_method = False
 
     # Keep this set to true, we need to retire the old design
     surface_water_design_v2 = True

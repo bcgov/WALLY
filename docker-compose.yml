@@ -3,6 +3,7 @@ services:
   backend:
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev
       args:
         env: dev
     networks:
@@ -26,12 +27,13 @@ services:
       COMMON_DOCGEN_CLIENT_SECRET: "${COMMON_DOCGEN_CLIENT_SECRET}"
       COMMON_DOCGEN_SSO_ENDPOINT: "${COMMON_DOCGEN_SSO_ENDPOINT}"
       COMMON_DOCGEN_ENDPOINT: "${COMMON_DOCGEN_ENDPOINT}"
-      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
-      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
-      MINIO_HOST_URL: "${MINIO_HOST_URL}"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-minio}" # default to the minio service defined below.
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-minio123}" 
+      MINIO_HOST_URL: "${MINIO_HOST_URL:-minio:9000}"
+      GDAL_DATA: /usr/share/gdal/
     ports:
       - '8000:8000'
-    depends_on: 
+    depends_on:
       - db
   db:
     image: crunchydata/crunchy-postgres-gis:centos8-13.2-3.0-4.6.2
@@ -45,5 +47,37 @@ services:
         consistency: cached
     ports:
       - '5432:5432'
+  tileserv:
+    hostname: tileserv
+    depends_on:
+      - db
+    image: pramsey/pg_tileserv:latest
+    environment:
+      DATABASE_URL: postgres://ftw_reader:test_pw@db:5432/wally
+    ports:
+      - "7800:7800"
+    entrypoint: sh -c "sleep 10; /app/pg_tileserv"
+  minio:
+    image: minio/minio:RELEASE.2021-04-22T15-44-28Z
+    volumes:
+      - minio-volume:/data:z
+      - type: bind
+        source: ./scripts/minio-dev.sh
+        target: /mnt/minio-dev.sh
+        consistency: cached
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    entrypoint: /mnt/minio-dev.sh
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+  
 volumes:
   pgdata-volume:
+  minio-volume:

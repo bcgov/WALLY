@@ -4,7 +4,7 @@ import json
 from shapely.geometry import shape
 import shapely.geometry
 from api.db.session import db_session
-
+from api.minio.client import s3_upload_file
 from api.v1.hydat.factory import StationFactory
 # Need imports from api.layers even though linter says they are unused
 from api.layers.water_rights_licences import WaterRightsLicenses
@@ -41,6 +41,14 @@ def create_hydat_data():
             f"Adding stream station {stn.station_number} - {stn.station_name}")
         db_session.add(stn)
     db_session.commit()
+
+
+def load_dev_raster_data():
+    """ load raster data for dev envs """
+    directory = '/app/fixtures/raster/'
+    for filename in os.listdir(directory):
+        if filename.endswith(".tif"):
+            s3_upload_file(filename, os.path.join(directory, filename), "image/geotiff", "raster")
 
 
 def load_dev_data():
@@ -104,6 +112,8 @@ def main():
     create_hydat_data()
     load_dev_data()
     logger.info("Initial data created")
+    load_dev_raster_data()
+    logger.info("Raster data loaded")
 
     logger.info(
         "refreshing materialized views (cached list of features and locations)")

@@ -9,15 +9,26 @@ import geojson
 import json
 import math
 import re
-from typing import Tuple, List
-from urllib.parse import urlencode
+import os
+import uuid
+import rasterio
+import fiona
+import time
+import sqlalchemy as sa
+from geoalchemy2.elements import WKTElement
+from shapely import wkt, wkb
+from rasterio.features import shapes
+from tempfile import NamedTemporaryFile, TemporaryDirectory
+from typing import Tuple, List, Optional
+from urllib.parse import urlencode, unquote
 from geojson import FeatureCollection, Feature
 from operator import add
+from osgeo import gdal, ogr, osr
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
-from shapely.ops import transform
+from shapely.ops import transform, unary_union
 from starlette.responses import Response
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, update, insert, select
 from fastapi import HTTPException
 from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
 
@@ -28,10 +39,28 @@ from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNet
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
+from api.v1.streams.controller import get_nearest_streams
+from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
 from api.v1.watersheds.prism import mean_annual_precipitation
 from api.v1.watersheds.cdem import CDEM
+from api.v1.watersheds.schema import (
+    LicenceDetails,
+    SurficialGeologyDetails,
+    FishObservationsDetails,
+    WaterApprovalDetails,
+    WatershedDataWarning,
+    GeneratedWatershedDetails
+)
+from api.v1.watersheds.delineate_watersheds import (
+    augment_dem_watershed_with_fwa,
+    get_full_stream_catchment_area,
+    get_cross_border_catchment_area,
+    get_upstream_catchment_area,
+    get_watershed_using_dem,
+    wbt_calculate_watershed,
+    watershed_touches_border
+)
 
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
 
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 
@@ -353,107 +382,181 @@ def surface_water_approval_points(polygon: Polygon):
     )
 
 
-def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
-    """ returns the union of all FWA watershed polygons upstream from
-        the watershed polygon with WATERSHED_FEATURE_ID as a Feature
-
-        Two methods are used:
-
-        1. calculate_upstream_catchment_starting_upstream
-        This method includes only polygons that start upstream from the base polygon indicated
-        by `watershed_feature_id`. This prevents collecting too many polygons around the starting
-        point and traveling up the next downstream tributary. However, this has the effect
-        of not including the "starting" polygon, and may not work near the headwater of streams.
-
-        The first method (marked with "starting_upstream") can optionally include a polygon by its
-        WATERSHED_FEATURE_ID. This is used to include the starting polygon in the collection, without
-        collecting additional polygons that feed into it.
-
-        2. If no records are returned, the second method, which collects all polygons upstream from
-        the closest downstream tributary, is used.
-
-        See https://www2.gov.bc.ca/assets/gov/data/geographic/topography/fwa/fwa_user_guide.pdf
-        for more info.
-    """
-    if WATERSHED_DEBUG:
-        logger.info("Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
-
-    q = """
-        select ST_AsGeojson(
-            coalesce(
-                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment_starting_upstream(:watershed_feature_id, :include)),
-                (SELECT ST_Union(geom) as geom from calculate_upstream_catchment(:watershed_feature_id))
-            )
-        ) as geom """
-
-    res = db.execute(q, {"watershed_feature_id": watershed_feature_id,
-                         "include": watershed_feature_id if include_self else None})
-
-    if WATERSHED_DEBUG:
-        logger.info("Upstream catchment query finished %s", res)
-
-    record = res.fetchone()
-
-    if WATERSHED_DEBUG:
-        logger.info("Upstream catchment record %s", record)
-
-    if not record or not record[0]:
-        logger.warning(
-            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
-        return None
-
-    feature = Feature(
-        geometry=shape(
-            geojson.loads(record[0])
-        ),
-        id=f"generated.{watershed_feature_id}",
-        properties={
-            "name": "Estimated catchment area",
-            "watershed_source": "Estimated by combining Freshwater Atlas watershed polygons that are " +
-            "determined to be upstream of the point of interest based on their FWA_WATERSHED_CODE " +
-            "and LOCAL_WATERSHED_CODE properties."
-        }
-    )
-    if WATERSHED_DEBUG:
-        logger.info("Generated watershed feature %s", feature)
-
-    return feature
-
-
 def calculate_watershed(
     db: Session,
-    point: Point,
-    include_self: bool
-):
-    """ calculates watershed area upstream of a POI """
+    user,
+    click_point: Point = None,
+    watershed_id: int = None,
+    include_self: bool = False,
+    upstream_method='DEM+FWA',
+    dem_source='cdem'
+) -> GeneratedWatershedDetails:
+    """ estimates the watershed area upstream of a POI and returns a GeneratedWatershedDetails object.
+
+        It uses one of several methods to estimate the upstream area, described below.
+
+        Optional arguments:
+        upstream_method: 'FWA+FULLSTREAM', 'FWA+UPSTREAM', 'DEM', or 'DEM+FWA'.
+            FWA+FULLSTREAM: Use the Freshwater Atlas to return the catchment area of the entire
+                        selected stream.
+            FWA+UPSTREAM: Estimate the upstream catchment area using only the Freshwater Atlas.
+                 This will be accurate to the FWA linework around the outer perimeter
+                 but will over or under-estimate the area around the point of interest (because
+                 the watershed polygons forming the catchment area will not be split, even if
+                 the point of interest is in the middle of a polygon)
+
+            DEM: Use the DEM (Digital Elevation Model) to delineate the catchment.
+                 WhiteboxTools is used. See `get_watershed_using_dem` for more info.
+                 This is more accurate around the point of interest but the outer reaches
+                 are less smooth than the FWA linework and may slightly under or overestimate
+                 around the outer perimeter of the watershed.
+
+            DEM+FWA: Attempt to combine both the DEM and FWA methods by using the DEM close
+                     to the point of interest, and the FWA around the outer perimeter. This
+                     is the default.
+    """
+    start = time.perf_counter()
+    warnings = []
+
+    if click_point and watershed_id:
+        raise ValueError(
+            "Do not provide both point and watershed_id at the same time")
+
+    if not click_point and not watershed_id:
+        raise ValueError(
+            "Must provide either a starting point (lat, long) or a starting watershed ID")
+
+    if watershed_id and not upstream_method.startswith("FWA"):
+        raise ValueError(
+            f"Starting watershed ID incompatible with {upstream_method}. Use only FWA methods.")
+
     if WATERSHED_DEBUG:
         logger.info("calculating watershed")
 
-    q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
-        func.ST_Contains(
-            FreshwaterAtlasWatersheds.GEOMETRY,
-            func.ST_GeomFromText(point.wkt, 4326)
+    stream_name = ''
+    point_on_stream = None
+
+    if click_point:
+        # move the click point to the nearest stream based on the FWA Stream Networks.
+        # this will make it easier to snap the point to the Flow Accumulation raster
+        # we will generate.
+        nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
+        nearest_stream_point = nearest_stream.get('closest_stream_point')
+        stream_name = nearest_stream.get('gnis_name', '')
+        point_on_stream = shape(nearest_stream_point)
+
+        stream_distance = transform(
+            transform_4326_3005, point_on_stream
+        ).distance(
+            transform(transform_4326_3005, click_point))
+
+        if WATERSHED_DEBUG:
+            logger.info('--------- nearest stream -------------')
+            logger.info(click_point)
+            logger.info('distance: %s', stream_distance)
+            logger.info('--------------------------------------')
+
+        stream_distance_warning_threshold = 500
+
+        if stream_distance > stream_distance_warning_threshold:
+            point_not_on_stream_warning = WatershedDataWarning(
+                message=f"This point is more than {stream_distance_warning_threshold} m from the nearest stream" +
+                " (based on Freshwater Atlas stream mapping)." +
+                " WALLY's Surface Water Analysis is applicable to points of interest along streams." +
+                " If you believe this is an error, please contact the WALLY team."
+            )
+            warnings.append(point_not_on_stream_warning)
+
+        # get the ID of the watershed we are starting in.
+        # this will be used later to help with queries against the fundamental watersheds.
+        q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
+            func.ST_Contains(
+                FreshwaterAtlasWatersheds.GEOMETRY,
+                func.ST_GeomFromText(
+                    point_on_stream.wkt, 4326)
+            )
         )
-    )
 
-    if WATERSHED_DEBUG:
-        logger.info("watershed query %s", q)
-
-    watershed_id = q.first()
+        watershed_id = q.first()
+        if not watershed_id:
+            if WATERSHED_DEBUG:
+                logger.warning("No watershed found")
+            return None
+        watershed_id = watershed_id[0]
 
     if WATERSHED_DEBUG:
         logger.info("watershed id %s", watershed_id)
 
-    if not watershed_id:
-        if WATERSHED_DEBUG:
-            logger.warning("No watershed found")
-        return None
+    watershed_point = None
+    watershed = None
 
-    watershed_id = watershed_id[0]
+    # declare some variables that will be used for watershed metadata.
+    dem_error = None
+    is_near_border = bool(len(watershed_touches_border(db, watershed_id)))
 
-    feature = get_upstream_catchment_area(
-        db, watershed_id, include_self=include_self)
+    # the location of point after correcting/snapping to a stream.
+    # This means either snapping to a vector FWA stream or using a SnapPourPoint
+    # routine (SnapPourPoints or JensonSnapPourPoints).  If both, this value
+    # will be from the SnapPourPoint routine since that will be done after
+    # moving the point to a stream.
+    snapped_point = point_on_stream or click_point
 
+    # choose method based on function argument.
+    if upstream_method.startswith('DEM'):
+        # estimate the watershed using the DEM
+        (watershed, snapped_point) = get_watershed_using_dem(
+            db, point_on_stream, watershed_id)
+        watershed_source = "Estimated using CDEM and WhiteboxTools."
+        generated_method = 'generated_dem'
+        watershed_point = base64.urlsafe_b64encode(
+            point_on_stream.wkb).decode('utf-8')
+
+        # ensure that we stop here if the watershed touches a border.
+        if upstream_method == 'DEM+FWA' and is_near_border:
+            no_cross_border_fwa_warning = WatershedDataWarning(
+                message=f"This watershed was delineated from a DEM without using the Freshwater Atlas" +
+                " because it is close to or crosses a boundary with another jurisdiction where FWA data" +
+                " is not available. Please verify estimated watershed boundary."
+            )
+            warnings.append(no_cross_border_fwa_warning)
+
+        # optionally augment the watershed using the FWA.
+        elif upstream_method == 'DEM+FWA':
+            (watershed, dem_error) = augment_dem_watershed_with_fwa(
+                db, watershed, watershed_id, point_on_stream)
+            watershed_source = "Estimated by combining the result from CDEM/WhiteboxTools " + \
+                               "with Freshwater Atlas fundamental watershed polygons."
+            generated_method = 'generated_dem_fwa'
+
+    elif upstream_method == 'FWA+UPSTREAM':
+        watershed = get_upstream_catchment_area(db, watershed_id)
+        watershed_source = "Estimated by combining Freshwater Atlas watershed polygons that are " + \
+            "determined to be part of the selected stream based on FWA_WATERSHED_CODE and upstream " + \
+            "of the selected point based on LOCAL_WATERSHED_CODE. Note: the watershed polygon " + \
+            "containing the selected point is included."
+        generated_method = 'generated'
+        watershed_point = watershed_id
+
+    elif upstream_method == 'FWA+FULLSTREAM':
+        watershed = get_upstream_catchment_area(db, watershed_id)
+        watershed_source = "Estimated by combining Freshwater Atlas watershed polygons that are " + \
+            "determined to be part of the selected stream based on FWA_WATERSHED_CODE."
+        generated_method = 'generated_full_stream'
+        watershed_point = watershed_id
+
+    else:
+        raise ValueError(
+            f"Invalid method {upstream_method}. Valid methods are DEM, DEM+FWA, FWA+UPSTREAM, FWA+FULLSTREAM")
+
+    feature = Feature(
+        geometry=watershed,
+        id=f"{generated_method}.{watershed_point}",
+        properties={
+            "name": f"Estimated catchment area {f'({stream_name})' if stream_name else ''}",
+            "watershed_source": watershed_source,
+            "stream_name": stream_name
+        }
+    )
     if not feature:
         # was not able to calculate a watershed with the provided params.
         # return None; the calling function will skip this calculated watershed
@@ -465,7 +568,26 @@ def calculate_watershed(
     feature.properties['FEATURE_AREA_SQM'] = transform(
         transform_4326_3005, shape(feature.geometry)).area
 
-    return feature
+    elapsed = (time.perf_counter() - start)
+
+    watershed_resp = GeneratedWatershedDetails(
+        warnings=warnings,
+        watershed=feature,
+        click_point=click_point.wkt,
+        snapped_point=snapped_point.wkt,
+        dem_source=dem_source,
+        from_cache=False,
+        fwa_watershed_id=watershed_id,
+        wally_watershed_id=f"{generated_method}.{watershed_point}",
+        upstream_method=generated_method,
+        is_near_border=is_near_border,
+        processing_time=elapsed,
+        dem_error=dem_error)
+
+    watershed_resp.generated_watershed_id = store_generated_watershed(
+        db, user, watershed_resp)
+
+    return watershed_resp
 
 
 def get_databc_watershed(watershed_id: str):
@@ -584,27 +706,167 @@ def surficial_geology(polygon: Polygon):
     )
 
 
-def get_watershed(db: Session, watershed_feature: str):
-    """ finds a watershed by either generating it or looking it up in DataBC watershed datasets """
+def get_cached_watershed(db: Session, generated_watershed_id):
+    """
+    Check for a cached watershed, returning a feature or None
+
+    Watersheds are cached by `generated_watershed_id`. This ensures that the
+    cached watershed is only for the watershed generated by the user during their
+    current session.  If another user is looking in the same place, or if the same
+    user starts over and places a point (in the same place or another location), they
+    will have another, separate `generated_watershed_id`.  This way there are
+    never conflicts or mixups between cached watersheds.
+
+    The `last_accessed_date` will be updated when the cached watershed is retrieved
+    so that the prune_watershed_cache trigger won't delete the record if it has been used
+    recently.
+    """
+
+    q = """
+    update      watershed_cache
+    set         last_accessed_date = now()
+    where       generated_watershed_id = :generated_watershed_id
+    returning   generated_watershed_id, watershed
+    """
+    res = db.execute(q, {"generated_watershed_id": generated_watershed_id})
+    row = res.one_or_none()
+
+    if not row:
+        return None
+
+    data = json.loads(row['watershed'])
+    feat = data.pop('watershed')
+    geom = shape(feat.pop('geometry'))
+
+    # at the time we inserted the json representation of the cached watershed,
+    # the json itself did not contain the generated watershed id. However, it was given
+    # to the generated_watershed_id column on insert.
+    # If this is confusing, we could alter to the `store_generated_watershed` SQL
+    # to update the JSON field after we are assigned the ID.
+    data['generated_watershed_id'] = row['generated_watershed_id']
+    data['watershed'] = Feature(
+        id=feat['id'], geometry=geom, properties=feat['properties'])
+
+    ws = GeneratedWatershedDetails(**data)
+    ws.from_cache = True
+    return ws
+
+
+def store_generated_watershed(db: Session, user, watershed: GeneratedWatershedDetails):
+    """
+    store generated watershed metadata, and put a copy in the temporary cache.
+    The cache is cleared by the database trigger "prune_watershed_cache".
+    Cached copies that haven't been accessed in over 1 hour are cleared on insert.
+    """
+
+    generated_watershed = insert(GeneratedWatershed) \
+        .values(
+        create_user=user.user_uuid,
+        update_user=user.user_uuid,
+        wally_watershed_id=watershed.wally_watershed_id,
+        processing_time=watershed.processing_time,
+        upstream_method=watershed.upstream_method,
+        is_near_border=watershed.is_near_border,
+        click_point=WKTElement(watershed.click_point, srid=4326),
+        snapped_point=WKTElement(watershed.snapped_point, srid=4326),
+        dem_source=watershed.dem_source,
+        dem_error=watershed.dem_error,
+        area_sqm=watershed.watershed.properties['FEATURE_AREA_SQM']
+    ) \
+        .returning(GeneratedWatershed.generated_watershed_id) \
+        .cte('generated_metadata')
+
+    q = insert(WatershedCache) \
+        .values(
+        generated_watershed_id=select(
+            [sa.column('generated_watershed_id')]).scalar_subquery().select_from(generated_watershed),
+        watershed=watershed.json()) \
+        .returning(WatershedCache.generated_watershed_id)
+
+    res = db.execute(q)
+    generated_watershed_id = res.first()[0]
+    db.commit()
+    return generated_watershed_id
+
+
+def get_watershed(
+        db: Session, user, watershed_feature: str, generated_watershed_id: Optional[int] = None) -> GeneratedWatershedDetails:
+    """
+    finds a watershed by either generating it or looking it up in cache.
+
+    `watershed_feature` (also called `wally_watershed_id` in the GeneratedWatershed model)
+    is of the format <watershed_type>.<watershed_id> where watershed type is
+    a code indicated how the watershed was generated, and watershed_id is either
+    the starting watershed_feature_id, or a base64 encoded WKT POINT feature.
+
+    Watershed types `generated` and `generated_fullstream` are upstream catchment methods
+    that use only the Freshwater Atlas. These methods need the ID of the fundamental watershed
+    polygon containing the point of interest in order to calculate the catchment area.
+    `generated_dem_fwa` and `generated_dem` involve a Digital Elevation Model (DEM) and estimate the
+    catchment area from specified point coordinates (as a base64 encoded WKT POINT).
+
+    `watershed_feature` format: <watershed_type>.<watershed_id>
+    watershed_type        | watershed_id
+    --------------        | ------------
+    generated             | starting watershed_feature_id (from FreshwaterAtlasWatersheds database model)
+    generated_fullstream  | starting watershed_feature_id
+    generated_dem_fwa     | base64-encoded WKT POINT
+    generated_dem         | base64-encoded WKT POINT
+
+    Note: this feature can also be used to look up watersheds from DataBC using the same format.
+    It used to support this, but is no longer used. If this is a requirement in the future,
+    support for it can be added to this function using by calling get_databc_watershed(watershed_feature),
+    where `watershed_feature` is of the format <databc_layer_id>.<feature_id>.
+    """
     watershed_layer = '.'.join(watershed_feature.split('.')[:-1])
     watershed_feature_id = watershed_feature.split('.')[-1:]
     watershed = None
 
     if WATERSHED_DEBUG:
-        logger.info(watershed_feature_id)
+        logger.debug("watershed_feature_id:  %s ;  generated_watershed_id:  %s",
+                     watershed_feature_id, generated_watershed_id)
+
+    # if we have this catchment's generated watershed ID, check to see if there's a cached
+    # copy.
+    # conservatively use generated_watershed_id instead of watershed_feature.
+    # this ensures a user's watershed is cached during their Surface Water session
+    # but prevents potential conflicts if the catchment functions were somehow called
+    # with different settings.
+    cached_watershed = None
+    if generated_watershed_id:
+        cached_watershed = get_cached_watershed(db, generated_watershed_id)
+
+    if cached_watershed:
+        logger.info('-- returning cached watershed from generated_watershed_id=%s',
+                    cached_watershed.generated_watershed_id)
+        return cached_watershed
 
     # if we generated this watershed, use the catchment area
     # generation function to get the shape.
     if watershed_layer == 'generated':
-        watershed = get_upstream_catchment_area(db, watershed_feature_id[0])
+        watershed_id = int(watershed_feature_id[0])
+        watershed = calculate_watershed(
+            db, user, watershed_id=watershed_id, upstream_method='FWA+UPSTREAM')
 
-    # otherwise, fetch the watershed from DataBC. The layer is encoded in the
-    # feature id.
+    elif watershed_layer == 'generated_dem_fwa':
+        logger.info(watershed_feature_id[0])
+        point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
+        watershed = calculate_watershed(
+            db, user, click_point=point, upstream_method='DEM+FWA')
+
+    elif watershed_layer == 'generated_dem':
+        point = wkb.loads(base64.urlsafe_b64decode(watershed_feature_id[0]))
+        watershed = calculate_watershed(
+            db, user, click_point=point, upstream_method='DEM')
+
+    elif watershed_layer == 'generated_full_stream':
+        watershed_id = watershed_feature_id[0]
+        watershed = calculate_watershed(
+            db, user, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
+
     else:
-        watershed = get_databc_watershed(watershed_feature)
-        watershed_poly = transform(
-            transform_3005_4326, shape(watershed.geometry))
-        watershed.geometry = mapping(watershed_poly)
+        raise HTTPException(
+            status_code=500, detail="Unable to determine type of watershed. Please contact the WALLY team.")
 
     return watershed
 

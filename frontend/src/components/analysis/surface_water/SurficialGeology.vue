@@ -31,10 +31,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import qs from 'querystring'
 import ApiService from '../../../services/ApiService'
 export default {
   name: 'SurficialGeology',
-  props: ['watershedID', 'record'],
+  props: ['watershedID', 'record', 'generatedWatershedID'],
   data: () => ({
     surficialGeologyLoading: false,
     surficialGeologyByType: [],
@@ -84,7 +85,10 @@ export default {
     },
     fetchSurficialGeology () {
       this.surficialGeologyLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/surficial_geology`)
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/surficial_geology?${qs.stringify(params)}`)
         .then(r => {
           this.surficialGeologyByType = r.data.summary_by_type
           global.config.debug && console.log('[wally] adding data to map')

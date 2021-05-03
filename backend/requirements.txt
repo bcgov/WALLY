@@ -3,7 +3,7 @@ alembic==1.0.11
 amqp==2.5.0
 astroid==2.2.5
 async-timeout==3.0.1
-asyncpg==0.18.3
+asyncpg==0.21.0
 atomicwrites==1.3.0
 attrs==19.1.0
 autopep8==1.4.4
@@ -21,6 +21,7 @@ dnspython==1.16.0
 email-validator==1.0.4
 emails==0.5.15
 fastapi==0.58.1
+Fiona==1.8.18
 GeoAlchemy2==0.6.3
 geojson==2.4.1
 gunicorn==19.9.0
@@ -45,7 +46,7 @@ pipenv==2018.11.26
 pluggy==0.12.0
 premailer==3.5.0
 psycopg2-binary==2.8.3
-py==1.8.0
+py==1.10.0
 pycodestyle==2.5.0
 pycparser==2.19
 pydantic==1.5.1
@@ -58,10 +59,12 @@ python-dotenv==0.14.0
 python-editor==1.0.4
 python-multipart==0.0.5
 pytz==2019.1
+rasterio==1.2.1
 requests==2.22.0
 six==1.12.0
 Shapely==1.6.4.post2
-SQLAlchemy==1.3.5
+SQLAlchemy==1.4.7
+SQLAlchemy-Utils==0.37.0
 starlette==0.13.4
 tenacity==5.0.4
 typed-ast==1.4.0
@@ -85,3 +88,4 @@ xgboost==1.2.0
 scikit-learn==0.23.2
 minio==6.0.0
 python-magic==0.4.18
+pygdal==2.4.0.6

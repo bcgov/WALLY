@@ -1,8 +1,14 @@
 <template>
   <div id="surfaceWater">
+    <v-row v-if="watershedLoading">
+      <v-col>
+        <div>Estimating catchment area...</div>
+        <v-progress-linear indeterminate show></v-progress-linear>
+      </v-col>
+    </v-row>
     <v-row>
       <v-col class="pb-0">
-        <v-alert type="info" dense class="mb-0" outlined dismissible>
+        <v-alert type="info" dense class="my-1" outlined dismissible>
           This modelling output has not been peer reviewed and is still considered
           experimental. Use the values generated with your own discretion.
         </v-alert>
@@ -39,24 +45,21 @@
               {{watershedSource}}
             </v-col>
           </v-row>
+          <v-row v-if="watershedWarnings.length">
+            <v-col>
+              <v-alert v-for="(w, i) in watershedWarnings" :key="`watershedWarning${i}`" type="info" dense outlined dismissible>
+                {{w.message}}
+              </v-alert>
+            </v-col>
+          </v-row>
         </v-card-text>
       </v-card>
-      <!-- TODO remove multiple watersheds dropdown at future date once confirmed to be not needed -->
-      <!-- <v-select
-        class="watershedInfo"
-        v-model="selectedWatershed"
-        :items="watershedOptions"
-        :menu-props="{ maxHeight: '400' }"
-        label="Watershed"
-        item-text="label"
-        item-value="value"
-        hint="Select from available watersheds at this location"
-      ></v-select> -->
     </v-card>
 
     <template v-if="watersheds && watersheds.length">
       <div class="watershedInfo" v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
+          <div>Gathering data for selected catchment area...</div>
           <v-progress-linear indeterminate show></v-progress-linear>
         </div>
         <div v-else>
@@ -113,7 +116,9 @@
             </v-tab-item>
             <!-- Monthly Discharge -->
             <v-tab-item>
-              <WatershedMonthlyDischarge :modelOutputs="modelOutputs"/>
+              <WatershedMonthlyDischarge
+                :modelOutputs="modelOutputs"
+                />
             </v-tab-item>
 
             <!-- Hydrometric Stations -->
@@ -127,6 +132,7 @@
             <!-- Licenced Quantity -->
             <v-tab-item>
               <WatershedLicencedQty :modelOutputs="modelOutputs"
+                                    :generatedWatershedID="generatedWatershedID"
                                     :watershedID="selectedWatershed"/>
             </v-tab-item>
 
@@ -148,6 +154,7 @@
             <!-- Known BC Fish Observations -->
             <v-tab-item>
               <FishObservations :watershedID="selectedWatershed"
+                                :generatedWatershedID="generatedWatershedID"
                                 :surface_water_design_v2="true"/>
             </v-tab-item>
 
@@ -192,14 +199,22 @@ export default {
     WatershedLicencedQty,
     SavedAnalysesCreateModal
   },
+  props: {
+    upstreamMethod: {
+      type: String,
+      default: 'DEM+FWA'
+    }
+  },
   data: () => ({
     tab: null,
     infoTabs: null,
     watershedLoading: false,
     selectedWatershed: null,
+    generatedWatershedID: null,
     assessmentWatershed: null,
     hydrometricWatershed: null,
     watersheds: [],
+    watershedWarnings: [],
     geojsonLayersAdded: [],
     includePOIPolygon: false,
     watershedDetailsLoading: false,
@@ -226,6 +241,12 @@ export default {
     }
   }),
   watch: {
+    upstreamMethod: {
+      deep: true,
+      handler () {
+        this.recalculateWatershed()
+      }
+    },
     selectedWatershed (v) {
       this.filterWatershed(v)
       this.fetchWatershedDetails()
@@ -303,7 +324,8 @@ export default {
         'download'])
 
       const params = {
-        format: 'xlsx'
+        format: 'xlsx',
+        generated_watershed_id: this.generatedWatershedID
       }
 
       this.spreadsheetLoading = true
@@ -366,7 +388,8 @@ export default {
       this.watershedLoading = true
       const params = {
         point: JSON.stringify(this.pointOfInterest.geometry.coordinates),
-        include_self: this.includePOIPolygon
+        include_self: this.includePOIPolygon,
+        upstream_method: this.upstreamMethod
       }
 
       this.$router.push({
@@ -376,12 +399,21 @@ export default {
       ApiService.query(`/api/v1/watersheds/?${qs.stringify(params)}`)
         .then(r => {
           const data = r.data
-          this.watersheds = data.features
-          this.watersheds.forEach((ws, i) => {
-            if (i === 0) this.selectedWatershed = ws.id
-            this.addSingleWatershedLayer(ws, `ws-${ws.id}`)
-            this.geojsonLayersAdded.push(`ws-${ws.id}`)
-          })
+          const ws = data.watershed
+          this.generatedWatershedID = data.generated_watershed_id
+
+          // an array of watersheds is used because there were previously
+          // several different watershed options. Some components expect the array
+          // plus the index of the selected watershed.
+          // TODO: clean this up. We will probably only use one watershed from now on,
+          // so an array is not necessary.
+          this.watersheds = [ws]
+          this.watershedWarnings = data.warnings || []
+
+          this.selectedWatershed = ws.id
+          this.addSingleWatershedLayer(ws, `ws-${ws.id}`)
+          this.geojsonLayersAdded.push(`ws-${ws.id}`)
+
           this.watershedLoading = false
         })
         .catch(e => {
@@ -392,7 +424,10 @@ export default {
     fetchWatershedDetails () {
       this.error.watershedSummary = false
       this.watershedDetailsLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`)
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}?${qs.stringify(params)}`)
         .then(r => {
           this.watershedDetailsLoading = false
           if (!r.data) {
@@ -414,6 +449,8 @@ export default {
       this.watersheds = []
       this.geojsonLayersAdded = []
       this.selectedWatershed = null
+      this.generatedWatershedID = null
+      this.watershedWarnings = []
     },
     recalculateWatershed () {
       this.resetGeoJSONLayers()

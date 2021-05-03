@@ -9,7 +9,7 @@ parameters:
   displayName: Host
   description: The hostname to deploy this template to.
   required: true
-  value: wally-test.pathfinder.gov.bc.ca
+  value: wally-staging.apps.silver.devops.gov.bc.ca
 - name: NAMESPACE
   displayName: Namespace
   description: The namespace to apply this template to.
@@ -80,7 +80,6 @@ objects:
                 - /app/config.yaml
                 - '--client-id=$(CLIENT_ID)'
                 - '--client-secret=$(CLIENT_SECRET)'
-                - '--redirection-url=https://${HOST}'
                 - '--upstream-url=http://wally-${NAME}:8080'
                 - '--discovery-url=$(DISCOVERY_URL)'
                 - '--enable-refresh-tokens=true'

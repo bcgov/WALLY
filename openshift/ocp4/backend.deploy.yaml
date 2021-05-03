@@ -9,7 +9,7 @@ parameters:
   displayName: Host
   description: The hostname to deploy this template to.
   required: true
-  value: wally-test.pathfinder.gov.bc.ca
+  value: wally-staging.apps.silver.devops.gov.bc.ca
 - name: NAMESPACE
   displayName: Namespace
   description: The namespace to apply this template to.
@@ -34,6 +34,14 @@ parameters:
   value: "1"
 - name: REPLICAS
   value: "1"
+- name: VOLUME_CAPACITY
+  value: "1Gi"
+  displayName: "Data volume capacity"
+  description: "Capacity for data file volume (e.g. DEM, other water data)"
+- name: WALLY_DATA_DIR
+  value: "/app/fixtures/"
+  displayName: "Data dir for extra data"
+  description: "Data dir for extra data (rasters, DEM, etc.)"
 objects:
 - apiVersion: apps.openshift.io/v1
   kind: DeploymentConfig
@@ -163,10 +171,7 @@ objects:
                 key: minioSecretKey
                 name: minio
           - name: MINIO_HOST_URL
-            valueFrom:
-              secretKeyRef:
-                key: minioHostUrl
-                name: minio
+            value: "wally-minio-${NAME}:9000"
           - name: WATERSHED_DEBUG
             valueFrom:
               secretKeyRef:
@@ -182,6 +187,10 @@ objects:
             value: "${WALLY_BUILD}"
           - name: API_VERSION
             value: "${API_VERSION}"
+          - name: GDAL_DATA
+            value: "/usr/share/gdal/"
+          - name: WALLY_DATA_DIR
+            value: "${WALLY_DATA_DIR}"
           image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api
@@ -222,6 +231,8 @@ objects:
             mountPath: /app/.log/
           - name: wally-config
             mountPath: /app/.config/
+          - mountPath: /waterdata
+            name: wally-data
         - name: promtail
           image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/promtail:v1.3.0
           args:
@@ -251,6 +262,9 @@ objects:
         - name: wally-config
           configMap:
             name: wally-config
+        - name: wally-data
+          persistentVolumeClaim:
+            claimName: wally-${NAME}-data
         dnsPolicy: ClusterFirst
         restartPolicy: Always
         schedulerName: default-scheduler
@@ -292,6 +306,24 @@ objects:
       name: wally-${NAME}-api
     sessionAffinity: None
     type: ClusterIP
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: wally-${NAME}-data
+    annotations:
+      template.openshift.io.bcgov/create: "true"
+    labels:
+      app: wally-${NAME}
+      env: ${NAME}
+      component: api
+      name: wally-${NAME}-api
+  spec:
+    accessModes:
+      - ReadWriteMany
+    resources:
+      requests:
+        storage: ${VOLUME_CAPACITY}
+    storageClassName: netapp-file-standard
 kind: Template
 metadata:
   labels:

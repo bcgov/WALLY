@@ -50,7 +50,7 @@ objects:
             spec:
               containers:
               - name: importer
-                image: docker-registry.default.svc:5000/bfpeyx-tools/wally-importer:latest
+                image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-importer:latest
                 command: ['/dataload/download_and_zip_layer.sh']
                 args: ['${LAYER_NAME}', '${DOWNLOAD_LINK}']
                 resources:
@@ -87,5 +87,5 @@ objects:
                       key: minioSecretKey
                       name: minio
                 - name: POSTGRES_SERVER
-                  value: wally-psql-master-${ENV_NAME}
+                  value: wally-psql-${ENV_NAME}
               restartPolicy: OnFailure

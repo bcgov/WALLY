@@ -125,6 +125,7 @@ import ApiService from '../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
 import { findWallyLayer } from '../../../common/utils/mapUtils'
 import { SOURCE_FISH_OBSERVATIONS } from '../../../common/mapbox/sourcesWally'
+import qs from 'querystring'
 
 const popup = new mapboxgl.Popup({
   closeButton: false,
@@ -135,7 +136,7 @@ export default {
   name: 'FishObservations',
   components: {
   },
-  props: ['watershedID', 'surface_water_design_v2'],
+  props: ['watershedID', 'generatedWatershedID', 'surface_water_design_v2'],
   data: () => ({
     fishLoading: false,
     fishData: null,
@@ -163,7 +164,10 @@ export default {
   methods: {
     fetchFishObservations () {
       this.fishLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fish_observations`)
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fish_observations?${qs.stringify(params)}`)
         .then(r => {
           this.fishData = r.data
           this.addFishObservationsLayer(r.data.fish_observations)
@@ -223,7 +227,10 @@ export default {
     },
     fetchFishInventorySearchCodes () {
       this.fidqLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fwa_50k_codes`).then((r) => {
+      const params = {
+        generated_watershed_id: this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/fwa_50k_codes?${qs.stringify(params)}`).then((r) => {
         this.watershed50kCodes = r.data
         this.fidqLoading = false
       }).catch(e => {
