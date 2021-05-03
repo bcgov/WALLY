@@ -16,7 +16,7 @@ import fiona
 import time
 from shapely import wkt, wkb
 from rasterio.features import shapes
-from whitebox_tools import WhiteboxTools
+from utils.whitebox_tools import WhiteboxTools
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 from typing import Tuple, List
 from urllib.parse import urlencode, unquote

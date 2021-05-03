@@ -45,7 +45,7 @@ from api.v1.watersheds.schema import (
     LicenceDetails,
     SurficialGeologyDetails,
     SurficialGeologyTypeSummary,
-    GeneratedWatershed
+    GeneratedWatershedDetails
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
@@ -94,7 +94,7 @@ def get_streamflow_inventory_report_link(
     }
 
 
-@router.get('/', response_model=GeneratedWatershed)
+@router.get('/', response_model=GeneratedWatershedDetails)
 def get_watersheds(
     db: Session = Depends(get_db),
     user: User = Depends(get_user),
@@ -163,9 +163,15 @@ def watershed_stats(
     isoline_runoff_model = calculate_runoff_in_area(db, watershed_poly)
 
     # custom linear mad model outputs
-    scsb2016_model = calculate_mean_annual_runoff(db, wd["hydrological_zone"], wd["median_elevation"],
-                                                  wd["glacial_coverage"], wd["annual_precipitation"], wd["potential_evapotranspiration_thornthwaite"],
-                                                  wd["drainage_area"], wd["solar_exposure"], wd["average_slope"])
+    scsb2016_model = calculate_mean_annual_runoff(
+        db, wd["hydrological_zone"],
+        wd["median_elevation"],
+        wd["glacial_coverage"],
+        wd["annual_precipitation"],
+        wd["potential_evapotranspiration_thornthwaite"],
+        wd["drainage_area"],
+        wd["solar_exposure"],
+        wd["average_slope"])
 
     scsb2016_input_stats = get_scsb2016_input_stats(db)
 

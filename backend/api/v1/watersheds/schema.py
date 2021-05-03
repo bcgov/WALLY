@@ -79,7 +79,7 @@ class WatershedDataWarning(BaseModel):
     debug_only: bool = False
 
 
-class GeneratedWatershed(BaseModel):
+class GeneratedWatershedDetails(BaseModel):
     warnings: List[WatershedDataWarning]
     watershed: Feature
     wally_watershed_id: str
