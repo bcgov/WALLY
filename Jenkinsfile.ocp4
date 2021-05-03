@@ -467,7 +467,6 @@ pipeline {
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
                   "REPLICAS=2",
-                  "WALLY_DATA_DIR=/waterdata",
                   "STORAGE_CAPACITY=5Gi"
                 ))
                 
@@ -573,7 +572,6 @@ pipeline {
                   "ENVIRONMENT=PRODUCTION",
                   "WALLY_VERSION=${git_tag}",
                   "REPLICAS=2",
-                  "WALLY_DATA_DIR=/waterdata",
                   "STORAGE_CAPACITY=5Gi"
                 ))
 
