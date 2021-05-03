@@ -13,11 +13,10 @@ from sqlalchemy.orm import Session
 
 from shapely.geometry import shape, MultiPolygon, Polygon, Point
 from shapely.ops import transform
-
+from urllib.parse import unquote
 
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation
-
 from api.v1.aggregator.controller import (
     databc_feature_search,
     EXTERNAL_API_REQUESTS,
@@ -45,12 +44,16 @@ from api.v1.watersheds.schema import (
     WatershedDetails,
     LicenceDetails,
     SurficialGeologyDetails,
-    SurficialGeologyTypeSummary
+    SurficialGeologyTypeSummary,
+    GeneratedWatershedDetails
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
 from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model_v1, get_hydrological_zone_model_v2
+from api.v1.user.db_models import User
+from api.v1.user.session import get_user
 from api.config import WATERSHED_DEBUG
+
 
 logger = getLogger("aggregator")
 
@@ -91,14 +94,19 @@ def get_streamflow_inventory_report_link(
     }
 
 
-@router.get('/')
+@router.get('/', response_model=GeneratedWatershedDetails)
 def get_watersheds(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     point: str = Query(
         "", title="Search point",
         description="Point to search within"),
     include_self: bool = Query(
-        False, title="Include the area around the point of interest in generated polygons")
+        False, title="Include the area around the point of interest in generated polygons"),
+    upstream_method: str = Query(
+        "DEM+FWA", title="Upstream catchment estimation method",
+        description="Method for estimating upstream catchment area. See watersheds/controller.py"
+    )
 ):
     """ returns a list of watersheds at this point, if any.
     Watersheds are sourced from the following datasets:
@@ -106,13 +114,6 @@ def get_watersheds(
     https://catalogue.data.gov.bc.ca/dataset/hydrology-hydrometric-watershed-boundaries
 
     """
-    assessment_watershed_layer_id = 'WHSE_BASEMAPPING.FWA_ASSESSMENT_WATERSHEDS_POLY'
-    hydrometric_watershed_layer_id = 'WHSE_WATER_MANAGEMENT.HYDZ_HYD_WATERSHED_BND_POLY'
-
-    search_layers = ','.join([
-        assessment_watershed_layer_id,
-        hydrometric_watershed_layer_id
-    ])
 
     if not point:
         raise HTTPException(
@@ -122,30 +123,16 @@ def get_watersheds(
         point_parsed = json.loads(point)
         point = Point(point_parsed)
 
-    watersheds = databc_feature_search(search_layers, search_area=point)
+    upstream_method = unquote(upstream_method)
 
-    watershed_features = []
-
-    calculated_ws = calculate_watershed(db, point, include_self=include_self)
-
-    if calculated_ws:
-        watershed_features.append(calculated_ws)
-
-    for ws in watersheds.features:
-        watershed_features.append(
-            Feature(
-                geometry=transform(transform_3005_4326, shape(ws.geometry)),
-                properties=dict(ws.properties),
-                id=ws.id
-            )
-        )
-
-    return FeatureCollection(watershed_features)
+    return calculate_watershed(
+        db, user, point, include_self=include_self, upstream_method=upstream_method)
 
 
 @router.get('/{watershed_feature}')
 def watershed_stats(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
                                   description=watershed_feature_description),
@@ -153,6 +140,11 @@ def watershed_stats(
         "json",
         title="Format",
         description="Format to return results in. Options: json (default), xlsx"
+    ),
+    generated_watershed_id: int = Query(
+        None,
+        title="Generated watershed ID",
+        description="An ID assigned to each unique watershed WALLY has generated."
     )
 ):
     """ aggregates statistics/info about a watershed """
@@ -160,19 +152,26 @@ def watershed_stats(
         logger.warning("Watershed Details - Request Started")
 
     # watershed area calculations
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id).watershed
     watershed_poly = shape(watershed.geometry)
 
     watershed_details = get_watershed_details(db, watershed)
-    wd = watershed_details # purely for shorthand below
+    wd = watershed_details  # purely for shorthand below
 
     # isoline model outputs
     isoline_runoff_model = calculate_runoff_in_area(db, watershed_poly)
 
     # custom linear mad model outputs
-    scsb2016_model = calculate_mean_annual_runoff(db, wd["hydrological_zone"], wd["median_elevation"],
-                                                  wd["glacial_coverage"], wd["annual_precipitation"], wd["potential_evapotranspiration_thornthwaite"],
-                                                  wd["drainage_area"], wd["solar_exposure"], wd["average_slope"])
+    scsb2016_model = calculate_mean_annual_runoff(
+        db, wd["hydrological_zone"],
+        wd["median_elevation"],
+        wd["glacial_coverage"],
+        wd["annual_precipitation"],
+        wd["potential_evapotranspiration_thornthwaite"],
+        wd["drainage_area"],
+        wd["solar_exposure"],
+        wd["average_slope"])
 
     scsb2016_input_stats = get_scsb2016_input_stats(db)
 
@@ -217,6 +216,7 @@ def watershed_stats(
 @router.get('/details/')
 def get_generated_watershed_details(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     point: str = Query(
         "", title="Search point",
         description="Point to search within"),
@@ -235,7 +235,7 @@ def get_generated_watershed_details(
     if WATERSHED_DEBUG:
         logger.warning("watershed details point: %s", point)
 
-    watershed = calculate_watershed(db, point, include_self=True)
+    watershed = calculate_watershed(db, user, point, include_self=True)
 
     if not watershed:
         raise HTTPException(
@@ -252,13 +252,20 @@ def get_generated_watershed_details(
 @router.get('/{watershed_feature}/fwa_50k_codes')
 def get_50k_watershed_codes(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
+                                  description=watershed_feature_description),
+    generated_watershed_id: int = Query(
+        None,
+        title="Generated watershed ID",
+        description="An ID assigned to each unique watershed WALLY has generated."
+    )
 ):
     """ returns 50k (old) watershed codes. Useful for searching legacy applications """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id).watershed
 
     return find_50k_watershed_codes(db, shape(watershed.geometry))
 
@@ -266,13 +273,20 @@ def get_50k_watershed_codes(
 @router.get('/{watershed_feature}/licences')
 def get_watershed_demand(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
+                                  description=watershed_feature_description),
+    generated_watershed_id: int = Query(
+        None,
+        title="Generated watershed ID",
+        description="An ID assigned to each unique watershed WALLY has generated."
+    )
 ):
     """ returns data about watershed demand by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id).watershed
 
     return surface_water_rights_licences(shape(watershed.geometry))
 
@@ -280,13 +294,20 @@ def get_watershed_demand(
 @router.get('/{watershed_feature}/approvals')
 def get_watershed_short_term_demand(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
+                                  description=watershed_feature_description),
+    generated_watershed_id: int = Query(
+        None,
+        title="Generated watershed ID",
+        description="An ID assigned to each unique watershed WALLY has generated."
+    )
 ):
     """ returns data about watershed demand by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id).watershed
 
     return surface_water_approval_points(shape(watershed.geometry))
 
@@ -294,13 +315,20 @@ def get_watershed_short_term_demand(
 @router.get('/{watershed_feature}/surficial_geology')
 def get_surficial_geology(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
+                                  description=watershed_feature_description),
+    generated_watershed_id: int = Query(
+        None,
+        title="Generated watershed ID",
+        description="An ID assigned to each unique watershed WALLY has generated."
+    )
 ):
     """ returns data about watershed demand by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id).watershed
 
     surf_geol_summary = surficial_geology(shape(watershed.geometry))
 
@@ -310,13 +338,20 @@ def get_surficial_geology(
 @router.get('/{watershed_feature}/fish_observations')
 def get_fish_observations(
     db: Session = Depends(get_db),
+    user: User = Depends(get_user),
     watershed_feature: str = Path(...,
                                   title="The watershed feature ID at the point of interest",
-                                  description=watershed_feature_description)
+                                  description=watershed_feature_description),
+    generated_watershed_id: int = Query(
+        None,
+        title="Generated watershed ID",
+        description="An ID assigned to each unique watershed WALLY has generated."
+    )
 ):
     """ returns data about fish observations within a watershed by querying DataBC """
 
-    watershed = get_watershed(db, watershed_feature)
+    watershed = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id).watershed
 
     watershed_fish_observations = known_fish_observations(
         shape(watershed.geometry))

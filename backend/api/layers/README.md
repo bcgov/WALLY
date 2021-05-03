@@ -67,3 +67,22 @@ ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 pas
 --config PG_USE_COPY YES \
 -nln ground_water_wells -progress
 ```
+
+
+## FWA Stream Networks
+
+```bash
+ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 password=test_pw" \
+"./FWSTRMNTWR_line.shp" \
+--config PG_USE_COPY YES \
+-nln freshwater_atlas_stream_networks -progress
+```
+
+## FWA Watersheds
+
+```bash
+ogr2ogr -f "PostgreSQL" PG:"dbname=wally user=wally host=localhost port=5432 password=test_pw" \
+"./FWA_WATERSHEDS_POLY.geojson" \
+--config PG_USE_COPY YES \
+-nln freshwater_atlas _watersheds -progress
+```

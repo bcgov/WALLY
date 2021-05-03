@@ -79,7 +79,14 @@ def get_streams_with_apportionment(
 def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
     # Get the nearest 10 streams to the point
     sql = text("""
-      SELECT
+      WITH nearest_streams AS (
+          select    *
+          from      freshwater_atlas_stream_networks streams
+          order by  streams."GEOMETRY" <#>
+                        ST_SetSRID(ST_GeomFromText(:search_point), 4326)
+          limit     10
+      )
+      SELECT 
         nearest_streams."OGC_FID" as id, 
         nearest_streams."OGC_FID" as ogc_fid,
         nearest_streams."LENGTH_METRE" as length_metre,
@@ -101,11 +108,9 @@ def get_nearest_streams(db: Session, search_point: Point, limit=10) -> list:
         ST_AsGeoJSON(ST_ClosestPoint(
         nearest_streams."GEOMETRY", 
         ST_SetSRID(ST_GeomFromText(:search_point), 4326))) as closest_stream_point
-      FROM
-      freshwater_atlas_stream_networks  as nearest_streams
-      ORDER BY nearest_streams."GEOMETRY" <#>
-        ST_SetSRID(ST_GeomFromText(:search_point), 4326)
-      LIMIT :limit 
+      FROM      nearest_streams
+      ORDER BY  ST_Distance(nearest_streams."GEOMETRY", ST_SetSRID(ST_GeomFromText(:search_point), 4326)) ASC
+      LIMIT     :limit 
     """)
     rp_nearest_streams = db.execute(
         sql, {'search_point': search_point.wkt, 'limit': limit})

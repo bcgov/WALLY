@@ -137,7 +137,7 @@ export default {
     WatershedIndividualLicences,
     Dialog
   },
-  props: ['watershedID'],
+  props: ['watershedID', 'generatedWatershedID'],
   data: () => ({
     licencesLoading: false,
     licenceData: null,
@@ -242,7 +242,10 @@ export default {
     },
     fetchDemandData () {
       this.licencesLoading = true
-      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences`)
+      const params = {
+        'generated_watershed_id': this.generatedWatershedID
+      }
+      ApiService.query(`/api/v1/watersheds/${this.watershedID}/licences?${qs.stringify(params)}`)
         .then(r => {
           this.licenceData = r.data
           // console.log('adding data to map')

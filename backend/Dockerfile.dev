@@ -1,0 +1,40 @@
+ARG DOCKER_TAG=latest
+
+FROM rust:latest AS builder
+
+
+RUN apt-get update && apt-get install -y musl-tools git && \
+  rustup target add x86_64-unknown-linux-musl && \
+  git clone https://github.com/mholling/whitebox-tools.git /wbt && \
+  cd /wbt && git checkout d8_flow_accum-fix
+
+WORKDIR /wbt
+
+RUN cargo build --release --target x86_64-unknown-linux-musl
+
+FROM python:3.7
+
+COPY --from=builder /wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools /usr/local/bin/
+
+WORKDIR /app/
+
+RUN useradd wally -M -G root -u 1021 && chmod -R 775 /app \
+  && chown -R wally:root /app \ 
+  && apt-get update && apt-get -y install ca-certificates libgdal-dev gdal-bin
+
+COPY ./requirements.txt /
+
+RUN pip install -r /requirements.txt
+
+COPY . /app
+ENV PYTHONPATH=/app
+COPY --from=builder /wbt/whitebox_tools.py /app/
+
+RUN pytest /app/tests/ -W ignore::DeprecationWarning
+
+EXPOSE 8000
+USER 1021
+
+# Run the start script, it will check for an /app/prestart.sh script (e.g. for migrations)
+# And then will start Gunicorn with Uvicorn
+CMD ["/app/start.sh"]

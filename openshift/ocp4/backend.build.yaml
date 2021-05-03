@@ -41,9 +41,16 @@ objects:
       requests:
         cpu: 500m
       limits:
-        cpu: '1'
+        cpu: '2'
     runPolicy: SerialLatestOnly
     source:
+      images:
+      - from: 
+          kind: ImageStreamTag
+          name: whiteboxtools:latest
+        paths: 
+        - sourcePath: /wbt
+          destinationDir: "backend"
       contextDir: backend
       git:
         ref: "${GIT_REF}"

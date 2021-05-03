@@ -35,7 +35,7 @@ export default {
   name: 'StreamflowInventory',
   components: {
   },
-  props: ['coordinates', 'surface_water_design_v2'],
+  props: ['coordinates', 'generatedWatershedID', 'surface_water_design_v2'],
   data: () => ({
     reportLink: null,
     reportName: null,
@@ -44,7 +44,8 @@ export default {
   methods: {
     fetchReportLink () {
       const params = {
-        point: JSON.stringify(this.coordinates)
+        point: JSON.stringify(this.coordinates),
+        generated_watershed_id: this.generatedWatershedID
       }
       ApiService.query(`/api/v1/watersheds/streamflow_inventory?${qs.stringify(params)}`).then((r) => {
         const data = r.data

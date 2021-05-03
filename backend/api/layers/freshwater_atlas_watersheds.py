@@ -1,6 +1,7 @@
 # coding: utf-8
-from sqlalchemy import Integer, String, Column, Float
+from sqlalchemy import Integer, String, Column, Float, Computed, text
 from api.db.base_class import BaseLayerTable
+from sqlalchemy_utils import LtreeType
 from geoalchemy2 import Geometry
 from sqlalchemy.dialects.postgresql import BYTEA
 
@@ -42,23 +43,33 @@ class FreshwaterAtlasWatersheds(BaseLayerTable):
     LOCAL_WATERSHED_CODE = Column(String, comment='A 143 character code similar to the fwa watershed code '
                                                   'that further subdivides remnant polygons to provide an '
                                                   'approximate location along the mainstem.')
-    WATERSHED_GROUP_CODE = Column(String, comment='The watershed group code associated with the polygon.')
+    WATERSHED_GROUP_CODE = Column(
+        String, comment='The watershed group code associated with the polygon.')
     LEFT_RIGHT_TRIBUTARY = Column(String, comment='A value attributed via the watershed code to all watersheds '
                                                   'indicating on what side of the watershed they drain into.')
     WATERSHED_ORDER = Column(Integer, comment='The maximum order of the watershed key associated with the '
                                               'principal watershed polygon.')
     WATERSHED_MAGNITUDE = Column(Integer, comment='The maximum magnitude of the watershed key associated with '
                                                   'the principal watershed.')
-    LOCAL_WATERSHED_ORDER = Column(Integer, comment='The order associated with the local watershed code.')
-    LOCAL_WATERSHED_MAGNITUDE = Column(Integer, comment='The magnitude associated with the local watershed code.')
+    LOCAL_WATERSHED_ORDER = Column(
+        Integer, comment='The order associated with the local watershed code.')
+    LOCAL_WATERSHED_MAGNITUDE = Column(
+        Integer, comment='The magnitude associated with the local watershed code.')
     AREA_HA = Column(Float, comment='Area of the watershed, in hectares.')
-    RIVER_AREA = Column(Float, comment='Area of double line rivers within the watershed, in hectares.')
-    LAKE_AREA = Column(Float, comment='Area of lakes within the watershed, in hectares.')
-    WETLAND_AREA = Column(Float, comment='Area of wetland features within the watershed, in hectares.')
-    MANMADE_AREA = Column(Float, comment='Area of manmade features within the watershed, in hectares.')
-    GLACIER_AREA = Column(Float, comment='Area of glacier features within the watershed, in hectares.')
-    AVERAGE_ELEVATION = Column(Float, comment='The average elevation of the watershed, in meters.')
-    AVERAGE_SLOPE = Column(Float, comment='The average slope of the watershed.')
+    RIVER_AREA = Column(
+        Float, comment='Area of double line rivers within the watershed, in hectares.')
+    LAKE_AREA = Column(
+        Float, comment='Area of lakes within the watershed, in hectares.')
+    WETLAND_AREA = Column(
+        Float, comment='Area of wetland features within the watershed, in hectares.')
+    MANMADE_AREA = Column(
+        Float, comment='Area of manmade features within the watershed, in hectares.')
+    GLACIER_AREA = Column(
+        Float, comment='Area of glacier features within the watershed, in hectares.')
+    AVERAGE_ELEVATION = Column(
+        Float, comment='The average elevation of the watershed, in meters.')
+    AVERAGE_SLOPE = Column(
+        Float, comment='The average slope of the watershed.')
     ASPECT_NORTH = Column(Float, comment='The percentage of the watershed that has an aspect within '
                                          '45 degrees of north, ie. an aspect between 315 and 45 degrees.')
     ASPECT_SOUTH = Column(Float, comment='The percentage of the watershed that has an aspect within '
@@ -80,3 +91,12 @@ class FreshwaterAtlasWatersheds(BaseLayerTable):
                                              'two-dimensional polygon in square meters')
     FEATURE_LENGTH_M = Column(Float, comment='FEATURE_LENGTH_M is the system calculated length or perimeter '
                                              'of a geometry in meters')
+    fme_feature_type = Column(String)
+    localcode_ltree = Column(LtreeType, Computed(
+        "(replace(replace((\"LOCAL_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree",
+        persisted=True),
+        nullable=True)
+    wscode_ltree = Column(LtreeType, Computed(
+        "(replace(replace((\"FWA_WATERSHED_CODE\")::text, '-000000'::text, ''::text), '-'::text, '.'::text))::ltree",
+        persisted=True),
+        nullable=True)
