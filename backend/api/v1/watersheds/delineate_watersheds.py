@@ -574,8 +574,8 @@ def wbt_calculate_watershed(
     start = time.perf_counter()
     bnds = watershed_area.bounds
     translate_options_list = [
-        '-of GTiff',
-        '-projwin_srs EPSG:4326',
+        "-of GTiff",
+        f"-projwin_srs EPSG:{using_srid}",
         f"-projwin {bnds[0]} {bnds[3]} {bnds[2]} {bnds[1]}"
     ]
 
@@ -584,7 +584,7 @@ def wbt_calculate_watershed(
                    options=" ".join(translate_options_list))
 
     elapsed = (time.perf_counter() - start)
-    logger.debug('CLIPPING TOOK %s', elapsed)
+    logger.info('CLIPPING TOOK %s', elapsed)
 
     # use either BreachDepressionsLeastCost or BreachDepressions, not both.
     # Author recommends BreachDepressionsLeastCost but worth testing both.
