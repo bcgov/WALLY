@@ -8,6 +8,7 @@ COPY ./prism/*.sh /dataload/
 COPY ./cdem/*.sh /dataload/
 COPY ./tiles/create_tileset.sh /dataload/
 COPY ./tiles/upload_tileset.sh /dataload/
+COPY ./hydrosheds/*.sh /dataload/
 
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
   && chown -R wally:root /dataload \
