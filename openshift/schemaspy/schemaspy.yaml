@@ -108,7 +108,7 @@ objects:
                 key: app-db-password
                 name: wally-psql
           - name: SCHEMASPY_ARGUMENTS
-            value: -schemas public,hydat,metadata -hq
+            value: -schemas public,hydat,metadata,hydrosheds -hq
           image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/schemaspy:latest
           imagePullPolicy: Always
           name: schemaspy
