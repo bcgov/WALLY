@@ -40,7 +40,7 @@ objects:
             - '--client-secret'
             - '$(CLIENT_SECRET)'
             - '--redirection-url'
-            - 'https://wally-${WALLY_ENV}-schemaspy.pathfinder.gov.bc.ca'
+            - 'https://wally-${WALLY_ENV}-schemaspy.apps.silver.devops.gov.bc.ca'
             - '--upstream-url'
             - 'http://localhost:8080'
             - '--discovery-url'
@@ -92,7 +92,7 @@ objects:
           terminationMessagePolicy: File
         - env:
           - name: DATABASE_HOST
-            value: wally-psql-master-staging
+            value: wally-psql-staging
           - name: DATABASE_NAME
             value: wally
           - name: DATABASE_TYPE
@@ -109,7 +109,7 @@ objects:
                 name: wally-psql
           - name: SCHEMASPY_ARGUMENTS
             value: -schemas public,hydat,metadata -hq
-          image: docker-registry.default.svc:5000/bfpeyx-tools/schemaspy:latest
+          image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/schemaspy:latest
           imagePullPolicy: Always
           name: schemaspy
           ports:
