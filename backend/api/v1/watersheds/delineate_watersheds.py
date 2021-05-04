@@ -505,7 +505,7 @@ def watershed_touches_border(db: Session, watershed_feature_id: int) -> List[str
 
     SELECT border
     FROM fwa_approx_borders b
-    INNER JOIN upstream w ON ST_Intersects(b.geom, w.geom)
+    INNER JOIN upstream w ON ST_Intersects(b.geom, ST_Transform(w.geom, 3005))
     """
     borders = []
     res = db.execute(q, {"watershed_feature_id": watershed_feature_id})

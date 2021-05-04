@@ -82,7 +82,7 @@ Note for migrating: Most resources that need to be created in the environments b
 ## Import images
 
 The following external/community images don't have BuildConfigs and need to be imported:
-Example import command: `oc4 -n d1b5d2-tools import-image --from=python:3.7 python:3.7 --reference-policy=local --confirm`
+Example import command: `oc -n d1b5d2-tools import-image --from=python:3.7 python:3.7 --reference-policy=local --confirm`
 
 Note: see https://github.com/BCDevOps/OpenShift4-Migration/issues/51.  With Artifactory credentials the `--from=python:3.7` above can be replaced
 with `--from=docker-remote.artifacts.developer.gov.bc.ca`
@@ -183,7 +183,7 @@ oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=staging -p LAYE
 # fwa stream networks
 # requires freshwater_atlas_stream_networks.zip (containing freshwater_atlas_stream_networks.gdb).  See above.
 oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_NAME=freshwater_atlas_stream_networks \
- -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc4 apply -f -
+ -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
 ```
 
 ### Raster data
@@ -191,18 +191,23 @@ oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=staging -p LAYER_N
 ```sh
 # prism
 # requires raster/prism_pr.asc and raster/prism_pr.prj in Minio storage
-oc4 process -f prism.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000  | oc apply -f -
+oc process -f prism.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000  | oc apply -f -
 
 # CDEM
 # requires raster/BC_Area_CDEM.tif in Minio storage
-oc4 process -f cdem.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
+oc process -f cdem.job.yaml -p ENV_NAME=staging -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
 
 # Hydat
 # downloads its own data, but the link has to be updated for new HYDAT versions (approximately quarterly). See wally/imports/hydat/load_hydat.sh
-oc4 process -f hydat.job.yaml -p ENV_NAME=staging | oc apply -f -
+oc process -f hydat.job.yaml -p ENV_NAME=staging | oc apply -f -
 
 # Watershed DEMs
-oc4 process -f wsdem.job.yaml -p ENV_NAME=staging | oc apply -f -
+oc process -f wsdem.job.yaml -p ENV_NAME=staging | oc apply -f -
+
+# Hydroshed data
+# LAYER_NAME can be anything.  LAYER_NAME is not used in this script, but it happens to be a required field of the template.
+oc process -f import.job.yaml -p JOB_NAME=hydrosheds -p ENV_NAME=staging -p LAYER_NAME=null \
+   -p SCRIPT_PATH=/dataload/load_hydrosheds.sh -p MINIO_HOST_URL=http://wally-minio-staging:9000 | oc apply -f -
 ```
 
 ### Prod data
@@ -213,12 +218,12 @@ oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=production -p L
    -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
 
 oc process -f import.job.yaml -p JOB_NAME=streams -p ENV_NAME=production -p LAYER_NAME=freshwater_atlas_stream_networks \
- -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc4 apply -f -
+ -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
 
-oc4 process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000  | oc apply -f -
-oc4 process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
-oc4 process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
-oc4 process -f wsdem.job.yaml -p ENV_NAME=production | oc apply -f -
+oc process -f prism.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000  | oc apply -f -
+oc process -f cdem.job.yaml -p ENV_NAME=production -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
+oc process -f hydat.job.yaml -p ENV_NAME=production | oc apply -f -
+oc process -f wsdem.job.yaml -p ENV_NAME=production | oc apply -f -
 
 # Download FN data
 oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
@@ -229,4 +234,9 @@ oc process -f wfs.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p M
 oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fncommunities -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_community_locations | oc apply -f -
 oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatyareas -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_areas | oc apply -f -
 oc process -f import.job.yaml -p ENV_NAME=production -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http://wally-minio-production:9000 -p LAYER_NAME=fn_treaty_lands | oc apply -f -
+
+
+# Hydrosheds
+oc process -f import.job.yaml -p JOB_NAME=hydrosheds -p ENV_NAME=production -p LAYER_NAME=null \
+   -p SCRIPT_PATH=/dataload/load_hydrosheds.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
 ```
