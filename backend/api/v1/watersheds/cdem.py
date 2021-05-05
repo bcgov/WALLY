@@ -4,7 +4,7 @@
 """
 import logging
 from sqlalchemy.orm import Session
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, mapping
 from shapely.ops import transform
 import math
 import time
