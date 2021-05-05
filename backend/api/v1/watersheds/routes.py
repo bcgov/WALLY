@@ -147,7 +147,7 @@ def watershed_stats(
         description="An ID assigned to each unique watershed WALLY has generated."
     ),
     with_aspect: bool = Query(
-        False,
+        True,
         title="Include aspect in details",
         description="Include aspect in details. This calculation adds extra time to the server response time."
 

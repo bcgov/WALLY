@@ -1302,7 +1302,7 @@ def get_scsb2016_input_stats(db: Session):
     return stats
 
 
-def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True, with_aspect: bool = False):
+def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True, with_aspect: bool = True):
     """ returns watershed inputs variables used in modelling """
 
     if WATERSHED_DEBUG:
