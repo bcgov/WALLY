@@ -166,9 +166,6 @@ class CDEM:
             raise Exception("Average aspect could not be found using CDEM")
 
         aspect = math.fmod(2*math.pi + (math.atan2(mean_cos_cells, mean_sin_cells)), 2*math.pi)
-        # aspect = math.degrees(aspect)
-
-        # math.fmod(360 + (math.atan2(!MeanSin!, !MeanCos!)) * (180 / math.pi), 360)
 
         logger.info("found CDEM avg aspect: %s", aspect)
 
