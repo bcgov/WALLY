@@ -4,14 +4,11 @@
 """
 import logging
 from sqlalchemy.orm import Session
-from shapely.geometry import Polygon, mapping
+from shapely.geometry import Polygon
 from shapely.ops import transform
-import numpy as np
-import rasterio
 import math
 import time
 import fiona
-from rasterio.mask import mask
 from osgeo import gdal
 from tempfile import TemporaryDirectory
 from api.config import RASTER_FILE_DIR, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
