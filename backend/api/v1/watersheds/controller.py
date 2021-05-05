@@ -1043,7 +1043,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     return (slope, median_elev, aspect)
 
 
-def get_hillshade(slope_rad: float, aspect_rad: float):
+def get_hillshade(slope_rad: float, aspect_rad: float, azimuth: float = 180.0, altitude: float = 45.0):
     """
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
@@ -1052,10 +1052,14 @@ def get_hillshade(slope_rad: float, aspect_rad: float):
     if slope_rad is None or aspect_rad is None:
         return None
 
-    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
-    altitude = 45.0  # 0-90 " "
-    azimuth_rad = azimuth * math.pi / 2.
-    altitude_rad = altitude * math.pi / 180.
+    if slope_rad < 0 or slope_rad > 2 * math.pi:
+        raise ValueError('slope_rad %s out of bounds. Ensure the value is in radians.', slope_rad)
+
+    if aspect_rad < 0 or aspect_rad > 2 * math.pi:
+        raise ValueError('aspect_rad %s out of bounds. Ensure the value is in radians.', aspect_rad)
+
+    azimuth_rad = math.radians(azimuth)
+    altitude_rad = math.radians(altitude)
 
     shade_value = math.sin(altitude_rad) * math.sin(slope_rad) \
         + math.cos(altitude_rad) * math.cos(slope_rad) \
@@ -1298,7 +1302,7 @@ def get_scsb2016_input_stats(db: Session):
     return stats
 
 
-def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True):
+def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True, with_aspect: bool = False):
     """ returns watershed inputs variables used in modelling """
 
     if WATERSHED_DEBUG:
@@ -1347,17 +1351,21 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
-    polygon_4140 = transform(transform_4326_4140, watershed_poly)
-    area_cdem = CDEM(polygon_4140)
+    area_cdem = CDEM(watershed_poly)
 
     elev_stats = area_cdem.get_raster_summary_stats()
     median_elev = area_cdem.get_median_elevation()
     avg_slope = area_cdem.get_average_slope()
-    aspect = area_cdem.get_mean_aspect()
+    aspect = None
+
+    if with_aspect:
+        aspect = area_cdem.get_mean_aspect()
 
     slope_percent = math.tan(avg_slope) * 100
-    slope_radians = avg_slope * (math.pi/180)
-    solar_exposure = get_hillshade(slope_radians, aspect)
+
+    solar_exposure = area_cdem.get_mean_hillshade()
+
+    mean_daylight_time = area_cdem.get_mean_time_in_daylight()
 
     if WATERSHED_DEBUG:
         logger.info("elevation stats %s", elev_stats)
@@ -1381,6 +1389,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "solar_exposure": solar_exposure,
         "median_elevation": median_elev,
         "elevation_stats": elev_stats,
+        "mean_daylight_time": mean_daylight_time,
         "aspect": aspect
     }
 
