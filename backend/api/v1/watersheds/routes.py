@@ -145,6 +145,12 @@ def watershed_stats(
         None,
         title="Generated watershed ID",
         description="An ID assigned to each unique watershed WALLY has generated."
+    ),
+    with_aspect: bool = Query(
+        False,
+        title="Include aspect in details",
+        description="Include aspect in details. This calculation adds extra time to the server response time."
+
     )
 ):
     """ aggregates statistics/info about a watershed """
@@ -156,7 +162,7 @@ def watershed_stats(
                               generated_watershed_id=generated_watershed_id).watershed
     watershed_poly = shape(watershed.geometry)
 
-    watershed_details = get_watershed_details(db, watershed)
+    watershed_details = get_watershed_details(db, watershed, with_aspect=with_aspect)
     wd = watershed_details  # purely for shorthand below
 
     # isoline model outputs
