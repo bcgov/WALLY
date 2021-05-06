@@ -64,7 +64,7 @@ Don't forget to [clip a copy to Whistler area](../../../fixtures/extents/README.
 
 #### SRTM
 
-SRTM tiles are available from EarthExplorer. todo: better process for downloading tiles.
+SRTM tiles are available from EarthExplorer.
 You will need the BC streams file from above and the Washington streams file from https://geo.wa.gov/datasets/71fa52e7d6224fde8b09facb12b30f04_24.
 
 We use 3005 for SRTM DEM's, but we may want to refactor to 4326 in the future.
@@ -108,7 +108,7 @@ Upload the resulting `Burned_SRTM_3005.tif` to Minio (staging and prod) and [cre
 
 ### Aspect
 
-There is an aspect raster to help us estimate the average aspect of a watershed.
+There are two aspect rasters to help us estimate the average aspect of a watershed.
 
 Because we can't take the simple average of two angles (consider that the average of 350 and 10 is 180, but you would expect the average angle to be due north), we need to use a formula to calculate
 the average aspect.
@@ -147,8 +147,7 @@ To calculate aspect, collect the cos values and sin values in a polygon, and use
 inputs to `math.atan2(sum(cos_values), sum(sin_values))`. This outputs an aspect in radians.
 Credit: https://www.perrygeo.com/average-aspect.html
 
-Note: some more research needs to be done to determine how accurate and useful this result is (for example,
-how useful is calculating the average aspect of two hillsides that face each other?).
+Note: some more research needs to be done to determine how accurate and useful this result is.
 
 ### Hillshade
 
