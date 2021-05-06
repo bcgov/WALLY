@@ -1302,7 +1302,7 @@ def get_scsb2016_input_stats(db: Session):
     return stats
 
 
-def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True, with_aspect: bool = True):
+def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True):
     """ returns watershed inputs variables used in modelling """
 
     if WATERSHED_DEBUG:
@@ -1356,10 +1356,8 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True,
     elev_stats = area_cdem.get_raster_summary_stats()
     median_elev = area_cdem.get_median_elevation()
     avg_slope = area_cdem.get_average_slope()
-    aspect = None
 
-    if with_aspect:
-        aspect = area_cdem.get_mean_aspect()
+    aspect = area_cdem.get_mean_aspect()
 
     slope_percent = math.tan(avg_slope) * 100
 
