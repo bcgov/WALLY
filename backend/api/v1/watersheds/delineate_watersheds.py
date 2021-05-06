@@ -461,7 +461,7 @@ def get_watershed_using_dem(db: Session, point: Point, watershed_id, dem_source=
         # we assume that an error occurred if it is 1% or less of the size. The most common error is
         # that the snapped point did not hit the the target stream in the Flow Accumulation raster, so
         # increasing the distance has a good chance of returning a good watershed.
-        if result.area / upstream_area.area > 0.01:
+        if result.is_valid and result.area / upstream_area.area > 0.01:
             break
         else:
             snap_distance *= 2
