@@ -27,7 +27,6 @@ class CDEM:
 
     def __init__(self, polygon_4326):
         self.area4140 = transform(transform_4326_4140, polygon_4326)
-        self.area3005 = transform(transform_4326_3005, polygon_4326)
         self.area4326 = polygon_4326
         self.db = get_db_session()
 
@@ -143,9 +142,9 @@ class CDEM:
         }
 
         # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:3005") as c:
+        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
             c.write({
-                'geometry': mapping(self.area3005),
+                'geometry': mapping(self.area4326),
                 'properties': {'id': 1},
             })
 
@@ -189,9 +188,9 @@ class CDEM:
         }
 
         # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:3005") as c:
+        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
             c.write({
-                'geometry': mapping(self.area3005),
+                'geometry': mapping(self.area4326),
                 'properties': {'id': 1},
             })
 
@@ -221,9 +220,9 @@ class CDEM:
         }
 
         # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:3005") as c:
+        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
             c.write({
-                'geometry': mapping(self.area3005),
+                'geometry': mapping(self.area4326),
                 'properties': {'id': 1},
             })
 
