@@ -104,3 +104,63 @@ gdal_translate "01_burned_srtm.tif" "Burned_SRTM_3005.tif" \
      -co COPY_SRC_OVERVIEWS=YES
 ```
 Upload the resulting `Burned_SRTM_3005.tif` to Minio (staging and prod) and [create a fixture version](../../../fixtures/extents/README.md).
+
+
+### Aspect
+
+There is an aspect raster to help us estimate the average aspect of a watershed.
+
+Because we can't take the simple average of two angles (consider that the average of 350 and 10 is 180, but you would expect the average angle to be due north), we need to use a formula to calculate
+the average aspect.
+
+Start by creating an Aspect raster using WhiteBoxTools, and then create a raster for both the sine and cosine of the aspect value:
+
+```sh
+# transform to 3005
+gdalwarp -t_srs EPSG:3005 -r cubic -of "GTiff" ./BC_Area_CDEM.tif ./01_dem_3005.tif 
+
+# Create Aspect raster
+whitebox_tools -r=Aspect -v --wd="$(pwd)" --dem=01_dem_3005.tif -o=02_aspect.tif 
+
+
+# create sin and cos files
+# https://www.perrygeo.com/average-aspect.html
+
+gdal_calc.py -A 02_aspect.tif --calc "cos(radians(A))" --format "GTiff" --outfile 03_cos_aspect.tif
+gdal_calc.py -A 02_aspect.tif --calc "sin(radians(A))" --format "GTiff" --outfile 03_sin_aspect.tif
+```
+
+Create the Cloud Optimized GeoTIFFs:
+```sh
+gdal_translate "03_cos_aspect.tif" "BC_Area_Aspect_COS_3005.tif" \
+     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
+     -co COMPRESS=LZW -co PREDICTOR=3 \
+     -co COPY_SRC_OVERVIEWS=YES
+
+gdal_translate "03_sin_aspect.tif" "BC_Area_Aspect_SIN_3005.tif" \
+     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
+     -co COMPRESS=LZW -co PREDICTOR=3 \
+     -co COPY_SRC_OVERVIEWS=YES
+```
+
+To calculate aspect, collect the cos values and sin values in a polygon, and use them as
+inputs to `math.atan2(sum(cos_values), sum(sin_values))`. This outputs an aspect in radians.
+Credit: https://www.perrygeo.com/average-aspect.html
+
+Note: some more research needs to be done to determine how accurate and useful this result is (for example,
+how useful is calculating the average aspect of two hillsides that face each other?).
+
+### Hillshade
+
+Starting from a DEM (12 second) clipped to BC in BC Albers/3005, generate a new Hillshade raster:
+```sh
+whitebox_tools -r=HillShade -v --wd="$(pwd)" --dem=01_dem_3005.tif -o=04_hillshade.tif  --azimuth=180.0 --altitude=45.0
+```
+
+Create the COG:
+```sh
+gdal_translate "04_hillshade.tif" "BC_Area_Hillshade_3005.tif" \
+     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
+     -co COMPRESS=LZW -co PREDICTOR=2 \
+     -co COPY_SRC_OVERVIEWS=YES
+```
