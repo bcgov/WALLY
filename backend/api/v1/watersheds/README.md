@@ -93,8 +93,14 @@ ogrmerge.py -o merged_streams.shp -t_srs "EPSG:3005" -single -progress wa_stream
 
 Finally, burn the streams:
 ```sh
-whitebox_tools -r=FillBurn -v --wd="./" --dem=srtm.tif --streams=merged_streams.shp -o=Burned_SRTM_3005.tif
+whitebox_tools -r=FillBurn -v --wd="./" --dem=srtm.tif --streams=merged_streams.shp -o=01_burned_srtm.tif
 ```
 
+Create a COG:
+```sh
+gdal_translate "01_burned_srtm.tif" "Burned_SRTM_3005.tif" \
+     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
+     -co COMPRESS=LZW -co PREDICTOR=3 \
+     -co COPY_SRC_OVERVIEWS=YES
+```
 Upload the resulting `Burned_SRTM_3005.tif` to Minio (staging and prod) and [create a fixture version](../../../fixtures/extents/README.md).
-
