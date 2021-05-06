@@ -1365,8 +1365,6 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True,
 
     solar_exposure = area_cdem.get_mean_hillshade()
 
-    mean_daylight_time = area_cdem.get_mean_time_in_daylight()
-
     if WATERSHED_DEBUG:
         logger.info("elevation stats %s", elev_stats)
         logger.info("median elevation %s", median_elev)
@@ -1389,7 +1387,6 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True,
         "solar_exposure": solar_exposure,
         "median_elevation": median_elev,
         "elevation_stats": elev_stats,
-        "mean_daylight_time": mean_daylight_time,
         "aspect": aspect
     }
 
