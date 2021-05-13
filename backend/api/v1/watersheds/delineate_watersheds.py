@@ -326,8 +326,6 @@ def get_watershed_using_dem(
     `dem_source`: either cdem or srtm.  CDEM data is generally lower resolution but may have
     fewer gaps in data further away from the US border. SRTM data is good near the US border but
     data quality needs to be investigated further north.
-    `cdem` requires a stream-burned raster to be loaded in the `dem.x_ws_cdem` table.
-    `srtm` requires a stream-burned raster in the `dem.x_ws_srtm` table.
 
     Hydrosheds data:  https://www.hydrosheds.org/ via FWAPG https://github.com/smnorris/fwapg
     Whitebox Tools: https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html
