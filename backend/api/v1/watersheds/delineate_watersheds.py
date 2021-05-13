@@ -371,10 +371,11 @@ def get_watershed_using_dem(
         dem_file = SRTM_FILE
         point = transform(transform_4326_3005, point)
         snap_distance = 100  # metres
-        smoothing_tolerance = 20  # degrees
+        smoothing_tolerance = None  # degrees
         using_srid = 3005
-        upstream_area_buffered = transform(
-            transform_4326_3005, working_area).buffer(1000)
+        working_area = transform(
+            transform_4326_3005, working_area)
+        upstream_area_buffered = working_area.buffer(1000)
     else:
         # create a buffer around the catchment.  this helps prevent accidently cropping the DEM
         # too close
@@ -393,9 +394,11 @@ def get_watershed_using_dem(
         # if we have an upstream mask, test to make sure the DEM watershed
         # at least reached the masked area.
         if upstream_mask and result.is_valid and result.intersects(upstream_mask):
+            if smoothing_tolerance:
+                result = result \
+                    .buffer(smoothing_tolerance, join_style=1) \
+                    .buffer(-smoothing_tolerance, join_style=1)
             result = result \
-                .buffer(smoothing_tolerance, join_style=1) \
-                .buffer(-smoothing_tolerance, join_style=1) \
                 .intersection(working_area) \
                 .union(upstream_mask)
             break
@@ -408,11 +411,11 @@ def get_watershed_using_dem(
         # increasing the distance has a good chance of returning a good watershed.
         elif result.is_valid and result.area / working_area.area > 0.01:
             # only smooth polygons if use_fwa selected.
-            if use_fwa:
+            if use_fwa and smoothing_tolerance:
                 result = result \
                     .buffer(smoothing_tolerance, join_style=1) \
-                    .buffer(-smoothing_tolerance, join_style=1) \
-                    .intersection(working_area)
+                    .buffer(-smoothing_tolerance, join_style=1)
+            result = result.intersection(working_area)
             break
         else:
             snap_distance *= 2
@@ -421,6 +424,7 @@ def get_watershed_using_dem(
                 snap_distance)
 
     if dem_source == 'srtm':
+        logger.info('transforming SRTM derived watershed back to 4326')
         return (transform(transform_3005_4326, result), transform(transform_3005_4326, snapped_point))
 
     return (result, snapped_point)
@@ -501,7 +505,7 @@ def wbt_calculate_watershed(
     # callback function to suppress progress output.
     def wbt_suppress_progress_output(value):
         if not "%" in value:
-            logger.debug(value)
+            logger.info(value)
 
     # WhiteboxTools reads and writes files from/to disk.
     # Set up some filename references in a TemporaryDirectory.
