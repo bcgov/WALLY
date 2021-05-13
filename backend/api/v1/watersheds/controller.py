@@ -53,7 +53,6 @@ from api.v1.watersheds.schema import (
     GeneratedWatershedDetails
 )
 from api.v1.watersheds.delineate_watersheds import (
-    augment_dem_watershed_with_fwa,
     get_full_stream_catchment_area,
     get_cross_border_catchment_area,
     get_upstream_catchment_area,
