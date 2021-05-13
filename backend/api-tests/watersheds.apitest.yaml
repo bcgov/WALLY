@@ -21,7 +21,7 @@ requests:
       - var: auth_token # set the {{auth_token}} here
         from: access_token
   - name: Watershed at point 1 (using DEM)
-    url: "{{host}}/api/v1/watersheds/?point=%5B-123.00569724659113%2C50.14366252500119%5D&include_self=false&upstream_method=DEM"
+    url: "{{host}}/api/v1/watersheds/?point=%5B-123.00569724659113%2C50.14366252500119%5D&upstream_method=DEM"
     method: get
     expect:
       status: 200
@@ -31,7 +31,7 @@ requests:
           gt: 24849800
           lt: 24849900  # float field.  use range to check value is valid.
   - name: Watershed at point 2 (using DEM and refine with FWA)
-    url: "{{host}}/api/v1/watersheds/?point=%5B-122.95641297167052%2C50.16143334016911%5D&include_self=false&upstream_method=DEM%2BFWA"
+    url: "{{host}}/api/v1/watersheds/?point=%5B-122.95641297167052%2C50.16143334016911%5D&upstream_method=DEM%2BFWA"
     method: get
     expect:
       status: 200
@@ -41,7 +41,7 @@ requests:
           gt: 635899
           lt: 635900
   - name: Watershed at point 3 (using DEM and refine with FWA)
-    url: "{{host}}/api/v1/watersheds/?point=%5B-122.90906363692298%2C50.07010783054966%5D&include_self=false&upstream_method=DEM%2BFWA"
+    url: "{{host}}/api/v1/watersheds/?point=%5B-122.90906363692298%2C50.07010783054966%5D&upstream_method=DEM%2BFWA"
     method: get
     expect:
       status: 200

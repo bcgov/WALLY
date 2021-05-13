@@ -315,7 +315,7 @@ def get_full_stream_catchment_area(db, watershed_id):
     )
 
 
-def get_upstream_catchment_area(db: Session, watershed_feature_id: int, include_self=False):
+def get_upstream_catchment_area(db: Session, watershed_feature_id: int):
     """ returns the union of all FWA watershed polygons upstream from
         the watershed polygon with WATERSHED_FEATURE_ID as a Feature
 
@@ -520,7 +520,7 @@ def wbt_calculate_watershed(
         pntr: bool = True,
         accum_out_type: str = 'sca',
         snap_distance: float = 1000,
-        using_srid: int = 3005) -> (Point, MultiPolygon):
+        using_srid: int = 3005) -> Tuple[Point, MultiPolygon]:
     """
     Given a watershed region (an overestimate to crop the original DEM raster to), a starting point,
     and a path to a DEM file (`dem_file`), use WhiteboxTools to generate an upstream watershed from the point.
@@ -690,7 +690,6 @@ def gdal_raster_to_polygon(in_file, out_file):
         # the watershed is always in band 1.
         sourceRaster = gdal.Open(in_file)
         band = sourceRaster.GetRasterBand(1)
-        bandArray = band.ReadAsArray()
 
         # create a shapefile with a layer for our watershed.
         driver = ogr.GetDriverByName("ESRI Shapefile")

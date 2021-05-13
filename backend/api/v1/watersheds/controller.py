@@ -37,6 +37,7 @@ from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
+from api.v1.hydat.controller import get_point_on_stream
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
@@ -387,7 +388,7 @@ def calculate_watershed(
     user,
     click_point: Point = None,
     watershed_id: int = None,
-    include_self: bool = False,
+    hydat_station_number: str = None,
     upstream_method='DEM+FWA',
     dem_source='cdem'
 ) -> GeneratedWatershedDetails:
@@ -422,9 +423,9 @@ def calculate_watershed(
         raise ValueError(
             "Do not provide both point and watershed_id at the same time")
 
-    if not click_point and not watershed_id:
+    if not click_point and not watershed_id and not hydat_station_number:
         raise ValueError(
-            "Must provide either a starting point (lat, long) or a starting watershed ID")
+            "Must provide either a starting point (lat, long), a starting watershed ID, or a HYDAT station number")
 
     if watershed_id and not upstream_method.startswith("FWA"):
         raise ValueError(
@@ -436,7 +437,15 @@ def calculate_watershed(
     stream_name = ''
     point_on_stream = None
 
-    if click_point:
+    # if this watershed is based on a HYDAT station, look up the lat/long.
+    # Since sometimes the lat/long can be incorrect or still in an ambigious location
+    # (e.g. at a confluence where the station point may be closer to a tributary than
+    # the centreline of the stream being monitored), correct the point onto the stream
+    # in the Station name.
+    if hydat_station_number:
+        point_on_stream, click_point = get_point_on_stream(db, hydat_station_number)
+
+    elif click_point:
         # move the click point to the nearest stream based on the FWA Stream Networks.
         # this will make it easier to snap the point to the Flow Accumulation raster
         # we will generate.
@@ -467,6 +476,7 @@ def calculate_watershed(
             )
             warnings.append(point_not_on_stream_warning)
 
+    if point_on_stream:
         # get the ID of the watershed we are starting in.
         # this will be used later to help with queries against the fundamental watersheds.
         q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
@@ -812,6 +822,7 @@ def get_watershed(
     generated_fullstream  | starting watershed_feature_id
     generated_dem_fwa     | base64-encoded WKT POINT
     generated_dem         | base64-encoded WKT POINT
+    hydat                 | station_number
 
     Note: this feature can also be used to look up watersheds from DataBC using the same format.
     It used to support this, but is no longer used. If this is a requirement in the future,
@@ -863,6 +874,12 @@ def get_watershed(
         watershed_id = watershed_feature_id[0]
         watershed = calculate_watershed(
             db, user, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
+
+    elif watershed_layer == 'hydat':
+        station_number = watershed_feature_id[0]
+        watershed = calculate_watershed(
+            db, user, hydat_station_number=station_number, upstream_method='DEM+FWA'
+        )
 
     else:
         raise HTTPException(
