@@ -77,7 +77,8 @@ def get_point_on_stream(db: Session, station_number: str) -> Point:
 
     stream_point = wkb.loads(stream['stream_point'].tobytes())
     station_point = wkb.loads(stream['station_point'].tobytes())
+    stream_feature_id = stream['linear_feature_id']
 
     logger.info('Station %s - using point on stream: %s', station_number, stream_point.wkt)
 
-    return (stream_point, station_point)
+    return (stream_point, stream_feature_id, station_point)

@@ -436,6 +436,7 @@ def calculate_watershed(
 
     stream_name = ''
     point_on_stream = None
+    stream_feature_id = None
 
     # if this watershed is based on a HYDAT station, look up the lat/long.
     # Since sometimes the lat/long can be incorrect or still in an ambigious location
@@ -443,7 +444,7 @@ def calculate_watershed(
     # the centreline of the stream being monitored), correct the point onto the stream
     # in the Station name.
     if hydat_station_number:
-        point_on_stream, click_point = get_point_on_stream(db, hydat_station_number)
+        point_on_stream, stream_feature_id, click_point = get_point_on_stream(db, hydat_station_number)
 
     elif click_point:
         # move the click point to the nearest stream based on the FWA Stream Networks.
@@ -452,6 +453,7 @@ def calculate_watershed(
         nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
         nearest_stream_point = nearest_stream.get('closest_stream_point')
         stream_name = nearest_stream.get('gnis_name', '')
+        stream_feature_id = nearest_stream.get('linear_feature_id', None)
         point_on_stream = shape(nearest_stream_point)
 
         stream_distance = transform(
@@ -515,7 +517,7 @@ def calculate_watershed(
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
         (watershed, snapped_point) = get_watershed_using_dem(
-            db, point_on_stream, watershed_id)
+            db, point_on_stream, stream_feature_id, watershed_id, use_fwa=upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
         watershed_point = base64.urlsafe_b64encode(
@@ -530,10 +532,8 @@ def calculate_watershed(
             )
             warnings.append(no_cross_border_fwa_warning)
 
-        # optionally augment the watershed using the FWA.
+        # if using DEM+FWA and not near a border, add the source info for CDEM/WBT/FWA.
         elif upstream_method == 'DEM+FWA':
-            (watershed, dem_error) = augment_dem_watershed_with_fwa(
-                db, watershed, watershed_id, point_on_stream)
             watershed_source = "Estimated by combining the result from CDEM/WhiteboxTools " + \
                                "with Freshwater Atlas fundamental watershed polygons."
             generated_method = 'generated_dem_fwa'
@@ -548,7 +548,7 @@ def calculate_watershed(
         watershed_point = watershed_id
 
     elif upstream_method == 'FWA+FULLSTREAM':
-        watershed = get_upstream_catchment_area(db, watershed_id)
+        watershed = get_full_stream_catchment_area(db, watershed_id)
         watershed_source = "Estimated by combining Freshwater Atlas watershed polygons that are " + \
             "determined to be part of the selected stream based on FWA_WATERSHED_CODE."
         generated_method = 'generated_full_stream'
@@ -579,6 +579,8 @@ def calculate_watershed(
         transform_4326_3005, shape(feature.geometry)).area
 
     elapsed = (time.perf_counter() - start)
+
+    logger.info('Time to calculate watershed: %s', elapsed)
 
     watershed_resp = GeneratedWatershedDetails(
         warnings=warnings,
