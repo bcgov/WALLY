@@ -48,8 +48,8 @@ requests:
       values:
         upstream_method: "generated_dem_fwa"
         watershed.properties.FEATURE_AREA_SQM:
-          gt: 49815190
-          lt: 49815200
+          gt: 49700000
+          lt: 49800000
     set:
       - var: watershed_id
         from: watershed.id
