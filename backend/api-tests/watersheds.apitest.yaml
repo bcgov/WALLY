@@ -38,8 +38,8 @@ requests:
       values:
         upstream_method: "generated_dem_fwa"
         watershed.properties.FEATURE_AREA_SQM:
-          gt: 635899
-          lt: 635900
+          gt: 669000
+          lt: 669100
   - name: Watershed at point 3 (using DEM and refine with FWA)
     url: "{{host}}/api/v1/watersheds/?point=%5B-122.90906363692298%2C50.07010783054966%5D&upstream_method=DEM%2BFWA"
     method: get
