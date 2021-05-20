@@ -382,6 +382,45 @@ def surface_water_approval_points(polygon: Polygon):
     )
 
 
+def get_nearest_stream_name_id(nearest_stream):
+    """
+    Given a row of FWA stream data, return a tuple containing the stream id, name, and the closest point.
+    `nearest_stream` row should be output from the api.v1.streams.controller.get_nearest_streams function.
+    """
+    nearest_stream_point = nearest_stream.get('closest_stream_point')
+    stream_name = nearest_stream.get('gnis_name', '')
+    stream_feature_id = nearest_stream.get('linear_feature_id', None)
+    point_on_stream = shape(nearest_stream_point)
+
+    return (stream_feature_id, stream_name, point_on_stream)
+
+
+def get_watershed_id_at_point(db: Session, point: Point):
+    """
+    given a point (degrees lng lat / EPSG:4326), return the ID
+    of the watershed containing it.
+    """
+    q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
+        func.ST_Contains(
+            FreshwaterAtlasWatersheds.GEOMETRY,
+            func.ST_GeomFromText(
+                point.wkt, 4326)
+        )
+    )
+
+    watershed_id = q.first()
+    if not watershed_id:
+        if WATERSHED_DEBUG:
+            logger.warning("No watershed found")
+        return None
+    watershed_id = watershed_id[0]
+
+    if WATERSHED_DEBUG:
+        logger.info("watershed id %s", watershed_id)
+
+    return watershed_id
+
+
 def calculate_watershed(
     db: Session,
     user,
@@ -450,24 +489,16 @@ def calculate_watershed(
         # this will make it easier to snap the point to the Flow Accumulation raster
         # we will generate.
         nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
-        nearest_stream_point = nearest_stream.get('closest_stream_point')
-        stream_name = nearest_stream.get('gnis_name', '')
-        stream_feature_id = nearest_stream.get('linear_feature_id', None)
-        point_on_stream = shape(nearest_stream_point)
+        stream_feature_id, stream_name, point_on_stream = get_nearest_stream_name_id(nearest_stream)
 
         stream_distance = transform(
             transform_4326_3005, point_on_stream
         ).distance(
             transform(transform_4326_3005, click_point))
 
-        if WATERSHED_DEBUG:
-            logger.info('--------- nearest stream -------------')
-            logger.info(click_point)
-            logger.info('distance: %s', stream_distance)
-            logger.info('--------------------------------------')
-
+        # create a warning if the distance between the stream and click point is
+        # greater than stream_distance_warning_threshold
         stream_distance_warning_threshold = 500
-
         if stream_distance > stream_distance_warning_threshold:
             point_not_on_stream_warning = WatershedDataWarning(
                 message=f"This point is more than {stream_distance_warning_threshold} m from the nearest stream" +
@@ -480,23 +511,7 @@ def calculate_watershed(
     if point_on_stream:
         # get the ID of the watershed we are starting in.
         # this will be used later to help with queries against the fundamental watersheds.
-        q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
-            func.ST_Contains(
-                FreshwaterAtlasWatersheds.GEOMETRY,
-                func.ST_GeomFromText(
-                    point_on_stream.wkt, 4326)
-            )
-        )
-
-        watershed_id = q.first()
-        if not watershed_id:
-            if WATERSHED_DEBUG:
-                logger.warning("No watershed found")
-            return None
-        watershed_id = watershed_id[0]
-
-    if WATERSHED_DEBUG:
-        logger.info("watershed id %s", watershed_id)
+        watershed_id = get_watershed_id_at_point(db, point_on_stream)
 
     watershed_point = None
     watershed = None
@@ -515,12 +530,20 @@ def calculate_watershed(
     # choose method based on function argument.
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
-        (watershed, snapped_point) = get_watershed_using_dem(
+        (watershed, snapped_point, dem_error) = get_watershed_using_dem(
             db, point_on_stream, stream_feature_id, watershed_id, use_fwa=upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
         watershed_point = base64.urlsafe_b64encode(
             point_on_stream.wkb).decode('utf-8')
+
+        if dem_error:
+            dem_error_warning = WatershedDataWarning(
+                message="Your watershed could not be refined to the dropped point. There may be significant" +
+                " extra area downstream of your point of interest, or other errors. Please carefully verify the watershed" +
+                " boundary."
+            )
+            warnings.append(dem_error_warning)
 
         # ensure that we stop here if the watershed touches a border.
         if upstream_method == 'DEM+FWA' and is_near_border:
