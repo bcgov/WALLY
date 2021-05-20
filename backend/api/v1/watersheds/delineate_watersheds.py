@@ -367,7 +367,7 @@ def get_watershed_using_dem(
         dem_file = SRTM_FILE
         point = transform(transform_4326_3005, point)
         snap_distance = 100  # metres
-        smoothing_tolerance = 20  # metres
+        smoothing_tolerance = None  # metres
         using_srid = 3005
         working_area = transform(
             transform_4326_3005, working_area)
@@ -419,6 +419,7 @@ def get_watershed_using_dem(
             .buffer(-smoothing_tolerance, join_style=1)
 
     if dem_source == 'srtm':
+        working_area = transform(transform_3005_4326, working_area)
         logger.info('transforming SRTM derived watershed back to 4326')
         result = transform(transform_3005_4326, result)
         snapped_point = transform(transform_3005_4326, snapped_point)
