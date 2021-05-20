@@ -373,6 +373,7 @@ def get_watershed_using_dem(
             transform_4326_3005, working_area)
 
     max_tries = 8
+    dem_error_threshold = 4  # tries before warning that this watershed may have some issues.
     for n in range(max_tries):
         (result, snapped_point) = wbt_calculate_watershed(
             working_area.envelope, point, dem_file,
@@ -396,10 +397,10 @@ def get_watershed_using_dem(
         elif result.is_valid and result.area / working_area.area > 0.01:
             break
         else:
-            # if we've tried 4 times without a good result, set the dem_error.
-            # even though we will keep trying, this is the point where the DEM refinement starts
+            # if we've tried `dem_error_threshold` times without a good result, set the dem_error.
+            # even though we will keep trying, 4 tries generally the point where the DEM refinement starts
             # to get noticeably worse.
-            if n == 4:
+            if n == dem_error_threshold:
                 dem_error = True
 
             # increase the snap distance and retry.
