@@ -32,6 +32,8 @@ class StreamStation(BaseModel):
         None, description="URL where stream flow data is accessible")
     stream_levels_url: Optional[str] = Schema(
         None, description="URL where stream level data is accessible")
+    stream_stats_url: Optional[str] = Schema(
+        None, description="URL where stream statistics (monthly and annual means, and low flow frequencies) are accessible")
     external_urls: List[dict] = Schema(
         [], description="External links (e.g. links out to the original source of data")
 
@@ -67,12 +69,27 @@ class MonthlyFlow(BaseModel):
     station_number: Optional[str]
     year: Optional[int]
     month: int
-    full_month: Optional[int]
-    no_days: Optional[int]
     monthly_mean: Optional[float]
-    monthly_total: Optional[float]
     min: Optional[float]
     max: Optional[float]
+
+    class Config:
+        orm_mode = True
+
+
+class FlowStatistics(BaseModel):
+    """
+    Flow statistics such as mean annual discharge, monthly means,
+    and low flows for specified return periods
+    """
+
+    station_number: str
+    low_30q10: float
+    low_30q5: float
+    low_7q10: float
+    low_30q10_summer: float
+    low_30q5_summer: float
+    low_7q10_summer: float
 
     class Config:
         orm_mode = True

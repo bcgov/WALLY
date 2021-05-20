@@ -12,10 +12,11 @@ Warning: the original database schema did not include any foreign key constraint
 # coding: utf-8
 from typing import List
 from geojson import Feature, Point
-from sqlalchemy import BigInteger, Column, DateTime, Index, Text, text, ForeignKey, func
+from sqlalchemy import BigInteger, Column, DateTime, Index, Text, text, ForeignKey, func, Integer
 from sqlalchemy.orm import relationship, Session
 from sqlalchemy.dialects.postgresql import DOUBLE_PRECISION
 from geoalchemy2 import Geometry
+from sqlalchemy.sql.sqltypes import Date, Numeric
 from api.db.base_class import BaseLayerTable
 import api.v1.hydat.schema as hydat_schema
 from shapely.geometry import Polygon
@@ -619,6 +620,7 @@ class Station(BaseLayerTable):
     datum_id = Column(BigInteger)
     dly_flows = relationship("DailyFlow", back_populates="station")
     dly_levels = relationship("DailyLevel", back_populates="station")
+    fasstr_flows = relationship("FASSTR_Flow", back_populates="station")
 
     @classmethod
     def get_as_feature(cls, row, geom_col):
@@ -781,3 +783,35 @@ class Version(BaseLayerTable):
 
     version = Column(Text, primary_key=True)
     date = Column(DateTime(True))
+
+
+class FASSTR_Flow(BaseLayerTable):
+    """
+    Flow data, populated by dly_flows but transformed into rows of dates and values.
+    """
+    __tablename__ = 'fasstr_flows'
+    __table_args__ = {'schema': 'hydat'}
+
+    fasstr_flows_id = Column(Integer, primary_key=True)
+    station_number = Column(Text, ForeignKey(
+        'hydat.stations.station_number'), index=True, nullable=False)
+    date = Column(Date, nullable=False)
+    value = Column(Numeric, nullable=True)
+    station = relationship("Station", back_populates="fasstr_flows")
+
+
+class LongtermStats(BaseLayerTable):
+    """
+    helper table for long-term daily flow statistics
+    used with the fasstr_calc_longterm_daily_stats function.
+    """
+    __tablename__ = 'longterm_stats'
+    __table_args__ = {'schema': 'hydat'}
+
+    month = Column(Text, nullable=False, primary_key=True)
+    mean = Column(Numeric, nullable=True)
+    median = Column(Numeric, nullable=True)
+    maximum = Column(Numeric, nullable=True)
+    minimum = Column(Numeric, nullable=True)
+    p10 = Column(Numeric, nullable=True)
+    p90 = Column(Numeric, nullable=True)
