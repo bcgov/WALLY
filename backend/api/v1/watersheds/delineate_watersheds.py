@@ -398,8 +398,8 @@ def get_watershed_using_dem(
             break
         else:
             # if we've tried `dem_error_threshold` times without a good result, set the dem_error.
-            # even though we will keep trying, 4 tries generally the point where the DEM refinement starts
-            # to get noticeably worse.
+            # even though we will keep trying, we'll warn the user to double check the result.
+            # 4 tries is generally the point where the DEM refinement starts to get noticeably worse.
             if n == dem_error_threshold:
                 dem_error = True
 
@@ -412,16 +412,16 @@ def get_watershed_using_dem(
             else:
                 logger.info("Could not validate that the DEM-delineated polygon is correct")
 
-    if dem_source == 'srtm':
-        logger.info('transforming SRTM derived watershed back to 4326')
-        result = transform(transform_3005_4326, result)
-        snapped_point = transform(transform_3005_4326, snapped_point)
-
     # do a quick smooth of the otherwise jagged DEM-derived polygon.
     if use_fwa and smoothing_tolerance:
         result = result \
             .buffer(smoothing_tolerance, join_style=1) \
             .buffer(-smoothing_tolerance, join_style=1)
+
+    if dem_source == 'srtm':
+        logger.info('transforming SRTM derived watershed back to 4326')
+        result = transform(transform_3005_4326, result)
+        snapped_point = transform(transform_3005_4326, snapped_point)
 
     # join the result to the upstream mask.
     # this will fill out the upstream area to the bounds of the upstream FWA polygons
