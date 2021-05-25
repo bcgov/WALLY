@@ -33,7 +33,7 @@ requests:
         avg_mm:
           exists: true
   - name: Watersheds available at point (Stawamus River)
-    url: "{{host}}/api/v1/watersheds/?point=%5B-123.14608370256562%2C49.68977177141528%5D&include_self=false"
+    url: "{{host}}/api/v1/watersheds/?point=%5B-123.14608370256562%2C49.68977177141528%5D"
     method: get
     expect:
       status: 200
