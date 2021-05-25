@@ -13,6 +13,7 @@ import { downloadXlsx } from '../../../common/utils/exportUtils'
 import { SOURCE_WELL_OFFSET_DISTANCE } from '../../../common/mapbox/sourcesWally'
 import { addMapboxLayer } from '../../../common/utils/mapUtils'
 import { featureCollection, geojsonFC } from '../../../common/mapbox/features'
+
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
@@ -542,7 +543,12 @@ export default {
         radius: parseFloat(this.radius),
         line: JSON.stringify(this.coordinates)
       }
-      this.resetCrossSectionData()
+
+      // Errors out when not contained
+      // When these values get reset, an `emit` error shows up, not quite sure why
+      if (this.wells.length > 0 || this.wellsLithology.length > 0 || this.screens.length > 0) {
+        this.resetCrossSectionData()
+      }
       this.resetWellOffsetDistanceLayer()
 
       // Update the section line coordinates in the URL query params.
@@ -562,22 +568,26 @@ export default {
       } catch (e) {
         console.error(e)
       }
-      this.processWellResults(wells.data)
-      this.setAnnotationMarkers()
+      // Errors out if not contained
+      // UnhandledPromiseRejection, TypeError: Cannot read property 'wells' of undefined
+      if (wells && wells.data) {
+        this.processWellResults(wells.data)
+        this.setAnnotationMarkers()
 
-      // Fetch Lithology
-      let wellIds = this.wells.map(w => w.well_tag_number).join()
-      let lithologyResults = {}
-      try {
-        lithologyResults = await this.fetchWellsLithology(wellIds)
-      } catch (e) {
-        console.error(e)
+        // Fetch Lithology
+        let wellIds = this.wells.map(w => w.well_tag_number).join()
+        let lithologyResults = {}
+        try {
+          lithologyResults = await this.fetchWellsLithology(wellIds)
+        } catch (e) {
+          console.error(e)
+        }
+        let lithology = lithologyResults.data.results
+        this.buildLithologyList(lithology)
+
+        this.loading = false
+        this.initPlotly()
       }
-      let lithology = lithologyResults.data.results
-      this.buildLithologyList(lithology)
-
-      this.loading = false
-      this.initPlotly()
     },
     fetchWells (params) {
       return ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)

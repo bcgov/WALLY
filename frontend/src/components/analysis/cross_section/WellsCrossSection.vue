@@ -82,8 +82,8 @@
             color="grey"
           ></v-progress-circular>
         </v-card-text>
-        <v-card v-if="!loading" flat>
-          <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
+        <v-card flat>
+          <Plotly v-show="!loading" id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
         </v-card>
       </v-tab-item>
       <v-tab-item>
@@ -99,8 +99,8 @@
             color="grey"
           ></v-progress-circular>
         </v-card-text>
-        <v-card v-if="!loading" flat>
-          <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
+        <v-card flat>
+          <Plotly v-show="!loading" id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
         </v-card>
       </v-tab-item>
     </v-tabs>
