@@ -11,3 +11,4 @@ catboost
 tensorflow
 seaborn
 Jinja2
+python-dotenv
