@@ -558,7 +558,7 @@ export default {
           ...this.$route.query,
           'section_line_A': this.coordinates[0],
           'section_line_B': this.coordinates[1]
-        } })
+        } }).catch((e) => {})
       }
 
       // Fetch wells
@@ -586,7 +586,9 @@ export default {
         this.buildLithologyList(lithology)
 
         this.loading = false
-        this.initPlotly()
+        this.$nextTick(() => {
+          this.initPlotly()
+        })
       }
     },
     fetchWells (params) {
@@ -705,8 +707,12 @@ export default {
       })
     },
     resetMarkerLabels () {
-      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return false })
-      this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return true })
+      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => {
+        return false
+      })
+      this.$refs.crossPlot.$el.on('plotly_beforehover', () => {
+        return true
+      })
       PlotlyJS.Fx.hover('2dPlot', [])
       // reset all selection data so points gain back opacity
       this.$refs.crossPlot.data.forEach((d) => {
@@ -854,7 +860,7 @@ export default {
       addMapboxLayer(this.map, SOURCE_WELL_OFFSET_DISTANCE, {})
 
       this.map.on('mouseenter', SOURCE_WELL_OFFSET_DISTANCE, (e) => {
-      // Change the cursor style as a UI indicator.
+        // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
         let coordinates = e.features[0].geometry.coordinates.slice()
