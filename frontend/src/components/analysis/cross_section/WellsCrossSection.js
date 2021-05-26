@@ -41,6 +41,8 @@ export default {
     radius: 200,
     wells: [],
     wellsLithology: [],
+    waterbodies: [],
+    screens: [],
     elevations: [],
     streams: [],
     surfacePoints: [],
@@ -459,8 +461,8 @@ export default {
     },
     surfaceLayout () {
       const emptyArr = ['', '', '']
-      let a = this.surfacePoints[2][0] ? this.surfacePoints[2][0] : emptyArr
-      let b = this.surfacePoints[2][0] ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
+      let a = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][0] : emptyArr
+      let b = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
 
       return {
         title: '',
@@ -743,7 +745,7 @@ export default {
           let img2 = canvas2.toDataURL('image/png')
           const imgProps2 = doc.getImageProperties(img2)
           let size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
-          crossDoc.addPage(size2[0], size2[1]) // add new page for next image
+          crossDoc.addPage([size2[0], size2[1]]) // add new page for next image
           crossDoc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
           crossDoc.save(filename)
           this.downloadImageLoading = false

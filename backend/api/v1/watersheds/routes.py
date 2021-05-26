@@ -101,8 +101,6 @@ def get_watersheds(
     point: str = Query(
         "", title="Search point",
         description="Point to search within"),
-    include_self: bool = Query(
-        False, title="Include the area around the point of interest in generated polygons"),
     upstream_method: str = Query(
         "DEM+FWA", title="Upstream catchment estimation method",
         description="Method for estimating upstream catchment area. See watersheds/controller.py"
@@ -126,7 +124,7 @@ def get_watersheds(
     upstream_method = unquote(upstream_method)
 
     return calculate_watershed(
-        db, user, point, include_self=include_self, upstream_method=upstream_method)
+        db, user, point, upstream_method=upstream_method)
 
 
 @router.get('/{watershed_feature}')
@@ -235,7 +233,7 @@ def get_generated_watershed_details(
     if WATERSHED_DEBUG:
         logger.warning("watershed details point: %s", point)
 
-    watershed = calculate_watershed(db, user, point, include_self=True)
+    watershed = calculate_watershed(db, user, point)
 
     if not watershed:
         raise HTTPException(

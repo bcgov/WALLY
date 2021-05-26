@@ -37,6 +37,7 @@ from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
+from api.v1.hydat.controller import get_point_on_stream
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
@@ -52,7 +53,6 @@ from api.v1.watersheds.schema import (
     GeneratedWatershedDetails
 )
 from api.v1.watersheds.delineate_watersheds import (
-    augment_dem_watershed_with_fwa,
     get_full_stream_catchment_area,
     get_cross_border_catchment_area,
     get_upstream_catchment_area,
@@ -382,12 +382,51 @@ def surface_water_approval_points(polygon: Polygon):
     )
 
 
+def get_nearest_stream_name_id(nearest_stream):
+    """
+    Given a row of FWA stream data, return a tuple containing the stream id, name, and the closest point.
+    `nearest_stream` row should be output from the api.v1.streams.controller.get_nearest_streams function.
+    """
+    nearest_stream_point = nearest_stream.get('closest_stream_point')
+    stream_name = nearest_stream.get('gnis_name', '')
+    stream_feature_id = nearest_stream.get('linear_feature_id', None)
+    point_on_stream = shape(nearest_stream_point)
+
+    return (stream_feature_id, stream_name, point_on_stream)
+
+
+def get_watershed_id_at_point(db: Session, point: Point):
+    """
+    given a point (degrees lng lat / EPSG:4326), return the ID
+    of the watershed containing it.
+    """
+    q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
+        func.ST_Contains(
+            FreshwaterAtlasWatersheds.GEOMETRY,
+            func.ST_GeomFromText(
+                point.wkt, 4326)
+        )
+    )
+
+    watershed_id = q.first()
+    if not watershed_id:
+        if WATERSHED_DEBUG:
+            logger.warning("No watershed found")
+        return None
+    watershed_id = watershed_id[0]
+
+    if WATERSHED_DEBUG:
+        logger.info("watershed id %s", watershed_id)
+
+    return watershed_id
+
+
 def calculate_watershed(
     db: Session,
     user,
     click_point: Point = None,
     watershed_id: int = None,
-    include_self: bool = False,
+    hydat_station_number: str = None,
     upstream_method='DEM+FWA',
     dem_source='cdem'
 ) -> GeneratedWatershedDetails:
@@ -422,9 +461,9 @@ def calculate_watershed(
         raise ValueError(
             "Do not provide both point and watershed_id at the same time")
 
-    if not click_point and not watershed_id:
+    if not click_point and not watershed_id and not hydat_station_number:
         raise ValueError(
-            "Must provide either a starting point (lat, long) or a starting watershed ID")
+            "Must provide either a starting point (lat, long), a starting watershed ID, or a HYDAT station number")
 
     if watershed_id and not upstream_method.startswith("FWA"):
         raise ValueError(
@@ -435,29 +474,31 @@ def calculate_watershed(
 
     stream_name = ''
     point_on_stream = None
+    stream_feature_id = None
 
-    if click_point:
+    # if this watershed is based on a HYDAT station, look up the lat/long.
+    # Since sometimes the lat/long can be incorrect or still in an ambigious location
+    # (e.g. at a confluence where the station point may be closer to a tributary than
+    # the centreline of the stream being monitored), correct the point onto the stream
+    # in the Station name.
+    if hydat_station_number:
+        point_on_stream, stream_feature_id, click_point = get_point_on_stream(db, hydat_station_number)
+
+    elif click_point:
         # move the click point to the nearest stream based on the FWA Stream Networks.
         # this will make it easier to snap the point to the Flow Accumulation raster
         # we will generate.
         nearest_stream = get_nearest_streams(db, click_point, limit=1)[0]
-        nearest_stream_point = nearest_stream.get('closest_stream_point')
-        stream_name = nearest_stream.get('gnis_name', '')
-        point_on_stream = shape(nearest_stream_point)
+        stream_feature_id, stream_name, point_on_stream = get_nearest_stream_name_id(nearest_stream)
 
         stream_distance = transform(
             transform_4326_3005, point_on_stream
         ).distance(
             transform(transform_4326_3005, click_point))
 
-        if WATERSHED_DEBUG:
-            logger.info('--------- nearest stream -------------')
-            logger.info(click_point)
-            logger.info('distance: %s', stream_distance)
-            logger.info('--------------------------------------')
-
+        # create a warning if the distance between the stream and click point is
+        # greater than stream_distance_warning_threshold
         stream_distance_warning_threshold = 500
-
         if stream_distance > stream_distance_warning_threshold:
             point_not_on_stream_warning = WatershedDataWarning(
                 message=f"This point is more than {stream_distance_warning_threshold} m from the nearest stream" +
@@ -467,25 +508,10 @@ def calculate_watershed(
             )
             warnings.append(point_not_on_stream_warning)
 
+    if point_on_stream:
         # get the ID of the watershed we are starting in.
         # this will be used later to help with queries against the fundamental watersheds.
-        q = db.query(FreshwaterAtlasWatersheds.WATERSHED_FEATURE_ID).filter(
-            func.ST_Contains(
-                FreshwaterAtlasWatersheds.GEOMETRY,
-                func.ST_GeomFromText(
-                    point_on_stream.wkt, 4326)
-            )
-        )
-
-        watershed_id = q.first()
-        if not watershed_id:
-            if WATERSHED_DEBUG:
-                logger.warning("No watershed found")
-            return None
-        watershed_id = watershed_id[0]
-
-    if WATERSHED_DEBUG:
-        logger.info("watershed id %s", watershed_id)
+        watershed_id = get_watershed_id_at_point(db, point_on_stream)
 
     watershed_point = None
     watershed = None
@@ -504,12 +530,20 @@ def calculate_watershed(
     # choose method based on function argument.
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
-        (watershed, snapped_point) = get_watershed_using_dem(
-            db, point_on_stream, watershed_id)
+        (watershed, snapped_point, dem_error) = get_watershed_using_dem(
+            db, point_on_stream, stream_feature_id, watershed_id, use_fwa=upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
         watershed_point = base64.urlsafe_b64encode(
             point_on_stream.wkb).decode('utf-8')
+
+        if dem_error:
+            dem_error_warning = WatershedDataWarning(
+                message="Your watershed could not be refined to the dropped point. There may be significant" +
+                " extra area downstream of your point of interest, or other errors. Please carefully verify the watershed" +
+                " boundary."
+            )
+            warnings.append(dem_error_warning)
 
         # ensure that we stop here if the watershed touches a border.
         if upstream_method == 'DEM+FWA' and is_near_border:
@@ -520,10 +554,8 @@ def calculate_watershed(
             )
             warnings.append(no_cross_border_fwa_warning)
 
-        # optionally augment the watershed using the FWA.
+        # if using DEM+FWA and not near a border, add the source info for CDEM/WBT/FWA.
         elif upstream_method == 'DEM+FWA':
-            (watershed, dem_error) = augment_dem_watershed_with_fwa(
-                db, watershed, watershed_id, point_on_stream)
             watershed_source = "Estimated by combining the result from CDEM/WhiteboxTools " + \
                                "with Freshwater Atlas fundamental watershed polygons."
             generated_method = 'generated_dem_fwa'
@@ -538,7 +570,7 @@ def calculate_watershed(
         watershed_point = watershed_id
 
     elif upstream_method == 'FWA+FULLSTREAM':
-        watershed = get_upstream_catchment_area(db, watershed_id)
+        watershed = get_full_stream_catchment_area(db, watershed_id)
         watershed_source = "Estimated by combining Freshwater Atlas watershed polygons that are " + \
             "determined to be part of the selected stream based on FWA_WATERSHED_CODE."
         generated_method = 'generated_full_stream'
@@ -569,6 +601,8 @@ def calculate_watershed(
         transform_4326_3005, shape(feature.geometry)).area
 
     elapsed = (time.perf_counter() - start)
+
+    logger.info('Time to calculate watershed: %s', elapsed)
 
     watershed_resp = GeneratedWatershedDetails(
         warnings=warnings,
@@ -812,6 +846,7 @@ def get_watershed(
     generated_fullstream  | starting watershed_feature_id
     generated_dem_fwa     | base64-encoded WKT POINT
     generated_dem         | base64-encoded WKT POINT
+    hydat                 | station_number
 
     Note: this feature can also be used to look up watersheds from DataBC using the same format.
     It used to support this, but is no longer used. If this is a requirement in the future,
@@ -863,6 +898,12 @@ def get_watershed(
         watershed_id = watershed_feature_id[0]
         watershed = calculate_watershed(
             db, user, watershed_id=watershed_id, upstream_method='FWA+FULLSTREAM')
+
+    elif watershed_layer == 'hydat':
+        station_number = watershed_feature_id[0]
+        watershed = calculate_watershed(
+            db, user, hydat_station_number=station_number, upstream_method='DEM+FWA'
+        )
 
     else:
         raise HTTPException(
@@ -1043,7 +1084,7 @@ def get_slope_elevation_aspect(polygon: MultiPolygon):
     return (slope, median_elev, aspect)
 
 
-def get_hillshade(slope_rad: float, aspect_rad: float):
+def get_hillshade(slope_rad: float, aspect_rad: float, azimuth: float = 180.0, altitude: float = 45.0):
     """
     Calculates the percentage hillshade (solar_exposure) value
     based on the average slope and aspect of a point
@@ -1052,10 +1093,14 @@ def get_hillshade(slope_rad: float, aspect_rad: float):
     if slope_rad is None or aspect_rad is None:
         return None
 
-    azimuth = 180.0  # 0-360 we are using values from the scsb2016 paper
-    altitude = 45.0  # 0-90 " "
-    azimuth_rad = azimuth * math.pi / 2.
-    altitude_rad = altitude * math.pi / 180.
+    if slope_rad < 0 or slope_rad > 2 * math.pi:
+        raise ValueError('slope_rad %s out of bounds. Ensure the value is in radians.', slope_rad)
+
+    if aspect_rad < 0 or aspect_rad > 2 * math.pi:
+        raise ValueError('aspect_rad %s out of bounds. Ensure the value is in radians.', aspect_rad)
+
+    azimuth_rad = math.radians(azimuth)
+    altitude_rad = math.radians(altitude)
 
     shade_value = math.sin(altitude_rad) * math.sin(slope_rad) \
         + math.cos(altitude_rad) * math.cos(slope_rad) \
@@ -1347,17 +1392,17 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
 
-    polygon_4140 = transform(transform_4326_4140, watershed_poly)
-    area_cdem = CDEM(polygon_4140)
+    area_cdem = CDEM(watershed_poly)
 
     elev_stats = area_cdem.get_raster_summary_stats()
     median_elev = area_cdem.get_median_elevation()
     avg_slope = area_cdem.get_average_slope()
+
     aspect = area_cdem.get_mean_aspect()
 
     slope_percent = math.tan(avg_slope) * 100
-    slope_radians = avg_slope * (math.pi/180)
-    solar_exposure = get_hillshade(slope_radians, aspect)
+
+    solar_exposure = area_cdem.get_mean_hillshade()
 
     if WATERSHED_DEBUG:
         logger.info("elevation stats %s", elev_stats)
