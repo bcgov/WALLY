@@ -483,6 +483,7 @@ def calculate_watershed(
     # in the Station name.
     if hydat_station_number:
         point_on_stream, stream_feature_id, click_point = get_point_on_stream(db, hydat_station_number)
+        upstream_method = 'DEM'
 
     elif click_point:
         # move the click point to the nearest stream based on the FWA Stream Networks.
@@ -1398,7 +1399,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     median_elev = area_cdem.get_median_elevation()
     avg_slope = area_cdem.get_average_slope()
 
-    aspect = area_cdem.get_mean_aspect()
+    aspect = None
 
     slope_percent = math.tan(avg_slope) * 100
 
