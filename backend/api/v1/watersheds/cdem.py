@@ -95,22 +95,21 @@ class CDEM:
         # Use ST_Slope to find the slope of a pixel
         # https://postgis.net/docs/RT_ST_Slope.html
         q = """
-        with slope as
-        (
-            select distinct
-                    (vc).value,
-                    sum ((vc).count) as tot_pix
-            from    dem.cdem as cdem
-            inner join
-                    ST_GeomFromText(:area, 4140) as geom
-            on      ST_Intersects(cdem.rast, geom),
-                    ST_ValueCount(ST_Slope(ST_Clip(cdem.rast,geom),1,'32BF','DEGREES'))
-            as vc
-            group by (vc).value
-            order by (vc).value
-        )
-        select  sum(value)/sum(tot_pix) AS avg
-        from    slope;
+          SELECT 
+            AVG((vc).value)
+          FROM (
+            SELECT ST_ValueCount(
+              ST_Slope(
+                ST_Clip(cdem.rast, ST_GeomFromText(:area, 4140)),
+                1,             
+                '32BF',        
+                'PERCENT',     
+                111120,        
+                FALSE::boolean 
+              )
+            ) as vc
+            FROM dem.cdem as cdem
+          ) as foo
         """
 
         avg_slope_perc = self.db.execute(q, {"area": self.area4140.wkt})
@@ -164,7 +163,8 @@ class CDEM:
         if not mean_cos_cells or not mean_sin_cells:
             raise Exception("Average aspect could not be found using CDEM")
 
-        aspect = math.fmod(2*math.pi + (math.atan2(mean_cos_cells, mean_sin_cells)), 2*math.pi)
+        aspect = math.fmod(
+            2*math.pi + (math.atan2(mean_cos_cells, mean_sin_cells)), 2*math.pi)
 
         logger.info("found CDEM avg aspect: %s", aspect)
 
@@ -202,7 +202,8 @@ class CDEM:
         mean_hillshade_int16 = hillshade_data[hillshade_data != -32768].mean()
         mean_hillshade = mean_hillshade_int16 / 32767
         elapsed = (time.perf_counter() - start)
-        logger.info('HILLSHADE BY TIF %s - calculated in %s', mean_hillshade, elapsed)
+        logger.info('HILLSHADE BY TIF %s - calculated in %s',
+                    mean_hillshade, elapsed)
         return mean_hillshade
 
     def get_mean_time_in_daylight(self):
@@ -231,7 +232,9 @@ class CDEM:
                                           dstNodata=-32768,
                                           ).ReadAsArray()
 
-        time_in_daylight = time_in_daylight_data[time_in_daylight_data != -32768].mean().item()
+        time_in_daylight = time_in_daylight_data[time_in_daylight_data != -32768].mean(
+        ).item()
         elapsed = (time.perf_counter() - start)
-        logger.info('TIME IN DAYLIGHT BY TIF %s - calculated in %s', time_in_daylight, elapsed)
+        logger.info('TIME IN DAYLIGHT BY TIF %s - calculated in %s',
+                    time_in_daylight, elapsed)
         return time_in_daylight
