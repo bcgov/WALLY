@@ -88,7 +88,7 @@ def get_cross_border_catchment_area(db: Session, point: Point):
             hydrosheds_walkup w
             WHERE b.next_down = w.hybas_id
         )
-        SELECT ST_AsBinary(ST_Transform(ST_Collect(geom), 4326))
+        SELECT ST_AsBinary(ST_Transform(ST_Union(geom), 4326))
         FROM hydrosheds_walkup
     """
     res = db.execute(q, {"point_wkt": point.wkt})
@@ -642,7 +642,7 @@ def wbt_calculate_watershed(
     with fiona.open(file_001_cutline, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
         c.write({
             'geometry': mapping(watershed_area),
-            'properties': {'id': 123},
+            'properties': {'id': 1},
         })
 
     gdal.Warp(
