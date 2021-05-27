@@ -653,7 +653,7 @@ def wbt_calculate_watershed(
     )
 
     elapsed = (time.perf_counter() - start)
-    logger.debug('CLIPPING TOOK %s', elapsed)
+    logger.info('CLIPPING TOOK %s', elapsed)
 
     # use either BreachDepressionsLeastCost or BreachDepressions, not both.
     # Author recommends BreachDepressionsLeastCost but worth testing both.
