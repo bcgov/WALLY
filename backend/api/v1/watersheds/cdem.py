@@ -88,7 +88,7 @@ class CDEM:
         return median_elev
 
     def get_average_slope(self):
-        """ finds the mean slope in DEGREES from CDEM for a given area
+        """ finds the mean slope in PERCENT from CDEM for a given area
             area should be a polygon with SRID 4140.
         """
 
