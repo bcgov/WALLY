@@ -19,7 +19,7 @@ BUCKET_NAME = 'modelling'
 minio_client = Minio(MINIO_HOST_URL,
                   access_key=MINIO_ACCESS_KEY,
                   secret_key=MINIO_SECRET_KEY,
-                  secure=True)
+                  secure=False)
 
 # MINIO GET
 def get_minio_file(object_name):
