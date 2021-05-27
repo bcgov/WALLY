@@ -1,7 +1,7 @@
 apiVersion: template.openshift.io/v1
 kind: Template
 metadata:
-  name: wally-cdem-job
+  name: watershed-stats-job
 parameters:
 - description: Environment name (staging or production)
   displayName: Environment name
@@ -13,23 +13,23 @@ objects:
   - apiVersion: batch/v1
     kind: Job
     metadata:
-      name: scrape-watershed-data
+      name: watershed-stats-job
       labels:
         component: importer
         job: scrape
-        name: scrape-watershed-data
+        name: watershed-stats-job
     spec:
       backoffLimit: 3
       parallelism: 1    
       completions: 1    
       template:         
         metadata:
-          name: scrape-watershed-data
+          name: watershed-stats-job
         spec:
           containers:
           - name: importer
             image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-importer:latest
-            command: ['/dataload/load_cdem.sh']
+            command: ['python3','/dataload/scrape_stations.py']
             resources:
               requests:
                 cpu: 200m
