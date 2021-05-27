@@ -170,10 +170,22 @@ def get_fwa_polygons_for_dem(db: Session, watershed_feature_id: int, stream_feat
                 WHERE   "LINEAR_FEATURE_ID" = :stream_feature_id
             ) streams_ltree
         ),
-        polygons_touching_streamline as (
-            SELECT w."GEOMETRY" as geom, w."WATERSHED_FEATURE_ID" as linear_feature_id
-            FROM   freshwater_atlas_watersheds w, stream_subwscode_ltree s
-            WHERE  ST_Intersects(w."GEOMETRY", s.geom)
+        polygons_touching_click_point as (
+            SELECT "GEOMETRY" as geom
+            FROM   freshwater_atlas_watersheds w
+            WHERE  ST_Intersects(
+                "GEOMETRY",
+                ST_Transform(
+                    ST_Buffer(
+                        ST_Transform(
+                            ST_SetSRID(ST_GeomFromText(:click_point), 4326),
+                            3005
+                        ),
+                        :buffer_distance
+                    ),
+                    4326
+                )
+            )
         ),
         polygons_upstream_by_stream_point as (
             SELECT  "WATERSHED_FEATURE_ID" as watershed_feature_id,
@@ -201,7 +213,7 @@ def get_fwa_polygons_for_dem(db: Session, watershed_feature_id: int, stream_feat
         ),
         working_area AS (
             SELECT geom FROM fwa_polygons_upstream
-            UNION SELECT geom FROM polygons_touching_streamline
+            UNION SELECT geom FROM polygons_touching_click_point
         ),
         watershed_mask AS (
             SELECT  geom
@@ -223,7 +235,14 @@ def get_fwa_polygons_for_dem(db: Session, watershed_feature_id: int, stream_feat
         )
         SELECT
             (select ST_AsBinary(ST_Union(geom)) from working_area) as working_area,
-            (select ST_AsBinary(ST_Union(geom)) from watershed_mask) as watershed_mask
+            (select ST_AsBinary(ST_Union(geom)) from watershed_mask) as watershed_mask,
+            (
+                select filename
+                from dem.stream_burned_cdem_tile t
+                where ST_Within((select ST_Union(geom) from working_area), t.geom)
+                order by resolution asc
+                limit 1
+            ) as dem_file
     """
 
     res = db.execute(
@@ -239,6 +258,12 @@ def get_fwa_polygons_for_dem(db: Session, watershed_feature_id: int, stream_feat
     record = res.fetchone()
     working_area = record["working_area"]
     watershed_mask = record["watershed_mask"]
+    dem_file = record["dem_file"]
+
+    if not dem_file:
+        dem_file = CDEM_FILE
+    else:
+        dem_file = f"{RASTER_FILE_DIR}/{dem_file}"
 
     if not working_area:
         logger.warning(
@@ -250,7 +275,7 @@ def get_fwa_polygons_for_dem(db: Session, watershed_feature_id: int, stream_feat
     if watershed_mask:
         watershed_mask = wkb.loads(watershed_mask.tobytes())
 
-    return (working_area, watershed_mask)
+    return (working_area, watershed_mask, dem_file)
 
 
 def get_upstream_catchment_area(db: Session, watershed_feature_id: int):
@@ -299,6 +324,68 @@ def get_upstream_catchment_area(db: Session, watershed_feature_id: int):
     return wkb.loads(record[0].tobytes())
 
 
+def get_working_area_for_dem(db: Session, watershed_feature_id: int):
+    """
+    Gets a working area and the best available DEM that covers the working area.
+    """
+    if WATERSHED_DEBUG:
+        logger.info(
+            "Getting upstream catchment area from database, feature id: %s", watershed_feature_id)
+
+    q = """
+        with subwscode_ltree as (
+            SELECT  "WATERSHED_FEATURE_ID" as origin_id,
+                    wscode_ltree as origin_wscode,
+                    localcode_ltree as origin_localcode,
+                    ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
+                    nlevel(localcode_ltree) as downstream_tributary_code_pos
+            FROM    freshwater_atlas_watersheds
+            WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
+        ),
+        working_area as (
+            SELECT
+                ST_Union("GEOMETRY") as geom
+            FROM    freshwater_atlas_watersheds
+            WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+            AND     ltree2text(subltree(
+                        localcode_ltree || '000000'::ltree,
+                        (select downstream_tributary_code_pos from subwscode_ltree) - 1,
+                        (select downstream_tributary_code_pos from subwscode_ltree) - 0
+                    ))::integer >= (select downstream_tributary from subwscode_ltree)
+            AND (NOT wscode_ltree <@ (select origin_localcode from subwscode_ltree) OR (select origin_wscode from subwscode_ltree) = (select origin_localcode from subwscode_ltree))
+        )
+        select  ST_AsBinary(geom) as geom,
+                (
+                    select filename
+                    from dem.stream_burned_cdem_tile t
+                    where ST_Within((select geom from working_area), t.geom)
+                    order by resolution asc
+                    limit 1
+                ) as dem_file
+        from    working_area
+
+    """
+
+    res = db.execute(q, {"watershed_feature_id": watershed_feature_id})
+
+    record = res.fetchone()
+
+    if not record or not record['geom']:
+        logger.warning(
+            'unable to calculate watershed from watershed feature id %s', watershed_feature_id)
+        return None
+
+    working_area = wkb.loads(record['geom'].tobytes())
+    dem_file = record['dem_file']
+
+    if not dem_file:
+        dem_file = CDEM_FILE
+    else:
+        dem_file = f"{RASTER_FILE_DIR}/{dem_file}"
+
+    return (working_area, dem_file)
+
+
 def get_watershed_using_dem(
         db: Session, point: Point, stream_feature_id, watershed_id, dem_source='cdem', use_fwa: bool = False):
     """
@@ -333,6 +420,9 @@ def get_watershed_using_dem(
     working_area = None
     dem_error = False
 
+    # default DEM source
+    dem_file = CDEM_FILE
+
     # upstream_mask: for use with DEM only.
     # this will be added to the DEM delineated watershed to fill out
     # the watershed into the FWA polygons.
@@ -350,38 +440,45 @@ def get_watershed_using_dem(
             db, transform(transform_4326_3005, point))
 
     elif use_fwa:
-        working_area, upstream_mask = get_fwa_polygons_for_dem(db, watershed_id, stream_feature_id, point)
+        working_area, upstream_mask, dem_file = get_fwa_polygons_for_dem(db, watershed_id, stream_feature_id, point)
         working_area = working_area
 
     else:
-        working_area = get_upstream_catchment_area(db, watershed_id)
+        working_area, dem_file = get_working_area_for_dem(db, watershed_id)
 
     # setup config to be used with WBT and the spatial features.
     # CDEM uses SRID 4326, so snap_distance must be in degrees
     # our SRTM source uses 3005, so set snap_distance to meters.
     using_srid = 4326
     snap_distance = 0.001  # degrees
-    smoothing_tolerance = 0.002  # degrees
-    dem_file = CDEM_FILE
+
     if dem_source == 'srtm':
         dem_file = SRTM_FILE
         point = transform(transform_4326_3005, point)
         snap_distance = 100  # metres
-        smoothing_tolerance = None  # metres
         using_srid = 3005
         working_area = transform(
             transform_4326_3005, working_area)
+
+    logger.info('delineating dem using %s', dem_file)
 
     max_tries = 8
     dem_error_threshold = 4  # tries before warning that this watershed may have some issues.
     for n in range(max_tries):
         (result, snapped_point) = wbt_calculate_watershed(
-            working_area.envelope, point, dem_file,
+            working_area, point, dem_file,
             log=True,
             pntr=False,
             accum_out_type='sca',
             snap_distance=snap_distance, using_srid=using_srid
         )
+
+        # automated approach to fixing self-intersecting polygons.
+        # see https://shapely.readthedocs.io/en/stable/manual.html#object.buffer
+        # this isn't a reliable way to fix invalid geometries, but if we have an invalid
+        # geometry at this point we need to try to fix it.
+        if not result.is_valid:
+            result = result.buffer(0)
 
         # if we have an upstream mask, test to make sure the DEM watershed
         # at least reached the masked area.
@@ -412,12 +509,6 @@ def get_watershed_using_dem(
             else:
                 logger.info("Could not validate that the DEM-delineated polygon is correct")
 
-    # do a quick smooth of the otherwise jagged DEM-derived polygon.
-    if use_fwa and smoothing_tolerance:
-        result = result \
-            .buffer(smoothing_tolerance, join_style=1) \
-            .buffer(-smoothing_tolerance, join_style=1)
-
     if dem_source == 'srtm':
         working_area = transform(transform_3005_4326, working_area)
         logger.info('transforming SRTM derived watershed back to 4326')
@@ -426,14 +517,14 @@ def get_watershed_using_dem(
 
     # join the result to the upstream mask.
     # this will fill out the upstream area to the bounds of the upstream FWA polygons
-    if upstream_mask:
+    if use_fwa and upstream_mask:
         result = result.union(upstream_mask)
 
     # clip the polygon to the working area.  This will prevent the areas delineated by the DEM
     # from "spilling over" the bounds of the FWA polygons.  This most commonly occurs if the
     # DEM "jumps" between very close streams and gets 2 catchments.  The FWA can handle this
     # since it will never include the catchment of the incorrect stream.
-    if working_area:
+    if use_fwa and working_area:
         result = result.intersection(working_area)
 
     if hasattr(result, "exterior"):
