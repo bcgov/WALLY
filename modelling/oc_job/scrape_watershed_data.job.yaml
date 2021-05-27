@@ -28,7 +28,7 @@ objects:
         spec:
           containers:
           - name: importer
-            image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-importer:latest
+            image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/watershed-scraper:latest
             command: ['python3','/dataload/scrape_stations.py']
             resources:
               requests:
