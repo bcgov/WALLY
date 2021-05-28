@@ -154,3 +154,4 @@ with open(local_file_path, "a") as outfile:
 put_minio_file("watershed_stats_output.csv")
 
 log_progress()
+print(headers)

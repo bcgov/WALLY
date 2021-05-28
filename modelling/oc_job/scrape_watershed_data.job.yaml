@@ -52,4 +52,6 @@ objects:
                   name: minio
             - name: MINIO_HOST_URL
               value: "${MINIO_HOST_URL}"
+            - name: AUTH_TOKEN
+              value: "${AUTH_TOKEN}"
           restartPolicy: Never
