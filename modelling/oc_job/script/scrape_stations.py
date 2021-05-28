@@ -16,10 +16,8 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
 BUCKET_NAME = 'modelling'
 
-AUTH_TOKEN = os.getenv("AUTH_TOKEN", "")
-
 # Add Wally access token here
-headers = {'Authorization': 'Bearer ' + AUTH_TOKEN}
+headers = {'X-Auth-Subject': 'internal-user'}
 
 minio_client = Minio(MINIO_HOST_URL,
                   access_key=MINIO_ACCESS_KEY,

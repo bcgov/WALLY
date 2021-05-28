@@ -9,8 +9,6 @@ parameters:
   value: staging
 - name: MINIO_HOST_URL
   value: "wally-minio-staging:9000"
-- name: AUTH_TOKEN
-  value: ""
 objects:
   - apiVersion: batch/v1
     kind: Job
@@ -52,6 +50,4 @@ objects:
                   name: minio
             - name: MINIO_HOST_URL
               value: "${MINIO_HOST_URL}"
-            - name: AUTH_TOKEN
-              value: "${AUTH_TOKEN}"
           restartPolicy: Never
