@@ -85,7 +85,7 @@ with open(local_file_path, "a") as outfile:
 
         station_id = "hydat." + station["STATION_NUMBER"]
 
-        base_url = "http://wally-staging-api:8000"
+        base_url = "wally-staging-api:8000"
         # base_url = "https://wally-staging.apps.silver.devops.gov.bc.ca"
         resp = req.get(base_url + "/api/v1/watersheds/" + station_id)
         
