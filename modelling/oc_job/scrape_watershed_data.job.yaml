@@ -9,6 +9,8 @@ parameters:
   value: staging
 - name: MINIO_HOST_URL
   value: "wally-minio-staging:9000"
+- name: AUTH_TOKEN
+  value: ""
 objects:
   - apiVersion: batch/v1
     kind: Job

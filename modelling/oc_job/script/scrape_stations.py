@@ -16,6 +16,11 @@ MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "")
 MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
 BUCKET_NAME = 'modelling'
 
+AUTH_TOKEN = os.getenv("AUTH_TOKEN", "")
+
+# Add Wally access token here
+headers = {'Authorization': 'Bearer ' + AUTH_TOKEN}
+
 minio_client = Minio(MINIO_HOST_URL,
                   access_key=MINIO_ACCESS_KEY,
                   secret_key=MINIO_SECRET_KEY,
@@ -87,7 +92,7 @@ with open(local_file_path, "a") as outfile:
 
         base_url = "http://wally-staging-api:8000"
         # base_url = "https://wally-staging.apps.silver.devops.gov.bc.ca"
-        resp = req.get(base_url + "/api/v1/watersheds/" + station_id)
+        resp = req.get(base_url + "/api/v1/watersheds/" + station_id, headers=headers)
         
         # check for usual bad gateway error and skip
         if resp.status_code != 200:
