@@ -92,6 +92,10 @@ with open(local_file_path, "a") as outfile:
         # check for usual bad gateway error and skip
         if resp.status_code != 200:
             print("error: {}".format(resp.url))
+            try:
+                print(resp.json())
+            except:
+                print(resp.text)
             resp_error_count += 1
             log_progress()
             continue
