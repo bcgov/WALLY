@@ -17,7 +17,12 @@ MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
 BUCKET_NAME = 'modelling'
 
 # Add Wally access token here
-headers = {'X-Auth-Subject': 'internal-user'}
+headers = {
+  'X-Auth-Subject': '00000000-0000-0000-0000-000000000000',
+  'X-Auth-Email': 'dev.wally.test@gov.bc.ca',
+  'X-Auth-Roles': '',
+  'X-Auth-Userid': 'dev@idir'
+}
 
 minio_client = Minio(MINIO_HOST_URL,
                   access_key=MINIO_ACCESS_KEY,
