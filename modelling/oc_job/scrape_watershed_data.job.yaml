@@ -8,7 +8,7 @@ parameters:
   name: ENV_NAME
   value: staging
 - name: MINIO_HOST_URL
-  value: "http://minio:9000"
+  value: "wally-minio-staging:9000"
 objects:
   - apiVersion: batch/v1
     kind: Job
