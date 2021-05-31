@@ -6,7 +6,7 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model_v1, \
-  get_hydrological_zone_model_v2, download_training_data, download_training_data
+  get_hydrological_zone_model_v2, download_training_data, download_training_report
 from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs
 from api.db.utils import get_db
 
