@@ -6,7 +6,7 @@ from logging import getLogger
 from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.orm import Session
 from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model_v1, \
-  get_hydrological_zone_model_v2, download_training_data
+  get_hydrological_zone_model_v2, download_training_data, download_training_data
 from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs
 from api.db.utils import get_db
 
@@ -59,3 +59,11 @@ def get_training_data(
         hydrological_zone: int
 ):
     return download_training_data(model_version, hydrological_zone)
+
+
+@router.get("/training_report/download")
+def get_training_data(
+        model_version: str,
+        hydrological_zone: int
+):
+    return download_training_report(model_version, hydrological_zone)

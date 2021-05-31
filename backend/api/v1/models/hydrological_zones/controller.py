@@ -205,3 +205,22 @@ def download_training_data(model_version: str, hydrological_zone: int):
         return response
     except Exception as error:
         logger.warning(error)
+
+
+def download_training_report(model_version: str, hydrological_zone: int):
+    """
+    Gets the model training report for the best fold from Minio using model version and hydro zone
+    """
+    cur_date = datetime.datetime.now().strftime("%d-%m-%Y")
+    name = 'zone_{}.zip'.format(str(hydrological_zone))
+    minio_path = '/{}/training_reports/{}'.format(model_version, name)
+    bucket_name = 'models'
+    try:
+        response = StreamingResponse(
+          minio_client.get_object(bucket_name, minio_path),
+          media_type='application/zip')
+        file_name = 'training-report-' + cur_date + "-" + name
+        response.headers['Content-Disposition'] = f'attachment;filename={file_name}'
+        return response
+    except Exception as error:
+        logger.warning(error)
