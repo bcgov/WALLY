@@ -62,7 +62,7 @@ def get_training_data(
 
 
 @router.get("/training_report/download")
-def get_training_data(
+def get_training_report(
         model_version: str,
         hydrological_zone: int
 ):

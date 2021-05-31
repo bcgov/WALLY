@@ -1,10 +1,8 @@
 import os
 import json
-import shap
 import pandas as pd
 import numpy as np
-from xgboost import XGBRegressor, plot_importance, plot_tree
-import xgboost as xgb
+from xgboost import XGBRegressor, plot_importance
 from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import train_test_split
 from matplotlib import pyplot
@@ -16,42 +14,27 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
 import matplotlib.backends.backend_pdf
-from minio import Minio
-from dotenv import load_dotenv
-
-load_dotenv()
-
-MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
-BUCKET_NAME = 'modelling'
-
-minio_client = Minio(MINIO_HOST_URL,
-                  access_key=MINIO_ACCESS_KEY,
-                  secret_key=MINIO_SECRET_KEY,
-                  secure=True)
-
-# MINIO PUT
-def put_minio_file(object_name, local_file_path, content_type):
-    try:
-        result = minio_client.fput_object(bucket_name=BUCKET_NAME,
-                                          object_name=object_name,
-                                          file_path=local_file_path,
-                                          content_type=content_type)
-    except Exception as exc:
-        print('error putting file: ', exc)
+from sklearn.linear_model import LinearRegression
 
 # directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
-directory = '../data/4_training/watershed_stats_modified_slope'
+directory = '../data/4_training/20_year_stations_by_zone_5_percent'
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
 # inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]
-inputs = ["years_of_data","drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation","aspect","solar_exposure"]
+inputs = ["years_of_data","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation","aspect","solar_exposure"]
+
+# TODO
+# 1- add years of data as input
+# more than 10 years of data
+# more than 20 year of data
+# seaparate Models
+# 2 - multiple regression vs Xgboost
+# 3 - Fix average slope variable
 
 columns = list(inputs) + [dependant_variable]
 
@@ -72,16 +55,19 @@ show_error_plots = False
 
 xgb_params = {
   'n_estimators': 2000,
-  'eta': 0.001,
-  'max_depth': 8,
-  # 'min_child_weight': 2,
+#   'eta': 0.001,
+#   'max_depth': 8,
+#   'min_child_weight': 10,
 #   'subsample': 0.75,
 #   'colsample_bytree': 0.95,
 #   'colsample_bylevel': 0.95
 }
 
-model = XGBRegressor(**xgb_params, random_state=42)
+model = LinearRegression()
+
+# model = XGBRegressor(**xgb_params, random_state=42)
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
+# lin.fit(X_train, y_train)
 
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
@@ -99,9 +85,8 @@ for filename in sorted(os.listdir(directory)):
         #     print("TRUE")
 
         # output_dir = "./output/annual_flow_model_analysis/zone_" + zone_name + "/"
-        # output_dir = "./output/10_year_stations_analysis/xgboost/zone_" + zone_name + "/"
-
-        output_dir = "./output/watershed_stats_modified_slope_3/zone_" + zone_name + "/"
+        output_dir = "./output/10_year_stations_analysis/linear_regression/zone_" + zone_name + "/"
+        # output_dir = "./output/20_year_stations_analysis/linear_regression/zone_" + zone_name + "/"
         zone_df = pd.read_csv(os.path.join(directory, filename))
 
         # if this zone has less than # of data rows skip
@@ -131,7 +116,7 @@ for filename in sorted(os.listdir(directory)):
         best_model = None
         fold_counter = 1
         
-        folds = 3
+        folds = 5
         folds = min(folds, len(X.index))
         kf = KFold(n_splits=folds, random_state=None, shuffle=True)
         for train_index, test_index in kf.split(X):
@@ -140,25 +125,37 @@ for filename in sorted(os.listdir(directory)):
 
             eval_set = [(X_train, y_train), (X_test, y_test)]
 
+            # Linear Regression fit method
+            model.fit(X_train, y_train)
+
+            # XGboost fit method
+            # model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["logloss", "rmse"], early_stopping_rounds=50)
+
+            # Cross validation fit method
             # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
             
-            model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["logloss", "rmse"], early_stopping_rounds=50)
-            
-            # DEBUG SETS TEST TO ALL DATA
+            # TODO
+            # minimum number of years
+            # track highest rmse, highest R2/lowest RMSE
+            # choose model with highest minimum r2
+            # look at furthest outlier, compare the two versions
+            # build comparison graph, 
             X_test = X
             y_test = y
 
             y_pred = model.predict(X_test)
             r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
             rmse = mean_squared_error(y_test, y_pred, squared=False)
-            results = model.evals_result()
-            feat_import = model.feature_importances_
+            # results = model.evals_result()
+            feat_import = model.coef_
+            print(feat_import)
+            intercept = model.intercept_
+            print(intercept)
 
             # Report Figures Directory
             Path(output_dir).mkdir(parents=True, exist_ok=True)
             pdf = matplotlib.backends.backend_pdf.PdfPages(output_dir + "fold_" + str(fold_counter) + "_stats.pdf")
-            
-            size = (10, 6)
+            size = (8, 6)
 
             # Prediction vs real plot
             marker_size = 9
@@ -185,6 +182,16 @@ for filename in sorted(os.listdir(directory)):
             pdf.savefig( fig_pred )
             # plt.show()
 
+
+            # Weights table
+            fig_weights, axw =plt.subplots(1,1)
+            fig_weights.suptitle("Linear Weights")
+            axw.axis('tight')
+            axw.axis('off')
+            axw.table(cellText=[feat_import], loc="center")
+            pdf.savefig( fig_weights )
+
+
             # Covariance of Features
             corr = X.corr()
             corr.style.background_gradient(cmap='coolwarm')
@@ -207,43 +214,21 @@ for filename in sorted(os.listdir(directory)):
 
             # Feature Importance plot
             try:
-                plt.rcParams["figure.figsize"] = size
-                fig_importance_weight = plot_importance(model, importance_type='weight', title='weight').figure
-                fig_importance_cover = plot_importance(model, importance_type='cover', title='cover').figure
-                fig_importance_gain = plot_importance(model, importance_type='gain', title='gain').figure
-                pdf.savefig( fig_importance_weight )
-                pdf.savefig( fig_importance_cover )
-                pdf.savefig( fig_importance_gain )
-
-                shap_values = shap.TreeExplainer(model).shap_values(X)
-
-                # summary plot
-                fig_shap, ax_shap = plt.subplots(figsize=size)
-                shap.summary_plot(shap_values, X, show=False)
-                pdf.savefig( fig_shap )
-
-                # fig_dep, ax_dep = plt.subplots(figsize=size)
-                # shap.dependence_plot("glacial_coverage", shap_values, X, show=False)
-                # pdf.savefig( fig_dep )
-
-                # fig_tree = plot_tree(model, num_trees=4).figure
-                # pdf.savefig( fig_tree )
-                # fig_tree = xgb.to_graphviz(model, num_trees=0, rankdir='LR').figure
-                # plt.show()
+                fig_importance = plot_importance(model).figure
+                pdf.savefig( fig_importance )
             except:
-                print("ERROR IN FIG TREE")
                 pass
 
             # Training Results plot
-            epochs = len(results["validation_0"]["rmse"])
-            x_axis = range(0, epochs)
-            fig_results, ax = pyplot.subplots(figsize=size)
-            ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
-            ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
-            ax.legend()
-            txt = 'RMSE: ' + str(rmse) + ' R2: ' + str(r2)
-            fig_results.suptitle(txt)
-            pdf.savefig( fig_results )
+            # epochs = len(results["validation_0"]["rmse"])
+            # x_axis = range(0, epochs)
+            # fig_results, ax = pyplot.subplots(figsize=size)
+            # ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+            # ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+            # ax.legend()
+            # txt = 'RMSE: ' + str(rmse) + ' R2: ' + str(r2)
+            # fig_results.suptitle(txt)
+            # pdf.savefig( fig_results )
 
             # Features vs Prediction plots
             for column in X_test.columns:
@@ -263,12 +248,6 @@ for filename in sorted(os.listdir(directory)):
                 # pdf.savefig( fig_txt )
 
             pdf.close()
-            # upload to minio
-            name = "fold_" + str(fold_counter) + "_stats.pdf"
-            local_pdf_path = output_dir + name
-            minio_path = 'training_reports/' + "zone_" + zone_name + "/" + name
-            put_minio_file(minio_path, local_pdf_path, 'pdf')
-            
             # plt.show()
             # fig.savefig(output_dir + "fold_" + str(fold_counter) + "_stats.png", bbox_inches='tight')
             # fip.figure.savefig(output_dir + "fold_" + str(fold_counter) + "_feature_importance.png", bbox_inches='tight')
@@ -278,7 +257,7 @@ for filename in sorted(os.listdir(directory)):
                 "mean_mar": mean_mar,
                 "r2": round(r2,4),
                 "rmse": round(rmse,6),
-                "results": results,
+                # "results": results,
                 "gain": feat_import,
                 "fold": fold_counter
             }
@@ -293,7 +272,7 @@ for filename in sorted(os.listdir(directory)):
             fold_counter += 1
 
         model = best_model['model']
-        results = best_model['results']
+        # results = best_model['results']
         rmse = best_model['rmse']
         r2 = best_model['r2']
         mean_mar = best_model['mean_mar']
@@ -356,50 +335,41 @@ for filename in sorted(os.listdir(directory)):
             ax1.annotate(str(fold), (r2s[i], rmses[i]))
         # pyplot.show()
 
-        local_img_path = output_dir + zone_name + "_summary.png"
-        fig1.savefig(local_img_path, bbox_inches='tight')
-        # upload to minio
-        name = "fold_" + str(fold_counter) + "_summary.png"
-        minio_path = 'training_reports/' + "zone_" + zone_name + "/" + name
-        put_minio_file(minio_path, local_img_path, 'png')
+        fig1.savefig(output_dir + zone_name + "_summary.png", bbox_inches='tight')
         
         # results = grid.cv_results_
         # print(results)
         print("zone", zone_name)
         print("r2 score", r2)
-        rmse = results["validation_1"]["rmse"][-1]
+        # rmse = results["validation_1"]["rmse"][-1]
         rmse_95_p = rmse * 2
         print("RMSE 95%", rmse_95_p)
 
-        if show_error_plots:
-            epochs = len(results["validation_0"]["rmse"])
-            x_axis = range(0, epochs)
-            # plot rmse loss
-            fig, ax = pyplot.subplots(figsize=(12,12))
-            ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
-            ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
-            ax.legend()
-            pyplot.ylabel("RMSE")
-            pyplot.title("XGBoost RMSE")
-            # plot log error
-            # fig, ax = pyplot.subplots(figsize=(12,12))
-            # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
-            # ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
-            # ax.legend()
-            # pyplot.ylabel("Log Error")
-            # pyplot.title("XGBoost Log Error")
+        # if show_error_plots:
+        #     epochs = len(results["validation_0"]["rmse"])
+        #     x_axis = range(0, epochs)
+        #     # plot rmse loss
+        #     fig, ax = pyplot.subplots(figsize=(12,12))
+        #     ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+        #     ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+        #     ax.legend()
+        #     pyplot.ylabel("RMSE")
+        #     pyplot.title("XGBoost RMSE")
+        #     # plot log error
+        #     # fig, ax = pyplot.subplots(figsize=(12,12))
+        #     # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
+        #     # ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
+        #     # ax.legend()
+        #     # pyplot.ylabel("Log Error")
+        #     # pyplot.title("XGBoost Log Error")
 
-            plot_importance(model)
-            pyplot.show()
+        #     plot_importance(model)
+        #     pyplot.show()
 
         # raw_uncertainty = rmse / mean_mar
         # uncertainty = round(rmse / mean_mar, 4) * 100
         zone_name = filename.split('.')[0]
-        local_path = './output/model_state_files/zone_{}.json'.format(zone_name)
-        model.save_model(local_path)
-        # upload to minio
-        minio_path = 'v1/hydro_zone_annual_flow/' + 'zone_{}'.format(zone_name)
-        put_minio_file(minio_path, local_path, 'json')
+        # model.save_model('./output/model_state_files/zone_{}.json'.format(zone_name))
 
         zone_scores[zone_name] = {
           "R2": r2,

@@ -19,3 +19,9 @@ watersheds_with_5percent_diff = watershed_stats_df.iloc[indexNames]
 watersheds_with_5percent_diff['mean'] = (watersheds_with_5percent_diff['mean'] / watersheds_with_5percent_diff['drainage_area']) * 1000
 
 print(watersheds_with_5percent_diff[['average_slope', 'mean', 'most_recent_year', 'drainage_area', 'drainage_area_gross', 'latitude', 'longitude', 'average_slope']])
+
+# export to file
+# watersheds_with_5percent_diff.to_csv(filepath, index=False, header=True)
+
+# for zone, rows in watershed_stats_df.groupby('hydrological_zone'):
+#     print(rows['aspect'])
