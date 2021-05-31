@@ -18,6 +18,7 @@ from pathlib import Path
 import matplotlib.backends.backend_pdf
 from minio import Minio
 from dotenv import load_dotenv
+from zipfiles import zipdir
 
 load_dotenv()
 
@@ -29,7 +30,7 @@ BUCKET_NAME = 'modelling'
 minio_client = Minio(MINIO_HOST_URL,
                   access_key=MINIO_ACCESS_KEY,
                   secret_key=MINIO_SECRET_KEY,
-                  secure=True)
+                  secure=False)
 
 # MINIO PUT
 def put_minio_file(object_name, local_file_path, content_type):
@@ -71,9 +72,9 @@ show_error_plots = False
 # }
 
 xgb_params = {
-  'n_estimators': 2000,
-  'eta': 0.001,
-  'max_depth': 8,
+  'n_estimators': 1000,
+  # 'eta': 0.001,
+  # 'max_depth': 8,
   # 'min_child_weight': 2,
 #   'subsample': 0.75,
 #   'colsample_bytree': 0.95,
@@ -263,12 +264,7 @@ for filename in sorted(os.listdir(directory)):
                 # pdf.savefig( fig_txt )
 
             pdf.close()
-            # upload to minio
-            name = "fold_" + str(fold_counter) + "_stats.pdf"
-            local_pdf_path = output_dir + name
-            minio_path = 'training_reports/' + "zone_" + zone_name + "/" + name
-            put_minio_file(minio_path, local_pdf_path, 'pdf')
-            
+
             # plt.show()
             # fig.savefig(output_dir + "fold_" + str(fold_counter) + "_stats.png", bbox_inches='tight')
             # fip.figure.savefig(output_dir + "fold_" + str(fold_counter) + "_feature_importance.png", bbox_inches='tight')
@@ -311,23 +307,6 @@ for filename in sorted(os.listdir(directory)):
         # r2s = all_models.map('r2')
         # rmses = all_models.map('rmse')
 
-        # TODO
-        # 1. sub plots
-        # predicted value vs real value
-        # predicted value vs every geo stat
-        # 1. every fold show every pred vs real
-        # determine whats happening
-        # 2. which grouping of hydro zones are complement vs non-complement
-        # 3. collapse rows down of stations
-
-        # fig1, ax1 = pyplot.subplots(figsize=size)
-        # title = "Zone " + zone_name + " RMSE vs R2"
-        # ax1.plot(r2s, rmses, 'o', label=title)
-        # # ax1.plot(x_axis, results["validation_1"]["rmse"], label="Test")
-        # ax1.legend()
-        # pyplot.xlabel("R2")
-        # pyplot.ylabel("RMSE")
-        # pyplot.title(title)
 
         fig1, (ax1, ax2, ax3) = pyplot.subplots(3, 1, figsize=(10,20))
         fig1.subplots_adjust(hspace=0.4)
@@ -358,10 +337,15 @@ for filename in sorted(os.listdir(directory)):
 
         local_img_path = output_dir + zone_name + "_summary.png"
         fig1.savefig(local_img_path, bbox_inches='tight')
-        # upload to minio
-        name = "fold_" + str(fold_counter) + "_summary.png"
-        minio_path = 'training_reports/' + "zone_" + zone_name + "/" + name
-        put_minio_file(minio_path, local_img_path, 'png')
+
+        # Zip training report files together
+        zip_filename = "zone_" + zone_name + ".zip"
+        zipdir(output_dir, zip_filename)
+
+        # Upload to minio
+        minio_path = 'v1/training_reports/' + zip_filename
+        local_path = "./" + zip_filename
+        put_minio_file(minio_path, local_path, 'zip')
         
         # results = grid.cv_results_
         # print(results)
@@ -395,10 +379,11 @@ for filename in sorted(os.listdir(directory)):
         # raw_uncertainty = rmse / mean_mar
         # uncertainty = round(rmse / mean_mar, 4) * 100
         zone_name = filename.split('.')[0]
-        local_path = './output/model_state_files/zone_{}.json'.format(zone_name)
+        json_filename = 'zone_' + zone_name + '.json'
+        local_path = './output/model_state_files/' + json_filename
         model.save_model(local_path)
         # upload to minio
-        minio_path = 'v1/hydro_zone_annual_flow/' + 'zone_{}'.format(zone_name)
+        minio_path = 'v1/hydro_zone_annual_flow/' + json_filename
         put_minio_file(minio_path, local_path, 'json')
 
         zone_scores[zone_name] = {
@@ -433,5 +418,5 @@ print("RMSE_68%_Sum", rmse_sum)
 print("RMSE_95%_Sum", rmse_95_sum)
 
 
-# with open('../model_output/hydro_zone_annual_flow/annual_model_scores.json', "w") as outfile:
-#     json.dump(zone_scores, outfile)
+with open('../model_output/hydro_zone_annual_flow/annual_model_scores.json', "w") as outfile:
+    json.dump(zone_scores, outfile)

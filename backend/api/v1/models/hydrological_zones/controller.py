@@ -17,6 +17,7 @@ from minio.error import ResponseError
 logger = logging.getLogger("hydrological_zones")
 
 WORKING_DIR = "./api/v1/models/hydrological_zones/working_files/"
+MODELLING_BUCKET_NAME = 'modelling'
 V1_ANNUAL_FLOW_BUCKET = "v1/hydro_zone_annual_flow/"
 V2_ANNUAL_FLOW_BUCKET = "v2/hydro_zone_annual_flow/"
 V2_MONTHLY_DISTRIBUTIONS_BUCKET = "v2/hydro_zone_monthly_distributions/"
@@ -67,7 +68,7 @@ def get_zone_info(zone):
     # Get model state file from minio storage
     r2_file = None
     try:
-        r2_file = minio_client.get_object('models', V1_ANNUAL_FLOW_BUCKET + "zone_models_r2.json")
+        r2_file = minio_client.get_object(MODELLING_BUCKET_NAME, V1_ANNUAL_FLOW_BUCKET + "zone_models_r2.json")
     except ResponseError as err:
         logger.warning(err)
 
@@ -179,7 +180,7 @@ def load_model_data(minio_path: str, file_name: str):
     Gets a model object from Minio and sets the file by file_name
     """
     try:
-        response = minio_client.get_object('models', minio_path)
+        response = minio_client.get_object(MODELLING_BUCKET_NAME, minio_path)
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
@@ -195,10 +196,9 @@ def download_training_data(model_version: str, hydrological_zone: int):
     cur_date = datetime.datetime.now().strftime("%d-%m-%Y")
     name = 'zone_{}.zip'.format(str(hydrological_zone))
     minio_path = '/{}/training_data/{}'.format(model_version, name)
-    bucket_name = 'models'
     try:
         response = StreamingResponse(
-          minio_client.get_object(bucket_name, minio_path),
+          minio_client.get_object(MODELLING_BUCKET_NAME, minio_path),
           media_type='application/zip')
         file_name = 'training-data-' + cur_date + "-" + name
         response.headers['Content-Disposition'] = f'attachment;filename={file_name}'
@@ -214,10 +214,9 @@ def download_training_report(model_version: str, hydrological_zone: int):
     cur_date = datetime.datetime.now().strftime("%d-%m-%Y")
     name = 'zone_{}.zip'.format(str(hydrological_zone))
     minio_path = '/{}/training_reports/{}'.format(model_version, name)
-    bucket_name = 'models'
     try:
         response = StreamingResponse(
-          minio_client.get_object(bucket_name, minio_path),
+          minio_client.get_object(MODELLING_BUCKET_NAME, minio_path),
           media_type='application/zip')
         file_name = 'training-report-' + cur_date + "-" + name
         response.headers['Content-Disposition'] = f'attachment;filename={file_name}'

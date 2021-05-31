@@ -6,4 +6,3 @@ docker-stack.yml
 .env
 /venv/
 Hydat.sqlite3
-/model_state_files/
