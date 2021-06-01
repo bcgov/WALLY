@@ -35,6 +35,7 @@ minio_client = Minio(MINIO_HOST_URL,
 # MINIO PUT
 def put_minio_file(object_name, local_file_path, content_type):
     try:
+        return
         result = minio_client.fput_object(bucket_name=BUCKET_NAME,
                                           object_name=object_name,
                                           file_path=local_file_path,
@@ -46,13 +47,14 @@ def put_minio_file(object_name, local_file_path, content_type):
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
-directory = '../data/4_training/watershed_stats_modified_slope'
+data_directory = '../data/4_training/watershed_stats_modified_slope'
+output_directory_base = "./output/random_input"
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
-# inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]
-inputs = ["years_of_data","drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","annual_precipitation","median_elevation","aspect","solar_exposure"]
+# inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",] 
+inputs = ["years_of_data","drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite", "annual_precipitation", "median_elevation","aspect","solar_exposure"]
 
 columns = list(inputs) + [dependant_variable]
 
@@ -84,7 +86,7 @@ xgb_params = {
 model = XGBRegressor(**xgb_params, random_state=42)
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
 
-for filename in sorted(os.listdir(directory)):
+for filename in sorted(os.listdir(data_directory)):
     if filename.endswith(".csv"):
         best_r_squared = 0
         best_inputs = []
@@ -93,17 +95,17 @@ for filename in sorted(os.listdir(directory)):
         print(type(zone_name))
 
         # DEBUG test for zone 27 only
-        # if zone_name != "27":
-        #     print("test")
-        #     continue
-        # else:
-        #     print("TRUE")
+        if zone_name != "25":
+            print("test")
+            continue
+        else:
+            print("TRUE")
 
         # output_dir = "./output/annual_flow_model_analysis/zone_" + zone_name + "/"
         # output_dir = "./output/10_year_stations_analysis/xgboost/zone_" + zone_name + "/"
 
-        output_dir = "./output/watershed_stats_modified_slope_3/zone_" + zone_name + "/"
-        zone_df = pd.read_csv(os.path.join(directory, filename))
+        output_dir = output_directory_base + "/zone_" + zone_name + "/"
+        zone_df = pd.read_csv(os.path.join(data_directory, filename))
 
         # if this zone has less than # of data rows skip
         if len(zone_df.index) < 5:
@@ -111,7 +113,12 @@ for filename in sorted(os.listdir(directory)):
         
         df_inputs =  list(inputs) + [dependant_variable]
         print(df_inputs)
+
+        
         features_df = zone_df[df_inputs]
+
+        # RANDOM DATA COLUMN
+        features_df['randNumCol'] = np.random.randint(1, 1000, features_df.shape[0])
 
         # X = features_df.dropna(subset=df_inputs) # drop NaNs
         X = features_df
