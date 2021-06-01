@@ -608,140 +608,140 @@ def wbt_calculate_watershed(
     # callback function to suppress progress output.
     def wbt_suppress_progress_output(value):
         if not "%" in value:
-            logger.debug(value)
+            logger.info(value)
 
     # WhiteboxTools reads and writes files from/to disk.
     # Set up some filename references in a TemporaryDirectory.
-    watershed_files = TemporaryDirectory()
-    file_001_cutline = f"{watershed_files.name}/001_cutline.shp"
-    file_010_dem = f"{watershed_files.name}/010_dem.tif"
-    file_020_dem_filled = f"{watershed_files.name}/020_filled_dem.tif"
-    file_030_fdr = f"{watershed_files.name}/030_fdr.tif"
-    file_040_fac = f"{watershed_files.name}/040_fac.tif"
-    file_050_point_shp = f"{watershed_files.name}/050_point.shp"
-    file_060_snapped = f"{watershed_files.name}/060_snapped.shp"
-    file_070_watershed = f"{watershed_files.name}/070_ws_raster.tif"
-    file_080_watershed_vector = f"{watershed_files.name}/080_ws_vector.shp"
+    with TemporaryDirectory() as watershed_files:
+        file_001_cutline = f"{watershed_files}/001_cutline.shp"
+        file_010_dem = f"{watershed_files}/010_dem.tif"
+        file_020_dem_filled = f"{watershed_files}/020_filled_dem.tif"
+        file_030_fdr = f"{watershed_files}/030_fdr.tif"
+        file_040_fac = f"{watershed_files}/040_fac.tif"
+        file_050_point_shp = f"{watershed_files}/050_point.shp"
+        file_060_snapped = f"{watershed_files}/060_snapped.shp"
+        file_070_watershed = f"{watershed_files}/070_ws_raster.tif"
+        file_080_watershed_vector = f"{watershed_files}/080_ws_vector.shp"
 
-    # use gdal.Warp to request a clipped portion of the DEM.
-    # the DEM file must be a Cloud Optimized GeoTIFF.
-    # when using the /vsis3/ S3 virtual filesystem notation together with cutline,
-    # gdal.Warp will download only the area of interest. For more info, see
-    # https://gdal.org/drivers/raster/cog.html
-    # https://trac.osgeo.org/gdal/wiki/CloudOptimizedGeoTIFF
-    start = time.perf_counter()
+        # use gdal.Warp to request a clipped portion of the DEM.
+        # the DEM file must be a Cloud Optimized GeoTIFF.
+        # when using the /vsis3/ S3 virtual filesystem notation together with cutline,
+        # gdal.Warp will download only the area of interest. For more info, see
+        # https://gdal.org/drivers/raster/cog.html
+        # https://trac.osgeo.org/gdal/wiki/CloudOptimizedGeoTIFF
+        start = time.perf_counter()
 
-    # Define a point feature geometry with one attribute
-    poly_schema = {
-        'geometry': 'Polygon',
-        'properties': {'id': 'int'},
-    }
+        # Define a point feature geometry with one attribute
+        poly_schema = {
+            'geometry': 'Polygon',
+            'properties': {'id': 'int'},
+        }
 
-    # Write a new Shapefile for the starting stream point. This will be used as the input vector point
-    # to be snapped to the nearest stream pixel of the Flow Accumulation raster.
-    with fiona.open(file_001_cutline, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
-        c.write({
-            'geometry': mapping(watershed_area),
-            'properties': {'id': 1},
-        })
+        # Write a new Shapefile for the starting stream point. This will be used as the input vector point
+        # to be snapped to the nearest stream pixel of the Flow Accumulation raster.
+        with fiona.open(file_001_cutline, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:{using_srid}") as c:
+            c.write({
+                'geometry': mapping(watershed_area),
+                'properties': {'id': 1},
+            })
 
-    gdal.Warp(
-        file_010_dem,
-        f'/vsis3/{dem_file}',
-        cutlineDSName=file_001_cutline,
-        cropToCutline=True
-    )
+        gdal.Warp(
+            file_010_dem,
+            f'/vsis3/{dem_file}',
+            cutlineDSName=file_001_cutline,
+            cropToCutline=True
+        )
 
-    elapsed = (time.perf_counter() - start)
-    logger.info('CLIPPING TOOK %s', elapsed)
+        elapsed = (time.perf_counter() - start)
+        logger.info('CLIPPING TOOK %s', elapsed)
 
-    # use either BreachDepressionsLeastCost or BreachDepressions, not both.
-    # Author recommends BreachDepressionsLeastCost but worth testing both.
-    # Initial testing: BreachDepressions is working consistently
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressionsleastcost
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressions
-    wbt.breach_depressions(
-        file_010_dem,
-        file_020_dem_filled,
-        callback=wbt_suppress_progress_output
-    )
+        # use either BreachDepressionsLeastCost or BreachDepressions, not both.
+        # Author recommends BreachDepressionsLeastCost but worth testing both.
+        # Initial testing: BreachDepressions is working consistently
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressionsleastcost
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#breachdepressions
+        wbt.breach_depressions(
+            file_010_dem,
+            file_020_dem_filled,
+            callback=wbt_suppress_progress_output
+        )
 
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8pointer
-    wbt.d8_pointer(
-        file_020_dem_filled,
-        file_030_fdr,
-        callback=wbt_suppress_progress_output
-    )
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#d8pointer
+        wbt.d8_pointer(
+            file_020_dem_filled,
+            file_030_fdr,
+            callback=wbt_suppress_progress_output
+        )
 
-    accum_input_file = file_030_fdr
-    if not pntr:
-        accum_input_file = file_020_dem_filled
+        accum_input_file = file_030_fdr
+        if not pntr:
+            accum_input_file = file_020_dem_filled
 
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#D8FlowAccumulation
-    wbt.d8_flow_accumulation(
-        accum_input_file,
-        file_040_fac,
-        out_type=accum_out_type,
-        log=log, pntr=pntr, callback=wbt_suppress_progress_output
-    )
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#D8FlowAccumulation
+        wbt.d8_flow_accumulation(
+            accum_input_file,
+            file_040_fac,
+            out_type=accum_out_type,
+            log=log, pntr=pntr, callback=wbt_suppress_progress_output
+        )
 
-    # Define a point feature geometry with one attribute
-    shp_schema = {
-        'geometry': 'Point',
-        'properties': {'id': 'int'},
-    }
+        # Define a point feature geometry with one attribute
+        shp_schema = {
+            'geometry': 'Point',
+            'properties': {'id': 'int'},
+        }
 
-    # Write a new Shapefile for the starting stream point. This will be used as the input vector point
-    # to be snapped to the nearest stream pixel of the Flow Accumulation raster.
-    with fiona.open(file_050_point_shp, 'w', 'ESRI Shapefile', shp_schema) as c:
-        c.write({
-            'geometry': mapping(point),
-            'properties': {'id': 123},
-        })
+        # Write a new Shapefile for the starting stream point. This will be used as the input vector point
+        # to be snapped to the nearest stream pixel of the Flow Accumulation raster.
+        with fiona.open(file_050_point_shp, 'w', 'ESRI Shapefile', shp_schema) as c:
+            c.write({
+                'geometry': mapping(point),
+                'properties': {'id': 123},
+            })
+
+            if WATERSHED_DEBUG:
+                logger.debug('Wrote shapefile')
+            point_shp_file = c.name
+
+        #
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#JensonSnapPourPoints
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#SnapPourPoints
+        snap_result = wbt.snap_pour_points(
+            file_050_point_shp,
+            file_040_fac,
+            file_060_snapped,
+            snap_distance, callback=wbt_suppress_progress_output)
+
+        with fiona.open(file_060_snapped, 'r', 'ESRI Shapefile') as snp:
+            snapped_pt = shape(next(iter(snp)).get('geometry'))
 
         if WATERSHED_DEBUG:
-            logger.debug('Wrote shapefile')
-        point_shp_file = c.name
+            logger.debug('Wrote snapped point')
+            logger.debug('-- snap distance from stream point: %s',
+                         snapped_pt.distance(point))
 
-    #
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#JensonSnapPourPoints
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#SnapPourPoints
-    snap_result = wbt.snap_pour_points(
-        file_050_point_shp,
-        file_040_fac,
-        file_060_snapped,
-        snap_distance, callback=wbt_suppress_progress_output)
+        # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#watershed
+        watershed_result = wbt.watershed(
+            file_030_fdr,
+            file_060_snapped,
+            file_070_watershed, esri_pntr=False, callback=wbt_suppress_progress_output)
 
-    with fiona.open(file_060_snapped, 'r', 'ESRI Shapefile') as snp:
-        snapped_pt = shape(next(iter(snp)).get('geometry'))
+        start = time.perf_counter()
+        gdal_raster_to_polygon(file_070_watershed, file_080_watershed_vector)
+        elapsed = (time.perf_counter() - start)
 
-    if WATERSHED_DEBUG:
-        logger.debug('Wrote snapped point')
-        logger.debug('-- snap distance from stream point: %s',
-                     snapped_pt.distance(point))
+        logger.debug('VECTORIZING TOOK %s', elapsed)
 
-    # https://jblindsay.github.io/wbt_book/available_tools/hydrological_analysis.html#watershed
-    watershed_result = wbt.watershed(
-        file_030_fdr,
-        file_060_snapped,
-        file_070_watershed, esri_pntr=False, callback=wbt_suppress_progress_output)
+        with fiona.open(file_080_watershed_vector, 'r', 'ESRI Shapefile') as ws_result:
 
-    start = time.perf_counter()
-    gdal_raster_to_polygon(file_070_watershed, file_080_watershed_vector)
-    elapsed = (time.perf_counter() - start)
-
-    logger.debug('VECTORIZING TOOK %s', elapsed)
-
-    with fiona.open(file_080_watershed_vector, 'r', 'ESRI Shapefile') as ws_result:
-
-        watershed_result = None
-        ws_result_list = None
-        if using_srid == '3005':
-            ws_result_list = [transform(transform_3005_4326, shape(
-                poly['geometry'])) for poly in ws_result]
-        else:
-            ws_result_list = [shape(poly['geometry']) for poly in ws_result]
-        watershed_result = MultiPolygon(ws_result_list)
+            watershed_result = None
+            ws_result_list = None
+            if using_srid == '3005':
+                ws_result_list = [transform(transform_3005_4326, shape(
+                    poly['geometry'])) for poly in ws_result]
+            else:
+                ws_result_list = [shape(poly['geometry']) for poly in ws_result]
+            watershed_result = MultiPolygon(ws_result_list)
 
     return (watershed_result, snapped_pt)
 
