@@ -45,11 +45,10 @@ def get_hydrological_zone_model_v1(
 
     # Get model state file from minio storage
     state_object_path = V1_ANNUAL_FLOW_BUCKET + "zone_{}.json".format(hydrological_zone)
-    state_file_name = "v1_annual_model_state.json"
-    load_model_data(state_object_path, state_file_name)
+    model_ba = load_raw_model_data(state_object_path)
 
     xgb = XGBRegressor(random_state=42)
-    xgb.load_model(state_file_name)
+    xgb.load_model(model_ba)
     inputs = [drainage_area, median_elevation, annual_precipitation]
     inputs = np.array(inputs).reshape((1, -1))
     mean_annual_flow_prediction = xgb.predict(inputs)
@@ -184,6 +183,19 @@ def load_model_data(minio_path: str, file_name: str):
         content = response.read().decode('utf-8')
         with open(file_name, "w+") as local_file:
             local_file.write(content)
+
+    except Exception as error:
+        logger.warning(error)
+
+
+def load_raw_model_data(minio_path: str):
+    """
+    Gets and returns bytearray format of a model object from Minio
+    """
+    try:
+        response = minio_client.get_object(MODELLING_BUCKET_NAME, minio_path)
+        content = bytearray(response.read()) #.decode('utf-8')
+        return content
 
     except Exception as error:
         logger.warning(error)
