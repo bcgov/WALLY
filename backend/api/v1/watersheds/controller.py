@@ -5,40 +5,31 @@ import base64
 import datetime
 import logging
 import requests
-import geojson
 import json
 import math
 import re
-import os
-import uuid
-import rasterio
-import fiona
 import time
 import sqlalchemy as sa
 from geoalchemy2.elements import WKTElement
-from shapely import wkt, wkb
-from rasterio.features import shapes
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from shapely import wkb
 from typing import Tuple, List, Optional
-from urllib.parse import urlencode, unquote
+from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from operator import add
-from osgeo import gdal, ogr, osr
-from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
-from shapely.ops import transform, unary_union
+from shapely.geometry import Point, Polygon, MultiPolygon, shape
+from shapely.ops import transform
 from starlette.responses import Response
 from sqlalchemy.orm import Session
-from sqlalchemy import func, update, insert, select
+from sqlalchemy import func, insert, select
 from fastapi import HTTPException
-from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
+from pyeto import thornthwaite, monthly_mean_daylight_hours
 
 from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
-from api.v1.hydat.controller import get_point_on_stream
-from api.v1.models.isolines.controller import calculate_runoff_in_area
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.hydat.controller import get_point_on_stream, get_station
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
 from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
@@ -54,10 +45,8 @@ from api.v1.watersheds.schema import (
 )
 from api.v1.watersheds.delineate_watersheds import (
     get_full_stream_catchment_area,
-    get_cross_border_catchment_area,
     get_upstream_catchment_area,
     get_watershed_using_dem,
-    wbt_calculate_watershed,
     watershed_touches_border
 )
 
@@ -483,7 +472,6 @@ def calculate_watershed(
     # in the Station name.
     if hydat_station_number:
         point_on_stream, stream_feature_id, click_point = get_point_on_stream(db, hydat_station_number)
-        upstream_method = 'DEM'
 
     elif click_point:
         # move the click point to the nearest stream based on the FWA Stream Networks.
@@ -824,6 +812,77 @@ def store_generated_watershed(db: Session, user, watershed: GeneratedWatershedDe
     return generated_watershed_id
 
 
+def get_watershed_at_hydat_station(
+    db: Session,
+    user,
+    hydat_station_number: str = None,
+    upstream_method='DEM+FWA',
+):
+    """Calculate the watershed at a HYDAT station.
+
+    HYDAT station coordinates are often incorrect (not on the stream) or are
+    in an ambiguous location (marked at the confluence of two streams, while only
+    monitoring one).
+
+    We first try to see if we can get a result that matches the listed drainage area
+    (from the hydat.stations table) using the HYDAT coordinates.
+    If that doesn't work, we'll inspect the station name and see if we can correct
+    the coordinates onto a stream with the same name as the station.
+    """
+
+    # default upstream method
+    upstream_method = 'DEM+FWA'
+
+    stn = get_station(db, hydat_station_number)
+
+    # don't delineate watersheds expected to be more than 1000 km2.
+    if stn.drainage_area_gross > 1000:
+        logger.info(
+            'Hydat station %s - %s watershed expected to be too large to refine by DEM. Falling back on FWA only.',
+            stn.station_number, stn.station_name)
+        upstream_method = 'FWA+UPSTREAM'
+
+    watershed = calculate_watershed(
+        db, user, click_point=stn.geom, upstream_method=upstream_method
+    )
+
+    if not stn.drainage_area_gross:
+        return watershed
+
+    ws_area = watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
+    ws_area_vs_expected = abs(ws_area - stn.drainage_area_gross) / stn.drainage_area_gross
+    hydat_corrected_watershed = None
+
+    # if the result is more than +/- 25% of the listed area, try again using the HYDAT station
+    # as input.  calculate_watershed with the HYDAT station parameter corrects the coordinates
+    # to the stream nearest the HYDAT station, with an attempt to match the stream name from
+    # the station name.  This doesn't always work, but if the coordinates seem to be wrong,
+    # it's worth trying.
+    if stn.drainage_area_gross > 0 and ws_area_vs_expected > 0.25:
+        logger.info("Drainage area %s doesn't agree with listed area %s (off by %s of listed area)",
+                    round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
+        hydat_corrected_watershed = calculate_watershed(
+            db, user, hydat_station_number=stn.station_number, upstream_method=upstream_method
+        )
+
+        hy_area = hydat_corrected_watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
+        hy_area_vs_expected = abs(hy_area - stn.drainage_area_gross) / stn.drainage_area_gross
+
+        # compare the result after trying to correct for the Hydat station name.
+        # If we managed to get closer to the listed area, return the corrected result.
+        if hy_area_vs_expected < ws_area_vs_expected:
+            logger.info("Using corrected result for station %s - %s (new area %s km2 is off by %s from listed area)",
+                        stn.station_number, stn.station_name, round(hy_area, 1), round(hy_area_vs_expected, 3))
+            return hydat_corrected_watershed
+
+        logger.warn('Warning: HYDAT watershed more than 25% different from listed area, but corrected result was no better.')
+
+    else:
+        logger.info('Success: HYDAT watershed within 25%% of listed area. (%s vs %s: off by %s from listed area)',
+                    round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
+    return watershed
+
+
 def get_watershed(
         db: Session, user, watershed_feature: str, generated_watershed_id: Optional[int] = None) -> GeneratedWatershedDetails:
     """
@@ -902,7 +961,7 @@ def get_watershed(
 
     elif watershed_layer == 'hydat':
         station_number = watershed_feature_id[0]
-        watershed = calculate_watershed(
+        watershed = get_watershed_at_hydat_station(
             db, user, hydat_station_number=station_number, upstream_method='DEM+FWA'
         )
 

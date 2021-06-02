@@ -45,7 +45,7 @@ def list_stations(db: Session = Depends(get_db)):
     return fc
 
 
-@router.get("/{station_number}", response_model=hydat_schema.StreamStation)
+@router.get("/{station_number}", response_model=hydat_schema.StreamStationResponse)
 def get_station(station_number: str, db: Session = Depends(get_db)):
     """
     Get information about a stream monitoring station. Data sourced from the National Water Data Archive.
@@ -65,7 +65,7 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
     level_years = DailyLevel.get_available_level_years(db, station_number)
 
     # combine queries/info into the StreamStation API model
-    data = hydat_schema.StreamStation(
+    data = hydat_schema.StreamStationResponse(
         name=stn.station_name,
         url=f"/api/v1/hydat/{stn.station_number}",
         flow_years=[stn.year for stn in flow_years],
