@@ -859,11 +859,11 @@ def get_watershed_at_hydat_station(
     ws_area_vs_expected = abs(ws_area - stn.drainage_area_gross) / stn.drainage_area_gross
     hydat_corrected_watershed = None
 
-    # if the result is more than +/- 25% of the listed area, try again using the HYDAT station
+    # if the result is more than +/- 10% of the listed area, try again using the HYDAT station
     # as input.  calculate_watershed with the HYDAT station parameter corrects the coordinates
     # to the stream nearest the HYDAT station, with an attempt to match the stream name from
     # the station name.
-    if stn.drainage_area_gross > 0 and ws_area_vs_expected > 0.25:
+    if stn.drainage_area_gross > 0 and ws_area_vs_expected > 0.10:
         logger.info("Drainage area %s doesn't agree with listed area %s (off by %s of listed area)",
                     round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
         hydat_corrected_watershed = calculate_watershed(
@@ -880,10 +880,13 @@ def get_watershed_at_hydat_station(
                         stn.station_number, stn.station_name, round(hy_area, 1), round(hy_area_vs_expected, 3))
             return hydat_corrected_watershed
 
-        logger.warn('Warning: HYDAT watershed more than 25% different from listed area, but corrected result was no better.')
+        logger.warn(
+            'Warning: HYDAT watershed from coordinates was more than 10%% different from listed area (%s), but corrected result (%s) was no better.',
+            round(ws_area_vs_expected, 3),
+            round(hy_area_vs_expected, 3))
 
     else:
-        logger.info('Success: HYDAT watershed within 25%% of listed area. (%s vs %s: off by %s from listed area)',
+        logger.info('Success: HYDAT watershed within 10%% of listed area. (%s vs %s: off by %s from listed area)',
                     round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
     return watershed
 
