@@ -35,11 +35,16 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Water levels:</v-list-item-content>
-          <v-list-item-content class="align-end" v-if="station">{{ formatYears(station.level_years) }}</v-list-item-content>
+          <v-list-item-content class="align-end" v-if="station && levelData && levelData.length">{{ formatYears(station.level_years) }}</v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>
-            <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
+            <div v-if="levelData && levelData.length">
+              <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
+            </div>
+            <div v-else>
+              <p>No water level data for this station.</p>
+            </div>
           </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
@@ -328,6 +333,12 @@ export default {
   watch: {
     selectedYear () {
       this.fetchRecord()
+    },
+    record: {
+      deep: true,
+      handler () {
+        this.fetchRecord()
+      }
     }
   },
   mounted () {
