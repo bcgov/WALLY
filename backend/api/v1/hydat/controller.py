@@ -35,7 +35,7 @@ def get_stations_in_area(db: Session, polygon: Polygon) -> list:
 
 
 def get_station(db: Session, station_number: str) -> StreamStation:
-    """ Returns the listed drainage area (from the HYDAT database) for a given
+    """ Returns station details (from the HYDAT database) for a given
     station_number. """
 
     q = db.query(StreamStationDB) \

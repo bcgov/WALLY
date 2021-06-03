@@ -846,6 +846,12 @@ def get_watershed_at_hydat_station(
         db, user, click_point=stn.geom, upstream_method=upstream_method
     )
 
+    # if we don't have an expected area to compare our result to, return our result now.
+    # If an area is listed on the HYDAT station, we'll use it to make sure the difference
+    # between our delineated watershed and the listed area is within reason.  The most common
+    # reason it wouldn't be is if the HYDAT coordinates don't line up with the stream that
+    # the station is actually monitoring (or is at an ambiguous confluence where it's not
+    # clear from the coordinates which tributary is being monitored).
     if not stn.drainage_area_gross:
         return watershed
 
@@ -856,8 +862,7 @@ def get_watershed_at_hydat_station(
     # if the result is more than +/- 25% of the listed area, try again using the HYDAT station
     # as input.  calculate_watershed with the HYDAT station parameter corrects the coordinates
     # to the stream nearest the HYDAT station, with an attempt to match the stream name from
-    # the station name.  This doesn't always work, but if the coordinates seem to be wrong,
-    # it's worth trying.
+    # the station name.
     if stn.drainage_area_gross > 0 and ws_area_vs_expected > 0.25:
         logger.info("Drainage area %s doesn't agree with listed area %s (off by %s of listed area)",
                     round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
