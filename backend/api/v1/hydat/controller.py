@@ -3,7 +3,9 @@ from sqlalchemy import func
 import logging
 from shapely import wkb
 from shapely.geometry import Point, Polygon
-from api.v1.hydat.db_models import Station as StreamStation
+from api.v1.hydat.db_models import Station as StreamStationDB
+from api.v1.hydat.schema import StreamStation
+from geoalchemy2.shape import to_shape
 
 logger = logging.getLogger("api")
 
@@ -14,22 +16,36 @@ def get_stations_in_area(db: Session, polygon: Polygon) -> list:
 
     # Search for point Lat: 49.250285 Lng: -122.953816
     stn_q = db.query(
-        StreamStation,
+        StreamStationDB,
     ).filter(
         func.ST_Intersects(
             func.ST_GeographyFromText(polygon.wkt),
-            func.Geography(StreamStation.geom)
+            func.Geography(StreamStationDB.geom)
         )
     )
 
     rs_stations = stn_q.all()
 
     stations = [
-        StreamStation.get_as_feature(x, StreamStation.get_geom_column(db))
+        StreamStationDB.get_as_feature(x, StreamStationDB.get_geom_column(db))
         for x in rs_stations
     ]
 
     return stations
+
+
+def get_station(db: Session, station_number: str) -> StreamStation:
+    """ Returns station details (from the HYDAT database) for a given
+    station_number. """
+
+    q = db.query(StreamStationDB) \
+          .filter(StreamStationDB.station_number == station_number)
+
+    res = q.first()
+    stn = dict(res.__dict__)
+    stn['geom'] = to_shape(stn['geom'])
+
+    return StreamStation(**stn)
 
 
 def get_point_on_stream(db: Session, station_number: str) -> Point:
@@ -68,7 +84,7 @@ def get_point_on_stream(db: Session, station_number: str) -> Point:
         ) as stream_point
       FROM      nearest_streams
       ORDER BY  
-        nearest_streams."GNIS_NAME" ILIKE '%' || (select split_part(station_name, ' ', 1) from stn) || '%' DESC,
+        nearest_streams."GNIS_NAME" ILIKE '%' || (select split_part(station_name, ' ', 1) from stn) || '%' ASC,
         ST_Distance(nearest_streams."GEOMETRY", (select geom from stn)) ASC
       LIMIT     1
     """
