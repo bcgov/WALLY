@@ -84,7 +84,7 @@ def get_point_on_stream(db: Session, station_number: str) -> Point:
         ) as stream_point
       FROM      nearest_streams
       ORDER BY  
-        nearest_streams."GNIS_NAME" ILIKE '%' || (select split_part(station_name, ' ', 1) from stn) || '%' DESC,
+        nearest_streams."GNIS_NAME" ILIKE '%' || (select split_part(station_name, ' ', 1) from stn) || '%' ASC,
         ST_Distance(nearest_streams."GEOMETRY", (select geom from stn)) ASC
       LIMIT     1
     """
