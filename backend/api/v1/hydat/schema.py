@@ -4,9 +4,31 @@ These are external facing data models/schemas that users see.
 """
 from typing import Optional, List
 from pydantic import BaseModel, Schema
+from shapely.geometry import Point
 
 
 class StreamStation(BaseModel):
+    """
+    Information about a monitoring station where stream flow data is collected.
+    """
+    station_number: str
+    station_name: str
+    prov_terr_state_loc: str
+    regional_office_id: str
+    hyd_status: Optional[str]
+    sed_status: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
+    drainage_area_gross: Optional[float]
+    drainage_area_effect: Optional[float]
+    geom: Point
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
+
+
+class StreamStationResponse(BaseModel):
     """
     Information about a monitoring station where stream flow data is collected.
     """

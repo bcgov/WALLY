@@ -61,3 +61,23 @@ class WatershedCache(BaseTable):
         comment='The GeneratedWatershed record this cached polygon is associated with.', primary_key=True)
     watershed = Column(JSONB, nullable=False)
     last_accessed_date: Column(DateTime, nullable=False)
+
+
+class StreamBurnedCDEMTile(BaseTable):
+    """ Footprints for stream-burned CDEM tiles
+        A filename reference is included for use with GDAL /vsis3/
+        virtual filesystem and Minio/S3 storage.
+        All filenames referenced in this table must be present in the S3 storage 'raster' bucket.
+    """
+    __tablename__ = 'stream_burned_cdem_tile'
+    __table_args__ = {'schema': 'public'}
+
+    stream_burned_cdem_tile_id = Column(Integer, primary_key=True)
+    resolution = Column(
+        Numeric, comment="The approximate/nominal resolution of this tile in metres per pixel", nullable=False)
+    z_precision = Column(
+        Integer, comment="Approximate precision of the z/elevation value.  0 for CDEM to indicate 1 m increments.",
+        nullable=False)
+    filename = Column(TEXT, comment="An s3 filename reference. Do not include bucket name.", nullable=False)
+    geom = Column(geoalchemy2.types.Geometry(
+        geometry_type='MULTIPOLYGON', srid=4326, spatial_index=True))

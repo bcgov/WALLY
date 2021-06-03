@@ -75,14 +75,14 @@
             Download Plot</span>
           </v-btn>
         </v-row>
-        <v-card-text v-if="loading" class="text-center">
+        <v-card-text v-show="loading" class="text-center">
           <v-progress-circular
             indeterminate
             class="my-5"
             color="grey"
           ></v-progress-circular>
         </v-card-text>
-        <v-card v-else flat>
+        <v-card v-if="!loading" flat>
           <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
         </v-card>
       </v-tab-item>
@@ -92,14 +92,14 @@
             <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
           </v-btn>
         </v-row>
-        <v-card-text v-if="loading" class="text-center">
+        <v-card-text v-show="loading" class="text-center">
           <v-progress-circular
             indeterminate
             class="my-5"
             color="grey"
           ></v-progress-circular>
         </v-card-text>
-        <v-card v-else flat>
+        <v-card v-if="!loading" flat>
           <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
         </v-card>
       </v-tab-item>

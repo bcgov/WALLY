@@ -624,7 +624,7 @@ class Station(BaseLayerTable):
 
     @classmethod
     def get_as_feature(cls, row, geom_col):
-        data = hydat_schema.StreamStation(
+        data = hydat_schema.StreamStationResponse(
             name=row.station_name,
             url=f"/api/v1/hydat/{row.station_number}",
             stream_flows_url=f"/api/v1/hydat/{row.station_number}/flows",
