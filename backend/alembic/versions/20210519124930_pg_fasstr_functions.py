@@ -1,7 +1,7 @@
 """pg_fasstr functions
 
 Revision ID: bc8bc4bb72cb
-Revises: 702efdc8f3fa
+Revises: bb906a00fbe7
 Create Date: 2021-05-19 12:49:30.018297
 
 """
@@ -12,7 +12,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'bc8bc4bb72cb'
-down_revision = '702efdc8f3fa'
+down_revision = 'bb906a00fbe7'
 branch_labels = None
 depends_on = None
 
