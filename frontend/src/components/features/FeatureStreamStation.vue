@@ -49,6 +49,40 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>
+            <div>Low flow statistics (computed from all available years):</div>
+            <div v-if="flowStatsError">{{flowStatsError}}</div>
+            <div v-if="flowStatsLoading">
+              <v-skeleton-loader type="list-item"/>
+              <p>
+                Calculating low flows...
+              </p>
+            </div>
+            <div v-if="flowStats">
+              <dl>
+                <dt>Low 7Q10</dt>
+                <dd>{{ flowStats.low_7q10 }}</dd>
+                <dt>Low 7Q10 (summer)</dt>
+                <dd>{{ flowStats.low_7q10_summer }}</dd>
+                <dt>Low 30Q5</dt>
+                <dd>{{ flowStats.low_30q5 }}</dd>
+                <dt>Low 30Q5 (summer)</dt>
+                <dd>{{ flowStats.low_30q5_summer }}</dd>
+                <dt>Low 30Q10</dt>
+                <dd>{{ flowStats.low_30q10 }}</dd>
+                <dt>Low 30Q10 (summer)</dt>
+                <dd>{{ flowStats.low_30q10_summer }}</dd>
+              </dl>
+            </div>
+            <div>
+              <dl>
+                <dt>Note:</dt>
+                <dd>Summer denotes July, August and September (inclusive)</dd>
+              </dl>
+            </div>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item class="feature-content">
+          <v-list-item-content>
             Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
           </v-list-item-content>
         </v-list-item>
@@ -79,6 +113,9 @@ export default {
       station: null,
       flowData: [],
       levelData: [],
+      flowStats: null,
+      flowStatsError: null,
+      flowStatsLoading: false,
       selectedYear: null,
       flowChartOptions: {},
       levelChartOptions: {},
@@ -251,8 +288,11 @@ export default {
       this.levelChartReady = false
       this.flowData = []
       this.levelData = []
+      this.flowStats = null
+      this.flowStatsError = null
       this.flowChartOptions = {}
       this.levelChartOptions = {}
+      this.flowStatsLoading = false
     },
     fetchRecord () {
       this.loading = true
@@ -260,7 +300,7 @@ export default {
 
       ApiService.getRaw(this.record.properties.url).then((r) => {
         this.station = r.data
-        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url)
+        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url, this.station.stream_stats_url)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
@@ -268,7 +308,7 @@ export default {
         this.loading = false
       })
     },
-    fetchMonthlyData (flowURL, levelURL) {
+    fetchMonthlyData (flowURL, levelURL, statsURL) {
       if (this.selectedYear != null) {
         flowURL = flowURL + '?year=' + this.selectedYear
         levelURL = levelURL + '?year=' + this.selectedYear
@@ -291,6 +331,22 @@ export default {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
       })
+
+      if (this.station.flow_years && this.station.flow_years.length > 2) {
+        this.flowStatsLoading = true
+        ApiService.getRaw(statsURL).then((r) => {
+          this.flowStats = r.data
+        }).catch((e) => {
+          if (e.response.status === 400) {
+            this.flowStatsError = 'This station does not have enough complete data to compute low flow stats.'
+            return
+          }
+          const msg = e.response ? e.response.data.detail : true
+          EventBus.$emit('error', msg)
+        }).finally(() => {
+          this.flowStatsLoading = false
+        })
+      }
     },
     formatYears (val) {
       const years = val || []
@@ -348,5 +404,32 @@ export default {
 </script>
 
 <style>
+  #stationQuantiles {
+    dl {
+      display: flex;
+      flex-wrap: wrap;
+      padding-bottom: 10px;
+    }
 
+    dt {
+      width: 33%;
+      margin-top: 0;
+      border-bottom: 1px solid lightgrey;
+    }
+
+    dd {
+      padding-left: 10px;
+      width: 66%;
+      border-bottom: 1px solid lightgrey;
+    }
+
+    dt:nth-child(n+3):nth-last-child(2),
+    dd:nth-child(n+3):last-child {
+      border-bottom: none;
+    }
+
+    dd, dt {
+      margin-top: 5px;
+    }
+  }
 </style>

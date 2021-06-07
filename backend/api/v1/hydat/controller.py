@@ -1,6 +1,7 @@
 import time
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.exc import DataError
 import logging
 from fastapi import HTTPException
 from shapely import wkb
@@ -66,28 +67,22 @@ def flow_statistics(db: Session, station_number: str, full_years: bool = False):
 
     )
     select  station_number,
-            hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10 ) as "low_30q10",
-            hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5 ) as "low_30q5",
-            hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10, summer=>true ) as "low_7q10",
-            hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5, summer=>true ) as "low_30q10_summer",
-            hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10 ) as "low_30q5_summer",
-            hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10, summer=>true ) as "low_7q10_summer"
+            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10 ), 2) as "low_30q10",
+            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5 ), 2) as "low_30q5",
+            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10, summer=>true ), 2) as "low_7q10",
+            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5, summer=>true ), 2) as "low_30q10_summer",
+            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10 ), 2) as "low_30q5_summer",
+            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10, summer=>true ), 2) as "low_7q10_summer"
     from    flows
     """
 
-    """
-    select  station_number,
-            hydat.fasstr_compute_frequency_quantile(station_number, roll_days => 30, return_period => 10 ) as "low_30q10",
-            hydat.fasstr_compute_frequency_quantile(station_number, roll_days => 30, return_period => 5 ) as "low_30q5",
-            hydat.fasstr_compute_frequency_quantile(station_number, roll_days => 30, return_period => 10, summer=>true ) as "low_7q10",
-            hydat.fasstr_compute_frequency_quantile(station_number, roll_days => 30, return_period => 5, summer=>true ) as "low_30q10_summer",
-            hydat.fasstr_compute_frequency_quantile(station_number, roll_days => 7, return_period => 10 ) as "low_30q5_summer",
-            hydat.fasstr_compute_frequency_quantile(station_number, roll_days => 7, return_period => 10, summer=>true ) as "low_7q10_summer"
-    from    hydat.stations
-    where   station_number = :station_number
-    """
-
-    res = db.execute(q, {"station_number": station_number}).fetchone()
+    try:
+        res = db.execute(q, {"station_number": station_number}).fetchone()
+    except DataError:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough data to compute quantiles for this station."
+        )
 
     if not res:
         raise HTTPException(
