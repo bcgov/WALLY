@@ -17,44 +17,24 @@ import seaborn as sns
 from pathlib import Path
 import matplotlib.backends.backend_pdf
 from minio import Minio
-from dotenv import load_dotenv
 from zipfiles import zipdir
+from minio_client import minio_client
 
-load_dotenv()
-
-MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "")
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "")
 BUCKET_NAME = 'modelling'
-
-minio_client = Minio(MINIO_HOST_URL,
-                  access_key=MINIO_ACCESS_KEY,
-                  secret_key=MINIO_SECRET_KEY,
-                  secure=False)
-
-# MINIO PUT
-def put_minio_file(object_name, local_file_path, content_type):
-    try:
-        return
-        result = minio_client.fput_object(bucket_name=BUCKET_NAME,
-                                          object_name=object_name,
-                                          file_path=local_file_path,
-                                          content_type=content_type)
-    except Exception as exc:
-        print('error putting file: ', exc)
+UPLOAD_TO_MINIO = False
 
 # directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
 data_directory = '../data/4_training/watershed_stats_modified_slope'
-output_directory_base = "./output/random_input"
+output_directory_base = "./output/no_precip"
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
-# inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",] 
-inputs = ["years_of_data","drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite", "annual_precipitation", "median_elevation","aspect","solar_exposure"]
+# inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
+inputs = ["years_of_data","drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","median_elevation","aspect","solar_exposure"]
 
 columns = list(inputs) + [dependant_variable]
 
@@ -94,8 +74,8 @@ for filename in sorted(os.listdir(data_directory)):
         zone_name = filename.split('.')[0]
         print(type(zone_name))
 
-        # DEBUG test for zone 27 only
-        if zone_name != "25":
+        # DEBUG test for zone only
+        if zone_name not in ["27"]:
             print("test")
             continue
         else:
@@ -118,7 +98,7 @@ for filename in sorted(os.listdir(data_directory)):
         features_df = zone_df[df_inputs]
 
         # RANDOM DATA COLUMN
-        features_df['randNumCol'] = np.random.randint(1, 1000, features_df.shape[0])
+        # features_df['randNumCol'] = np.random.randint(1, 1000, features_df.shape[0])
 
         # X = features_df.dropna(subset=df_inputs) # drop NaNs
         X = features_df
@@ -139,7 +119,7 @@ for filename in sorted(os.listdir(data_directory)):
         best_model = None
         fold_counter = 1
         
-        folds = 3
+        folds = 5
         folds = min(folds, len(X.index))
         kf = KFold(n_splits=folds, random_state=None, shuffle=True)
         for train_index, test_index in kf.split(X):
@@ -256,7 +236,7 @@ for filename in sorted(os.listdir(data_directory)):
             # Features vs Prediction plots
             for column in X_test.columns:
                 fig_f, axf = plt.subplots(figsize=size)
-                axf = sns.regplot(X_test[column], y_pred, fit_reg=True) 
+                axf = sns.regplot(X_test[column], y_test, fit_reg=True)
                 # axf.scatter(y_pred, X_test[column], s=marker_size)
                 axf.set_xlabel(column)
                 axf.set_ylabel('MAR')
@@ -352,8 +332,7 @@ for filename in sorted(os.listdir(data_directory)):
         # Upload to minio
         minio_path = 'v1/training_reports/' + zip_filename
         local_path = "./" + zip_filename
-        put_minio_file(minio_path, local_path, 'zip')
-        
+        upload = minio_client.s3_upload_file(minio_path, local_path, 'zip', BUCKET_NAME)
         # results = grid.cv_results_
         # print(results)
         print("zone", zone_name)
@@ -391,7 +370,7 @@ for filename in sorted(os.listdir(data_directory)):
         model.save_model(local_path)
         # upload to minio
         minio_path = 'v1/hydro_zone_annual_flow/' + json_filename
-        put_minio_file(minio_path, local_path, 'json')
+        upload = minio_client.s3_upload_file(minio_path, local_path, 'json', BUCKET_NAME)
 
         zone_scores[zone_name] = {
           "R2": r2,
