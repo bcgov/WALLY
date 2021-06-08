@@ -577,7 +577,10 @@ export default {
       this.buildLithologyList(lithology)
 
       this.loading = false
-      this.initPlotly()
+      // DIRTY HACK FOR PLOTLY REFS RACE CONDITION
+      setTimeout(() => {
+        this.initPlotly()
+      }, 2000)
     },
     fetchWells (params) {
       return ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
