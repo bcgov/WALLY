@@ -31,13 +31,6 @@ export default {
     })
   },
   computed: {
-    // We need:
-    // this.wells
-    // this.wellsLithology
-    // this.elevations
-    // this.waterbodies
-    // this.screens
-    // this.displayWaterbodyAnnotations
     chartData () {
       const wells = {
         x: this.wells.map(w => w.distance_from_origin),
@@ -368,9 +361,7 @@ export default {
     ...mapActions('map', ['removeElementsByClass']),
     initPlotly () {
       setTimeout(() => {
-        console.log(this.$refs)
         // Subscribe to plotly select and lasso tools
-        console.log(this.$refs, this.$refs.crossPlot)
         this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
         this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
         this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
@@ -405,7 +396,6 @@ export default {
       this.$refs.crossPlot.react()
     },
     setMarkerLabels (e) {
-      console.log('marker labels', e, e.points)
       if (e && e.points.length > 0) {
         // This overrides hiding the hover labels
         this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => {
@@ -417,10 +407,8 @@ export default {
         // hide selection box
         this.removeElementsByClass('select-outline')
         let points = e.points.map(p => {
-          console.log(p.curveNumber, p.pointNumber)
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
         })
-        console.log('marker points', points)
         this.markerLabels = points
         PlotlyJS.Fx.hover('2dPlot', points)
       }

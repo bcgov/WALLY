@@ -6,8 +6,6 @@ import Vuetify from 'vuetify'
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
-// import ApiService from '../../../../src/services/ApiService'
-
 const localVue = createLocalVue()
 localVue.use(Vuex)
 Vue.use(Vuetify)
@@ -16,7 +14,6 @@ localVue.use(VueRouter)
 
 const vuetify = new Vuetify()
 
-// jest.mock('ApiService')
 describe('Wells Cross Section Test', () => {
   let wrapper
   let store
@@ -144,6 +141,7 @@ describe('Wells Cross Section Test', () => {
     expect(wrapper.vm.wellsLithology.length).toBe(42)
   })
 
+  // TODO: Update or fix this test
   // it('resets all shapes when closed', () => {
   //   wrapper.destroy()
   //   expect(1).toBe(1)
