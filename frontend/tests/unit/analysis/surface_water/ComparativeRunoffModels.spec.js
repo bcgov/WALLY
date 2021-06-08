@@ -111,11 +111,9 @@ describe('Comparative Runoff Models test', () => {
       }
     })
 
-    const v1 = wrapper.find('#hydroZoneModelV1')
-    const v2 = wrapper.find('#hydroZoneModelV2')
+    const v1 = wrapper.find('#hydroZoneModel')
 
     expect(v1.exists()).toBeFalsy()
-    expect(v2.exists()).toBeFalsy()
   })
   it('displays Wally model if feature flag on', () => {
     let getters = {
@@ -143,10 +141,8 @@ describe('Comparative Runoff Models test', () => {
         watershedDetails: {}
       }
     })
-    const v1 = wrapper.find('#hydroZoneModelV1')
-    const v2 = wrapper.find('#hydroZoneModelV2')
+    const v1 = wrapper.find('#hydroZoneModel')
 
     expect(v1.exists()).toBeTruthy()
-    expect(v2.exists()).toBeTruthy()
   })
 })
