@@ -1,7 +1,6 @@
 import pandas as pd
 import csv
 
-# filepath = "../data/merged/watersheds_drainage_within_5percent.csv"
 filepath = "../data/merged/watersheds_drainage_within_5percent.csv"
 
 watershed_stats_df = pd.read_csv("../data/scrape_results/watershed_stats.csv")
