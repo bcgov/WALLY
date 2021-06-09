@@ -1,4 +1,6 @@
 import time
+import datetime
+from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.exc import DataError
@@ -7,7 +9,7 @@ from fastapi import HTTPException
 from shapely import wkb
 from shapely.geometry import Point, Polygon
 from api.v1.hydat.db_models import Station as StreamStationDB
-from api.v1.hydat.schema import StreamStation, FlowStatistics
+from api.v1.hydat.schema import FASSTRLongTermSummary, FASSTRMonthlyFlow, FlowStat, StreamStation, FlowStatisticsSummary
 from geoalchemy2.shape import to_shape
 
 logger = logging.getLogger("api")
@@ -35,6 +37,57 @@ def get_stations_in_area(db: Session, polygon: Polygon) -> list:
     ]
 
     return stations
+
+
+def get_fasstr_longterm_stats(db: Session, station_number: str) -> FASSTRLongTermSummary:
+    """ gets the FASSTR longterm daily flow summary for a station"""
+
+    q = """
+    with flows as (
+        select  s.station_number,
+                array_agg(f.value) as values,
+                array_agg(f.date) as dates
+        from    hydat.stations s
+        join    hydat.fasstr_flows f
+        on      f.station_number = s.station_number
+        where   s.station_number = '08MG026'
+       group by s.station_number
+
+    )
+    select * from hydat.fasstr_calc_longterm_daily_stats(
+        (select dates from flows), (select values from flows), TRUE, FALSE);
+    """
+    try:
+        res = db.execute(q, {"station_number": station_number})
+    except DataError:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough data to compute quantiles for this station."
+        )
+
+    if not res:
+        raise HTTPException(
+            status_code=404, detail="Station not found.")
+
+    monthly_stats: List[FASSTRMonthlyFlow] = []
+    summary = None
+
+    for row in res:
+        row = dict(row)
+        logger.info(row)
+        if row['month'] == 'Long-term':
+            summary = FASSTRLongTermSummary(
+                **row,
+                station_number=station_number,
+                months=[]
+            )
+        else:
+            # row['month'] = datetime.datetime.strptime(row['month'], '%b').month
+            monthly_stats.append(
+                FASSTRMonthlyFlow(**row)
+            )
+    summary.months = monthly_stats
+    return summary
 
 
 def flow_statistics(db: Session, station_number: str, full_years: bool = False):
@@ -92,7 +145,27 @@ def flow_statistics(db: Session, station_number: str, full_years: bool = False):
 
     logger.info("calculated stream stats in %s s", end - start)
 
-    return FlowStatistics.from_orm(res)
+    flow_stats = []
+
+    hydrostats_display_names = {
+        "low_30q10": "30Q10",
+        "low_30q5": "30Q5",
+        "low_7q10": "7Q10",
+        "low_30q10_summer": "30Q10-Summer",
+        "low_30q5_summer": "30Q5-Summer",
+        "low_7q10_summer": "7Q10-Summer"
+    }
+
+    station = res["station_number"]
+
+    for k in hydrostats_display_names.keys():
+        flow_stats.append(FlowStat(
+            stat=k,
+            display_name=hydrostats_display_names[k],
+            value=float(res[k])
+        ))
+
+    return FlowStatisticsSummary(station_number=station, stats=flow_stats)
 
 
 def get_station(db: Session, station_number: str) -> StreamStation:

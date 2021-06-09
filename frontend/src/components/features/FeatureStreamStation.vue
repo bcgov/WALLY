@@ -18,7 +18,8 @@
       </div>
       <v-list dense class="mx-0 px-0">
         <v-list-item>
-          <v-select
+          <!-- TODO: fix year selection.  Must filter FASSTR data by year. -->
+          <!-- <v-select
             v-model="selectedYear"
             :items="yearOptions"
             :menu-props="{ maxHeight: '400' }"
@@ -26,7 +27,7 @@
             item-text="label"
             item-value="value"
             hint="Available data in this year"
-          ></v-select>
+          ></v-select> -->
         </v-list-item>
         <v-list-item>
           <v-list-item-content class="mx-0 px-0">
@@ -58,20 +59,10 @@
               </p>
             </div>
             <div v-if="flowStats">
-              <dl>
-                <dt>Low 7Q10</dt>
-                <dd>{{ flowStats.low_7q10 }}</dd>
-                <dt>Low 7Q10 (summer)</dt>
-                <dd>{{ flowStats.low_7q10_summer }}</dd>
-                <dt>Low 30Q5</dt>
-                <dd>{{ flowStats.low_30q5 }}</dd>
-                <dt>Low 30Q5 (summer)</dt>
-                <dd>{{ flowStats.low_30q5_summer }}</dd>
-                <dt>Low 30Q10</dt>
-                <dd>{{ flowStats.low_30q10 }}</dd>
-                <dt>Low 30Q10 (summer)</dt>
-                <dd>{{ flowStats.low_30q10_summer }}</dd>
-              </dl>
+              <v-data-table
+                :headers="flowStatsHeaders"
+                :items="flowStatsItems"
+              />
             </div>
             <div>
               <dl>
@@ -120,7 +111,25 @@ export default {
       flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
-      levelChartReady: false
+      levelChartReady: false,
+      flowStatsHeaders: [
+        { text: 'Name', value: 'display_name' },
+        { text: 'Discharge (m³/s)', value: 'value' }
+      ],
+      monthHeaders: [
+        { text: 'Jan', value: 'm1' },
+        { text: 'Feb', value: 'm2' },
+        { text: 'Mar', value: 'm3' },
+        { text: 'Apr', value: 'm4' },
+        { text: 'May', value: 'm5' },
+        { text: 'Jun', value: 'm6' },
+        { text: 'Jul', value: 'm7' },
+        { text: 'Aug', value: 'm8' },
+        { text: 'Sep', value: 'm9' },
+        { text: 'Oct', value: 'm10' },
+        { text: 'Nov', value: 'm11' },
+        { text: 'Dec', value: 'm12' }
+      ]
     }
   },
   computed: {
@@ -136,10 +145,26 @@ export default {
       })))
     },
     plotFlowData () {
+      if (!this.flowData || !this.flowData.months) {
+        return []
+      }
+      const mad = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: 'Mean Annual Discharge (m³/s)',
+        y: Array(12).fill(this.flowData.mean),
+        x: this.monthHeaders.map((h) => h.text),
+        text: Array(12).fill(this.flowData.mean.toFixed(2)),
+        textposition: 'bottom',
+        hovertemplate:
+          '<b>Mean annual discharge</b>: %{text} m³/s',
+        line: { color: '#fa1e44' }
+      }
       const mean = {
-        x: this.flowData.map(w => w.month),
-        y: this.flowData.map(w => w.monthly_mean),
-        text: this.flowData.map(w => w.monthly_mean),
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.mean),
+        text: this.flowData.months.map(w => w.mean.toFixed(2)),
         textposition: 'bottom',
         name: 'Monthly flow (average by month)',
         hovertemplate:
@@ -151,9 +176,9 @@ export default {
         }
       }
       const max = {
-        x: this.flowData.map(w => w.month),
-        y: this.flowData.map(w => w.max),
-        text: this.flowData.map(w => w.max),
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.maximum),
+        text: this.flowData.months.map(w => w.maximum.toFixed(2)),
         textposition: 'bottom',
         name: 'Monthly flow (max recorded)',
         hovertemplate:
@@ -165,9 +190,9 @@ export default {
         }
       }
       const min = {
-        x: this.flowData.map(w => w.month),
-        y: this.flowData.map(w => w.min),
-        text: this.flowData.map(w => w.min),
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.minimum),
+        text: this.flowData.months.map(w => w.minimum.toFixed(2)),
         textposition: 'bottom',
         name: 'Monthly flow (min recorded)',
         hovertemplate:
@@ -178,7 +203,35 @@ export default {
           color: '#494949'
         }
       }
-      return [mean, max, min]
+      const p10 = {
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.p10),
+        text: this.flowData.months.map(w => w.p10.toFixed(2)),
+        textposition: 'bottom',
+        name: 'P10',
+        hovertemplate:
+          '<b>P10</b>: %{text} m³/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#494949'
+        }
+      }
+      const p90 = {
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.p90),
+        text: this.flowData.months.map(w => w.p90.toFixed(2)),
+        textposition: 'bottom',
+        name: 'P90',
+        hovertemplate:
+          '<b>P90</b>: %{text} m³/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#494949'
+        }
+      }
+      return [mean, max, min, mad, p10, p90]
     },
     plotFlowLayout () {
       const opts = {
@@ -270,6 +323,15 @@ export default {
         }
       }
       return opts
+    },
+    flowStatsItems () {
+      // formats flow stats as an array of objects e.g [{ name: "Low 7Q10", value: "1.5", units: "m3/s" }, ...]
+
+      if (!this.flowStats || !this.flowStats.stats) {
+        return []
+      }
+
+      return this.flowStats.stats
     }
   },
   methods: {

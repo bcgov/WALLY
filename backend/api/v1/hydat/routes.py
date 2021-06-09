@@ -8,7 +8,7 @@ from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
-from api.v1.hydat.controller import flow_statistics
+from api.v1.hydat.controller import flow_statistics, get_fasstr_longterm_stats
 import api.v1.hydat.schema as hydat_schema
 
 logger = getLogger("hydat")
@@ -98,7 +98,7 @@ def list_monthly_levels_by_year(station_number: str, year: int = None, db: Sessi
     return DailyLevel.get_monthly_levels_by_station(db, station_number, year)
 
 
-@router.get("/{station_number}/flows", response_model=List[hydat_schema.MonthlyFlow])
+@router.get("/{station_number}/flows")
 def list_monthly_flows_by_year(station_number: str, year: int = None, db: Session = Depends(get_db)):
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 
@@ -109,10 +109,13 @@ def list_monthly_flows_by_year(station_number: str, year: int = None, db: Sessio
     if not stn:
         raise HTTPException(status_code=404, detail="Station not found")
 
+    if not year:
+        return get_fasstr_longterm_stats(db, station_number)
+
     return DailyFlow.get_monthly_flows_by_station(db, station_number, year)
 
 
-@router.get("/{station_number}/stats", response_model=hydat_schema.FlowStatistics)
+@router.get("/{station_number}/stats", response_model=hydat_schema.FlowStatisticsSummary)
 def list_monthly_flows_by_year(station_number: str, full_years: bool = True, db: Session = Depends(get_db)):
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 

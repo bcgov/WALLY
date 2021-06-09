@@ -83,6 +83,42 @@ class MonthlyLevel(BaseModel):
         orm_mode = True
 
 
+class FASSTRMonthlyFlow(BaseModel):
+    """
+    Monthly summary from FASSTR Longterm Daily Stats
+    https://bcgov.github.io/fasstr/reference/calc_longterm_daily_stats.html
+    """
+
+    month: str
+    mean: float
+    median: float
+    maximum: float
+    minimum: float
+    p10: float
+    p90: float
+
+
+class FASSTRLongTermSummary(BaseModel):
+    """
+    Summary of FASSTR longterm daily stats
+    https://bcgov.github.io/fasstr/reference/calc_longterm_daily_stats.html
+
+    mean, median, maximum, minimum, p10 and p90 are stats computed by FASSTR
+    from the long-term data.
+
+    `months` provides a breakdown by month with the same headings.
+
+    """
+    station_number: str
+    months: List[FASSTRMonthlyFlow]
+    mean: float
+    median: float
+    maximum: float
+    minimum: float
+    p10: float
+    p90: float
+
+
 class MonthlyFlow(BaseModel):
     """
     Flow at a stream flow monitoring station, grouped by month
@@ -99,19 +135,24 @@ class MonthlyFlow(BaseModel):
         orm_mode = True
 
 
-class FlowStatistics(BaseModel):
+class FlowStat(BaseModel):
     """
     Flow statistics such as mean annual discharge, monthly means,
     and low flows for specified return periods
     """
 
+    stat: str
+    display_name: Optional[str]
+    value: float
+
+
+class FlowStatisticsSummary(BaseModel):
+    """
+    Summary of flow statistics
+    """
+
     station_number: str
-    low_30q10: float
-    low_30q5: float
-    low_7q10: float
-    low_30q10_summer: float
-    low_30q5_summer: float
-    low_7q10_summer: float
+    stats: List[FlowStat]
 
     class Config:
         orm_mode = True
