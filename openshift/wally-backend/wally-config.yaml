@@ -6,18 +6,21 @@ data:
     wally_model=false
     surface_water_design_v2=true
     hydraulic_connectivity_custom_stream_points=false
+    efn_analysis=false
   staging.env: |
     external_import=true
     external_import_types=
     wally_model=true
     surface_water_design_v2=true
     hydraulic_connectivity_custom_stream_points=true
+    efn_analysis=true
   dev.env: |
     external_import=true
     external_import_types=csv, kml, geojson
     wally_model=true
     surface_water_design_v2=true
     hydraulic_connectivity_custom_stream_points=true
+    efn_analysis=true
 kind: ConfigMap
 metadata:
   name: wally-config

@@ -74,6 +74,7 @@ class Settings(BaseSettings):
     projects = False
     saved_analysis = False
     hydraulic_connectivity_custom_stream_points = False
+    efn_analysis = False
 
     # allow users to select upstream catchment area delineation method.
     # default is False; WALLY will default to DEM+FWA which should be the best
