@@ -96,3 +96,9 @@ class GeneratedWatershedDetails(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class MonthlyTemperatureMinMax(BaseModel):
+    """ monthly temperature mins and maxes """
+    min: List[float]
+    max: List[float]

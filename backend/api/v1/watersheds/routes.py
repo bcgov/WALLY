@@ -166,7 +166,7 @@ def watershed_stats(
         wd["median_elevation"],
         wd["glacial_coverage"],
         wd["annual_precipitation"],
-        wd["potential_evapotranspiration_thornthwaite"],
+        wd["potential_evapotranspiration"],
         wd["drainage_area"],
         wd["solar_exposure"],
         wd["average_slope"])

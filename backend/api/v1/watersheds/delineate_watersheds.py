@@ -37,7 +37,7 @@ from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNet
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone
-from api.v1.watersheds.prism import mean_annual_precipitation
+from api.v1.watersheds.climate import mean_annual_precipitation
 from api.v1.watersheds.cdem import CDEM
 from api.v1.streams.controller import get_nearest_streams
 
@@ -61,13 +61,6 @@ wbt = WhiteboxTools()
 wbt.set_whitebox_dir('/usr/local/bin/')
 CDEM_FILE = f"{RASTER_FILE_DIR}/Burned_CDEM_4326.tif"
 SRTM_FILE = f"{RASTER_FILE_DIR}/Burned_SRTM_3005.tif"
-
-
-gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
-gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', MINIO_SECRET_KEY)
-gdal.SetConfigOption('AWS_S3_ENDPOINT', MINIO_HOST_URL)
-gdal.SetConfigOption('AWS_HTTPS', 'FALSE')
-gdal.SetConfigOption('AWS_VIRTUAL_HOSTING', 'FALSE')
 
 
 def get_cross_border_catchment_area(db: Session, point: Point):

@@ -9,6 +9,7 @@ import json
 import math
 import re
 import time
+from requests.api import get
 import sqlalchemy as sa
 from geoalchemy2.elements import WKTElement
 from shapely import wkb
@@ -33,7 +34,7 @@ from api.v1.hydat.controller import get_point_on_stream, get_station
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
 from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
-from api.v1.watersheds.prism import mean_annual_precipitation
+from api.v1.watersheds.climate import mean_annual_precipitation, get_evapotranspiration_trabucco
 from api.v1.watersheds.cdem import CDEM
 from api.v1.watersheds.schema import (
     LicenceDetails,
@@ -1433,7 +1434,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         logger.info("glacial coverage %s", glacial_coverage)
 
     # precipitation values from prism raster
-    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
+    annual_precipitation = mean_annual_precipitation(watershed_poly)
     if not annual_precipitation:
         # fall back on PCIC data
         annual_precipitation = get_annual_precipitation(watershed_poly)
@@ -1442,20 +1443,11 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         logger.info("annual precipitation %s", annual_precipitation)
 
     # temperature and potential evapotranspiration values
-    try:
-        temperature_data = get_temperature(watershed_poly)
-        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-            watershed_poly, temperature_data)
-        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-            watershed_poly, temperature_data
-        )
-    except Exception:
-        temperature_data = None
-        potential_evapotranspiration_hamon = None
-        potential_evapotranspiration_thornthwaite = None
+
+    potential_evapotranspiration = get_evapotranspiration_trabucco(watershed_poly)
 
     if WATERSHED_DEBUG:
-        logger.info("temperature data %s", temperature_data)
+        logger.info("potential evapotranspiration %s", potential_evapotranspiration)
 
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
@@ -1483,10 +1475,8 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "drainage_area": drainage_area,
         "glacial_area": glacial_area_m,
         "glacial_coverage": glacial_coverage,
-        "temperature_data": temperature_data,
         "annual_precipitation": annual_precipitation,
-        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
-        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
+        "potential_evapotranspiration": potential_evapotranspiration,
         "hydrological_zone": hydrological_zone,
         "average_slope": slope_percent,
         "solar_exposure": solar_exposure,
