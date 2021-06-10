@@ -99,7 +99,10 @@ with open(local_file_path, "a") as outfile:
         # base_url = "https://wally-staging.apps.silver.devops.gov.bc.ca"
         
         for i in range(0,3):
-            resp = req.get(station_url, headers=headers)
+            try:
+                resp = req.get(station_url, headers=headers)
+            except:
+                print('request failed:', resp.url)
             # retry call if failed after 1 second
             if resp.status_code != 200:
                 print("error: {}".format(resp.url))
