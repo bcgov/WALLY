@@ -140,7 +140,7 @@ export default {
       }
 
       // Update point of interest coordinates in URL
-      this.$router.push({ query: { ...this.$route.query, coordinates: this.coordinates } })
+      this.$router.push({ query: { ...this.$route.query, coordinates: this.coordinates } }).catch(() => {})
 
       ApiService.query(`/api/v1/streams/nearby?${qs.stringify(params)}`).then((r) => {
         this.streams = r.data.streams
@@ -304,7 +304,6 @@ export default {
       })
     },
     setDrawStreamHandlers () {
-      console.log('test')
       this.map.on('draw.create', this.addNewStreamPointHandler)
       this.map.on('draw.update', this.addNewStreamPointHandler)
     },

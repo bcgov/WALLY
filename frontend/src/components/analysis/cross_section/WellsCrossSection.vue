@@ -60,9 +60,10 @@
           <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
             <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
           </v-btn>
-          <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
-            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>
-          </v-btn>
+<!-- Lasso and box tools are currently broken, this won't work -->
+<!--          <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">-->
+<!--            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>-->
+<!--          </v-btn>-->
           <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
             <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18" v-if="!downloadImageLoading">archive</v-icon>
             <v-progress-circular
@@ -82,8 +83,14 @@
             color="grey"
           ></v-progress-circular>
         </v-card-text>
-        <v-card v-if="!loading" flat>
-          <Plotly id="2dPlot" :data="chartData" :layout="chartLayout"  :modeBarButtonsToRemove="ignoreButtons" ref="crossPlot"></Plotly>
+        <v-card flat>
+          <CrossSectionChart v-if="!loading"
+                :wells="wells"
+                :wells-lithology="wellsLithology"
+                :elevations="elevations"
+                :waterbodies="waterbodies"
+                :screens="screens"
+                :data-loading="loading"></CrossSectionChart>
         </v-card>
       </v-tab-item>
       <v-tab-item>
@@ -99,8 +106,11 @@
             color="grey"
           ></v-progress-circular>
         </v-card-text>
-        <v-card v-if="!loading" flat>
-          <Plotly id="3dPlot" :data="surfaceData" :layout="surfaceLayout" ref="surfacePlot"></Plotly>
+        <v-card flat>
+          <CrossSectionChart3d v-if="!loading"
+            :wells-lithology="wellsLithology"
+            :surface-points="surfacePoints"
+            :data-loading="loading"></CrossSectionChart3d>
         </v-card>
       </v-tab-item>
     </v-tabs>
