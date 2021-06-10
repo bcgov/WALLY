@@ -6,6 +6,7 @@ import csv
 import time
 import pandas as pd
 from minio import Minio
+from datetime import date, datetime
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -94,12 +95,21 @@ with open(local_file_path, "a") as outfile:
         station_id = "hydat." + station["STATION_NUMBER"]
 
         base_url = "http://wally-staging-api:8000"
+        station_url = base_url + "/api/v1/watersheds/" + station_id
         # base_url = "https://wally-staging.apps.silver.devops.gov.bc.ca"
-        resp = req.get(base_url + "/api/v1/watersheds/" + station_id, headers=headers)
         
+        for i in range(0,3):
+            resp = req.get(station_url, headers=headers)
+            # retry call if failed after 1 second
+            if resp.status_code != 200:
+                print("error: {}".format(resp.url))
+                time.sleep(1)
+                continue
+            else:
+                break
+
         # check for usual bad gateway error and skip
         if resp.status_code != 200:
-            print("error: {}".format(resp.url))
             try:
                 print(resp.json())
             except:
@@ -154,7 +164,9 @@ with open(local_file_path, "a") as outfile:
         success_count += 1
         log_progress()
 
-put_minio_file("watershed_stats_output.csv")
+now = datetime.now()
+date_time = now.strftime("%m:%d:%Y-%H:%M:%S")
+put_minio_file("watershed_stats_output_{}.csv".format(date_time))
 
 log_progress()
 print(headers)
