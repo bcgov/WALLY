@@ -7,10 +7,11 @@ export const WatershedModelDescriptions = {
   annualPrecipitation: {
     name: 'Annual Precipitation',
     description: 'Total annual rainfall over the selected watershed area measured in millimeters (mm). ' +
-    'Source:  Pacific Climate Impacts Consortium, University of Victoria, and PRISM Climate Group, Oregon State University, ' +
-    '(Jan. 2014). High Resolution Climatology. ' +
-    'https://www.pacificclimate.org/data/prism-climatology-and-monthly-timeseries-portal',
-    url: 'https://www.pacificclimate.org/data/prism-climatology-and-monthly-timeseries-portal'
+    'Hamann, A. and Wang, T., Spittlehouse, D.L., and Murdock, T.Q. 2013. A comprehensive, high-resolution ' +
+    'database of historical and projected climate surfaces for western North America. Bulletin of the ' +
+    'American Meteorological Society 94: 1307–1309.' +
+    'https://sites.ualberta.ca/~ahamann/data/climatewna.html',
+    url: 'https://sites.ualberta.ca/~ahamann/data/climatewna.html'
   },
   glacialCoverage: {
     name: 'Glacial Coverage',
@@ -37,6 +38,12 @@ export const WatershedModelDescriptions = {
     'and average slope. These inputs are multiplied by trained co-efficient values and adjusted by an intercept to ' +
     'output a predicted MAR value in l/km²/s. The source paper is linked below.',
     url: ''
+  },
+  potentialEvapotranspiration: {
+    name: 'Potential Evapotranspiration',
+    description: 'Trabucco, Antonio; Zomer, Robert (2019): Global Aridity Index and Potential' +
+    'Evapotranspiration (ET0) Climate Database v2. figshare. Dataset. https://doi.org/10.6084/m9.figshare.7504448.v3',
+    url: 'https://cgiarcsi.community/data/global-aridity-and-pet-database/'
   },
   meanAnnualRunoff: {
     name: 'Mean Annual Runoff',

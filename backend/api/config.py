@@ -60,8 +60,6 @@ MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "127.0.0.1:9000")
 
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
 RASTER_FILE_DIR = 'raster'
-# Use Pydantic's settings management
-
 
 gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
 gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', MINIO_SECRET_KEY)
@@ -71,6 +69,9 @@ gdal.SetConfigOption('AWS_VIRTUAL_HOSTING', 'FALSE')
 
 
 class Settings(BaseSettings):
+    """
+    Use Pydantic's settings management
+    """
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""
     w_mapbox_style = ""
