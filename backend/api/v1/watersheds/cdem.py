@@ -16,12 +16,6 @@ from api.db.utils import get_db_session
 from api.v1.aggregator.helpers import transform_4326_4140, transform_4326_3005
 logger = logging.getLogger('cdem')
 
-gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
-gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', MINIO_SECRET_KEY)
-gdal.SetConfigOption('AWS_S3_ENDPOINT', MINIO_HOST_URL)
-gdal.SetConfigOption('AWS_HTTPS', 'FALSE')
-gdal.SetConfigOption('AWS_VIRTUAL_HOSTING', 'FALSE')
-
 
 class CDEM:
 
@@ -168,6 +162,9 @@ class CDEM:
 
         logger.info("found CDEM avg aspect: %s", aspect)
 
+        cos_data = None
+        sin_data = None
+
         elapsed = (time.perf_counter() - start)
         logger.info('ASPECT TOOK %s', elapsed)
 
@@ -204,6 +201,7 @@ class CDEM:
         elapsed = (time.perf_counter() - start)
         logger.info('HILLSHADE BY TIF %s - calculated in %s',
                     mean_hillshade, elapsed)
+        hillshade_data = None
         return mean_hillshade
 
     def get_mean_time_in_daylight(self):
@@ -237,4 +235,5 @@ class CDEM:
         elapsed = (time.perf_counter() - start)
         logger.info('TIME IN DAYLIGHT BY TIF %s - calculated in %s',
                     time_in_daylight, elapsed)
+        time_in_daylight_data = None
         return time_in_daylight

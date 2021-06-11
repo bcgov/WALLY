@@ -33,7 +33,7 @@ from api.v1.hydat.controller import get_point_on_stream, get_station
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
 from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
-from api.v1.watersheds.prism import mean_annual_precipitation
+from api.v1.watersheds.climate import get_mean_annual_precipitation, get_potential_evapotranspiration
 from api.v1.watersheds.cdem import CDEM
 from api.v1.watersheds.schema import (
     LicenceDetails,
@@ -980,55 +980,6 @@ def get_watershed(
     return watershed
 
 
-def parse_pcic_temp(min_temp, max_temp):
-    """ parses monthly temperatures from pcic to return an array of min,max,avg """
-
-    temp_by_month = []
-
-    for k, v in sorted(min_temp.items(), key=lambda x: x[0]):
-        min_t = v
-        max_t = max_temp[k]
-        avg_t = (min_t + max_t) / 2
-        temp_by_month.append((min_t, max_t, avg_t))
-
-    return temp_by_month
-
-
-def get_temperature(poly: Polygon):
-    """
-    gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
-    """
-    try:
-        min_temp = pcic_data_request(poly, 'tasmin')
-    except:
-        raise Exception
-
-    try:
-        max_temp = pcic_data_request(poly, 'tasmax')
-    except:
-        raise Exception
-
-    return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
-
-
-def get_annual_precipitation(poly: Polygon):
-    """
-    gets precipitation data from PCIC, and returns an annual precipitation
-    value calculated by summing monthly means.
-    """
-    response = pcic_data_request(poly)
-
-    months_data = list(response["data"].values())
-    months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    month_totals = [a*b for a, b in zip(months_data, months_days)]
-
-    annual_precipitation = sum(month_totals)
-    # logger.warning("annual_precipitation")
-    # logger.warning(annual_precipitation)
-
-    return annual_precipitation
-
-
 def calculate_daylight_hours_usgs(day: int, latitude_r: float):
     """ calculates daily radiation for a given day and latitude (latitude in radians)
         https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
@@ -1039,117 +990,6 @@ def calculate_daylight_hours_usgs(day: int, latitude_r: float):
     sunset_angle = math.acos(acos_input)
 
     return (24 / math.pi) * sunset_angle
-
-
-def calculate_potential_evapotranspiration_hamon(poly: Polygon, temp_data):
-    """
-    calculates potential evapotranspiration using the Hamon equation
-    http://data.snap.uaf.edu/data/Base/AK_2km/PET/Hamon_PET_equations.pdf
-    """
-
-    average_annual_temp = sum([x[2] for x in temp_data])/12
-
-    cent = poly.centroid
-    xy = cent.coords.xy
-    _, latitude = xy
-    latitude_r = latitude[0] * (math.pi / 180)
-
-    day = 1
-    k = 1
-
-    daily_sunlight_values = [calculate_daylight_hours_usgs(
-        n, latitude_r) for n in range(1, 365 + 1)]
-
-    avg_daily_sunlight_hours = sum(daily_sunlight_values) / \
-        len(daily_sunlight_values)
-
-    saturation_vapour_pressure = 6.108 * \
-        (math.e ** (17.27 * average_annual_temp / (average_annual_temp + 237.3)))
-
-    pet = k * 0.165 * 216.7 * avg_daily_sunlight_hours / 12 * \
-        (saturation_vapour_pressure / (average_annual_temp + 273.3))
-
-    return pet * 365
-
-
-def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data):
-    """ calculates potential evapotranspiration (mm/yr) using the
-    Thornwaite method. temp_data is in the format returned by the function `get_temperature`"""
-
-    monthly_t = [x[2] for x in temp_data]
-    cent = poly.centroid
-    xy = cent.coords.xy
-    _, latitude = xy
-    latitude_r = latitude[0] * (math.pi / 180)
-
-    mmdlh = monthly_mean_daylight_hours(latitude_r)
-
-    pet_mm_month = thornthwaite(monthly_t, mmdlh)
-
-    return sum(pet_mm_month)
-
-
-def get_slope_elevation_aspect(polygon: MultiPolygon):
-    """
-    This calls the sea api with a polygon and receives back
-    slope, elevation and aspect information.
-
-    In case of an error in the external slope/elevation/aspect service,
-    a tuple of (None, None, None) will be returned. Any code making
-    use of this function should interpret None as "not available".
-    """
-    sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
-
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Connection': 'keep-alive'
-    }
-
-    exterior = extract_poly_coords(polygon)["exterior_coords"]
-    coordinates = [[list(elem) for elem in exterior]]
-
-    payload = "format=json&aoi={\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"MultiPolygon\", \"coordinates\":" \
-        + str(coordinates) + \
-        "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
-
-    try:
-        if WATERSHED_DEBUG:
-            logger.warn("(SEA) Request Started")
-        response = requests.post(sea_url, headers=headers, data=payload)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        logger.warn("(SEA) Http Error:" + errh)
-    except requests.exceptions.ConnectionError as errc:
-        logger.warn("(SEA) Error Connecting:" + errc)
-    except requests.exceptions.Timeout as errt:
-        logger.warn("(SEA) Timeout Error:" + errt)
-    except requests.exceptions.RequestException as err:
-        logger.warn("(SEA) OOps: Something Else" + err)
-
-    result = response.json()
-
-    if WATERSHED_DEBUG:
-        logger.warn(result)
-        logger.warn("(SEA) Request Finished")
-
-    if result["status"] != "SUCCESS":
-        if WATERSHED_DEBUG:
-            logger.warn("(SEA) Request Failed:" + result["message"])
-        raise Exception
-
-    # response object from sea example
-    # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
-    # "SlopeElevationAspectResult":{"slope":44.28170006222049,
-    # "minElevation":793.0,"maxElevation":1776.0,
-    # "averageElevation":1202.0223152022315,"aspect":125.319019998603,
-    # "confidenceIndicator":46.840837384501654}}
-    sea = result["SlopeElevationAspectResult"]
-
-    slope = sea["slope"]
-    median_elev = sea["averageElevation"]
-    aspect = sea["aspect"]
-
-    return (slope, median_elev, aspect)
 
 
 def get_hillshade(slope_rad: float, aspect_rad: float, azimuth: float = 180.0, altitude: float = 45.0):
@@ -1433,29 +1273,17 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         logger.info("glacial coverage %s", glacial_coverage)
 
     # precipitation values from prism raster
-    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
-    if not annual_precipitation:
-        # fall back on PCIC data
-        annual_precipitation = get_annual_precipitation(watershed_poly)
+    annual_precipitation = get_mean_annual_precipitation(watershed_poly)
 
     if WATERSHED_DEBUG:
         logger.info("annual precipitation %s", annual_precipitation)
 
     # temperature and potential evapotranspiration values
-    try:
-        temperature_data = get_temperature(watershed_poly)
-        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-            watershed_poly, temperature_data)
-        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-            watershed_poly, temperature_data
-        )
-    except Exception:
-        temperature_data = None
-        potential_evapotranspiration_hamon = None
-        potential_evapotranspiration_thornthwaite = None
+
+    potential_evapotranspiration = get_potential_evapotranspiration(watershed_poly)
 
     if WATERSHED_DEBUG:
-        logger.info("temperature data %s", temperature_data)
+        logger.info("potential evapotranspiration %s", potential_evapotranspiration)
 
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
@@ -1474,7 +1302,6 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         logger.info("elevation stats %s", elev_stats)
         logger.info("median elevation %s", median_elev)
         logger.info("average slope %s", slope_percent)
-        logger.info("aspect %s", aspect)
         logger.info("solar exposure %s", solar_exposure)
 
     data = {
@@ -1483,10 +1310,8 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "drainage_area": drainage_area,
         "glacial_area": glacial_area_m,
         "glacial_coverage": glacial_coverage,
-        "temperature_data": temperature_data,
         "annual_precipitation": annual_precipitation,
-        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
-        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
+        "potential_evapotranspiration": potential_evapotranspiration,
         "hydrological_zone": hydrological_zone,
         "average_slope": slope_percent,
         "solar_exposure": solar_exposure,

@@ -60,6 +60,19 @@ requests:
     method: get
     expect:
       status: 200
+      values:
+        annual_precipitation:
+          gt: 2370
+          lt: 2380
+        potential_evapotranspiration:
+          gt: 750
+          lt: 760
+        median_elevation:
+          gt: 1820
+          lt: 1840
+        solar_exposure:
+          gt: 0.64
+          lt: 0.65
   - name: Watershed at point 3 - licences
     url: "{{host}}/api/v1/watersheds/{{watershed_id}}/licences?generated_id={{generated_watershed_id}}"
     method: get

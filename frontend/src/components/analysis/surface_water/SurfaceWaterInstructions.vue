@@ -67,6 +67,12 @@
         <li>
           <a target="_blank" href="https://catalogue.data.gov.bc.ca/dataset/water-rights-licences-public">Water Rights Licences - Public</a>
         </li>
+        <li>
+          <a target="_blank" href="https://cgiarcsi.community/data/global-aridity-and-pet-database/">Global Aridity and Potential Evapotranspiration Database</a>
+        </li>
+        <li>
+          <a target="_blank" href="https://sites.ualberta.ca/~ahamann/data/climatewna.html">Climate WNA: Hamann, A. and Wang, T., Spittlehouse, D.L., and Murdock, T.Q. 2013. A comprehensive, high-resolution database of historical and projected climate surfaces for western North America.</a>
+        </li>
       </ul>
     <p class="mt-3">
       If you notice an issue with data or layers, please notify the contact email listed in the URLs above.
