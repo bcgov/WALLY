@@ -8,7 +8,7 @@
     <v-card-text>
       <div>
         <p>
-          Placeholder
+          Placeholder Text
         </p>
       </div>
     </v-card-text>
