@@ -18,18 +18,19 @@ import time
 import uuid
 from sqlalchemy.orm import Session
 from shapely.geometry import Polygon, mapping
-from api.config import RASTER_FILE_DIR
+from api.v1.watersheds import PRECIP_RASTER, PET_RASTER
 
-logger = logging.getLogger('prism')
-
-PRECIP_RASTER = f"{RASTER_FILE_DIR}/NORM_6190_Precip.tif"
-PET_RASTER = f"{RASTER_FILE_DIR}/WNA_et0.tif"
+logger = logging.getLogger('climate')
 
 
-def mean_annual_precipitation(area: Polygon) -> float:
+def get_mean_annual_precipitation(area: Polygon, raster: str = "/vsis3/"+PRECIP_RASTER) -> float:
     """
-    Reads the precip in `area` from a PRISM raster (located at the S3 file
-    location referenced by PRECIP_RASTER), and returns the mean of all values.
+    Reads the precip in `area` from a PRISM raster (located at the path provided by the
+    `precip_raster` argument), and returns the mean of all values.
+
+    `raster` can be a file path or a GDAL virtual filesystem path.
+    /vsis3/ is pre-configured for WALLY's Minio storage.
+    example:  "/vsis3/raster/NORM_6190_Precip.tif"
     """
     start = time.perf_counter()
 
@@ -54,7 +55,7 @@ def mean_annual_precipitation(area: Polygon) -> float:
 
         # open the Cloud Optimized GeoTIFF from Minio, returning a dataset
         # clipped to the watershed extents, and convert to numpy array.
-        precip_data = gdal.Warp(precip_file, '/vsis3/'+PRECIP_RASTER,
+        precip_data = gdal.Warp(precip_file, raster,
                                 cutlineDSName=extents_file, cropToCutline=True,
                                 dstNodata=-9999,
                                 ).ReadAsArray()
@@ -72,14 +73,22 @@ def mean_annual_precipitation(area: Polygon) -> float:
     return precip
 
 
-def get_evapotranspiration_trabucco(area: Polygon):
+def get_potential_evapotranspiration(area: Polygon, raster: str = "/vsis3/"+PET_RASTER):
     """
     Retrieves potential evapotranspiration from the Global Aridity and PET database.
+    The data should be a raster file (sourced from the annual_et0 PET dataset).
+
+    `raster` can be a file path or a GDAL virtual filesystem path.
+    /vsis3/ is pre-configured for WALLY's Minio storage.
+    example:  "/vsis3/raster/WNA_et0.tif"
 
     Trabucco, Antonio; Zomer, Robert (2019): Global Aridity Index and Potential
     Evapotranspiration (ET0) Climate Database v2. figshare. Dataset.
     https://doi.org/10.6084/m9.figshare.7504448.v3 
     https://cgiarcsi.community/data/global-aridity-and-pet-database/
+
+
+
     """
     start = time.perf_counter()
 
@@ -104,7 +113,7 @@ def get_evapotranspiration_trabucco(area: Polygon):
 
         # open the Cloud Optimized GeoTIFF from Minio, returning a dataset
         # clipped to the watershed extents, and convert to numpy array.
-        pet_data = gdal.Warp(pet_file, '/vsis3/'+PET_RASTER,
+        pet_data = gdal.Warp(pet_file, raster,
                              cutlineDSName=extents_file, cropToCutline=True,
                              dstNodata=-32768,
                              ).ReadAsArray()

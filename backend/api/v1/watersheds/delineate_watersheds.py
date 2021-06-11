@@ -1,52 +1,20 @@
 """
 Functions for delineating watersheds
 """
-import base64
-import datetime
 import logging
-import requests
-import geojson
-import json
-import math
-import re
-import os
-import uuid
-import rasterio
 import fiona
 import time
-from shapely import wkt, wkb
-from rasterio.features import shapes
+from shapely import wkb
 from utils.whitebox_tools import WhiteboxTools
-from tempfile import NamedTemporaryFile, TemporaryDirectory
+from tempfile import TemporaryDirectory
 from typing import Tuple, List
-from urllib.parse import urlencode, unquote
-from geojson import FeatureCollection, Feature
-from operator import add
-from osgeo import gdal, ogr, osr
-from shapely.geometry import Point, Polygon, MultiPolygon, shape, box, mapping
-from shapely.ops import transform, unary_union
-from starlette.responses import Response
+from osgeo import gdal, ogr
+from shapely.geometry import Point, Polygon, MultiPolygon, shape, mapping
 from sqlalchemy.orm import Session
-from sqlalchemy import func
-from fastapi import HTTPException
-from pyeto import thornthwaite, monthly_mean_daylight_hours, deg2rad
-from api.config import WATERSHED_DEBUG, RASTER_FILE_DIR, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
-from api.utils import normalize_quantity
-from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
-from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326, transform_4326_4140
-from api.v1.models.isolines.controller import calculate_runoff_in_area
-from api.v1.models.scsb2016.controller import get_hydrological_zone
-from api.v1.watersheds.climate import mean_annual_precipitation
-from api.v1.watersheds.cdem import CDEM
-from api.v1.streams.controller import get_nearest_streams
+from api.config import WATERSHED_DEBUG, RASTER_FILE_DIR
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.watersheds import CDEM_FILE, SRTM_FILE
 
-from api.v1.watersheds.schema import LicenceDetails, SurficialGeologyDetails, FishObservationsDetails, WaterApprovalDetails
-
-from api.v1.aggregator.controller import feature_search, databc_feature_search
-
-from external.docgen.controller import docgen_export_to_xlsx
-from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('WATERSHEDS')
@@ -59,8 +27,6 @@ wbt = WhiteboxTools()
 
 # the whitebox_tools cli is installed to /usr/local/bin by the Dockerfile.
 wbt.set_whitebox_dir('/usr/local/bin/')
-CDEM_FILE = f"{RASTER_FILE_DIR}/Burned_CDEM_4326.tif"
-SRTM_FILE = f"{RASTER_FILE_DIR}/Burned_SRTM_3005.tif"
 
 
 def get_cross_border_catchment_area(db: Session, point: Point):
