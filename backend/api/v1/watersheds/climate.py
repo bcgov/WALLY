@@ -1,53 +1,14 @@
 """ Functions for interacting with climate data to get precipitation and potential
     evapotranspiration means for watershed areas
 
-    Climate WNA/PRISM data source:
-    Hamann, A. and Wang, T., Spittlehouse, D.L., and Murdock, T.Q. 2013. A comprehensive,
-    high-resolution database of historical and projected climate surfaces for western
-    North America. Bulletin of the American Meteorological Society 94: 1307–1309.
-    Retrieved from https://sites.ualberta.ca/~ahamann/data/climatewna.html on June 10, 2021
-    
-    Potential evapotranspiration:
-    Trabucco, Antonio; Zomer, Robert (2019): Global Aridity Index and Potential
-    Evapotranspiration (ET0) Climate Database v2. figshare. Dataset.
-    https://doi.org/10.6084/m9.figshare.7504448.v3 
-    Retrieved from https://cgiarcsi.community/data/global-aridity-and-pet-database/ on June 10, 2021
+
 
 
     Raster files must be in the /backend/fixtures/raster directory. See PRECIP_RASTER and PET_RASTER
     constants for the filenames. The files should be packaged as Cloud Optimized GeoTIFFs (COG) in
     the EPSG:4326 lat/lng coordinate system.
 
-    Creating the COG tif files:
-
-    Climate WNA precipitation:
-    1.  Download the annual bioclimate variables file
-        (http://www.cacpd.org.s3.amazonaws.com/climate_normals/NORM_6190_Bioclim_ASCII.zip)
-
-    2.  Convert the MAP file (mean annual precipitation) to EPSG:4326:
-        `gdalwarp -t_srs EPSG:4326 NORM_6190_MAP.tif precip.tif`
-    
-    3.  Convert the resulting file to a COG:
-        `gdal_translate -of COG -co COMPRESS=LZW precip.tif NORM_6190_Precip.tif`
-    
-    4.  Upload the file to WALLY Staging and Prod Minio
-
-    Potential evapotranspiration:
-    1.  Download the database from the Global Aridity and PET link above. Unzip
-        the file and then unzip the annual et0 file inside.
-    
-    2.  Optional, but recommended:  use QGIS to get the extents of the above Climate WNA file,
-        and clip the annual_et0.tif file.  The annual_et0.tif file has global coverage that we
-        don't need.  Ensure the clipped area includes parts of Washington, Idaho, Alaska etc
-        that BC watersheds originate in (e.g. Chilliwack River).
-
-    3.  Follow the instructions 2-4 for ClimateWNA to convert annual_et0.tif to EPSG:4326 and create a
-        COG tif file named WNA_et0.tif.
-
-    Fixtures:
-    1.  Use the /backend/fixtures/extents file to clip Whistler area rasters for /backend/fixtures/raster.
-
-
+    See api/v1/watersheds/README.md for instructions on creating the GeoTIFF files.
 """
 import logging
 from tempfile import TemporaryDirectory
@@ -58,7 +19,6 @@ import uuid
 from sqlalchemy.orm import Session
 from shapely.geometry import Polygon, mapping
 from api.config import RASTER_FILE_DIR
-from api.v1.watersheds.schema import MonthlyTemperatureMinMax
 
 logger = logging.getLogger('prism')
 
