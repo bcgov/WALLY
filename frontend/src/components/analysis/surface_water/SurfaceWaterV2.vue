@@ -87,6 +87,9 @@
             <v-tab>
               Runoff Models
             </v-tab>
+            <v-tab class="text-left" v-if="showEfnAnalysisFlag">
+              EFN
+            </v-tab>
             <v-tab class="text-left">
               Fish Observations
             </v-tab>
@@ -151,13 +154,17 @@
                                        :surface_water_design_v2="true"/>
             </v-tab-item>
 
+            <!-- EFN Analysis -->
+            <v-tab-item v-if="showEfnAnalysisFlag">
+              <EfnAnalysis />
+            </v-tab-item>
+
             <!-- Known BC Fish Observations -->
             <v-tab-item>
               <FishObservations :watershedID="selectedWatershed"
                                 :generatedWatershedID="generatedWatershedID"
                                 :surface_water_design_v2="true"/>
             </v-tab-item>
-
           </v-tabs>
         </div>
       </div>
@@ -185,6 +192,7 @@ import { months, secondsInMonth } from '../../../constants/months'
 import { findWallyLayer } from '../../../common/utils/mapUtils'
 import { SOURCE_WATERSHEDS_AT_LOCATION } from '../../../common/mapbox/sourcesWally'
 import SavedAnalysesCreateModal from '../../savedanalyses/SavedAnalysesCreateModal'
+import EfnAnalysis from './efn_analysis/EfnAnalysis.vue'
 
 export default {
   name: 'SurfaceWaterDetails',
@@ -197,7 +205,8 @@ export default {
     WatershedDetails,
     WatershedMonthlyDischarge,
     WatershedLicencedQty,
-    SavedAnalysesCreateModal
+    SavedAnalysesCreateModal,
+    EfnAnalysis
   },
   props: {
     upstreamMethod: {
@@ -312,7 +321,11 @@ export default {
     },
     ...mapGetters('surfaceWater', ['watershedDetails', 'customModelInputsActive', 'scsb2016ModelInputs']),
     ...mapGetters(['pointOfInterest']),
-    ...mapGetters('map', ['map'])
+    ...mapGetters('map', ['map']),
+    ...mapGetters(['app']),
+    showEfnAnalysisFlag () {
+      return this.app && this.app.config && this.app.config.efn_analysis
+    }
   },
   methods: {
     ...mapMutations('surfaceWater', ['setAvailabilityPlotData']),
