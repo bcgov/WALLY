@@ -3,18 +3,12 @@
     https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/archive/
 """
 import logging
-from sqlalchemy.orm import Session
-from shapely.geometry import Polygon, mapping
 from shapely.ops import transform
-import math
 import time
-import fiona
-from osgeo import gdal
-from tempfile import TemporaryDirectory
-from api.config import RASTER_FILE_DIR, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
+from api.config import RASTER_FILE_DIR
+from api.utils import get_raster_dataset
 from api.db.utils import get_db_session
-from api.v1.aggregator.helpers import transform_4326_4140, transform_4326_3005
-from api.v1.watersheds.climate import new_polygon
+from api.v1.aggregator.helpers import transform_4326_4140
 logger = logging.getLogger('cdem')
 
 
@@ -118,90 +112,29 @@ class CDEM:
         return avg_slope_perc
 
     def get_mean_hillshade(self, area=None, retry_min_size=None):
+        """
+        Get the mean hillshade from an int16-based Hillshade raster.
+        WALLY's hillshade raster was produced from 12 arcsecond CDEM
+        and WhiteboxTools.
+
+        https://github.com/jblindsay/whitebox-tools            
+        """
         if not area:
             area = self.area4326
         start = time.perf_counter()
 
-        with TemporaryDirectory() as rasterdir:
-            hillshade_in_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_Hillshade_3005.tif"
-            extents_file = rasterdir + "/extents.shp"
+        hillshade_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_Hillshade_3005.tif"
+        no_data = -32768
+        hillshade_data = get_raster_dataset(hillshade_file, area=area, no_data=no_data, retry_min_size=retry_min_size)
+        hillshade_data = hillshade_data.ReadAsArray()
 
-            # Define a Polygon feature geometry with one attribute
-            poly_schema = {
-                'geometry': 'Polygon',
-                'properties': {'id': 'int'},
-            }
+        mean_hillshade_int16 = hillshade_data[hillshade_data != no_data].mean()
 
-            # Write a new Shapefile with the envelope.
-            with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-                c.write({
-                    'geometry': mapping(area),
-                    'properties': {'id': 1},
-                })
-
-            hillshade_data = gdal.Warp("", hillshade_in_file, format="MEM",
-                                       cutlineDSName=extents_file, cropToCutline=True,
-                                       dstNodata=-32768,
-                                       )
-            if not hillshade_data and retry_min_size:
-                retry_area_sqm = retry_min_size
-                logger.warning(
-                    'get_mean_hillshade: Area was too small to sample a pixel.  Retrying with a %s sq km square',
-                    retry_area_sqm / 1e6)
-                retry_area = new_polygon(area.centroid, size_sqm=retry_area_sqm)
-                return self.get_mean_hillshade(area=retry_area, retry_min_size=2*retry_min_size)
-
-            hillshade_data = hillshade_data.ReadAsArray()
-
-            mean_hillshade_int16 = hillshade_data[hillshade_data != -32768].mean()
-            mean_hillshade = mean_hillshade_int16 / 32767
-            elapsed = (time.perf_counter() - start)
-            logger.info('HILLSHADE BY TIF %s - calculated in %s',
-                        mean_hillshade, elapsed)
-            hillshade_data = None
+        # scale down the hillshade value from 0-32767 to a percent value representing how much shade
+        # our watershed gets.  32767 is the max possible value for our int16 hillshade raster.
+        mean_hillshade = mean_hillshade_int16 / 32767
+        elapsed = (time.perf_counter() - start)
+        logger.info('HILLSHADE BY TIF %s - calculated in %s',
+                    mean_hillshade, elapsed)
+        hillshade_data = None
         return mean_hillshade
-
-    def get_mean_time_in_daylight(self, area=None, retry_min_size=None):
-        if not area:
-            area = self.area4326
-        start = time.perf_counter()
-
-        with TemporaryDirectory() as rasterdir:
-            time_in_daylight_in_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_TimeInDaylight_3005.tif"
-            extents_file = rasterdir + "/extents.shp"
-
-            # Define a Polygon feature geometry with one attribute
-            poly_schema = {
-                'geometry': 'Polygon',
-                'properties': {'id': 'int'},
-            }
-
-            # Write a new Shapefile with the envelope.
-            with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-                c.write({
-                    'geometry': mapping(self.area4326),
-                    'properties': {'id': 1},
-                })
-
-            time_in_daylight_data = gdal.Warp("", time_in_daylight_in_file, format="MEM",
-                                              cutlineDSName=extents_file, cropToCutline=True,
-                                              dstNodata=-32768,
-                                              )
-
-            if not time_in_daylight_data and retry_min_size:
-                retry_area_sqm = retry_min_size
-                logger.warning(
-                    'get_mean_time_in_daylight: Area was too small to sample a pixel.  Retrying with a %s sq km square',
-                    retry_area_sqm / 1e6)
-                retry_area = new_polygon(area.centroid, size_sqm=retry_area_sqm)
-                return self.get_mean_time_in_daylight(area=retry_area, retry_min_size=2*retry_min_size)
-
-            time_in_daylight_data = time_in_daylight_data.ReadAsArray()
-
-            time_in_daylight = time_in_daylight_data[time_in_daylight_data != -32768].mean(
-            ).item()
-            elapsed = (time.perf_counter() - start)
-            logger.info('TIME IN DAYLIGHT BY TIF %s - calculated in %s',
-                        time_in_daylight, elapsed)
-            time_in_daylight_data = None
-        return time_in_daylight
