@@ -410,6 +410,53 @@ def get_watershed_id_at_point(db: Session, point: Point):
     return watershed_id
 
 
+def get_upstream_watershed_polygon_count(db: Session, watershed_id: int) -> int:
+    """Returns the number of polygons upstream from watershed_id.
+    This helps if we want to determine if a group of watershed polygons
+    originating from `watershed_id` will take too long to dissolve or will
+    take too long to do GIS operations on the resulting area.
+
+    The average polygon size is (very roughly) 0.2 to 0.3 square km, so if
+    we want to approximately predict whether an upstream area might be more than
+    1000 square km, we can check to ensure there are less than about 4000 polygons.
+
+    This query can be expensive but is much faster than attempting a full watershed
+    delineation and finding out too late that we're working in an unmanageable large area.
+    """
+    q = """
+        with subwscode_ltree as (
+            SELECT  "WATERSHED_FEATURE_ID" as origin_id,
+                    wscode_ltree as origin_wscode,
+                    localcode_ltree as origin_localcode,
+                    ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
+                    nlevel(localcode_ltree) as downstream_tributary_code_pos
+            FROM    freshwater_atlas_watersheds
+            WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
+        )
+        SELECT  count(*)
+        FROM    freshwater_atlas_watersheds
+        WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+        AND     ltree2text(subltree(
+                    localcode_ltree || '000000'::ltree,
+                    (select downstream_tributary_code_pos from subwscode_ltree) - 1,
+                    (select downstream_tributary_code_pos from subwscode_ltree) - 0
+                ))::integer >= (select downstream_tributary from subwscode_ltree)
+        AND (NOT wscode_ltree <@ (select origin_localcode from subwscode_ltree) OR (select origin_wscode from subwscode_ltree) = (select origin_localcode from subwscode_ltree))
+
+    """
+
+    res = db.execute(q, {"watershed_feature_id": watershed_id})
+
+    record = res.fetchone()
+
+    if not record or not record[0]:
+        logger.warning(
+            'unable to calculate polygon count from watershed feature id %s', watershed_id)
+        return None
+
+    return record[0]
+
+
 def calculate_watershed(
     db: Session,
     user,
@@ -836,25 +883,48 @@ def get_watershed_at_hydat_station(
     stn = get_station(db, hydat_station_number)
 
     # don't delineate watersheds expected to be more than 1000 km2.
-    if stn.drainage_area_gross > 1000:
+    if stn.drainage_area_gross and stn.drainage_area_gross > 1000:
         logger.info(
             'Hydat station %s - %s watershed expected to be too large to refine by DEM. Falling back on FWA only.',
             stn.station_number, stn.station_name)
         upstream_method = 'FWA+UPSTREAM'
 
+    # if we don't have an expected area to compare our result to, skip to the HYDAT "corrected"
+    # method.  This will try to snap the point to a stream with the same name as the HYDAT
+    # station name.
+    # TODO: evaluate whether this method is better than trying raw coords 1st, then
+    # corrected by stream name 2nd. We may want to default to this method first.
+    if not stn.drainage_area_gross:
+        logger.info(
+            'Hydat station %s - no drainage area listed.  Counting watershed polygons and defaulting to correcting point coords to the stream in the station name.',
+            stn.station_number, stn.station_name)
+        watershed_id = get_watershed_id_at_point(db, stn.geom)
+
+        # we don't have access to an upstream area estimate, but we
+        # still need to limit when we use the DEM delineation.
+        # use 4000 upstream polygons as our limit to approximate 1000 sq km (the
+        # cutoff size is completely arbitrary, we just want to avoid delineating
+        # huge watersheds).
+        if get_upstream_watershed_polygon_count(db, watershed_id) > 4000:
+            logger.info(
+                'Hydat station %s - %s watershed expected to be too large to refine by DEM. Falling back on FWA only.',
+                stn.station_number, stn.station_name)
+            upstream_method = 'FWA+UPSTREAM'
+        return calculate_watershed(
+            db, user, hydat_station_number=stn.station_number, upstream_method=upstream_method
+        )
+
+    # if we do have a drainage area to compare to, start with the regular method of delineating
+    # from coordinates. For most HYDAT stations, the coordinates are enough to draw the watershed.
     watershed = calculate_watershed(
         db, user, click_point=stn.geom, upstream_method=upstream_method
     )
 
-    # if we don't have an expected area to compare our result to, return our result now.
     # If an area is listed on the HYDAT station, we'll use it to make sure the difference
     # between our delineated watershed and the listed area is within reason.  The most common
     # reason it wouldn't be is if the HYDAT coordinates don't line up with the stream that
     # the station is actually monitoring (or is at an ambiguous confluence where it's not
     # clear from the coordinates which tributary is being monitored).
-    if not stn.drainage_area_gross:
-        return watershed
-
     ws_area = watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
     ws_area_vs_expected = abs(ws_area - stn.drainage_area_gross) / stn.drainage_area_gross
     hydat_corrected_watershed = None
@@ -1259,7 +1329,6 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
 
     watershed_poly = shape(watershed.geometry)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
-    watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     if WATERSHED_DEBUG:
         logger.info("watershed area %s", watershed_area)
@@ -1267,20 +1336,30 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
-        db, watershed_rect)
+        db, watershed_poly)
 
     if WATERSHED_DEBUG:
         logger.info("glacial coverage %s", glacial_coverage)
 
+    # climate raster pixels (precip, evapotranspiration...) are 1 square km.
+    # if our watershed is on the small size, we might not get a pixel if
+    # we try to clip the raster to our watershed.  If that is the case,
+    # we'll want to sample the pixel at the centroid of the watershed.
+    # only enable this feature for very small watersheds.
+    retry_min_size = None
+    if watershed_area < 20e6:
+        retry_min_size = max(2e6, watershed_area)
+
     # precipitation values from prism raster
-    annual_precipitation = get_mean_annual_precipitation(watershed_poly)
+    annual_precipitation = get_mean_annual_precipitation(watershed_poly, retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
         logger.info("annual precipitation %s", annual_precipitation)
 
     # temperature and potential evapotranspiration values
 
-    potential_evapotranspiration = get_potential_evapotranspiration(watershed_poly)
+    potential_evapotranspiration = get_potential_evapotranspiration(
+        watershed_poly, retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
         logger.info("potential evapotranspiration %s", potential_evapotranspiration)
@@ -1296,7 +1375,8 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
 
     aspect = None
 
-    solar_exposure = area_cdem.get_mean_hillshade()
+    # todo: retry at min size
+    solar_exposure = area_cdem.get_mean_hillshade(retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
         logger.info("elevation stats %s", elev_stats)

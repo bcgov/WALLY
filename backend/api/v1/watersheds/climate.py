@@ -15,15 +15,43 @@ from tempfile import TemporaryDirectory
 from osgeo import gdal
 import fiona
 import time
+import math
 import uuid
-from sqlalchemy.orm import Session
-from shapely.geometry import Polygon, mapping
+from typing import Optional
+from shapely.ops import transform
+from shapely.geometry import Polygon, Point, mapping
 from api.v1.watersheds import PRECIP_RASTER, PET_RASTER
+from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
 
 logger = logging.getLogger('climate')
 
 
-def get_mean_annual_precipitation(area: Polygon, raster: str = "/vsis3/"+PRECIP_RASTER) -> float:
+def new_polygon(centroid: Point, size_sqm: float = 5e6):
+    """
+    Returns a new polygon centered at `centroid` with area `size_sqm` (sq. m)
+    centroid should be EPSG:4326
+    """
+
+    centroid_3005 = transform(transform_4326_3005, centroid)
+
+    side = math.sqrt(size_sqm)
+
+    poly = Polygon((
+        (centroid_3005.x - side/2, centroid_3005.y - side/2),
+        (centroid_3005.x + side/2, centroid_3005.y - side/2),
+        (centroid_3005.x + side/2, centroid_3005.y + side/2),
+        (centroid_3005.x - side/2, centroid_3005.y + side/2),
+        (centroid_3005.x - side/2, centroid_3005.y - side/2),
+    ))
+
+    return transform(transform_3005_4326, poly)
+
+
+def get_mean_annual_precipitation(
+    area: Polygon,
+    raster: str = "/vsis3/"+PRECIP_RASTER,
+    retry_min_size: Optional[float] = None
+) -> float:
     """
     Reads the precip in `area` from a PRISM raster (located at the path provided by the
     `precip_raster` argument), and returns the mean of all values.
@@ -58,7 +86,15 @@ def get_mean_annual_precipitation(area: Polygon, raster: str = "/vsis3/"+PRECIP_
         precip_data = gdal.Warp(precip_file, raster,
                                 cutlineDSName=extents_file, cropToCutline=True,
                                 dstNodata=-9999,
-                                ).ReadAsArray()
+                                )
+
+        if not precip_data and retry_min_size:
+            retry_area_sqm = retry_min_size
+            logger.warning('Area was too small to sample a pixel.  Retrying with a %s sq km square', retry_area_sqm/1e6)
+            retry_area = new_polygon(area.centroid, size_sqm=retry_area_sqm)
+            return get_mean_annual_precipitation(retry_area, raster=raster, retry_min_size=2*retry_min_size)
+
+        precip_data = precip_data.ReadAsArray()
 
         precip = precip_data[precip_data != -9999].mean().item()
 
@@ -73,7 +109,11 @@ def get_mean_annual_precipitation(area: Polygon, raster: str = "/vsis3/"+PRECIP_
     return precip
 
 
-def get_potential_evapotranspiration(area: Polygon, raster: str = "/vsis3/"+PET_RASTER):
+def get_potential_evapotranspiration(
+    area: Polygon,
+    raster: str = "/vsis3/"+PET_RASTER,
+    retry_min_size: Optional[float] = None
+) -> float:
     """
     Retrieves potential evapotranspiration from the Global Aridity and PET database.
     The data should be a raster file (sourced from the annual_et0 PET dataset).
@@ -116,7 +156,15 @@ def get_potential_evapotranspiration(area: Polygon, raster: str = "/vsis3/"+PET_
         pet_data = gdal.Warp(pet_file, raster,
                              cutlineDSName=extents_file, cropToCutline=True,
                              dstNodata=-32768,
-                             ).ReadAsArray()
+                             )
+
+        if not pet_data and retry_min_size:
+            retry_area_sqm = retry_min_size
+            logger.warning('Area was too small to sample a pixel.  Retrying with a %s sq km square', retry_area_sqm/1e6)
+            retry_area = new_polygon(area.centroid, size_sqm=retry_area_sqm)
+            return get_potential_evapotranspiration(retry_area, raster=raster, retry_min_size=2*retry_min_size)
+
+        pet_data = pet_data.ReadAsArray()
 
         # get mean of all valid cells (-32768 represents NoData)
         pet = pet_data[pet_data != -32768].mean().item()
