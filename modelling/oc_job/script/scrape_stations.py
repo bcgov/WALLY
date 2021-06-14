@@ -157,8 +157,7 @@ with open(local_file_path, "a") as outfile:
           "glacial_coverage": result["glacial_coverage"],
           "hydrological_zone": result["hydrological_zone"],
           "median_elevation": result["median_elevation"],
-          "potential_evapotranspiration_hamon": result["potential_evapotranspiration_hamon"],
-          "potential_evapotranspiration_thornthwaite": result["potential_evapotranspiration_thornthwaite"],
+          "potential_evapotranspiration": result["potential_evapotranspiration"],
           "solar_exposure": result["solar_exposure"],
           "watershed_area": result["watershed_area"],
           "temperature_data": result["temperature_data"]
