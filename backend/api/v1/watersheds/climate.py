@@ -11,19 +11,20 @@
     See api/v1/watersheds/README.md for instructions on creating the GeoTIFF files.
 """
 import logging
-from tempfile import TemporaryDirectory
-from osgeo import gdal
-import fiona
 import time
-import uuid
-from sqlalchemy.orm import Session
-from shapely.geometry import Polygon, mapping
+from typing import Optional
+from shapely.geometry import Polygon
+from api.utils import get_raster_dataset
 from api.v1.watersheds import PRECIP_RASTER, PET_RASTER
 
 logger = logging.getLogger('climate')
 
 
-def get_mean_annual_precipitation(area: Polygon, raster: str = "/vsis3/"+PRECIP_RASTER) -> float:
+def get_mean_annual_precipitation(
+    area: Polygon,
+    raster: str = "/vsis3/"+PRECIP_RASTER,
+    retry_min_size: Optional[float] = None
+) -> float:
     """
     Reads the precip in `area` from a PRISM raster (located at the path provided by the
     `precip_raster` argument), and returns the mean of all values.
@@ -34,46 +35,29 @@ def get_mean_annual_precipitation(area: Polygon, raster: str = "/vsis3/"+PRECIP_
     """
     start = time.perf_counter()
 
-    with TemporaryDirectory() as rasterdir:
-        extents_file = rasterdir + "/extents.shp"
+    no_data = -9999
 
-        # Define a Polygon feature geometry with one attribute
-        poly_schema = {
-            'geometry': 'Polygon',
-            'properties': {'id': 'int'},
-        }
+    # get a clipped raster covering `area` and read into a Numpy array
+    precip_data = get_raster_dataset(raster, area=area, no_data=no_data, retry_min_size=retry_min_size).ReadAsArray()
 
-        # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-            c.write({
-                'geometry': mapping(area),
-                'properties': {'id': 1},
-            })
+    # find mean using Numpy
+    precip = precip_data[precip_data != no_data].mean().item()
 
-        # create a unique file for GDAL's /vsimem/ in-memory file system
-        precip_file = "/vsimem/precip" + str(uuid.uuid4()) + ".tif"
+    # clean up GDAL datasets
+    precip_data = None
 
-        # open the Cloud Optimized GeoTIFF from Minio, returning a dataset
-        # clipped to the watershed extents, and convert to numpy array.
-        precip_data = gdal.Warp(precip_file, raster,
-                                cutlineDSName=extents_file, cropToCutline=True,
-                                dstNodata=-9999,
-                                ).ReadAsArray()
-
-        precip = precip_data[precip_data != -9999].mean().item()
-
-        # clean up GDAL datasets
-        precip_data = None
-        gdal.Unlink(precip_file)
-
-        elapsed = (time.perf_counter() - start)
-        logger.info('Average precip %s - calculated in %s',
-                    precip, elapsed)
+    elapsed = (time.perf_counter() - start)
+    logger.info('Average precip %s - calculated in %s',
+                precip, elapsed)
 
     return precip
 
 
-def get_potential_evapotranspiration(area: Polygon, raster: str = "/vsis3/"+PET_RASTER):
+def get_potential_evapotranspiration(
+    area: Polygon,
+    raster: str = "/vsis3/"+PET_RASTER,
+    retry_min_size: Optional[float] = None
+) -> float:
     """
     Retrieves potential evapotranspiration from the Global Aridity and PET database.
     The data should be a raster file (sourced from the annual_et0 PET dataset).
@@ -91,42 +75,19 @@ def get_potential_evapotranspiration(area: Polygon, raster: str = "/vsis3/"+PET_
 
     """
     start = time.perf_counter()
+    no_data = -32768
 
-    with TemporaryDirectory() as rasterdir:
-        extents_file = rasterdir + "/extents.shp"
+    # get a clipped raster for `area` and read into a Numpy array
+    pet_data = get_raster_dataset(raster, area=area, no_data=no_data, retry_min_size=retry_min_size).ReadAsArray()
 
-        # Define a Polygon feature geometry with one attribute
-        poly_schema = {
-            'geometry': 'Polygon',
-            'properties': {'id': 'int'},
-        }
+    # get mean of all valid cells
+    pet = pet_data[pet_data != no_data].mean().item()
 
-        # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-            c.write({
-                'geometry': mapping(area),
-                'properties': {'id': 1},
-            })
+    # clean up GDAL datasets
+    pet_data = None
 
-        # create a unique file for GDAL's /vsimem/ in-memory file system
-        pet_file = "/vsimem/pet" + str(uuid.uuid4()) + ".tif"
-
-        # open the Cloud Optimized GeoTIFF from Minio, returning a dataset
-        # clipped to the watershed extents, and convert to numpy array.
-        pet_data = gdal.Warp(pet_file, raster,
-                             cutlineDSName=extents_file, cropToCutline=True,
-                             dstNodata=-32768,
-                             ).ReadAsArray()
-
-        # get mean of all valid cells (-32768 represents NoData)
-        pet = pet_data[pet_data != -32768].mean().item()
-
-        # clean up GDAL datasets
-        pet_data = None
-        gdal.Unlink(pet_file)
-
-        elapsed = (time.perf_counter() - start)
-        logger.info('Average pet %s - calculated in %s',
-                    pet, elapsed)
+    elapsed = (time.perf_counter() - start)
+    logger.info('Average pet %s - calculated in %s',
+                pet, elapsed)
 
     return pet

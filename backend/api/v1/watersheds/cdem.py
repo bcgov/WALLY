@@ -3,17 +3,12 @@
     https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/archive/
 """
 import logging
-from sqlalchemy.orm import Session
-from shapely.geometry import Polygon, mapping
 from shapely.ops import transform
-import math
 import time
-import fiona
-from osgeo import gdal
-from tempfile import TemporaryDirectory
-from api.config import RASTER_FILE_DIR, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, MINIO_HOST_URL
+from api.config import RASTER_FILE_DIR
+from api.utils import get_raster_dataset
 from api.db.utils import get_db_session
-from api.v1.aggregator.helpers import transform_4326_4140, transform_4326_3005
+from api.v1.aggregator.helpers import transform_4326_4140
 logger = logging.getLogger('cdem')
 
 
@@ -116,124 +111,30 @@ class CDEM:
 
         return avg_slope_perc
 
-    def get_mean_aspect(self):
-        """ finds the mean aspect in RADIANS from CDEM for a given area
-            area should be a polygon with SRID 4140.
+    def get_mean_hillshade(self, area=None, retry_min_size=None):
         """
+        Get the mean hillshade from an int16-based Hillshade raster.
+        WALLY's hillshade raster was produced from 12 arcsecond CDEM
+        and WhiteboxTools.
+
+        https://github.com/jblindsay/whitebox-tools            
+        """
+        if not area:
+            area = self.area4326
         start = time.perf_counter()
 
-        rasterdir = TemporaryDirectory()
-        aspect_cos_in_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_Aspect_COS_3005.tif"
-        aspect_sin_in_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_Aspect_SIN_3005.tif"
-        aspect_cos_out_file = rasterdir.name + "/aspect_cos_file.tif"
-        aspect_sin_out_file = rasterdir.name + "/aspect_sin_file.tif"
-        extents_file = rasterdir.name + "/extents.shp"
+        hillshade_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_Hillshade_3005.tif"
+        no_data = -32768
+        hillshade_data = get_raster_dataset(hillshade_file, area=area, no_data=no_data, retry_min_size=retry_min_size)
+        hillshade_data = hillshade_data.ReadAsArray()
 
-        poly_schema = {
-            'geometry': 'Polygon',
-            'properties': {'id': 'int'},
-        }
+        mean_hillshade_int16 = hillshade_data[hillshade_data != no_data].mean()
 
-        # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-            c.write({
-                'geometry': mapping(self.area4326),
-                'properties': {'id': 1},
-            })
-
-        cos_data = gdal.Warp("", aspect_cos_in_file, format="MEM",
-                             cutlineDSName=extents_file, cropToCutline=True,
-                             dstNodata=-999,
-                             ).ReadAsArray()
-
-        sin_data = gdal.Warp("", aspect_sin_in_file, format="MEM",
-                             cutlineDSName=extents_file, cropToCutline=True,
-                             dstNodata=-999,
-                             ).ReadAsArray()
-
-        mean_cos_cells = cos_data[cos_data != -999].mean()
-        mean_sin_cells = sin_data[sin_data != -999].mean()
-
-        if not mean_cos_cells or not mean_sin_cells:
-            raise Exception("Average aspect could not be found using CDEM")
-
-        aspect = math.fmod(
-            2*math.pi + (math.atan2(mean_cos_cells, mean_sin_cells)), 2*math.pi)
-
-        logger.info("found CDEM avg aspect: %s", aspect)
-
-        cos_data = None
-        sin_data = None
-
-        elapsed = (time.perf_counter() - start)
-        logger.info('ASPECT TOOK %s', elapsed)
-
-        return aspect
-
-    def get_mean_hillshade(self):
-        start = time.perf_counter()
-
-        rasterdir = TemporaryDirectory()
-        hillshade_in_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_Hillshade_3005.tif"
-        hillshade_out_file = rasterdir.name + "/hillshade.tif"
-        extents_file = rasterdir.name + "/extents.shp"
-
-        # Define a Polygon feature geometry with one attribute
-        poly_schema = {
-            'geometry': 'Polygon',
-            'properties': {'id': 'int'},
-        }
-
-        # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-            c.write({
-                'geometry': mapping(self.area4326),
-                'properties': {'id': 1},
-            })
-
-        hillshade_data = gdal.Warp("", hillshade_in_file, format="MEM",
-                                   cutlineDSName=extents_file, cropToCutline=True,
-                                   dstNodata=-32768,
-                                   ).ReadAsArray()
-
-        mean_hillshade_int16 = hillshade_data[hillshade_data != -32768].mean()
+        # scale down the hillshade value from 0-32767 to a percent value representing how much shade
+        # our watershed gets.  32767 is the max possible value for our int16 hillshade raster.
         mean_hillshade = mean_hillshade_int16 / 32767
         elapsed = (time.perf_counter() - start)
         logger.info('HILLSHADE BY TIF %s - calculated in %s',
                     mean_hillshade, elapsed)
         hillshade_data = None
         return mean_hillshade
-
-    def get_mean_time_in_daylight(self):
-        start = time.perf_counter()
-
-        rasterdir = TemporaryDirectory()
-        time_in_daylight_in_file = f"/vsis3/{RASTER_FILE_DIR}/BC_Area_TimeInDaylight_3005.tif"
-        time_in_daylight_out_file = rasterdir.name + "/time_in_daylight.tif"
-        extents_file = rasterdir.name + "/extents.shp"
-
-        # Define a Polygon feature geometry with one attribute
-        poly_schema = {
-            'geometry': 'Polygon',
-            'properties': {'id': 'int'},
-        }
-
-        # Write a new Shapefile with the envelope.
-        with fiona.open(extents_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
-            c.write({
-                'geometry': mapping(self.area4326),
-                'properties': {'id': 1},
-            })
-
-        time_in_daylight_data = gdal.Warp("", time_in_daylight_in_file, format="MEM",
-                                          cutlineDSName=extents_file, cropToCutline=True,
-                                          dstNodata=-32768,
-                                          ).ReadAsArray()
-
-        time_in_daylight = time_in_daylight_data[time_in_daylight_data != -32768].mean(
-        ).item()
-        elapsed = (time.perf_counter() - start)
-        logger.info('TIME IN DAYLIGHT BY TIF %s - calculated in %s',
-                    time_in_daylight, elapsed)
-        time_in_daylight_data = None
-        return time_in_daylight
