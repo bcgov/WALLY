@@ -6,8 +6,7 @@
       Comparative Runoff Models
     </v-card-title>
     <div v-if="showWallyModelFeatureFlag">
-      <HydroZoneModelV1 />
-      <HydroZoneModelV2 />
+      <HydroZoneModel />
     </div>
 
     <v-card-text v-if="annualNormalizedRunoff">
@@ -114,8 +113,7 @@
     <div>
       <div class="titleSub">Comparative Runoff Models</div>
       <div v-if="showWallyModelFeatureFlag">
-        <HydroZoneModelV1 />
-        <HydroZoneModelV2 />
+        <HydroZoneModel />
       </div>
       <div v-if="annualNormalizedRunoff">
         <div>
@@ -156,8 +154,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import HydroZoneModelV1 from './ComparitiveRunoffModels/HydroZoneModelV1'
-import HydroZoneModelV2 from './ComparitiveRunoffModels/HydroZoneModelV2'
+import HydroZoneModel from './ComparitiveRunoffModels/HydroZoneModel'
 
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
@@ -181,8 +178,7 @@ export default {
   name: 'ComparativeRunoffModels',
   components: {
     Plotly,
-    HydroZoneModelV1,
-    HydroZoneModelV2
+    HydroZoneModel
   },
   props: {
     record: null,

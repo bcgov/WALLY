@@ -9,10 +9,14 @@ import PlotlyJS from 'plotly.js'
 
 import CrossSectionInstructions from './CrossSectionInstructions'
 import SavedAnalysesCreateModal from '../../savedanalyses/SavedAnalysesCreateModal'
+import CrossSectionChart from './CrossSectionChart.vue'
+import CrossSectionChart3d from './CrossSectionChart3d.vue'
+
 import { downloadXlsx } from '../../../common/utils/exportUtils'
 import { SOURCE_WELL_OFFSET_DISTANCE } from '../../../common/mapbox/sourcesWally'
 import { addMapboxLayer } from '../../../common/utils/mapUtils'
 import { featureCollection, geojsonFC } from '../../../common/mapbox/features'
+
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 let Plotly
 
@@ -29,11 +33,14 @@ export default {
     }),
     PlotlyJS,
     CrossSectionInstructions,
-    SavedAnalysesCreateModal
+    SavedAnalysesCreateModal,
+    CrossSectionChart,
+    CrossSectionChart3d
   },
   mounted () {
     this.$store.commit('map/setMode',
       { type: 'analysis', name: 'cross_section' })
+    // this.fetchWellsAlongLine().then().catch()
     this.fetchWellsAlongLine()
   },
   props: ['record', 'panelOpen'],
@@ -403,110 +410,110 @@ export default {
       }
 
       return [elevProfile, waterDepth, wells, lithology, streams, screens, screensIcon]
-    },
-    surfaceData () {
-      let lines = this.surfacePoints
-      let x = []
-      let y = []
-      let z = []
-      // build our surface points layer
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i]
-        x.push(line.map(l => l[0]))
-        y.push(line.map(l => l[1]))
-        z.push(line.map(l => l[2]))
-      }
-      // add our lithology drop lines and markers
-      let lithologyMarkers = []
-      this.wellsLithology.forEach(lith => {
-        const marker = {
-          x: [lith.lon, lith.lon],
-          y: [lith.lat, lith.lat],
-          z: [lith.y0, lith.y1],
-          text: [lith.data, lith.data],
-          mode: 'lines+markers',
-          type: 'scatter3d',
-          showlegend: false,
-          line: {
-            width: 3,
-            color: 'blue' // lith.color
-          },
-          marker: {
-            size: 5,
-            color: 'black' // lith.color,
-          },
-          hovertemplate: '%{text} %{z} m',
-          // hoverinfo: 'skip',
-          name: ''
-        }
-        lithologyMarkers.push(marker)
-      })
-      return [
-        {
-          x: x,
-          y: y,
-          z: z,
-          type: 'surface',
-          contours: {
-            z: {
-              show: true,
-              usecolormap: true,
-              highlightcolor: '#42f462',
-              project: { z: true }
-            }
-          }
-        },
-        ...lithologyMarkers
-      ]
-    },
-    surfaceLayout () {
-      const emptyArr = ['', '', '']
-      let a = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][0] : emptyArr
-      let b = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
-
-      return {
-        title: '',
-        showlegend: false,
-        scene: {
-          xaxis: {
-            title: 'Longitude'
-          },
-          yaxis: {
-            title: 'Latitude'
-          },
-          zaxis: {
-            title: 'Elevation (m)'
-          },
-          annotations: [{
-            x: a[0],
-            y: a[1],
-            z: a[2],
-            text: 'A',
-            ay: -60,
-            font: {
-              color: 'black',
-              size: 18
-            }
-          }, {
-            x: b[0],
-            y: b[1],
-            z: b[2],
-            text: 'B',
-            ay: -60,
-            font: {
-              color: 'black',
-              size: 18
-            }
-          }]
-        },
-        margin: {
-          l: 1,
-          r: 1,
-          b: 1,
-          t: 1
-        }
-      }
     }
+    // surfaceData () {
+    //   let lines = this.surfacePoints
+    //   let x = []
+    //   let y = []
+    //   let z = []
+    //   // build our surface points layer
+    //   for (let i = 0; i < lines.length; i++) {
+    //     const line = lines[i]
+    //     x.push(line.map(l => l[0]))
+    //     y.push(line.map(l => l[1]))
+    //     z.push(line.map(l => l[2]))
+    //   }
+    //   // add our lithology drop lines and markers
+    //   let lithologyMarkers = []
+    //   this.wellsLithology.forEach(lith => {
+    //     const marker = {
+    //       x: [lith.lon, lith.lon],
+    //       y: [lith.lat, lith.lat],
+    //       z: [lith.y0, lith.y1],
+    //       text: [lith.data, lith.data],
+    //       mode: 'lines+markers',
+    //       type: 'scatter3d',
+    //       showlegend: false,
+    //       line: {
+    //         width: 3,
+    //         color: 'blue' // lith.color
+    //       },
+    //       marker: {
+    //         size: 5,
+    //         color: 'black' // lith.color,
+    //       },
+    //       hovertemplate: '%{text} %{z} m',
+    //       // hoverinfo: 'skip',
+    //       name: ''
+    //     }
+    //     lithologyMarkers.push(marker)
+    //   })
+    //   return [
+    //     {
+    //       x: x,
+    //       y: y,
+    //       z: z,
+    //       type: 'surface',
+    //       contours: {
+    //         z: {
+    //           show: true,
+    //           usecolormap: true,
+    //           highlightcolor: '#42f462',
+    //           project: { z: true }
+    //         }
+    //       }
+    //     },
+    //     ...lithologyMarkers
+    //   ]
+    // },
+    // surfaceLayout () {
+    //   const emptyArr = ['', '', '']
+    //   let a = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][0] : emptyArr
+    //   let b = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
+    //
+    //   return {
+    //     title: '',
+    //     showlegend: false,
+    //     scene: {
+    //       xaxis: {
+    //         title: 'Longitude'
+    //       },
+    //       yaxis: {
+    //         title: 'Latitude'
+    //       },
+    //       zaxis: {
+    //         title: 'Elevation (m)'
+    //       },
+    //       annotations: [{
+    //         x: a[0],
+    //         y: a[1],
+    //         z: a[2],
+    //         text: 'A',
+    //         ay: -60,
+    //         font: {
+    //           color: 'black',
+    //           size: 18
+    //         }
+    //       }, {
+    //         x: b[0],
+    //         y: b[1],
+    //         z: b[2],
+    //         text: 'B',
+    //         ay: -60,
+    //         font: {
+    //           color: 'black',
+    //           size: 18
+    //         }
+    //       }]
+    //     },
+    //     margin: {
+    //       l: 1,
+    //       r: 1,
+    //       b: 1,
+    //       t: 1
+    //     }
+    //   }
+    // }
   },
   methods: {
     ...mapGetters('map', ['isMapReady']),
@@ -542,7 +549,12 @@ export default {
         radius: parseFloat(this.radius),
         line: JSON.stringify(this.coordinates)
       }
-      this.resetCrossSectionData()
+
+      // Errors out when not contained
+      // When these values get reset, an `emit` error shows up, not quite sure why
+      if (this.wells.length > 0 || this.wellsLithology.length > 0 || this.screens.length > 0) {
+        this.resetCrossSectionData()
+      }
       this.resetWellOffsetDistanceLayer()
 
       // Update the section line coordinates in the URL query params.
@@ -552,7 +564,7 @@ export default {
           ...this.$route.query,
           'section_line_A': this.coordinates[0],
           'section_line_B': this.coordinates[1]
-        } })
+        } }).catch((e) => {})
       }
 
       // Fetch wells
@@ -562,27 +574,36 @@ export default {
       } catch (e) {
         console.error(e)
       }
-      this.processWellResults(wells.data)
-      this.setAnnotationMarkers()
+      // Errors out if not contained
+      // UnhandledPromiseRejection, TypeError: Cannot read property 'wells' of undefined
+      if (wells && wells.data) {
+        this.processWellResults(wells.data)
+        this.setAnnotationMarkers()
 
-      // Fetch Lithology
-      let wellIds = this.wells.map(w => w.well_tag_number).join()
-      let lithologyResults = {}
-      try {
-        lithologyResults = await this.fetchWellsLithology(wellIds)
-      } catch (e) {
-        console.error(e)
+        // Fetch Lithology
+        let wellIds = this.wells.map(w => w.well_tag_number).join()
+        let lithologyResults = {}
+        try {
+          lithologyResults = await this.fetchWellsLithology(wellIds)
+        } catch (e) {
+          console.error(e)
+        }
+        let lithology = lithologyResults.data.results
+        this.buildLithologyList(lithology)
+
+        this.loading = false
+        // this.$nextTick(() => {
+        //   this.initPlotly()
+        // })
       }
-      let lithology = lithologyResults.data.results
-      this.buildLithologyList(lithology)
-
-      this.loading = false
-      this.initPlotly()
     },
     fetchWells (params) {
       return ApiService.query(`/api/v1/wells/section?${qs.stringify(params)}`)
     },
     processWellResults (data) {
+      if (!data.wells || !data.elevation_profile || !data.surface || !data.waterbodies || !data.search_area) {
+        return
+      }
       this.wells = data.wells
       this.elevations = data.elevation_profile
       this.surfacePoints = data.surface
@@ -644,7 +665,7 @@ export default {
         )
         if (well) {
           wellLithologySet.lithologydescription_set.forEach(w => {
-            // combine lithology_raw_data and lithology_observation
+          // combine lithology_raw_data and lithology_observation
             const description = [w.lithology_raw_data, w.lithology_observation].filter(Boolean).join('; ')
 
             lithologyList.push({
@@ -672,52 +693,63 @@ export default {
       // add the new one
       this.$store.commit('map/addShape', polygon)
     },
-    initPlotly () {
-      this.$nextTick(() => {
-        // Subscribe to plotly select and lasso tools
-        this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
-        this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
-        this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
-        this.$refs.crossPlot.$on('legendclick', (e) => {
-          // determine whether annotations should be visible for Surface Water.
-          // the `visible` field seems to show either "undefined" or "true" for when the
-          // trace/data should be hidden, and `legendonly` when the data trace should be visible
-          // on the plot.  This *might* have been intended to represent the "old" state before toggling...
-          // todo: implement a better solution, see https://github.com/plotly/plotly.js/issues/4680
-          if (e.data[e.curveNumber].name === 'Surface water') {
-            if (e.data[e.curveNumber].visible !== 'legendonly') {
-              this.displayWaterbodyAnnotations = false
-            } else {
-              this.displayWaterbodyAnnotations = true
-            }
-          }
-        })
-      })
-    },
-    resetMarkerLabels () {
-      this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return false })
-      this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return true })
-      PlotlyJS.Fx.hover('2dPlot', [])
-      // reset all selection data so points gain back opacity
-      this.$refs.crossPlot.data.forEach((d) => {
-        d.selectedpoints = null
-      })
-      this.$refs.crossPlot.react()
-    },
-    setMarkerLabels (e) {
-      if (e && e.points.length > 0) {
-      // This overrides hiding the hover labels
-        this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => { return true })
-        this.$refs.crossPlot.$el.on('plotly_beforehover', () => { return false })
-        // hide selection box
-        this.removeElementsByClass('select-outline')
-        let points = e.points.map(p => {
-          return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
-        })
-        this.markerLabels = points
-        PlotlyJS.Fx.hover('2dPlot', points)
-      }
-    },
+    // initPlotly () {
+    //   this.$nextTick(() => {
+    //     // Subscribe to plotly select and lasso tools
+    //     this.$refs.crossPlot.$on('selected', this.setMarkerLabels)
+    //     this.$refs.crossPlot.$on('deselect', this.resetMarkerLabels)
+    //     this.$refs.crossPlot.$on('relayout', this.resetMarkerLabels)
+    //     this.$refs.crossPlot.$on('legendclick', (e) => {
+    //       // determine whether annotations should be visible for Surface Water.
+    //       // the `visible` field seems to show either "undefined" or "true" for when the
+    //       // trace/data should be hidden, and `legendonly` when the data trace should be visible
+    //       // on the plot.  This *might* have been intended to represent the "old" state before toggling...
+    //       // todo: implement a better solution, see https://github.com/plotly/plotly.js/issues/4680
+    //       if (e.data[e.curveNumber].name === 'Surface water') {
+    //         if (e.data[e.curveNumber].visible !== 'legendonly') {
+    //           this.displayWaterbodyAnnotations = false
+    //         } else {
+    //           this.displayWaterbodyAnnotations = true
+    //         }
+    //       }
+    //     })
+    //   })
+    // },
+    // resetMarkerLabels () {
+    //   this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => {
+    //     return false
+    //   })
+    //   this.$refs.crossPlot.$el.on('plotly_beforehover', () => {
+    //     return true
+    //   })
+    //   PlotlyJS.Fx.hover('2dPlot', [])
+    //   // reset all selection data so points gain back opacity
+    //   this.$refs.crossPlot.data.forEach((d) => {
+    //     d.selectedpoints = null
+    //   })
+    //   this.$refs.crossPlot.react()
+    // },
+    // setMarkerLabels (e) {
+    //   console.log('marker labels', e, e.points)
+    //   if (e && e.points.length > 0) {
+    //     // This overrides hiding the hover labels
+    //     this.$refs.crossPlot.$el.removeEventListener('plotly_beforehover', () => {
+    //       return true
+    //     })
+    //     this.$refs.crossPlot.$el.on('plotly_beforehover', () => {
+    //       return false
+    //     })
+    //     // hide selection box
+    //     this.removeElementsByClass('select-outline')
+    //     let points = e.points.map(p => {
+    //       console.log(p.curveNumber, p.pointNumber)
+    //       return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
+    //     })
+    //     console.log('marker points', points)
+    //     this.markerLabels = points
+    //     PlotlyJS.Fx.hover('2dPlot', points)
+    //   }
+    // },
     downloadPlotImage () {
       let filename = 'plot--'.concat(new Date().toISOString()) + '.png'
       html2canvas(this.$refs.crossPlot.$el).then(canvas => {
@@ -844,7 +876,7 @@ export default {
       addMapboxLayer(this.map, SOURCE_WELL_OFFSET_DISTANCE, {})
 
       this.map.on('mouseenter', SOURCE_WELL_OFFSET_DISTANCE, (e) => {
-      // Change the cursor style as a UI indicator.
+        // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
         let coordinates = e.features[0].geometry.coordinates.slice()

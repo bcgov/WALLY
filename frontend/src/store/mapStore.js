@@ -656,7 +656,7 @@ export default {
             perimeterUnits = 'km'
           }
           if (areaMeasurement >= 100000) { // if over 100,000 meters, upgrade metric
-            areaMeasurement = areaMeasurement / 100000
+            areaMeasurement = areaMeasurement / 1000000
             areaUnits = 'km²'
           }
 

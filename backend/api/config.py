@@ -1,4 +1,5 @@
 import os
+from osgeo import gdal
 from pydantic import BaseSettings
 from functools import lru_cache
 
@@ -53,16 +54,24 @@ COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")
 BASE_DIR = '/app/'
 CONFIG_DIR = BASE_DIR + '.config/'
 
-MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
-MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
-MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "minio:9000")
+MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minio")
+MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minio123")
+MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "127.0.0.1:9000")
 
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
 RASTER_FILE_DIR = 'raster'
-# Use Pydantic's settings management
+
+gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
+gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', MINIO_SECRET_KEY)
+gdal.SetConfigOption('AWS_S3_ENDPOINT', MINIO_HOST_URL)
+gdal.SetConfigOption('AWS_HTTPS', 'FALSE')
+gdal.SetConfigOption('AWS_VIRTUAL_HOSTING', 'FALSE')
 
 
 class Settings(BaseSettings):
+    """
+    Use Pydantic's settings management
+    """
     # Wally mapbox settings, to differentiate from constant declaration above
     w_mapbox_token = ""
     w_mapbox_style = ""
@@ -74,6 +83,7 @@ class Settings(BaseSettings):
     projects = False
     saved_analysis = False
     hydraulic_connectivity_custom_stream_points = False
+    efn_analysis = False
 
     # allow users to select upstream catchment area delineation method.
     # default is False; WALLY will default to DEM+FWA which should be the best

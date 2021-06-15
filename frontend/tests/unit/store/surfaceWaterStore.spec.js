@@ -126,7 +126,7 @@ describe('Surface Water Store tests', () => {
   it('Sets custom inputs flag on when inputs are modified', () => {
     const watershedDetails = {
       drainage_area: 150,
-      potential_evapotranspiration_thornthwaite: 123,
+      potential_evapotranspiration: 123,
       scsb2016_model: {
       }
     }
@@ -153,7 +153,7 @@ describe('Surface Water Store tests', () => {
   it('Resets custom inputs flag when the reset button is clicked', () => {
     const watershedDetails = {
       drainage_area: 150,
-      potential_evapotranspiration_thornthwaite: 123,
+      potential_evapotranspiration: 123,
       scsb2016_model: {
       }
     }

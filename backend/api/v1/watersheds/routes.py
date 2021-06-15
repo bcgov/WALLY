@@ -4,28 +4,14 @@ Endpoints for returning statistics about watersheds
 from logging import getLogger
 import datetime
 import json
-import geojson
-from geojson import FeatureCollection, Feature
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from shapely.geometry import shape, MultiPolygon, Polygon, Point
-from shapely.ops import transform
+from shapely.geometry import shape, Point
 from urllib.parse import unquote
 
 from api.db.utils import get_db
-from api.v1.hydat.db_models import Station as StreamStation
-from api.v1.aggregator.controller import (
-    databc_feature_search,
-    EXTERNAL_API_REQUESTS,
-    API_DATASOURCES,
-    DATABC_GEOMETRY_FIELD,
-    DATABC_LAYER_IDS)
-from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, LayerResponse
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.aggregator.excel import xlsx_export
 from api.v1.watersheds.controller import (
     get_watershed_details,
     surface_water_rights_licences,
@@ -41,15 +27,10 @@ from api.v1.watersheds.controller import (
 )
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
-    WatershedDetails,
-    LicenceDetails,
-    SurficialGeologyDetails,
-    SurficialGeologyTypeSummary,
     GeneratedWatershedDetails
 )
 from api.v1.models.isolines.controller import calculate_runoff_in_area
 from api.v1.models.scsb2016.controller import get_hydrological_zone, calculate_mean_annual_runoff, model_output_as_dict
-from api.v1.models.hydrological_zones.controller import get_hydrological_zone_model_v1, get_hydrological_zone_model_v2
 from api.v1.user.db_models import User
 from api.v1.user.session import get_user
 from api.config import WATERSHED_DEBUG
@@ -166,7 +147,7 @@ def watershed_stats(
         wd["median_elevation"],
         wd["glacial_coverage"],
         wd["annual_precipitation"],
-        wd["potential_evapotranspiration_thornthwaite"],
+        wd["potential_evapotranspiration"],
         wd["drainage_area"],
         wd["solar_exposure"],
         wd["average_slope"])

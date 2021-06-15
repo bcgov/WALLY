@@ -33,7 +33,7 @@ from api.v1.hydat.controller import get_point_on_stream, get_station
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
 from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
-from api.v1.watersheds.prism import mean_annual_precipitation
+from api.v1.watersheds.climate import get_mean_annual_precipitation, get_potential_evapotranspiration
 from api.v1.watersheds.cdem import CDEM
 from api.v1.watersheds.schema import (
     LicenceDetails,
@@ -408,6 +408,53 @@ def get_watershed_id_at_point(db: Session, point: Point):
         logger.info("watershed id %s", watershed_id)
 
     return watershed_id
+
+
+def get_upstream_watershed_polygon_count(db: Session, watershed_id: int) -> int:
+    """Returns the number of polygons upstream from watershed_id.
+    This helps if we want to determine if a group of watershed polygons
+    originating from `watershed_id` will take too long to dissolve or will
+    take too long to do GIS operations on the resulting area.
+
+    The average polygon size is (very roughly) 0.2 to 0.3 square km, so if
+    we want to approximately predict whether an upstream area might be more than
+    1000 square km, we can check to ensure there are less than about 4000 polygons.
+
+    This query can be expensive but is much faster than attempting a full watershed
+    delineation and finding out too late that we're working in an unmanageable large area.
+    """
+    q = """
+        with subwscode_ltree as (
+            SELECT  "WATERSHED_FEATURE_ID" as origin_id,
+                    wscode_ltree as origin_wscode,
+                    localcode_ltree as origin_localcode,
+                    ltree2text(subpath(localcode_ltree, -1))::integer as downstream_tributary,
+                    nlevel(localcode_ltree) as downstream_tributary_code_pos
+            FROM    freshwater_atlas_watersheds
+            WHERE   "WATERSHED_FEATURE_ID" = :watershed_feature_id
+        )
+        SELECT  count(*)
+        FROM    freshwater_atlas_watersheds
+        WHERE   wscode_ltree <@ (select origin_wscode from subwscode_ltree)
+        AND     ltree2text(subltree(
+                    localcode_ltree || '000000'::ltree,
+                    (select downstream_tributary_code_pos from subwscode_ltree) - 1,
+                    (select downstream_tributary_code_pos from subwscode_ltree) - 0
+                ))::integer >= (select downstream_tributary from subwscode_ltree)
+        AND (NOT wscode_ltree <@ (select origin_localcode from subwscode_ltree) OR (select origin_wscode from subwscode_ltree) = (select origin_localcode from subwscode_ltree))
+
+    """
+
+    res = db.execute(q, {"watershed_feature_id": watershed_id})
+
+    record = res.fetchone()
+
+    if not record or not record[0]:
+        logger.warning(
+            'unable to calculate polygon count from watershed feature id %s', watershed_id)
+        return None
+
+    return record[0]
 
 
 def calculate_watershed(
@@ -836,25 +883,48 @@ def get_watershed_at_hydat_station(
     stn = get_station(db, hydat_station_number)
 
     # don't delineate watersheds expected to be more than 1000 km2.
-    if stn.drainage_area_gross > 1000:
+    if stn.drainage_area_gross and stn.drainage_area_gross > 1000:
         logger.info(
             'Hydat station %s - %s watershed expected to be too large to refine by DEM. Falling back on FWA only.',
             stn.station_number, stn.station_name)
         upstream_method = 'FWA+UPSTREAM'
 
+    # if we don't have an expected area to compare our result to, skip to the HYDAT "corrected"
+    # method.  This will try to snap the point to a stream with the same name as the HYDAT
+    # station name.
+    # TODO: evaluate whether this method is better than trying raw coords 1st, then
+    # corrected by stream name 2nd. We may want to default to this method first.
+    if not stn.drainage_area_gross:
+        logger.info(
+            'Hydat station %s - no drainage area listed.  Counting watershed polygons and defaulting to correcting point coords to the stream in the station name.',
+            stn.station_number, stn.station_name)
+        watershed_id = get_watershed_id_at_point(db, stn.geom)
+
+        # we don't have access to an upstream area estimate, but we
+        # still need to limit when we use the DEM delineation.
+        # use 4000 upstream polygons as our limit to approximate 1000 sq km (the
+        # cutoff size is completely arbitrary, we just want to avoid delineating
+        # huge watersheds).
+        if get_upstream_watershed_polygon_count(db, watershed_id) > 4000:
+            logger.info(
+                'Hydat station %s - %s watershed expected to be too large to refine by DEM. Falling back on FWA only.',
+                stn.station_number, stn.station_name)
+            upstream_method = 'FWA+UPSTREAM'
+        return calculate_watershed(
+            db, user, hydat_station_number=stn.station_number, upstream_method=upstream_method
+        )
+
+    # if we do have a drainage area to compare to, start with the regular method of delineating
+    # from coordinates. For most HYDAT stations, the coordinates are enough to draw the watershed.
     watershed = calculate_watershed(
         db, user, click_point=stn.geom, upstream_method=upstream_method
     )
 
-    # if we don't have an expected area to compare our result to, return our result now.
     # If an area is listed on the HYDAT station, we'll use it to make sure the difference
     # between our delineated watershed and the listed area is within reason.  The most common
     # reason it wouldn't be is if the HYDAT coordinates don't line up with the stream that
     # the station is actually monitoring (or is at an ambiguous confluence where it's not
     # clear from the coordinates which tributary is being monitored).
-    if not stn.drainage_area_gross:
-        return watershed
-
     ws_area = watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
     ws_area_vs_expected = abs(ws_area - stn.drainage_area_gross) / stn.drainage_area_gross
     hydat_corrected_watershed = None
@@ -980,55 +1050,6 @@ def get_watershed(
     return watershed
 
 
-def parse_pcic_temp(min_temp, max_temp):
-    """ parses monthly temperatures from pcic to return an array of min,max,avg """
-
-    temp_by_month = []
-
-    for k, v in sorted(min_temp.items(), key=lambda x: x[0]):
-        min_t = v
-        max_t = max_temp[k]
-        avg_t = (min_t + max_t) / 2
-        temp_by_month.append((min_t, max_t, avg_t))
-
-    return temp_by_month
-
-
-def get_temperature(poly: Polygon):
-    """
-    gets temperature data from PCIC, and returns a list of 12 tuples (min, max, avg)
-    """
-    try:
-        min_temp = pcic_data_request(poly, 'tasmin')
-    except:
-        raise Exception
-
-    try:
-        max_temp = pcic_data_request(poly, 'tasmax')
-    except:
-        raise Exception
-
-    return parse_pcic_temp(min_temp.get('data'), max_temp.get('data'))
-
-
-def get_annual_precipitation(poly: Polygon):
-    """
-    gets precipitation data from PCIC, and returns an annual precipitation
-    value calculated by summing monthly means.
-    """
-    response = pcic_data_request(poly)
-
-    months_data = list(response["data"].values())
-    months_days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-    month_totals = [a*b for a, b in zip(months_data, months_days)]
-
-    annual_precipitation = sum(month_totals)
-    # logger.warning("annual_precipitation")
-    # logger.warning(annual_precipitation)
-
-    return annual_precipitation
-
-
 def calculate_daylight_hours_usgs(day: int, latitude_r: float):
     """ calculates daily radiation for a given day and latitude (latitude in radians)
         https://pubs.usgs.gov/sir/2012/5202/pdf/sir2012-5202.pdf
@@ -1039,117 +1060,6 @@ def calculate_daylight_hours_usgs(day: int, latitude_r: float):
     sunset_angle = math.acos(acos_input)
 
     return (24 / math.pi) * sunset_angle
-
-
-def calculate_potential_evapotranspiration_hamon(poly: Polygon, temp_data):
-    """
-    calculates potential evapotranspiration using the Hamon equation
-    http://data.snap.uaf.edu/data/Base/AK_2km/PET/Hamon_PET_equations.pdf
-    """
-
-    average_annual_temp = sum([x[2] for x in temp_data])/12
-
-    cent = poly.centroid
-    xy = cent.coords.xy
-    _, latitude = xy
-    latitude_r = latitude[0] * (math.pi / 180)
-
-    day = 1
-    k = 1
-
-    daily_sunlight_values = [calculate_daylight_hours_usgs(
-        n, latitude_r) for n in range(1, 365 + 1)]
-
-    avg_daily_sunlight_hours = sum(daily_sunlight_values) / \
-        len(daily_sunlight_values)
-
-    saturation_vapour_pressure = 6.108 * \
-        (math.e ** (17.27 * average_annual_temp / (average_annual_temp + 237.3)))
-
-    pet = k * 0.165 * 216.7 * avg_daily_sunlight_hours / 12 * \
-        (saturation_vapour_pressure / (average_annual_temp + 273.3))
-
-    return pet * 365
-
-
-def calculate_potential_evapotranspiration_thornthwaite(poly: Polygon, temp_data):
-    """ calculates potential evapotranspiration (mm/yr) using the
-    Thornwaite method. temp_data is in the format returned by the function `get_temperature`"""
-
-    monthly_t = [x[2] for x in temp_data]
-    cent = poly.centroid
-    xy = cent.coords.xy
-    _, latitude = xy
-    latitude_r = latitude[0] * (math.pi / 180)
-
-    mmdlh = monthly_mean_daylight_hours(latitude_r)
-
-    pet_mm_month = thornthwaite(monthly_t, mmdlh)
-
-    return sum(pet_mm_month)
-
-
-def get_slope_elevation_aspect(polygon: MultiPolygon):
-    """
-    This calls the sea api with a polygon and receives back
-    slope, elevation and aspect information.
-
-    In case of an error in the external slope/elevation/aspect service,
-    a tuple of (None, None, None) will be returned. Any code making
-    use of this function should interpret None as "not available".
-    """
-    sea_url = "https://apps.gov.bc.ca/gov/sea/slopeElevationAspect/json"
-
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Connection': 'keep-alive'
-    }
-
-    exterior = extract_poly_coords(polygon)["exterior_coords"]
-    coordinates = [[list(elem) for elem in exterior]]
-
-    payload = "format=json&aoi={\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"MultiPolygon\", \"coordinates\":" \
-        + str(coordinates) + \
-        "},\"crs\":{\"type\":\"name\",\"properties\":{\"name\":\"urn:ogc:def:crs:EPSG:4269\"}}}"
-
-    try:
-        if WATERSHED_DEBUG:
-            logger.warn("(SEA) Request Started")
-        response = requests.post(sea_url, headers=headers, data=payload)
-        response.raise_for_status()
-    except requests.exceptions.HTTPError as errh:
-        logger.warn("(SEA) Http Error:" + errh)
-    except requests.exceptions.ConnectionError as errc:
-        logger.warn("(SEA) Error Connecting:" + errc)
-    except requests.exceptions.Timeout as errt:
-        logger.warn("(SEA) Timeout Error:" + errt)
-    except requests.exceptions.RequestException as err:
-        logger.warn("(SEA) OOps: Something Else" + err)
-
-    result = response.json()
-
-    if WATERSHED_DEBUG:
-        logger.warn(result)
-        logger.warn("(SEA) Request Finished")
-
-    if result["status"] != "SUCCESS":
-        if WATERSHED_DEBUG:
-            logger.warn("(SEA) Request Failed:" + result["message"])
-        raise Exception
-
-    # response object from sea example
-    # {"status":"SUCCESS","message":"717 DEM points were used in the calculations.",
-    # "SlopeElevationAspectResult":{"slope":44.28170006222049,
-    # "minElevation":793.0,"maxElevation":1776.0,
-    # "averageElevation":1202.0223152022315,"aspect":125.319019998603,
-    # "confidenceIndicator":46.840837384501654}}
-    sea = result["SlopeElevationAspectResult"]
-
-    slope = sea["slope"]
-    median_elev = sea["averageElevation"]
-    aspect = sea["aspect"]
-
-    return (slope, median_elev, aspect)
 
 
 def get_hillshade(slope_rad: float, aspect_rad: float, azimuth: float = 180.0, altitude: float = 45.0):
@@ -1419,7 +1329,6 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
 
     watershed_poly = shape(watershed.geometry)
     watershed_area = transform(transform_4326_3005, watershed_poly).area
-    watershed_rect = watershed_poly.minimum_rotated_rectangle
 
     if WATERSHED_DEBUG:
         logger.info("watershed area %s", watershed_area)
@@ -1427,35 +1336,33 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     # watershed characteristics lookups
     drainage_area = watershed_area / 1e6  # needs to be in km²
     glacial_area_m, glacial_coverage = calculate_glacial_area(
-        db, watershed_rect)
+        db, watershed_poly)
 
     if WATERSHED_DEBUG:
         logger.info("glacial coverage %s", glacial_coverage)
 
+    # climate raster pixels (precip, evapotranspiration...) are 1 square km.
+    # if our watershed is on the small size, we might not get a pixel if
+    # we try to clip the raster to our watershed.  If that is the case,
+    # we'll want to sample the pixel at the centroid of the watershed.
+    # only enable this feature for very small watersheds.
+    retry_min_size = None
+    if watershed_area < 20e6:
+        retry_min_size = max(2e6, watershed_area)
+
     # precipitation values from prism raster
-    annual_precipitation = mean_annual_precipitation(db, watershed_poly)
-    if not annual_precipitation:
-        # fall back on PCIC data
-        annual_precipitation = get_annual_precipitation(watershed_poly)
+    annual_precipitation = get_mean_annual_precipitation(watershed_poly, retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
         logger.info("annual precipitation %s", annual_precipitation)
 
     # temperature and potential evapotranspiration values
-    try:
-        temperature_data = get_temperature(watershed_poly)
-        potential_evapotranspiration_hamon = calculate_potential_evapotranspiration_hamon(
-            watershed_poly, temperature_data)
-        potential_evapotranspiration_thornthwaite = calculate_potential_evapotranspiration_thornthwaite(
-            watershed_poly, temperature_data
-        )
-    except Exception:
-        temperature_data = None
-        potential_evapotranspiration_hamon = None
-        potential_evapotranspiration_thornthwaite = None
+
+    potential_evapotranspiration = get_potential_evapotranspiration(
+        watershed_poly, retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
-        logger.info("temperature data %s", temperature_data)
+        logger.info("potential evapotranspiration %s", potential_evapotranspiration)
 
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)
@@ -1468,13 +1375,13 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
 
     aspect = None
 
-    solar_exposure = area_cdem.get_mean_hillshade()
+    # todo: retry at min size
+    solar_exposure = area_cdem.get_mean_hillshade(retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
         logger.info("elevation stats %s", elev_stats)
         logger.info("median elevation %s", median_elev)
         logger.info("average slope %s", slope_percent)
-        logger.info("aspect %s", aspect)
         logger.info("solar exposure %s", solar_exposure)
 
     data = {
@@ -1483,10 +1390,8 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "drainage_area": drainage_area,
         "glacial_area": glacial_area_m,
         "glacial_coverage": glacial_coverage,
-        "temperature_data": temperature_data,
         "annual_precipitation": annual_precipitation,
-        "potential_evapotranspiration_hamon": potential_evapotranspiration_hamon,
-        "potential_evapotranspiration_thornthwaite": potential_evapotranspiration_thornthwaite,
+        "potential_evapotranspiration": potential_evapotranspiration,
         "hydrological_zone": hydrological_zone,
         "average_slope": slope_percent,
         "solar_exposure": solar_exposure,

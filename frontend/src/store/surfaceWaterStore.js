@@ -117,7 +117,7 @@ export default {
         drainage_area: sc.drainage_area,
         glacial_coverage: sc.glacial_coverage,
         annual_precipitation: sc.annual_precipitation,
-        potential_evapotranspiration_thornthwaite: sc.evapo_transpiration,
+        potential_evapotranspiration: sc.evapo_transpiration,
         hydrological_zone: sc.hydrological_zone,
         average_slope: sc.average_slope,
         solar_exposure: sc.solar_exposure,
@@ -132,7 +132,7 @@ export default {
         median_elevation: Math.round(payload.median_elevation * 100) / 100,
         glacial_coverage: Math.round(payload.glacial_coverage * 1000) / 1000,
         annual_precipitation: Math.round(payload.annual_precipitation * 100) / 100,
-        evapo_transpiration: Math.round(payload.potential_evapotranspiration_thornthwaite * 100) / 100,
+        evapo_transpiration: Math.round(payload.potential_evapotranspiration * 100) / 100,
         drainage_area: Math.round(payload.drainage_area * 100) / 100,
         solar_exposure: Math.round(payload.solar_exposure * 1000) / 1000,
         average_slope: Math.round(payload.average_slope * 100) / 100
