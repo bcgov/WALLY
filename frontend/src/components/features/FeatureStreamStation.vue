@@ -74,7 +74,12 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>
-            Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
+            <p>
+              Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
+            </p>
+            <p>
+              Flow and low flow statistics computed using <a href="https://github.com/bcgov/fasstr" target="_blank">FASSTR</a>.
+            </p>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -148,6 +153,8 @@ export default {
       if (!this.flowData || !this.flowData.months) {
         return []
       }
+
+      // light blue  dark blue  light yellow  dark red  dark yellow  light red
       const mad = {
         type: 'line',
         mode: 'lines',
@@ -159,7 +166,7 @@ export default {
         textposition: 'bottom',
         hovertemplate:
           '<b>Mean annual discharge</b>: %{text} m³/s',
-        line: { color: '#fa1e44' }
+        line: { color: '#494949' }
       }
       const mean = {
         x: this.flowData.months.map(w => w.month),
@@ -172,7 +179,7 @@ export default {
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
-          color: '#1f548a'
+          color: '#003f5c'
         }
       }
       const max = {
@@ -200,7 +207,7 @@ export default {
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
-          color: '#494949'
+          color: '#26A69A'
         }
       }
       const p10 = {
@@ -214,7 +221,7 @@ export default {
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
-          color: '#494949'
+          color: '#1f548a'
         }
       }
       const p90 = {
@@ -228,7 +235,7 @@ export default {
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
-          color: '#494949'
+          color: '#1f548a'
         }
       }
       return [mean, max, min, mad, p10, p90]
@@ -466,32 +473,4 @@ export default {
 </script>
 
 <style>
-  #stationQuantiles {
-    dl {
-      display: flex;
-      flex-wrap: wrap;
-      padding-bottom: 10px;
-    }
-
-    dt {
-      width: 33%;
-      margin-top: 0;
-      border-bottom: 1px solid lightgrey;
-    }
-
-    dd {
-      padding-left: 10px;
-      width: 66%;
-      border-bottom: 1px solid lightgrey;
-    }
-
-    dt:nth-child(n+3):nth-last-child(2),
-    dd:nth-child(n+3):last-child {
-      border-bottom: none;
-    }
-
-    dd, dt {
-      margin-top: 5px;
-    }
-  }
 </style>
