@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
-    "build": "node --max_old_space_size=8000 node_modules/@vue/cli-service/bin/vue-cli-service.js build",
+    "build": "node --max_old_space_size=10000 node_modules/@vue/cli-service/bin/vue-cli-service.js build",
     "test:unit": "vue-cli-service test:unit --no-cache",
     "lint": "vue-cli-service lint",
     "build:report": "vue-cli-service build --report",
