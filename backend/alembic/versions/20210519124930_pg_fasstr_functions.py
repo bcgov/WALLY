@@ -89,11 +89,15 @@ def upgrade():
                     sa.Column('station_number', sa.Text(), nullable=False, index=True),
                     sa.Column('date', sa.Date(), nullable=False),
                     sa.Column('value', sa.Numeric(), nullable=True),
-                    sa.ForeignKeyConstraint(['station_number'], ['hydat.stations.station_number'], ),
                     sa.PrimaryKeyConstraint('fasstr_flows_id'),
                     schema='hydat'
                     )
-
+    op.create_foreign_key(
+        'fk_fasstr_flows_station',
+        'fasstr_flows', 'stations',
+        ['station_number'], ['station_number'], source_schema="hydat",
+        referent_schema="hydat"
+    )
     dirname = os.path.dirname(__file__)
     filename = os.path.join(dirname, 'sql/20210519124930_fasstr_functions.sql')
     with open(filename, "r") as r:

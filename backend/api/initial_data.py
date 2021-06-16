@@ -5,7 +5,7 @@ from shapely.geometry import shape
 import shapely.geometry
 from api.db.session import db_session
 from api.minio.client import s3_upload_file
-from api.v1.hydat.factory import StationFactory
+from api.v1.hydat.db_models import Station
 # Need imports from api.layers even though linter says they are unused
 from api.layers.water_rights_licences import WaterRightsLicenses
 from api.layers.water_rights_applications import WaterRightsApplications
@@ -34,13 +34,13 @@ def create_hydat_data():
 
     # logger
     logger = logging.getLogger("hydat")
-    logger.info("Stream Stations")
-    stations = StationFactory.create_batch(3)
-    for stn in stations:
-        logger.info(
-            f"Adding stream station {stn.station_number} - {stn.station_name}")
-        db_session.add(stn)
-    db_session.commit()
+    if db_session.query(Station).first() is None:
+        directory = '/app/fixtures/layer_subsets/hydat/'
+        with open(os.path.join(directory, "hydat.sql"), "r") as sql_file:
+            sql = sql_file.read()
+            db_session.execute(sql)
+            db_session.commit()
+            logger.info("Stream station fixture loaded (station 08MG026 - FITZSIMMONS CREEK BELOW BLACKCOMB CREEK)")
 
 
 def load_dev_raster_data():
