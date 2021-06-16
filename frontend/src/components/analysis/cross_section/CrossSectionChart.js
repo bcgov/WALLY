@@ -172,7 +172,7 @@ export default {
     },
     chartLayout () {
       // annotations used instead of label text due to text angle feature
-      let wellAnnotations = this.wells.map((w) => {
+      const wellAnnotations = this.wells.map((w) => {
         return {
           xref: 'x',
           yref: 'y',
@@ -406,7 +406,7 @@ export default {
         })
         // hide selection box
         this.removeElementsByClass('select-outline')
-        let points = e.points.map(p => {
+        const points = e.points.map(p => {
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
         })
         this.markerLabels = points
