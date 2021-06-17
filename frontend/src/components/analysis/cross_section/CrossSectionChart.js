@@ -17,6 +17,7 @@ export default {
     'elevations', 'waterbodies',
     'screens', 'dataLoading'],
   data: () => ({
+    displayWaterbodyAnnotations: true,
     ignoreButtons: [
       'toImage',
       'sendDataToCloud',
