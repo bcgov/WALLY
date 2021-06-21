@@ -1,16 +1,23 @@
 import pandas as pd
 import csv
 
+# TODO Filter out data before 1995?
+# stations to gather later 08MG001, 
+# compare wally results with nearby confluences
+# put regulated back on for low flow analysis
+
 df = pd.read_csv("./zone27all.csv")
 
 print(df.shape)
 
-discrepancy_percent = 0.05
+discrepancy_percent = 0.20
 
 drainage_areas = ((df['drainage_area'] / df['drainage_area_gross']) - 1).abs()
 print(drainage_areas)
 
-indexNamesWithin = df[ (drainage_areas <= discrepancy_percent) | drainage_areas.isna()].index
+df['mad'] = df['mean'] / 1000 * df['drainage_area']
+
+indexNamesWithin = df[(drainage_areas <= discrepancy_percent)| drainage_areas.isna()].index #| drainage_areas.isna()].index
 indexNamesDiscrep = df[drainage_areas > discrepancy_percent].index
 # indexNulls = df[drainage_areas.isna()].index
 
