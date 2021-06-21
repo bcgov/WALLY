@@ -410,7 +410,16 @@ export default {
         let points = e.points.map(p => {
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
         })
-        this.markerLabels = points
+
+        /*
+         HACK: This hack forces the graph scale for x and y to be 1.
+         This is here because plotly isn't able to set it, possibly due to a problem with vuetify.
+         */
+        const gd = document.getElementById('2dPlot')
+        gd._fullLayout._invScaleX = 1
+        gd._fullLayout._invScaleY = 1
+
+        // force show labels
         PlotlyJS.Fx.hover('2dPlot', points)
       }
     }
