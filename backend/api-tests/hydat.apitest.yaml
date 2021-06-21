@@ -1,0 +1,53 @@
+environment:
+  vars:
+    host: http://localhost:8000
+    auth_token: test
+  headers:
+    Authorization: Bearer {{auth_token}}
+requests:
+  - name: Log in
+    url: "{{auth_url}}"
+    method: post
+    contentType: application/x-www-form-urlencoded
+    body:
+      client_id: "{{auth_id}}"
+      client_secret: "{{auth_secret}}"
+      grant_type: password
+      username: "{{auth_user}}"
+      password: "{{auth_pass}}"
+    expect:
+      status: 200
+    set:
+      - var: auth_token # set the {{auth_token}} here
+        from: access_token
+  - name: HYDAT fixture station - flows
+    url: "{{host}}/api/v1/hydat/08MG026/flows"
+    method: get
+    expect:
+      status: 200
+      values:
+        # this isn't the full schema.  just test selected values.
+        mean:
+          gt: 3.9
+          lt: 4.0
+        p10:
+          gt: 1.0
+          lt: 1.1
+        p90:
+          gt: 8.7
+          lt: 8.8
+        months.[0].mean:
+          gt: 1.49
+          lt: 1.50
+  - name: HYDAT fixture station - stats
+    url: "{{host}}/api/v1/hydat/08MG026/stats"
+    method: get
+    expect:
+      status: 200
+      values:
+        # again, just selected values.
+        station_number: 08MG026
+        stats.[0].stat: low_30q10
+        stats.[0].value:
+          gt: 0.71
+          lt: 0.73
