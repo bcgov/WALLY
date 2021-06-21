@@ -234,6 +234,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                 id=lic.id,
                 properties={
                     "fileNumber": lic.properties["FILE_NUMBER"],
+                    "licenceNumber": lic.properties["LICENCE_NUMBER"],
                     "status": lic.properties["LICENCE_STATUS"],
                     "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
                     "source": lic.properties["SOURCE_NAME"],
