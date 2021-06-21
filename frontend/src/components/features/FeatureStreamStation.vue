@@ -113,7 +113,6 @@ export default {
       flowStatsError: null,
       flowStatsLoading: false,
       selectedYear: null,
-      flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
       levelChartReady: false,
@@ -359,7 +358,6 @@ export default {
       this.levelData = []
       this.flowStats = null
       this.flowStatsError = null
-      this.flowChartOptions = {}
       this.levelChartOptions = {}
       this.flowStatsLoading = false
     },
@@ -385,7 +383,6 @@ export default {
 
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
-        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm³/s', this.flowData.map((x) => [x.max]))
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true

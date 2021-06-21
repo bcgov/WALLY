@@ -37,7 +37,9 @@ create extension pgaudit;
 create extension plr;
 create extension ltree;
 create extension pg_trgm;
+create extension hstore;
 
+-- additional resources to create as the db user
 \c "PG_DATABASE" "PG_USER";
 
 create schema postgis_ftw;
@@ -48,4 +50,16 @@ create schema whse_basemapping;
 
 -- additional scripts that should be installed at db creation time.
 -- These are loaded from the /database/pgconf dir.
-\i /scripts/20210616_fasstr_functions.sql
+\i /scripts/20210616_fasstr_tables.sql
+
+-- R functions must be installed as superuser
+\c "PG_DATABASE" postgres
+
+-- install the functions
+\i /scripts/20210616_fasstr_functions_su.sql
+
+-- ensure that the database user can execute the functions
+grant all on all functions in schema fasstr to "PG_USER";
+ALTER DEFAULT PRIVILEGES IN SCHEMA fasstr grant execute on functions to "PG_USER";
+
+\c "PG_DATABASE" "PG_USER"

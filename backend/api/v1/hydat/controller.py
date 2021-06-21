@@ -48,13 +48,13 @@ def get_fasstr_longterm_stats(db: Session, station_number: str) -> FASSTRLongTer
                 array_agg(f.value) as values,
                 array_agg(f.date) as dates
         from    hydat.stations s
-        join    hydat.fasstr_flows f
+        join    fasstr.fasstr_flows f
         on      f.station_number = s.station_number
         where   s.station_number = '08MG026'
        group by s.station_number
 
     )
-    select * from hydat.fasstr_calc_longterm_daily_stats(
+    select * from fasstr.fasstr_calc_longterm_daily_stats(
         (select dates from flows), (select values from flows), TRUE, FALSE);
     """
     try:
@@ -113,19 +113,19 @@ def flow_statistics(db: Session, station_number: str, full_years: bool = False):
                 array_agg(f.value) as values,
                 array_agg(f.date) as dates
         from    hydat.stations s
-        join    hydat.fasstr_flows f
+        join    fasstr.fasstr_flows f
         on      f.station_number = s.station_number
         where   s.station_number = :station_number
        group by s.station_number
 
     )
     select  station_number,
-            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10 ), 2) as "low_30q10",
-            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5 ), 2) as "low_30q5",
-            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10, summer=>true ), 2) as "low_7q10",
-            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5, summer=>true ), 2) as "low_30q10_summer",
-            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10 ), 2) as "low_30q5_summer",
-            ROUND(hydat.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10, summer=>true ), 2) as "low_7q10_summer"
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10 ), 2) as "low_30q10",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5 ), 2) as "low_30q5",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10, summer=>true ), 2) as "low_7q10",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5, summer=>true ), 2) as "low_30q10_summer",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10 ), 2) as "low_30q5_summer",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10, summer=>true ), 2) as "low_7q10_summer"
     from    flows
     """
 

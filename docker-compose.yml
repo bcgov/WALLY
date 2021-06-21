@@ -42,8 +42,12 @@ services:
     volumes:
       - pgdata-volume:/pgdata:z
       - type: bind
-        source: ./scripts/database/dev/setup.sql
+        source: ./database/pgconf/setup.sql
         target: /pgconf/setup.sql
+        consistency: cached
+      - type: bind
+        source: ./database/scripts
+        target: /scripts/
         consistency: cached
     ports:
       - '5432:5432'

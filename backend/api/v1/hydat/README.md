@@ -74,7 +74,7 @@ Note: `wally:test_pw` is the default postgres user/password for the postgres con
   kv as (
     select station_number, year, month, each(hstore(flows)) as kv from flows
   )
-  insert into hydat.fasstr_flows (station_number, date, value)
+  insert into fasstr.fasstr_flows (station_number, date, value)
   select
     station_number,
     to_date(concat(year::text, lpad(month::text, 2, '0'), lpad(replace((kv).key, 'flow', '')::text, 2, '0')), 'YYYYMMDD') as date,

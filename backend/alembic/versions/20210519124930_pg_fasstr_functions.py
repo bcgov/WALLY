@@ -50,7 +50,7 @@ How to populate fasstr_flows from existing HYDAT data:
   kv as (
     select station_number, year, month, each(hstore(flows)) as kv from flows
   )
-  insert into hydat.fasstr_flows (station_number, date, value)
+  insert into fasstr.fasstr_flows (station_number, date, value)
   select
     station_number,
     to_date(concat(year::text, lpad(month::text, 2, '0'), lpad(replace((kv).key, 'flow', '')::text, 2, '0')), 'YYYYMMDD') as date,
@@ -75,7 +75,7 @@ def upgrade():
     op.create_foreign_key(
         'fk_fasstr_flows_station',
         'fasstr_flows', 'stations',
-        ['station_number'], ['station_number'], source_schema="hydat",
+        ['station_number'], ['station_number'], source_schema="fasstr",
         referent_schema="hydat"
     )
 

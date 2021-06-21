@@ -34,13 +34,12 @@ def create_hydat_data():
 
     # logger
     logger = logging.getLogger("hydat")
-    if db_session.query(Station).first() is None:
-        directory = '/app/fixtures/layer_subsets/hydat/'
-        with open(os.path.join(directory, "hydat.sql"), "r") as sql_file:
-            sql = sql_file.read()
-            db_session.execute(sql)
-            db_session.commit()
-            logger.info("Stream station fixture loaded (station 08MG026 - FITZSIMMONS CREEK BELOW BLACKCOMB CREEK)")
+    directory = '/app/fixtures/layer_subsets/hydat/'
+    with open(os.path.join(directory, "hydat.sql"), "r") as sql_file:
+        sql = sql_file.read()
+    db_session.execute(sql)
+    db_session.commit()
+    logger.info("FASSTR data loaded")
 
 
 def load_dev_raster_data():
