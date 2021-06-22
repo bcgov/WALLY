@@ -60,10 +60,6 @@
           <v-btn small v-on:click="fetchWellsAlongLine" color="blue-grey lighten-4" class="ml-5 mb-1 mt-5 mr-5">
             <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">refresh</v-icon>Refresh Plot</span>
           </v-btn>
-<!-- Lasso and box tools are currently broken, this won't work -->
-<!--          <v-btn small v-on:click="resetMarkerLabels" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">-->
-<!--            <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18">format_clear</v-icon>Reset Labels</span>-->
-<!--          </v-btn>-->
           <v-btn small v-on:click="downloadMergedImage('2d')" color="blue-grey lighten-4" class="mb-1 mt-5 mr-5">
             <span class="hidden-sm-and-down"><v-icon color="secondary" class="mr-1" size="18" v-if="!downloadImageLoading">archive</v-icon>
             <v-progress-circular

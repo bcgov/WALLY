@@ -17,6 +17,8 @@ export default {
     'elevations', 'waterbodies',
     'screens', 'dataLoading'],
   data: () => ({
+    plotId: '2dPlot',
+    displayWaterbodyAnnotations: true,
     ignoreButtons: [
       'toImage',
       'sendDataToCloud',
@@ -388,7 +390,7 @@ export default {
       this.$refs.crossPlot.$el.on('plotly_beforehover', () => {
         return true
       })
-      PlotlyJS.Fx.hover('2dPlot', [])
+      PlotlyJS.Fx.hover(this.plotId, [])
       // reset all selection data so points gain back opacity
       this.$refs.crossPlot.data.forEach((d) => {
         d.selectedpoints = null
@@ -409,8 +411,17 @@ export default {
         let points = e.points.map(p => {
           return { curveNumber: p.curveNumber, pointNumber: p.pointNumber }
         })
-        this.markerLabels = points
-        PlotlyJS.Fx.hover('2dPlot', points)
+
+        /*
+         HACK: This hack forces the graph scale for x and y to be 1.
+         This is here because plotly isn't able to set it, possibly due to a problem with vuetify.
+         */
+        const gd = document.getElementById(this.plotId)
+        gd._fullLayout._invScaleX = 1
+        gd._fullLayout._invScaleY = 1
+
+        // force show labels
+        PlotlyJS.Fx.hover(this.plotId, points)
       }
     }
   }
