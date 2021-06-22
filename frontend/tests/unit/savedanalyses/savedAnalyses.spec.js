@@ -124,10 +124,10 @@ describe('Saved Analyses List Tests', () => {
     wrapper.vm.runAnalysis(analysis)
     expect(store.dispatch).not.toHaveBeenCalledWith(
       'map/addFeaturePOIFromCoordinates',
-    {
-      coordinates: analysis.geometry.coordinates[0],
-      layerName: 'point-of-interest'
-    })
+      {
+        coordinates: analysis.geometry.coordinates[0],
+        layerName: 'point-of-interest'
+      })
   })
 
   it('sets the point of interest on featureTypes other than cross section', () => {
@@ -166,8 +166,4 @@ describe('Saved Analyses List Tests', () => {
       'map/updateActiveMapLayers',
       ['ground_water_wells'])
   })
-
-
-
-
 })
