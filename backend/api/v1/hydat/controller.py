@@ -62,7 +62,7 @@ def get_fasstr_longterm_stats(db: Session, station_number: str) -> FASSTRLongTer
     except DataError:
         raise HTTPException(
             status_code=400,
-            detail="Not enough data to compute quantiles for this station."
+            detail="Not enough data to compute long-term stats for this station."
         )
 
     if not res:
