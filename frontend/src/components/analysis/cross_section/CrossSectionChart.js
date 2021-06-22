@@ -415,6 +415,7 @@ export default {
         /*
          HACK: This hack forces the graph scale for x and y to be 1.
          This is here because plotly isn't able to set it, possibly due to a problem with vuetify.
+         https://apps.nrs.gov.bc.ca/int/jira/browse/WATER-1679
          */
         const gd = document.getElementById(this.plotId)
         gd._fullLayout._invScaleX = 1
