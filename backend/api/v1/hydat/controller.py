@@ -50,7 +50,7 @@ def get_fasstr_longterm_stats(db: Session, station_number: str) -> FASSTRLongTer
         from    hydat.stations s
         join    fasstr.fasstr_flows f
         on      f.station_number = s.station_number
-        where   s.station_number = '08MG026'
+        where   s.station_number = :station_number
        group by s.station_number
 
     )
