@@ -1,0 +1,33 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  labels:
+    name: wally-crunchy-postgres
+  name: wally-crunchy-postgres
+  namespace: d1b5d2-tools
+spec:
+  output:
+    to:
+      kind: ImageStreamTag
+      name: crunchy-postgres-gis:v1-centos8-13.2-3.0-4.6.2
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: database
+    git:
+      ref: master
+      uri: https://github.com/bcgov-c/wally.git
+    sourceSecret:
+      name: wally-github-token
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: crunchy-postgres-gis:centos8-13.2-3.0-4.6.2
+        namespace: d1b5d2-tools
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - type: ConfigChange
