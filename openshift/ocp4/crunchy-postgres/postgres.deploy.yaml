@@ -69,7 +69,7 @@ parameters:
     displayName: Version of PostgreSQL Image
     name: IMAGE_STREAM_VERSION
     required: true
-    value: centos8-13.2-3.0-4.6.2
+    value: v1-centos8-13.2-3.0-4.6.2
   - name: NAME_SUFFIX
     required: true
   - description: Storage class for PVCs.
