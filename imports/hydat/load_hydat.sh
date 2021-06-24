@@ -22,7 +22,7 @@ rm /tmp/Hydat.sqlite3 && \
 psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB" -w -c "update hydat.stations set geom=ST_SetSrid(ST_MakePoint(longitude, latitude), 4326);" && \
 
 # transform HYDAT data into something resembling time series (station : date : value)
-# and load into the `hydat.fasstr_flows`
+# and load into the `fasstr.fasstr_flows`
 psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB" << EOF
   with flows as (
     select
@@ -67,7 +67,7 @@ psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGR
   kv as (
     select station_number, year, month, each(hstore(flows)) as kv from flows
   )
-  insert into hydat.fasstr_flows (station_number, date, value)
+  insert into fasstr.fasstr_flows (station_number, date, value)
   select
     station_number,
     to_date(concat(year::text, lpad(month::text, 2, '0'), lpad(replace((kv).key, 'flow', '')::text, 2, '0')), 'YYYYMMDD') as date,
