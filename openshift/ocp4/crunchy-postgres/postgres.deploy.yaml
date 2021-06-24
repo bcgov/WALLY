@@ -64,7 +64,7 @@ parameters:
     displayName: Memory resource limit
     name: LIMIT_MEMORY
     required: false
-    value: 1Gi
+    value: 2Gi
   - description: Version of PostgreSQL image to be used
     displayName: Version of PostgreSQL Image
     name: IMAGE_STREAM_VERSION

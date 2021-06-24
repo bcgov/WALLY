@@ -240,7 +240,7 @@ pipeline {
                     "REQUEST_CPU=200m",
                     "REQUEST_MEMORY=512Mi",
                     "LIMIT_CPU=500m",
-                    "LIMIT_MEMORY=1Gi"
+                    "LIMIT_MEMORY=2Gi"
                 ))
 
 
@@ -453,7 +453,7 @@ pipeline {
                     "REQUEST_CPU=200m",
                     "REQUEST_MEMORY=1Gi",
                     "LIMIT_CPU=2",
-                    "LIMIT_MEMORY=3Gi"
+                    "LIMIT_MEMORY=4Gi"
                 ))
 
 
