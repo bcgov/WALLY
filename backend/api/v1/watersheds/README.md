@@ -98,10 +98,8 @@ whitebox_tools -r=FillBurn -v --wd="./" --dem=srtm.tif --streams=merged_streams.
 
 Create a COG:
 ```sh
-gdal_translate "01_burned_srtm.tif" "Burned_SRTM_3005.tif" \
-     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
-     -co COMPRESS=LZW -co PREDICTOR=3 \
-     -co COPY_SRC_OVERVIEWS=YES
+gdal_translate -of COG "01_burned_srtm.tif" "Burned_SRTM_3005.tif" \
+     -co COMPRESS=LZW 
 ```
 Upload the resulting `Burned_SRTM_3005.tif` to Minio (staging and prod) and [create a fixture version](../../../fixtures/extents/README.md).
 
