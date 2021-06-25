@@ -121,4 +121,4 @@ def list_monthly_flows_by_year(station_number: str, full_years: bool = True, db:
 
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html """
 
-    return get_flow_stats(db, station_number, full_years)
+    return get_fasstr_flow_stats(db, station_number, full_years)

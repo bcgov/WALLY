@@ -89,9 +89,9 @@ def get_fasstr_longterm_summary(db: Session, station_number: str) -> FASSTRLongT
     return summary
 
 
-def get_flow_stats(db: Session, station_number: str, full_years: bool = False) -> FASSTRFlowStatsSummary:
+def get_fasstr_flow_stats(db: Session, station_number: str, full_years: bool = False) -> FASSTRFlowStatsSummary:
     """
-    returns flow statistics for a station.
+    returns FASSTR flow statistics for a station, based on quantiles for selected return periods.
 
     Returns the following low flows:
     30Q10
