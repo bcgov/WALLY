@@ -115,7 +115,7 @@ def list_monthly_flows_by_year(station_number: str, year: int = None, db: Sessio
     return DailyFlow.get_monthly_flows_by_station(db, station_number, year)
 
 
-@router.get("/{station_number}/stats", response_model=hydat_schema.FlowStatsSummary)
+@router.get("/{station_number}/stats", response_model=hydat_schema.FASSTRFlowStatsSummary)
 def list_monthly_flows_by_year(station_number: str, full_years: bool = True, db: Session = Depends(get_db)):
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 

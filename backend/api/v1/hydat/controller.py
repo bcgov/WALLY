@@ -9,7 +9,7 @@ from fastapi import HTTPException
 from shapely import wkb
 from shapely.geometry import Point, Polygon
 from api.v1.hydat.db_models import Station as StreamStationDB
-from api.v1.hydat.schema import FASSTRLongTermSummary, FASSTRMonthlyFlow, FlowStat, StreamStation, FlowStatsSummary
+from api.v1.hydat.schema import FASSTRLongTermSummary, FASSTRMonthlyFlow, FlowStat, StreamStation, FASSTRFlowStatsSummary
 from geoalchemy2.shape import to_shape
 
 logger = logging.getLogger("api")
@@ -89,7 +89,7 @@ def get_fasstr_longterm_summary(db: Session, station_number: str) -> FASSTRLongT
     return summary
 
 
-def get_flow_stats(db: Session, station_number: str, full_years: bool = False) -> FlowStatsSummary:
+def get_flow_stats(db: Session, station_number: str, full_years: bool = False) -> FASSTRFlowStatsSummary:
     """
     returns flow statistics for a station.
 
@@ -164,7 +164,7 @@ def get_flow_stats(db: Session, station_number: str, full_years: bool = False) -
             value=float(res[k])
         ))
 
-    return FlowStatsSummary(station_number=station, stats=flow_stats)
+    return FASSTRFlowStatsSummary(station_number=station, stats=flow_stats)
 
 
 def get_station(db: Session, station_number: str) -> StreamStation:

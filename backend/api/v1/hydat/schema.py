@@ -146,7 +146,7 @@ class FlowStat(BaseModel):
     value: float
 
 
-class FlowStatsSummary(BaseModel):
+class FASSTRFlowStatsSummary(BaseModel):
     """
     Summary of flow statistics
     """
