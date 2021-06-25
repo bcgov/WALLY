@@ -90,7 +90,7 @@ def get_fasstr_longterm_stats(db: Session, station_number: str) -> FASSTRLongTer
     return summary
 
 
-def flow_statistics(db: Session, station_number: str, full_years: bool = False):
+def flow_statistics(db: Session, station_number: str, full_years: bool = False) -> FlowStatisticsSummary:
     """
     returns flow statistics for a station.
 
