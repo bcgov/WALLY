@@ -4,6 +4,7 @@ Functions for aggregating data from web requests and database records
 import base64
 import datetime
 import logging
+from os import close
 import requests
 import json
 import math
@@ -22,14 +23,13 @@ from starlette.responses import Response
 from sqlalchemy.orm import Session
 from sqlalchemy import func, insert, select
 from fastapi import HTTPException
-from pyeto import thornthwaite, monthly_mean_daylight_hours
 
 from api.config import WATERSHED_DEBUG
 from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.hydat.controller import get_point_on_stream, get_station
+from api.v1.hydat.controller import get_point_on_stream, get_station, get_nearest_stream_segments
 from api.v1.models.scsb2016.controller import get_hydrological_zone
 from api.v1.streams.controller import get_nearest_streams
 from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
@@ -860,6 +860,49 @@ def store_generated_watershed(db: Session, user, watershed: GeneratedWatershedDe
     return generated_watershed_id
 
 
+def get_watershed_at_inferred_hydat_location(
+    db: Session,
+    user,
+    hydat_station_number: str,
+    expected_drainage_area: float,
+    upstream_method='DEM+FWA'
+):
+
+    stream_segments = get_nearest_stream_segments(db, hydat_station_number)
+
+    closest_result = None
+    closest_result_vs_expected = None
+
+    if expected_drainage_area > 1000:
+        upstream_method = 'FWA+UPSTREAM'
+
+    for stream in stream_segments:
+        watershed = calculate_watershed(
+            db, user, click_point=stream.stream_point, upstream_method=upstream_method
+        )
+
+        # check if this stream's watershed result is close to the expected drainage area,
+        # if so, stop now and return it.
+        ws_area = watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
+        ws_area_vs_expected = abs(ws_area - expected_drainage_area) / expected_drainage_area
+        if ws_area_vs_expected < 0.10:
+            return watershed
+
+        # first iteration - our first result is automatically the closest.
+        if not closest_result:
+            closest_result = watershed
+            closest_result_vs_expected = ws_area_vs_expected
+
+        # otherwise, check for a new closest result
+        elif ws_area_vs_expected < closest_result_vs_expected:
+            closest_result = watershed
+            closest_result_vs_expected = ws_area_vs_expected
+
+    # nothing was within the threshold, but we'll return the closest match.
+    # it can be manually checked.
+    return closest_result
+
+
 def get_watershed_at_hydat_station(
     db: Session,
     user,
@@ -928,38 +971,70 @@ def get_watershed_at_hydat_station(
     # clear from the coordinates which tributary is being monitored).
     ws_area = watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
     ws_area_vs_expected = abs(ws_area - stn.drainage_area_gross) / stn.drainage_area_gross
-    hydat_corrected_watershed = None
+
+    if ws_area_vs_expected < 0.10:
+        logger.info('Success: HYDAT watershed within 10%% of listed area. (%s vs %s: off by %s from listed area)',
+                    round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
+        return watershed
 
     # if the result is more than +/- 10% of the listed area, try again using the HYDAT station
     # as input.  calculate_watershed with the HYDAT station parameter corrects the coordinates
     # to the stream nearest the HYDAT station, with an attempt to match the stream name from
     # the station name.
-    if stn.drainage_area_gross > 0 and ws_area_vs_expected > 0.10:
-        logger.info("Drainage area %s doesn't agree with listed area %s (off by %s of listed area)",
-                    round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
-        hydat_corrected_watershed = calculate_watershed(
-            db, user, hydat_station_number=stn.station_number, upstream_method=upstream_method
-        )
+    logger.info("Drainage area %s doesn't agree with listed area %s (off by %s of listed area)",
+                round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
+    hydat_corrected_watershed = calculate_watershed(
+        db, user, hydat_station_number=stn.station_number, upstream_method=upstream_method
+    )
 
-        hy_area = hydat_corrected_watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
-        hy_area_vs_expected = abs(hy_area - stn.drainage_area_gross) / stn.drainage_area_gross
+    hy_area = hydat_corrected_watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
+    hy_area_vs_expected = abs(hy_area - stn.drainage_area_gross) / stn.drainage_area_gross
 
-        # compare the result after trying to correct for the Hydat station name.
-        # If we managed to get closer to the listed area, return the corrected result.
-        if hy_area_vs_expected < ws_area_vs_expected:
-            logger.info("Using corrected result for station %s - %s (new area %s km2 is off by %s from listed area)",
-                        stn.station_number, stn.station_name, round(hy_area, 1), round(hy_area_vs_expected, 3))
-            return hydat_corrected_watershed
+    # compare the result after trying to correct for the Hydat station name.
+    # If we managed to get closer to the listed area, return the corrected result.
+    if hy_area_vs_expected < 0.10:
+        logger.info("Using corrected result for station %s - %s (new area %s km2 is off by %s from listed area)",
+                    stn.station_number, stn.station_name, round(hy_area, 1), round(hy_area_vs_expected, 3))
+        return hydat_corrected_watershed
 
-        logger.warn(
-            'Warning: HYDAT watershed from coordinates was more than 10%% different from listed area (%s), but corrected result (%s) was no better.',
-            round(ws_area_vs_expected, 3),
-            round(hy_area_vs_expected, 3))
+    logger.warn(
+        'Warning: HYDAT watershed from coordinates was more than 10%% different from listed area (%s), but corrected result (%s) was no better.',
+        round(ws_area_vs_expected, 3),
+        round(hy_area_vs_expected, 3))
 
+    logger.warn('Trying to infer the correct location by delineating from multiple nearby streams.')
+
+    inferred_watershed = get_watershed_at_inferred_hydat_location(
+        db, user, stn.station_number, stn.drainage_area_gross)
+
+    if not inferred_watershed:
+        inferred_area_vs_expected = 1
     else:
-        logger.info('Success: HYDAT watershed within 10%% of listed area. (%s vs %s: off by %s from listed area)',
-                    round(ws_area, 1), round(stn.drainage_area_gross, 1), round(ws_area_vs_expected, 3))
-    return watershed
+        inferred_watershed_area = inferred_watershed.watershed.properties['FEATURE_AREA_SQM']
+        inferred_area_vs_expected = abs(inferred_watershed_area - stn.drainage_area_gross) / stn.drainage_area_gross
+
+    if inferred_watershed and inferred_area_vs_expected < 0.10:
+        logger.info('Found a suitable HYDAT watershed by inferring the most likely HYDAT location based on expected drainage area.')
+        logger.info(
+            'Original estimate was %s different from the expected area, inferred estimate is %s different',
+            ws_area_vs_expected, inferred_area_vs_expected)
+        return inferred_watershed
+
+    # we couldn't get a good result.  Return the best one, it can be manually checked/QA'd.
+    result_vs_expected = {
+        "watershed": ws_area_vs_expected,
+        "hydat_corrected_watershed": hy_area_vs_expected,
+        "inferred_watershed": inferred_area_vs_expected
+    }
+    result_map = {
+        "watershed": watershed,
+        "hydat_corrected_watershed": hydat_corrected_watershed,
+        "inferred_watershed": inferred_watershed
+    }
+
+    return result_map.get(
+        min(result_vs_expected, key=result_vs_expected.get)
+    )
 
 
 def get_watershed(
