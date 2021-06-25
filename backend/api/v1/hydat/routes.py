@@ -8,7 +8,7 @@ from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
-from api.v1.hydat.controller import flow_statistics, get_fasstr_longterm_stats
+from api.v1.hydat.controller import get_fasstr_flow_stats, get_fasstr_longterm_summary
 import api.v1.hydat.schema as hydat_schema
 
 logger = getLogger("hydat")
