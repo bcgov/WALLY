@@ -110,15 +110,15 @@ def list_monthly_flows_by_year(station_number: str, year: int = None, db: Sessio
         raise HTTPException(status_code=404, detail="Station not found")
 
     if not year:
-        return get_fasstr_longterm_stats(db, station_number)
+        return get_fasstr_longterm_summary(db, station_number)
 
     return DailyFlow.get_monthly_flows_by_station(db, station_number, year)
 
 
-@router.get("/{station_number}/stats", response_model=hydat_schema.FlowStatisticsSummary)
+@router.get("/{station_number}/stats", response_model=hydat_schema.FlowStatsSummary)
 def list_monthly_flows_by_year(station_number: str, full_years: bool = True, db: Session = Depends(get_db)):
     """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
 
     https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html """
 
-    return flow_statistics(db, station_number, full_years)
+    return get_flow_stats(db, station_number, full_years)
