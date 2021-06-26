@@ -1,6 +1,6 @@
 <template>
   <v-card flat>
-    <v-card-text v-if="availabilityData">
+    <v-card-text>
       <v-row>
         <v-col>
           <v-card flat outlined tile>
@@ -16,14 +16,11 @@
         </v-col>
       </v-row>
       <v-row>
-        <Plotly v-if="meanMonthlyDischarges"
-                :layout="availabilityLayout()"
-                :data="availabilityData"
+        <Plotly
+          :layout="availabilityLayout()"
+          :data="availabilityData"
         ></Plotly>
       </v-row>
-    </v-card-text>
-    <v-card-text v-else>
-      No data to display
     </v-card-text>
   </v-card>
 </template>
@@ -39,7 +36,7 @@ export default {
   components: {
     Plotly
   },
-  props: ['meanMonthlyDischarges', 'riskLevels'],
+  props: ['mmd', 'mad', 'riskLevels', 'licenceData'],
   data: () => ({
     months: { 1: 31, 2: 28, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31 },
     monthHeaders: [
@@ -58,58 +55,108 @@ export default {
     ]
   }),
   computed: {
+    // ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     availabilityData () {
-      if (!this.meanMonthlyDischarges) {
+      console.log('risklevels', this.licenceData)
+      if (!this.mmd) {
         return null
       }
       var plotConfig = []
-      let mad = this.meanMonthlyDischarges.reduce((a, b) => a + b, 0) / 12
+      // let mad = this.meanMonthlyDischarges.reduce((a, b) => a + b, 0) / 12
 
       const availabilityData = {
         type: 'bar',
         name: 'Available Water',
-        y: this.meanMonthlyDischarges,
+        marker: {
+          color: '#095599'
+        },
+        y: this.mmd.map((val, i) => {
+          return val - (this.licenceData.longTerm ? this.licenceData.longTerm[i] : 0) -
+              (this.licenceData.shortTerm ? this.licenceData.shortTerm[i] : 0)
+        }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³/s'
       }
 
-      const mad30 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '20% MAD',
-        y: Array(12).fill(mad * 0.2),
+      const longTerm = {
+        type: 'bar',
+        name: 'Monthly Licenced Quantity',
+        y: this.licenceData.longTerm,
         x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#5ab190' }
+        hovertemplate: '%{y:.2f} m³',
+        marker: { color: '#8377D1' }
       }
 
-      const mad20 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '15% MAD',
-        y: Array(12).fill(mad * 0.15),
+      const shortTerm = {
+        type: 'bar',
+        name: 'Monthly Short Term Approvals Quantity',
+        y: this.licenceData.shortTerm,
         x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fec925' }
+        hovertemplate: '%{y:.2f} m³',
+        marker: { color: 'purple' }
       }
 
-      const mad10 = {
+      const high = {
         type: 'line',
-        mode: 'lines',
+        marker: {
+          color: '#EF2917'
+        },
+        line: {
+          color: '#EF2917',
+          width: 1
+        },
         hoverinfo: 'skip',
-        name: '10% MAD',
-        y: Array(12).fill(mad * 0.1),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fa1e44' }
+        name: 'High Risk',
+        // y: this.riskLevels.map(rl => {
+        //   return rl[2] === 1.0 ? rl[1] : rl[2]
+        // }),
+        y: this.mmd.map((val, i) => {
+          return val * this.riskLevels[i][1]
+        }),
+        x: this.monthHeaders.map((h) => h.text)
       }
 
-      plotConfig.push(availabilityData, mad10, mad20, mad30)
+      const moderate = {
+        type: 'line',
+        marker: {
+          color: '#EFA00B'
+        },
+        line: {
+          color: '#EFA00B',
+          width: 1
+        },
+        hoverinfo: 'skip',
+        name: 'Moderate Risk',
+        // y: this.riskLevels.map(rl => rl[0]),
+        y: this.mmd.map((val, i) => {
+          return val * this.riskLevels[i][0]
+        }),
+        x: this.monthHeaders.map((h) => h.text)
+      }
+
+      // const low = {
+      //   type: 'line',
+      //   marker: {
+      //     color: '#62C370'
+      //   },
+      //   line: {
+      //     color: '#62C370',
+      //     width: 1
+      //   },
+      //   hoverinfo: 'skip',
+      //   name: 'Low Risk',
+      //   y: this.riskLevels.map(rl => rl[0]),
+      //   x: this.monthHeaders.map((h) => h.text)
+      // }
+
+      plotConfig.push(moderate, high, shortTerm, longTerm, availabilityData)
 
       return plotConfig
     }
   },
   methods: {
     availabilityLayout () {
+      console.log(this.riskLevels)
       return {
         barmode: 'stack',
         title: 'EFN Availability',

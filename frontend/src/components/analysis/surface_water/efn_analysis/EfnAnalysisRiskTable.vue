@@ -1,16 +1,11 @@
 <template>
   <div>
-    <v-card-text class="pb-0">
-      <h3>Flow Sensitivity: {{sensitivityLevel}}</h3>
-    </v-card-text>
-    <v-card-text class="pb-0">
-      <h3>Flow Sensitivity: {{sensitivityLevel}}</h3>
-      <h3>Thresholds: {{sensitivityLevel}}</h3>
-    </v-card-text>
     <v-data-table
       id="efn-risk-table"
       :headers="headers"
       hide-default-header
+      disable-pagination
+      :hide-default-footer="true"
       :items="months">
       <template v-slot:header="{ props: { headers } }">
         <thead>
@@ -32,19 +27,28 @@
           <td class="text-center v-data-table__divider pa-1"><span>{{item.mmd.toFixed(4)}}</span></td>
           <td class="text-center v-data-table__divider pa-1"><span>{{item.mmw.toFixed(4)}}</span></td>
           <td class="text-center v-data-table__divider pa-1"><span>{{(item.withdrawalPercent * 100).toFixed(2)}}%</span></td>
+          <td class="text-center v-data-table__divider pa-1"><span>{{item.sensitivity}}</span></td>
           <td :style="{backgroundColor: riskSchema[item.risk].color, color: 'white'}" class="text-center v-data-table__divider pa-2"><span>{{riskSchema[item.risk].name}}</span></td>
         </tr>
       </template>
     </v-data-table>
+    <EfnAnalysisMonthlyQty
+      :mmd="waterFlowData.mmd"
+      :mad="waterFlowData.mad"
+      :licenceData="licenceWithdrawalData"
+      :riskLevels="monthRiskThresholds"
+    />
   </div>
 </template>
 
 <script>
 // import { secondsInMonth } from '../../../../constants/months'
+import EfnAnalysisMonthlyQty from './EfnAnalysisMonthlyQty'
 
 export default {
   name: 'EfnAnalysisRiskTable',
   components: {
+    EfnAnalysisMonthlyQty
   },
   props: ['waterFlowData', 'licenceWithdrawalData', 'fishBearing'],
   data: () => ({
@@ -72,24 +76,38 @@ export default {
         tooltip: 'Allocated licence withdrawal amount for this month'
       },
       {
+        text: 'Flow Sensitivity',
+        value: 'sensitivity',
+        tooltip: 'Sensitivity is based on mean monthly flow over MAD'
+      },
+      {
         text: 'Risk Level',
         value: 'risk',
         tooltip: 'EFN risk level associated with withdrawals'
       }
     ],
     riskCategories: {
-      lowSensitivity: [0.15, 0.20, 1.0],
-      moderateSensitivitySmallStream: [0, 0.1, 1.0],
-      moderateSensitivityMediumLargeStream: [0.1, 0.15, 1.0],
-      highSensitivitySmallStream: [0, 0.05, 1.0],
-      highSensitivityMediumLargeStream: [0.05, 0.1, 1.0]
+      lowSensitivity: {
+        sensitivity: 'Low',
+        thresholds: [0.15, 0.20, 1.0]
+      },
+      moderateSensitivitySmallStream: {
+        sensitivity: 'Moderate',
+        thresholds: [0, 0.1, 1.0]
+      },
+      moderateSensitivityMediumLargeStream: {
+        sensitivity: 'Moderate',
+        thresholds: [0.1, 0.15, 1.0]
+      },
+      highSensitivitySmallStream: {
+        sensitivity: 'High',
+        thresholds: [0, 0.05, 1.0]
+      },
+      highSensitivityMediumLargeStream: {
+        sensitivity: 'High',
+        thresholds: [0.05, 0.1, 1.0]
+      }
     },
-    sensitivityLevels: {
-      low: 'Low sensitivity',
-      moderate: 'Moderate sensitivity',
-      high: 'High sensitivity'
-    },
-    sensitivityLevel: '',
     monthHeaders: [
       { text: 'Jan', value: 'm1' },
       { text: 'Feb', value: 'm2' },
@@ -117,22 +135,33 @@ export default {
         name: 'High',
         color: '#EF2917'
       }
-    ]
+    ],
+    monthRiskThresholds: []
   }),
   computed: {
     months () {
+      this.resetMonthRiskThresholds()
       return this.waterFlowData.mmd.map((mmd, idx) => {
+        const { riskCategory, thresholdIndex } = this.calculateRiskLevel(mmd, idx)
+        this.updateMonthRiskThresholds(riskCategory.thresholds)
         return {
           month: this.monthHeaders[idx].text,
           mmd: mmd,
           mmw: this.meanMonthlyWithdrawal(idx),
           withdrawalPercent: this.monthlyWithdrawalPercent(mmd, idx),
-          risk: this.calculateRiskLevel(mmd, idx)
+          sensitivity: riskCategory.sensitivity,
+          risk: thresholdIndex
         }
       })
     }
   },
   methods: {
+    resetMonthRiskThresholds () {
+      this.monthRiskThresholds = []
+    },
+    updateMonthRiskThresholds (thresholds) {
+      this.monthRiskThresholds.push(thresholds)
+    },
     meanMonthlyWithdrawal (month) {
       // Mean withdrawl amount for this month
       return this.licenceWithdrawalData.longTerm[month] + this.licenceWithdrawalData.shortTerm[month]
@@ -151,20 +180,16 @@ export default {
 
       // Find the risk category for this month
       let riskCategory = this.riskCategories.lowSensitivity
-      console.log(this.fishBearing)
       if (this.fishBearing) {
         if (relativeMonthlyFlow >= 0.2) { // Low sensitivity
-          this.sensitivityLevel = this.sensitivityLevels.low
           riskCategory = this.riskCategories.lowSensitivity
         } else if (relativeMonthlyFlow >= 0.1 && relativeMonthlyFlow < 0.2) { // Moderate sensitivity
-          this.sensitivityLevel = this.sensitivityLevels.moderate
           if (isSmallStream) {
             riskCategory = this.riskCategories.moderateSensitivitySmallStream
           } else {
             riskCategory = this.riskCategories.moderateSensitivityMediumLargeStream
           }
         } else if (relativeMonthlyFlow < 0.1) { // High sensitivity
-          this.sensitivityLevel = this.sensitivityLevels.high
           if (isSmallStream) {
             riskCategory = this.riskCategories.highSensitivitySmallStream
           } else {
@@ -172,12 +197,12 @@ export default {
           }
         }
       }
-
       // Get risk level for this month
-      let idx = riskCategory.findIndex(riskLevel =>
-        this.monthlyWithdrawalPercent(mmd, month) < riskLevel)
-      if (idx === -1) { idx = 2 }
-      return idx
+      let thresholdIndex = riskCategory.thresholds.findIndex(riskThreshold =>
+        this.monthlyWithdrawalPercent(mmd, month) < riskThreshold)
+      if (thresholdIndex === -1) { thresholdIndex = 2 }
+
+      return { riskCategory, thresholdIndex }
     },
     riskStyle (risk) {
       return this.riskColors[risk]

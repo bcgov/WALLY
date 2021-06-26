@@ -53,24 +53,27 @@
             </v-card-text>
 
             <v-sheet>
-              <v-switch
-                class="px-5"
-                v-model="highSensitivitySpecies"
-                inset
-                color="blue"
-                label="Highly sensitive species in area"
-              ></v-switch>
-              <v-switch
-                class="px-5"
-                v-model="fishBearing"
-                inset
-                color="blue"
-                :label="`${
-                  fishBearing
-                    ? 'Fish bearing watershed'
-                    : 'Non-fish bearing watershed'
-                }`"
-              ></v-switch>
+              <v-row>
+              <v-col cols="6" md="6">
+                <v-switch
+                  class="px-5"
+                  v-model="highSensitivitySpecies"
+                  inset
+                  color="blue"
+                  label="Highly sensitive species in area"
+                ></v-switch>
+              </v-col>
+              <v-col cols="6" md="6">
+                <v-switch
+                  class="px-5"
+                  v-model="fishBearing"
+                  inset
+                  color="blue"
+                  label="Fish bearing watershed"
+                ></v-switch>
+                </v-col>
+              </v-row>
+
               <!-- <v-switch
               v-model="switch2"
               inset
@@ -84,7 +87,6 @@
           </div>
           <div v-else>
             <EfnAnalysisRiskTable :waterFlowData="modelOutputs" :fishBearing="fishBearing" :licenceWithdrawalData="licenceOutputs"/>
-            <EfnAnalysisMonthlyQty :meanMonthlyDischarges="modelOutputs.mmd" :riskLevels="riskLevels"/>
           </div>
         </v-card-text>
       </v-card>
@@ -94,7 +96,6 @@
 <script>
 // import ApiService from '../../../../services/ApiService'
 import EfnAnalysisInstructions from './EfnAnalysisInstructions'
-import EfnAnalysisMonthlyQty from './EfnAnalysisMonthlyQty'
 import EfnAnalysisSpeciesSensitivity from './EfnAnalysisSpeciesSensitivity'
 import EfnAnalysisRiskTable from './EfnAnalysisRiskTable'
 import { mapGetters } from 'vuex'
@@ -105,7 +106,6 @@ export default {
   name: 'EfnAnalysis',
   components: {
     EfnAnalysisInstructions,
-    EfnAnalysisMonthlyQty,
     EfnAnalysisSpeciesSensitivity,
     EfnAnalysisRiskTable
   },
@@ -113,14 +113,11 @@ export default {
   data: () => ({
     efn_data: {},
     fishBearing: false,
-    highSensitivitySpecies: false,
-    riskLevels: [0.15, 0.20, 1]
+    highSensitivitySpecies: false
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails', 'licencePlotData', 'shortTermLicencePlotData']),
     modelOutputs () {
-      console.log(this.licencePlotData)
-      console.log(this.shortTermLicencePlotData)
       if (
         this.watershedDetails &&
         this.watershedDetails.scsb2016_model &&
@@ -152,22 +149,7 @@ export default {
       }
     }
   },
-  methods: {
-    setRiskLevels (levels) {
-      this.riskLevels = levels
-    }
-    // fetchEfnAnalysis () {
-    //   const params = {
-    //     placeholder: ''
-    //   }
-    //   ApiService.query(`/api/v1/efn/analysis?${qs.stringify(params)}`).then(
-    //     (r) => {
-    //       const data = r.data
-    //       this.efn_data = data.efn_data
-    //     }
-    //   )
-    // }
-  },
+  methods: {},
   mounted () {}
 }
 </script>
