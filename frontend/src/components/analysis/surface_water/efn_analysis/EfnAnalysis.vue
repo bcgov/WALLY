@@ -82,11 +82,9 @@
           <div v-if="highSensitivitySpecies">
             <EfnAnalysisSpeciesSensitivity />
           </div>
-          <div v-else-if="fishBearing">
-            <!-- Availability -->
-          </div>
           <div v-else>
-            <EfnAnalysisMonthlyQty :meanMonthlyDischarges="modelOutputs.mmd" />
+            <EfnAnalysisRiskTable :waterFlowData="modelOutputs" :fishBearing="fishBearing" :licenceWithdrawalData="licenceOutputs"/>
+            <EfnAnalysisMonthlyQty :meanMonthlyDischarges="modelOutputs.mmd" :riskLevels="riskLevels"/>
           </div>
         </v-card-text>
       </v-card>
@@ -98,7 +96,9 @@
 import EfnAnalysisInstructions from './EfnAnalysisInstructions'
 import EfnAnalysisMonthlyQty from './EfnAnalysisMonthlyQty'
 import EfnAnalysisSpeciesSensitivity from './EfnAnalysisSpeciesSensitivity'
+import EfnAnalysisRiskTable from './EfnAnalysisRiskTable'
 import { mapGetters } from 'vuex'
+import { secondsInMonth } from '../../../../constants/months'
 // import qs from 'querystring'
 
 export default {
@@ -106,17 +106,21 @@ export default {
   components: {
     EfnAnalysisInstructions,
     EfnAnalysisMonthlyQty,
-    EfnAnalysisSpeciesSensitivity
+    EfnAnalysisSpeciesSensitivity,
+    EfnAnalysisRiskTable
   },
   props: [],
   data: () => ({
     efn_data: {},
     fishBearing: false,
-    highSensitivitySpecies: false
+    highSensitivitySpecies: false,
+    riskLevels: [0.15, 0.20, 1]
   }),
   computed: {
-    ...mapGetters('surfaceWater', ['watershedDetails']),
+    ...mapGetters('surfaceWater', ['watershedDetails', 'licencePlotData', 'shortTermLicencePlotData']),
     modelOutputs () {
+      console.log(this.licencePlotData)
+      console.log(this.shortTermLicencePlotData)
       if (
         this.watershedDetails &&
         this.watershedDetails.scsb2016_model &&
@@ -138,9 +142,20 @@ export default {
           mmd: null
         }
       }
+    },
+    licenceOutputs () {
+      console.log(this.licencePlotData)
+      // convert m3 to m3/sec for risk analysis
+      return {
+        longTerm: this.licencePlotData.map(d => { return d / secondsInMonth }), // TODO update for # of days in month?
+        shortTerm: this.shortTermLicencePlotData.map(d => { return d / secondsInMonth }) // TODO update for # of days in month?
+      }
     }
   },
   methods: {
+    setRiskLevels (levels) {
+      this.riskLevels = levels
+    }
     // fetchEfnAnalysis () {
     //   const params = {
     //     placeholder: ''
