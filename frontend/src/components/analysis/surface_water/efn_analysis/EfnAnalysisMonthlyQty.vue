@@ -83,7 +83,7 @@ export default {
         name: 'Monthly Licenced Quantity',
         y: this.licenceData.longTerm,
         x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³',
+        hovertemplate: '%{y:.2f} m³/s',
         marker: { color: '#8377D1' }
       }
 
@@ -92,7 +92,7 @@ export default {
         name: 'Monthly Short Term Approvals Quantity',
         y: this.licenceData.shortTerm,
         x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³',
+        hovertemplate: '%{y:.2f} m³/s',
         marker: { color: 'purple' }
       }
 
