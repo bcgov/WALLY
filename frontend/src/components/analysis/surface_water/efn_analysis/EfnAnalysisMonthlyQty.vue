@@ -9,7 +9,7 @@
             </v-card-title>
             <v-card-text class="info-blue">
               <strong>
-                This graph shows available water
+                This graph shows available water vs the licenced total withdrawal and the EFN risk levels for each month.
               </strong>
             </v-card-text>
           </v-card>
@@ -57,7 +57,6 @@ export default {
   computed: {
     // ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     availabilityData () {
-      console.log('risklevels', this.licenceData)
       if (!this.mmd) {
         return null
       }
@@ -156,19 +155,15 @@ export default {
   },
   methods: {
     availabilityLayout () {
-      console.log(this.riskLevels)
       return {
         barmode: 'stack',
-        title: 'EFN Availability',
+        title: 'EFN Risk vs Availability',
         showlegend: true,
         legend: {
           xanchor: 'center',
           x: 0.5,
           y: -0.2,
           orientation: 'h'
-        },
-        margin: {
-          r: 120
         },
         xaxis: {
           tickformat: '%B'

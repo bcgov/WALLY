@@ -25,54 +25,53 @@
             </v-expansion-panels>
           </v-col>
 
-           <v-row>
-            <v-col>
-              <v-card-text class="info-blue">
-                <span><strong>MAD:</strong></span>
-                <span v-if="modelOutputs.mad">
-                  {{ modelOutputs.mad }}
-                  m³/s
-                </span>
-              </v-card-text>
-            </v-col>
-            <v-col>
-              <v-card-text class="info-blue">
-                <span><strong>MAR:</strong></span>
-                <span v-if="modelOutputs.mar">
-                  {{ modelOutputs.mar }}
-                  l/s/km^2
-                </span>
-              </v-card-text>
-            </v-col>
-          </v-row>
+          <v-card-text class="pb-0">
+            <h3>Flow Levels</h3>
+          </v-card-text>
+          <v-card-text class="info-blue">
+            <span><strong>MAD:</strong></span>
+            <span v-if="modelOutputs.mad">
+              {{ modelOutputs.mad }}
+              m³/s
+            </span>
+            <span class='pl-10'><strong>MAR:</strong></span>
+            <span v-if="modelOutputs.mar">
+              {{ modelOutputs.mar }}
+              l/s/km^2
+            </span>
+          </v-card-text>
+
+          <v-card-text class="pb-0">
+            <h3>Stream Size Classification: </h3>
+            <p>{{ modelOutputs.mad > 10 ? 'Medium-Large (greater than 10 m3/sec MAD)' : 'Small (less than 10 m3/sec MAD)' }}</p>
+          </v-card-text>
 
           <!-- Species Sensitivity -->
-          <v-col cols="12" md="12">
-            <v-card-text class="pb-0">
-              <h3>Species Sensitivity</h3>
-            </v-card-text>
+          <v-card-text class="pb-0">
+            <h3>Species Sensitivity</h3>
+          </v-card-text>
 
-            <v-sheet>
-              <v-row>
-              <v-col cols="6" md="6">
-                <v-switch
-                  class="px-5"
-                  v-model="highSensitivitySpecies"
-                  inset
-                  color="blue"
-                  label="Highly sensitive species in area"
-                ></v-switch>
+          <v-sheet>
+            <v-row>
+            <v-col cols="6" md="6">
+              <v-switch
+                class="px-5"
+                v-model="highSensitivitySpecies"
+                inset
+                color="blue"
+                label="Highly sensitive species in area"
+              ></v-switch>
+            </v-col>
+            <v-col cols="6" md="6">
+              <v-switch
+                class="px-5"
+                v-model="fishBearing"
+                inset
+                color="blue"
+                label="Fish bearing watershed"
+              ></v-switch>
               </v-col>
-              <v-col cols="6" md="6">
-                <v-switch
-                  class="px-5"
-                  v-model="fishBearing"
-                  inset
-                  color="blue"
-                  label="Fish bearing watershed"
-                ></v-switch>
-                </v-col>
-              </v-row>
+            </v-row>
 
               <!-- <v-switch
               v-model="switch2"
@@ -80,7 +79,6 @@
               :label="`Switch 2: ${switch2.toString()}`"
             ></v-switch> -->
             </v-sheet>
-          </v-col>
 
           <div v-if="highSensitivitySpecies">
             <EfnAnalysisSpeciesSensitivity />
@@ -111,7 +109,6 @@ export default {
   },
   props: [],
   data: () => ({
-    efn_data: {},
     fishBearing: false,
     highSensitivitySpecies: false
   }),
@@ -141,7 +138,6 @@ export default {
       }
     },
     licenceOutputs () {
-      console.log(this.licencePlotData)
       // convert m3 to m3/sec for risk analysis
       return {
         longTerm: this.licencePlotData.map(d => { return d / secondsInMonth }), // TODO update for # of days in month?

@@ -133,7 +133,7 @@
             </v-tab-item>
 
             <!-- Licenced Quantity -->
-            <v-tab-item>
+            <v-tab-item :eager="true">
               <WatershedLicencedQty :modelOutputs="modelOutputs"
                                     :generatedWatershedID="generatedWatershedID"
                                     :watershedID="selectedWatershed"/>
