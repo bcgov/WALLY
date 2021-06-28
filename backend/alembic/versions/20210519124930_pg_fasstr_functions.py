@@ -1,7 +1,7 @@
 """pg_fasstr functions
 
 Revision ID: bc8bc4bb72cb
-Revises: bb906a00fbe7
+Revises: 4a24ff1d746e
 Create Date: 2021-05-19 12:49:30.018297
 
 How to populate fasstr_flows from existing HYDAT data:
@@ -66,7 +66,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'bc8bc4bb72cb'
-down_revision = 'bb906a00fbe7'
+down_revision = '4a24ff1d746e'
 branch_labels = None
 depends_on = None
 
