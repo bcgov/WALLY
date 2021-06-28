@@ -435,7 +435,7 @@ pipeline {
                 def minio = openshift.apply(openshift.process("-f",
                     "${TEMPLATE_DIR}/minio/minio.dc.yaml",
                     "NAME_SUFFIX=-${env_name}",
-                    "DEST_PVC_SIZE=10Gi",
+                    "DEST_PVC_SIZE=20Gi",
                     "HOSTNAME=wally-minio-${env_name}.apps.silver.devops.gov.bc.ca"
                 ))
 
@@ -549,7 +549,7 @@ pipeline {
                 def minio = openshift.apply(openshift.process("-f",
                     "${TEMPLATE_DIR}/minio/minio.dc.yaml",
                     "NAME_SUFFIX=-${env_name}",
-                    "DEST_PVC_SIZE=10Gi",
+                    "DEST_PVC_SIZE=20Gi",
                     "HOSTNAME=wally-minio.apps.silver.devops.gov.bc.ca"
                 ))
 
