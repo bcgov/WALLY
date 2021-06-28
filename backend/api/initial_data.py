@@ -31,9 +31,14 @@ logger = logging.getLogger(__name__)
 
 def create_hydat_data():
     """generate stream station and flow/level data"""
-
-    # logger
     logger = logging.getLogger("hydat")
+
+    q = """select * from fasstr.fasstr_flows limit 1"""
+    if db_session.execute(q).fetchone() is not None:
+        # fasstr_flows table already has data.
+        logger.info("FASSTR fasstr_flows table already contains data")
+        return
+
     directory = '/app/fixtures/layer_subsets/hydat/'
     with open(os.path.join(directory, "hydat.sql"), "r") as sql_file:
         sql = sql_file.read()
