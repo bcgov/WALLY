@@ -12,7 +12,7 @@
             <v-expansion-panels>
               <v-expansion-panel>
                 <v-expansion-panel-header>
-                  Instructions, Methodology, and Data Sources
+                  Instructions, and Methodology
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
                   <v-card flat>
