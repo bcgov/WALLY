@@ -53,7 +53,7 @@
             <div>Low flow statistics (computed from all available years):</div>
             <div v-if="flowStatsError">{{flowStatsError}}</div>
             <div v-if="flowStatsLoading">
-              <v-skeleton-loader type="list-item"/>
+              <v-progress-linear show indeterminate></v-progress-linear>
               <p>
                 Calculating low flows...
               </p>
