@@ -286,7 +286,8 @@ export default {
         let size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
         let crossDoc = jsPDF({ orientation: 'landscape', unit: 'pt', format: [size1[0], size1[1]] })
         crossDoc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
-        let plotContainer = plotType === '2d' ? this.$refs.crossPlot.$el : this.$refs.surfacePlot.$el
+        let plotContainer = plotType === '2d' ? document.getElementById('2dPlot') : document.getElementById('3dPlot')
+
         html2canvas(plotContainer).then(canvas2 => {
           let img2 = canvas2.toDataURL('image/png')
           const imgProps2 = doc.getImageProperties(img2)

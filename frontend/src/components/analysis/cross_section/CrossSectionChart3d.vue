@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="mt-4">
     <Plotly v-if="!dataLoading" id="3dPlot" :data="surfaceData" :layout="surfaceLayout" :displayModeBar="true" ref="surfacePlot"></Plotly>
   </div>
 </template>

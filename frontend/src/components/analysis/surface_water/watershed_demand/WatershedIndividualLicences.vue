@@ -18,10 +18,10 @@
       <tbody>
       <tr @mouseenter="onMouseEnterListItem(item)" v-for="(item, i) in licences" :key="uniqueKey(item, i)">
         <td>
-          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.fileNumber}`"
+          <a :href="`https://j200.gov.bc.ca/pub/ams/Default.aspx?PossePresentation=AMSPublic&amp;PosseObjectDef=o_ATIS_DocumentSearch&amp;PosseMenuName=WS_Main&Criteria_LicenceNumber=${item.properties.licenceNumber}`"
              target="_blank"
              rel="noopener">
-          {{ item.properties.fileNumber }}
+          {{ item.properties.licenceNumber }}
           </a>
         </td>
         <td>{{ item.properties.status }}</td>
@@ -52,7 +52,7 @@ export default {
       this.$store.commit('map/updateHighlightFeatureData', feature)
     },
     uniqueKey (lic, i) {
-      return lic.properties.fileNumber +
+      return lic.properties.licenceNumber +
         lic.properties.source +
         lic.properties.quantityPerSec + i
     }
