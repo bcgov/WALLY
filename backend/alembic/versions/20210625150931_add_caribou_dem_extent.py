@@ -10,6 +10,7 @@ import fiona
 import os
 import geoalchemy2
 import sqlalchemy as sa
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from api.db.base_class import BaseTable
 from shapely.geometry import shape, MultiPolygon
@@ -20,8 +21,10 @@ down_revision = 'bb906a00fbe7'
 branch_labels = None
 depends_on = None
 
+Base = declarative_base()
 
-class StreamBurnedCDEMTile(BaseTable):
+
+class StreamBurnedCDEMTile(Base):
     """ Footprints for stream-burned CDEM tiles
         A filename reference is included for use with GDAL /vsis3/
         virtual filesystem and Minio/S3 storage.

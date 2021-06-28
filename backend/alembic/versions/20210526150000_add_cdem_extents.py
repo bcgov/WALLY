@@ -13,7 +13,9 @@ import sqlalchemy as sa
 from shapely.geometry import shape, MultiPolygon
 from sqlalchemy.dialects import postgresql
 from api.db.base_class import BaseTable
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+
 
 # revision identifiers, used by Alembic.
 revision = 'bb906a00fbe7'
@@ -21,8 +23,10 @@ down_revision = '702efdc8f3fa'
 branch_labels = None
 depends_on = None
 
+Base = declarative_base()
 
-class StreamBurnedCDEMTile(BaseTable):
+
+class StreamBurnedCDEMTile(Base):
     """ Footprints for stream-burned CDEM tiles
         A filename reference is included for use with GDAL /vsis3/
         virtual filesystem and Minio/S3 storage.
