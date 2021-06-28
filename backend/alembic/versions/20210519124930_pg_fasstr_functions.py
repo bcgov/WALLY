@@ -1,29 +1,12 @@
-#!/bin/bash
+"""pg_fasstr functions
 
-LATEST_HYDAT="${LATEST_HYDAT:-Hydat_sqlite3_20210510}"
-cd /tmp
+Revision ID: bc8bc4bb72cb
+Revises: 4a24ff1d746e
+Create Date: 2021-05-19 12:49:30.018297
 
-if [ ! -f "/tmp/$LATEST_HYDAT.zip" ]; then
-    curl "https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/$LATEST_HYDAT.zip" -O
-fi
+How to populate fasstr_flows from existing HYDAT data:
 
-unzip /tmp/$LATEST_HYDAT.zip -d /tmp && \
-mkdir -p /tmp/pgloader && \
-pgloader \
-    -L /tmp/pgloader/pgloader.log -D /tmp/pgloader \
-    --type sqlite \
-    --with "create no tables" \
-    --with "truncate" \
-    --set "search_path='hydat'" \
-    /tmp/Hydat.sqlite3 \
-    postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB && \
-rm "/tmp/$LATEST_HYDAT.zip" && \
-rm /tmp/Hydat.sqlite3 && \
-psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB" -w -c "update hydat.stations set geom=ST_SetSrid(ST_MakePoint(longitude, latitude), 4326);" && \
 
-# transform HYDAT data into something resembling time series (station : date : value)
-# and load into the `fasstr.fasstr_flows`
-psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB" << EOF
   with flows as (
     select
       f.station_number,
@@ -73,4 +56,29 @@ psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGR
     to_date(concat(year::text, lpad(month::text, 2, '0'), lpad(replace((kv).key, 'flow', '')::text, 2, '0')), 'YYYYMMDD') as date,
     (kv).value::numeric as value
   from kv where (kv).key like 'flow%' and (kv).value is not null;
-EOF
+
+
+"""
+import os
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
+
+# revision identifiers, used by Alembic.
+revision = 'bc8bc4bb72cb'
+down_revision = '4a24ff1d746e'
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    op.create_foreign_key(
+        'fk_fasstr_flows_station',
+        'fasstr_flows', 'stations',
+        ['station_number'], ['station_number'], source_schema="fasstr",
+        referent_schema="hydat"
+    )
+
+
+def downgrade():
+    pass

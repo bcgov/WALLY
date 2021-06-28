@@ -1,8 +1,8 @@
-"""add cdem extents
+"""add caribou dem extent
 
-Revision ID: bb906a00fbe7
-Revises: 702efdc8f3fa
-Create Date: 2021-05-26 15:00:00.907115
+Revision ID: 4a24ff1d746e
+Revises: bb906a00fbe7
+Create Date: 2021-06-25 15:09:31.861834
 
 """
 from alembic import op
@@ -10,16 +10,14 @@ import fiona
 import os
 import geoalchemy2
 import sqlalchemy as sa
-from shapely.geometry import shape, MultiPolygon
-from sqlalchemy.dialects import postgresql
-from api.db.base_class import BaseTable
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+from api.db.base_class import BaseTable
+from shapely.geometry import shape, MultiPolygon
 
 # revision identifiers, used by Alembic.
-revision = 'bb906a00fbe7'
-down_revision = '702efdc8f3fa'
+revision = '4a24ff1d746e'
+down_revision = 'bb906a00fbe7'
 branch_labels = None
 depends_on = None
 
@@ -33,7 +31,7 @@ class StreamBurnedCDEMTile(Base):
         All filenames referenced in this table must be present in the S3 storage 'raster' bucket.
     """
     __tablename__ = 'stream_burned_cdem_tile'
-    __table_args__ = {'schema': 'dem'}
+    __table_args__ = {'schema': 'dem', 'extend_existing': True}
 
     stream_burned_cdem_tile_id = sa.Column(sa.Integer, primary_key=True)
     resolution = sa.Column(
@@ -47,35 +45,25 @@ class StreamBurnedCDEMTile(Base):
 
 
 def upgrade():
-    op.create_table('stream_burned_cdem_tile',
-                    sa.Column('stream_burned_cdem_tile_id', sa.INTEGER(), primary_key=True),
-                    sa.Column('resolution', sa.NUMERIC(), autoincrement=False, nullable=False),
-                    sa.Column('z_precision', sa.INTEGER(), autoincrement=False, nullable=False),
-                    sa.Column('filename', sa.TEXT(), autoincrement=False, nullable=False),
-                    sa.Column('geom', geoalchemy2.types.Geometry(
-                        geometry_type='MULTIPOLYGON', srid=4326, spatial_index=True)),
-                    schema='dem'
-                    )
-
     connection = op.get_bind()
     SessionMaker = sessionmaker(bind=connection.engine)
     session = SessionMaker(bind=connection)
 
     dirname = os.path.dirname(__file__)
-    dem_footprints = dirname + '/shapefiles/cdem_footprints.shp'
+    dem_footprint = dirname + '/shapefiles/caribou_extent.shp'
 
-    with fiona.open(dem_footprints, 'r', crs="EPSG:4326") as shp:
+    with fiona.open(dem_footprint, 'r', crs="EPSG:4326") as shp:
         for feat in shp:
             tile = StreamBurnedCDEMTile(
-                filename=feat['properties']['filename'],
-                z_precision=feat['properties']['z_precisio'],
-                resolution=feat['properties']['resolution'],
+                filename="Burned_Caribou_4326.tif",
+                z_precision=0,
+                resolution=25,
                 geom='SRID=4326;' + MultiPolygon([shape(feat['geometry'])]).wkt
             )
             session.add(tile)
         session.commit()
+    # ### end Alembic commands ###
 
 
 def downgrade():
-    op.drop_table('stream_burned_cdem_tile', schema='dem')
-    return
+    pass

@@ -18,7 +18,8 @@
       </div>
       <v-list dense class="mx-0 px-0">
         <v-list-item>
-          <v-select
+          <!-- TODO: fix year selection.  Must filter FASSTR data by year. -->
+          <!-- <v-select
             v-model="selectedYear"
             :items="yearOptions"
             :menu-props="{ maxHeight: '400' }"
@@ -26,7 +27,7 @@
             item-text="label"
             item-value="value"
             hint="Available data in this year"
-          ></v-select>
+          ></v-select> -->
         </v-list-item>
         <v-list-item>
           <v-list-item-content class="mx-0 px-0">
@@ -35,16 +36,50 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>Water levels:</v-list-item-content>
-          <v-list-item-content class="align-end" v-if="station">{{ formatYears(station.level_years) }}</v-list-item-content>
+          <v-list-item-content class="align-end" v-if="station && levelData && levelData.length">{{ formatYears(station.level_years) }}</v-list-item-content>
         </v-list-item>
         <v-list-item>
           <v-list-item-content>
-            <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
+            <div v-if="levelData && levelData.length">
+              <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
+            </div>
+            <div v-else>
+              <p>No water level data for this station.</p>
+            </div>
           </v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>
-            Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
+            <div>Low flow statistics (computed from all available years):</div>
+            <div v-if="flowStatsError">{{flowStatsError}}</div>
+            <div v-if="flowStatsLoading">
+              <v-progress-linear show indeterminate></v-progress-linear>
+              <p>
+                Calculating low flows...
+              </p>
+            </div>
+            <div v-if="flowStats">
+              <v-data-table
+                :headers="flowStatsHeaders"
+                :items="flowStatsItems"
+              />
+            </div>
+            <div>
+              <dl>
+                <dt>Note:</dt>
+                <dd>Summer denotes July, August and September (inclusive)</dd>
+              </dl>
+            </div>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item class="feature-content">
+          <v-list-item-content>
+            <p>
+              Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
+            </p>
+            <p>
+              Flow and low flow statistics computed using <a href="https://github.com/bcgov/fasstr" target="_blank">FASSTR</a>.
+            </p>
           </v-list-item-content>
         </v-list-item>
       </v-list>
@@ -74,11 +109,31 @@ export default {
       station: null,
       flowData: [],
       levelData: [],
+      flowStats: null,
+      flowStatsError: null,
+      flowStatsLoading: false,
       selectedYear: null,
-      flowChartOptions: {},
       levelChartOptions: {},
       flowChartReady: false,
-      levelChartReady: false
+      levelChartReady: false,
+      flowStatsHeaders: [
+        { text: 'Name', value: 'display_name' },
+        { text: 'Discharge (m³/s)', value: 'value' }
+      ],
+      monthHeaders: [
+        { text: 'Jan', value: 'm1' },
+        { text: 'Feb', value: 'm2' },
+        { text: 'Mar', value: 'm3' },
+        { text: 'Apr', value: 'm4' },
+        { text: 'May', value: 'm5' },
+        { text: 'Jun', value: 'm6' },
+        { text: 'Jul', value: 'm7' },
+        { text: 'Aug', value: 'm8' },
+        { text: 'Sep', value: 'm9' },
+        { text: 'Oct', value: 'm10' },
+        { text: 'Nov', value: 'm11' },
+        { text: 'Dec', value: 'm12' }
+      ]
     }
   },
   computed: {
@@ -94,10 +149,28 @@ export default {
       })))
     },
     plotFlowData () {
+      if (!this.flowData || !this.flowData.months) {
+        return []
+      }
+
+      // light blue  dark blue  light yellow  dark red  dark yellow  light red
+      const mad = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: 'Mean Annual Discharge (m³/s)',
+        y: Array(12).fill(this.flowData.mean),
+        x: this.monthHeaders.map((h) => h.text),
+        text: Array(12).fill(this.flowData.mean.toFixed(2)),
+        textposition: 'bottom',
+        hovertemplate:
+          '<b>Mean annual discharge</b>: %{text} m³/s',
+        line: { color: '#494949' }
+      }
       const mean = {
-        x: this.flowData.map(w => w.month),
-        y: this.flowData.map(w => w.monthly_mean),
-        text: this.flowData.map(w => w.monthly_mean),
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.mean),
+        text: this.flowData.months.map(w => w.mean.toFixed(2)),
         textposition: 'bottom',
         name: 'Monthly flow (average by month)',
         hovertemplate:
@@ -105,13 +178,13 @@ export default {
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
-          color: '#1f548a'
+          color: '#003f5c'
         }
       }
       const max = {
-        x: this.flowData.map(w => w.month),
-        y: this.flowData.map(w => w.max),
-        text: this.flowData.map(w => w.max),
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.maximum),
+        text: this.flowData.months.map(w => w.maximum.toFixed(2)),
         textposition: 'bottom',
         name: 'Monthly flow (max recorded)',
         hovertemplate:
@@ -123,9 +196,9 @@ export default {
         }
       }
       const min = {
-        x: this.flowData.map(w => w.month),
-        y: this.flowData.map(w => w.min),
-        text: this.flowData.map(w => w.min),
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.minimum),
+        text: this.flowData.months.map(w => w.minimum.toFixed(2)),
         textposition: 'bottom',
         name: 'Monthly flow (min recorded)',
         hovertemplate:
@@ -133,10 +206,38 @@ export default {
         mode: 'markers+lines',
         type: 'scatter',
         marker: {
-          color: '#494949'
+          color: '#26A69A'
         }
       }
-      return [mean, max, min]
+      const p10 = {
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.p10),
+        text: this.flowData.months.map(w => w.p10.toFixed(2)),
+        textposition: 'bottom',
+        name: 'P10',
+        hovertemplate:
+          '<b>P10</b>: %{text} m³/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#1f548a'
+        }
+      }
+      const p90 = {
+        x: this.flowData.months.map(w => w.month),
+        y: this.flowData.months.map(w => w.p90),
+        text: this.flowData.months.map(w => w.p90.toFixed(2)),
+        textposition: 'bottom',
+        name: 'P90',
+        hovertemplate:
+          '<b>P90</b>: %{text} m³/s',
+        mode: 'markers+lines',
+        type: 'scatter',
+        marker: {
+          color: '#1f548a'
+        }
+      }
+      return [mean, max, min, mad, p10, p90]
     },
     plotFlowLayout () {
       const opts = {
@@ -228,6 +329,15 @@ export default {
         }
       }
       return opts
+    },
+    flowStatsItems () {
+      // formats flow stats as an array of objects e.g [{ name: "Low 7Q10", value: "1.5", units: "m3/s" }, ...]
+
+      if (!this.flowStats || !this.flowStats.stats) {
+        return []
+      }
+
+      return this.flowStats.stats
     }
   },
   methods: {
@@ -246,8 +356,10 @@ export default {
       this.levelChartReady = false
       this.flowData = []
       this.levelData = []
-      this.flowChartOptions = {}
+      this.flowStats = null
+      this.flowStatsError = null
       this.levelChartOptions = {}
+      this.flowStatsLoading = false
     },
     fetchRecord () {
       this.loading = true
@@ -255,7 +367,7 @@ export default {
 
       ApiService.getRaw(this.record.properties.url).then((r) => {
         this.station = r.data
-        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url)
+        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url, this.station.stream_stats_url)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
@@ -263,7 +375,7 @@ export default {
         this.loading = false
       })
     },
-    fetchMonthlyData (flowURL, levelURL) {
+    fetchMonthlyData (flowURL, levelURL, statsURL) {
       if (this.selectedYear != null) {
         flowURL = flowURL + '?year=' + this.selectedYear
         levelURL = levelURL + '?year=' + this.selectedYear
@@ -271,7 +383,6 @@ export default {
 
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
-        this.flowChartOptions = this.newChartOptions('Discharge (average by month)', 'm³/s', this.flowData.map((x) => [x.max]))
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
@@ -286,6 +397,22 @@ export default {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
       })
+
+      if (this.station.flow_years && this.station.flow_years.length > 2) {
+        this.flowStatsLoading = true
+        ApiService.getRaw(statsURL).then((r) => {
+          this.flowStats = r.data
+        }).catch((e) => {
+          if (e.response.status === 400) {
+            this.flowStatsError = 'This station does not have enough complete data to compute low flow stats.'
+            return
+          }
+          const msg = e.response ? e.response.data.detail : true
+          EventBus.$emit('error', msg)
+        }).finally(() => {
+          this.flowStatsLoading = false
+        })
+      }
     },
     formatYears (val) {
       const years = val || []
@@ -328,6 +455,12 @@ export default {
   watch: {
     selectedYear () {
       this.fetchRecord()
+    },
+    record: {
+      deep: true,
+      handler () {
+        this.fetchRecord()
+      }
     }
   },
   mounted () {
@@ -337,5 +470,4 @@ export default {
 </script>
 
 <style>
-
 </style>
