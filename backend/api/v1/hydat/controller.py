@@ -1,10 +1,15 @@
+import time
+import datetime
+from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.exc import DataError
 import logging
+from fastapi import HTTPException
 from shapely import wkb
 from shapely.geometry import Point, Polygon
 from api.v1.hydat.db_models import Station as StreamStationDB
-from api.v1.hydat.schema import StreamStation
+from api.v1.hydat.schema import FASSTRLongTermSummary, FASSTRMonthlyFlow, FlowStat, StreamStation, FASSTRFlowStatsSummary
 from geoalchemy2.shape import to_shape
 
 logger = logging.getLogger("api")
@@ -32,6 +37,134 @@ def get_stations_in_area(db: Session, polygon: Polygon) -> list:
     ]
 
     return stations
+
+
+def get_fasstr_longterm_summary(db: Session, station_number: str) -> FASSTRLongTermSummary:
+    """ gets the FASSTR longterm daily flow summary for a station"""
+
+    q = """
+    with flows as (
+        select  s.station_number,
+                array_agg(f.value) as values,
+                array_agg(f.date) as dates
+        from    hydat.stations s
+        join    fasstr.fasstr_flows f
+        on      f.station_number = s.station_number
+        where   s.station_number = :station_number
+       group by s.station_number
+
+    )
+    select * from fasstr.fasstr_calc_longterm_daily_stats(
+        (select dates from flows), (select values from flows), TRUE, FALSE);
+    """
+    try:
+        res = db.execute(q, {"station_number": station_number})
+    except DataError:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough data to compute long-term stats for this station."
+        )
+
+    if not res:
+        raise HTTPException(
+            status_code=404, detail="Station not found.")
+
+    monthly_stats: List[FASSTRMonthlyFlow] = []
+    summary = None
+
+    for row in res:
+        row = dict(row)
+        if row['month'] == 'Long-term':
+            summary = FASSTRLongTermSummary(
+                **row,
+                station_number=station_number,
+                months=[]
+            )
+        else:
+            # row['month'] = datetime.datetime.strptime(row['month'], '%b').month
+            monthly_stats.append(
+                FASSTRMonthlyFlow(**row)
+            )
+    summary.months = monthly_stats
+    return summary
+
+
+def get_fasstr_flow_stats(db: Session, station_number: str, full_years: bool = False) -> FASSTRFlowStatsSummary:
+    """
+    returns FASSTR flow statistics for a station, based on quantiles for selected return periods.
+
+    Returns the following low flows:
+    30Q10
+    30Q5
+    7Q10
+    30Q10-Summer
+    30Q5-Summer
+    7Q10-Summer
+
+    full_years: indicates whether to only consider years for which there is full data.
+    """
+
+    start = time.perf_counter()
+
+    q = """
+    with flows as (
+        select  s.station_number,
+                array_agg(f.value) as values,
+                array_agg(f.date) as dates
+        from    hydat.stations s
+        join    fasstr.fasstr_flows f
+        on      f.station_number = s.station_number
+        where   s.station_number = :station_number
+       group by s.station_number
+
+    )
+    select  station_number,
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10 ), 2) as "low_30q10",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5 ), 2) as "low_30q5",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 10, summer=>true ), 2) as "low_7q10",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 30, return_period => 5, summer=>true ), 2) as "low_30q10_summer",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10 ), 2) as "low_30q5_summer",
+            ROUND(fasstr.fasstr_compute_frequency_quantile(dates, values, roll_days => 7, return_period => 10, summer=>true ), 2) as "low_7q10_summer"
+    from    flows
+    """
+
+    try:
+        res = db.execute(q, {"station_number": station_number}).fetchone()
+    except DataError:
+        raise HTTPException(
+            status_code=400,
+            detail="Not enough data to compute quantiles for this station."
+        )
+
+    if not res:
+        raise HTTPException(
+            status_code=404, detail="Station not found.")
+
+    end = time.perf_counter()
+
+    logger.info("calculated stream stats in %s s", end - start)
+
+    flow_stats = []
+
+    hydrostats_display_names = {
+        "low_30q10": "30Q10",
+        "low_30q5": "30Q5",
+        "low_7q10": "7Q10",
+        "low_30q10_summer": "30Q10-Summer",
+        "low_30q5_summer": "30Q5-Summer",
+        "low_7q10_summer": "7Q10-Summer"
+    }
+
+    station = res["station_number"]
+
+    for k in hydrostats_display_names.keys():
+        flow_stats.append(FlowStat(
+            stat=k,
+            display_name=hydrostats_display_names[k],
+            value=float(res[k])
+        ))
+
+    return FASSTRFlowStatsSummary(station_number=station, stats=flow_stats)
 
 
 def get_station(db: Session, station_number: str) -> StreamStation:

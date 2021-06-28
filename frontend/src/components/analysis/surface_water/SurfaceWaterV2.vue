@@ -524,9 +524,6 @@ export default {
 </script>
 
 <style>
-.v-list-item__content, .v-select__selection{
-  text-transform: capitalize;
-}
 #surfaceWater .info-blue .v-icon{
   color: teal;
 }

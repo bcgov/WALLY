@@ -54,6 +54,8 @@ class StreamStationResponse(BaseModel):
         None, description="URL where stream flow data is accessible")
     stream_levels_url: Optional[str] = Schema(
         None, description="URL where stream level data is accessible")
+    stream_stats_url: Optional[str] = Schema(
+        None, description="URL where stream statistics (monthly and annual means, and low flow frequencies) are accessible")
     external_urls: List[dict] = Schema(
         [], description="External links (e.g. links out to the original source of data")
 
@@ -81,6 +83,42 @@ class MonthlyLevel(BaseModel):
         orm_mode = True
 
 
+class FASSTRMonthlyFlow(BaseModel):
+    """
+    Monthly summary from FASSTR Longterm Daily Stats
+    https://bcgov.github.io/fasstr/reference/calc_longterm_daily_stats.html
+    """
+
+    month: str
+    mean: float
+    median: float
+    maximum: float
+    minimum: float
+    p10: float
+    p90: float
+
+
+class FASSTRLongTermSummary(BaseModel):
+    """
+    Summary of FASSTR longterm daily stats
+    https://bcgov.github.io/fasstr/reference/calc_longterm_daily_stats.html
+
+    mean, median, maximum, minimum, p10 and p90 are stats computed by FASSTR
+    from the long-term data.
+
+    `months` provides a breakdown by month with the same headings.
+
+    """
+    station_number: str
+    months: List[FASSTRMonthlyFlow]
+    mean: float
+    median: float
+    maximum: float
+    minimum: float
+    p10: float
+    p90: float
+
+
 class MonthlyFlow(BaseModel):
     """
     Flow at a stream flow monitoring station, grouped by month
@@ -89,12 +127,32 @@ class MonthlyFlow(BaseModel):
     station_number: Optional[str]
     year: Optional[int]
     month: int
-    full_month: Optional[int]
-    no_days: Optional[int]
     monthly_mean: Optional[float]
-    monthly_total: Optional[float]
     min: Optional[float]
     max: Optional[float]
+
+    class Config:
+        orm_mode = True
+
+
+class FlowStat(BaseModel):
+    """
+    Flow statistics such as mean annual discharge, monthly means,
+    and low flows for specified return periods
+    """
+
+    stat: str
+    display_name: Optional[str]
+    value: float
+
+
+class FASSTRFlowStatsSummary(BaseModel):
+    """
+    Summary of flow statistics
+    """
+
+    station_number: str
+    stats: List[FlowStat]
 
     class Config:
         orm_mode = True

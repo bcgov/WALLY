@@ -5,7 +5,7 @@ from shapely.geometry import shape
 import shapely.geometry
 from api.db.session import db_session
 from api.minio.client import s3_upload_file
-from api.v1.hydat.factory import StationFactory
+from api.v1.hydat.db_models import Station
 # Need imports from api.layers even though linter says they are unused
 from api.layers.water_rights_licences import WaterRightsLicenses
 from api.layers.water_rights_applications import WaterRightsApplications
@@ -31,16 +31,20 @@ logger = logging.getLogger(__name__)
 
 def create_hydat_data():
     """generate stream station and flow/level data"""
-
-    # logger
     logger = logging.getLogger("hydat")
-    logger.info("Stream Stations")
-    stations = StationFactory.create_batch(3)
-    for stn in stations:
-        logger.info(
-            f"Adding stream station {stn.station_number} - {stn.station_name}")
-        db_session.add(stn)
+
+    q = """select * from fasstr.fasstr_flows limit 1"""
+    if db_session.execute(q).fetchone() is not None:
+        # fasstr_flows table already has data.
+        logger.info("FASSTR fasstr_flows table already contains data")
+        return
+
+    directory = '/app/fixtures/layer_subsets/hydat/'
+    with open(os.path.join(directory, "hydat.sql"), "r") as sql_file:
+        sql = sql_file.read()
+    db_session.execute(sql)
     db_session.commit()
+    logger.info("FASSTR data loaded")
 
 
 def load_dev_raster_data():

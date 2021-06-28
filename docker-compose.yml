@@ -36,14 +36,18 @@ services:
     depends_on:
       - db
   db:
-    image: crunchydata/crunchy-postgres-gis:centos8-13.2-3.0-4.6.2
+    build: database
     env_file:
       - env-postgres.env
     volumes:
       - pgdata-volume:/pgdata:z
       - type: bind
-        source: ./scripts/database/dev/setup.sql
+        source: ./database/pgconf/setup.sql
         target: /pgconf/setup.sql
+        consistency: cached
+      - type: bind
+        source: ./database/scripts
+        target: /scripts/
         consistency: cached
     ports:
       - '5432:5432'
