@@ -1,6 +1,8 @@
 #!/bin/bash
+set -euxo pipefail
 
 LATEST_HYDAT="${LATEST_HYDAT:-Hydat_sqlite3_20210510}"
+PGLOADER_LOG_DIR="${PGLOADER_LOG_DIR:-'/tmp/pgloader'}"
 cd /tmp
 
 if [ ! -f "/tmp/$LATEST_HYDAT.zip" ]; then
@@ -8,17 +10,15 @@ if [ ! -f "/tmp/$LATEST_HYDAT.zip" ]; then
 fi
 
 unzip /tmp/$LATEST_HYDAT.zip -d /tmp && \
-mkdir -p /tmp/pgloader && \
+mkdir -p "${PGLOADER_LOG_DIR}" && \
 pgloader \
-    -L /tmp/pgloader/pgloader.log -D /tmp/pgloader \
+    -L "${PGLOADER_LOG_DIR}/pgloader.log" -D "${PGLOADER_LOG_DIR}" \
     --type sqlite \
     --with "create no tables" \
     --with "truncate" \
     --set "search_path='hydat'" \
     /tmp/Hydat.sqlite3 \
     postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB && \
-rm "/tmp/$LATEST_HYDAT.zip" && \
-rm /tmp/Hydat.sqlite3 && \
 psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB" -w -c "update hydat.stations set geom=ST_SetSrid(ST_MakePoint(longitude, latitude), 4326);" && \
 
 # transform HYDAT data into something resembling time series (station : date : value)
@@ -74,3 +74,6 @@ psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGR
     (kv).value::numeric as value
   from kv where (kv).key like 'flow%' and (kv).value is not null;
 EOF
+
+rm "/tmp/$LATEST_HYDAT.zip" && \
+rm /tmp/Hydat.sqlite3
