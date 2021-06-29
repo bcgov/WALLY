@@ -42,7 +42,6 @@
 </template>
 
 <script>
-// import { secondsInMonth } from '../../../../constants/months'
 import EfnAnalysisMonthlyQty from './EfnAnalysisMonthlyQty'
 
 export default {

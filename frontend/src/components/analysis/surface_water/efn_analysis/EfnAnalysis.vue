@@ -92,13 +92,11 @@
   </v-container>
 </template>
 <script>
-// import ApiService from '../../../../services/ApiService'
 import EfnAnalysisInstructions from './EfnAnalysisInstructions'
 import EfnAnalysisSpeciesSensitivity from './EfnAnalysisSpeciesSensitivity'
 import EfnAnalysisRiskTable from './EfnAnalysisRiskTable'
 import { mapGetters } from 'vuex'
 import { secondsInMonth } from '../../../../constants/months'
-// import qs from 'querystring'
 
 export default {
   name: 'EfnAnalysis',
@@ -140,8 +138,8 @@ export default {
     licenceOutputs () {
       // convert m3 to m3/sec for risk analysis
       return {
-        longTerm: this.licencePlotData.map(d => { return d / secondsInMonth }), // TODO update for # of days in month?
-        shortTerm: this.shortTermLicencePlotData.map(d => { return d / secondsInMonth }) // TODO update for # of days in month?
+        longTerm: this.licencePlotData.map((d, idx) => { return d / secondsInMonth(idx + 1) }),
+        shortTerm: this.shortTermLicencePlotData.map((d, idx) => { return d / secondsInMonth(idx + 1) })
       }
     }
   },
