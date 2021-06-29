@@ -9,7 +9,7 @@ if [ ! -f "/tmp/$LATEST_HYDAT.zip" ]; then
     curl "https://collaboration.cmc.ec.gc.ca/cmc/hydrometrics/www/$LATEST_HYDAT.zip" -O
 fi
 
-unzip /tmp/$LATEST_HYDAT.zip -d /tmp && \
+unzip /tmp/"$LATEST_HYDAT".zip -d /tmp && \
 mkdir -p "${PGLOADER_LOG_DIR}" && \
 pgloader \
     -L "${PGLOADER_LOG_DIR}/pgloader.log" -D "${PGLOADER_LOG_DIR}" \
@@ -18,7 +18,7 @@ pgloader \
     --with "truncate" \
     --set "search_path='hydat'" \
     /tmp/Hydat.sqlite3 \
-    postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB && \
+    postgres://"$POSTGRES_USER":"$POSTGRES_PASSWORD"@"$POSTGRES_SERVER":5432/"$POSTGRES_DB" && \
 psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGRES_DB" -w -c "update hydat.stations set geom=ST_SetSrid(ST_MakePoint(longitude, latitude), 4326);" && \
 
 # transform HYDAT data into something resembling time series (station : date : value)
