@@ -904,6 +904,8 @@ def get_watershed_at_inferred_hydat_location(
 
     # nothing was within the threshold, but we'll return the closest match.
     # it can be manually checked.
+    logger.info("No result met threshold (10%%), best result was %s (%s)",
+                closest_result_vs_expected, closest_result.watershed.properties['FEATURE_AREA_SQM'])
     return closest_result
 
 
@@ -1002,8 +1004,7 @@ def get_watershed_at_hydat_station(
         return hydat_corrected_watershed
 
     logger.warn(
-        'Warning: HYDAT watershed from coordinates was more than 10%% different from listed area (%s), but corrected result (%s) was no better.',
-        round(ws_area_vs_expected, 3),
+        "Warning: Corrected result doesn't agree with listed area (off by %s from listed area).",
         round(hy_area_vs_expected, 3))
 
     logger.warn('Trying to infer the correct location by delineating from multiple nearby streams.')
@@ -1014,7 +1015,7 @@ def get_watershed_at_hydat_station(
     if not inferred_watershed:
         inferred_area_vs_expected = 1
     else:
-        inferred_watershed_area = inferred_watershed.watershed.properties['FEATURE_AREA_SQM']
+        inferred_watershed_area = inferred_watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
         inferred_area_vs_expected = abs(inferred_watershed_area - stn.drainage_area_gross) / stn.drainage_area_gross
 
     if inferred_watershed and inferred_area_vs_expected < 0.10:
@@ -1036,9 +1037,9 @@ def get_watershed_at_hydat_station(
         "inferred_watershed": inferred_watershed
     }
 
-    return result_map.get(
-        min(result_vs_expected, key=result_vs_expected.get)
-    )
+    best_result = min(result_vs_expected, key=result_vs_expected.get)
+    logger.info("best result for HYDAT station was %s. (%s)", best_result, result_vs_expected.get(best_result))
+    return result_map.get(best_result)
 
 
 def get_watershed(
