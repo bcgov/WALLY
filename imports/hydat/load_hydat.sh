@@ -75,5 +75,5 @@ psql "postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_SERVER:5432/$POSTGR
   from kv where (kv).key like 'flow%' and (kv).value is not null;
 EOF
 
-rm "/tmp/$LATEST_HYDAT.zip" && \
+rm /tmp/"$LATEST_HYDAT".zip && \
 rm /tmp/Hydat.sqlite3
