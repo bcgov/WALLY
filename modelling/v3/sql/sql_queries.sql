@@ -41,11 +41,5 @@ and ANNUAL_STATISTICS.DATA_TYPE = 'Q';
 
 select * from STN_REGULATION where STATION_NUMBER = '08MH029';
 
--- TODO Filter out regulated, check against DATA_TYPE to omit water level only
--- TODO build discrepancy list and send to steve/gabe, for qa/qc
--- 83        08MH068  49.081940 -122.277222      21.517390            37.000000
-
--- 08MH029, 08MH069 Failed on web call, look into reason
-
 select count(DISTINCT STATION_NUMBER) from STATIONS where PROV_TERR_STATE_LOC = 'BC';
 SELECT count(*) from STATIONS where PROV_TERR_STATE_LOC = 'BC';
