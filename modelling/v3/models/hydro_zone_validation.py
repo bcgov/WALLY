@@ -27,15 +27,14 @@ UPLOAD_TO_MINIO = False
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
-data_directory = '../data/4_training/jun17'
-output_directory_base = "./output/jun17"
+data_directory = '../data/4_training/watershed_stats_modified_slope'
+output_directory_base = "./output/no_precip"
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
 # inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
-# inputs = ["years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
-inputs = ["drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
+inputs = ["years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 columns = list(inputs) + [dependant_variable]
 
