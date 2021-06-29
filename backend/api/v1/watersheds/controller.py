@@ -568,7 +568,8 @@ def calculate_watershed(
     if upstream_method.startswith('DEM'):
         # estimate the watershed using the DEM
         (watershed, snapped_point, dem_error) = get_watershed_using_dem(
-            db, point_on_stream, stream_feature_id, watershed_id, use_fwa=upstream_method == 'DEM+FWA')
+            db, point_on_stream, stream_feature_id, watershed_id,
+            dem_source=dem_source, use_fwa=upstream_method == 'DEM+FWA')
         watershed_source = "Estimated using CDEM and WhiteboxTools."
         generated_method = 'generated_dem'
         watershed_point = base64.urlsafe_b64encode(
@@ -877,6 +878,7 @@ def get_watershed_at_inferred_hydat_location(
         upstream_method = 'FWA+UPSTREAM'
 
     for stream in stream_segments:
+        logger.info("trying from stream at %s", stream.stream_point.wkt)
         watershed = calculate_watershed(
             db, user, click_point=stream.stream_point, upstream_method=upstream_method
         )
@@ -885,6 +887,8 @@ def get_watershed_at_inferred_hydat_location(
         # if so, stop now and return it.
         ws_area = watershed.watershed.properties['FEATURE_AREA_SQM'] / 1e6
         ws_area_vs_expected = abs(ws_area - expected_drainage_area) / expected_drainage_area
+        logger.info("stream at %s was %s off from expected drainage area",
+                    stream.stream_point.wkt, ws_area_vs_expected)
         if ws_area_vs_expected < 0.10:
             return watershed
 
