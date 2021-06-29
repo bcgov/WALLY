@@ -52,4 +52,6 @@ objects:
                   name: wally-psql
             - name: POSTGRES_SERVER
               value: wally-psql-${ENV_NAME}
+            - name: PGLOADER_LOG_DIR
+              value: /dataload/pgloader
           restartPolicy: Never
