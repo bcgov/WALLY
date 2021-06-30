@@ -10,7 +10,7 @@ import seaborn as sns
 from pathlib import Path
 import matplotlib.backends.backend_pdf
 
-directory = '../../data/1_source/'
+directory = '../data/1_source/'
 
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
@@ -47,4 +47,4 @@ for filename in sorted(os.listdir(directory)):
 
         ten_year_stations.to_csv(directory + "yearly_stations/bc_mean_annual_flows_10_year_stations.csv", index=False)
         twenty_year_stations.to_csv(directory + "yearly_stations/bc_mean_annual_flows_20_year_stations.csv", index=False)
-        # flattened_years.to_csv(directory + "bc_mean_annual_flows.csv", index=False)
+        flattened_years.to_csv(directory + "bc_mean_annual_flows.csv", index=False)

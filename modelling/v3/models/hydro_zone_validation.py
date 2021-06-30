@@ -34,7 +34,7 @@ zone_scores = {}
 count = 0
 
 # inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
-inputs = ["years_of_data","drainage_area","average_slope","glacial_coverage","potential_evapotranspiration_thornthwaite","median_elevation","aspect","solar_exposure"]
+inputs = ["years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 columns = list(inputs) + [dependant_variable]
 

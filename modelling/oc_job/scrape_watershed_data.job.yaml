@@ -1,0 +1,53 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  name: watershed-stats-job
+parameters:
+- description: Environment name (staging or production)
+  displayName: Environment name
+  name: ENV_NAME
+  value: staging
+- name: MINIO_HOST_URL
+  value: "wally-minio-staging:9000"
+objects:
+  - apiVersion: batch/v1
+    kind: Job
+    metadata:
+      name: watershed-stats-job
+      labels:
+        component: importer
+        job: scrape
+        name: watershed-stats-job
+    spec:
+      backoffLimit: 3
+      parallelism: 1    
+      completions: 1    
+      template:         
+        metadata:
+          name: watershed-stats-job
+        spec:
+          containers:
+          - name: importer
+            image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/watershed-scraper:latest
+            command: ['python3','/dataload/scrape_stations.py']
+            resources:
+              requests:
+                cpu: 200m
+                memory: 4Gi
+              limits:
+                cpu: '1'
+                memory: 4Gi
+            env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioAccessKey
+                  name: minio
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: minioSecretKey
+                  name: minio
+            - name: MINIO_HOST_URL
+              value: "${MINIO_HOST_URL}"
+          restartPolicy: Never
