@@ -16,7 +16,7 @@ for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
         # zone_name = filename.split('_')[1].split('.')[0]
         
-        zone_df = pd.read_csv(os.path.join(directory, 'bc_mean_annual_flows_unflattened.csv'))
+        zone_df = pd.read_csv(os.path.join(directory, 'jun30.csv'))
         station_groups = zone_df.groupby("STATION_NUMBER")
         # print(station_groups.size())
         
@@ -45,6 +45,6 @@ for filename in sorted(os.listdir(directory)):
         # print("ten year stations:", ten_year_stations.count())
         # print("twenty year stations:", twenty_year_stations.count())
 
-        ten_year_stations.to_csv(directory + "yearly_stations/bc_mean_annual_flows_10_year_stations.csv", index=False)
-        twenty_year_stations.to_csv(directory + "yearly_stations/bc_mean_annual_flows_20_year_stations.csv", index=False)
-        flattened_years.to_csv(directory + "bc_mean_annual_flows.csv", index=False)
+        # ten_year_stations.to_csv(directory + "yearly_stations/bc_mean_annual_flows_10_year_stations.csv", index=False)
+        # twenty_year_stations.to_csv(directory + "yearly_stations/bc_mean_annual_flows_20_year_stations.csv", index=False)
+        flattened_years.to_csv(directory + "bc_mean_annual_flows_jun30.csv", index=False)
