@@ -135,19 +135,6 @@ class MonthlyFlow(BaseModel):
         orm_mode = True
 
 
-class NearbyStream(BaseModel):
-    """a stream segment near a HYDAT station.
-
-    stream_point is the point on each segment nearest
-    to the station.
-    """
-    stream_point: Point
-    stream_feature_id: int
-
-    class Config:
-        arbitrary_types_allowed = True
-
-
 class FlowStat(BaseModel):
     """
     Flow statistics such as mean annual discharge, monthly means,

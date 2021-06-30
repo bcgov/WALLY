@@ -29,9 +29,9 @@ from api.utils import normalize_quantity
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
-from api.v1.hydat.controller import get_point_on_stream, get_station, get_nearest_stream_segments
+from api.v1.hydat.controller import get_point_on_stream, get_station
 from api.v1.models.scsb2016.controller import get_hydrological_zone
-from api.v1.streams.controller import get_nearest_streams
+from api.v1.streams.controller import get_nearest_streams, get_nearest_hydat_stream_segments
 from api.v1.watersheds.db_models import GeneratedWatershed, WatershedCache
 from api.v1.watersheds.climate import get_mean_annual_precipitation, get_potential_evapotranspiration
 from api.v1.watersheds.cdem import CDEM
@@ -869,7 +869,7 @@ def get_watershed_at_inferred_hydat_location(
     upstream_method='DEM+FWA'
 ):
 
-    stream_segments = get_nearest_stream_segments(db, hydat_station_number)
+    stream_segments = get_nearest_hydat_stream_segments(db, hydat_station_number)
 
     closest_result = None
     closest_result_vs_expected = None

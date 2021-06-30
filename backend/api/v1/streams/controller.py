@@ -1,13 +1,12 @@
 import logging
-import requests
-from requests.auth import HTTPBasicAuth
+from typing import List
 from shapely.geometry import Point
 from sqlalchemy import text, func
 from sqlalchemy.orm import Session
-from api import config
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
-from geojson import Point, Feature, FeatureCollection
-import shapely.wkt
+from api.v1.streams.schema import StreamPoint
+from geojson import Point, Feature
+from shapely import wkb
 import json
 
 logger = logging.getLogger("api")
@@ -180,3 +179,52 @@ def get_connected_streams(db: Session, outflowCode: str) -> list:
         row, FreshwaterAtlasStreamNetworks.GEOMETRY) for row in results]
 
     return feature_results
+
+
+def get_nearest_hydat_stream_segments(db: Session, station_number: str) -> List[StreamPoint]:
+    """ get nearest stream segments returns the 5 stream segments nearest the
+        HYDAT station that match the name of the station.
+
+        This helps with inferring the station location (in cases where the location
+        is not clear) because we can run a watershed delineation from each segment
+        and compare the results with the listed drainage_area_gross to infer which
+        segment the station is likely on.
+    """
+
+    q = """
+      WITH stn AS (
+        select station_name, geom
+        from hydat.stations
+        where station_number = :station_number
+      ),
+      nearest_streams AS (
+          select    *
+          from      freshwater_atlas_stream_networks streams
+          order by  streams."GEOMETRY" <#>
+                        (select geom from stn)
+          limit     5
+      )
+      SELECT 
+        (select ST_AsBinary(geom) from stn) as station_point,
+        nearest_streams."GNIS_NAME" as gnis_name,
+        nearest_streams."LINEAR_FEATURE_ID" as linear_feature_id,
+        ST_AsBinary(
+          ST_ClosestPoint(
+            nearest_streams."GEOMETRY", 
+            (select geom from stn)
+          )
+        ) as stream_point
+      FROM      nearest_streams
+      ORDER BY  
+        coalesce(nearest_streams."GNIS_NAME" ILIKE '%' || (select split_part(station_name, ' ', 1) from stn) || '%', FALSE) DESC,
+        ST_Distance(nearest_streams."GEOMETRY", (select geom from stn)) ASC
+    """
+    res = db.execute(q, {"station_number": station_number})
+    streams = []
+    for row in res:
+        row = dict(row)
+        streams.append(StreamPoint(
+            stream_point=wkb.loads(row['stream_point'].tobytes()),
+            stream_feature_id=row['linear_feature_id']
+        ))
+    return streams
