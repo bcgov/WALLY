@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.streams.schema import StreamPoint
 from geojson import Point, Feature
-from shapely import wkb
+from shapely import wkb, wkt
 import json
 
 logger = logging.getLogger("api")
@@ -161,7 +161,7 @@ def get_feature_geojson(stream) -> Feature:
     del stream_copy['closest_stream_point']
     del stream_copy['ogc_fid']
     feature = Feature(
-        geometry=shapely.wkt.loads(stream_copy['geometry']),
+        geometry=wkt.loads(stream_copy['geometry']),
         id=stream['ogc_fid'],
         properties=dict(stream_copy)
     )
