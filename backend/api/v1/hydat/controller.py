@@ -8,6 +8,7 @@ import logging
 from fastapi import HTTPException
 from shapely import wkb
 from shapely.geometry import Point, Polygon
+from typing import List
 from api.v1.hydat.db_models import Station as StreamStationDB
 from api.v1.hydat.schema import FASSTRLongTermSummary, FASSTRMonthlyFlow, FlowStat, StreamStation, FASSTRFlowStatsSummary
 from geoalchemy2.shape import to_shape

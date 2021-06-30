@@ -10,6 +10,7 @@ from tempfile import TemporaryDirectory
 from typing import Tuple, List
 from osgeo import gdal, ogr
 from shapely.geometry import Point, Polygon, MultiPolygon, shape, mapping
+from shapely.ops import transform
 from sqlalchemy.orm import Session
 from api.config import WATERSHED_DEBUG, RASTER_FILE_DIR
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
@@ -567,7 +568,7 @@ def wbt_calculate_watershed(
     # callback function to suppress progress output.
     def wbt_suppress_progress_output(value):
         if not "%" in value:
-            logger.info(value)
+            logger.debug(value)
 
     # WhiteboxTools reads and writes files from/to disk.
     # Set up some filename references in a TemporaryDirectory.

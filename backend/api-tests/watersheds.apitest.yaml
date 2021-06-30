@@ -136,3 +136,21 @@ requests:
         report_link: https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344
         report_name: Inventory of Streamflow in the South Coast and West Coast Regions
         hydrologic_zone: 26
+  - name: Watershed at HYDAT station
+    url: "{{host}}/api/v1/watersheds/hydat.08MG021"
+    method: get
+    expect:
+      status: 200
+      values:
+        annual_precipitation:
+          gt: 2100
+          lt: 2200
+        potential_evapotranspiration:
+          gt: 760
+          lt: 780
+        median_elevation:
+          gt: 1500
+          lt: 1510
+        solar_exposure:
+          gt: 0.70
+          lt: 0.72

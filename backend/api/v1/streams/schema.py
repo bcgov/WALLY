@@ -5,6 +5,7 @@ These are external facing data models/schemas that users see.
 from pydantic import BaseModel
 from typing import List, Any, Optional
 from geojson import Feature
+from shapely.geometry import Point
 
 
 class Stream(BaseModel):
@@ -81,3 +82,13 @@ class ApportionmentDocGenRequest(BaseModel):
     data: dict
     template: dict
     options: dict = {}
+
+
+class StreamPoint(BaseModel):
+    """a point on a stream along with the stream_feature_id associated with it.
+    """
+    stream_point: Point
+    stream_feature_id: int
+
+    class Config:
+        arbitrary_types_allowed = True
