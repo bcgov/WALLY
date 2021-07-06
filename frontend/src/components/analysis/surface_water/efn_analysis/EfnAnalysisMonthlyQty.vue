@@ -26,7 +26,6 @@
 </template>
 
 <script>
-// import { mapGetters } from 'vuex'
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
 })
@@ -55,13 +54,11 @@ export default {
     ]
   }),
   computed: {
-    // ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     availabilityData () {
       if (!this.mmd) {
         return null
       }
       var plotConfig = []
-      // let mad = this.meanMonthlyDischarges.reduce((a, b) => a + b, 0) / 12
 
       const availabilityData = {
         type: 'bar',
@@ -106,9 +103,6 @@ export default {
         },
         hoverinfo: 'skip',
         name: 'High Risk',
-        // y: this.riskLevels.map(rl => {
-        //   return rl[2] === 1.0 ? rl[1] : rl[2]
-        // }),
         y: this.mmd.map((val, i) => {
           return val * this.riskLevels[i][1]
         }),
@@ -126,7 +120,6 @@ export default {
         },
         hoverinfo: 'skip',
         name: 'Moderate Risk',
-        // y: this.riskLevels.map(rl => rl[0]),
         y: this.mmd.map((val, i) => {
           return val * this.riskLevels[i][0]
         }),

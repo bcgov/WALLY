@@ -72,14 +72,7 @@
               ></v-switch>
               </v-col>
             </v-row>
-
-              <!-- <v-switch
-              v-model="switch2"
-              inset
-              :label="`Switch 2: ${switch2.toString()}`"
-            ></v-switch> -->
-            </v-sheet>
-
+          </v-sheet>
           <div v-if="highSensitivitySpecies">
             <EfnAnalysisSpeciesSensitivity />
           </div>
