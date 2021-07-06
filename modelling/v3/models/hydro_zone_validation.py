@@ -27,14 +27,14 @@ UPLOAD_TO_MINIO = False
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
-data_directory = '../data/4_training/watershed_stats_modified_slope'
-output_directory_base = "./output/no_precip"
+data_directory = '../data/4_training/jun30'
+output_directory_base = "./output/jun30"
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
 # inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
-inputs = ["years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
+inputs = ["years_of_data","regulated","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 columns = list(inputs) + [dependant_variable]
 
@@ -133,8 +133,8 @@ for filename in sorted(os.listdir(data_directory)):
             model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["logloss", "rmse"], early_stopping_rounds=50)
             
             # DEBUG SETS TEST TO ALL DATA
-            X_test = X
-            y_test = y
+            # X_test = X
+            # y_test = y
 
             y_pred = model.predict(X_test)
             r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
@@ -332,7 +332,8 @@ for filename in sorted(os.listdir(data_directory)):
         # Upload to minio
         minio_path = 'v1/training_reports/' + zip_filename
         local_path = "./" + zip_filename
-        upload = minio_client.s3_upload_file(minio_path, local_path, 'zip', BUCKET_NAME)
+        if UPLOAD_TO_MINIO:
+            upload = minio_client.s3_upload_file(minio_path, local_path, 'zip', BUCKET_NAME)
         # results = grid.cv_results_
         # print(results)
         print("zone", zone_name)
@@ -361,6 +362,17 @@ for filename in sorted(os.listdir(data_directory)):
 
             plot_importance(model)
             pyplot.show()
+        
+        model.fit(X, y, eval_metric=["logloss", "rmse"])
+        y_pred = model.predict(X)
+        r2 = r2_score(y, X) # model.score(X_test, y_test)
+        print(r2)
+        rmse = mean_squared_error(y, y_pred, squared=False)
+        print(rmse)
+        results = model.evals_result()
+        print(results)
+        feat_import = model.feature_importances_
+        print(feat_import)
 
         # raw_uncertainty = rmse / mean_mar
         # uncertainty = round(rmse / mean_mar, 4) * 100
@@ -370,7 +382,8 @@ for filename in sorted(os.listdir(data_directory)):
         model.save_model(local_path)
         # upload to minio
         minio_path = 'v1/hydro_zone_annual_flow/' + json_filename
-        upload = minio_client.s3_upload_file(minio_path, local_path, 'json', BUCKET_NAME)
+        if UPLOAD_TO_MINIO:
+            upload = minio_client.s3_upload_file(minio_path, local_path, 'json', BUCKET_NAME)
 
         zone_scores[zone_name] = {
           "R2": r2,

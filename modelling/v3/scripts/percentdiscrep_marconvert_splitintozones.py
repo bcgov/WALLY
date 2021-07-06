@@ -5,7 +5,7 @@ import csv
 df = pd.read_csv("../data/2_scrape_results/watershed_stats_output_06_30_2021-23_38_57.csv")
 
 # 5 percent discrepancy
-indexNames = df[((df['drainage_area'] / df['drainage_area_gross']) - 1).abs() >= 0.2].index
+indexNames = df[((df['drainage_area'] / df['drainage_area_gross']) - 1).abs() <= 0.2].index
 df = df.iloc[indexNames]
 
 # Mar adjustment
