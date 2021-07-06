@@ -151,7 +151,6 @@ describe('Map Store', () => {
     expect(store.commit).toHaveBeenCalledWith('activateLayer', 'test3')
   })
 
-
   it('getMapObjects triggers a replace of old features so there are never two search areas on the map at once ', async () => {
     store.commit = jest.fn()
     // store.dispatch = jest.fn()

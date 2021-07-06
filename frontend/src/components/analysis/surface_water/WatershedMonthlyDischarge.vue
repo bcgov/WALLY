@@ -25,7 +25,7 @@
 import moment from 'moment'
 import { WatershedModelDescriptions } from '../../../constants/descriptions'
 import Dialog from '../../common/Dialog'
-import { months, secondsInMonth } from '../../../constants/months'
+import { secondsInMonth } from '../../../constants/months'
 
 const Plotly = () => import('vue-plotly').then(module => {
   return module.Plotly
@@ -82,7 +82,7 @@ export default {
       let hoverText = []
       for (let i = 0; i < mds.length; i++) {
         discharge.push((mds[i].model_result).toFixed(2))
-        volume.push((mds[i].model_result * months[i + 1] * secondsInMonth).toFixed(0))
+        volume.push((mds[i].model_result * secondsInMonth(i + 1)).toFixed(0))
         percent.push((mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2))
         hoverText.push(volume[i] + ' m³ <br>' + discharge[i] + ' m³/s <br>' + percent[i] + '% MAD')
       }
@@ -114,7 +114,7 @@ export default {
       let percent = { 'unit': '%MAD' }
       for (let i = 0; i < mds.length; i++) {
         rate['m' + (i + 1)] = (mds[i].model_result).toFixed(2)
-        volume['m' + (i + 1)] = (mds[i].model_result * months[i + 1] * secondsInMonth).toFixed(0)
+        volume['m' + (i + 1)] = (mds[i].model_result * secondsInMonth(i + 1)).toFixed(0)
         percent['m' + (i + 1)] = (mds[i].model_result / Number(this.modelOutputs.mad) * 100).toFixed(2)
       }
 
