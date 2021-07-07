@@ -119,7 +119,7 @@ for filename in sorted(os.listdir(data_directory)):
         best_model = None
         fold_counter = 1
         
-        folds = 5
+        folds = 8
         folds = min(folds, len(X.index))
         kf = KFold(n_splits=folds, random_state=None, shuffle=True)
         for train_index, test_index in kf.split(X):
@@ -206,7 +206,7 @@ for filename in sorted(os.listdir(data_directory)):
                 shap_values = shap.TreeExplainer(model).shap_values(X)
 
                 # summary plot
-                fig_shap, ax_shap = plt.subplots(figsize=size)
+                fig_shap, ax_shap = plt.subplots(figsize=(12,6))
                 shap.summary_plot(shap_values, X, show=False)
                 pdf.savefig( fig_shap )
 
@@ -363,16 +363,123 @@ for filename in sorted(os.listdir(data_directory)):
             plot_importance(model)
             pyplot.show()
         
+        # TRAIN BEST FOLD WITH ALL DATA
         model.fit(X, y, eval_metric=["logloss", "rmse"])
         y_pred = model.predict(X)
-        r2 = r2_score(y, X) # model.score(X_test, y_test)
-        print(r2)
+        r2 = r2_score(y, y_pred)
+        print("r2", r2)
         rmse = mean_squared_error(y, y_pred, squared=False)
-        print(rmse)
+        print("rmse", rmse)
         results = model.evals_result()
-        print(results)
         feat_import = model.feature_importances_
-        print(feat_import)
+
+        # Report Figures Directory
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+        pdf = matplotlib.backends.backend_pdf.PdfPages(output_dir + "best_model_stats.pdf")
+        
+        size = (10, 6)
+
+        # Prediction vs real plot
+        marker_size = 9
+        fig_pred, ax1 = plt.subplots(figsize=size)
+        ax1 = sns.regplot(y_pred, y, fit_reg=True, truncate=True) 
+        fig_pred.suptitle("Predicted MAR vs Real MAR")
+        # Set x y plot axis limits
+        xlim = ax1.get_xlim()[1]
+        ylim = ax1.get_ylim()[1]
+        max_size = max(xlim, ylim)
+        # ax1.set_xlim([0, max_size])
+        # ax1.set_ylim([0, max_size])
+        ax1.set_xlabel('Pred MAR')
+        ax1.set_ylabel('Real MAR')
+
+        lx = np.linspace(0,max_size/2,100)
+        ly = lx
+        ax1.plot(lx, ly, ':')
+
+        ax1.legend()
+        pdf.savefig( fig_pred )
+        # plt.show()
+
+        # Covariance of Features
+        corr = X.corr()
+        corr.style.background_gradient(cmap='coolwarm')
+        fig_cov, ax = plt.subplots(figsize=size)
+        ax.set_xticks(range(len(corr.columns)))
+        ax.set_yticks(range(len(corr.columns)))
+        fig_cov.suptitle("Feature Correlations")
+        ax = sns.heatmap(
+            corr, 
+            vmin=-1, vmax=1, center=0,
+            cmap=sns.diverging_palette(20, 220, n=200),
+            square=True
+        )
+        ax.set_xticklabels(
+            ax.get_xticklabels(),
+            rotation=45,
+            horizontalalignment='right'
+        )
+        pdf.savefig( fig_cov )
+
+        # Feature Importance plot
+        try:
+            plt.rcParams["figure.figsize"] = size
+            fig_importance_weight = plot_importance(model, importance_type='weight', title='weight').figure
+            fig_importance_cover = plot_importance(model, importance_type='cover', title='cover').figure
+            fig_importance_gain = plot_importance(model, importance_type='gain', title='gain').figure
+            pdf.savefig( fig_importance_weight )
+            pdf.savefig( fig_importance_cover )
+            pdf.savefig( fig_importance_gain )
+
+            shap_values = shap.TreeExplainer(model).shap_values(X)
+
+            # summary plot
+            fig_shap, ax_shap = plt.subplots(figsize=(12,6))
+            shap.summary_plot(shap_values, X, show=False)
+            pdf.savefig( fig_shap )
+
+            # fig_dep, ax_dep = plt.subplots(figsize=size)
+            # shap.dependence_plot("glacial_coverage", shap_values, X, show=False)
+            # pdf.savefig( fig_dep )
+
+            # fig_tree = plot_tree(model, num_trees=4).figure
+            # pdf.savefig( fig_tree )
+            # fig_tree = xgb.to_graphviz(model, num_trees=0, rankdir='LR').figure
+            # plt.show()
+        except:
+            print("ERROR IN FIG TREE")
+            pass
+
+        # Training Results plot
+        epochs = len(results["validation_0"]["rmse"])
+        x_axis = range(0, epochs)
+        fig_results, ax = pyplot.subplots(figsize=size)
+        ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+        ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+        ax.legend()
+        txt = 'RMSE: ' + str(rmse) + ' R2: ' + str(r2)
+        fig_results.suptitle(txt)
+        pdf.savefig( fig_results )
+
+        # Features vs Prediction plots
+        for column in X.columns:
+            fig_f, axf = plt.subplots(figsize=size)
+            axf = sns.regplot(X[column], y, fit_reg=True)
+            # axf.scatter(y_pred, X_test[column], s=marker_size)
+            axf.set_xlabel(column)
+            axf.set_ylabel('MAR')
+            # axf.scatter(range(len(y_pred)), y_test, label="Real", s=marker_size)
+            fig_f.suptitle(column + ' vs Predicted MAR')
+            # axf.legend()
+            pdf.savefig( fig_f )
+
+            # fig_txt = plt.figure(figsize=size)
+            # fig_txt.text(0.05,0.95, txt, transform=fig_txt.transFigure, size=12)
+            # fig_txt.text(0.05,0.95, txt, transform=fig_txt.transFigure, size=12)
+            # pdf.savefig( fig_txt )
+
+        pdf.close()
+
 
         # raw_uncertainty = rmse / mean_mar
         # uncertainty = round(rmse / mean_mar, 4) * 100
@@ -417,5 +524,5 @@ print("RMSE_68%_Sum", rmse_sum)
 print("RMSE_95%_Sum", rmse_95_sum)
 
 
-with open('../model_output/hydro_zone_annual_flow/annual_model_scores.json', "w") as outfile:
+with open('./output/jun30/annual_model_scores.json', "w") as outfile:
     json.dump(zone_scores, outfile)
