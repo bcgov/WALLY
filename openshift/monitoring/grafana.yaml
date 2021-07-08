@@ -35,7 +35,7 @@ objects:
           deploymentconfig: ${SERVICE_NAME}
       spec:
         containers:
-        - image: grafana/grafana@sha256:ced97851c89ca7d1e67a43aabbe05452e144a9bc9ffc63d2220dc2f37fdc1a71
+        - image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/grafana:8.0.3
           imagePullPolicy: IfNotPresent
           name: ${SERVICE_NAME}
           ports:
@@ -53,7 +53,7 @@ objects:
           - mountPath: /etc/grafana/provisioning/dashboards/
             name: volume-4nkne
           - mountPath: /etc/grafana/provisioning/notifiers/
-            name: volume-4lxje 
+            name: volume-4lxje
           - mountPath: /var/lib/grafana/dashboards/
             name: volume-q18fv
         - args:
@@ -62,7 +62,7 @@ objects:
             - '--client-secret'
             - '$(CLIENT_SECRET)'
             - '--redirection-url'
-            - 'https://wally-${WALLY_ENV}-grafana.pathfinder.gov.bc.ca'
+            - 'https://wally-${WALLY_ENV}-grafana.apps.silver.devops.gov.bc.ca'
             - '--upstream-url'
             - 'http://localhost:3000'
             - '--discovery-url'
@@ -142,45 +142,11 @@ objects:
           name: volume-q18fv
         - configMap:
             defaultMode: 420
-            name: ${SERVICE_NAME}-notifiers
-          name: volume-4lxje 
+            name: wally-grafana-notifiers
+          name: volume-4lxje
     test: false
     triggers:
     - type: ConfigChange
-    - imageChangeParams:
-        automatic: true
-        containerNames:
-        - ${SERVICE_NAME}
-        from:
-          kind: ImageStreamTag
-          name: ${SERVICE_NAME}:6.3.2
-          namespace: ${NAMESPACE}
-        lastTriggeredImage: grafana/grafana@sha256:ced97851c89ca7d1e67a43aabbe05452e144a9bc9ffc63d2220dc2f37fdc1a71
-      type: ImageChange
-- apiVersion: image.openshift.io/v1
-  kind: ImageStream
-  metadata:
-    annotations:
-      openshift.io/generated-by: OpenShiftNewApp
-    generation: 2
-    labels:
-      app: ${SERVICE_NAME}
-    name: ${SERVICE_NAME}
-    namespace: ${NAMESPACE}
-  spec:
-    lookupPolicy:
-      local: false
-    tags:
-    - annotations:
-        openshift.io/imported-from: grafana/grafana:6.3.2
-      from:
-        kind: DockerImage
-        name: grafana/grafana:6.3.2
-      generation: 2
-      importPolicy: {}
-      name: 6.3.2
-      referencePolicy:
-        type: Source
 - apiVersion: route.openshift.io/v1
   kind: Route
   metadata:
@@ -191,7 +157,7 @@ objects:
   spec:
     tls:
       termination: edge
-    host: ${SERVICE_NAME}.pathfinder.gov.bc.ca
+    host: ${SERVICE_NAME}.apps.silver.devops.gov.bc.ca
     port:
       targetPort: 4000
     to:
@@ -265,6 +231,8 @@ objects:
 kind: Template
 metadata:
   name: Grafana template
+  labels:
+    app.kubernetes.io/part-of: monitoring
 parameters:
 - description: Prometheus service name.
   displayName: Prometheus service name
@@ -295,6 +263,6 @@ parameters:
   displayName: Namespace
   name: NAMESPACE
   required: false
-  value: bfpeyx-test
+  value: d1b5d2-test
 - name: WALLY_ENV
   value: staging

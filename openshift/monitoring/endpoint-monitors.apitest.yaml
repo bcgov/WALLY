@@ -1,6 +1,6 @@
 environment:
   vars:
-    host: https://wally-staging.pathfinder.gov.bc.ca 
+    host: https://wally-staging.apps.silver.devops.gov.bc.ca 
   headers:
     Authorization: Bearer {{auth_token}}
 requests:

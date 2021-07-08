@@ -5,14 +5,14 @@ metadata:
   generation: 8
   labels:
     name: apitest
-    app: monitoring
+    app.kubernetes.io/part-of: monitoring
   name: apitest
 spec:
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     name: apitest
-    app: monitoring
+    app.kubernetes.io/part-of: monitoring
   strategy:
     activeDeadlineSeconds: 21600
     resources: {}
@@ -31,7 +31,7 @@ spec:
       creationTimestamp: null
       labels:
         name: apitest
-        app: monitoring
+        app.kubernetes.io/part-of: monitoring
     spec:
       containers:
         - args:
@@ -50,7 +50,7 @@ spec:
           envFrom:
             - secretRef:
                 name: apitest-test-creds
-          image: 'docker.io/stephenhillier/apitest:v0.3.0'
+          image: 'image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/apitest:v0.3.0'
           imagePullPolicy: IfNotPresent
           name: apitest
           resources:
