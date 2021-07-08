@@ -222,6 +222,7 @@ export default {
         let qty = e.features[0].properties['qty_m3_yr']
         if (qty) { qty = qty.toFixed(1) } // fix on null value
         let purpose = e.features[0].properties['PURPOSE_USE']
+        let priorityDate = e.features[0].properties['PRIORITY_DATE']
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -238,6 +239,7 @@ export default {
             <dl>
               <dt>Licence no.:</dt> <dd>${licenceNumber}</dd>
               <dt>Primary licensee:</dt> <dd>${licenseeName}</dd>
+              <dt>Priority date:</dt> <dd>${priorityDate}</dd>
               <dt>Source:</dt> <dd>${sourceName}</dd>
               <dt>Quantity:</dt> <dd>${qty} m³/year</dd>
               <dt>Purpose use:</dt> <dd>${purpose}</dd>

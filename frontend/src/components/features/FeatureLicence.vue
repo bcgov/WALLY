@@ -22,6 +22,10 @@
           <v-list-item-content>{{record.properties.POD_SUBTYPE}}</v-list-item-content>
         </v-list-item>
         <v-list-item class="feature-content">
+          <v-list-item-content>Priority date</v-list-item-content>
+          <v-list-item-content>{{record.properties.PRIORITY_DATE}}</v-list-item-content>
+        </v-list-item>
+        <v-list-item class="feature-content">
           <v-list-item-content>POD status</v-list-item-content>
           <v-list-item-content>{{record.properties.POD_STATUS}}</v-list-item-content>
         </v-list-item>

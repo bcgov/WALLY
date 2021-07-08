@@ -7,6 +7,7 @@
         <th class="text-left">Licence Number</th>
         <th class="text-left">Licence Status</th>
         <th class="text-left">Primary Licensee</th>
+        <th class="text-left">Priority Date</th>
         <th class="text-left">Source</th>
         <th class="text-left">Licence Quantity</th>
         <th class="text-left">Quantity Unit</th>
@@ -26,6 +27,7 @@
         </td>
         <td>{{ item.properties.status }}</td>
         <td>{{ item.properties.licensee }}</td>
+        <td>{{ item.properties.priorityDate }}</td>
         <td>{{ item.properties.source }}</td>
         <td>{{ item.properties.quantity }}</td>
         <td>{{ item.properties.quantityUnits }}</td>
