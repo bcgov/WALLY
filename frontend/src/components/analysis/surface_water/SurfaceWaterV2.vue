@@ -24,7 +24,7 @@
               Note: this can sometimes occur if the point of interest is in a very large watershed.
               Please contact the Wally team for assistance.</v-col>
             <v-col class="shrink">
-              <v-btn color="primary" @click="recalculateWatershed">Retry</v-btn>
+              <v-btn color="primary" @click="resetWatershed">Reset</v-btn>
             </v-col>
           </v-row>
         </v-alert>
