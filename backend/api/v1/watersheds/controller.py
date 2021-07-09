@@ -245,7 +245,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                     "quantityPerYear": normalized_qty,
                     "quantityFlag": lic.properties["QUANTITY_FLAG"],
                     "quantity": lic.properties["QUANTITY"],
-                    "quantityUnits": lic.properties["QUANTITY_UNITS"],
+                    "quantityUnits": lic.properties["QUANTITY_UNITS"]
                 }
             )
 
