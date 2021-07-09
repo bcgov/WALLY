@@ -8,7 +8,7 @@
         <div v-if="station">Station Number: {{ station.station_number }}</div>
         <div v-if="station">Flow data: {{ formatYears(station.flow_years) }}</div>
         <div v-if="station">Station Status: {{ stationStatus(station.hyd_status) }}</div>
-        <div v-if="station">Gross drainage area: {{ station.drainage_area_gross ? station.drainage_area_gross.toFixed(1) : null }} km</div>
+        <div v-if="station">Gross drainage area: {{ station.drainage_area_gross ? `${station.drainage_area_gross.toFixed(1)} km²` : "" }}</div>
         <div v-if="station">WSC Historical Link: <a :href="`https://wateroffice.ec.gc.ca/report/historical_e.html?stn=${station.station_number}`"
           target="_blank"
         >{{station.station_number}}</a></div>
