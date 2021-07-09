@@ -19,12 +19,12 @@ from api.v1.watersheds.controller import (
     calculate_watershed,
     get_watershed,
     surficial_geology,
-    export_summary_as_xlsx,
     known_fish_observations,
     find_50k_watershed_codes,
     get_stream_inventory_report_link_for_region,
     get_scsb2016_input_stats
 )
+from api.v1.watersheds.export import export_summary_as_xlsx, export_summary_as_shapefile
 from api.v1.hydat.controller import (get_stations_in_area)
 from api.v1.watersheds.schema import (
     GeneratedWatershedDetails
@@ -185,6 +185,9 @@ def watershed_stats(
             data['licences_count_pod'] = len(licence_data.licences.features)
 
         return export_summary_as_xlsx(jsonable_encoder(data))
+
+    if format == 'shp':
+        return export_summary_as_shapefile(data, watershed_poly)
 
     if WATERSHED_DEBUG:
         logger.warning("Watershed Details - Request Finished")

@@ -1187,28 +1187,6 @@ def extract_poly_coords(geom):
             'interior_coords': interior_coords}
 
 
-def export_summary_as_xlsx(data: dict):
-    """ exports watershed summary data as an excel file
-        using a template in the ./templates directory.
-    """
-
-    cur_date = datetime.datetime.now().strftime("%Y%m%d")
-
-    ws_name = data.get("watershed_name", "Surface_Water")
-    ws_name.replace(" ", "_")
-
-    filename = f"{cur_date}_{ws_name}"
-
-    excel_file = docgen_export_to_xlsx(
-        data, SURFACE_WATER_XLSX_TEMPLATE, filename)
-
-    return Response(
-        content=excel_file,
-        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
-    )
-
-
 def find_50k_watershed_codes(db: Session, geom: Polygon):
     """ returns an array of 50k watershed codes (older watershed codes) within the watershed area """
 
