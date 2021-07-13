@@ -67,8 +67,12 @@ export default {
           color: '#095599'
         },
         y: this.mmd.map((val, i) => {
-          return val - (this.licenceData.longTerm ? this.licenceData.longTerm[i] : 0) -
+          let availability = val - (this.licenceData.longTerm ? this.licenceData.longTerm[i] : 0) -
               (this.licenceData.shortTerm ? this.licenceData.shortTerm[i] : 0)
+          if (availability < 0) {
+            availability = 0
+          }
+          return availability
         }),
         x: this.monthHeaders.map((h) => h.text),
         hovertemplate: '%{y:.2f} m³/s'
