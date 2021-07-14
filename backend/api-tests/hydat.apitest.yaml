@@ -20,6 +20,11 @@ requests:
     set:
       - var: auth_token # set the {{auth_token}} here
         from: access_token
+  - name: HYDAT fixture station
+    url: "{{host}}/api/v1/hydat/08MG026"
+    method: get
+    expect:
+      status: 200
   - name: HYDAT fixture station - flows
     url: "{{host}}/api/v1/hydat/08MG026/flows"
     method: get
