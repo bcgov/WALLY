@@ -141,8 +141,6 @@ with open(local_file_path, "a") as outfile:
         try:
             cmd = ['Rscript', './compute_7q10.r', station["STATION_NUMBER"]]
 
-            # adsf
-            
             low_7q10_out = subprocess.check_output(cmd).decode()
             low_7q10 = low_7q10_out.split('\n')[-1:][0]
         except:
@@ -171,7 +169,8 @@ with open(local_file_path, "a") as outfile:
           "median_elevation": result["median_elevation"],
           "potential_evapotranspiration": result["potential_evapotranspiration"],
           "solar_exposure": result["solar_exposure"],
-          "watershed_area": result["watershed_area"]
+          "watershed_area": result["watershed_area"],
+          "low_7q10": low_7q10
         }
         
         print("success: {}".format(resp.url))
