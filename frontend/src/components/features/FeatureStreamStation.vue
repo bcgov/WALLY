@@ -56,30 +56,6 @@
         </v-list-item>
         <v-list-item class="feature-content">
           <v-list-item-content>
-            <div>Low flow statistics (computed from all available years):</div>
-            <div v-if="flowStatsError">{{flowStatsError}}</div>
-            <div v-if="flowStatsLoading">
-              <v-progress-linear show indeterminate></v-progress-linear>
-              <p>
-                Calculating low flows...
-              </p>
-            </div>
-            <div v-if="flowStats">
-              <v-data-table
-                :headers="flowStatsHeaders"
-                :items="flowStatsItems"
-              />
-            </div>
-            <div>
-              <dl>
-                <dt>Note:</dt>
-                <dd>Summer denotes July, August and September (inclusive)</dd>
-              </dl>
-            </div>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item class="feature-content">
-          <v-list-item-content>
             <p>
               Source: <a href="https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html" target="_blank">National Water Data Archive</a>
             </p>
@@ -364,8 +340,6 @@ export default {
       this.levelChartReady = false
       this.flowData = []
       this.levelData = []
-      this.flowStats = null
-      this.flowStatsError = null
       this.levelChartOptions = {}
       this.flowStatsLoading = false
     },
@@ -375,7 +349,7 @@ export default {
 
       ApiService.getRaw(this.record.properties.url).then((r) => {
         this.station = r.data
-        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url, this.station.stream_stats_url)
+        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
@@ -383,7 +357,7 @@ export default {
         this.loading = false
       })
     },
-    fetchMonthlyData (flowURL, levelURL, statsURL) {
+    fetchMonthlyData (flowURL, levelURL) {
       this.flowDataLoading = true
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
@@ -406,22 +380,6 @@ export default {
       }).finally(() => {
         this.levelDataLoading = false
       })
-
-      if (this.station.flow_years && this.station.flow_years.length > 2) {
-        this.flowStatsLoading = true
-        ApiService.getRaw(statsURL).then((r) => {
-          this.flowStats = r.data
-        }).catch((e) => {
-          if (e.response.status === 400) {
-            this.flowStatsError = 'This station does not have enough complete data to compute low flow stats.'
-            return
-          }
-          const msg = e.response ? e.response.data.detail : true
-          EventBus.$emit('error', msg)
-        }).finally(() => {
-          this.flowStatsLoading = false
-        })
-      }
     },
     formatYears (val) {
       const years = val || []
