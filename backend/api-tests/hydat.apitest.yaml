@@ -39,15 +39,3 @@ requests:
         months.[0].mean:
           gt: 1.49
           lt: 1.50
-  - name: HYDAT fixture station - stats
-    url: "{{host}}/api/v1/hydat/08MG026/stats"
-    method: get
-    expect:
-      status: 200
-      values:
-        # again, just selected values.
-        station_number: 08MG026
-        stats.[0].stat: low_30q10
-        stats.[0].value:
-          gt: 0.6
-          lt: 0.8
