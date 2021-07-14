@@ -5,6 +5,7 @@ import requests as req
 import csv 
 import time
 import pandas as pd
+import subprocess
 from minio import Minio
 from datetime import date, datetime
 # from dotenv import load_dotenv
@@ -136,6 +137,17 @@ with open(local_file_path, "a") as outfile:
             print("result is null")
             continue
         
+        low_7q10 = None
+        try:
+            cmd = ['Rscript', './compute_7q10.r', station["STATION_NUMBER"]]
+
+            # adsf
+            
+            low_7q10_out = subprocess.check_output(cmd).decode()
+            low_7q10 = low_7q10_out.split('\n')[-1:][0]
+        except:
+            print("error computing 7q10 for {}".format(station["STATION_NUMBER"]))
+
         # station_number,most_recent_year,years_of_data,mean,min,max,drainage_area_gross,latitude,longitude,gen_id,annual_precipitation,aspect,average_slope,drainage_area,glacial_area,glacial_coverage,hydrological_zone,median_elevation,potential_evapotranspiration_hamon,potential_evapotranspiration_thornthwaite,solar_exposure,watershed_area,temperature_data
         info = {
           "station_number": station["STATION_NUMBER"],
