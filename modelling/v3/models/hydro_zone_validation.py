@@ -75,8 +75,7 @@ for filename in sorted(os.listdir(data_directory)):
         print(type(zone_name))
 
         # DEBUG test for zone only
-        if zone_name not in ["27"]:
-            print("test")
+        if zone_name not in ["15","25", "26", "27"]:
             continue
         else:
             print("TRUE")
@@ -94,7 +93,6 @@ for filename in sorted(os.listdir(data_directory)):
         df_inputs =  list(inputs) + [dependant_variable]
         print(df_inputs)
 
-        
         features_df = zone_df[df_inputs]
 
         # RANDOM DATA COLUMN
@@ -125,6 +123,8 @@ for filename in sorted(os.listdir(data_directory)):
         for train_index, test_index in kf.split(X):
             X_train, X_test = X.iloc[train_index,:], X.iloc[test_index,:]
             y_train, y_test = y.iloc[train_index].values.ravel(), y.iloc[test_index].values.ravel()
+
+            print(X_train, y_train)
 
             eval_set = [(X_train, y_train), (X_test, y_test)]
 
