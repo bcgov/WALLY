@@ -24,6 +24,12 @@ class LicenceApplicationApproval(BaseModel):
     WATER_APPROVAL_STATUS: Optional[str]
     APPROVAL_FILE_NUMBER: Optional[str]
     WORKS_DESCRIPTION: Optional[str]
+    APPROVAL_ISSUANCE_DATE: Optional[str]
+    APPROVAL_START_DATE: Optional[str]
+    APPROVAL_EXPIRY_DATE: Optional[str]
+
+    # licence fields
+    PRIORITY_DATE: Optional[str]
 
     # common fields
     LICENCE_NUMBER: Optional[str]
@@ -59,6 +65,7 @@ class WaterRightsLicence(BaseModel):
     POD_NUMBER: Optional[str]
     POD_SUBTYPE: Optional[str]
     PURPOSE_USE: Optional[str]
+    PRIORITY_DATE: Optional[str]
     SOURCE_NAME: Optional[str]
     QUANTITY: Optional[float]
     QUANTITY_UNITS: Optional[str]
