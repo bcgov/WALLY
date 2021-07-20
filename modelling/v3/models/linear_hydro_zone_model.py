@@ -19,6 +19,7 @@ import matplotlib.backends.backend_pdf
 from minio import Minio
 from zipfiles import zipdir
 from minio_client import minio_client
+from sklearn.linear_model import LinearRegression
 
 BUCKET_NAME = 'modelling'
 UPLOAD_TO_MINIO = False
@@ -27,8 +28,8 @@ UPLOAD_TO_MINIO = False
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
-data_directory = '../data/4_training/july9'
-output_directory_base = "./output/july9"
+data_directory = '../data/4_training/july16'
+output_directory_base = "./output/july16"
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
@@ -63,7 +64,7 @@ xgb_params = {
 #   'colsample_bylevel': 0.95
 }
 
-model = XGBRegressor(**xgb_params, random_state=42)
+model = LinearRegression()
 # grid = GridSearchCV(estimator=model, param_grid=params, n_jobs=6, cv=folds, verbose=1, scoring='neg_root_mean_squared_error')
 
 for filename in sorted(os.listdir(data_directory)):
@@ -71,11 +72,11 @@ for filename in sorted(os.listdir(data_directory)):
         best_r_squared = 0
         best_inputs = []
         # model = XGBRegressor(random_state=42)
-        zone_name = filename.split('.')[0]
+        zone_name = filename.split('.')[0] 
         print(type(zone_name))
 
         # DEBUG test for zone only
-        if zone_name not in ["15","25", "26", "27"]:
+        if zone_name not in ["25", "26", "27"]:
             continue
         else:
             print("TRUE")
@@ -117,20 +118,24 @@ for filename in sorted(os.listdir(data_directory)):
         best_model = None
         fold_counter = 1
         
-        folds = 3
-        folds = min(folds, len(X.index))
-        kf = KFold(n_splits=folds, random_state=None, shuffle=True)
-        for train_index, test_index in kf.split(X):
-            X_train, X_test = X.iloc[train_index,:], X.iloc[test_index,:]
-            y_train, y_test = y.iloc[train_index].values.ravel(), y.iloc[test_index].values.ravel()
+        # KFOLD ANALYSIS
+        # folds = 3
+        # folds = min(folds, len(X.index))
+        # kf = KFold(n_splits=folds, random_state=None, shuffle=True)
+        # for train_index, test_index in kf.split(X):
+        #     X_train, X_test = X.iloc[train_index,:], X.iloc[test_index,:]
+        #     y_train, y_test = y.iloc[train_index].values.ravel(), y.iloc[test_index].values.ravel()
 
+        folds = 30
+        for i in range(0,folds):
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10)
             print(X_train, y_train)
 
             eval_set = [(X_train, y_train), (X_test, y_test)]
 
             # grid.fit(X_train, y_train, eval_set=eval_set, eval_metric=["rmse", "logloss"], early_stopping_rounds=10)
             
-            model.fit(X_train, y_train, eval_set=eval_set, eval_metric=["logloss", "rmse"], early_stopping_rounds=50)
+            model.fit(X_train, y_train)
             
             # DEBUG SETS TEST TO ALL DATA
             X_test = X
@@ -139,8 +144,11 @@ for filename in sorted(os.listdir(data_directory)):
             y_pred = model.predict(X_test)
             r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
             rmse = mean_squared_error(y_test, y_pred, squared=False)
-            results = model.evals_result()
-            feat_import = model.feature_importances_
+            # results = model.evals_result()
+            feat_import = model.coef_
+            print(feat_import)
+            intercept = model.intercept_
+            print(intercept)
 
             # Report Figures Directory
             Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -223,15 +231,15 @@ for filename in sorted(os.listdir(data_directory)):
                 pass
 
             # Training Results plot
-            epochs = len(results["validation_0"]["rmse"])
-            x_axis = range(0, epochs)
-            fig_results, ax = pyplot.subplots(figsize=size)
-            ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
-            ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
-            ax.legend()
-            txt = 'RMSE: ' + str(rmse) + ' R2: ' + str(r2)
-            fig_results.suptitle(txt)
-            pdf.savefig( fig_results )
+            # epochs = len(results["validation_0"]["rmse"])
+            # x_axis = range(0, epochs)
+            # fig_results, ax = pyplot.subplots(figsize=size)
+            # ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+            # ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+            # ax.legend()
+            # txt = 'RMSE: ' + str(rmse) + ' R2: ' + str(r2)
+            # fig_results.suptitle(txt)
+            # pdf.savefig( fig_results )
 
             # Features vs Prediction plots
             for column in X_test.columns:
@@ -261,7 +269,7 @@ for filename in sorted(os.listdir(data_directory)):
                 "mean_mar": mean_mar,
                 "r2": round(r2,4),
                 "rmse": round(rmse,6),
-                "results": results,
+                # "results": results,
                 "gain": feat_import,
                 "fold": fold_counter
             }
@@ -276,7 +284,7 @@ for filename in sorted(os.listdir(data_directory)):
             fold_counter += 1
 
         model = best_model['model']
-        results = best_model['results']
+        # results = best_model['results']
         rmse = best_model['rmse']
         r2 = best_model['r2']
         mean_mar = best_model['mean_mar']
@@ -338,30 +346,30 @@ for filename in sorted(os.listdir(data_directory)):
         # print(results)
         print("zone", zone_name)
         print("r2 score", r2)
-        rmse = results["validation_1"]["rmse"][-1]
+        # rmse = results["validation_1"]["rmse"][-1]
         rmse_95_p = rmse * 2
-        print("RMSE 95%", rmse_95_p)
+        # print("RMSE 95%", rmse_95_p)
 
-        if show_error_plots:
-            epochs = len(results["validation_0"]["rmse"])
-            x_axis = range(0, epochs)
-            # plot rmse loss
-            fig, ax = pyplot.subplots(figsize=(12,12))
-            ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
-            ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
-            ax.legend()
-            pyplot.ylabel("RMSE")
-            pyplot.title("XGBoost RMSE")
-            # plot log error
-            # fig, ax = pyplot.subplots(figsize=(12,12))
-            # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
-            # ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
-            # ax.legend()
-            # pyplot.ylabel("Log Error")
-            # pyplot.title("XGBoost Log Error")
+        # if show_error_plots:
+        #     epochs = len(results["validation_0"]["rmse"])
+        #     x_axis = range(0, epochs)
+        #     # plot rmse loss
+        #     fig, ax = pyplot.subplots(figsize=(12,12))
+        #     ax.plot(x_axis, results["validation_0"]["rmse"], label="Train")
+        #     ax.plot(x_axis, results["validation_1"]["rmse"], label="Test")
+        #     ax.legend()
+        #     pyplot.ylabel("RMSE")
+        #     pyplot.title("XGBoost RMSE")
+        #     # plot log error
+        #     # fig, ax = pyplot.subplots(figsize=(12,12))
+        #     # ax.plot(x_axis, results["validation_0"]["logloss"], label="Train")
+        #     # ax.plot(x_axis, results["validation_1"]["logloss"], label="Test")
+        #     # ax.legend()
+        #     # pyplot.ylabel("Log Error")
+        #     # pyplot.title("XGBoost Log Error")
 
-            plot_importance(model)
-            pyplot.show()
+        #     plot_importance(model)
+        #     pyplot.show()
         
 
 
@@ -491,7 +499,7 @@ for filename in sorted(os.listdir(data_directory)):
         zone_name = filename.split('.')[0]
         json_filename = 'zone_' + zone_name + '.json'
         local_path = './output/model_state_files/' + json_filename
-        model.save_model(local_path)
+        # model.save_model(local_path)
         # upload to minio
         minio_path = 'v1/hydro_zone_annual_flow/' + json_filename
         if UPLOAD_TO_MINIO:
@@ -529,5 +537,5 @@ print("RMSE_68%_Sum", rmse_sum)
 print("RMSE_95%_Sum", rmse_95_sum)
 
 
-with open('./output/jun30/annual_model_scores.json', "w") as outfile:
+with open('./output/july16/annual_model_scores.json', "w") as outfile:
     json.dump(zone_scores, outfile)
