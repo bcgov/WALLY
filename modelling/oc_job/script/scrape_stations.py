@@ -159,7 +159,7 @@ with open(local_file_path, "a") as outfile:
           "median_elevation": result["median_elevation"],
           "potential_evapotranspiration": result["potential_evapotranspiration"],
           "solar_exposure": result["solar_exposure"],
-          "watershed_area": result["watershed_area"],
+          "watershed_area": result["watershed_area"]
         }
         
         print("success: {}".format(resp.url))
