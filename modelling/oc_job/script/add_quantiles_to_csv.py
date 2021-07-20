@@ -7,11 +7,10 @@ scrape_stations.py.
 """
 
 import asyncio
-import subprocess
 import csv
 
 
-async def compute(stn, days, return_period) -> str:
+async def compute_quantile(stn, days, return_period) -> str:
     proc = await asyncio.create_subprocess_shell(
         " ".join(['Rscript', './compute_quantile.r', stn, days, return_period]),
         stdout=asyncio.subprocess.PIPE,
@@ -31,7 +30,7 @@ async def compute(stn, days, return_period) -> str:
     return result
 
 
-async def add_7q10(in_filename: str, out_filename: str):
+async def add_quantiles_to_new_csv(in_filename: str, out_filename: str):
     """ add 7q10 column to a csv of streamflow data """
 
     with open(in_filename, 'r', newline='') as in_file, open(out_filename, 'a', newline='') as out_file:
@@ -44,10 +43,10 @@ async def add_7q10(in_filename: str, out_filename: str):
 
         for row in flow_reader:
             stn = row[0]
-            low_7q10 = compute(stn, "7", "10")
-            low_7q2 = compute(stn, "7", "2")
-            low_30q5 = compute(stn, "30", "5")
-            low_30q10 = compute(stn, "30", "10")
+            low_7q10 = compute_quantile(stn, "7", "10")
+            low_7q2 = compute_quantile(stn, "7", "2")
+            low_30q5 = compute_quantile(stn, "30", "5")
+            low_30q10 = compute_quantile(stn, "30", "10")
 
 
             values = await asyncio.gather(low_7q10, low_7q2, low_30q5, low_30q10)
@@ -56,4 +55,4 @@ async def add_7q10(in_filename: str, out_filename: str):
 
 
 if __name__ == "__main__":
-    asyncio.run(add_7q10("./watershed_stats.csv", "./stats_quantiles_out.csv"))
+    asyncio.run(add_quantiles_to_new_csv("./watershed_stats.csv", "./stats_quantiles_out.csv"))
