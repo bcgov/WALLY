@@ -800,7 +800,12 @@ def get_cached_watershed(db: Session, generated_watershed_id):
     q = """
     update      watershed_cache
     set         last_accessed_date = now()
-    where       generated_watershed_id = :generated_watershed_id
+    where       generated_watershed_id = (
+        select      generated_watershed_id
+        from        watershed_cache
+        where       generated_watershed_id = :generated_watershed_id;
+        for update skip locked
+    )
     returning   generated_watershed_id, watershed
     """
     res = db.execute(q, {"generated_watershed_id": generated_watershed_id})
