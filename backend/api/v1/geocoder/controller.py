@@ -1,23 +1,18 @@
 import re
-import pyproj
 import requests
 from urllib.parse import urlencode
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy.sql import select
-from sqlalchemy import func, text
-from geojson import Feature, FeatureCollection, Point
+from geojson import Feature, FeatureCollection
 from logging import getLogger
-from shapely import wkt
 from shapely.geometry import shape, mapping
 from shapely.ops import transform
 
 from api.config import GWELLS_API_URL
 import api.v1.aggregator.controller as agr_repo
-from api.v1.aggregator.controller import fetch_geojson_features, EXTERNAL_API_REQUESTS, DATABC_LAYER_IDS as WFS_LAYER_IDS
-from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest
-from api.v1.geocoder.db_models import geocode
-from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
+from api.v1.aggregator.controller import fetch_geojson_features, DATABC_LAYER_IDS as WFS_LAYER_IDS
+from api.v1.aggregator.schema import WMSGetFeatureQuery, ExternalAPIRequest
+from api.v1.aggregator.helpers import transform_3005_4326
 
 logger = getLogger("geocoder")
 search_symbols = re.compile(r'[^\w ]', re.UNICODE)
@@ -29,7 +24,8 @@ WFS_SEARCH_FIELDS = {
     "water_rights_licences": ["LICENCE_NUMBER", "FILE_NUMBER"],
     "water_rights_applications": ["FILE_NUMBER"],
     "aquifers": ["AQNAME", "AQUIFER_NAME"],
-    "ecocat_water_related_reports": ["REPORT_ID", "TITLE"]
+    "ecocat_water_related_reports": ["REPORT_ID", "TITLE"],
+    "hydrometric_stations_databc": ["STATION_NAME", "STATION_NUMBER"]
 }
 
 # searches will make a request to these external URLs, if available for the layer type
@@ -203,6 +199,50 @@ def address_lookup(query: str) -> FeatureCollection:
         new_feature['center'] = new_geom.coords[0]
         new_feature['place_name'] = feat.get(
             'properties', {}).get('fullAddress')
+
+        geocoder_features.append(new_feature)
+
+    return FeatureCollection(geocoder_features)
+
+
+def place_name_lookup(query: str) -> FeatureCollection:
+    """ Looks up a place name using the DataBC GNIS name geocoder"""
+    q = {
+        "name": query,
+        "exactSpelling": 0,
+        "maxResults": 5,
+        "sortBy": "relevance",
+        "outputStyle": "summary",
+        "outputSRS": 4326,
+        "outputFormat": "json"
+    }
+
+    search_url = "https://apps.gov.bc.ca/pub/bcgnws/names/search?" + \
+        urlencode(q)
+
+    logger.info("using DataBC GNIS geocoder for feature lookup: %s", search_url)
+
+    try:
+        resp = requests.get(search_url)
+        resp.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        raise HTTPException(status_code=e.response.status_code, detail=str(e))
+
+    features = resp.json().get('features')
+
+    geocoder_features = []
+
+    # add metadata to features
+    for feat in features:
+        new_geom = shape(feat['geometry'])
+        new_feature = Feature(geometry=new_geom)
+
+        # add mapbox-gl-js geocoder specific data
+        # (used for populating search box)
+        new_feature['layer'] = 'place_name'
+        new_feature['center'] = new_geom.coords[0]
+        new_feature['place_name'] = feat.get(
+            'properties', {}).get('name')
 
         geocoder_features.append(new_feature)
 
