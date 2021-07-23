@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text v-if="modelData" id="hydroZoneModelV2">
+    <v-card-text v-if="modelData" id="HydroZoneMarMonthlyModel">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -81,7 +81,8 @@ const months = [
 ]
 
 export default {
-  name: 'HydroZoneModelV2',
+  // TODO update this component for mean monthly only
+  name: 'HydroZoneMarMonthlyModel',
   components: {
     Plotly
   },
@@ -154,6 +155,7 @@ export default {
 
       return [plotData, mad20, mad10]
     },
+    // TODO these objects need to be updated to match the new API schema
     meanAnnualFlow () {
       if (this.modelData && this.modelData.mean_annual_flow && this.modelData.mean_annual_flow.mean_annual_flow) {
         return Number(this.modelData.mean_annual_flow.mean_annual_flow).toFixed(2)
@@ -180,7 +182,6 @@ export default {
     fetchWatershedModel (details) {
       this.modelLoading = true
       // add year as model parameter
-      details['year'] = new Date().getFullYear()
       ApiService.post('/api/v1/hydrological_zones/v2_watershed_drainage_model', details)
         .then(r => {
           this.modelData = r.data

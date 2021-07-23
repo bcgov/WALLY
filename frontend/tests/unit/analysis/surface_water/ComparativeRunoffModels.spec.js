@@ -111,7 +111,7 @@ describe('Comparative Runoff Models test', () => {
       }
     })
 
-    const v1 = wrapper.find('#hydroZoneModel')
+    const v1 = wrapper.find('#HydroZoneMarAnnualModel')
 
     expect(v1.exists()).toBeFalsy()
   })
@@ -141,7 +141,7 @@ describe('Comparative Runoff Models test', () => {
         watershedDetails: {}
       }
     })
-    const v1 = wrapper.find('#hydroZoneModel')
+    const v1 = wrapper.find('#HydroZoneMarAnnualModel')
 
     expect(v1.exists()).toBeTruthy()
   })
