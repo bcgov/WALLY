@@ -19,22 +19,22 @@ from pathlib import Path
 import matplotlib.backends.backend_pdf
 from minio import Minio
 from zipfiles import zipdir
-from minio_client import minio_client
+from minio_client import minio_client, s3_upload_file
 
 BUCKET_NAME = 'modelling'
-UPLOAD_TO_MINIO = False
+UPLOAD_TO_MINIO = True
 
 # directory = '../data/training_data_hydro_zone_annual_flow/nov23/'
 # directory = '../data/zones/'
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
 data_directory = '../data/4_training/july16'
-output_directory_base = "./output/july16"
+output_directory_base = "./output/july21"
 dependant_variable = '7Q10'
 zone_scores = {}
 count = 0
 
-# inputs = ["year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
+# inputs = ["years_of_data","year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
 inputs = ["years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 columns = list(inputs) + [dependant_variable]
@@ -76,7 +76,7 @@ for filename in sorted(os.listdir(data_directory)):
         print(type(zone_name))
 
         # DEBUG test for zone only
-        if zone_name not in ["25", "26", "27"]:
+        if zone_name not in ["25", "26"]:
             continue
         else:
             print("TRUE")
@@ -84,8 +84,14 @@ for filename in sorted(os.listdir(data_directory)):
         # output_dir = "./output/annual_flow_model_analysis/zone_" + zone_name + "/"
         # output_dir = "./output/10_year_stations_analysis/xgboost/zone_" + zone_name + "/"
 
-        output_dir = output_directory_base + "/zone_" + zone_name + "/"
+        output_dir = output_directory_base + "/zone_" + zone_name + "_xgboost_all/"
         zone_df = pd.read_csv(os.path.join(data_directory, filename))
+
+        print("Pre-Filter Shape:", zone_df.shape)
+        zone_df = zone_df[zone_df["years_of_data"] > 10]
+        zone_df = zone_df[zone_df["station_number"] != "08MH002"]
+        zone_df = zone_df[zone_df["station_number"] != "08MH005"]
+        print("After Filter Shape:", zone_df.shape)
 
         # if this zone has less than # of data rows skip
         if len(zone_df.index) < 5:
@@ -128,7 +134,7 @@ for filename in sorted(os.listdir(data_directory)):
 
         folds = 30
         for i in range(0,folds):
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10)
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
             print(X_train, y_train)
 
             eval_set = [(X_train, y_train), (X_test, y_test)]
@@ -317,6 +323,7 @@ for filename in sorted(os.listdir(data_directory)):
         ax2.set_xlabel("FOLDS")
         ax2.set_ylabel("R2")
         ax2.title.set_text('Average R2')
+        ax2.set_ylim([min(avg - 0.05, -1),1])
 
         ax3.plot(xrng, rmses, 'o')
         avg = sum(rmses) / len(rmses)
@@ -339,7 +346,7 @@ for filename in sorted(os.listdir(data_directory)):
         minio_path = 'v1/training_reports/' + zip_filename
         local_path = "./" + zip_filename
         if UPLOAD_TO_MINIO:
-            upload = minio_client.s3_upload_file(minio_path, local_path, 'zip', BUCKET_NAME)
+            upload = s3_upload_file(minio_path, local_path, 'zip', BUCKET_NAME)
         # results = grid.cv_results_
         # print(results)
         print("zone", zone_name)
@@ -501,7 +508,7 @@ for filename in sorted(os.listdir(data_directory)):
         # upload to minio
         minio_path = 'v1/hydro_zone_annual_flow/' + json_filename
         if UPLOAD_TO_MINIO:
-            upload = minio_client.s3_upload_file(minio_path, local_path, 'json', BUCKET_NAME)
+            upload = s3_upload_file(minio_path, local_path, 'json', BUCKET_NAME)
 
         zone_scores[zone_name] = {
           "R2": r2,
@@ -535,5 +542,5 @@ print("RMSE_68%_Sum", rmse_sum)
 print("RMSE_95%_Sum", rmse_95_sum)
 
 
-with open('./output/jun30/annual_model_scores.json', "w") as outfile:
+with open('./output/july21/annual_model_scores.json', "w") as outfile:
     json.dump(zone_scores, outfile)

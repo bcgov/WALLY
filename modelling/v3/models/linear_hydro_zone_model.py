@@ -29,7 +29,7 @@ UPLOAD_TO_MINIO = False
 # directory = '../data/zones_5percent/'
 # directory = '../data/4_training/10_year_stations_by_zone_5_percent'
 data_directory = '../data/4_training/july16'
-output_directory_base = "./output/july16"
+output_directory_base = "./output/july21"
 dependant_variable = 'mean'
 zone_scores = {}
 count = 0
@@ -76,7 +76,7 @@ for filename in sorted(os.listdir(data_directory)):
         print(type(zone_name))
 
         # DEBUG test for zone only
-        if zone_name not in ["25", "26", "27"]:
+        if zone_name not in ["25", "26"]:
             continue
         else:
             print("TRUE")
@@ -84,8 +84,14 @@ for filename in sorted(os.listdir(data_directory)):
         # output_dir = "./output/annual_flow_model_analysis/zone_" + zone_name + "/"
         # output_dir = "./output/10_year_stations_analysis/xgboost/zone_" + zone_name + "/"
 
-        output_dir = output_directory_base + "/zone_" + zone_name + "/"
+        output_dir = output_directory_base + "/zone_" + zone_name + "_linear_test/"
         zone_df = pd.read_csv(os.path.join(data_directory, filename))
+
+        print(zone_df.shape)
+        zone_df = zone_df[zone_df["years_of_data"] > 10]
+        zone_df = zone_df[zone_df["station_number"] != "08MH002"]
+        zone_df = zone_df[zone_df["station_number"] != "08MH005"]
+        print(zone_df.shape)
 
         # if this zone has less than # of data rows skip
         if len(zone_df.index) < 5:
@@ -137,18 +143,18 @@ for filename in sorted(os.listdir(data_directory)):
             
             model.fit(X_train, y_train)
             
-            # DEBUG SETS TEST TO ALL DATA
-            X_test = X
-            y_test = y
+            # *********** DEBUG SETS TEST TO ALL DATA **************
+            # X_test = X
+            # y_test = y
 
             y_pred = model.predict(X_test)
             r2 = r2_score(y_test, y_pred) # model.score(X_test, y_test)
             rmse = mean_squared_error(y_test, y_pred, squared=False)
             # results = model.evals_result()
             feat_import = model.coef_
-            print(feat_import)
+            print("feat_import", feat_import)
             intercept = model.intercept_
-            print(intercept)
+            print("intercept", intercept)
 
             # Report Figures Directory
             Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -319,6 +325,7 @@ for filename in sorted(os.listdir(data_directory)):
         ax2.set_xlabel("FOLDS")
         ax2.set_ylabel("R2")
         ax2.title.set_text('Average R2')
+        ax2.set_ylim([min(avg - 0.05, -1),1])
 
         ax3.plot(xrng, rmses, 'o')
         avg = sum(rmses) / len(rmses)
@@ -537,5 +544,5 @@ print("RMSE_68%_Sum", rmse_sum)
 print("RMSE_95%_Sum", rmse_95_sum)
 
 
-with open('./output/july16/annual_model_scores.json', "w") as outfile:
+with open('./output/july21/aggregate/annual_model_scores.json', "w") as outfile:
     json.dump(zone_scores, outfile)
