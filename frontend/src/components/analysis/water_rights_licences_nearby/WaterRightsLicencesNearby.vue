@@ -211,6 +211,7 @@ export default {
       { text: 'Type', value: 'type', filterable: true },
       { text: 'Licence number', value: 'LICENCE_NUMBER' },
       { text: 'Status', value: 'status', filterable: true },
+      { text: 'Priority date', value: 'PRIORITY_DATE', filterable: true },
       { text: 'POD number', value: 'POD_NUMBER' },
       { text: 'POD subtype', value: 'POD_SUBTYPE', filterable: true },
       { text: 'Usage type', value: 'usage', filterable: true },
@@ -231,6 +232,9 @@ export default {
       { text: 'Approval ID', value: 'WATER_APPROVAL_ID' },
       { text: 'File number', value: 'APPROVAL_FILE_NUMBER' },
       { text: 'Status', value: 'status', filterable: true },
+      { text: 'Issuance date', value: 'APPROVAL_ISSUANCE_DATE', filterable: true },
+      { text: 'Start date', value: 'APPROVAL_START_DATE', filterable: true },
+      { text: 'Expiry date', value: 'APPROVAL_EXPIRY_DATE', filterable: true },
       { text: 'Usage type', value: 'usage', filterable: true },
       { text: 'Quantity', value: 'QUANTITY' }
     ],
