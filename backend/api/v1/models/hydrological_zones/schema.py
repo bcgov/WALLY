@@ -25,7 +25,7 @@ class HydroZoneModelInputs(BaseModel):
 class MeanAnnualRunoff(BaseModel):
     """ output values of the wally hydrological zone model """
     mean_annual_runoff: float
-    model_score: object
+    model_score: dict
 
     class Config:
         orm_mode = True
@@ -34,7 +34,7 @@ class MeanAnnualRunoff(BaseModel):
 class MeanMonthlyRunoff(BaseModel):
     """ output values of the wally hydrological zone model """
     mean_monthly_runoff: float
-    model_score: object
+    model_score: dict
 
     class Config:
         orm_mode = True
