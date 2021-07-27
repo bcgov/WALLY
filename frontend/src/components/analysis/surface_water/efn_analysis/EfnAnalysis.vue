@@ -141,8 +141,8 @@ export default {
       }
       // convert m3 to m3/sec for risk analysis
       return {
-        longTerm: this.licencePlotData?.map((d, idx) => { return d / secondsInMonth(idx + 1) }),
-        shortTerm: this.shortTermLicencePlotData?.map((d, idx) => { return d / secondsInMonth(idx + 1) })
+        longTerm: this.licencePlotData.map((d, idx) => { return d / secondsInMonth(idx + 1) }),
+        shortTerm: this.shortTermLicencePlotData.map((d, idx) => { return d / secondsInMonth(idx + 1) })
       }
     }
   },
