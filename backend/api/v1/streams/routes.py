@@ -1,26 +1,20 @@
 """
 Analysis functions for data in the Wally system
 """
-import base64
 import datetime
 import json
-import requests
 from logging import getLogger
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, Query
 from starlette.responses import Response
 from sqlalchemy.orm import Session
 from shapely.geometry import Point
 
-from external.docgen.schema import DocGenRequest, DocGenTemplateFile
-from external.docgen.request_token import get_docgen_token
-from api import config
 from api.db.utils import get_db
 
 from api.v1.streams import controller as streams_controller
 from api.v1.streams import schema as streams_schema
 
 from external.docgen.controller import docgen_export_to_xlsx
-from external.docgen.templates import STREAM_APPORTIONMENT_EXPORT_TEMPLATE
 logger = getLogger("streams")
 
 router = APIRouter()
@@ -72,8 +66,11 @@ def export_stream_apportionment(
 
     filename = f"{cur_date}_HydraulicConnectivityAnalysis"
 
+    dirname = os.path.dirname(__file__)
+    xlsx_template = dirname + "templates/StreamApportionment.xlsx"
+
     excel_file = docgen_export_to_xlsx(
-        req, STREAM_APPORTIONMENT_EXPORT_TEMPLATE, filename)
+        req, xlsx_template, filename)
 
     return Response(
         content=excel_file,

@@ -4,7 +4,6 @@ Functions for aggregating data from web requests and database records
 import base64
 import datetime
 import logging
-from os import close
 import requests
 import json
 import math
@@ -54,7 +53,6 @@ from api.v1.watersheds.delineate_watersheds import (
 from api.v1.aggregator.controller import feature_search, databc_feature_search
 
 from external.docgen.controller import docgen_export_to_xlsx
-from external.docgen.templates import SURFACE_WATER_XLSX_TEMPLATE
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('WATERSHEDS')
@@ -1207,8 +1205,11 @@ def export_summary_as_xlsx(data: dict):
 
     filename = f"{cur_date}_{ws_name}"
 
+    dirname = os.path.dirname(__file__)
+    xlsx_template = dirname + "templates/SurfaceWater.xlsx"
+
     excel_file = docgen_export_to_xlsx(
-        data, SURFACE_WATER_XLSX_TEMPLATE, filename)
+        data, xlsx_template, filename)
 
     return Response(
         content=excel_file,
