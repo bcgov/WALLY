@@ -1,6 +1,10 @@
 <template>
   <v-container>
-    <v-row>
+    <div v-if="!modelOutputs || !licenceOutputs">
+      <div>Estimating EFN...</div>
+      <v-progress-linear indeterminate show></v-progress-linear>
+    </div>
+    <v-row v-else>
       <v-card class="watershedInfo" flat>
         <v-card-title class="title mt-5 ml-3 mr-3 pa-1 mb-2" dark>
           EFN Risk Assessment
@@ -129,6 +133,12 @@ export default {
       }
     },
     licenceOutputs () {
+      if (!this.licencePlotData || !this.shortTermLicencePlotData) {
+        return {
+          longTerm: [],
+          shortTerm: []
+        }
+      }
       // convert m3 to m3/sec for risk analysis
       return {
         longTerm: this.licencePlotData.map((d, idx) => { return d / secondsInMonth(idx + 1) }),
