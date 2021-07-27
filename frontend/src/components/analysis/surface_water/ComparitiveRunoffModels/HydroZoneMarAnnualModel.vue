@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card-text v-if="modelData" id="hydroZoneModel">
+    <v-card-text v-if="modelData" id="HydroZoneMarAnnualModel">
       <v-card-actions>
         <v-card-subtitle class="pr-0 pl-2 pr-2">
           Source:
@@ -73,9 +73,10 @@ import { mapGetters } from 'vuex'
 import qs from 'querystring'
 import ApiService from '../../../../services/ApiService'
 import { downloadZip } from '../../../../common/utils/exportUtils'
+import { MAR_ANNUAL } from '../../../../constants/modelNames'
 
 export default {
-  name: 'HydroZoneModel',
+  name: 'HydroZoneMarAnnualModel',
   components: {
   },
   props: {
@@ -90,14 +91,14 @@ export default {
     ...mapGetters('surfaceWater', ['watershedDetails']),
     ...mapGetters(['app']),
     meanAnnualFlow () {
-      if (this.modelData && this.modelData.mean_annual_flow) {
-        return Number(this.modelData.mean_annual_flow).toFixed(2)
+      if (this.modelData && this.modelData.mean_annual_runoff) {
+        return Number(this.modelData.mean_annual_runoff).toFixed(2)
       }
       return null
     },
     meanAnnualFlowRSquared () {
-      if (this.modelData && this.modelData.r_squared) {
-        return Number(this.modelData.r_squared).toFixed(2)
+      if (this.modelData && this.modelData.model_score) {
+        return Number(this.modelData.R2).toFixed(2)
       }
       return null
     }
@@ -105,13 +106,7 @@ export default {
   methods: {
     fetchWatershedModel (details) {
       this.modelLoading = true
-      const params = {
-        hydrological_zone: details.hydrological_zone,
-        drainage_area: details.drainage_area,
-        median_elevation: details.median_elevation,
-        annual_precipitation: details.annual_precipitation
-      }
-      ApiService.query(`/api/v1/hydrological_zones/v1_watershed_drainage_model?${qs.stringify(params)}`)
+      ApiService.post('/api/v1/hydrological_zones/watershed_drainage_model', details)
         .then(r => {
           this.modelData = r.data
           this.modelLoading = false
@@ -124,7 +119,7 @@ export default {
     downloadTrainingData () {
       this.downloading = true
       const params = {
-        model_version: 'v1',
+        model_name: MAR_ANNUAL,
         hydrological_zone: this.watershedDetails.hydrological_zone
       }
       ApiService.query(`/api/v1/hydrological_zones/training_data/download?${qs.stringify(params)}`, null, { responseType: 'arraybuffer' })
@@ -140,7 +135,7 @@ export default {
     downloadTrainingReport () {
       this.downloadingReport = true
       const params = {
-        model_version: 'v1',
+        model_name: MAR_ANNUAL,
         hydrological_zone: this.watershedDetails.hydrological_zone
       }
       ApiService.query(`/api/v1/hydrological_zones/training_report/download?${qs.stringify(params)}`, null, { responseType: 'arraybuffer' })

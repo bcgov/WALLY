@@ -8,7 +8,7 @@
         <div v-if="station">Station Number: {{ station.station_number }}</div>
         <div v-if="station">Flow data: {{ formatYears(station.flow_years) }}</div>
         <div v-if="station">Station Status: {{ stationStatus(station.hyd_status) }}</div>
-        <div v-if="station">Gross drainage area: {{ station.drainage_area_gross }} km</div>
+        <div v-if="station">Gross drainage area: {{ station.drainage_area_gross ? `${station.drainage_area_gross.toFixed(1)} km²` : "N/A" }}</div>
         <div v-if="station">WSC Historical Link: <a :href="`https://wateroffice.ec.gc.ca/report/historical_e.html?stn=${station.station_number}`"
           target="_blank"
         >{{station.station_number}}</a></div>
@@ -31,6 +31,9 @@
         </v-list-item>
         <v-list-item>
           <v-list-item-content class="mx-0 px-0">
+            <div v-if="flowDataLoading">
+              <v-progress-linear show indeterminate></v-progress-linear>
+            </div>
             <Plotly id="flowPlot" :data="plotFlowData" :layout="plotFlowLayout" ref="flowPlot"></Plotly>
           </v-list-item-content>
         </v-list-item>
@@ -40,35 +43,14 @@
         </v-list-item>
         <v-list-item>
           <v-list-item-content>
+            <div v-if="levelDataLoading">
+              <v-progress-linear show indeterminate></v-progress-linear>
+            </div>
             <div v-if="levelData && levelData.length">
               <Plotly id="levelPlot" :data="plotLevelData" :layout="plotLevelLayout" ref="levelPlot"></Plotly>
             </div>
             <div v-else>
               <p>No water level data for this station.</p>
-            </div>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item class="feature-content">
-          <v-list-item-content>
-            <div>Low flow statistics (computed from all available years):</div>
-            <div v-if="flowStatsError">{{flowStatsError}}</div>
-            <div v-if="flowStatsLoading">
-              <v-progress-linear show indeterminate></v-progress-linear>
-              <p>
-                Calculating low flows...
-              </p>
-            </div>
-            <div v-if="flowStats">
-              <v-data-table
-                :headers="flowStatsHeaders"
-                :items="flowStatsItems"
-              />
-            </div>
-            <div>
-              <dl>
-                <dt>Note:</dt>
-                <dd>Summer denotes July, August and September (inclusive)</dd>
-              </dl>
             </div>
           </v-list-item-content>
         </v-list-item>
@@ -108,7 +90,9 @@ export default {
       loading: false,
       station: null,
       flowData: [],
+      flowDataLoading: false,
       levelData: [],
+      levelDataLoading: false,
       flowStats: null,
       flowStatsError: null,
       flowStatsLoading: false,
@@ -356,8 +340,6 @@ export default {
       this.levelChartReady = false
       this.flowData = []
       this.levelData = []
-      this.flowStats = null
-      this.flowStatsError = null
       this.levelChartOptions = {}
       this.flowStatsLoading = false
     },
@@ -367,7 +349,7 @@ export default {
 
       ApiService.getRaw(this.record.properties.url).then((r) => {
         this.station = r.data
-        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url, this.station.stream_stats_url)
+        this.fetchMonthlyData(this.station.stream_flows_url, this.station.stream_levels_url)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
@@ -375,20 +357,19 @@ export default {
         this.loading = false
       })
     },
-    fetchMonthlyData (flowURL, levelURL, statsURL) {
-      if (this.selectedYear != null) {
-        flowURL = flowURL + '?year=' + this.selectedYear
-        levelURL = levelURL + '?year=' + this.selectedYear
-      }
-
+    fetchMonthlyData (flowURL, levelURL) {
+      this.flowDataLoading = true
       ApiService.getRaw(flowURL).then((r) => {
         this.flowData = r.data
         setTimeout(() => { this.flowChartReady = true }, 0)
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
+      }).finally(() => {
+        this.flowDataLoading = false
       })
 
+      this.levelDataLoading = true
       ApiService.getRaw(levelURL).then((r) => {
         this.levelData = r.data
         this.levelChartOptions = this.newChartOptions('Water level (average by month)', 'm', this.levelData.map((x) => [x.max]))
@@ -396,23 +377,9 @@ export default {
       }).catch((e) => {
         const msg = e.response ? e.response.data.detail : true
         EventBus.$emit('error', msg)
+      }).finally(() => {
+        this.levelDataLoading = false
       })
-
-      if (this.station.flow_years && this.station.flow_years.length > 2) {
-        this.flowStatsLoading = true
-        ApiService.getRaw(statsURL).then((r) => {
-          this.flowStats = r.data
-        }).catch((e) => {
-          if (e.response.status === 400) {
-            this.flowStatsError = 'This station does not have enough complete data to compute low flow stats.'
-            return
-          }
-          const msg = e.response ? e.response.data.detail : true
-          EventBus.$emit('error', msg)
-        }).finally(() => {
-          this.flowStatsLoading = false
-        })
-      }
     },
     formatYears (val) {
       const years = val || []

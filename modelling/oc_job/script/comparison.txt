@@ -1,0 +1,37 @@
+# stdout spot check
+
+[08NK022] calculated 7q2: 0.4158525
+[08NK022] calculated 30q10: 0.3809352
+[08NK022] calculated 7q10: 0.3263835
+[08NK022] calculated 30q5: 0.4126774
+
+
+fasstr::compute_frequency_quantile(station_number="08NK022", roll_days=7, return_period=2, ignore_missing=FALSE)
+[1] 0.4158525
+
+fasstr::compute_frequency_quantile(station_number="08NK022", roll_days=30, return_period=10, ignore_missing=FALSE)
+[1] 0.3809352
+
+fasstr::compute_frequency_quantile(station_number="08NK022", roll_days=7, return_period=10, ignore_missing=FALSE)
+[1] 0.3263835
+
+fasstr::compute_frequency_quantile(station_number="08NK022", roll_days=30, return_period=5, ignore_missing=FALSE)
+[1] 0.4126774
+
+
+
+# CSV file spotcheck
+station_number, < ......>, 7Q10,7Q2,30Q5,30Q10
+07FB007, <.......> ,1.285692,1.983471,1.553342,1.339534
+
+fasstr::compute_frequency_quantile(station_number="07FB007", roll_days=7, return_period=10, ignore_missing=FALSE)
+[1] 1.285692
+
+fasstr::compute_frequency_quantile(station_number="07FB007", roll_days=7, return_period=2, ignore_missing=FALSE)
+[1] 1.983471
+
+fasstr::compute_frequency_quantile(station_number="07FB007", roll_days=30, return_period=5, ignore_missing=FALSE)
+[1] 1.553342
+
+fasstr::compute_frequency_quantile(station_number="07FB007", roll_days=30, return_period=10, ignore_missing=FALSE)
+[1] 1.339534
