@@ -166,7 +166,7 @@ with open(local_file_path, "a") as outfile:
         # Station watershed licenced use information
         with open(local_licence_file_path, "a") as licence_outfile:
             licence_writer = csv.writer(licence_outfile)
-            licence_url = station_url + '/licences?generated_watershed_id=' + watershed_info["watershed_id"]
+            licence_url = station_url + '/licences?generated_watershed_id=' + watershed_info["gen_id"]
             for i in range(0,3):
                 try:
                     resp = req.get(licence_url, headers=headers)
@@ -200,7 +200,7 @@ with open(local_file_path, "a") as outfile:
         # Station watershed approvals use information
         with open(local_approvals_file_path, "a") as approvals_outfile:
             approvals_writer = csv.writer(approvals_outfile)
-            approvals_url = station_url + '/approvals?generated_watershed_id=' + watershed_info["watershed_id"]
+            approvals_url = station_url + '/approvals?generated_watershed_id=' + watershed_info["gen_id"]
             for i in range(0,3):
                 try:
                     resp = req.get(approvals_url, headers=headers)
