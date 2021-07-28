@@ -1,8 +1,8 @@
 """
 API data models for hydrological zone regression models.
 """
-from typing import Optional, List
-from pydantic import BaseModel, Schema
+from typing import Optional
+from pydantic import BaseModel
 
 
 class HydroZoneModelInputs(BaseModel):
@@ -10,36 +10,31 @@ class HydroZoneModelInputs(BaseModel):
     inputs needed to create model prediction
     """
     hydrological_zone: int
-    year: Optional[str]
     drainage_area: Optional[float]
     average_slope: Optional[float]
     glacial_coverage: Optional[float]
-    glacial_area: Optional[float]
-    watershed_area: Optional[float]
-    potential_evapotranspiration_thornthwaite: Optional[float]
-    potential_evapotranspiration_hamon: Optional[float]
+    potential_evapotranspiration: Optional[float]
     annual_precipitation: Optional[float]
     median_elevation: Optional[float]
-    aspect: Optional[float]
     solar_exposure: Optional[float]
 
     class Config:
         orm_mode = True
 
 
-class MeanAnnualFlow(BaseModel):
+class MeanAnnualRunoff(BaseModel):
     """ output values of the wally hydrological zone model """
-    mean_annual_flow: float
-    r_squared: float
+    mean_annual_runoff: float
+    model_score: dict
 
     class Config:
         orm_mode = True
 
 
-class MeanMonthlyFlow(BaseModel):
+class MeanMonthlyRunoff(BaseModel):
     """ output values of the wally hydrological zone model """
-    mean_monthly_flow: float
-    r_squared: float
+    mean_monthly_runoff: float
+    model_score: dict
 
     class Config:
         orm_mode = True

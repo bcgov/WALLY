@@ -133,7 +133,7 @@
             </v-tab-item>
 
             <!-- Licenced Quantity -->
-            <v-tab-item>
+            <v-tab-item :eager="true">
               <WatershedLicencedQty :modelOutputs="modelOutputs"
                                     :generatedWatershedID="generatedWatershedID"
                                     :watershedID="selectedWatershed"/>
@@ -188,7 +188,7 @@ import WatershedLicencedQty from './watershed_demand/WatershedLicencedQty'
 
 import EventBus from '../../../services/EventBus'
 
-import { months, secondsInMonth } from '../../../constants/months'
+import { secondsInMonth } from '../../../constants/months'
 import { findWallyLayer } from '../../../common/utils/mapUtils'
 import { SOURCE_WATERSHEDS_AT_LOCATION } from '../../../common/mapbox/sourcesWally'
 import SavedAnalysesCreateModal from '../../savedanalyses/SavedAnalysesCreateModal'
@@ -492,7 +492,7 @@ export default {
           monthlyDistributions: monthlyDistributions,
           monthlyDischarges: monthlyDischarges
         }
-        let availability = monthlyDischarges.map((m) => { return m.model_result * months[m.month] * secondsInMonth })
+        let availability = monthlyDischarges.map((m) => { return m.model_result * secondsInMonth(m.month) })
         this.setAvailabilityPlotData(availability)
       } else {
         this.setAvailabilityPlotData(null)

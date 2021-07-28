@@ -8,7 +8,7 @@ from geojson import FeatureCollection, Feature, Point
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
 from api.v1.hydat.db_models import Station as StreamStation, DailyFlow, DailyLevel
-from api.v1.hydat.controller import get_fasstr_flow_stats, get_fasstr_longterm_summary
+from api.v1.hydat.controller import get_fasstr_longterm_summary
 import api.v1.hydat.schema as hydat_schema
 
 logger = getLogger("hydat")
@@ -73,7 +73,6 @@ def get_station(station_number: str, db: Session = Depends(get_db)):
         level_years=[stn.year for stn in level_years],
         stream_flows_url=f"/api/v1/hydat/{stn.station_number}/flows",
         stream_levels_url=f"/api/v1/hydat/{stn.station_number}/levels",
-        stream_stats_url=f"/api/v1/hydat/{stn.station_number}/stats",
         external_urls=[
             {
                 "name": "Real-Time Hydrometric Data (Canada)",
@@ -113,12 +112,3 @@ def list_monthly_flows_by_year(station_number: str, year: int = None, db: Sessio
         return get_fasstr_longterm_summary(db, station_number)
 
     return DailyFlow.get_monthly_flows_by_station(db, station_number, year)
-
-
-@router.get("/{station_number}/stats", response_model=hydat_schema.FASSTRFlowStatsSummary)
-def list_monthly_flows_by_year(station_number: str, full_years: bool = True, db: Session = Depends(get_db)):
-    """ Monthly average flows for a given station and year. Data sourced from the National Water Data Archive.
-
-    https://www.canada.ca/en/environment-climate-change/services/water-overview/quantity/monitoring/survey/data-products-services/national-archive-hydat.html """
-
-    return get_fasstr_flow_stats(db, station_number, full_years)

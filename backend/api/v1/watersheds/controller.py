@@ -164,6 +164,8 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         qty = lic.properties['QUANTITY']
         qty_unit = lic.properties['QUANTITY_UNITS'].strip()
         purpose = lic.properties['PURPOSE_USE']
+        priority_date = datetime.datetime.strptime(lic.properties['PRIORITY_DATE'], '%Y-%m-%dZ').date() \
+            if lic.properties.get('PRIORITY_DATE', None) else None
 
         # normalize the quantity units to m3/year. This function returns None
         # if the quantity cannot be normalized; for example, there is an invalid
@@ -237,6 +239,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
                     "licenceNumber": lic.properties["LICENCE_NUMBER"],
                     "status": lic.properties["LICENCE_STATUS"],
                     "licensee": lic.properties["PRIMARY_LICENSEE_NAME"],
+                    "priorityDate": priority_date,
                     "source": lic.properties["SOURCE_NAME"],
                     "quantityPerSec": normalized_qty / SEC_IN_YEAR if normalized_qty else None,
                     "quantityPerYear": normalized_qty,
@@ -797,7 +800,12 @@ def get_cached_watershed(db: Session, generated_watershed_id):
     q = """
     update      watershed_cache
     set         last_accessed_date = now()
-    where       generated_watershed_id = :generated_watershed_id
+    where       generated_watershed_id = (
+        select      generated_watershed_id
+        from        watershed_cache
+        where       generated_watershed_id = :generated_watershed_id
+        for update skip locked
+    )
     returning   generated_watershed_id, watershed
     """
     res = db.execute(q, {"generated_watershed_id": generated_watershed_id})

@@ -18,7 +18,7 @@ def s3_upload_file(destination_file_name: str, local_file_path: str, content_typ
     """
     Uploads a file to s3 Minio storage and returns the file response object
     """
-    if not path.exists(local_file_path):
+    if not os.path.exists(local_file_path):
         raise FileNotFoundError(
             f'file_path: {local_file_path} is not a valid file')
 

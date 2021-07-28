@@ -41,13 +41,15 @@ def get_minio_file(object_name):
         print('error getting file: ', exc)
 
 local_file_path = "./watershed_stats_output.csv"
+local_licence_file_path = "./watershed_licence_output.csv"
+local_approvals_file_path = "./watershed_approvals_output.csv"
 
 # MINIO PUT
-def put_minio_file(object_name):
+def put_minio_file(object_name, path):
     try:
         result = minio_client.fput_object(bucket_name=BUCKET_NAME,
                                           object_name=object_name,
-                                          file_path=local_file_path,
+                                          file_path=path,
                                           content_type='csv')
     except Exception as exc:
         print('error putting file: ', exc)
@@ -60,7 +62,6 @@ bc_mean_annual_flows = get_minio_file(object_name)
 stations_df = pd.read_csv(bc_mean_annual_flows)
 print(stations_df)
 
-watershed_info = []
 row_count = 0
 already_exists_count = 0
 success_count = 0
@@ -68,9 +69,6 @@ resp_error_count = 0
 
 
 def log_progress():
-    # if(len(watershed_info) <= 0):
-    #     print("no watershed info")
-
     if row_count % 10 != 0:
         return
 
@@ -107,7 +105,7 @@ with open(local_file_path, "a") as outfile:
             try:
                 resp = req.get(station_url, headers=headers)
             except:
-                print('request failed:', resp.url)
+                print('watershed request failed:', resp.url)
             # retry call if failed after 1 second
             if resp.status_code != 200:
                 print("error: {}".format(resp.url))
@@ -137,7 +135,7 @@ with open(local_file_path, "a") as outfile:
             continue
         
         # station_number,most_recent_year,years_of_data,mean,min,max,drainage_area_gross,latitude,longitude,gen_id,annual_precipitation,aspect,average_slope,drainage_area,glacial_area,glacial_coverage,hydrological_zone,median_elevation,potential_evapotranspiration,solar_exposure,watershed_area
-        info = {
+        watershed_info = {
           "station_number": station["STATION_NUMBER"],
           "most_recent_year": station["YEAR"],
           "years_of_data": station["YEARS_OF_DATA"],
@@ -162,17 +160,85 @@ with open(local_file_path, "a") as outfile:
           "watershed_area": result["watershed_area"]
         }
         
-        print("success: {}".format(resp.url))
+        writer.writerow(watershed_info.values())
+        print("watershed success: {}".format(resp.url))
 
-        watershed_info.append(info)
-        writer.writerow(info.values())
+        # Station watershed licenced use information
+        with open(local_licence_file_path, "a") as licence_outfile:
+            licence_writer = csv.writer(licence_outfile)
+            licence_url = station_url + '/licences?generated_watershed_id=' + watershed_info["watershed_id"]
+            for i in range(0,3):
+                try:
+                    resp = req.get(licence_url, headers=headers)
+                except:
+                    print('licence request failed:', resp.url)
+                # retry call if failed after 1 second
+                if resp.status_code != 200:
+                    print("error: {}".format(resp.url))
+                    time.sleep(1)
+                    continue
+                else:
+                    break
+            try:
+                licence_result = resp.json()
+            except:
+                print(resp.text)
+                continue
+
+            if licence_result is None:
+                print("licence result is null")
+            
+            licence_info = {
+              "station_number": station["STATION_NUMBER"],
+              "gen_id": watershed_info["watershed_id"],
+              **licence_result
+            }
+            
+            print("licence success: {}".format(resp.url))
+            licence_writer.writerow(licence_info.values())
+
+        # Station watershed approvals use information
+        with open(local_approvals_file_path, "a") as approvals_outfile:
+            approvals_writer = csv.writer(approvals_outfile)
+            approvals_url = station_url + '/approvals?generated_watershed_id=' + watershed_info["watershed_id"]
+            for i in range(0,3):
+                try:
+                    resp = req.get(approvals_url, headers=headers)
+                except:
+                    print('approvals request failed:', resp.url)
+                # retry call if failed after 1 second
+                if resp.status_code != 200:
+                    print("error: {}".format(resp.url))
+                    time.sleep(1)
+                    continue
+                else:
+                    break
+            try:
+                approvals_result = resp.json()
+            except:
+                print(resp.text)
+                continue
+
+            if approvals_result is None:
+                print("approvals result is null")
+            
+            approvals_info = {
+              "station_number": station["STATION_NUMBER"],
+              "gen_id": watershed_info["watershed_id"],
+              **approvals_result
+            }
+            
+            print("approvals success: {}".format(resp.url))
+            approvals_writer.writerow(approvals_info.values())
 
         success_count += 1
         log_progress()
 
 now = datetime.now()
 date_time = now.strftime("%m:%d:%Y-%H:%M:%S")
-put_minio_file("watershed_stats_output_{}.csv".format(date_time))
+put_minio_file("watershed_stats_output_{}.csv".format(date_time), local_file_path)
+put_minio_file("watershed_licence_output_{}.csv".format(date_time), local_licence_file_path)
+put_minio_file("watershed_approvals_output_{}.csv".format(date_time), local_approvals_file_path)
 
 log_progress()
 print(headers)
