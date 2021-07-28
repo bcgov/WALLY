@@ -27,13 +27,13 @@ UPLOAD_TO_MINIO = False
 SHOW_ERROR_PLOTS = False
 
 # Model Settings
-OUTPUT_DIR = 'july_23_2021'
+OUTPUT_DIR = 'july_28_2021'
 TESTING_SIZE = 0.3
 TEST_ALL_DATA = False
 # ZONES = ["25", "26", "27"]
 ZONES = ["all_data"]
 FOLDS = 30
-DEPENDANT_VARIABLE = 'mean'
+DEPENDANT_VARIABLE = '30Q10'
 LINEAR_MODEL = False
 
 data_directory = '../data/4_training/july16'
@@ -46,16 +46,29 @@ count = 0
 
 # 6. run training data with licence information
 # 1. RUN WITH 7Q10, Q values
-# 2. update stations with email data, 
+# 2. update stations with email data,
 # 3. 25, 26, 27 aggregate together and run xgboost
 # 4. Input variation for mlr on whole dataset
 # 5. Build training dataset for monthly
 
+# group different purpose types, m3/sec -> allocation values and return values for each puupose type
+# alloette river and coquitlem -> Re-create MAD, MAR 
+# flag licences that are larger than 50%
+
+
+
 
 # inputs = ["years_of_data","year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
-inputs = ["hydrological_zone","years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
+# inputs = ["hydrological_zone","years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
+inputs = ["average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 columns = list(inputs) + [DEPENDANT_VARIABLE]
+
+all_combinations = []
+for r in range(len(inputs) + 1):
+    combinations_object = itertools.combinations(inputs, r)
+    combinations_list = list(combinations_object)
+    all_combinations += combinations_list
 
 # params = {
 #   'nthread':[6], #when use hyperthread, xgboost may become slower
@@ -294,7 +307,7 @@ for filename in sorted(os.listdir(data_directory)):
 
             model_test = { 
                 "model": model,
-                "mean_mar": mean_mar,
+                # "mean_mar": mean_mar,
                 "r2": round(r2,4),
                 "rmse": round(rmse,6),
                 "results": results,
@@ -315,7 +328,7 @@ for filename in sorted(os.listdir(data_directory)):
         results = best_model['results']
         rmse = best_model['rmse']
         r2 = best_model['r2']
-        mean_mar = best_model['mean_mar']
+        # mean_mar = best_model['mean_mar']
 
         r2s = []
         rmses = []
