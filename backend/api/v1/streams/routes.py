@@ -3,6 +3,7 @@ Analysis functions for data in the Wally system
 """
 import datetime
 import json
+import os
 from logging import getLogger
 from fastapi import APIRouter, Depends, Query
 from starlette.responses import Response

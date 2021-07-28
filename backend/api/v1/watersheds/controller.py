@@ -9,6 +9,7 @@ import json
 import math
 import re
 import time
+import os
 import sqlalchemy as sa
 from geoalchemy2.elements import WKTElement
 from shapely import wkb
