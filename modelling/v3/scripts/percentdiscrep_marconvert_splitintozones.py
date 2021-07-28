@@ -16,5 +16,8 @@ print(df[['station_number','latitude', 'longitude', 'drainage_area', 'drainage_a
 # export to files
 output_directory = "july16"
 
-for zone, rows in df.groupby('hydrological_zone'):
-    rows.to_csv(f'../data/4_training/{output_directory}/{round(zone)}.csv', index=False, header=True)
+df.to_csv(f'../data/4_training/{output_directory}/all_data.csv', index=False, header=True)
+
+
+# for zone, rows in df.groupby('hydrological_zone'):
+#     rows.to_csv(f'../data/4_training/{output_directory}/{round(zone)}.csv', index=False, header=True)

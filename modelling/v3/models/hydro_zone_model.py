@@ -30,8 +30,8 @@ SHOW_ERROR_PLOTS = False
 OUTPUT_DIR = 'july_23_2021'
 TESTING_SIZE = 0.3
 TEST_ALL_DATA = False
-ZONES = ["25", "26", "27"]
-# ZONES = []
+# ZONES = ["25", "26", "27"]
+ZONES = ["all_data"]
 FOLDS = 30
 DEPENDANT_VARIABLE = 'mean'
 LINEAR_MODEL = False
@@ -44,8 +44,16 @@ if not os.path.exists(output_directory_base):
 zone_scores = {}
 count = 0
 
+# 6. run training data with licence information
+# 1. RUN WITH 7Q10, Q values
+# 2. update stations with email data, 
+# 3. 25, 26, 27 aggregate together and run xgboost
+# 4. Input variation for mlr on whole dataset
+# 5. Build training dataset for monthly
+
+
 # inputs = ["years_of_data","year","drainage_area","watershed_area","aspect","glacial_area","solar_exposure","potential_evapotranspiration_hamon",]  "annual_precipitation", 
-inputs = ["years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
+inputs = ["hydrological_zone","years_of_data","drainage_area","average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 columns = list(inputs) + [DEPENDANT_VARIABLE]
 
@@ -81,7 +89,7 @@ else:
 
 for filename in sorted(os.listdir(data_directory)):
     if filename.endswith(".csv"):
-        zone_name = filename.split('.')[0] 
+        zone_name = filename.split('.')[0]
 
         # limits zones calculated if constant has zone numbers in it
         if len(ZONES) <= 0 or zone_name in ZONES:
@@ -116,7 +124,7 @@ for filename in sorted(os.listdir(data_directory)):
 
         y = X[DEPENDANT_VARIABLE] # dependant
         X = X.drop([DEPENDANT_VARIABLE], axis=1) # independant
-        mean_mar = round(y.mean(),4)
+        # mean_mar = round(y.mean(),4)
 
         # print(y)
         # print(X)
