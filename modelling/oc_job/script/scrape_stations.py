@@ -190,7 +190,7 @@ with open(local_file_path, "a") as outfile:
             
             licence_info = {
               "station_number": station["STATION_NUMBER"],
-              "gen_id": watershed_info["watershed_id"],
+              "gen_id": watershed_info["gen_id"],
               **licence_result
             }
             
@@ -224,7 +224,7 @@ with open(local_file_path, "a") as outfile:
             
             approvals_info = {
               "station_number": station["STATION_NUMBER"],
-              "gen_id": watershed_info["watershed_id"],
+              "gen_id": watershed_info["gen_id"],
               **approvals_result
             }
             
