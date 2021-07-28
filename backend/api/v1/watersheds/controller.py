@@ -1207,7 +1207,7 @@ def export_summary_as_xlsx(data: dict):
     filename = f"{cur_date}_{ws_name}"
 
     dirname = os.path.dirname(__file__)
-    xlsx_template = dirname + "templates/SurfaceWater.xlsx"
+    xlsx_template = dirname + "/templates/SurfaceWater.xlsx"
 
     excel_file = docgen_export_to_xlsx(
         data, xlsx_template, filename)

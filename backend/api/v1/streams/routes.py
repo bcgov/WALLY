@@ -68,7 +68,7 @@ def export_stream_apportionment(
     filename = f"{cur_date}_HydraulicConnectivityAnalysis"
 
     dirname = os.path.dirname(__file__)
-    xlsx_template = dirname + "templates/StreamApportionment.xlsx"
+    xlsx_template = dirname + "/templates/StreamApportionment.xlsx"
 
     excel_file = docgen_export_to_xlsx(
         req, xlsx_template, filename)
