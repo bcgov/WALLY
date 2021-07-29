@@ -146,7 +146,7 @@ with open(local_file_path, "a") as outfile:
           "latitude": station["LATITUDE"],
           "longitude": station["LONGITUDE"],
 
-          "gen_id": result["watershed_id"],
+          "gen_id": result["generated_watershed_id"],
           "annual_precipitation": result["annual_precipitation"],
           "aspect": result["aspect"],
           "average_slope": result["average_slope"],

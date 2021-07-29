@@ -64,12 +64,6 @@ inputs = ["average_slope","annual_precipitation","glacial_coverage","potential_e
 
 columns = list(inputs) + [DEPENDANT_VARIABLE]
 
-all_combinations = []
-for r in range(len(inputs) + 1):
-    combinations_object = itertools.combinations(inputs, r)
-    combinations_list = list(combinations_object)
-    all_combinations += combinations_list
-
 # params = {
 #   'nthread':[6], #when use hyperthread, xgboost may become slower
 #   'objective':['reg:squarederror'],
