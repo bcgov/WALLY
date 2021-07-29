@@ -168,6 +168,7 @@ def watershed_stats(
         "scsb2016_output": model_output_as_dict(scsb2016_model),
         "scsb2016_input_stats": scsb2016_input_stats,
         "hydrometric_stations": hydrometric_stations,
+        "generated_watershed_id": watershed.generated_watershed_id
     }
 
     if format == 'xlsx':
