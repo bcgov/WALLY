@@ -134,32 +134,36 @@ with open(local_file_path, "a") as outfile:
             print("result is null")
             continue
         
-        # station_number,most_recent_year,years_of_data,mean,min,max,drainage_area_gross,latitude,longitude,gen_id,annual_precipitation,aspect,average_slope,drainage_area,glacial_area,glacial_coverage,hydrological_zone,median_elevation,potential_evapotranspiration,solar_exposure,watershed_area
-        watershed_info = {
-          "station_number": station["STATION_NUMBER"],
-          "most_recent_year": station["YEAR"],
-          "years_of_data": station["YEARS_OF_DATA"],
-          "mean": station["MEAN"],
-          "min": station["MIN"],
-          "max": station["MAX"],
-          "drainage_area_gross": station["DRAINAGE_AREA_GROSS"],
-          "latitude": station["LATITUDE"],
-          "longitude": station["LONGITUDE"],
+        try:
+            # station_number,most_recent_year,years_of_data,mean,min,max,drainage_area_gross,latitude,longitude,gen_id,annual_precipitation,aspect,average_slope,drainage_area,glacial_area,glacial_coverage,hydrological_zone,median_elevation,potential_evapotranspiration,solar_exposure,watershed_area
+            watershed_info = {
+              "station_number": station["STATION_NUMBER"],
+              "most_recent_year": station["YEAR"],
+              "years_of_data": station["YEARS_OF_DATA"],
+              "mean": station["MEAN"],
+              "min": station["MIN"],
+              "max": station["MAX"],
+              "drainage_area_gross": station["DRAINAGE_AREA_GROSS"],
+              "latitude": station["LATITUDE"],
+              "longitude": station["LONGITUDE"],
 
-          "gen_id": result["generated_watershed_id"],
-          "annual_precipitation": result["annual_precipitation"],
-          "aspect": result["aspect"],
-          "average_slope": result["average_slope"],
-          "drainage_area": result["drainage_area"],
-          "glacial_area": result["glacial_area"],
-          "glacial_coverage": result["glacial_coverage"],
-          "hydrological_zone": result["hydrological_zone"],
-          "median_elevation": result["median_elevation"],
-          "potential_evapotranspiration": result["potential_evapotranspiration"],
-          "solar_exposure": result["solar_exposure"],
-          "watershed_area": result["watershed_area"]
-        }
-        
+              "gen_id": result["generated_watershed_id"],
+              "annual_precipitation": result["annual_precipitation"],
+              "aspect": result["aspect"],
+              "average_slope": result["average_slope"],
+              "drainage_area": result["drainage_area"],
+              "glacial_area": result["glacial_area"],
+              "glacial_coverage": result["glacial_coverage"],
+              "hydrological_zone": result["hydrological_zone"],
+              "median_elevation": result["median_elevation"],
+              "potential_evapotranspiration": result["potential_evapotranspiration"],
+              "solar_exposure": result["solar_exposure"],
+              "watershed_area": result["watershed_area"]
+            }
+        except:
+            print('watershed_info error caught, skipping')
+            continue
+            
         writer.writerow(watershed_info.values())
         print("watershed success: {}".format(resp.url))
 
