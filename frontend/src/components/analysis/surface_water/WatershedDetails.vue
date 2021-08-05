@@ -198,17 +198,6 @@
             </template>
             <span>Customize model inputs</span>
           </v-tooltip>
-          <v-tooltip bottom>
-            <template v-slot:activator="{ on }">
-              <v-btn v-on="on" small depressed light @click="downloadWatershedInfo" class="ml-2">
-                <v-icon small class="mr-1">
-                  cloud_download
-                </v-icon>
-                Download Watershed Info
-              </v-btn>
-            </template>
-            <span>Download Watershed Info</span>
-          </v-tooltip>
         </v-card-actions>
       </v-row>
     </v-card-text>
@@ -256,6 +245,8 @@ export default {
       this.show.editingModelInputs = false
     },
     downloadWatershedInfo () {
+      // currently unused; to be updated and re-enabled.
+
       console.log('download watershed')
       let doc = jsPDF('p', 'in', [230, 200])
       let width = doc.internal.pageSize.getWidth()
