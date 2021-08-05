@@ -1,0 +1,123 @@
+from numpy.core.records import record
+import pandas as pd
+import csv
+import json
+import ast
+
+# station_number,most_recent_year,years_of_data,mean,min,max,drainage_area_gross,latitude,longitude,gen_id,annual_precipitation,aspect,average_slope,drainage_area,glacial_area,glacial_coverage,hydrological_zone,median_elevation,potential_evapotranspiration,solar_exposure,watershed_area
+df_stats = pd.read_csv("../data/2_scrape_results/july30_licence_data/watershed_stats_output.csv")
+
+# station_number, gen_id, approvals, total_qty, projected_geometry_area, projected_geometry_area_simplified
+df_approvals = pd.read_csv("../data/2_scrape_results/july30_licence_data/watershed_approvals_output.csv")
+
+# station_number, gen_id, licences, inactive_licencese, total_qty, total_qty_by_purpose, projected_geometry_area, projected_geometry_area_simplified
+df_licences = pd.read_csv("../data/2_scrape_results/july30_licence_data/watershed_licence_output.csv")
+
+# Purpose_Num, Consumptive?, Purpose, Units, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Sum, PREVIOUS_monthly_coefficients, Description of Water License Purpose, Reference/Note
+df_allocation_coef = pd.read_csv("../data/2_scrape_results/july30_licence_data/monthly_allocation_coefficients.csv")
+
+# Purpose_Num, Consumptive?, Purpose, Units, Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec, Sum, Reference
+df_return_coef = pd.read_csv("../data/2_scrape_results/july30_licence_data/monthly_return_coefficients.csv")
+
+# PURPOSE_USE_CODE == Purpose_Num
+
+MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+
+def compute_monthly_allocations(qty, allocations):
+    allocated_values = {}
+    for month in MONTHS:
+        allocated_values[month] = 0
+
+    alloc_sum = allocations['Sum']
+
+    for month in MONTHS:
+        try:
+            if alloc_sum > 0:
+                allocated_values[month] = qty * allocations[month] / alloc_sum
+            else: 
+                allocated_values[month] = 0
+        except:
+            print('error on allocated values', qty, allocations[month], alloc_sum)
+    # print(allocated_values)
+    return allocated_values
+
+
+def compute_station_quantities():
+    for index, station in df_stats.iterrows():
+        station_number = station['station_number']
+        licence_records = df_licences.loc[df_licences['station_number'] == station_number]
+        approval_records = df_approvals.loc[df_approvals['station_number'] == station_number]
+        
+        # totals variables
+        total_licenced_qty = 0
+        total_monthly_licenced_qtys = {}
+        total_monthly_return_qtys = {}
+        total_monthly_absolute_qtys = {}
+        for month in MONTHS:
+            total_monthly_licenced_qtys[month] = 0
+            total_monthly_return_qtys[month] = 0
+            total_monthly_absolute_qtys[month] = 0
+
+        # licences allocation/return
+        for index, licence_record in licence_records.iterrows():
+            licences = licence_record['licences']
+            licences = json.dumps(ast.literal_eval(licences))
+            licences = json.loads(licences)
+            licences = licences['features']
+
+            for licence in licences:
+                properties = licence['properties']
+                purpose_use_code = properties['PURPOSE_USE_CODE']
+                qty_m3_yr = properties['qty_m3_yr']
+                if qty_m3_yr is None:
+                    qty_m3_yr = 0
+
+                allocation_coef = df_allocation_coef.loc[df_allocation_coef['Purpose_Num'] == purpose_use_code]
+                allocation_coef = allocation_coef[MONTHS + ['Sum']].to_dict('records')[0]
+                monthly_allocations = compute_monthly_allocations(qty_m3_yr, allocation_coef)
+
+                return_coef = df_return_coef.loc[df_return_coef['Purpose_Num'] == purpose_use_code]
+                return_coef = return_coef[MONTHS + ['Sum']].to_dict('records')[0]
+                monthly_returns = compute_monthly_allocations(qty_m3_yr, return_coef)
+
+                # add up licence variables
+                total_licenced_qty += qty_m3_yr
+                for month in MONTHS:
+                    total_monthly_licenced_qtys[month] += monthly_allocations[month]
+                    total_monthly_return_qtys[month] += monthly_returns[month]
+                    total_monthly_absolute_qtys[month] += monthly_allocations[month] - monthly_returns[month]
+
+        print(total_monthly_licenced_qtys)
+        print(total_monthly_return_qtys)
+        print(total_monthly_absolute_qtys)
+        continue
+
+        # approvals allocation/return
+        total_approval_qty = 0
+        for index, approval_record in approval_records.iterrows():
+            approvals = approval_record['approvals']
+            approvals = json.dumps(ast.literal_eval(approvals))
+            approvals = json.loads(approvals)
+            approvals = approvals['features']
+
+            for approval in approvals:
+                purpose_use_code = approval['properties']['PURPOSE_USE_CODE']
+                allocation_vals = df_allocation_coef.loc[df_allocation_coef['Purpose_Num'] == purpose_use_code]
+                return_vals = df_return_coef.loc[df_return_coef['Purpose_Num'] == purpose_use_code]
+
+compute_station_quantities()
+
+# 5 percent discrepancy
+# indexNames = df[((df['drainage_area'] / df['drainage_area_gross']) - 1).abs() >= 0.2].index
+# df = df.iloc[indexNames]
+
+# # Mar adjustment
+# df['mean'] = (df['mean'] / df['drainage_area']) * 1000
+
+# print(df[['station_number','latitude', 'longitude', 'drainage_area', 'drainage_area_gross']])
+
+# export to files
+# output_directory = "jun15"
+
+# for zone, rows in df.groupby('hydrological_zone'):
+#     rows.to_csv(f'../data/4_training/{output_directory}/{round(zone)}.csv', index=False, header=True)
