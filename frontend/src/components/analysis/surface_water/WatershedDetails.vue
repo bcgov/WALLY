@@ -246,6 +246,8 @@ export default {
     },
     downloadWatershedInfo () {
       // currently unused; to be updated and re-enabled.
+      // See JIRA ticket WATER-1951.
+      // see commit 46e3623097384b6cd709ff8e58f7bd22201c9b30 for the removed button code.
 
       console.log('download watershed')
       let doc = jsPDF('p', 'in', [230, 200])
