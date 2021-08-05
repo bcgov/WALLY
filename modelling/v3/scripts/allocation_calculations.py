@@ -23,6 +23,31 @@ df_return_coef = pd.read_csv("../data/2_scrape_results/july30_licence_data/month
 
 MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
 
+
+def normalize_quantity(qty, qty_unit: str):
+    """ takes a qty and a unit (as a string) and returns the quantity in m3/year
+        accepts:
+        m3/sec
+        m3/day
+        m3/year
+        Returns None if QUANTITY_UNITS doesn't match one of the options.
+    """
+    if qty_unit is None:
+        return None
+
+    qty_unit = qty_unit.strip()
+
+    if qty_unit == 'm3/year':
+        return qty
+    elif qty_unit == 'm3/day':
+        return qty * 365
+    elif qty_unit == 'm3/sec':
+        return qty * 60 * 60 * 24 * 365
+    else:
+        # could not interpret QUANTITY_UNIT value
+        return None
+
+
 def compute_monthly_allocations(qty, allocations):
     allocated_values = {}
     for month in MONTHS:
@@ -87,13 +112,20 @@ def compute_station_quantities():
                     total_monthly_return_qtys[month] += monthly_returns[month]
                     total_monthly_absolute_qtys[month] += monthly_allocations[month] - monthly_returns[month]
 
-        print(total_monthly_licenced_qtys)
-        print(total_monthly_return_qtys)
-        print(total_monthly_absolute_qtys)
-        continue
+        # print(total_monthly_licenced_qtys)
+        # print(total_monthly_return_qtys)
+        # print(total_monthly_absolute_qtys)
+
+        total_approval_qty = 0
+        total_approval_monthly_licenced_qtys = {}
+        total_approval_monthly_return_qtys = {}
+        total_approval_monthly_absolute_qtys = {}
+        for month in MONTHS:
+            total_approval_monthly_licenced_qtys[month] = 0
+            total_approval_monthly_return_qtys[month] = 0
+            total_approval_monthly_absolute_qtys[month] = 0
 
         # approvals allocation/return
-        total_approval_qty = 0
         for index, approval_record in approval_records.iterrows():
             approvals = approval_record['approvals']
             approvals = json.dumps(ast.literal_eval(approvals))
@@ -101,9 +133,43 @@ def compute_station_quantities():
             approvals = approvals['features']
 
             for approval in approvals:
-                purpose_use_code = approval['properties']['PURPOSE_USE_CODE']
-                allocation_vals = df_allocation_coef.loc[df_allocation_coef['Purpose_Num'] == purpose_use_code]
-                return_vals = df_return_coef.loc[df_return_coef['Purpose_Num'] == purpose_use_code]
+                properties = approval['properties']
+                purpose_use_code = properties['APPROVAL_TYPE']
+                if purpose_use_code != ['STU']:
+                    continue
+
+                qty_m3_yr = normalize_quantity(properties['QUANTITY'], properties['QUANTITY_UNITS'])
+                if qty_m3_yr is None:
+                    qty_m3_yr = 0
+
+                allocation_coef = df_allocation_coef.loc[df_allocation_coef['Purpose_Num'] == purpose_use_code]
+                allocation_coef = allocation_coef[MONTHS + ['Sum']].to_dict('records')[0]
+                monthly_allocations = compute_monthly_allocations(qty_m3_yr, allocation_coef)
+
+                return_coef = df_return_coef.loc[df_return_coef['Purpose_Num'] == purpose_use_code]
+                return_coef = return_coef[MONTHS + ['Sum']].to_dict('records')[0]
+                monthly_returns = compute_monthly_allocations(qty_m3_yr, return_coef)
+
+                # add up approval variables
+                total_approval_qty += qty_m3_yr
+                for month in MONTHS:
+                    total_approval_monthly_licenced_qtys[month] += monthly_allocations[month]
+                    total_approval_monthly_return_qtys[month] += monthly_returns[month]
+                    total_approval_monthly_absolute_qtys[month] += monthly_allocations[month] - monthly_returns[month]
+
+        # print(total_approval_monthly_licenced_qtys)
+        # print(total_approval_monthly_return_qtys)
+        # print(total_approval_monthly_absolute_qtys)
+
+        total_qty = {}
+        total_return = {}
+        total_absolute = {}
+        for month in MONTHS:
+            total_qty[month] = total_monthly_licenced_qtys[month] + total_approval_monthly_licenced_qtys[month]
+            total_return[month] = total_monthly_return_qtys[month] + total_approval_monthly_return_qtys[month]
+            total_absolute[month] = total_monthly_absolute_qtys[month] + total_approval_monthly_absolute_qtys[month]
+
+        print(total_qty, total_return, total_absolute)
 
 compute_station_quantities()
 
