@@ -7,7 +7,6 @@
         <li>After the analysis is produced, an "Export" button allows you to download all the information from all the tabs into Excel or PDF.</li>
         <li>The "Model Calculations and Error" information box describes the model's calculations, coefficients table, and relevancy to watershed.</li>
         <li>Below the initial outputs, the "Model Inputs" button allows you to customize the model inputs values for expert adjustment and discretion.</li>
-        <li>A secondary "Download Watershed Info" button will download all the outputs values into a PDF.</li>
         <li>In the fourth tab for "Licenced Quantity", the "Monthly allocation coefficients" button allows you to edit the monthly allocation coefficient values by re-distributing the expected annual proportion of licensed water quantity. A secondary button allows you to hide or show the Water Rights Licences layer in the map.</li>
         <li>In the top section, the "Reset" button will clear your previous analysis.</li>
         <li>If no analysis is produced, then press "Select A Point" and try again. It also helps to have the map zoomed to a smaller area with a sufficiently large amount of detail.</li>
