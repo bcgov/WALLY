@@ -232,6 +232,7 @@ export default {
       watershedSummary: false
     },
     spreadsheetLoading: false,
+    shapefileLoading: false,
     modelOutputs: {
       mad: 0,
       mar: 0,
@@ -376,6 +377,53 @@ export default {
         this.spreadsheetLoading = false
       })
     },
+    exportWatershedShapefile () {
+      // Custom metrics - Track Excel downloads
+      window._paq && window._paq.push([
+        'trackLink',
+        `${global.config.baseUrl}/api/v1/watersheds/${this.selectedWatershed}`,
+        'download'])
+
+      const params = {
+        format: 'shp',
+        generated_watershed_id: this.generatedWatershedID
+      }
+
+      this.shapefileLoading = true
+
+      ApiService.query(`/api/v1/watersheds/${this.selectedWatershed}`,
+        params, {
+          responseType: 'arraybuffer'
+        }).then((res) => {
+        global.config.debug && console.log('[wally]', res)
+        global.config.debug && console.log('[wally]', res.headers['content-disposition'])
+
+        // default filename, and inspect response header Content-Disposition
+        // for a more specific filename (if provided).
+        let filename = 'SurfaceWater.shp'
+        const filenameData = res.headers['content-disposition'] &&
+          res.headers['content-disposition'].split('filename=')
+        if (filenameData && filenameData.length === 2) {
+          filename = filenameData[1]
+        }
+
+        let blob = new Blob([res.data], { type:
+            'application/zip' })
+        let link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = filename
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(link.href)
+        }, 0)
+        this.shapefileLoading = false
+      }).catch((error) => {
+        console.error(error)
+        this.shapefileLoading = false
+      })
+    },
     resetWatershed () {
       this.$store.dispatch('map/clearSelections')
       this.clearWatershedDetailsAndDefaults()
@@ -514,6 +562,7 @@ export default {
     EventBus.$on('watershed:reset', this.resetWatershed)
     EventBus.$on('watershed:export:pdf', this.downloadWatershedInfo)
     EventBus.$on('watershed:export:excel', this.exportWatershedXLSX)
+    EventBus.$on('watershed:export:shp', this.exportWatershedShapefile)
   },
   beforeDestroy () {
     this.resetGeoJSONLayers()

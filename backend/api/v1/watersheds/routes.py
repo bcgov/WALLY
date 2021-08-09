@@ -13,6 +13,7 @@ from urllib.parse import unquote
 
 from api.db.utils import get_db
 from api.v1.watersheds.controller import (
+    export_summary_as_zipped_shp,
     get_watershed_details,
     surface_water_rights_licences,
     surface_water_approval_points,
@@ -118,7 +119,7 @@ def watershed_stats(
     format: str = Query(
         "json",
         title="Format",
-        description="Format to return results in. Options: json (default), xlsx"
+        description="Format to return results in. Options: json (default), xlsx, shp (zipped shapefile)"
     ),
     generated_watershed_id: int = Query(
         None,
@@ -132,7 +133,7 @@ def watershed_stats(
 
     # watershed area calculations
     watershed_data = get_watershed(db, user, watershed_feature,
-                              generated_watershed_id=generated_watershed_id)
+                                   generated_watershed_id=generated_watershed_id)
     watershed = watershed_data.watershed
     watershed_poly = shape(watershed.geometry)
 
@@ -187,6 +188,9 @@ def watershed_stats(
             data['licences_count_pod'] = len(licence_data.licences.features)
 
         return export_summary_as_xlsx(jsonable_encoder(data))
+
+    if format == 'shp':
+        return export_summary_as_zipped_shp(watershed_poly, jsonable_encoder(data))
 
     if WATERSHED_DEBUG:
         logger.warning("Watershed Details - Request Finished")
