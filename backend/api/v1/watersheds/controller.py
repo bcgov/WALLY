@@ -1281,7 +1281,6 @@ def export_summary_as_zipped_shp(geom: Polygon, data: dict):
             for dirname, _, files in os.walk(shpdir):
                 for f in files:
                     zip_file.write(os.path.join(dirname, f), arcname=f)
-            data = zip_buffer.getvalue()
 
     return Response(
         content=zip_buffer.getvalue(),
