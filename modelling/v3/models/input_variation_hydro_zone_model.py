@@ -1,5 +1,6 @@
 import os
 import json
+from numpy.core.numeric import allclose
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
@@ -14,14 +15,16 @@ import matplotlib.backends.backend_pdf
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import pyplot
+from operator import attrgetter
 
 # Model Settings
-OUTPUT_DIR = 'july_28_2021'
+OUTPUT_DIR = 'Aug_9_2021'
 TESTING_SIZE = 0.3
 TEST_ALL_DATA = False
 FOLDS = 30
 DEPENDANT_VARIABLE = 'mean'
 ZONES = ["all_data"]
+# ZONES = ["25", "26", "27"]
 
 directory = '../data/4_training/july16'
 output_directory_base = "./output/" + OUTPUT_DIR
@@ -44,7 +47,7 @@ all_combinations = [x for x in all_combinations if len(x)<=5]
 
 print('total combinations: ', len(all_combinations))
 
-all_tests = []
+# all_tests = []
 
 # 1. Find best performing inputs for each zone
 for filename in sorted(os.listdir(directory)):
@@ -56,49 +59,81 @@ for filename in sorted(os.listdir(directory)):
             print("Starting Zone:", type(zone_name))
         else:
             continue
-
-        best_r_squared = 0
-        best_inputs = []
+        
         model = LinearRegression()
         print("starting zone:", zone_name)
         zone_df = pd.read_csv(os.path.join(directory, filename))
         # print(zone_df)
 
+        all_combo_stats = []
+
         for inputs in all_combinations:
             count += 1
-            
             inputs = list(inputs) + [DEPENDANT_VARIABLE]
             # print(inputs)
             if len(inputs) < 2:
                 continue
-
             features_df = zone_df[inputs]
             X = features_df.dropna(subset=[DEPENDANT_VARIABLE]) # drop NaNs
             y = X.get(DEPENDANT_VARIABLE) # dependant
             X = X.drop([DEPENDANT_VARIABLE], axis=1) # independant
             if len(X.index) <=1:
                 continue
-
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TESTING_SIZE)
-            model.fit(X_train, y_train)
-            model_score = model.score(X_test, y_test)
-
-            all_tests.append({
-              "score": model_score,
-              "inputs": X.columns.values
-            })
-
-            if model_score > best_r_squared:
-                best_r_squared = model_score
-                best_inputs = list(X.columns.values)
-                print('Found New Best:', best_r_squared, best_inputs)
             
-        # print score value
-        score = round(best_r_squared, 5)
+            best_r2 = 0
+            min_r2 = 1
+            all_r2 = []
+        
+            for i in range(0, FOLDS):
+                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TESTING_SIZE)
+                model.fit(X_train, y_train)
+                model_score = model.score(X_test, y_test)
+                if model_score > best_r2:
+                    best_r2 = model_score
+                if model_score < min_r2:
+                    min_r2 = model_score
+                all_r2.append(model_score)
+
+            combo_stats = {
+              "best_r2": best_r2,
+              "min_r2": min_r2,
+              "avg_r2": sum(all_r2) / len(all_r2),
+              "columns": list(X.columns.values)
+            }
+            all_combo_stats.append(combo_stats)
+        
+        # Find best performing combo based on three factors
+        highest_min_r2_combo = { "min_r2": 0 }
+        highest_best_r2_combo = { "best_r2": 0 }
+        highest_avg_r2_combo = { "avg_r2": 0 }
+        for combo in all_combo_stats:
+            if combo["min_r2"] > highest_min_r2_combo["min_r2"]:
+                highest_min_r2_combo = combo
+            if combo["best_r2"] > highest_best_r2_combo["best_r2"]:
+                highest_best_r2_combo = combo
+            if combo["avg_r2"] > highest_avg_r2_combo["avg_r2"]:
+                highest_avg_r2_combo = combo
+
+
+        # highest_min_r2_combo = max(all_combo_stats, key=attrgetter('min_r2'))
+        print(highest_min_r2_combo)
+        # highest_best_r2_combo = max(all_combo_stats, key=attrgetter('best_r2'))
+        # print(highest_best_r2_combo)
+        # highest_avg_r2_combo = max(all_combo_stats, key=attrgetter('avg_r2'))
+        # print(highest_avg_r2_combo)
+        
+        score = highest_min_r2_combo["min_r2"]
+        best_inputs = highest_min_r2_combo["columns"]
         zone_scores[zone_name] = {
           "score": score,
           "best_inputs": best_inputs
         }
+
+        # output all variation results file
+        local_file_path = output_directory_base + "/zone_" + str(zone_name) + "/zone_" + str(zone_name) + "_input_variation_results.csv"
+        df = pd.DataFrame(all_combo_stats)
+        df.to_csv(local_file_path, index=False)
+
         print('ZONE:', zone_name, 'SCORE:', score, 'INPUTS:', best_inputs)
     else:
         continue
@@ -108,7 +143,7 @@ for filename in sorted(os.listdir(directory)):
 for attr, value in zone_scores.items():
     if len(value["best_inputs"]) < 2:
       continue
-    print(attr, value)
+    # print(attr, value)
     zone_name = 'zone_' + str(attr)
     zone_df = pd.read_csv(os.path.join(directory, str(attr) + '.csv'))
     inputs = value["best_inputs"] + [DEPENDANT_VARIABLE]
@@ -241,7 +276,4 @@ for attr, value in zone_scores.items():
     rmse_95_p = rmse * 2
     print("RMSE 95%", rmse_95_p)
 
-# output all variation results file
-local_file_path = output_dir + "input_variation_results.csv"
-df = pd.DataFrame(all_tests)
-df.to_csv(local_file_path, index=False)
+
