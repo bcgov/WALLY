@@ -84,7 +84,6 @@
             <v-progress-linear indeterminate show></v-progress-linear>
           </div>
           <div v-else>
-            {{ modelOutputs }}
             <EfnAnalysisRiskTable :waterFlowData="modelOutputs" :fishBearing="fishBearing" :licenceWithdrawalData="licenceOutputs"/>
           </div>
         </v-card-text>
