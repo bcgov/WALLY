@@ -5,24 +5,24 @@
       dark>
       Inventory of Streamflow Report
     </v-card-title>
-    <v-card-text v-if="reportLink">
-      <div>
+    <v-card-text>
+      <div v-if="loading">
+        <v-progress-linear show indeterminate></v-progress-linear>
+      </div>
+      <div v-else-if="reportLink">
         <p>
-          Visit EcoCat to access the
-          <a href="https://a100.gov.bc.ca/pub/acat/public/viewReport.do?reportId=53344" target="_blank"
-             rel="noopener">
-            Inventory of Streamflow in the South Coast and West Coast Regions
-          </a> information and its associated data files for this area.
+          Visit EcoCat to access the <a :href="reportLink" target="_blank">{{ reportName }}</a> information and its associated data files for this area.
         </p>
+      </div>
+      <div v-else>
+        <p class="text--disabled">No streamflow inventory report found for this region.</p>
       </div>
     </v-card-text>
   </v-card>
   <v-card v-else flat class="my-5 py-5">
     <p class="title font-weight-bold">Inventory of Streamflow Report</p>
     <div v-if="reportLink">
-      <p>
-        Visit EcoCat to access the <a :href="reportLink" target="_blank">{{ reportName }}</a> information and its associated data files for this area.
-      </p>
+
     </div>
     <p v-else class="text--disabled">No streamflow inventory report found for this region.</p>
   </v-card>
@@ -39,7 +39,8 @@ export default {
   data: () => ({
     reportLink: null,
     reportName: null,
-    hydrologicZone: null
+    hydrologicZone: null,
+    loading: true
   }),
   methods: {
     fetchReportLink () {
@@ -47,11 +48,16 @@ export default {
         point: JSON.stringify(this.coordinates),
         generated_watershed_id: this.generatedWatershedID
       }
+      this.loading = true
       ApiService.query(`/api/v1/watersheds/streamflow_inventory?${qs.stringify(params)}`).then((r) => {
         const data = r.data
         this.reportLink = data.report_link
         this.reportName = data.report_name
         this.hydrologicZone = data.hydrologic_zone
+        this.loading = false
+      }).catch((e) => {
+        this.loading = false
+        console.error(e)
       })
     }
   },
