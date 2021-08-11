@@ -16,6 +16,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib import pyplot
 from operator import attrgetter
+import pickle
+from joblib import dump, load
 
 # Model Settings
 OUTPUT_DIR = 'Aug_9_2021'
@@ -230,6 +232,9 @@ for attr, value in zone_scores.items():
     model = best_model['model']
     rmse = best_model['rmse']
     r2 = best_model['r2']
+
+    model_output_dir =output_directory_base + "/" + str(zone_name) + "/" + zone_name + '.joblib'
+    dump(model, model_output_dir) 
 
     r2s = []
     rmses = []
