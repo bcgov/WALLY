@@ -80,6 +80,9 @@
           <div v-if="highSensitivitySpecies">
             <EfnAnalysisSpeciesSensitivity />
           </div>
+          <div v-else-if="!dataReady">
+            <v-progress-linear indeterminate show></v-progress-linear>
+          </div>
           <div v-else>
             <EfnAnalysisRiskTable :waterFlowData="modelOutputs" :fishBearing="fishBearing" :licenceWithdrawalData="licenceOutputs"/>
           </div>
@@ -104,11 +107,19 @@ export default {
   },
   props: [],
   data: () => ({
-    fishBearing: false,
+    fishBearing: true,
     highSensitivitySpecies: false
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails', 'licencePlotData', 'shortTermLicencePlotData']),
+    dataReady () {
+      return (
+        this.watershedDetails &&
+        this.watershedDetails.scsb2016_model &&
+        !this.watershedDetails.scsb2016_model.error &&
+        this.licencePlotData && this.shortTermLicencePlotData
+      )
+    },
     modelOutputs () {
       if (
         this.watershedDetails &&
