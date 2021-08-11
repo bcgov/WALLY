@@ -34,12 +34,12 @@
       </v-btn-toggle>
     </v-col>
     <v-col class="text-right">
-      <v-btn-toggle class="mb-1">
+      <v-btn-toggle dense color="primary" class="mb-1 v-btn--outlined">
 
         <v-menu open-on-hover offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn outlined small
-                   color="blue" class=""
+                   color="primary"
                    v-bind="attrs"
                    v-on="on"
             >
