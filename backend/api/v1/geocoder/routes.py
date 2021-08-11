@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from geojson import FeatureCollection
 from sqlalchemy.orm import Session
 from api.db.utils import get_db
-from api.v1.geocoder.controller import lookup_feature, address_lookup
+from api.v1.geocoder.controller import lookup_feature, address_lookup, place_name_lookup
 logger = getLogger("geocoder")
 
 router = APIRouter()
@@ -15,6 +15,8 @@ router = APIRouter()
 # search/geocoding control. To maintain compatibility with Mapbox geocoding,
 # this endpoint has to handle several path parameters that we don't need (_1 and _2).
 # The q parameter includes `.json` after the query string, so we need to handle that as well.
+
+
 @router.get("/{_1}/{_2}/{query}.json")
 def geocode_lookup(
     db: Session = Depends(get_db),
@@ -39,4 +41,9 @@ def geocode_lookup(
     if feature_type == 'street_address':
         return address_lookup(query)
 
+    if feature_type == 'place_name':
+        return place_name_lookup(query)
+
+    # if not using a special handler, lookup using the feature_lookup function which
+    # will use the DataBC WMS service to find features.
     return lookup_feature(db, query, feature_type)

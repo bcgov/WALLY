@@ -65,3 +65,21 @@ requests:
         type: "FeatureCollection"
         features.[0].place_name:
           exists: true
+  - name: Search for a GNIS place name
+    url: "{{host}}/api/v1/geocoding/a/a/MacKay Creek.json?country=place_name"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection"
+        features.[0].place_name:
+          exists: true
+  - name: Search for a HYDAT station
+    url: "{{host}}/api/v1/geocoding/a/a/08MG026.json?country=hydrometric_stations_databc"
+    method: get
+    expect:
+      status: 200
+      values:
+        type: "FeatureCollection"
+        features.[0].place_name:
+          exists: true

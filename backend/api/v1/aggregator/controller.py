@@ -64,6 +64,7 @@ DATABC_LAYER_IDS = {
     "fish_observations": "WHSE_FISH.FISS_FISH_OBSRVTN_PNT_SP",
     "water_approval_points": "WHSE_WATER_MANAGEMENT.WLS_WATER_APPROVALS_SVW",
     "fish_obstacles": "WHSE_FISH.FISS_OBSTACLES_PNT_SP",
+    "hydrometric_stations_databc": "WHSE_ENVIRONMENTAL_MONITORING.ENVCAN_HYDROMETRIC_STN_SP"
 }
 
 
@@ -184,7 +185,8 @@ async def fetch_results(req: ExternalAPIRequest, session: ClientSession) -> Laye
         # increased based on user needs.
         if i > MAX_PAGES:
             raise HTTPException(
-                status_code=400, detail=f"Too many results in search area ({req.layer}). Please try again using a smaller area.")
+                status_code=400,
+                detail=f"Too many results in search area ({req.layer}). Please try again using a smaller area.")
 
         logger.info('external request: %s', next_url)
         async with session.get(next_url) as response:

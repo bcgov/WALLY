@@ -4,6 +4,8 @@ import { mapActions } from 'vuex'
 const loadPlotly = import(/* webpackPrefetch: true */ 'vue-plotly')
 // let Plotly
 
+const WELL_SCREEN_LAYER = 'Screens'
+
 export default {
   name: 'CrossSectionChart',
   components: {
@@ -19,6 +21,7 @@ export default {
   data: () => ({
     plotId: '2dPlot',
     displayWaterbodyAnnotations: true,
+    displayWellScreens: true,
     ignoreButtons: [
       'toImage',
       'sendDataToCloud',
@@ -135,7 +138,7 @@ export default {
       const screens = {
         x: this.screens.map(s => s.x),
         y: this.screens.map(s => s.y0),
-        name: 'Screens',
+        name: WELL_SCREEN_LAYER,
         mode: 'markers',
         text: this.screens.map(s => {
           return `Screen (well ${s.well_tag_number}): ${(s.start * 0.3048).toFixed(1)} m to ${(s.end * 0.3048).toFixed(1)} m (btoc)`
@@ -147,6 +150,7 @@ export default {
           size: 1
         },
         showlegend: false,
+        legendgroup: 'screenlegend',
         hoverlabel: {
           namelength: 0
         },
@@ -161,8 +165,9 @@ export default {
       const screensIcon = {
         x: [null],
         y: [null],
-        name: 'Screens',
+        name: WELL_SCREEN_LAYER,
         mode: 'markers',
+        legendgroup: 'screenlegend',
         marker: {
           color: 'blue',
           symbol: 'square-cross-open',
@@ -315,46 +320,48 @@ export default {
         opts.shapes.push(rect)
       })
 
-      this.screens.forEach(screen => {
-        // generate rectangle
-        const rect = {
-          type: 'rect',
-          xref: 'x',
-          yref: 'y',
-          x0: screen.x - 3,
-          y0: screen.y0,
-          x1: screen.x + 3,
-          y1: screen.y1,
-          opacity: 0.7,
-          line: {
-            color: 'blue',
-            width: 2
-          },
-          hoverlabel: {
-            namelength: 0
+      if (this.displayWellScreens) {
+        this.screens.forEach(screen => {
+          // generate rectangle
+          const rect = {
+            type: 'rect',
+            xref: 'x',
+            yref: 'y',
+            x0: screen.x - 3,
+            y0: screen.y0,
+            x1: screen.x + 3,
+            y1: screen.y1,
+            opacity: 0.7,
+            line: {
+              color: 'blue',
+              width: 2
+            },
+            hoverlabel: {
+              namelength: 0
+            }
           }
-        }
-        opts.shapes.push(rect)
+          opts.shapes.push(rect)
 
-        // generate hashmarks/lines within rectangle
-        // every 0.2 metres
-        Array(Math.floor(Math.abs(screen.y0 - screen.y1) * 5)).fill({}).map((item, i) => ({
-          type: 'line',
-          xref: 'x',
-          yref: 'y',
-          x0: screen.x - 3,
-          y0: screen.y1 + (i + 1) * 0.2,
-          x1: screen.x + 3,
-          y1: screen.y1 + (i + 1) * 0.2,
-          opacity: 0.7,
-          line: {
-            color: 'blue',
-            width: 2
-          }
-        })).forEach(item => {
-          opts.shapes.push(item)
+          // generate hashmarks/lines within rectangle
+          // every 0.2 metres
+          Array(Math.floor(Math.abs(screen.y0 - screen.y1) * 5)).fill({}).map((item, i) => ({
+            type: 'line',
+            xref: 'x',
+            yref: 'y',
+            x0: screen.x - 3,
+            y0: screen.y1 + (i + 1) * 0.2,
+            x1: screen.x + 3,
+            y1: screen.y1 + (i + 1) * 0.2,
+            opacity: 0.7,
+            line: {
+              color: 'blue',
+              width: 2
+            }
+          })).forEach(item => {
+            opts.shapes.push(item)
+          })
         })
-      })
+      }
 
       return opts
     }
@@ -378,6 +385,14 @@ export default {
               this.displayWaterbodyAnnotations = false
             } else {
               this.displayWaterbodyAnnotations = true
+            }
+          }
+
+          if (e.data[e.curveNumber].name === WELL_SCREEN_LAYER) {
+            if (e.data[e.curveNumber].visible !== 'legendonly') {
+              this.displayWellScreens = false
+            } else {
+              this.displayWellScreens = true
             }
           }
         })

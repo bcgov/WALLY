@@ -131,8 +131,9 @@ def watershed_stats(
         logger.warning("Watershed Details - Request Started")
 
     # watershed area calculations
-    watershed = get_watershed(db, user, watershed_feature,
-                              generated_watershed_id=generated_watershed_id).watershed
+    watershed_data = get_watershed(db, user, watershed_feature,
+                              generated_watershed_id=generated_watershed_id)
+    watershed = watershed_data.watershed
     watershed_poly = shape(watershed.geometry)
 
     watershed_details = get_watershed_details(db, watershed)
@@ -168,6 +169,7 @@ def watershed_stats(
         "scsb2016_output": model_output_as_dict(scsb2016_model),
         "scsb2016_input_stats": scsb2016_input_stats,
         "hydrometric_stations": hydrometric_stations,
+        "generated_watershed_id": watershed_data.generated_watershed_id
     }
 
     if format == 'xlsx':

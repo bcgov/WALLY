@@ -1,6 +1,10 @@
 <template>
   <v-container>
-    <v-row>
+    <div v-if="!modelOutputs || !licenceOutputs">
+      <div>Estimating EFN...</div>
+      <v-progress-linear indeterminate show></v-progress-linear>
+    </div>
+    <v-row v-else>
       <v-card class="watershedInfo" flat>
         <v-card-title class="title mt-5 ml-3 mr-3 pa-1 mb-2" dark>
           EFN Risk Assessment
@@ -76,6 +80,9 @@
           <div v-if="highSensitivitySpecies">
             <EfnAnalysisSpeciesSensitivity />
           </div>
+          <div v-else-if="!dataReady">
+            <v-progress-linear indeterminate show></v-progress-linear>
+          </div>
           <div v-else>
             <EfnAnalysisRiskTable :waterFlowData="modelOutputs" :fishBearing="fishBearing" :licenceWithdrawalData="licenceOutputs"/>
           </div>
@@ -100,11 +107,19 @@ export default {
   },
   props: [],
   data: () => ({
-    fishBearing: false,
+    fishBearing: true,
     highSensitivitySpecies: false
   }),
   computed: {
     ...mapGetters('surfaceWater', ['watershedDetails', 'licencePlotData', 'shortTermLicencePlotData']),
+    dataReady () {
+      return (
+        this.watershedDetails &&
+        this.watershedDetails.scsb2016_model &&
+        !this.watershedDetails.scsb2016_model.error &&
+        this.licencePlotData && this.shortTermLicencePlotData
+      )
+    },
     modelOutputs () {
       if (
         this.watershedDetails &&
@@ -129,6 +144,12 @@ export default {
       }
     },
     licenceOutputs () {
+      if (!this.licencePlotData || !this.shortTermLicencePlotData) {
+        return {
+          longTerm: [],
+          shortTerm: []
+        }
+      }
       // convert m3 to m3/sec for risk analysis
       return {
         longTerm: this.licencePlotData.map((d, idx) => { return d / secondsInMonth(idx + 1) }),
