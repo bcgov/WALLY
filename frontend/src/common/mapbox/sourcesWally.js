@@ -42,10 +42,13 @@ export const SOURCE_WELL_OFFSET_DISTANCE = 'wellOffsetDistance'
 
 export const SOURCE_WATER_LICENCES = 'waterLicences'
 export const SOURCE_WATERSHEDS_AT_LOCATION = 'watershedsAtLocation'
-
+export const SOURCE_HYDAT_STATIONS = 'hydatStations'
 export const SOURCE_WATER_APPROVALS = 'waterApprovals'
 
 export const SOURCE_UPSTREAM_NETWORK = 'upstreamNetwork'
 export const SOURCE_DOWNSTREAM_NETWORK = 'downstreamNetwork'
 
 export const SOURCE_FISH_OBSERVATIONS = 'fishObservations'
+
+// represents HYDAT stations within a watershed on the Surface Water page.
+export const SOURCE_WS_HYDAT_STATIONS = 'watershedHydatStations'
