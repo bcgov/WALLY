@@ -97,7 +97,7 @@ export default {
           .setLngLat(coordinates)
           .setHTML(`
             <dl>
-              <dt>WSC Station:</dt> <dd>${stationName}</dd>
+              <dt>Hydrometric station:</dt> <dd>${stationName}</dd>
             </dl>
 
           `)
