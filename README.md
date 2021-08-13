@@ -19,9 +19,6 @@ Running WALLY locally requires the following env vars:
 
 `MAPBOX_ACCESS_TOKEN` (required): a token from mapbox.com for making Mapbox API requests (e.g. requesting tiles and map images).
 
-`MINIO_HOST_URL`: Set the default to minio:9000
-
-
 #### Feature flags
 
 The backend also uses [Pydantic's settings management](https://github.com/bcgov-c/wally/blob/0dc732c241bff5e8d8ce72d40ab88b9286e4566c/backend/api/config.py#L61-L82)
