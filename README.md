@@ -2,6 +2,7 @@
 
 1. [Working on WALLY (Getting started)](#working-on-wally-getting-started)
 1. [Application architecture](#application-architecture)
+1. [Feature-specific documentation](#feature-specific-documentation)
 1. [Contributing / Code of Conduct](#contributing)
 
 ## Working on WALLY (Getting started)
@@ -99,6 +100,22 @@ and the [fixture extents README](backend/fixtures/extents/README.md) for instruc
 
 All raster fixtures in the `/backend/fixtures/raster` dir will automatically be copied to the local Minio instance when using `docker-compose`. However, for staging and production,
 you must manually upload any new raster files to the staging and prod minio servers.
+
+## Feature-specific documentation
+
+### Surface Water Analysis - Watershed delineation
+
+The Surface Water Analysis feature delineates watersheds from a point that the user drops.  This requires
+Freshwater Atlas fundamental watersheds and Freshwater Atlas stream networks layers to be loaded into
+the database, as well as a stream-burned DEM. See the [the Watersheds README](backend/api/v1/watersheds/README.md)
+for instructions on creating the DEMs.
+
+The stream-burned DEM needs to be loaded in Minio, and the extents of the DEM need to be loaded in
+the `dem.stream_burned_cdem_tile` database table. The Surface Water Analysis feature will automatically
+select the best DEM in the area based on the extents in the table.
+
+See [the Caribou DEM extent migration](backend/alembic/versions/20210625150931_add_caribou_dem_extent.py) for an example
+of loading an extent.  The shapefile that represents the DEM extent needs to be created separately.
 
 ## Contributing
 
