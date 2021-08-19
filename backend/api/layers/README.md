@@ -3,8 +3,10 @@
 The layers module contains database models for simple layers (e.g. one table) that we store
 in the Wally database. These layers generally come from the DataBC Geographic Warehouse.
 
-Many of the individual layer models in this folder are deprecated as WALLY uses the DataBC WFS
-service whenever possible.  The exceptions are Freshwater Atlas streams and watersheds layers.
+Many of the individual layer models in this folder (e.g. files like `ground_water_wells.py`)
+are deprecated as WALLY uses the DataBC WFS service whenever possible.  The exceptions are
+Freshwater Atlas streams and watersheds layers. This README contains instructions on how
+to configure WALLY to load new layers from DataBC WFS without having to load data into the database.
 
 # Adding a new layer to WALLY
 

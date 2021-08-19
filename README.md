@@ -106,6 +106,10 @@ you must manually upload any new raster files to the staging and prod minio serv
 
 ## Feature-specific documentation
 
+### Spatial layers
+
+To add or update spatial layers in WALLY (the items in the `Layers` menu), see [the Layers API README](backend/api/layers/README.md).
+
 ### Surface Water Analysis - Watershed delineation
 
 The Surface Water Analysis feature delineates watersheds from a point that the user drops.  This requires
