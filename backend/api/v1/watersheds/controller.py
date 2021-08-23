@@ -3,21 +3,25 @@ Functions for aggregating data from web requests and database records
 """
 import base64
 import datetime
+import io
 import logging
 import requests
 import json
+import fiona
 import math
 import re
 import time
 import os
+import zipfile
 import sqlalchemy as sa
+from tempfile import TemporaryDirectory
 from geoalchemy2.elements import WKTElement
 from shapely import wkb
 from typing import Tuple, List, Optional
 from urllib.parse import urlencode
 from geojson import FeatureCollection, Feature
 from operator import add
-from shapely.geometry import Point, Polygon, MultiPolygon, shape
+from shapely.geometry import Point, Polygon, MultiPolygon, shape, mapping
 from shapely.ops import transform
 from starlette.responses import Response
 from sqlalchemy.orm import Session
@@ -1217,6 +1221,70 @@ def export_summary_as_xlsx(data: dict):
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f"attachment; filename={filename}.xlsx"}
     )
+
+
+def export_summary_as_zipped_shp(geom: Polygon, data: dict):
+    """ exports watershed summary data as a zipped Shapefile """
+
+    zip_buffer = io.BytesIO()
+
+    cur_date_compact = datetime.datetime.now().strftime("%Y%m%d")
+    cur_date = datetime.datetime.now().strftime("%Y-%m-%d")
+
+    ws_name = data.get("watershed_name", "Surface_Water")
+    ws_name.replace(" ", "_")
+
+    filename = f"{cur_date_compact}_{ws_name}"
+
+    with TemporaryDirectory() as shpdir:
+        tmp_shp_file = shpdir + f"/{filename}.shp"
+
+        # Define a Polygon feature geometry with properties that include
+        # some of the key attributes used for modeling.
+        poly_schema = {
+            'geometry': 'Polygon',
+            'properties': {
+                'id': 'str',
+                'name': 'str',
+                'created': 'str',
+                'area_sqm': 'float:15.2',
+                'med_elev': 'float:15.2',
+                'hyd_zone': 'int',
+                'glac_cov': 'float:15.2',
+                'precip': 'float:15.2',
+                'pet': 'float:15.2',
+                'avg_slop': 'float:15.2',
+                'sol_exp': 'float:15.2'
+            },
+        }
+
+        # Write a new Shapefile with the area of interest
+        with fiona.open(tmp_shp_file, 'w', 'ESRI Shapefile', poly_schema, crs=f"EPSG:4326") as c:
+            c.write({
+                'geometry': mapping(geom),
+                'properties': {
+                    'id': data.get("watershed_id"),
+                    'name': ws_name,
+                    'created': cur_date,
+                    'area_sqm': data.get("watershed_area"),
+                    'med_elev': data.get("median_elevation"),
+                    'hyd_zone': data.get("hydrological_zone"),
+                    'glac_cov': data.get("glacial_coverage"),
+                    'precip': data.get("annual_precipitation"),
+                    'pet': data.get("potential_evapotranspiration"),
+                    'avg_slop': data.get("average_slope"),
+                    'sol_exp': data.get("solar_exposure")
+                },
+            })
+
+        with zipfile.ZipFile(zip_buffer, 'a', zipfile.ZIP_DEFLATED, False) as zip_file:
+            for dirname, _, files in os.walk(shpdir):
+                for f in files:
+                    zip_file.write(os.path.join(dirname, f), arcname=f)
+
+    return Response(
+        content=zip_buffer.getvalue(),
+        headers={"Content-Disposition": f"attachment; filename={filename}.zip"})
 
 
 def find_50k_watershed_codes(db: Session, geom: Polygon):

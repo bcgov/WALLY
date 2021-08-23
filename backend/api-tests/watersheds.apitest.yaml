@@ -73,6 +73,11 @@ requests:
         solar_exposure:
           gt: 0.64
           lt: 0.65
+  - name: Watershed at point 3 - shapefile
+    url: "{{host}}/api/v1/watersheds/{{watershed_id}}?generated_id={{generated_watershed_id}}&format=shp"
+    method: get
+    expect:
+      status: 200
   - name: Watershed at point 4 - very small watershed
     url: "{{host}}/api/v1/watersheds/?point=%5B-122.95785755130225%2C50.169544156840175%5D&upstream_method=DEM%2BFWA"
     method: get

@@ -34,12 +34,12 @@
       </v-btn-toggle>
     </v-col>
     <v-col class="text-right">
-      <v-btn-toggle class="mb-1">
+      <v-btn-toggle dense color="primary" class="mb-1 v-btn--outlined">
 
         <v-menu open-on-hover offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn outlined small
-                   color="blue" class=""
+                   color="primary"
                    v-bind="attrs"
                    v-on="on"
             >
@@ -58,16 +58,16 @@
             </v-btn>
           </template>
           <v-list >
-            <v-list-item @click="exportPDF" disabled>
-              <v-list-item-title>
-                <v-icon class="mr-1">cloud_download</v-icon>
-                PDF
-              </v-list-item-title>
-            </v-list-item>
             <v-list-item @click="exportExcel">
               <v-list-item-title >
                 <v-icon class="mr-1">cloud_download</v-icon>
                 Excel
+              </v-list-item-title>
+            </v-list-item>
+            <v-list-item @click="exportShapefile">
+              <v-list-item-title >
+                <v-icon class="mr-1">cloud_download</v-icon>
+                Shapefile
               </v-list-item-title>
             </v-list-item>
           </v-list>
@@ -112,6 +112,9 @@ export default {
     },
     exportExcel () {
       EventBus.$emit('watershed:export:excel')
+    },
+    exportShapefile () {
+      EventBus.$emit('watershed:export:shp')
     }
   },
   mounted () {
