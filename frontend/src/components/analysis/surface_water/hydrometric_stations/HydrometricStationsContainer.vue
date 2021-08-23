@@ -66,6 +66,15 @@ export default {
     ...mapGetters('map', ['map'])
   },
   methods: {
+    stationStatus (status) {
+      if (status === 'A') {
+        return 'Active'
+      } else if (status === 'D') {
+        return 'Deactivated'
+      } else {
+        return 'Unknown'
+      }
+    },
     addStationsLayer (data) {
       global.config.debug && console.log('stations map data')
       global.config.debug && console.log(data)
@@ -74,7 +83,7 @@ export default {
         return
       }
 
-      let waterLicencesLayer = findWallyLayer(SOURCE_WS_HYDAT_STATIONS)(featureCollection(data))
+      const waterLicencesLayer = findWallyLayer(SOURCE_WS_HYDAT_STATIONS)(featureCollection(data))
       this.map.addLayer(waterLicencesLayer, 'water_rights_licences')
 
       this.map.on('mouseenter', SOURCE_WS_HYDAT_STATIONS, (e) => {
@@ -82,7 +91,9 @@ export default {
         this.map.getCanvas().style.cursor = 'pointer'
 
         let coordinates = e.features[0].geometry.coordinates.slice()
-        let stationName = `${e.features[0].properties['station_number']} - ${e.features[0].properties['station_name']}`
+        const stationName = `${e.features[0].properties['station_number']} - ${e.features[0].properties['station_name']}`
+        const stnStatus = this.stationStatus(e.features[0].properties['hyd_status'])
+        const realTime = Number(e.features[0].properties['real_time']) ? 'Yes' : 'No'
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -98,6 +109,8 @@ export default {
           .setHTML(`
             <dl>
               <dt>Hydrometric station:</dt> <dd>${stationName}</dd>
+              <dt>Status:</dt> <dd>${stnStatus}</dd>
+              <dt>Real time:</dt> <dd>${realTime}</dd>
             </dl>
 
           `)
