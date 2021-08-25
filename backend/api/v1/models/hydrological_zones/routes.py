@@ -6,13 +6,14 @@ from fastapi import APIRouter
 from api.v1.models.hydrological_zones.controller import xgboost_hydrological_zone_model, \
   download_training_data, download_training_report
 from api.v1.models.hydrological_zones.schema import HydroZoneModelInputs
+from api.v1.models.schema import ModelFlowEstimates
 
 logger = getLogger("hydrological_zones")
 
 router = APIRouter()
 
 
-@router.post("/watershed_drainage_model")
+@router.post("/watershed_drainage_model", response_model=ModelFlowEstimates)
 def v2_watershed_drainage_model(
         model_inputs: HydroZoneModelInputs
 ):

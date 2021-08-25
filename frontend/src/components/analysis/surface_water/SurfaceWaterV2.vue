@@ -56,6 +56,13 @@
       </v-card>
     </v-card>
 
+    <v-select
+      solo
+      :items="modelOptions"
+      placeholder="Choose your source for water flow estimates"
+      v-model="selectedModel"
+    />
+
     <template v-if="watersheds && watersheds.length">
       <div class="watershedInfo" v-if="selectedWatershed">
         <div v-if="watershedDetailsLoading">
@@ -117,6 +124,7 @@
                 </v-card-text>
               </v-card>
             </v-tab-item>
+
             <!-- Monthly Discharge -->
             <v-tab-item>
               <WatershedMonthlyDischarge
@@ -247,7 +255,11 @@ export default {
       'water_approval_points': 'Water Approval Points',
       'fish_observations': 'Known BC Fish Observations & Distributions',
       'water_rights_applications': 'Water Rights Applications'
-    }
+    },
+    selectedModel: '',
+    modelOptions: [
+      // { value: 'scsb', text: 'South Coast Stewardship Baseline' },
+    ]
   }),
   watch: {
     upstreamMethod: {

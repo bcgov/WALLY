@@ -1,6 +1,7 @@
 """
 Analysis functions for data in the Wally system
 """
+from api.v1.models.schema import ModelFlowEstimates
 import json
 from logging import getLogger
 from fastapi import APIRouter, Depends, Query, HTTPException
@@ -15,7 +16,7 @@ logger = getLogger("scsb2016")
 router = APIRouter()
 
 # Model Inputs for SCSB2016
-@router.get("/")
+@router.get("/", response_model=ModelFlowEstimates)
 def get_scsb2016_values(
         hydrological_zone: int,
         median_elevation: float,
@@ -32,4 +33,4 @@ def get_scsb2016_values(
         glacial_coverage, annual_precipitation, evapo_transpiration, \
         drainage_area, solar_exposure, average_slope)
 
-    return result
+    return result 

@@ -20,22 +20,25 @@ import pickle
 from joblib import dump, load
 
 # Model Settings
-OUTPUT_DIR = 'Aug_9_2021'
+OUTPUT_DIR = 'Aug_24_2021'
 TESTING_SIZE = 0.3
 TEST_ALL_DATA = False
-FOLDS = 30
-DEPENDANT_VARIABLE = 'mean'
-ZONES = ["all_data"]
-# ZONES = ["25", "26", "27"]
+FOLDS = 50
+DEPENDANT_VARIABLE = 'mar'
+ALLOCATED_THRESHOLD = 2
+NET_THRESHOLD = 0
+# ZONES = ["all_data"]
+# ZONES = ["25", "26", "27", "all_data"]
+ZONES = ["27"]
 
-directory = '../data/4_training/july16'
+directory = '../data/4_training/aug24'
 output_directory_base = "./output/" + OUTPUT_DIR
-# dependant_variable = 'mean'
 zone_scores = {}
 count = 0
 
 # inputs_list = ["year","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","annual_precipitation","median_elevation","aspect","solar_exposure"]
 # inputs_list = ["average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
+# inputs_list = ["average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure","percent_allocated_mad","percent_allocated_mad_abs"]
 inputs_list = ["average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 all_combinations = []
@@ -51,23 +54,35 @@ print('total combinations: ', len(all_combinations))
 
 # all_tests = []
 
+
+def filter_data(df):
+    return df[(df["percent_allocated_mad"] <= ALLOCATED_THRESHOLD) | (df["percent_allocated_mad_abs"] == NET_THRESHOLD)]
+    # return df[df["percent_allocated_mad"] <= ALLOCATED_THRESHOLD]
+
+
 # 1. Find best performing inputs for each zone
 for filename in sorted(os.listdir(directory)):
     if filename.endswith(".csv"):
         zone_name = filename.split('.')[0]
 
         # limits zones calculated if constant has zone numbers in it
-        if len(ZONES) <= 0 or zone_name in ZONES:
-            print("Starting Zone:", type(zone_name))
+        if zone_name in ZONES:
+            print("Starting Zone:", zone_name)
         else:
             continue
         
         model = LinearRegression()
-        print("starting zone:", zone_name)
         zone_df = pd.read_csv(os.path.join(directory, filename))
+        zone_df = filter_data(zone_df)
+        print("ZONE DATA ROWS COUNT:", zone_df.shape)
+        print(zone_df)
+
         # print(zone_df)
 
         all_combo_stats = []
+
+        local_dir = output_directory_base + "/zone_" + str(zone_name) + "/"
+        Path(local_dir).mkdir(parents=True, exist_ok=True)
 
         for inputs in all_combinations:
             count += 1
@@ -87,14 +102,28 @@ for filename in sorted(os.listdir(directory)):
             all_r2 = []
         
             for i in range(0, FOLDS):
-                X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TESTING_SIZE)
-                model.fit(X_train, y_train)
-                model_score = model.score(X_test, y_test)
-                if model_score > best_r2:
-                    best_r2 = model_score
-                if model_score < min_r2:
-                    min_r2 = model_score
-                all_r2.append(model_score)
+                if TEST_ALL_DATA:
+                    model.fit(X, y)
+                    X_test = X
+                    y_test = y
+                else:
+                    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TESTING_SIZE)
+                    model.fit(X_train, y_train)
+
+                # model_score = model.score(X_test, y_test)
+                r2 = model.score(X, y)
+
+                y_pred = model.predict(X_test)
+                correlation_matrix = np.corrcoef(y_test.to_numpy(), y_pred)
+                correlation_xy = correlation_matrix[0,1]
+                r2 = correlation_xy**2
+
+                print(r2)
+                if r2 > best_r2:
+                    best_r2 = r2
+                if r2 < min_r2:
+                    min_r2 = r2
+                all_r2.append(r2)
 
             combo_stats = {
               "best_r2": best_r2,
@@ -105,9 +134,9 @@ for filename in sorted(os.listdir(directory)):
             all_combo_stats.append(combo_stats)
         
         # Find best performing combo based on three factors
-        highest_min_r2_combo = { "min_r2": 0 }
-        highest_best_r2_combo = { "best_r2": 0 }
-        highest_avg_r2_combo = { "avg_r2": 0 }
+        highest_min_r2_combo = all_combo_stats[0] #{ "min_r2": 0 }
+        highest_best_r2_combo = all_combo_stats[0] # { "best_r2": 0 }
+        highest_avg_r2_combo = all_combo_stats[0] # { "avg_r2": 0 }
         for combo in all_combo_stats:
             if combo["min_r2"] > highest_min_r2_combo["min_r2"]:
                 highest_min_r2_combo = combo
@@ -118,12 +147,11 @@ for filename in sorted(os.listdir(directory)):
 
 
         # highest_min_r2_combo = max(all_combo_stats, key=attrgetter('min_r2'))
-        print(highest_min_r2_combo)
+        print("highest_min_r2_combo", highest_min_r2_combo)
         # highest_best_r2_combo = max(all_combo_stats, key=attrgetter('best_r2'))
         # print(highest_best_r2_combo)
         # highest_avg_r2_combo = max(all_combo_stats, key=attrgetter('avg_r2'))
         # print(highest_avg_r2_combo)
-        
         score = highest_min_r2_combo["min_r2"]
         best_inputs = highest_min_r2_combo["columns"]
         zone_scores[zone_name] = {
@@ -132,7 +160,9 @@ for filename in sorted(os.listdir(directory)):
         }
 
         # output all variation results file
-        local_file_path = output_directory_base + "/zone_" + str(zone_name) + "/zone_" + str(zone_name) + "_input_variation_results.csv"
+        # local_dir = output_directory_base + "/zone_" + str(zone_name) + "/"
+        # Path(local_dir).mkdir(parents=True, exist_ok=True)
+        local_file_path = local_dir + "zone_" + str(zone_name) + "_input_variation_results.csv"
         df = pd.DataFrame(all_combo_stats)
         df.to_csv(local_file_path, index=False)
 
@@ -148,9 +178,12 @@ for attr, value in zone_scores.items():
     # print(attr, value)
     zone_name = 'zone_' + str(attr)
     zone_df = pd.read_csv(os.path.join(directory, str(attr) + '.csv'))
+    zone_df = filter_data(zone_df)
+
+    print("2nd Round Size:", zone_df.shape)
     inputs = value["best_inputs"] + [DEPENDANT_VARIABLE]
     model = LinearRegression()
-    features_df = zone_df[inputs]
+    features_df = zone_df[inputs + ['station_number']] 
     X = features_df.dropna(subset=[DEPENDANT_VARIABLE]) # drop NaNs
     y = X.get(DEPENDANT_VARIABLE) # dependant
     X = X.drop([DEPENDANT_VARIABLE], axis=1) # independant
@@ -160,13 +193,48 @@ for attr, value in zone_scores.items():
     fold_counter = 1
     all_models = []
     best_model = None
+    
+    fold_dir = local_dir + 'fold_data/'
+    Path(fold_dir).mkdir(parents=True, exist_ok=True)
+
     for i in range(0, FOLDS):
         # Train Model
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TESTING_SIZE)
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        r2 = r2_score(y_test, y_pred)
+        if TEST_ALL_DATA:
+            model.fit(X, y)
+            X_test = X
+            y_test = y
+        else:
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=TESTING_SIZE)
+            model.fit(X_train.drop(['station_number'], axis=1), y_train)
+
+        y_pred = model.predict(X_test.drop(['station_number'], axis=1))
+        # r2 = r2_score(y_test.to_numpy(), y_pred)
+        r2_test = model.score(X_test.drop(['station_number'], axis=1), y_test)
+
+        correlation_matrix = np.corrcoef(y_test.to_numpy(), y_pred)
+        correlation_xy = correlation_matrix[0,1]
+        r2 = correlation_xy**2
+
+        print("")
+        print("r2_test", r2_test, r2)
+        print(fold_counter, r2)
+        print(y_test.to_numpy())
+        print(type(y_test.to_numpy())) 
+        print(y_pred)
+        print(type(y_pred))
+        print("")
+        
         rmse = mean_squared_error(y_test, y_pred, squared=False)
+        
+        X_test['y_test'] = y_test
+        X_test['y_pred'] = y_pred
+        X_test['r2'] = r2
+        X_test['rmse'] = rmse
+
+        fold_file_path = fold_dir + str(fold_counter) + '.csv'
+        X_test_df = pd.DataFrame(X_test)
+        X_test_df.to_csv(fold_file_path, index=False)
+
         feat_import = model.coef_
         intercept = model.intercept_
         output_dir = output_directory_base + "/zone_" + str(attr) + "/"
