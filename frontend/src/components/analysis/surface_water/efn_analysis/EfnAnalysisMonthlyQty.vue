@@ -130,6 +130,26 @@ export default {
         x: this.monthHeaders.map((h) => h.text)
       }
 
+      const mad20 = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: '20% MAD',
+        y: Array(12).fill(this.mad * 0.2),
+        x: this.monthHeaders.map((h) => h.text),
+        line: { color: '#5ab190' }
+      }
+
+      const mad10 = {
+        type: 'line',
+        mode: 'lines',
+        hoverinfo: 'skip',
+        name: '10% MAD',
+        y: Array(12).fill(this.mad * 0.1),
+        x: this.monthHeaders.map((h) => h.text),
+        line: { color: '#fec925' }
+      }
+
       // const low = {
       //   type: 'line',
       //   marker: {
@@ -145,7 +165,7 @@ export default {
       //   x: this.monthHeaders.map((h) => h.text)
       // }
 
-      plotConfig.push(moderate, high, shortTerm, longTerm, availabilityData)
+      plotConfig.push(moderate, high, shortTerm, longTerm, availabilityData, mad10, mad20)
 
       return plotConfig
     }
