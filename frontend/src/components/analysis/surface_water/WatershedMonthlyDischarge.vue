@@ -89,7 +89,7 @@ export default {
       const volumeData = {
         type: 'bar',
         name: 'Monthly Volume',
-        y: volume,
+        y: discharge,
         x: this.monthHeaders.map((h) => h.text),
         text: hoverText,
         hoverinfo: 'text'
@@ -143,6 +143,9 @@ export default {
             text: 'Month',
             standoff: 20
           }
+        },
+        yaxis: {
+          title: 'Discharge (m³/s)'
         }
       }
     }

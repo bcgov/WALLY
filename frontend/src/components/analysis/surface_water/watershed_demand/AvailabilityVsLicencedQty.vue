@@ -1,7 +1,7 @@
 <template>
   <v-card flat>
     <v-card-text class="pb-0">
-      <h3>Availability vs Licensed Quantity</h3>
+      <h3>Licensed Quantity</h3>
     </v-card-text>
 
     <v-card-text v-if="demandAvailabilityData">
@@ -13,7 +13,7 @@
             </v-card-title>
             <v-card-text class="info-blue">
               <strong>
-                This graph shows available water after allocation from existing surface water licences, as determined by subtracting licensed quantities (including any adjusted monthly allocation values) from the estimated discharge for each month.
+                This graph shows allocation from existing surface water licences (including any adjusted monthly allocation values) expressed as withdrawal rate in cubic metres per second (m³/s).
               </strong>
             </v-card-text>
           </v-card>
@@ -65,62 +65,17 @@ export default {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     demandAvailabilityData () {
-      if (!this.availabilityPlotData) {
-        return null
-      }
       var plotConfig = []
-      let mar = this.availabilityPlotData.reduce((a, b) => a + b, 0) / 12
-
-      const availabilityData = {
-        type: 'bar',
-        name: 'Available Water',
-        y: this.availabilityPlotData.map((val, i) => {
-          return val - (this.licencePlotData ? this.licencePlotData[i] : 0) -
-              (this.shortTermLicencePlotData ? this.shortTermLicencePlotData[i] : 0)
-        }),
-        x: this.monthHeaders.map((h) => h.text),
-        hovertemplate: '%{y:.2f} m³'
-      }
-
-      const mad30 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '20% MAD',
-        y: Array(12).fill(mar * 0.2),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#5ab190' }
-      }
-
-      const mad20 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '15% MAD',
-        y: Array(12).fill(mar * 0.15),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fec925' }
-      }
-
-      const mad10 = {
-        type: 'line',
-        mode: 'lines',
-        hoverinfo: 'skip',
-        name: '10% MAD',
-        y: Array(12).fill(mar * 0.1),
-        x: this.monthHeaders.map((h) => h.text),
-        line: { color: '#fa1e44' }
-      }
-
-      plotConfig.push(availabilityData, mad10, mad20, mad30)
 
       if (this.licencePlotData) {
         plotConfig.push({
           type: 'bar',
           name: 'Monthly Licenced Quantity',
-          y: this.licencePlotData,
+          y: this.licencePlotData.map((v, i) => {
+            return v / this.secondsInMonth(i + 1)
+          }),
           x: this.monthHeaders.map((h) => h.text),
-          hovertemplate: '%{y:.2f} m³',
+          hovertemplate: '%{y:.2f} m³/s',
           marker: { color: 'orange' }
         })
       }
@@ -129,9 +84,11 @@ export default {
         plotConfig.push({
           type: 'bar',
           name: 'Monthly Short Term Approvals Quantity',
-          y: this.shortTermLicencePlotData,
+          y: this.shortTermLicencePlotData.map((v, i) => {
+            return v / this.secondsInMonth(i + 1)
+          }),
           x: this.monthHeaders.map((h) => h.text),
-          hovertemplate: '%{y:.2f} m³',
+          hovertemplate: '%{y:.2f} m³/s',
           marker: { color: 'purple' }
         })
       }
@@ -140,10 +97,15 @@ export default {
     }
   },
   methods: {
+    // return the number of seconds in a given month.
+    // Month is represented by an integer, starting with 1 for January.
+    secondsInMonth (month) {
+      return 60 * 60 * 24 * this.months[month]
+    },
     demandAvailabilityLayout () {
       return {
         barmode: 'stack',
-        title: 'Availability vs Licenced Quantity',
+        title: 'Licenced quantity (as withdrawal rate)',
         showlegend: true,
         legend: {
           xanchor: 'center',
@@ -158,7 +120,7 @@ export default {
           tickformat: '%B'
         },
         yaxis: {
-          title: 'Volume (m³)'
+          title: 'Withdrawal (m³/s)'
         }
       }
     }
