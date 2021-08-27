@@ -84,10 +84,6 @@ def get_potential_evapotranspiration(
     Zomer RJ, Trabucco A, Bossio DA, van Straaten O, Verchot LV, 2008. Climate Change
     Mitigation: A Spatial Analysis of Global Land Suitability for Clean Development
     Mechanism Afforestation and Reforestation. Agric. Ecosystems and Envir. 126: 67-80.
-
-    Zomer RJ, Bossio DA, Trabucco A, Yuanjie L, Gupta DC & Singh VP, 2007. Trees and
-    Water: Smallholder Agroforestry on Irrigated Lands in Northern India. Colombo,
-    Sri Lanka: International Water Management Institute. pp 45. (IWMI Research Report 122).
     """
     start = time.perf_counter()
     no_data = -32768
