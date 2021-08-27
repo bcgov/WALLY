@@ -1516,8 +1516,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     if WATERSHED_DEBUG:
         logger.info("annual precipitation %s", annual_precipitation)
 
-    # temperature and potential evapotranspiration values
-
+    # Potential evapotranspiration values
     potential_evapotranspiration = get_potential_evapotranspiration(
         watershed_poly, retry_min_size=retry_min_size)
 
@@ -1528,7 +1527,11 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         watershed_poly, raster="/vsis3/" + PET_RASTER_V1, retry_min_size=retry_min_size)
 
     if WATERSHED_DEBUG:
-        logger.info("potential evapotranspiration %s", potential_evapotranspiration)
+        logger.info(
+            "potential evapotranspiration (from Global PET v1, for SCSB models):  %s",
+            potential_evapotranspiration_scsb)
+        logger.info("potential evapotranspiration (from Global PET v2, for WALLY models): %s",
+                    potential_evapotranspiration)
 
     # hydro zone dictates which model values to use
     hydrological_zone = get_hydrological_zone(watershed_poly.centroid)

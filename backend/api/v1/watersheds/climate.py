@@ -62,18 +62,25 @@ def get_potential_evapotranspiration(
     Retrieves potential evapotranspiration from the Global Aridity and PET database.
     The data should be a raster file (sourced from the annual_et0 PET dataset).
 
+    `area` should be a shapely Polygon (with lat/lng coordinates - EPSG:4326).
+    The polygon will be used to clip a raster and get the average value of the clipped area.
+    It must have enough area to be a valid input to the gdalwarp -clipsrc argument. If it
+    does not have enough area, it will be expanded and clipping will be retried until a value is returned.
+    `retry_min_size` sets the smallest sized polygon to retry (to ensure that we are retrying a reasonable sized
+    polygon e.g. 1000 m2)
+
     `raster` can be a file path or a GDAL virtual filesystem path.
     /vsis3/ is pre-configured for WALLY's Minio storage.
     example:  "/vsis3/raster/WNA_et0.tif"
 
-    V2 (PET_RASTER_V2):
+    `"/vsis3/"+PET_RASTER_V2` (default): Global PET database V2 (for WALLY models):
     Trabucco, Antonio; Zomer, Robert (2019): Global Aridity Index and Potential
     Evapotranspiration (ET0) Climate Database v2. figshare. Dataset.
     https://doi.org/10.6084/m9.figshare.7504448.v3 
     https://cgiarcsi.community/data/global-aridity-and-pet-database/
 
 
-    V1 (PET_RASTER_V1):
+    `"/vsis3/+PET_RASTER_V1"`: Global PET database V1 (for SCSB models):
     Zomer RJ, Trabucco A, Bossio DA, van Straaten O, Verchot LV, 2008. Climate Change
     Mitigation: A Spatial Analysis of Global Land Suitability for Clean Development
     Mechanism Afforestation and Reforestation. Agric. Ecosystems and Envir. 126: 67-80.
