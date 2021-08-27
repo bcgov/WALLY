@@ -1,6 +1,7 @@
 """
 Functions for aggregating data from web requests and database records
 """
+from api.v1.watersheds import PET_RASTER_V1
 import base64
 import datetime
 import io
@@ -1520,6 +1521,12 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
     potential_evapotranspiration = get_potential_evapotranspiration(
         watershed_poly, retry_min_size=retry_min_size)
 
+    # get the potential evapotranspiration for use with SCSB models.
+    # SCSB was based on the Global PET model V1.  See citation in the below function's
+    # docstring.
+    potential_evapotranspiration_scsb = get_potential_evapotranspiration(
+        watershed_poly, raster="/vsis3/" + PET_RASTER_V1, retry_min_size=retry_min_size)
+
     if WATERSHED_DEBUG:
         logger.info("potential evapotranspiration %s", potential_evapotranspiration)
 
@@ -1551,6 +1558,7 @@ def get_watershed_details(db: Session, watershed: Feature, use_sea: bool = True)
         "glacial_coverage": glacial_coverage,
         "annual_precipitation": annual_precipitation,
         "potential_evapotranspiration": potential_evapotranspiration,
+        "potential_evapotranspiration_scsb": potential_evapotranspiration_scsb,
         "hydrological_zone": hydrological_zone,
         "average_slope": slope_percent,
         "solar_exposure": solar_exposure,

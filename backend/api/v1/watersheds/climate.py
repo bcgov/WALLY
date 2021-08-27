@@ -4,7 +4,7 @@
 
 
 
-    Raster files must be in the /backend/fixtures/raster directory. See PRECIP_RASTER and PET_RASTER
+    Raster files must be in the /backend/fixtures/raster directory. See PRECIP_RASTER and PET_RASTER_V2
     constants for the filenames. The files should be packaged as Cloud Optimized GeoTIFFs (COG) in
     the EPSG:4326 lat/lng coordinate system.
 
@@ -15,7 +15,7 @@ import time
 from typing import Optional
 from shapely.geometry import Polygon
 from api.utils import get_raster_dataset
-from api.v1.watersheds import PRECIP_RASTER, PET_RASTER
+from api.v1.watersheds import PRECIP_RASTER, PET_RASTER_V2
 
 logger = logging.getLogger('climate')
 
@@ -55,7 +55,7 @@ def get_mean_annual_precipitation(
 
 def get_potential_evapotranspiration(
     area: Polygon,
-    raster: str = "/vsis3/"+PET_RASTER,
+    raster: str = "/vsis3/"+PET_RASTER_V2,
     retry_min_size: Optional[float] = None
 ) -> float:
     """
@@ -66,13 +66,21 @@ def get_potential_evapotranspiration(
     /vsis3/ is pre-configured for WALLY's Minio storage.
     example:  "/vsis3/raster/WNA_et0.tif"
 
+    V2 (PET_RASTER_V2):
     Trabucco, Antonio; Zomer, Robert (2019): Global Aridity Index and Potential
     Evapotranspiration (ET0) Climate Database v2. figshare. Dataset.
     https://doi.org/10.6084/m9.figshare.7504448.v3 
     https://cgiarcsi.community/data/global-aridity-and-pet-database/
 
 
+    V1 (PET_RASTER_V1):
+    Zomer RJ, Trabucco A, Bossio DA, van Straaten O, Verchot LV, 2008. Climate Change
+    Mitigation: A Spatial Analysis of Global Land Suitability for Clean Development
+    Mechanism Afforestation and Reforestation. Agric. Ecosystems and Envir. 126: 67-80.
 
+    Zomer RJ, Bossio DA, Trabucco A, Yuanjie L, Gupta DC & Singh VP, 2007. Trees and
+    Water: Smallholder Agroforestry on Irrigated Lands in Northern India. Colombo,
+    Sri Lanka: International Water Management Institute. pp 45. (IWMI Research Report 122).
     """
     start = time.perf_counter()
     no_data = -32768
