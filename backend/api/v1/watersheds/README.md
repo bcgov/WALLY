@@ -12,7 +12,8 @@ coordinates.
 
 ### 12 arcsecond CDEM
 
-The 12 arcsecond CDEM is used for simple statistics like average elevation and slope.
+The 12 arcsecond CDEM is used for simple statistics like average elevation and slope. It must be loaded into PostGIS. This file is NOT
+used for watershed delineation.
 
 * Download the file from https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/archive/ (cdem_12s.tif)
 * Clip to an area around BC: 
@@ -25,10 +26,38 @@ gdalwarp -of "GTiff" -te -142 48 -112 62 ./cdem_12sec.tif ./BC_Area_CDEM.tif
 
 ### Preprocessed DEM with burned streams
 
-Delineating watersheds requires a Digital Elevation Model (DEM) pre-processed to burn streams.  For watersheds in Canada, the CDEM 3 second DEM is used.
-We also use the SRTM DEM along the border with Washington, Idaho and Montana.
+Delineating watersheds requires a Digital Elevation Model (DEM) pre-processed to burn streams.  For watersheds in Canada, CDEM DEM data is used.
+We also use the SRTM DEM along the border with Washington, Idaho and Montana. The SRTM-based DEM is automatically selected instead if the river
+originates in the United States. Otherwise, the watershed delineation functions will select the best file for the area based on the files that
+are registered in the `dem.stream_burned_cdem_tile` table.  
 
-#### CDEM
+These DEMs are preprocessed for hydrological analysis and MUST NOT be used for elevation, slope or any other elevation data.
+
+The current DEM files are:
+
+**Burned_SRTM_3005.tif** - Automatically used for cross-border watersheds. Covers the 49th parallel. Projection: BC Albers (EPSG:3005) (note:
+it is recommended that future DEMs use a consistent projection, either all 3005 or all 4326/lat lng.  This DEM requires a bunch of extra code
+for transforming between 3005 and 4326)
+
+**Burned_CDEM_4326.tif** - Province wide stream-burned coverage. This file is used if there is no 25m stream-burned coverage available in the selected area.
+
+**Burned_SouthernBC_CDEM_25m.tif** - stream-burned 25m CDEM coverage for South Coast and Okanagan.
+
+**Burned_WestCoast_CDEM_25m.tif** - stream-burned 25m CDEM coverage for Vancouver Island and most of the rest of the West Coast region.  Does not include Haida Gwaii (due to the large raster
+size that would result).
+
+**Burned_Caribou_CDEM_25m.tif** - stream-burned 25m CDEM coverage for the Caribou and Omineca regions and the rest of the northern mainland portion of the West Coast region.
+
+All new 25m CDEM files must be loaded to Minio (staging and prod) and the extents must be registered in the `dem.stream_burned_cdem_tile` table. If done correctly,
+the watershed delineation will automatically choose the new file, if it's the best file for the area.  The name of the file used is in the log output when using the Surface Water Analysis.
+
+
+#### 3 arcsecond CDEM
+
+The 3 arcsecond CDEM can provide province-wide coverage for watershed delineation in one file.  It must be stream-burned before use.
+This file is located in Minio at `raster/Burned_CDEM_4326.tif`. The watershed delineation function will try to use higher res files where
+available, but having this file available means there is always at least a low-resolution DEM for any area of the province.
+
 Download the 3 second DEM from https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/archive/
 
 Download the Freshwater Atlas Stream Networks:
@@ -53,10 +82,7 @@ whitebox_tools -r=FillBurn -v --wd="./" --dem=BC_Area_CDEM_3sec_4326.tif --strea
 
 Convert to a COG:
 ```sh
-gdal_translate "01_burned.tif" "Burned_CDEM_4326.tif" \
-     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
-     -co COMPRESS=LZW -co PREDICTOR=2 \
-     -co COPY_SRC_OVERVIEWS=YES -co BIGTIFF=YES
+gdal_translate -of COG -co COMPRESS=LZW "01_burned.tif" "Burned_CDEM_4326.tif" \
 ```
 
 Upload the resulting `Burned_CDEM_4326.tif` to Minio. This file is required by `backend/api/v1/watersheds/delineate_watersheds.py`.
@@ -69,7 +95,7 @@ You will need the BC streams file from above and the Washington streams file fro
 
 We use 3005 for SRTM DEM's, but we may want to refactor to 4326 in the future.
 
-After downloading tiles for the desired area, merge the HGT format tiles together.
+After downloading tiles for the desired area, merge the HGT format tiles together (**note**: EarthExplorer also offers compressed GeoTIFF files which may be a better option than HGT).
 ```sh
 gdalwarp -t_srs EPSG:3005 -r cubic -of "GTiff" *.hgt ../merged/srtm.tif
 ```
@@ -104,49 +130,6 @@ gdal_translate -of COG "01_burned_srtm.tif" "Burned_SRTM_3005.tif" \
 Upload the resulting `Burned_SRTM_3005.tif` to Minio (staging and prod) and [create a fixture version](../../../fixtures/extents/README.md).
 
 
-### Aspect
-
-There are two aspect rasters to help us estimate the average aspect of a watershed.
-
-Because we can't take the simple average of two angles (consider that the average of 350 and 10 is 180, but you would expect the average angle to be due north), we need to use a formula to calculate
-the average aspect.
-
-Start by creating an Aspect raster using WhiteBoxTools, and then create a raster for both the sine and cosine of the aspect value:
-
-```sh
-# transform to 3005
-gdalwarp -t_srs EPSG:3005 -r cubic -of "GTiff" ./BC_Area_CDEM.tif ./01_dem_3005.tif 
-
-# Create Aspect raster
-whitebox_tools -r=Aspect -v --wd="$(pwd)" --dem=01_dem_3005.tif -o=02_aspect.tif 
-
-
-# create sin and cos files
-# https://www.perrygeo.com/average-aspect.html
-
-gdal_calc.py -A 02_aspect.tif --calc "cos(radians(A))" --format "GTiff" --outfile 03_cos_aspect.tif
-gdal_calc.py -A 02_aspect.tif --calc "sin(radians(A))" --format "GTiff" --outfile 03_sin_aspect.tif
-```
-
-Create the Cloud Optimized GeoTIFFs:
-```sh
-gdal_translate "03_cos_aspect.tif" "BC_Area_Aspect_COS_3005.tif" \
-     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
-     -co COMPRESS=LZW -co PREDICTOR=3 \
-     -co COPY_SRC_OVERVIEWS=YES
-
-gdal_translate "03_sin_aspect.tif" "BC_Area_Aspect_SIN_3005.tif" \
-     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
-     -co COMPRESS=LZW -co PREDICTOR=3 \
-     -co COPY_SRC_OVERVIEWS=YES
-```
-
-To calculate aspect, collect the cos values and sin values in a polygon, and use them as
-inputs to `math.atan2(sum(cos_values), sum(sin_values))`. This outputs an aspect in radians.
-Credit: https://www.perrygeo.com/average-aspect.html
-
-Note: some more research needs to be done to determine how accurate and useful this result is.
-
 ### Hillshade
 
 Starting from a DEM (12 second) clipped to BC in BC Albers/3005, generate a new Hillshade raster:
@@ -156,10 +139,8 @@ whitebox_tools -r=HillShade -v --wd="$(pwd)" --dem=01_dem_3005.tif -o=04_hillsha
 
 Create the COG:
 ```sh
-gdal_translate "04_hillshade.tif" "BC_Area_Hillshade_3005.tif" \
-     -co TILED=YES -co BLOCKXSIZE=512 -co BLOCKYSIZE=512 \
-     -co COMPRESS=LZW -co PREDICTOR=2 \
-     -co COPY_SRC_OVERVIEWS=YES
+gdal_translate -of COG -co COMPRESS=LZW "04_hillshade.tif" "BC_Area_Hillshade_3005.tif" \
+     
 ```
 
 ### Climate rasters
