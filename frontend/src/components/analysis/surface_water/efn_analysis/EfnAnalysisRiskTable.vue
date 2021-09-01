@@ -167,6 +167,22 @@ export default {
     },
     monthlyWithdrawalPercent (mmd, month) {
       const mmw = this.meanMonthlyWithdrawal(month)
+
+      // Correct negative values to zero.
+      // Depending on the inputs and the model, the monthly discharge may be slightly negative.
+      // If this is an error or a bug to be reported, it will still be visible to the user in other columns.
+      mmd = Math.max(mmd, 0)
+
+      // if no withdrawal, set monthly withdrawal % to zero regardless of what monthly flow is.
+      if (mmw === 0) {
+        return 0
+      }
+
+      // if no discharge and non-zero withdrawal, call withdrawal percent infinity.
+      if (mmd === 0) {
+        return Infinity
+      }
+
       const withdrawalPercent = mmw / mmd
       return withdrawalPercent
     },

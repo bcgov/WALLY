@@ -114,7 +114,7 @@
 import { mapGetters, mapActions, mapMutations } from 'vuex'
 import ApiService from '../../../../services/ApiService'
 import mapboxgl from 'mapbox-gl'
-
+import qs from 'querystring'
 import Dialog from '../../../common/Dialog'
 import { WatershedModelDescriptions } from '../../../../constants/descriptions'
 
