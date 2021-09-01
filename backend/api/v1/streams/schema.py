@@ -92,3 +92,28 @@ class StreamPoint(BaseModel):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class _FreshWaterAtlasStreamNetworks(BaseModel):
+    distance: float
+    LICENCE_NUMBER: Optional[str]
+    LICENCE_STATUS: Optional[str]
+    POD_NUMBER: Optional[str]
+    POD_SUBTYPE: Optional[str]
+    PURPOSE_USE: Optional[str]
+    SOURCE_NAME: Optional[str]
+    QUANTITY: Optional[float]
+    QUANTITY_UNITS: Optional[str]
+    QTY_DIVERSION_MAX_RATE: Optional[float]
+    QTY_UNITS_DIVERSION_MAX_RATE: Optional[str]
+    QUANTITY_FLAG: Optional[str]
+    QUANTITY_FLAG_DESCRIPTION: Optional[str]
+
+    class Config:
+        orm_mode = True
+
+
+class BufferRequest(BaseModel):
+    geometry: str
+    buffer: float
+    layer: str

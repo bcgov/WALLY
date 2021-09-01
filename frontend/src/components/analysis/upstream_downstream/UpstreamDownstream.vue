@@ -174,7 +174,7 @@ export default {
       this.apiError = null
 
       ApiService.query(
-        '/api/v1/stream/features',
+        '/api/v1/streams/features',
         {
           layer: this.selectedLayer,
           buffer: this.buffer,

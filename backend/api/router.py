@@ -9,7 +9,6 @@ from api.v1.aggregator import routes as aggregator
 from api.v1.geocoder import routes as geocoder
 from api.v1.licences import routes as licences
 from api.v1.streams import routes as streams
-from api.v1.stream import routes as stream
 from api.v1.firstnations import routes as firstnations
 from api.v1.wells import routes as wells
 from api.v1.watersheds import routes as watersheds
@@ -41,13 +40,6 @@ api_router.include_router(
     streams.router,
     prefix="/streams",
     tags=["streams"],
-    responses={404: {"description": "Not found"}},
-)
-
-api_router.include_router(
-    stream.router,
-    prefix="/stream",
-    tags=["stream"],
     responses={404: {"description": "Not found"}},
 )
 
