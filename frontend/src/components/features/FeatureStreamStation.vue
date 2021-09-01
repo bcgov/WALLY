@@ -15,22 +15,15 @@
         <div v-if="station && station.real_time === 1">WSC Realtime Link: <a :href="`https://wateroffice.ec.gc.ca/report/real_time_e.html?stn=${station.station_number}`"
           target="_blank"
         >{{station.station_number}}</a></div>
+        <div v-if="flowData && flowData.mean" class="mt-2">
+            Mean annual discharge:  {{flowData.mean.toFixed(2)}} m³/s
+        </div>
       </div>
       <v-list dense class="mx-0 px-0">
         <v-list-item>
-          <!-- TODO: fix year selection.  Must filter FASSTR data by year. -->
-          <!-- <v-select
-            v-model="selectedYear"
-            :items="yearOptions"
-            :menu-props="{ maxHeight: '400' }"
-            label="Select year"
-            item-text="label"
-            item-value="value"
-            hint="Available data in this year"
-          ></v-select> -->
         </v-list-item>
         <v-list-item>
-          <v-list-item-content class="mx-0 px-0">
+          <v-list-item-content class="m-0 p-0">
             <div v-if="flowDataLoading">
               <v-progress-linear show indeterminate></v-progress-linear>
             </div>

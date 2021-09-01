@@ -11,7 +11,7 @@ import {
   SOURCE_MEASUREMENT_SNAP_CIRCLE,
   SOURCE_SELECTED_STREAM,
   SOURCE_STREAM_APPORTIONMENT, SOURCE_UPSTREAM_NETWORK, SOURCE_WATER_APPROVALS,
-  SOURCE_WATER_LICENCES, SOURCE_WATERSHEDS_AT_LOCATION,
+  SOURCE_WATER_LICENCES, SOURCE_WATERSHEDS_AT_LOCATION, SOURCE_WS_HYDAT_STATIONS,
   SOURCE_WELL_OFFSET_DISTANCE
 } from './sourcesWally'
 
@@ -728,6 +728,19 @@ export default {
         max,
         max > 1000000 ? 50 : 25
       ],
+      'circle-opacity': 0.5
+    }
+  }),
+  [SOURCE_WS_HYDAT_STATIONS]: (data) => ({
+    id: SOURCE_WS_HYDAT_STATIONS,
+    type: 'circle',
+    source: {
+      type: 'geojson',
+      data: data
+    },
+    paint: {
+      'circle-color': '#ff33d4',
+      'circle-radius': 7,
       'circle-opacity': 0.5
     }
   }),

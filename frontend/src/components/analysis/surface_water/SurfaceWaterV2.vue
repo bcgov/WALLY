@@ -125,7 +125,7 @@
             </v-tab-item>
 
             <!-- Hydrometric Stations -->
-            <v-tab-item>
+            <v-tab-item eager>
               <HydrometricStationsContainer v-if="watershedDetails && watershedDetails.hydrometric_stations"
                                             :stations="watershedDetails.hydrometric_stations"
                                             :surface_water_design_v2="true"
@@ -133,7 +133,7 @@
             </v-tab-item>
 
             <!-- Licenced Quantity -->
-            <v-tab-item :eager="true">
+            <v-tab-item eager>
               <WatershedLicencedQty :modelOutputs="modelOutputs"
                                     :generatedWatershedID="generatedWatershedID"
                                     :watershedID="selectedWatershed"/>
