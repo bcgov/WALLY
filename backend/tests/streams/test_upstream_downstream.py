@@ -1,6 +1,6 @@
 import pytest
 
-from api.v1.stream.controller import watershed_root_code
+from api.v1.streams.controller import watershed_root_code
 
 import logging
 
