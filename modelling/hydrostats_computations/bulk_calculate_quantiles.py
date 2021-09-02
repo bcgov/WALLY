@@ -1,5 +1,8 @@
 """
 script to augment a file "watershed_stats.csv" with quantiles computed using FASSTR.
+
+See README.md for more information.
+
 The output CSV with the flow quantiles (7Q10, 7Q2, 30Q10, 30Q5) will be "./stats_quantiles_out.csv".
 see `compute_quantile.r` for the R script that calls the FASSTR functions.
 This is mean to be a one off script until the FASSTR functions can be integrated with
@@ -10,11 +13,17 @@ import asyncio
 import csv
 
 
-async def compute_quantile(stn, days, return_period) -> str:
-    proc = await asyncio.create_subprocess_shell(
-        " ".join(['Rscript', './compute_quantile.r', stn, days, return_period]),
-        stdout=asyncio.subprocess.PIPE,
-        stderr=asyncio.subprocess.PIPE)
+async def compute_quantile(stn, days, return_period, summer: bool = False) -> str:
+    if summer:
+        proc = await asyncio.create_subprocess_shell(
+            " ".join(['Rscript', './compute_quantile_summer.r', stn, days, return_period]),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE)
+    else:
+        proc = await asyncio.create_subprocess_shell(
+            " ".join(['Rscript', './compute_quantile.r', stn, days, return_period]),
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE)
 
     result = ""
 
@@ -22,10 +31,12 @@ async def compute_quantile(stn, days, return_period) -> str:
     if proc.returncode == 0:
         result = stdout.decode().strip().split('\n')[-1:][0]
 
+    summer_ind = "-S" if summer else ""
+
     if stdout:
-        print(f'[{stn}] calculated {days}q{return_period}: {result}')
+        print(f'[{stn}] calculated {days}q{return_period}{summer_ind}: {result}')
     if stderr:
-        print(f'[{stn}] skipping {days}q{return_period}: {stderr.decode()}')
+        print(f'[{stn}] skipping {days}q{return_period}{summer_ind}: {stderr.decode()}')
 
     return result
 
@@ -38,7 +49,7 @@ async def add_quantiles_to_new_csv(in_filename: str, out_filename: str):
         flow_writer = csv.writer(out_file)
 
         headers = next(flow_reader)
-        headers = headers + ["7Q10", "7Q2", "30Q5", "30Q10"]
+        headers = headers + ["7Q10", "7Q2", "30Q5", "30Q10", "7Q10-S", "7Q2-S", "30Q5-S", "30Q10-S"]
         flow_writer.writerow(headers)
 
         for row in flow_reader:
@@ -47,9 +58,12 @@ async def add_quantiles_to_new_csv(in_filename: str, out_filename: str):
             low_7q2 = compute_quantile(stn, "7", "2")
             low_30q5 = compute_quantile(stn, "30", "5")
             low_30q10 = compute_quantile(stn, "30", "10")
+            low_7q10_s = compute_quantile(stn, "7", "10", summer=True)
+            low_7q2_s = compute_quantile(stn, "7", "2", summer=True)
+            low_30q5_s = compute_quantile(stn, "30", "5", summer=True)
+            low_30q10_s = compute_quantile(stn, "30", "10", summer=True)
 
-
-            values = await asyncio.gather(low_7q10, low_7q2, low_30q5, low_30q10)
+            values = await asyncio.gather(low_7q10, low_7q2, low_30q5, low_30q10, low_7q10_s, low_7q2_s, low_30q5_s, low_30q10_s)
             new_row = row + values
             flow_writer.writerow(new_row)
 
