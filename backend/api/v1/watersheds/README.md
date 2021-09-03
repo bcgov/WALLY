@@ -2,6 +2,8 @@
 
 Delineation of watersheds, summaries of watershed statistics, and aggregation of data pertaining to watersheds happens here.
 
+For a high level overview of how the watershed delineation works, see [procedure.md](./procedure.md).
+
 ## Spatial rasters
 
 
@@ -87,6 +89,18 @@ gdal_translate -of COG -co COMPRESS=LZW "01_burned.tif" "Burned_CDEM_4326.tif" \
 
 Upload the resulting `Burned_CDEM_4326.tif` to Minio. This file is required by `backend/api/v1/watersheds/delineate_watersheds.py`.
 Don't forget to [clip a copy to Whistler area](../../../fixtures/extents/README.md) and store it in `backend/fixtures/raster`.
+
+#### 25m CDEM
+
+The same procedure above is used for 25m CDEM, except that you first need to download individual tiles and stitch them together with `gdal_warp`. The
+rest of the instructions apply.  Be sure to record the extents of the burned area as a shapefile and load it into the database - [see example](../../../alembic/versions/20210625150931_add_caribou_dem_extent.py).
+
+https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/
+
+The tiles correspond to the NTS Grid. Check https://www2.gov.bc.ca/gov/content/data/geographic-data-services/topographic-data/nts-base-map (or Google Images).
+
+You may need at least 32 GB or more RAM to successfully burn an entire Natural Resource Region (e.g. Thompson Okanagan) using Whitebox Tools.
+GRASS GIS, TauDEM and ArcGIS (ArcHydro) are alternatives that may require less RAM.
 
 #### SRTM
 
