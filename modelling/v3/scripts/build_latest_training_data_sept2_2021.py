@@ -8,6 +8,7 @@ import ast
 # station_number,most_recent_year,years_of_data,mean,min,max,drainage_area_gross,latitude,longitude,gen_id,annual_precipitation,aspect,average_slope,drainage_area,glacial_area,glacial_coverage,hydrological_zone,median_elevation,potential_evapotranspiration,solar_exposure,watershed_area
 df = pd.read_csv("../data/2_scrape_results/july30_licence_data/watershed_stats_output.csv")
 
+lowflows_df = pd.read_csv("../data/2_scrape_results/july30_licence_data/lowflows_all_stations.csv")
 # PRE-FILTER STATION DATA
 
 # 20 percent discrepancy
@@ -228,8 +229,11 @@ df_monthlys = pd.DataFrame(monthly_licenced_output, columns=monthly_licenced_out
 # merge watershed stats with monthly licence outputs
 df_merged = pd.merge(df, df_monthlys, on='station_number')
 
+# merge lowflow data into stations list
+df_merged = pd.merge(df_merged, lowflows_df, on='station_number')
+
 # export to files
-output_directory = "aug24"
+output_directory = "sept2_2021"
 
 # output by all_data
 df_merged.to_csv(f'../data/4_training/{output_directory}/all_data.csv', index=False, header=True)

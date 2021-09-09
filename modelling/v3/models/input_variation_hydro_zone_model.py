@@ -20,18 +20,20 @@ import pickle
 from joblib import dump, load
 
 # Model Settings
-OUTPUT_DIR = 'Aug_24_2021'
+OUTPUT_DIR = 'Sept_2_2021'
 TESTING_SIZE = 0.3
 TEST_ALL_DATA = False
 FOLDS = 50
-DEPENDANT_VARIABLE = 'mar'
+DEPENDANT_VARIABLE = '7Q10-S'
+NORMALIZE_LOWFLOW = True
 ALLOCATED_THRESHOLD = 2
 NET_THRESHOLD = 0
 # ZONES = ["all_data"]
 # ZONES = ["25", "26", "27", "all_data"]
-ZONES = ["27"]
+ZONES = ["25"]
+ALL_ZONES = True
 
-directory = '../data/4_training/aug24'
+directory = '../data/4_training/sept2_2021'
 output_directory_base = "./output/" + OUTPUT_DIR
 zone_scores = {}
 count = 0
@@ -66,7 +68,7 @@ for filename in sorted(os.listdir(directory)):
         zone_name = filename.split('.')[0]
 
         # limits zones calculated if constant has zone numbers in it
-        if zone_name in ZONES:
+        if zone_name in ZONES or ALL_ZONES:
             print("Starting Zone:", zone_name)
         else:
             continue
@@ -74,8 +76,18 @@ for filename in sorted(os.listdir(directory)):
         model = LinearRegression()
         zone_df = pd.read_csv(os.path.join(directory, filename))
         zone_df = filter_data(zone_df)
-        print("ZONE DATA ROWS COUNT:", zone_df.shape)
+
+        zone_df = zone_df.dropna(subset=[DEPENDANT_VARIABLE]) # drop NaNs
         print(zone_df)
+        
+        # Divide 7Q10-S by MAD
+        if DEPENDANT_VARIABLE == '7Q10-S' and NORMALIZE_LOWFLOW:
+            print('NORMALIZING LOWFLOW BY DIVIDING BY MAD')
+            zone_df['7Q10-S'] = zone_df['7Q10-S'] / ((zone_df['mean'] / 1000) * zone_df['drainage_area'])
+        
+
+        print("ZONE DATA ROWS COUNT:", zone_df.shape)
+        # print(zone_df)
 
         # print(zone_df)
 
@@ -118,7 +130,7 @@ for filename in sorted(os.listdir(directory)):
                 correlation_xy = correlation_matrix[0,1]
                 r2 = correlation_xy**2
 
-                print(r2)
+                # print(r2)
                 if r2 > best_r2:
                     best_r2 = r2
                 if r2 < min_r2:
@@ -131,13 +143,17 @@ for filename in sorted(os.listdir(directory)):
               "avg_r2": sum(all_r2) / len(all_r2),
               "columns": list(X.columns.values)
             }
+            print(combo_stats)
+
             all_combo_stats.append(combo_stats)
         
         # Find best performing combo based on three factors
-        highest_min_r2_combo = all_combo_stats[0] #{ "min_r2": 0 }
-        highest_best_r2_combo = all_combo_stats[0] # { "best_r2": 0 }
-        highest_avg_r2_combo = all_combo_stats[0] # { "avg_r2": 0 }
+        highest_min_r2_combo = {'best_r2': 0, 'min_r2': 0, 'avg_r2': 0, 'columns': []}
+        highest_best_r2_combo = {'best_r2': 0, 'min_r2': 0, 'avg_r2': 0, 'columns': []}
+        highest_avg_r2_combo = {'best_r2': 0, 'min_r2': 0, 'avg_r2': 0, 'columns': []}
         for combo in all_combo_stats:
+            if combo["best_r2"] == 0 or combo["min_r2"] == 1 or combo["avg_r2"] is math.nan:
+                continue
             if combo["min_r2"] > highest_min_r2_combo["min_r2"]:
                 highest_min_r2_combo = combo
             if combo["best_r2"] > highest_best_r2_combo["best_r2"]:
@@ -173,12 +189,17 @@ for filename in sorted(os.listdir(directory)):
 
 # 2. Run iterations on each zones best input set and output the summary
 for attr, value in zone_scores.items():
-    if len(value["best_inputs"]) < 2:
-      continue
+    # if len(value["best_inputs"]) < 2:
+    #     continue
     # print(attr, value)
     zone_name = 'zone_' + str(attr)
     zone_df = pd.read_csv(os.path.join(directory, str(attr) + '.csv'))
     zone_df = filter_data(zone_df)
+    
+    # Divide 7Q10-S by MAD
+    if DEPENDANT_VARIABLE == '7Q10-S' and NORMALIZE_LOWFLOW:
+        print('NORMALIZING LOWFLOW BY DIVIDING BY MAD')
+        zone_df['7Q10-S'] = zone_df['7Q10-S'] / ((zone_df['mean'] / 1000) * zone_df['drainage_area'])
 
     print("2nd Round Size:", zone_df.shape)
     inputs = value["best_inputs"] + [DEPENDANT_VARIABLE]
