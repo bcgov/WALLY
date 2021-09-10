@@ -92,8 +92,8 @@ with open(local_file_path, "a") as outfile:
         row_count += 1
         station = row[1]
 
-        if station["STATION_NUMBER"] not in allowed_station_ids:
-            continue
+        # if station["STATION_NUMBER"] not in allowed_station_ids:
+        #     continue
 
         station_id = "hydat." + station["STATION_NUMBER"]
 
