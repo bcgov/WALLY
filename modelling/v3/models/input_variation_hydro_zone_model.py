@@ -20,7 +20,7 @@ import pickle
 from joblib import dump, load
 
 # Model Settings
-OUTPUT_DIR = 'Sept_2_2021'
+OUTPUT_DIR = 'Sept_9_2021'
 TESTING_SIZE = 0.3
 TEST_ALL_DATA = False
 FOLDS = 50
@@ -30,17 +30,14 @@ ALLOCATED_THRESHOLD = 2
 NET_THRESHOLD = 0
 # ZONES = ["all_data"]
 # ZONES = ["25", "26", "27", "all_data"]
-ZONES = ["25"]
-ALL_ZONES = True
+ZONES = ["all_data"]
+ALL_ZONES = False
 
 directory = '../data/4_training/sept2_2021'
 output_directory_base = "./output/" + OUTPUT_DIR
 zone_scores = {}
 count = 0
 
-# inputs_list = ["year","average_slope","glacial_coverage","glacial_area","watershed_area","potential_evapotranspiration_thornthwaite","potential_evapotranspiration_hamon","annual_precipitation","median_elevation","aspect","solar_exposure"]
-# inputs_list = ["average_slope", "glacial_coverage", "glacial_area", "annual_precipitation", "median_elevation", "potential_evapotranspiration_thornthwaite", "aspect", "solar_exposure"]
-# inputs_list = ["average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure","percent_allocated_mad","percent_allocated_mad_abs"]
 inputs_list = ["average_slope","annual_precipitation","glacial_coverage","potential_evapotranspiration","median_elevation","solar_exposure"]
 
 all_combinations = []
@@ -51,15 +48,11 @@ for r in range(len(inputs_list) + 1):
 
 # limit input list size
 all_combinations = [x for x in all_combinations if len(x)<=5]
-
 print('total combinations: ', len(all_combinations))
-
-# all_tests = []
 
 
 def filter_data(df):
     return df[(df["percent_allocated_mad"] <= ALLOCATED_THRESHOLD) | (df["percent_allocated_mad_abs"] == NET_THRESHOLD)]
-    # return df[df["percent_allocated_mad"] <= ALLOCATED_THRESHOLD]
 
 
 # 1. Find best performing inputs for each zone
@@ -85,11 +78,7 @@ for filename in sorted(os.listdir(directory)):
             print('NORMALIZING LOWFLOW BY DIVIDING BY MAD')
             zone_df['7Q10-S'] = zone_df['7Q10-S'] / ((zone_df['mean'] / 1000) * zone_df['drainage_area'])
         
-
         print("ZONE DATA ROWS COUNT:", zone_df.shape)
-        # print(zone_df)
-
-        # print(zone_df)
 
         all_combo_stats = []
 
@@ -161,13 +150,7 @@ for filename in sorted(os.listdir(directory)):
             if combo["avg_r2"] > highest_avg_r2_combo["avg_r2"]:
                 highest_avg_r2_combo = combo
 
-
-        # highest_min_r2_combo = max(all_combo_stats, key=attrgetter('min_r2'))
         print("highest_min_r2_combo", highest_min_r2_combo)
-        # highest_best_r2_combo = max(all_combo_stats, key=attrgetter('best_r2'))
-        # print(highest_best_r2_combo)
-        # highest_avg_r2_combo = max(all_combo_stats, key=attrgetter('avg_r2'))
-        # print(highest_avg_r2_combo)
         score = highest_min_r2_combo["min_r2"]
         best_inputs = highest_min_r2_combo["columns"]
         zone_scores[zone_name] = {
@@ -176,8 +159,6 @@ for filename in sorted(os.listdir(directory)):
         }
 
         # output all variation results file
-        # local_dir = output_directory_base + "/zone_" + str(zone_name) + "/"
-        # Path(local_dir).mkdir(parents=True, exist_ok=True)
         local_file_path = local_dir + "zone_" + str(zone_name) + "_input_variation_results.csv"
         df = pd.DataFrame(all_combo_stats)
         df.to_csv(local_file_path, index=False)
@@ -189,9 +170,6 @@ for filename in sorted(os.listdir(directory)):
 
 # 2. Run iterations on each zones best input set and output the summary
 for attr, value in zone_scores.items():
-    # if len(value["best_inputs"]) < 2:
-    #     continue
-    # print(attr, value)
     zone_name = 'zone_' + str(attr)
     zone_df = pd.read_csv(os.path.join(directory, str(attr) + '.csv'))
     zone_df = filter_data(zone_df)
@@ -254,7 +232,14 @@ for attr, value in zone_scores.items():
 
         fold_file_path = fold_dir + str(fold_counter) + '.csv'
         X_test_df = pd.DataFrame(X_test)
-        X_test_df.to_csv(fold_file_path, index=False)
+        try:
+            print(fold_file_path)
+            print(X_test_df)
+            X_test_df.to_csv(fold_file_path, index=False)
+            print("successfully exported fold data")
+        except Exception as e:
+            print("Error exporting fold data", e)
+            
 
         feat_import = model.coef_
         intercept = model.intercept_
