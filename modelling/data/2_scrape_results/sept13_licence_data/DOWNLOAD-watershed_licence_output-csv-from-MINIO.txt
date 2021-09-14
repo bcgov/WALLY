@@ -1,0 +1,3 @@
+download watershed_licence_output_09_12_2021-03_33_28.csv from wally-test MINIO instance in openshift
+and rename it to watershed_licence_output.csv
+https://wally-minio-staging.apps.silver.devops.gov.bc.ca/modelling/watershed_licence_output_09%3A12%3A2021-03%3A33%3A28.csv

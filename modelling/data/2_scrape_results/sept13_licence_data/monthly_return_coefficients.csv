@@ -1,0 +1,114 @@
+﻿Purpose_Num,Consumptive?,Purpose,Units,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,Sum,Reference
+02I47,Consumptive/Non-consumptive,"Heat Exchanger, Residential",M3/D,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,9.6,"In an open loop system, the majority of water (in many cases, 100%) is returned to the environment, most often by injecting it back into the ground. However, water may also be returned to the surface (staff at Drillwell, personal communications). Water use (and return) is likely higher in winter months than summer months because water is more commonly used for heating than cooling in BC."
+WSA06,Non-consumptive,Ice & Snow Making,M3/Y,0,0,3,3,3,3,0,0,0,0,0,0,12,"Return coefficients for Snow Making (Ecofish, 2015), supported by discussion with Whistler Blackcomb staff."
+02I36,Consumptive,Processing & Mfg: Wharves,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Processing' (Ecofish, 2015), supported by discussions with license holders for purpose (Wharves) (Mike Carter, Port Alberni Port Authority)."
+WSA01,Consumptive,Domestic (WSA01),M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Domestic' (Ecofish, 2015). "
+02I30,Non-consumptive,Ice & Snow Making: Snow,M3/Y,0,0,3,3,3,3,0,0,0,0,0,0,12,"Return coefficients for Snow Making (Ecofish, 2015). "
+02I29,Consumptive,Processing & Mfg: Shipyard,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Processing' (Ecofish, 2015)."
+05H,Consumptive,O & G: Drilling,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Fully consumptive (Suzan Lapp, BC Oil and Gas Commission)"
+02I21,Consumptive,Camps & Pub Facil: Institutions,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Camps' (Ecofish, 2015). "
+02I12,Consumptive,Misc Indl: Fire Protection,"M3/S, M3/D, TF, Select",0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,3,"Coefficients for 'Fire Protection [MD]' (Ecofish, 2015). "
+02I12,Consumptive,Misc Indl: Fire Protection,M3/Y,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,6,"Coefficients for 'Fire Protection [MY]' (Ecofish, 2015). "
+02I39,Consumptive,Vehicle & Eqpt: Mine & Quarry,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Licenses in this category were previously classified as Industrial so the distribution for Industrial was used (Ecofish, 2015). Also, MFLNRORD staff noted that the primary useses in this category were likely related to dust control and equipment washing and so it is likelt that the majority of water would evaporate (Jeremy Roscoe)."
+02I33,Consumptive,Vehicle & Eqpt: Truck & Eqp Wash,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Truck Washing' (Ecofish, 2015). MFLNRORD staff noted that most of the water for this purpose is used to wash equipment and is sprayed onto the ground where much of it evaporates. Any surface runoff should/would be kept from re-entering a source source (Jeremy Roscoe)."
+02I37,Consumptive,Camps & Pub Facil: Work Camps,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Work Camps' (Ecofish, 2015). "
+02HU,Consumptive,Marine Export - Used (Inactive),M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+02I24,Non-consumptive,Misc Indl: Overburden Disposal,TF,1,1,1,1,1,1,1,1,1,1,1,1,12,"Non-consumptive, as it is typically not an actual use of water and all licenses are in units TF (Barry Watson)."
+07C,Non-consumptive,Power: General,"M3/S, M3/Y",1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Power-General' (Ecofish, 2015). "
+02I43,Consumptive,Transport Mgmt: Tunnelling/Well Drilling,DNE,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+02I11,Consumptive,Processing & Mfg: Fire Prevention,M3/S,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Processing' (Ecofish, 2015). Water is removed from source and most likely evaporates (Barry Watson)."
+02I23,Consumptive,O & G: Oil Fld Inject. (non-deep GW),M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Fully consumptive (Suzan Lapp, BC Oil and Gas Commission)"
+02C,Consumptive,Cooling,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' (Ecofish, 2015). "
+02F,Consumptive,"Lwn, Fairway & Grdn: Watering",M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Return flows for irrigation are quite low and can be ignored (Ted Van der Gulik). Historical irrigation practices (e.g. flood irrigating) had higher return flows, but those practices are only used in a few select locations in BC now."
+01A,Consumptive,Domestic,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Domestic' (Ecofish, 2015). "
+02I07,Consumptive,Indl Waste Mgmt: Effluent,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' (Ecofish, 2015). "
+02I26,Non-consumptive,River Improvement,TF,1,1,1,1,1,1,1,1,1,1,1,1,12,"Generally, the intent is to take water from a stream and place in another location. In some cases, water may be returned to the same stream and it may be non-consumptive. In other cases, it may be consumptive. Identified as consumptive in Rood & Hamilton, 1995."
+02I41,Consumptive,Livestock & Animal: Kennel,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Stockwatering' (Ecofish, 2015). "
+WSA04,Consumptive,"Crop Harvest, Protect & Compost",M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"This category contains several uses that happen at very different times and have very different returns flows. Crop harvesting anf frost protection have 10-80% return flows and composting use should have no returns flows (leachate is not allowed to return to water course) and is most likely to occur after harvest (which varies by crop) (Jake Turek). In areas that are under stress or places where there are large licenses for this purpose, further investigation is required."
+09B,Consumptive,Mineralized Water: Comm. Pool,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Bottle Sales' (Ecofish, 2015)."
+02I16,Consumptive,Indl Waste Mgmt: Garbage Dump,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' and 'Sewage Disposal' (Ecofish, 2015)."
+02I35,Consumptive,Waterworks: Water Delivery,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Bottle Sales' (Ecofish, 2015). Water most likely taken out of watershed. "
+12A,Non-consumptive,Stream Storage: Power,M3/Y,1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Storage-Power' (Ecofish, 2015). "
+05B,Consumptive,Mining: Washing Coal,"M3/D, M3/S",0,0,0,0,0,0,0,0,0,0,0,0,0,It is likely that most of the water used would be contact water and would end up in some kind of tailings impoundment area and eventually discharged into the environment with a long retention time. Assume fully consumptive (Jeremy Roscoe).
+02A,Consumptive,Pulp Mill,"M3/D, M3/S",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Pulpmills' (Ecofish, 2015). Signficant evaporative losses and longer retention times for effluent. Returns likely vary by operation. Newer and updated operations are likely to return more and cleaner water, but there are many older operations (Jeremy Roscoe)."
+02I01,Consumptive,Vehicle & Eqpt: Brake Cooling,"M3/D, M3/S",0,0,0,0,0,0,0,0,0,0,0,0,0,"Use is fully consumptive, as water evaporates (Jeremy Roscoe, Barry Watson)"
+02I,Consumptive,Industrial - Misc (Inactive),DNE,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+02E,Consumptive,Pond & Aquaculture,"M3/S, M3/D, M3/Y, TF ",0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,0.25,3,"Coefficients for 'Ponds (Ecofish, 2015). Returns could be as much as 90%, but vary based on operation (Gary Robinson, Kuterra)."
+02I15,Consumptive,Livestock & Animal: Game Farm,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Stockwatering' (Ecofish, 2015). "
+00B,Consumptive,Waterworks (other than LP),M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,Some water (e.g. 10%) may or may not be returned to the same system.*
+00B,Consumptive,Waterworks (other than LP),M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,Some water (e.g. 10%) may or may not be returned to the same system.*
+02G,Consumptive,Fresh Water Bottling,"M3/D, M3/Y",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Bottle Sales' (Ecofish, 2015)."
+11C,Non-consumptive,Conservation: Construct Works,"M3/S, M3/D, M3/Y, TF ",1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Conserv.-Use of Water' (Ecofish, 2015)."
+11B,Non-consumptive,Conservation: Use of Water,"M3/S, M3/D, M3/Y, TF ",1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Conserv.-Use of Water' (Ecofish, 2015)."
+05C,Consumptive,Mining: Processing Ore,"M3/D, M3/S",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Processing' (Ecofish, 2015). While most operations will likely disvcharge water at at some point, it is likely to be taken from the source for some time. In terms of modelling supply and demand, it is most appropriate to assume that water used is taken out of the source/supply (Jeremy Roscoe, Barry Watson)."
+WSA13,Consumptive,Industrial Waste Mgmt,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' and 'Sewage' (Ecofish, 2015). "
+02H,Consumptive,Bulk Shipment for Marine Trans,DNE,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+02I28,Consumptive,Indl Waste Mgmt: Sewage Disposal,,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Sewage' (Ecofish, 2015). Much of the water used is likely to evaporate (City of Vernon, District of Squamish). "
+05D,Consumptive,Mining: Placer,M3/s,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,0.75,9,"While some licenses are for the whole year, most license periods vary from 6/7 months to a year and use would typically occur from April through October. Water is likely partially returned after time spent in settling ponds (Barry Watson, Jeremy Roscoe). Estimated average returns are 75-80% with a 1 month delay from time of use."
+WSA07,Consumptive,Misc Indust,"M3/S, M3/D, M3/Y, TF ",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' (Ecofish, 2015). "
+WSA07,Consumptive,Misc Indust,"M3/S, M3/D, M3/Y, TF ",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' (Ecofish, 2015). "
+02I02,Consumptive,Camps & Pub Facil: Non-Work Camps,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Camps' (Ecofish, 2015). "
+09A,Consumptive,Mineralized Water: Bottling & Dist,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Bottle Sales' (Ecofish, 2015)."
+08A,Non-consumptive,Stream Storage: Non-Power,M3/Y,1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for Storage-Non Power' (Ecofish, 2015)."
+05A,Consumptive,Mining: Hydraulic,M3/S,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,0.8,9.6,Water would be returned to system in a highly sediment laden form (the use involves hosing water at a hillside and water re-enters the creek) (Jeremy Roscoe). 80% return flow assumed.
+02I38,Non-consumptive,Fish Hatchery,"M3/D, M3/S",1,1,1,1,1,1,1,1,1,1,1,1,12,"Non-consumptive, most use is in feb-apr and use is similar acros fish hatcheries(Jordan Uittenbogaard, Tenderfoot Hatchery). "
+00A,Consumptive,Waterworks: Local Provider,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,Some water (e.g. 10%) may or may not be returned to the same system.
+WSA03,Consumptive,Commercial Enterprise,M3/DAY,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Enterprise' (Ecofish, 2015)."
+WSA03,Consumptive,Commercial Enterprise,M3/YEAR,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Enterprise' (Ecofish, 2015)."
+05F,Consumptive,O & G: Hydrlc Frctrg  (deep GW),M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Fully consumptive (Suzan Lapp, BC Oil and Gas Commission)"
+04B,Consumptive,Land Improve: Indl for Rehab/Remed,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Land Improve' (Ecofish, 2015). Generally, the intent is to take water from a stream and place in another location. In some cases, water may be returned to the same stream and it may be non-consumptive. In other cases, it may be consumptive. Identified as consumptive in Rood & Hamilton, 1995."
+02I17,Consumptive,Grnhouse & Nursery: Grnhouse,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,Water is not returned to source (Ted Van der Gulik).
+02I31,Consumptive,Livestock & Animal: Stockwatering,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"No return, as the majority of water goes to milk or meat."
+WSA02,Consumptive,Camps & Public Facilities,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Camps' and 'Public Facilities' (Ecofish, 2015)."
+WSA10,Consumptive,Well Drill/Transprt Mgmt,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"This category contains a wide range of uses and while water use is likely to go up in the summer and may not occur for some of these purposes in the winter, given that the max units are in M3/D, and the wide range of uses, the coefficents are assumed to be consistent."
+02I14,Consumptive,Crops: Frost Protection,M3/Y,0,2.5,2.5,1,0,0,0,0,0,0,0,0,6,"Assume 50% return. Could be anywhere from 10-80% return (based on conversations with Carolyn Teasdale, Ted van der Gulik, Stephanie Tam)."
+02I08,Consumptive,Transport Mgmt: Dust Control,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Water lost to evaporation. Use value for Dust Control in Phase 1  (Sentlinger, Metherall). "
+11A,Non-consumptive,Conservation: Storage,"M3/S, M3/D, M3/Y, TF ",1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Conserv.-Constr.Works' and 'Storage-Non Power' (Ecofish, 2015)."
+02I34,Consumptive,Indl Waste Mgmt: Intake Wash,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+07B,Non-consumptive,Power: Commercial,M3/S,1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Power-General' (Ecofish, 2015)."
+07A,Non-consumptive,Power: Residential,M3/S,1,1,1,1,1,1,1,1,1,1,1,1,12,"Coefficients for 'Power-Residential' (Ecofish, 2015)."
+02I40,Consumptive,Comm. Enterprise: Amusement Park,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Enterprise' (Ecofish, 2015)."
+01A01,Consumptive,Incidental - Domestic,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Domestic' (Ecofish, 2015). "
+02I20,Non-consumptive,Ice & Snow Making: Ice,M3/D,0,0,3,3,3,3,0,0,0,0,0,0,12,"Coefficients for Snow Making (Ecofish, 2015), supported by discussion with icemaking license holders. Most arenas remove their ice in March for lacrosse season (March-June) and put their ice back in between June and August."
+02I06,Consumptive,Misc Indl: Dewatering,"M3/S, TF",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Industrial' (Ecofish, 2015). Most licenses are in units TF or are very small volumes."
+02I46,Consumptive,Transport Mgmt: Road Maint.,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Use value for Dust Control in Phase 1  (Sentlinger, Metherall). It us assumed that much of the use would be consumptive as water would evaporate"
+02I19,Consumptive,Hydraulicking (Inactive),DNE,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+WSA05,Consumptive,Greenhouse & Nursery,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Assume mainly consumptive. Based on personal communications with Dave Woodske, P.Ag. | Industry Specialist, Ornamentals and Greenhouse Vegetables, Ministry of Agriculture"
+02I32,Consumptive,Swimming Pool,"M3/D, TF",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Public Facilities' (Ecofish, 2015)."
+02I04,DNE,Conveying (Inactive),DNE,0,0,0,0,0,0,0,0,0,0,0,0,0,No current licenses
+WSA08,Consumptive,Livestock & Animal,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,From livestock watering. Returns should be almost 0 as the water goes to animal/milk/meat.
+,Consumptive,Livestock & Animal,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,,From livestock watering. Returns should be almost 0 as the water goes to animal/milk/meat.
+04A,Consumptive,Land Improve: General,"M3/S, M3/D, M3/Y, TF ",0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Land Improve' (Ecofish, 2015). Generally, the intent is to take water from a stream and place in another location. In some cases, water may be returned to the same stream and it may be non-consumptive. In other cases, it may be consumptive. Identified as consumptive in Rood & Hamilton, 1995."
+03B,Consumptive,Irrigation: Private,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Return flows for irrigation are quite low and can be ignored (Ted Van der Gulik). Historical irrigation practices (e.g. flood irrigating) had higher return flows, but those practices are much less common now. If irrigation system is optimized, then all of the water goes into the soil and nourishes plants. "
+02I27,Consumptive,Misc Indl: Sediment Control,"M3/S, M3/Y, TF ",0,0,0,0,0,0,0,0,0,0,0,0,0,"A review of water licenses associated with this purpose shows that a range of uses were placed in this category when the water license purposes changed under the new Water Sustainability Act. Therefore, it was decided to assume the same as 'Industrial' - or consistent use seasonally. Some of these licenses included tailings ponds so these would be fully consumptive"
+02I13,Consumptive,Crops: Flood Harvesting,M3/Y,0,0,0,0,0,0,0,0,0,2.4,4.8,2.4,9.6,"80% return, 1 month delay (Ted van der Gulik, Stephanie Tam)"
+02I23,Consumptive,O&G: Oil Fld Inject (non-deep GW),M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Fully consumptive (Suzan Lapp, BC Oil and Gas Commission)"
+02I09,Consumptive,Camps & Pub Facil: Exhibition Grnds,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Camps' and 'Public Facilities' (Ecofish, 2015)."
+08B,Non-consumptive,Aquifer Storage: NP,M3/Y,1,1,1,1,1,1,1,1,1,1,1,1,12,"Non-consumptive, as this is a storage license."
+WSA12,Consumptive,Vehicle & Equipment,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Licenses in this category were previously classified as Industrial so the coefficients for 'Industrial' (Ecofish, 2015) were used."
+02I42,Consumptive,"Lwn, Fairway & Grdn: Res L/G",M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Return flows for irrigation are quite low and can be ignored (Ted Van der Gulik). Historical irrigation practices (e.g. flood irrigating) had higher return flows, but those practices are much less common now."
+WSA11,Consumptive,"Lawn, Fairway & Garden",M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Return flows for irrigation are quite low and can be ignored (Ted Van der Gulik). Historical irrigation practices (e.g. flood irrigating) had higher return flows, but those practices are much less common now."
+WSA09,Consumptive,Processing & Manufacturing,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Processing' (Ecofish, 2015)."
+03A,Consumptive,Irrigation: Local Provider,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Return flows for irrigation are quite low and can be ignored (Ted Van der Gulik). Historical irrigation practices (e.g. flood irrigating) had higher return flows, but those practices are much less common now. While irrigation systems are rarely optimizied, if they are, ll of the water should go into the soil and nourishes plants. "
+02I03,Consumptive,Camps & Pub Facil: Church/Com Hall,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Camps' and 'Public Facilities' (Ecofish, 2015)."
+02I05,Consumptive,Crops: Crop Suppression,M3/Y,0,0,0,0,0,0,0,0.2,0.4,0,0,0,0.6,Estimated return flow of 5%. Crop suppression occurs during the growing season.  Evaporation and the amount of water stored in the soil will dictate the amount of return flow.  It will likely be as low as 10-20% or less (Ted Van der Gulik).
+02D,Consumptive,Comm. Enterprise: Enterprise,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Enterprise' (Ecofish, 2015)."
+02I18,Consumptive,Heat Exchanger,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"In an open loop system, the majority of water (in many cases, 100%) is returned to the environment, most often by injecting it back into the ground. However, water may also be returned to the surface (staff at Drillwell, personal communications). Water use (and return) is likely higher in winter months than summer months because water is more commonly used for heating than cooling in BC."
+02B,Consumptive,Processing & Mfg: Processing,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Coefficients for 'Processing' (Ecofish, 2015). "
+05E,Consumptive,O & G: Hydrlc Frctrg (non-deep GW),M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Fully consumptive (Suzan Lapp, BC Oil and Gas Commission)"
+00C,Consumptive,Waterworks: Sales,M3/D,0,0,0,0,0,0,0,0,0,0,0,0,0,"Water likely taken out of watershed. Same coefficients as 'Bottle Sales' (Ecofish, 2015)."
+00C,Consumptive,Waterworks: Sales,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,"Water likely taken out of watershed. Same coefficients as 'Bottle Sales' (Ecofish, 2015)."
+02I22,Consumptive,Grnhouse & Nursery: Nursery,M3/Y,0,0,0,0,0,0,0,0,0,0,0,0,0,Most water should be taken up by plants.
+STU,Consumptive,Equipment (02139),,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Industrial: Fire Suppression,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Industrial: Pressure Testing,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Industrial: Road Maintenance,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Industrial: Work Camp,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Work Camps'
+STU,Consumptive,Oil & Gas Purpose: Hydraulic Fracturing,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Oil & Gas Purpose: Oil Field Injection,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Oil & Gas Purpose: Other,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Oil & Gas Purpose: Well Drilling,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Consumptive,Other Water Purpose,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
+STU,Non-consumptive,Storage - Non Power,,1,1,1,1,1,1,1,1,1,1,1,1,12.00,Assume same as 'Storage'
+STU,Non-consumptive,Storage Purpose,,1,1,1,1,1,1,1,1,1,1,1,1,12.00,Assume same as 'Storage'
+STU,Consumptive,Unspecified,,0,0,0,0,0,0,0,0,0,0,0,0,0.00,Assume same as 'Industrial'
