@@ -22,7 +22,7 @@ Running WALLY locally requires the following env vars:
 
 #### Feature flags
 
-The backend also uses [Pydantic's settings management](https://github.com/bcgov-c/wally/blob/0dc732c241bff5e8d8ce72d40ab88b9286e4566c/backend/api/config.py#L61-L82)
+The backend uses [Pydantic's settings management](https://github.com/bcgov-c/wally/blob/0dc732c241bff5e8d8ce72d40ab88b9286e4566c/backend/api/config.py#L61-L82)
 Create a file called `dev.env` under `backend/.config/` to test your feature flags and other settings.
 
 ### Running the backend services
@@ -115,7 +115,7 @@ To add or update spatial layers in WALLY (the items in the `Layers` menu), see [
 The Surface Water Analysis feature delineates watersheds from a point that the user drops.  This requires
 Freshwater Atlas fundamental watersheds and Freshwater Atlas stream networks layers to be loaded into
 the database, as well as a stream-burned DEM. See the [the Watersheds README](backend/api/v1/watersheds/README.md)
-for instructions on creating the DEMs.
+for instructions on creating the DEMs.  If you only need to demo the feature, the local environment comes with data for the Whistler area.
 
 The stream-burned DEM needs to be loaded in Minio, and the extents of the DEM need to be loaded in
 the `dem.stream_burned_cdem_tile` database table. The Surface Water Analysis feature will automatically
@@ -123,6 +123,39 @@ select the best DEM in the area based on the extents in the table.
 
 See [the Caribou DEM extent migration](backend/alembic/versions/20210625150931_add_caribou_dem_extent.py) for an example
 of loading an extent.  The shapefile that represents the DEM extent needs to be created separately.
+
+### Province wide data
+
+WALLY local dev environments comes with enough data to demo all features in Whistler. 
+To get province wide data in a local environment (or a new server environment), the following steps need to be taken:
+
+**Load all HYDAT stations**
+
+Use the script in `imports/hydat`.  You may need to inspect the script for required env variables (e.g. `POSTGRES_SERVER=localhost`, and
+the rest of the `POSTGRES_` variables as shown in the `backend.env` file in the top level directory).
+
+**Load raster data**
+
+Any province wide raster data can be copied over the fixture raster data in `backend/fixtures/raster`.  The next time you use `docker-compose up`, 
+these files will be copied to the Minio docker instance automatically.  Try not to accidently commit large files.
+
+Get the existing province wide raster data from WALLY's Staging Minio instances (if you have access),
+or regenerate them using the instructions in [the Watersheds README](backend/api/v1/watersheds/README.md).  If you regenerate stream-burned DEMs, make sure you 
+update the DEM tile extents in the `dem.stream_burned_cdem_tile` database table.
+
+**Load FWA data**
+
+To load FWA data province-wide, follow the instructions in [the Layers API README](backend/api/layers/README.md).  Only the streams and fundamental watersheds
+layers need to be loaded into the database.  Other data is pulled from DataBC.
+
+**Load Hydrosheds data**
+
+Inspect the script in `imports/hydrosheds` and copy the commands for your environment.  This is only used for cross border watersheds, in which case you will also
+need SRTM data along the 49th parallel (check the load raster data instructions above).
+
+**Streamflow modeling data**
+
+Ask the team for assistance with streamflow model data.
 
 ## Contributing
 
