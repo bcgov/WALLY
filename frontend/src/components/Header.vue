@@ -121,7 +121,7 @@ export default {
     },
     // Commented out until new product owner is found for WALLY
     // openFeedback () {
-    //   window.location = 'mailto:kailee.douglas@gov.bc.ca;lindsay.macfarlane@gov.bc.ca?subject=Wally Feedback'
+    //   window.location = 'mailto:CHANGEME@gov.bc.ca;CHANGEME@gov.bc.ca?subject=Wally Feedback'
     // }
   },
   created () {
