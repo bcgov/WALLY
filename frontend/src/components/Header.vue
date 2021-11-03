@@ -118,7 +118,7 @@ export default {
         // Set the user's name
         this.name = name
       }
-    },
+    }
     // Commented out until new product owner is found for WALLY
     // openFeedback () {
     //   window.location = 'mailto:CHANGEME@gov.bc.ca;CHANGEME@gov.bc.ca?subject=Wally Feedback'
