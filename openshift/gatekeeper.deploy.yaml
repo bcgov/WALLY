@@ -101,7 +101,7 @@ objects:
               name: wally-${NAME}-gatekeeper
               resources:
                 requests:
-                  cpu: 50m
+                  cpu: 20m
                   memory: 128Mi
                 limits:
                   cpu: 50m
