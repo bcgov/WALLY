@@ -23,7 +23,7 @@ objects:
     kind: BuildConfig
     spec:
       failedBuildsHistoryLimit: 5
-      completionDeadlineSeconds: 900
+      completionDeadlineSeconds: 1800
       output:
         to:
           kind: ImageStreamTag

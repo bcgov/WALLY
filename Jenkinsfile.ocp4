@@ -144,14 +144,14 @@ pipeline {
                   "GIT_REF=${ref}"
                 )
 
-                timeout(15) {
+                timeout(60) {
                   echo "Starting builds"
                   def bcWeb = openshift.apply(bcWebTemplate).narrow('bc').startBuild()
                   def bcApi = openshift.apply(bcApiTemplate).narrow('bc').startBuild()
                   def webBuilds = bcWeb.narrow('builds')
                   def apiBuilds = bcApi.narrow('builds')
 
-                  sleep(5)
+                  sleep(60)
 
                   // wait for builds to run.
                   webBuilds.untilEach(1) {
