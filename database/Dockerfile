@@ -1,6 +1,11 @@
 FROM crunchydata/crunchy-postgres-gis:centos8-13.2-3.0-4.6.2
+# CentOS 8 reached EOL as of Dec 31 2021. Might be worth investigating an upgrade in the future.
 
 USER root
+
+RUN cd /etc/yum.repos.d/
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
 
 RUN dnf --disablerepo=crunchypg13 install -y epel-release dnf-plugins-core && dnf config-manager --set-enabled powertools && \
 yum -y --disablerepo=crunchypg13 groupinstall "Development Tools" && \

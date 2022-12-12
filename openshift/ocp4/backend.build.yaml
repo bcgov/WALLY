@@ -30,7 +30,7 @@ objects:
     name: wally-${NAME}-api
   spec:
     failedBuildsHistoryLimit: 5
-    completionDeadlineSeconds: 900
+    completionDeadlineSeconds: 1800
     nodeSelector: null
     output:
       to:
