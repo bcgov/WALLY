@@ -4,7 +4,7 @@ Note: These are the steps required to stand up WALLY on a new platform environme
 with 4 namespaces:  `<project_id>-tools`, `<project_id>-dev`, `<project_id>-test` and `<project_id>-prod`.  Supporting services like Jenkins
 as well as all the build resources and secrets for pulling from GitHub and container registries go in the Tools namespace.
 
-# Prerequisites for TOOLS/DEV/TEST/PROD namespaces
+## Prerequisites for TOOLS/DEV/TEST/PROD namespaces
 
 Note for migrating: Most resources that need to be created in the environments but are not stored in templates in the repo (such as secrets) can be retrieved from OCP3 using `oc get secret wally-at-github -o yaml`.
 
