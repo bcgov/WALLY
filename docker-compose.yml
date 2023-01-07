@@ -3,7 +3,7 @@ services:
   backend:
     build:
       context: ./backend
-      dockerfile: Dockerfile.dev
+      dockerfile: "Dockerfile.dev${PLATFORM}"
       args:
         env: dev
     networks:
