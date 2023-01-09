@@ -37,6 +37,10 @@ This will start up Wally's Python backend, PostGIS, and Minio services.
 Database fixtures will be loaded automatically using the `backend/api/initial_data.py` script. Raster fixtures are also
 automatically copied to the Minio container. This script is only run on local and PR dev environments.
 
+To build and run the backend on computers with Apple M1 chip use the following command:
+```bash
+PLATFORM=.m1 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
+```
 
 #### Access the database directly
 
