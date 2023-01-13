@@ -16,7 +16,7 @@ includes fixtures that cover the Whistler, BC area.
 * Node
 
 #### Environment variables
-Running WALLY locally requires the following env vars:
+Running WALLY locally requires the following env vars :
 
 `MAPBOX_ACCESS_TOKEN` (required): a token from mapbox.com for making Mapbox API requests (e.g. requesting tiles and map images).
 
