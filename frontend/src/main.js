@@ -8,18 +8,19 @@ import router from './router'
 import store from './store'
 import * as Sentry from '@sentry/browser'
 import * as Integrations from '@sentry/integrations'
-import { AuthService } from './services/AuthService.js'
+import { getKeycloakInstance, kcInitOptions } from './services/AuthService.js'
 import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
 import VueMatomo from 'vue-matomo'
+import EventBus from './services/EventBus'
 
 import './filters'
-
 // Turn off the annoying vue production tip
 Vue.config.productionTip = false
 
-const auth = new AuthService()
-Vue.prototype.$auth = auth
+const keycloak = getKeycloakInstance()
+// const auth = new AuthService()
+Vue.prototype.$auth = keycloak
 
 if (global.config.isProduction) {
   Sentry.init({
@@ -55,24 +56,28 @@ if (global.config.isDevelopment && global.config.enableAnalytics) {
     debug: true
   })
 }
-
-auth.init({
-  onLoad: 'check-sso',
-  checkLoginIframe: true,
-  timeSkew: 10
-}).then(() => {
-  new Vue({
-    vuetify,
-    router,
-    store,
-    methods: {
-      ...mapActions([
-        'getMapLayers'
-      ])
-    },
-    created () {
-      ApiService.init()
-    },
-    render: h => h(App)
-  }).$mount('#app')
-})
+// Keycloak object that utilizes existing authentication gold realm
+keycloak
+  .init(kcInitOptions)
+  .then(isAuthenticated => {
+    console.log(keycloak)
+    new Vue({
+      vuetify,
+      router,
+      store,
+      methods: {
+        ...mapActions([
+          'getMapLayers'
+        ])
+      },
+      created () {
+        ApiService.init()
+      },
+      render: h => h(App)
+    }).$mount('#app')
+    // Emits name and authentication boolean for header to display name
+    EventBus.$emit('auth:update', { name: keycloak.idTokenParsed.display_name, authenticated: keycloak.authenticated })
+  })
+  .catch(err => {
+    console.log(err)
+  })
