@@ -13,6 +13,7 @@ import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
 import VueMatomo from 'vue-matomo'
 import EventBus from './services/EventBus'
+import axios from 'axios'
 
 import './filters'
 // Turn off the annoying vue production tip
@@ -61,6 +62,8 @@ keycloak
   .init(kcInitOptions)
   .then(isAuthenticated => {
     console.log(keycloak)
+    // Adding the keycloak token to the headers so it can be accessed on the backend
+    axios.defaults.headers.common['token'] = keycloak.tokenParsed
     new Vue({
       vuetify,
       router,
