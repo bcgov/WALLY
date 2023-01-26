@@ -1,6 +1,6 @@
 # wally-app
 
-This folder contains the source code for the Wally frontend application.
+This folder contains the source code for the Wally frontend application. 
 
 Important: Wally's frontend is served by NGINX, which also proxies requests to other services.
 The `nginx.conf.templ` file in this folder contains proxy_pass routes.
