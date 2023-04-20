@@ -1,4 +1,4 @@
-FROM image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/node10:10 as build
+FROM image-registry.openshift-image-registry.svc:5000/d1b5d2-tools:10.2 as build
 
 WORKDIR /app
 
