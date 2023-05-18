@@ -140,6 +140,21 @@ objects:
               env:
               - name: WALLY_BACKEND_SERVICE
                 value: wally-${NAME}-api
+              - name: VUE_APP_KC_AUTH_URL
+                valueFrom:
+                  secretKeyRef:
+                    key: VUE_APP_KC_AUTH_URL
+                    name: wally-frontend-keycloak
+              - name: VUE_APP_KC_REALM
+                valueFrom:
+                  secretKeyRef:
+                    key: VUE_APP_KC_REALM
+                    name: wally-frontend-keycloak              
+              - name: VUE_APP_KC_CLIENT
+                valueFrom:
+                  secretKeyRef:
+                    key: VUE_APP_KC_CLIENT
+                    name: wally-frontend-keycloak                     
               volumeMounts:
               - name: shared-data
                 mountPath: /var/opt/rh/rh-nginx112/log/nginx/
@@ -168,6 +183,24 @@ objects:
         app: wally-${NAME}
         component: frontend
         name: wally-${NAME}-frontend
+      name: wally-${NAME}-frontend
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: "${HOST}"
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: wally-${NAME}-frontend
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-${NAME}
+        name: wally-${NAME}-frontend
+        component: authentication
       name: wally-${NAME}-frontend
 kind: Template
 metadata:

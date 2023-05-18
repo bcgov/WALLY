@@ -181,6 +181,16 @@ objects:
             value: "${API_VERSION}"
           - name: GDAL_DATA
             value: "/usr/share/gdal/"
+          - name: AUTH_WELL_KNOWN_ENDPOINT
+            valueFrom:
+              secretKeyRef:
+                key: AUTH_WELL_KNOWN_ENDPOINT
+                name: wally-api-keycloak
+          - name: AUTH_CLIENT
+            valueFrom:
+              secretKeyRef:
+                key: AUTH_CLIENT
+                name: wally-api-keycloak
           image: image-registry.openshift-image-registry.svc:5000/${NAMESPACE}/wally-api:${NAME}
           imagePullPolicy: Always
           name: wally-${NAME}-api

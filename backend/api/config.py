@@ -61,6 +61,8 @@ MINIO_HOST_URL = os.getenv("MINIO_HOST_URL", "127.0.0.1:9000")
 WATERSHED_DEBUG = os.getenv("WATERSHED_DEBUG", True)
 RASTER_FILE_DIR = 'raster'
 
+AUTH_WELL_KNOWN_ENDPOINT = os.getenv("AUTH_WELL_KNOWN_ENDPOINT", "https://dev.loginproxy.gov.bc.ca/auth/realms/standard/.well-known/openid-configuration")
+AUTH_CLIENT=os.getenv("AUTH_CLIENT", "wally-4389")
 gdal.SetConfigOption('AWS_ACCESS_KEY_ID', MINIO_ACCESS_KEY)
 gdal.SetConfigOption('AWS_SECRET_ACCESS_KEY', MINIO_SECRET_KEY)
 gdal.SetConfigOption('AWS_S3_ENDPOINT', MINIO_HOST_URL)

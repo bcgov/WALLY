@@ -21,6 +21,9 @@ const ApiService = {
     axios.interceptors.response.use(function (response) {
       return response
     }, function (error) {
+      if (error.response.data === 'NotAuthorized') {
+        window.location.href = '/forbidden-page.html'
+      }
       return Promise.reject(error)
     })
   },

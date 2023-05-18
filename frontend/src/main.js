@@ -8,18 +8,20 @@ import router from './router'
 import store from './store'
 import * as Sentry from '@sentry/browser'
 import * as Integrations from '@sentry/integrations'
-import { AuthService } from './services/AuthService.js'
+import { getKeycloakInstance, kcInitOptions } from './services/AuthService.js'
 import { mapActions } from 'vuex'
 import ApiService from './services/ApiService'
 import VueMatomo from 'vue-matomo'
+import EventBus from './services/EventBus'
+import axios from 'axios'
 
 import './filters'
 
 // Turn off the annoying vue production tip
 Vue.config.productionTip = false
 
-const auth = new AuthService()
-Vue.prototype.$auth = auth
+const keycloak = getKeycloakInstance()
+Vue.prototype.$auth = keycloak
 
 if (global.config.isProduction) {
   Sentry.init({
@@ -56,23 +58,39 @@ if (global.config.isDevelopment && global.config.enableAnalytics) {
   })
 }
 
-auth.init({
-  onLoad: 'check-sso',
-  checkLoginIframe: true,
-  timeSkew: 10
-}).then(() => {
-  new Vue({
-    vuetify,
-    router,
-    store,
-    methods: {
-      ...mapActions([
-        'getMapLayers'
-      ])
-    },
-    created () {
-      ApiService.init()
-    },
-    render: h => h(App)
-  }).$mount('#app')
-})
+keycloak
+  .init(kcInitOptions)
+  .then(isAuthenticated => {
+    axios.defaults.headers.common['token'] = keycloak.token
+    new Vue({
+      vuetify,
+      router,
+      store,
+      methods: {
+        ...mapActions([
+          'getMapLayers'
+        ])
+      },
+      created () {
+        ApiService.init()
+      },
+      render: h => h(App)
+    }).$mount('#app')
+    EventBus.$emit('auth:update', { name: keycloak.idTokenParsed.display_name, authenticated: keycloak.authenticated })
+  })
+  .catch(err => {
+    console.log(err)
+  })
+keycloak.onTokenExpired = function () {
+  keycloak.updateToken(5)
+    .then(function (refreshed) {
+      if (refreshed) {
+        console.log('Token was successfully refreshed')
+      } else {
+        console.log('Token is still valid')
+      }
+    })
+    .catch(function () {
+      console.warn('Failed to refresh the token, or the session has expired')
+    })
+}
