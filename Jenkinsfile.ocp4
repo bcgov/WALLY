@@ -254,14 +254,14 @@ pipeline {
                   "WALLY_VERSION=${git_tag}",
                 ))
 
-                def gatekeeper = openshift.apply(openshift.process("-f",
+                /*def gatekeeper = openshift.apply(openshift.process("-f",
                   "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "REPLICAS=1",
                   "ENVIRONMENT=DEV"
-                ))
+                ))*/
                 
                 echo "Deploying to a dev environment"
 

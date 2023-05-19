@@ -193,7 +193,7 @@ objects:
         termination: edge
       to:
         kind: Service
-        name: wally-${NAME}-frontend
+        name: wally-${NAME}
         weight: 100
       wildcardPolicy: None
     metadata:
