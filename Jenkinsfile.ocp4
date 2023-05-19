@@ -274,7 +274,7 @@ pipeline {
                 minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
-                gatekeeper.narrow('dc').rollout().status()
+                //gatekeeper.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
