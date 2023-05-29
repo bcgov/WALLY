@@ -12,9 +12,7 @@ requests:
     body:
       client_id: "{{auth_id}}"
       client_secret: "{{auth_secret}}"
-      grant_type: password
-      username: "{{auth_user}}"
-      password: "{{auth_pass}}"
+      grant_type: client_credentials
     expect:
       status: 200
     set:
