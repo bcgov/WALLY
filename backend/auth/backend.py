@@ -21,11 +21,11 @@ class AuthBackend(AuthenticationBackend):
         if 'testclient' == request.headers['user-agent'] or \
                 'kube-probe' in request.headers['user-agent']:
             return
-
-        token = request.headers['token']
-
-        if "token" not in request.headers and WALLY_ENV != ENV_DEV:
+        
+        if 'Authorization' not in request.headers and WALLY_ENV != ENV_DEV:
             raise AuthenticationError("OIDC Subject (User) not found", )
+        
+        token = request.headers['Authorization']
 
         settings = get_settings()
 
@@ -44,8 +44,12 @@ class AuthBackend(AuthenticationBackend):
                 logger.error("The user does not have permission to use this application") 
                 raise AuthenticationError("NotAuthorized")
         
-        idir_user_guid = token_decoded["idir_user_guid"]
-        userid = token_decoded["idir_username"]
+        if 'idir_user_guid' in token_decoded.keys() and 'idir_username' in token_decoded.keys():
+            idir_user_guid = token_decoded["idir_user_guid"]
+            userid = token_decoded["idir_username"]
+        else:
+            idir_user_guid = '11111111-1111-1111-1111-111111111111'
+            userid = "testuser"
 
         db = get_db_session()
 

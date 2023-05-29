@@ -61,7 +61,7 @@ if (global.config.isDevelopment && global.config.enableAnalytics) {
 keycloak
   .init(kcInitOptions)
   .then(isAuthenticated => {
-    axios.defaults.headers.common['token'] = keycloak.token
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token
     new Vue({
       vuetify,
       router,

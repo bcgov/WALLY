@@ -9,9 +9,6 @@ export const kcInitOptions = {
 
 export const getKeycloakInstance = () => {
   let keyCloakAuthUrl
-
-  let envAuthUrl = process.env.VUE_APP_KC_AUTH_URL
-  alert(envAuthUrl)
   if (global.config.isProduction) {
     keyCloakAuthUrl = 'https://loginproxy.gov.bc.ca/auth'
   } else if (global.config.isStaging) {
