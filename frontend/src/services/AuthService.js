@@ -1,3 +1,4 @@
+
 import Keycloak from 'keycloak-js'
 
 export const kcInitOptions = {
@@ -7,9 +8,20 @@ export const kcInitOptions = {
 }
 
 export const getKeycloakInstance = () => {
+  let keyCloakAuthUrl
+
+  let envAuthUrl = process.env.VUE_APP_KC_AUTH_URL
+  alert(envAuthUrl)
+  if (global.config.isProduction) {
+    keyCloakAuthUrl = 'https://loginproxy.gov.bc.ca/auth'
+  } else if (global.config.isStaging) {
+    keyCloakAuthUrl = 'https://test.loginproxy.gov.bc.ca/auth'
+  } else {
+    keyCloakAuthUrl = 'https://dev.loginproxy.gov.bc.ca/auth'
+  }
   return new Keycloak({
-    url: process.env.VUE_APP_KC_AUTH_URL,
-    realm: process.env.VUE_APP_KC_REALM,
-    clientId: process.env.VUE_APP_KC_CLIENT
+    url: keyCloakAuthUrl,
+    realm: 'standard',
+    clientId: 'wally-4389'
   })
 }
