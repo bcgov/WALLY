@@ -46,7 +46,7 @@ class AuthBackend(AuthenticationBackend):
         
         if 'idir_user_guid' in token_decoded.keys() and 'idir_username' in token_decoded.keys():
             idir_user_guid = token_decoded["idir_user_guid"]
-            userid = token_decoded["idir_username"]
+            userid = token_decoded["idir_username"].lower() + "@idir"
         else:
             idir_user_guid = '11111111-1111-1111-1111-111111111111'
             userid = "testuser"
