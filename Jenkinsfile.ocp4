@@ -254,14 +254,14 @@ pipeline {
                   "WALLY_VERSION=${git_tag}",
                 ))
 
-                def gatekeeper = openshift.apply(openshift.process("-f",
+                /*def gatekeeper = openshift.apply(openshift.process("-f",
                   "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${NAME}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "REPLICAS=1",
                   "ENVIRONMENT=DEV"
-                ))
+                ))*/
                 
                 echo "Deploying to a dev environment"
 
@@ -274,7 +274,7 @@ pipeline {
                 minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
-                gatekeeper.narrow('dc').rollout().status()
+                //gatekeeper.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
@@ -467,14 +467,14 @@ pipeline {
                   "REPLICAS=2"
                 ))
 
-                def gatekeeper = openshift.apply(openshift.process("-f",
+                /* def gatekeeper = openshift.apply(openshift.process("-f",
                   "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=STAGING",
                   "REPLICAS=2",
-                ))
+                )) */
                 
                 echo "Deploying to a dev environment"
 
@@ -487,7 +487,7 @@ pipeline {
                 minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
-                gatekeeper.narrow('dc').rollout().status()
+                // gatekeeper.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)
@@ -580,14 +580,14 @@ pipeline {
                   "REPLICAS=2",
                 ))
 
-                def gatekeeper = openshift.apply(openshift.process("-f",
+                /* def gatekeeper = openshift.apply(openshift.process("-f",
                   "${TEMPLATE_DIR}/gatekeeper.deploy.yaml",
                   "NAME=${env_name}",
                   "HOST=${host}",
                   "NAMESPACE=${project}",
                   "ENVIRONMENT=PRODUCTION",
                   "REPLICAS=2"
-                ))
+                )) */
                 
                 echo "Deploying to a dev environment"
 
@@ -600,7 +600,7 @@ pipeline {
                 minio.narrow('dc').rollout().status()
                 database.narrow('dc').rollout().status()
                 backend.narrow('dc').rollout().status()
-                gatekeeper.narrow('dc').rollout().status()
+                // gatekeeper.narrow('dc').rollout().status()
 
                 // update GitHub deployment status.
                 createDeploymentStatus(deployment, 'SUCCESS', host)

@@ -9,46 +9,53 @@ from api.db.utils import get_db_session
 from api.v1.user.db_models import User
 from api.config import WALLY_ENV, ENV_DEV
 from api.config import get_settings
+from auth.sso import validate_token, user_authorized
+
 
 logger = getLogger('auth')
 
 
 class AuthBackend(AuthenticationBackend):
-    """
-    This application sits behind an auth service Keycloak Gatekeeper, so we don't really need to
-    authenticate here. We just need to check the authenticated user's data to make sure we have a
-    matching user in the database.
-    """
     async def authenticate(self, request):
         # Skip for unit tests and kube-prob
         if 'testclient' == request.headers['user-agent'] or \
                 'kube-probe' in request.headers['user-agent']:
             return
-
-        if "X-Auth-Subject" not in request.headers and WALLY_ENV != ENV_DEV:
-            raise AuthenticationError("OIDC Subject (User) not found")
+        
+        if 'Authorization' not in request.headers and WALLY_ENV != ENV_DEV:
+            raise AuthenticationError("OIDC Subject (User) not found", )
+        
+        token = request.headers['Authorization']
 
         settings = get_settings()
+
+        token_decoded = validate_token(token)
+        if token_decoded == None:
+            raise AuthenticationError("AuthError")
+
         if WALLY_ENV == ENV_DEV and settings.local_development:
             # Dev user
-            sub = '00000000-0000-0000-0000-000000000000'
-            email = 'dev.wally.test@gov.bc.ca'
-            roles = ''
-            userid = 'dev@idir'
+            idir_user_guid = '00000000-0000-0000-0000-000000000000'
+            userid = 'dev'
         else:
-            sub = request.headers['x-auth-subject']
-            email = request.headers['x-auth-email']
-            roles = request.headers['x-auth-roles']
-            userid = request.headers['x-auth-userid']
+            if user_authorized(token_decoded):
+                pass
+            else:
+                logger.error("The user does not have permission to use this application") 
+                raise AuthenticationError("NotAuthorized")
+        
+        if 'idir_user_guid' in token_decoded.keys() and 'idir_username' in token_decoded.keys():
+            idir_user_guid = token_decoded["idir_user_guid"]
+            userid = token_decoded["idir_username"].lower() + "@idir"
+        else:
+            idir_user_guid = '11111111-1111-1111-1111-111111111111'
+            userid = "testuser"
 
         db = get_db_session()
 
-        user = User.get_or_create(db, sub)
+        user = User.get_or_create(db, idir_user_guid)
 
         update_user = False
-        # if user.email != email:
-        #     update_user = True
-        #     user.email = email
 
         if user.user_idir != userid:
             update_user = True

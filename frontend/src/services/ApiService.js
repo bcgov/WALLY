@@ -1,5 +1,6 @@
 import axios from 'axios'
 import qs from 'querystring'
+import Vue from 'vue'
 
 const ApiService = {
 
@@ -21,6 +22,14 @@ const ApiService = {
     axios.interceptors.response.use(function (response) {
       return response
     }, function (error) {
+      if (error.response.data === 'NotAuthorized') {
+        Vue.prototype.$auth.logout({ redirectUri: window.location.origin + '/forbidden-page.html' }).then((success) => {
+          console.log(success)
+          Vue.prototype.$auth.clearToken()
+        }).catch((error) => {
+          console.log(error)
+        })
+      }
       return Promise.reject(error)
     })
   },

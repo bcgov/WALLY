@@ -169,6 +169,24 @@ objects:
         component: frontend
         name: wally-${NAME}-frontend
       name: wally-${NAME}-frontend
+  - apiVersion: route.openshift.io/v1
+    kind: Route
+    spec:
+      host: "${HOST}"
+      tls:
+        insecureEdgeTerminationPolicy: Redirect
+        termination: edge
+      to:
+        kind: Service
+        name: wally-${NAME}
+        weight: 100
+      wildcardPolicy: None
+    metadata:
+      labels:
+        app: wally-${NAME}
+        name: wally-${NAME}-frontend
+        component: authentication
+      name: wally-${NAME}-frontend
 kind: Template
 metadata:
   resourceVersion: ''
