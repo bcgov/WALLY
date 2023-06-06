@@ -17,7 +17,7 @@ let envConfig = config[DEV]
 
 // Production
 if (process.env.VUE_APP_ENV === 'production' &&
-  ( window.location.hostname === WALLY_HOSTNAME || window.location.hostname === WALLY_HOST_NAME_ALT)) {
+  (window.location.hostname === WALLY_HOSTNAME || window.location.hostname === WALLY_HOST_NAME_ALT)) {
   envConfig = config[PROD]
 }
 
