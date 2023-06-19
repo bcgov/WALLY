@@ -1,6 +1,7 @@
 version: '3.3'
 services:
   backend:
+    platform: linux/amd64
     build:
       context: ./backend
       dockerfile: "Dockerfile.dev${PLATFORM}"
@@ -36,6 +37,7 @@ services:
     depends_on:
       - db
   db:
+    platform: linux/amd64
     build: database
     env_file:
       - env-postgres.env
@@ -52,6 +54,7 @@ services:
     ports:
       - '5432:5432'
   tileserv:
+    platform: linux/amd64
     hostname: tileserv
     depends_on:
       - db
