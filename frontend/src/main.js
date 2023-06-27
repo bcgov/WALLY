@@ -86,7 +86,6 @@ keycloak.onTokenExpired = function () {
     .then(function (refreshed) {
       if (refreshed) {
         console.log('Token was successfully refreshed')
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token // Update the token value
       } else {
         console.log('Token is still valid')
       }
