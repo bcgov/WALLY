@@ -25,6 +25,10 @@ class AuthBackend(AuthenticationBackend):
         if 'Authorization' not in request.headers and WALLY_ENV != ENV_DEV:
             raise AuthenticationError("OIDC Subject (User) not found", )
         
+        # bypass authorization for mapbox search
+        if 'geocoding' in request.url.path and 'mapbox.places' in request.url.path:
+            return
+        
         token = request.headers['Authorization']
 
         settings = get_settings()
