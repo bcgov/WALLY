@@ -3,6 +3,7 @@
 import base64
 import requests
 import logging
+import os 
 
 from fastapi import HTTPException
 
@@ -25,8 +26,9 @@ def docgen_export_to_xlsx(data, template_path, report_name):
     token = get_docgen_token()
     auth_header = f"Bearer {token}"
 
-    template_data = open(
-        template_path, "rb").read()
+    template_file_path = os.path.join('/app', template_path)
+    with open(template_file_path, "rb") as template_file:
+        template_data = template_file.read()
     base64_encoded = base64.b64encode(template_data).decode("UTF-8")
 
     body = DocGenRequest(

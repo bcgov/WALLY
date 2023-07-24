@@ -656,6 +656,10 @@ class Station(BaseLayerTable):
         objs = q.all()
         # logger.info(objs)
         return objs
+    
+    @classmethod
+    def to_json(self):
+        return self.station_name # or how you want it to be serialized
 
 
 class StnDataCollection(BaseLayerTable):

@@ -2,6 +2,7 @@ version: '3.3'
 services:
   backend:
     platform: linux/amd64
+    image: wally_base:test
     build:
       context: ./backend
       dockerfile: "Dockerfile.dev${PLATFORM}"

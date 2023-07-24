@@ -46,10 +46,15 @@ MAPBOX_STYLE = os.getenv("MAPBOX_STYLE", "")
 GWELLS_API_URL = os.getenv(
     "GWELLS_API_URL", "https://apps.nrs.gov.bc.ca/gwells")
 
-COMMON_DOCGEN_CLIENT_ID = os.getenv("COMMON_DOCGEN_CLIENT_ID", "")
-COMMON_DOCGEN_CLIENT_SECRET = os.getenv("COMMON_DOCGEN_CLIENT_SECRET", "")
-COMMON_DOCGEN_SSO_ENDPOINT = os.getenv("COMMON_DOCGEN_SSO_ENDPOINT", "")
-COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")
+# COMMON_DOCGEN_CLIENT_ID = os.getenv("COMMON_DOCGEN_CLIENT_ID", "")
+# COMMON_DOCGEN_CLIENT_SECRET = os.getenv("COMMON_DOCGEN_CLIENT_SECRET", "")
+# COMMON_DOCGEN_SSO_ENDPOINT = os.getenv("COMMON_DOCGEN_SSO_ENDPOINT", "")
+# COMMON_DOCGEN_ENDPOINT = os.getenv("COMMON_DOCGEN_ENDPOINT", "")
+
+COMMON_DOCGEN_CLIENT_ID = "906B4222-BDCFD738B9E"
+COMMON_DOCGEN_CLIENT_SECRET = "1327c7f7-3ea8-466b-af4a-5cee201b19cd"
+COMMON_DOCGEN_SSO_ENDPOINT = "https://dev.loginproxy.gov.bc.ca/auth/realms/comsvcauth/protocol/openid-connect/token"
+COMMON_DOCGEN_ENDPOINT = "https://cdogs-dev.api.gov.bc.ca/api/v2/template/render"
 
 BASE_DIR = '/app/'
 CONFIG_DIR = BASE_DIR + '.config/'

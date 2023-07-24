@@ -1,0 +1,2 @@
+export MAPBOX_ACCESS_TOKEN=pk.eyJ1IjoiaWl0LXdhdGVyIiwiYSI6ImNrMHI2NjlibTAyODkzbW93Y3R3amd4bTkifQ.rve1IbrClbRJotzQ5-m_8Q
+export MAPBOX_STYLE=mapbox://styles/iit-water/ck1s98x7p02q01cmso5jcx4cm

@@ -159,6 +159,17 @@ def watershed_stats(
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
 
+    # import json 
+    # from bson import json_util
+    # json_docs = []
+    # json_docs = [json.dumps(doc, default=json_util.default) for doc in cursor]
+
+    print("routes.py>>>>hydrometric_stations>>line161")
+    print("data====" + str(jsonable_encoder(hydrometric_stations)))
+    
+    # print("data count==" + str(hydrometric_stations.count()))
+    # for i in hydrometric_stations:
+    #     print(i)
     data = {
         "watershed_name": watershed.properties.get("name", None),
         "watershed_source": watershed.properties.get("watershed_source", None),
@@ -195,6 +206,7 @@ def watershed_stats(
     if WATERSHED_DEBUG:
         logger.warning("Watershed Details - Request Finished")
 
+    # print("data====" + str(jsonable_encoder(data)))
     return data
 
 
