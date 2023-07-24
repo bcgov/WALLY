@@ -1,4 +1,4 @@
-""" Functions for interacting with the Common Document Generator (CDOGS) API """
+""" Functions for interacting with the Common Document Generator (CDOGS) API  """
 
 import base64
 import requests

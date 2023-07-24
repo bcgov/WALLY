@@ -1,6 +1,7 @@
 version: '3.3'
 services:
   backend:
+    platform: linux/amd64
     build:
       context: ./backend
       dockerfile: "Dockerfile.dev${PLATFORM}"
@@ -30,12 +31,13 @@ services:
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-minio}" # default to the minio service defined below.
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-minio123}" 
       MINIO_HOST_URL: "${MINIO_HOST_URL:-minio:9000}"
-      GDAL_DATA: /usr/share/gdal/
+      # GDAL_DATA: /usr/share/gdal/
     ports:
       - '8000:8000'
     depends_on:
       - db
   db:
+    platform: linux/amd64
     build: database
     env_file:
       - env-postgres.env
@@ -52,6 +54,7 @@ services:
     ports:
       - '5432:5432'
   tileserv:
+    platform: linux/amd64
     hostname: tileserv
     depends_on:
       - db

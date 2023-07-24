@@ -1,4 +1,4 @@
-# Water Allocation Data Library
+# Water Allocation Data Library 
 
 1. [Working on WALLY (Getting started)](#working-on-wally-getting-started)
 1. [Application architecture](#application-architecture)
