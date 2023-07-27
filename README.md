@@ -37,6 +37,12 @@ This will start up Wally's Python backend, PostGIS, and Minio services.
 Database fixtures will be loaded automatically using the `backend/api/initial_data.py` script. Raster fixtures are also
 automatically copied to the Minio container. This script is only run on local and PR dev environments.
 
+When building locally use the following command for logging into Artifactory private registry:
+```bash
+docker login -u <svc-usn> -p <svc-pwd> artifacts.developer.gov.bc.ca/wd1b-wbt-docker-local
+```
+Replace svc-usn and svc-pwd with Artifactory service account credentials obtained from Openshift (under ally-tools secrets)
+
 To build and run the backend on computers with Apple M1 chip use the following command:
 ```bash
 PLATFORM=.m1 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
