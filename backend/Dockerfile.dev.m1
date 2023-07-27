@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 <registry>/wbt-rust:1.0 as builder
+FROM --platform=linux/amd64 artifacts.developer.gov.bc.ca/wd1b-wbt-docker-local/wbt-rust:1.0 as builder
 
 FROM --platform=linux/amd64 python:3.7
 
