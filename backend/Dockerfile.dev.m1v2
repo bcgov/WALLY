@@ -1,16 +1,4 @@
-ARG DOCKER_TAG=latest
-
-FROM --platform=linux/amd64 rust:latest AS builder
-
-RUN apt-get update && apt-get install -y musl-tools git && \
-  rustup target add x86_64-unknown-linux-musl && \
-  git clone https://github.com/mholling/whitebox-tools.git /wbt
-  # NOTE: this branch no longer exists
-  # && cd /wbt && git checkout d8_flow_accum-fix
-
-WORKDIR /wbt
-
-RUN cargo build --release 
+FROM --platform=linux/amd64 artifacts.developer.gov.bc.ca/wd1b-wbt-docker-local/wbt-rust:1.0 as builder
 
 FROM --platform=linux/amd64 python:3.7
 
