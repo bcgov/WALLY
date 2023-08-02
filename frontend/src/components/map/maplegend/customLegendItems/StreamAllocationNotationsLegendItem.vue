@@ -1,5 +1,5 @@
 <template>
-  <LegendGroup :legendItems="legendItems()" :groupName="'Water Allocation Notations'" />
+  <LegendGroup :legendItems="legendItems()" :groupName="'Streams with Water Allocation Notations'" />
 </template>
 
 <script>
