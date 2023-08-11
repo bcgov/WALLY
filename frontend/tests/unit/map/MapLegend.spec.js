@@ -1,6 +1,6 @@
 import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
 import MapLegend from '../../../src/components/map/maplegend/MapLegend.vue'
-import StreamAllocationRestrictionsLegendItem from '../../../src/components/map/maplegend/customLegendItems/StreamAllocationRestrictionsLegendItem'
+import StreamAllocationNotationsLegendItem from '../../../src/components/map/maplegend/customLegendItems/StreamAllocationNotationsLegendItem'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
