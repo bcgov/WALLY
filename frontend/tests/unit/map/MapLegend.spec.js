@@ -242,7 +242,7 @@ describe('Map Legend Test', () => {
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
-    const legendItem = shallowMount(StreamAllocationRestrictionsLegendItem, {
+    const legendItem = shallowMount(StreamAllocationNotationsLegendItem, {
       vuetify,
       store,
       propsData,
