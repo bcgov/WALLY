@@ -34,7 +34,7 @@ export default {
           return 'Office Reserve'
         case 'FR':
           return 'Fully Recorded'
-        case 'FR_EXC':
+        case 'FR-EXC':
           return 'Fully Recorded Except'
         case 'PWS':
           return 'Possible Water Shortage'

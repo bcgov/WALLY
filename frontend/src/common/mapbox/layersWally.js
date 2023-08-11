@@ -227,7 +227,7 @@ export default {
         [
           'match',
           ['get', 'PRIMARY_NOTATION_TYPE'],
-          ['FR_EXC'],
+          ['FR-EXC'],
           true,
           false
         ],

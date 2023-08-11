@@ -107,7 +107,7 @@ def upgrade():
                 'https://catalogue.data.gov.bc.ca/dataset/aquifers-with-water-allocation-notations',
                 'WHSE_WATER_MANAGEMENT.WLS_WATER_NOTATION_AQUIFERS_SP',
                 'aquifers_with_water_allocation_notations', 
-                'AQUIFER_ID',
+                'NOTATION_ID',
                 'ETL_USER', CURRENT_DATE, 'ETL_USER', CURRENT_DATE, CURRENT_DATE, '9999-12-31T23:59:59Z', 'aquifers_with_water_allocation_notations'
             ) RETURNING data_source_id
         ),
@@ -142,9 +142,9 @@ def upgrade():
         ) SELECT
             'aquifers_with_water_allocation_notations', 
             'Aquifers with Water Allocation Notations',
-            'AQUIFER_ID',
-            'Feature Id',
-            ARRAY[ 'NOTATION_ID', 'NOTATION_DESCRIPTION', 'FEATURE_AREA_SQM', 'FEATURE_LENGTH_M' ],
+            'NOTATION_ID',
+            'Notation id',
+            ARRAY[ 'AQUIFER_ID', 'NOTATION_ID', 'NOTATION_DESCRIPTION', 'FEATURE_AREA_SQM', 'FEATURE_LENGTH_M' ],
             ds_id.data_source_id,
             wms_id.wms_catalogue_id,
             'WATER_ADMINISTRATION',

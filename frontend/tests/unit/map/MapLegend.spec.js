@@ -251,7 +251,7 @@ describe('Map Legend Test', () => {
 
     let legendText = legendItem.vm.labelLookup('OR')
     expect(legendText).toEqual('Office Reserve')
-    legendText = legendItem.vm.labelLookup('FR_EXC')
+    legendText = legendItem.vm.labelLookup('FR-EXC')
     expect(legendText).toEqual('Fully Recorded Except')
   })
 
