@@ -46,7 +46,7 @@ Replace svc-usn and svc-pwd with Artifactory service account credentials obtaine
 To build and run the backend on computers with Apple M1 chip use the following command:
 ```bash
 PLATFORM=.m1 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
-PLATFORM=.m1v2 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
+DOCKER_BUILDKIT=0 PLATFORM=.m1v2 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
 ```
 
 #### Access the database directly
