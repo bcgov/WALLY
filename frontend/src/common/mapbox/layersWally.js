@@ -248,6 +248,14 @@ export default {
           false
         ],
         'hsl(65, 98%, 31%)',
+        [
+          'match',
+          ['get', 'PRIMARY_NOTATION_TYPE'],
+          ['AR'],
+          true,
+          false
+        ],
+        'hsl(277, 69%, 46%)',
         'hsl(0, 0%, 64%)'
       ],
       'line-width': [
