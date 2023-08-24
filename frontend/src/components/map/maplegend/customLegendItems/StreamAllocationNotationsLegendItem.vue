@@ -15,7 +15,7 @@ export default {
     legendItems () {
       const childItems = []
       for (let i = 1; i < this.item.color.length; i += 2) {
-        if (this.item.color[i].constructor === Array) {  
+        if (this.item.color[i].constructor === Array) {
           const text = this.labelLookup(this.item.color[i][2].join(', '))
           const color = this.item.color[i + 1]
           childItems.push({
