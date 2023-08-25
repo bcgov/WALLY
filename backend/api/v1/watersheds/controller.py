@@ -1,6 +1,7 @@
 """
 Functions for aggregating data from web requests and database records
 """
+import pprint
 import base64
 import datetime
 import io

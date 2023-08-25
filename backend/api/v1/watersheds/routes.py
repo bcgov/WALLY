@@ -4,6 +4,8 @@ Endpoints for returning statistics about watersheds
 from logging import getLogger
 import datetime
 import json
+import requests
+import pprint
 from fastapi import APIRouter, Depends, HTTPException, Query, Path
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
@@ -26,7 +28,7 @@ from api.v1.watersheds.controller import (
     get_stream_inventory_report_link_for_region,
     get_scsb2016_input_stats
 )
-from api.v1.hydat.controller import (get_stations_in_area)
+from api.v1.hydat.controller import (get_stations_in_area, get_fasstr_longterm_summary)
 from api.v1.watersheds.schema import (
     GeneratedWatershedDetails
 )
@@ -158,6 +160,42 @@ def watershed_stats(
 
     # hydro stations from federal source
     hydrometric_stations = get_stations_in_area(db, shape(watershed.geometry))
+    for station in hydrometric_stations:
+        for key, value in station.items():
+            print(f"Key: {key}, Value: {value}")
+    
+
+    #For each station found in the watershed we will add the station number to a new array. 
+    #Then for the first station in that list, retrieve the monthly data to calculate averages. 
+    
+    stationNumbers = []
+    for station in hydrometric_stations:
+        stationNumber = station.properties.station_number  # Access the 'stream_flows_url' property
+        if stationNumber:
+            stationNumbers.append(stationNumber)
+    
+
+    #Take the first Hydro Station and get the FASSTR DATA
+    #Extract Stations annual average, and monthly data
+    #Creating a new array which will be passed to the excel export
+    # # TO DO: PENDING REVIEW FROM TESTERS - Make multiple templates to handle more than 1 hydat station per report.  
+    flowData = get_fasstr_longterm_summary(db, stationNumbers[0])
+    StationMean = flowData.mean
+    flowMonths = flowData.months
+    flowMean = []
+    for month in flowMonths:
+        flowMean.append((month.mean / StationMean * 100))
+
+    #Simliar to above but using Wally modeled data instead of FASSTR
+    #Get the scsb2016 data, calculate the annual discharge for baseline. 
+    #Make a list of the monthly discharges and calculate how that compare to the annual average
+    #This will be added to the excel export
+    monthlyDischarge = model_output_as_dict(scsb2016_model)
+    baseLine = monthlyDischarge["mad"]
+    monthlyDischarge = monthlyDischarge["monthly_discharge"]
+    monthAverages = []
+    for key in monthlyDischarge:
+        monthAverages.append(monthlyDischarge[key]["model_result"] / baseLine * 100)
 
     data = {
         "watershed_name": watershed.properties.get("name", None),
@@ -170,7 +208,10 @@ def watershed_stats(
         "scsb2016_output": model_output_as_dict(scsb2016_model),
         "scsb2016_input_stats": scsb2016_input_stats,
         "hydrometric_stations": hydrometric_stations,
-        "generated_watershed_id": watershed_data.generated_watershed_id
+        "generated_watershed_id": watershed_data.generated_watershed_id,
+        "flowData": flowData,
+        "flowMean": flowMean,
+        "baseLineMean": monthAverages
     }
 
     if format == 'xlsx':
