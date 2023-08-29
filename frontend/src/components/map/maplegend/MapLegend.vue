@@ -14,8 +14,8 @@
         <div v-else-if="layer.display_data_name === 'water_approval_points'">
           <WaterApprovalPointsLegendItem :item="getLegendItem(layer)" />
         </div>
-        <div v-else-if="layer.display_data_name === 'water_allocation_restrictions'">
-          <StreamAllocationRestrictionsLegendItem :item="getLegendItem(layer)" />
+        <div v-else-if="layer.display_data_name === 'streams_with_water_allocation_notations'">
+          <StreamAllocationNotationsLegendItem :item="getLegendItem(layer)" />
         </div>
         <div v-else-if="excludedLayers.includes(layer.display_data_name)">
           <!-- render nothing for these layers -->

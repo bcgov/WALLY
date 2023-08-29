@@ -197,11 +197,11 @@ export default {
     'layout': { 'visibility': 'none' },
     'paint': { 'line-color': 'hsl(213, 78%, 55%)' }
   },
-  'water_allocation_restrictions': {
-    'id': 'water_allocation_restrictions',
+  'streams_with_water_allocation_notations': {
+    'id': 'streams_with_water_allocation_notations',
     'type': 'line',
-    'source': 'water_allocation_restrictions',
-    'source-layer': 'water_allocation_restrictions',
+    'source': 'streams_with_water_allocation_notations',
+    'source-layer': 'streams_with_water_allocation_notations',
     // 'source': 'composite',
     // 'source-layer': 'WLS_STREAM_RESTRICTIONS_SP',
     'layout': { 'visibility': 'none' },
@@ -210,7 +210,7 @@ export default {
         'case',
         [
           'match',
-          ['get', 'PRIMARY_RESTRICTION_CODE'],
+          ['get', 'PRIMARY_NOTATION_TYPE'],
           ['OR'],
           true,
           false
@@ -218,7 +218,7 @@ export default {
         'hsl(302, 88%, 61%)',
         [
           'match',
-          ['get', 'PRIMARY_RESTRICTION_CODE'],
+          ['get', 'PRIMARY_NOTATION_TYPE'],
           ['FR'],
           true,
           false
@@ -226,15 +226,15 @@ export default {
         'hsl(0, 83%, 51%)',
         [
           'match',
-          ['get', 'PRIMARY_RESTRICTION_CODE'],
-          ['FR_EXC'],
+          ['get', 'PRIMARY_NOTATION_TYPE'],
+          ['FR-EXC'],
           true,
           false
         ],
         'hsl(19, 64%, 35%)',
         [
           'match',
-          ['get', 'PRIMARY_RESTRICTION_CODE'],
+          ['get', 'PRIMARY_NOTATION_TYPE'],
           ['PWS'],
           true,
           false
@@ -242,12 +242,20 @@ export default {
         'hsl(124, 93%, 31%)',
         [
           'match',
-          ['get', 'PRIMARY_RESTRICTION_CODE'],
+          ['get', 'PRIMARY_NOTATION_TYPE'],
           ['PWS', 'RNW'],
           true,
           false
         ],
         'hsl(65, 98%, 31%)',
+        [
+          'match',
+          ['get', 'PRIMARY_NOTATION_TYPE'],
+          ['AR'],
+          true,
+          false
+        ],
+        'hsl(277, 69%, 46%)',
         'hsl(0, 0%, 64%)'
       ],
       'line-width': [
@@ -266,6 +274,25 @@ export default {
         3
       ],
       'line-opacity': 0.67
+    }
+  },
+  'aquifers_with_water_allocation_notations': {
+    'id': 'aquifers_with_water_allocation_notations',
+    'type': 'fill',
+    'source': 'aquifers_with_water_allocation_notations',
+    'source-layer': 'aquifers_with_water_allocation_notations',
+    'layout': { 'visibility': 'none' },
+    'paint': {
+      'fill-color': 'hsla(284, 66%, 28%, 0.54)',
+      'fill-outline-color': [
+        'interpolate',
+        ['linear'],
+        ['zoom'],
+        5,
+        'hsla(0, 0%, 55%, 0)',
+        10,
+        'hsl(0, 0%, 19%)'
+      ]
     }
   },
   'bc_major_watersheds': {

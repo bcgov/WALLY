@@ -1,6 +1,6 @@
 import { createLocalVue, mount, shallowMount } from '@vue/test-utils'
 import MapLegend from '../../../src/components/map/maplegend/MapLegend.vue'
-import StreamAllocationRestrictionsLegendItem from '../../../src/components/map/maplegend/customLegendItems/StreamAllocationRestrictionsLegendItem'
+import StreamAllocationNotationsLegendItem from '../../../src/components/map/maplegend/customLegendItems/StreamAllocationNotationsLegendItem'
 import Vuex from 'vuex'
 import Vuetify from 'vuetify'
 import Vue from 'vue'
@@ -242,7 +242,7 @@ describe('Map Legend Test', () => {
       }
     }
     store = new Vuex.Store({ modules: { map, customLayers } })
-    const legendItem = shallowMount(StreamAllocationRestrictionsLegendItem, {
+    const legendItem = shallowMount(StreamAllocationNotationsLegendItem, {
       vuetify,
       store,
       propsData,
@@ -251,7 +251,7 @@ describe('Map Legend Test', () => {
 
     let legendText = legendItem.vm.labelLookup('OR')
     expect(legendText).toEqual('Office Reserve')
-    legendText = legendItem.vm.labelLookup('FR_EXC')
+    legendText = legendItem.vm.labelLookup('FR-EXC')
     expect(legendText).toEqual('Fully Recorded Except')
   })
 

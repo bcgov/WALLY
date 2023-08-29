@@ -163,8 +163,15 @@ requests:
       status: 200
       values:
         display_data.[0].geojson.type: FeatureCollection
-  - name: call aggregate endpoint (water_allocation_restrictions)
-    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=52.15045468386435&bbox=-127.158801334543&bbox=52.28141803274622&width=1286&height=1243&layers=water_allocation_restrictions"
+  - name: call aggregate endpoint (streams_with_water_allocation_notations)
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=52.15045468386435&bbox=-127.158801334543&bbox=52.28141803274622&width=1286&height=1243&layers=streams_with_water_allocation_notations"
+    method: get
+    expect:
+      status: 200
+      values:
+        display_data.[0].geojson.type: FeatureCollection
+  - name: call aggregate endpoint (aquifers_with_water_allocation_notations)
+    url: "{{host}}/api/v1/aggregate/?bbox=-127.25970731511886&bbox=52.15045468386435&bbox=-127.158801334543&bbox=52.28141803274622&width=1286&height=1243&layers=aquifers_with_water_allocation_notations"
     method: get
     expect:
       status: 200

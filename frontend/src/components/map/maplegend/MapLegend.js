@@ -4,7 +4,7 @@ import FishObservationsLegendItem from './customLegendItems/FishObservationsLege
 import WaterLicensedWorksLegendItem from './customLegendItems/WaterLicensedWorksLegendItem'
 import WaterRightsLicencesLegendItem from './customLegendItems/WaterRightsLicencesLegendItem'
 import WaterApprovalPointsLegendItem from './customLegendItems/WaterApprovalPointsLegendItem'
-import StreamAllocationRestrictionsLegendItem from './customLegendItems/StreamAllocationRestrictionsLegendItem'
+import StreamAllocationNotationsLegendItem from './customLegendItems/StreamAllocationNotationsLegendItem'
 import { humanReadable } from '../../../common/helpers'
 
 export default {
@@ -15,7 +15,7 @@ export default {
     WaterLicensedWorksLegendItem,
     WaterRightsLicencesLegendItem,
     WaterApprovalPointsLegendItem,
-    StreamAllocationRestrictionsLegendItem
+    StreamAllocationNotationsLegendItem
   },
   data () {
     return {

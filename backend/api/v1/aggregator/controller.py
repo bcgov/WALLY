@@ -84,6 +84,8 @@ DATABC_GEOMETRY_FIELD = {
     "fish_observations": "GEOMETRY",
     "water_approval_points": "SHAPE",
     "fish_obstacles": "GEOMETRY",
+    "streams_with_water_allocation_notations": "SHAPE",
+    "aquifers_with_water_allocation_notations": "SHAPE"
 }
 
 

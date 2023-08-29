@@ -61,7 +61,7 @@ objects:
         intervalSeconds: 1
         maxSurge: 25%
         maxUnavailable: 25%
-        timeoutSeconds: 1200
+        timeoutSeconds: 1800
         updatePeriodSeconds: 1
         pre:
           failurePolicy: Abort
