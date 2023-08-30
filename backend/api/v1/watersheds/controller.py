@@ -1203,6 +1203,8 @@ def export_summary_as_xlsx(data: dict):
     """ exports watershed summary data as an excel file
         using a template in the ./templates directory.
     """
+    logger.info("IN EXPORT DATA: ")
+    logger.info(pprint.pprint(data))
 
     cur_date = datetime.datetime.now().strftime("%Y%m%d")
 
