@@ -30,7 +30,7 @@ from sqlalchemy import func, insert, select
 from fastapi import HTTPException
 
 from api.config import WATERSHED_DEBUG
-from api.utils import normalize_quantity
+from api.utils import normalize_quantity, normalize_quantity_seconds
 from api.layers.freshwater_atlas_watersheds import FreshwaterAtlasWatersheds
 from api.layers.freshwater_atlas_stream_networks import FreshwaterAtlasStreamNetworks
 from api.v1.aggregator.helpers import transform_4326_3005, transform_3005_4326
@@ -180,7 +180,7 @@ def water_licences_summary(licences: List[Feature], polygon: Polygon) -> Licence
         normalized_qty = normalize_quantity(qty, qty_unit)
 
         lic.properties['qty_m3_yr'] = normalized_qty
-
+        lic.properties['qty_m3_second'] = normalize_quantity_seconds(qty, qty_unit)
         # List of statuses to watch for when deciding whether or not
         # to consider the licenced quantity for the total licenced usage.
         # It may be possible to only consider POD_STATUS but we should assume

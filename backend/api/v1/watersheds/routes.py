@@ -179,15 +179,11 @@ def watershed_stats(
 
     if format == 'xlsx':
 
-       
+
         for station in hydrometric_stations:
             for key, value in station.items():
                 print(f"Key: {key}, Value: {value}")
 
-
-
-        
-        
         #For each station found in the watershed we will add the station number to a new array. 
         #Then for the first station in that list, retrieve the monthly data to calculate averages. 
     
@@ -254,6 +250,8 @@ def watershed_stats(
             data['inactive_licences'] = [dict(**x.properties)
                                          for x in licence_data.inactive_licences.features]
             data['licences_count_pod'] = len(licence_data.licences.features)
+        #print("ALL DATA here!")
+        #pprint.pprint(jsonable_encoder(data))
 
         return export_summary_as_xlsx(jsonable_encoder(data))
 
