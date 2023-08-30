@@ -29,6 +29,7 @@ from api.v1.watersheds.controller import (
     get_scsb2016_input_stats
 )
 from api.v1.hydat.controller import (get_stations_in_area, get_fasstr_longterm_summary)
+from api.v1.hydat.routes import get_station
 from api.v1.watersheds.schema import (
     GeneratedWatershedDetails
 )
@@ -182,7 +183,11 @@ def watershed_stats(
         for station in hydrometric_stations:
             for key, value in station.items():
                 print(f"Key: {key}, Value: {value}")
-            
+
+
+
+        
+        
         #For each station found in the watershed we will add the station number to a new array. 
         #Then for the first station in that list, retrieve the monthly data to calculate averages. 
     
@@ -219,9 +224,23 @@ def watershed_stats(
         for key in monthlyDischarge:
             monthAverages.append(monthlyDischarge[key]["model_result"] / baseLine * 100)
 
+
+        #Extracting data for date range from Hydro Metric station
+        # This is not included in the FASSTR data so will be extracted directly from the 
+        # hydrometric station as Station number is available at this point.         
+        stationNumber = hydrometric_stations[0].properties.station_number
+        stationYearData = get_station(stationNumber, db)
+        startYear = min(stationYearData.flow_years)
+        endYear = max(stationYearData.flow_years)
+
+
         data["flowData"] = flowData
         data["flowMean"] = flowMean
         data["baseLineMean"] = monthAverages
+        data["startYear"] = startYear
+        data["endYear"] = endYear
+        
+
 
         licence_data = surface_water_rights_licences(watershed_poly)
         # TODO add approvals data to xlsx output
