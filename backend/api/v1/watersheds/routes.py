@@ -250,8 +250,26 @@ def watershed_stats(
             data['inactive_licences'] = [dict(**x.properties)
                                          for x in licence_data.inactive_licences.features]
             data['licences_count_pod'] = len(licence_data.licences.features)
-        #print("ALL DATA here!")
-        #pprint.pprint(jsonable_encoder(data))
+
+
+        #Get Fish obvservation data to add to excel export
+        fish_data = known_fish_observations(watershed_poly)
+        
+        #Add each type of fish species returned from the Known observations to data in a new dictionary
+        #Important to only do it for fish_data.fish_species_data otherwise it will add all observations to the dictionary
+        #once these have been added to the dictionary created a podcount to use an index when importing to excel
+        
+        if fish_data and fish_data.fish_species_data:
+            data["fish_data"] = [dict(**x)
+                                 for x in fish_data.fish_species_data]
+            data['fish_count_pod'] = len(fish_data.fish_species_data)
+        
+
+
+
+        # print("ALL DATA here!")
+        # print("LICENCE DATA: ", licence_data.licences)
+        # pprint.pprint(jsonable_encoder(data))
 
         return export_summary_as_xlsx(jsonable_encoder(data))
 
