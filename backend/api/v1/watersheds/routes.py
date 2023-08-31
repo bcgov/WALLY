@@ -242,12 +242,14 @@ def watershed_stats(
         
 
 
-        licence_data = surface_water_rights_licences(watershed_poly)
-        # TODO add approvals data to xlsx output
+        # 
+        # Retrieve approval data
+        # Add all of the properties for each object returned to the data object
+        # Once data is passed to excel will loop through to extract each approval in template
         approvals_data = surface_water_approval_points(watershed_poly)
-        print("APPROVALS DATA: ", approvals_data)
-        
-        
+        if approvals_data.approvals and approvals_data.approvals.features:
+            data["approvals_data"] = [dict(**x.properties)
+                                for x in approvals_data.approvals.features]
         
         data['generated_date'] = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S")
@@ -255,6 +257,7 @@ def watershed_stats(
 
         #Get lisence data, for each licence add it to a dictionary and attach to the data object
         #Will use a loop in the excel doc to iterate through and display each of the licences
+        licence_data = surface_water_rights_licences(watershed_poly)
         if licence_data.licences and licence_data.licences.features:
             data['licences'] = [dict(**x.properties)
                                 for x in licence_data.licences.features]
@@ -264,16 +267,17 @@ def watershed_stats(
 
 
         #Get Fish obvservation data to add to excel export
-        fish_data = known_fish_observations(watershed_poly)
-        
         #Add each type of fish species returned from the Known observations to data in a new dictionary
         #Important to only do it for fish_data.fish_species_data otherwise it will add all observations to the dictionary
         #once these have been added to the dictionary created a podcount to use an index when importing to excel
         
+        fish_data = known_fish_observations(watershed_poly)
         if fish_data and fish_data.fish_species_data:
             data["fish_data"] = [dict(**x)
-                                 for x in fish_data.fish_species_data]
-            data['fish_count_pod'] = len(fish_data.fish_species_data)
+                                for x in fish_data.fish_species_data]
+
+        
+        
         
 
 
