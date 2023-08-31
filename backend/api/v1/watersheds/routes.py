@@ -198,16 +198,34 @@ def watershed_stats(
         #Extract Stations annual average, and monthly data
         #Creating a new array which will be passed to the excel export
         # # TO DO: PENDING REVIEW FROM TESTERS - Make multiple templates to handle more than 1 hydat station per report.  
-        flowData = get_fasstr_longterm_summary(db, stationNumbers[0])
-        StationMean = flowData.mean
-        flowMonths = flowData.months
-        flowMean = []
+        
+        try:
+            print("STATION NUMBERS LIST: ", stationNumbers)
+            if stationNumbers:
+                flowData = get_fasstr_longterm_summary(db, stationNumbers[0])
+                StationMean = flowData.mean
+                flowMonths = flowData.months
+                flowMean = []
+                print("STATION MEAN --->", StationMean)
+                print("FLOW MONTHS ------>", flowMonths)
+                for month in flowMonths:
+                    flowMean.append((month.mean / StationMean * 100))
+                data["flowData"] = flowData
+                data["startYear"] = startYear
+                data["endYear"] = endYear
+                data["flowMean"] = flowMean    
 
-
-        print("STATION MEAN --->", StationMean)
-        print("FLOW MONTHS ------>", flowMonths)
-        for month in flowMonths:
-            flowMean.append((month.mean / StationMean * 100))
+                # Only want to do this when a hydrometric station is found within the area
+                # Extracting data for date range from Hydro Metric station
+                # This is not included in the FASSTR data, so will be extracted directly from the 
+                # hydrometric station as Station number is available at this point.
+                stationNumber = hydrometric_stations[0].properties.station_number
+                stationYearData = get_station(stationNumber, db)
+                startYear = min(stationYearData.flow_years)
+                endYear = max(stationYearData.flow_years)
+        except Exception as e:
+            print("Error:", e)
+            print("Hydrometric station has incomplete information")
 
         #Simliar to above but using Wally modeled data instead of FASSTR
         #Get the scsb2016 data, calculate the annual discharge for baseline. 
@@ -219,31 +237,24 @@ def watershed_stats(
         monthAverages = []
         for key in monthlyDischarge:
             monthAverages.append(monthlyDischarge[key]["model_result"] / baseLine * 100)
-
-
-        #Extracting data for date range from Hydro Metric station
-        # This is not included in the FASSTR data so will be extracted directly from the 
-        # hydrometric station as Station number is available at this point.         
-        stationNumber = hydrometric_stations[0].properties.station_number
-        stationYearData = get_station(stationNumber, db)
-        startYear = min(stationYearData.flow_years)
-        endYear = max(stationYearData.flow_years)
-
-
-        data["flowData"] = flowData
-        data["flowMean"] = flowMean
         data["baseLineMean"] = monthAverages
-        data["startYear"] = startYear
-        data["endYear"] = endYear
+        
         
 
 
         licence_data = surface_water_rights_licences(watershed_poly)
         # TODO add approvals data to xlsx output
-        # approvals_data = surface_water_approval_points(watershed_poly)
+        approvals_data = surface_water_approval_points(watershed_poly)
+        print("APPROVALS DATA: ", approvals_data)
+        
+        
+        
         data['generated_date'] = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S")
 
+
+        #Get lisence data, for each licence add it to a dictionary and attach to the data object
+        #Will use a loop in the excel doc to iterate through and display each of the licences
         if licence_data.licences and licence_data.licences.features:
             data['licences'] = [dict(**x.properties)
                                 for x in licence_data.licences.features]
