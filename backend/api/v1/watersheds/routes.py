@@ -226,65 +226,69 @@ def watershed_stats(
         except Exception as e:
             print("Error:", e)
             print("Hydrometric station has incomplete information")
-
-        #Simliar to above but using Wally modeled data instead of FASSTR
-        #Get the scsb2016 data, calculate the annual discharge for baseline. 
-        #Make a list of the monthly discharges and calculate how that compare to the annual average
-        #This will be added to the excel export
-        monthlyDischarge = model_output_as_dict(scsb2016_model)
-        baseLine = monthlyDischarge["mad"]
-        monthlyDischarge = monthlyDischarge["monthly_discharge"]
-        monthAverages = []
-        for key in monthlyDischarge:
-            monthAverages.append(monthlyDischarge[key]["model_result"] / baseLine * 100)
-        data["baseLineMean"] = monthAverages
         
+        try:
+            #Simliar to above but using Wally modeled data instead of FASSTR
+            #Get the scsb2016 data, calculate the annual discharge for baseline. 
+            #Make a list of the monthly discharges and calculate how that compare to the annual average
+            #This will be added to the excel export
+            monthlyDischarge = model_output_as_dict(scsb2016_model)
+            baseLine = monthlyDischarge["mad"]
+            monthlyDischarge = monthlyDischarge["monthly_discharge"]
+            monthAverages = []
+            for key in monthlyDischarge:
+                monthAverages.append(monthlyDischarge[key]["model_result"] / baseLine * 100)
+            data["baseLineMean"] = monthAverages
+        except Exception as e:
+            logger.error("Error:", e)
+            logger.info("Error loading scbc2016 data for selected watershed")
         
 
 
-        # 
-        # Retrieve approval data
-        # Add all of the properties for each object returned to the data object
-        # Once data is passed to excel will loop through to extract each approval in template
-        approvals_data = surface_water_approval_points(watershed_poly)
-        if approvals_data.approvals and approvals_data.approvals.features:
-            data["approvals_data"] = [dict(**x.properties)
-                                for x in approvals_data.approvals.features]
+        try: 
+            # Retrieve approval data
+            # Add all of the properties for each object returned to the data object
+            # Once data is passed to excel will loop through to extract each approval in template
+            approvals_data = surface_water_approval_points(watershed_poly)
+            if approvals_data.approvals and approvals_data.approvals.features:
+                data["approvals_data"] = [dict(**x.properties)
+                                    for x in approvals_data.approvals.features]
+        except Exception as e:
+            logger.error("Error:", e)
+            logger.info("Error finding approval points for selected watershed")
         
         data['generated_date'] = datetime.datetime.now().strftime(
             "%Y-%m-%d %H:%M:%S")
 
 
-        #Get lisence data, for each licence add it to a dictionary and attach to the data object
-        #Will use a loop in the excel doc to iterate through and display each of the licences
-        licence_data = surface_water_rights_licences(watershed_poly)
-        if licence_data.licences and licence_data.licences.features:
-            data['licences'] = [dict(**x.properties)
-                                for x in licence_data.licences.features]
-            data['inactive_licences'] = [dict(**x.properties)
-                                         for x in licence_data.inactive_licences.features]
-            data['licences_count_pod'] = len(licence_data.licences.features)
+        try:
+            #Get lisence data, for each licence add it to a dictionary and attach to the data object
+            #Will use a loop in the excel doc to iterate through and display each of the licences
+            licence_data = surface_water_rights_licences(watershed_poly)
+            if licence_data.licences and licence_data.licences.features:
+                data['licences'] = [dict(**x.properties)
+                                    for x in licence_data.licences.features]
+                data['inactive_licences'] = [dict(**x.properties)
+                                            for x in licence_data.inactive_licences.features]
+                data['licences_count_pod'] = len(licence_data.licences.features)
+        except Exception as e:
+            logger.error("Error:", e)
+            logger.info("Error finding approval licenses for selected watershed")
 
 
-        #Get Fish obvservation data to add to excel export
-        #Add each type of fish species returned from the Known observations to data in a new dictionary
-        #Important to only do it for fish_data.fish_species_data otherwise it will add all observations to the dictionary
-        #once these have been added to the dictionary created a podcount to use an index when importing to excel
-        
-        fish_data = known_fish_observations(watershed_poly)
-        if fish_data and fish_data.fish_species_data:
-            data["fish_data"] = [dict(**x)
-                                for x in fish_data.fish_species_data]
-
-        
-        
-        
-
-
-
-        # print("ALL DATA here!")
-        # print("LICENCE DATA: ", licence_data.licences)
-        # pprint.pprint(jsonable_encoder(data))
+        try:
+            #Get Fish obvservation data to add to excel export
+            #Add each type of fish species returned from the Known observations to data in a new dictionary
+            #Important to only do it for fish_data.fish_species_data otherwise it will add all observations to the dictionary
+            #once these have been added to the dictionary created a podcount to use an index when importing to excel
+            
+            fish_data = known_fish_observations(watershed_poly)
+            if fish_data and fish_data.fish_species_data:
+                data["fish_data"] = [dict(**x)
+                                    for x in fish_data.fish_species_data]
+        except Exception as e:
+            logger.error("Error:", e)
+            logger.info("Error finding fish observation data for selected watershed")
 
         return export_summary_as_xlsx(jsonable_encoder(data))
 
