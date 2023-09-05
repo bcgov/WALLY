@@ -179,11 +179,6 @@ def watershed_stats(
 
     if format == 'xlsx':
 
-
-        for station in hydrometric_stations:
-            for key, value in station.items():
-                print(f"Key: {key}, Value: {value}")
-
         #For each station found in the watershed we will add the station number to a new array. 
         #Then for the first station in that list, retrieve the monthly data to calculate averages. 
     
@@ -200,14 +195,11 @@ def watershed_stats(
         # # TO DO: PENDING REVIEW FROM TESTERS - Make multiple templates to handle more than 1 hydat station per report.  
         
         try:
-            print("STATION NUMBERS LIST: ", stationNumbers)
             if stationNumbers:
                 flowData = get_fasstr_longterm_summary(db, stationNumbers[0])
                 StationMean = flowData.mean
                 flowMonths = flowData.months
                 flowMean = []
-                print("STATION MEAN --->", StationMean)
-                print("FLOW MONTHS ------>", flowMonths)
                 for month in flowMonths:
                     flowMean.append((month.mean / StationMean * 100))
                 data["flowData"] = flowData
@@ -224,8 +216,8 @@ def watershed_stats(
                 startYear = min(stationYearData.flow_years)
                 endYear = max(stationYearData.flow_years)
         except Exception as e:
-            print("Error:", e)
-            print("Hydrometric station has incomplete information")
+            logger.error("Error:", e)
+            logger.error("Hydrometric station has incomplete information")
         
         try:
             #Simliar to above but using Wally modeled data instead of FASSTR
