@@ -202,10 +202,6 @@ def watershed_stats(
                 flowMean = []
                 for month in flowMonths:
                     flowMean.append((month.mean / StationMean * 100))
-                data["flowData"] = flowData
-                data["startYear"] = startYear
-                data["endYear"] = endYear
-                data["flowMean"] = flowMean    
 
                 # Only want to do this when a hydrometric station is found within the area
                 # Extracting data for date range from Hydro Metric station
@@ -215,6 +211,11 @@ def watershed_stats(
                 stationYearData = get_station(stationNumber, db)
                 startYear = min(stationYearData.flow_years)
                 endYear = max(stationYearData.flow_years)
+                data["flowData"] = flowData
+                data["startYear"] = startYear
+                data["endYear"] = endYear
+                data["flowMean"] = flowMean
+                    
         except Exception as e:
             logger.error("Error:", e)
             logger.error("Hydrometric station has incomplete information")
