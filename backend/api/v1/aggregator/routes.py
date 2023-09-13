@@ -18,7 +18,8 @@ from api.v1.aggregator.controller import (
     EXTERNAL_API_REQUESTS,
     API_DATASOURCES,
     DATABC_GEOMETRY_FIELD,
-    DATABC_LAYER_IDS)
+    DATABC_LAYER_IDS,
+    combine_layers)
 from api.v1.aggregator.schema import WMSGetMapQuery, WMSGetFeatureQuery, ExternalAPIRequest, \
     LayerResponse
 from api.v1.aggregator.excel import xlsx_export
@@ -91,6 +92,12 @@ def aggregate_sources(
     search_area = polygon or box(*bbox)
 
     feature_list = feature_search(db, layers, search_area, srsName=srs)
+    
+    # Stream name is not available in the 'streams_with_water_allocation_notations' layer.
+    # We search for it in 'freshwater_atlas_stream_networks' by 'LINEAR_FEATURE_ID'
+    if('streams_with_water_allocation_notations' in layers):
+       ref_feature = feature_search(db, ['freshwater_atlas_stream_networks'], search_area, srsName=srs)
+       combine_layers(feature_list, ref_feature)               
 
     # if xlsx format was requested, package the response as xlsx and return the xlsx notebook.
     if format == 'xlsx':

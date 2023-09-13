@@ -408,3 +408,24 @@ def databc_feature_search(layer, search_area=None, cql_filter=None) -> FeatureCo
         raise HTTPException(status_code=404, detail="Dataset not found")
 
     return feature_list[0].geojson
+
+def combine_layers(feature_list, ref_feature):
+    if( feature_list and ref_feature ):
+        for notation in list(filter(lambda feature : 
+                                    feature.layer == 'streams_with_water_allocation_notations', 
+                                feature_list)):
+            if (notation.geojson and notation.geojson.features):
+                ref_stream_data = get_ref_data(ref_feature)
+                for fieldset in notation.geojson.features:
+                    if (fieldset.properties):
+                            fieldset.properties['STREAM_NAME'] = ref_stream_data[fieldset.properties['LINEAR_FEATURE_ID']]
+     
+
+def get_ref_data(ref_feature):
+    ref_streams = ref_feature[0].geojson.features
+    ref_stream_data = {}
+    for ref_stream in ref_streams:
+        if 'LINEAR_FEATURE_ID' in ref_stream.properties and 'GNIS_NAME' in ref_stream.properties :
+            ref_stream_data[ref_stream.properties['LINEAR_FEATURE_ID']] = ref_stream.properties['GNIS_NAME']
+    return ref_stream_data
+
