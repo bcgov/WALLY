@@ -24,7 +24,7 @@ fastapi==0.65.2
 Fiona==1.8.18
 GeoAlchemy2==0.6.3
 geojson==2.4.1
-gunicorn==19.9.0
+gunicorn==22.0.0
 h11==0.8.1
 httptools==0.0.13
 idna==2.8
