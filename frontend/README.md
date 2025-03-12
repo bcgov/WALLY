@@ -1,6 +1,5 @@
 # wally-app
 
-TEST Comment
 This folder contains the source code for the Wally frontend application.
 
 Important: Wally's frontend is served by NGINX, which also proxies requests to other services.
