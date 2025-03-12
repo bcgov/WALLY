@@ -126,7 +126,7 @@ export default {
           'help',
           {
             text: 'Draw a polygon by single clicking a series of points. Finish drawing by clicking again on any of the points, or cancel by pressing Escape. The polygon can be cleared by pressing Delete or clicking the trash button.',
-            disableKey: disableKey
+            disableKey
           })
       }
     },
@@ -134,16 +134,16 @@ export default {
       this.setDrawMode('simple_select')
       await this.$router.push({ name: 'single-feature' })
       global.config.debug && console.log('[wally] route changed')
-      let lat = data.result.center[1]
-      let lng = -Math.abs(data.result.center[0])
+      const lat = data.result.center[1]
+      const lng = -Math.abs(data.result.center[0])
       const options = { steps: 10, units: 'kilometers', properties: {} }
       const bounds = circle([lng, lat], 0.01, options) // 10m radius (in km)
       const canvas = this.map.getCanvas()
       const size = { x: canvas.width, y: canvas.height }
-      let payload = {
+      const payload = {
         layers: [{ display_data_name: data.result.layer }],
-        bounds: bounds,
-        size: size,
+        bounds,
+        size,
         primary_key_match: data.result.primary_id
       }
 
@@ -160,7 +160,7 @@ export default {
     },
     onMapMoveUpdateStreamLayer () {
       if (this.getSelectedStreamData.features) {
-        var data = Object.assign({}, this.getSelectedStreamData.features[0])
+        const data = Object.assign({}, this.getSelectedStreamData.features[0])
         const currentZoom = this.map.getZoom()
         if (currentZoom !== this.lastZoom) {
           this.$store.commit('resetStreamData')
@@ -178,7 +178,7 @@ export default {
 
         // All layers are now vector based sourced from mapbox
         // so we don't need to check for layer type anymore
-        const layerName = layer['display_data_name']
+        const layerName = layer.display_data_name
         // we use a custom cursor for stream selection so we dont set the cursor for it
         if (layerName !== 'freshwater_atlas_stream_networks') {
           this.map.on('mouseenter', layerName, this.setCursorPointer)
@@ -195,7 +195,7 @@ export default {
         const scale = MapScale(this.map)
         const radius = scale / 1000 * 0.065 // scale radius based on map zoom level
         const options = { steps: 10, units: 'kilometers', properties: {} }
-        const bounds = circle([e.lngLat['lng'], e.lngLat['lat']], radius, options)
+        const bounds = circle([e.lngLat.lng, e.lngLat.lat], radius, options)
 
         // this.map.getSource('highlightLayerData').setData(bounds) // debug can see search radius
         this.handleGetMapObjects({ bounds })
@@ -205,10 +205,10 @@ export default {
       if (arr.length === 1) {
         return arr
       }
-      let x = arr.map(x => x[0])
-      let y = arr.map(x => x[1])
-      let cx = (Math.min(...x) + Math.max(...x)) / 2
-      let cy = (Math.min(...y) + Math.max(...y)) / 2
+      const x = arr.map(x => x[0])
+      const y = arr.map(x => x[1])
+      const cx = (Math.min(...x) + Math.max(...x)) / 2
+      const cy = (Math.min(...y) + Math.max(...y)) / 2
       return [cx, cy]
     },
     formatLatLon (lon, lat) {
@@ -249,7 +249,7 @@ export default {
     highlightFeatureData (value) {
       if (value && value.geometry) {
         if (value.geometry.type === 'Point') {
-          let coordinates = value.geometry.coordinates
+          const coordinates = value.geometry.coordinates
           value.geometry.coordinates = this.formatLatLon(coordinates[0], coordinates[1])
         }
         this.updateHighlightLayerData(value)
@@ -265,8 +265,8 @@ export default {
           coordinates = this.formatLatLon(coordinates[0], coordinates[1])
           value.geometry.coordinates = coordinates
         } else {
-          let depth = getArrayDepth(coordinates)
-          let flattened = coordinates.flat(depth - 2)
+          const depth = getArrayDepth(coordinates)
+          const flattened = coordinates.flat(depth - 2)
           coordinates = this.getPolygonCenter(flattened)
         }
 

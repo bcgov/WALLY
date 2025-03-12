@@ -25,7 +25,7 @@ describe('Watershed Details tests', () => {
   let store
   let getters
 
-  let map = {
+  const map = {
     namespaced: true
   }
 
@@ -39,7 +39,7 @@ describe('Watershed Details tests', () => {
     customModelInputsActive: () => false,
     scsb2016ModelInputs: () => true
   }
-  let surfaceWater = {
+  const surfaceWater = {
     namespaced: true,
     getters
   }
@@ -138,7 +138,7 @@ describe('Watershed Details tests', () => {
         watershedName: 'Test Watershed'
       }
     })
-    let modelInputsButton = wrapper.find('.v-card__actions button')
+    const modelInputsButton = wrapper.find('.v-card__actions button')
     await modelInputsButton.trigger('click')
     expect(modelInputsButton.text()).toContain('Model Inputs')
     expect(wrapper.vm.show.editingModelInputs).toBeTruthy()

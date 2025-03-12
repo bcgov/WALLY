@@ -142,7 +142,7 @@ export default {
       this.$store.dispatch('customLayers/unloadCustomLayer', { map: this.map, id })
     },
     filterLayersByCategory (layers) {
-      let catMap = {}
+      const catMap = {}
 
       layers.forEach((layer) => {
         const layerNode = {

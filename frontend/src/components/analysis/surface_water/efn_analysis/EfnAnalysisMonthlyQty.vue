@@ -58,7 +58,7 @@ export default {
       if (!this.mmd) {
         return null
       }
-      var plotConfig = []
+      const plotConfig = []
 
       const availabilityData = {
         type: 'bar',

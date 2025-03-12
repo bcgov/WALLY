@@ -13,8 +13,8 @@ export function downloadXlsx (r, defaultFilename) {
   }
 
   // TODO: Refactor code duplication
-  let blob = new Blob([r.data], { type: XLSX_FILE_TYPE })
-  let link = document.createElement('a')
+  const blob = new Blob([r.data], { type: XLSX_FILE_TYPE })
+  const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = filename
   document.body.appendChild(link)
@@ -36,8 +36,8 @@ export function downloadZip (r, defaultFilename) {
     filename = filenameData[1]
   }
 
-  let blob = new Blob([r.data], { type: ZIP_FILE_TYPE })
-  let link = document.createElement('a')
+  const blob = new Blob([r.data], { type: ZIP_FILE_TYPE })
+  const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = filename
   document.body.appendChild(link)
@@ -59,8 +59,8 @@ export function downloadFile (r, defaultFilename, zip = false) {
     filename = filenameData[1]
   }
 
-  let blob = zip ? new Blob([r.data], { type: 'application/zip' }) : new Blob([r.data])
-  let link = document.createElement('a')
+  const blob = zip ? new Blob([r.data], { type: 'application/zip' }) : new Blob([r.data])
+  const link = document.createElement('a')
   link.href = window.URL.createObjectURL(blob)
   link.download = filename
   document.body.appendChild(link)

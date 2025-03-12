@@ -1,4 +1,3 @@
-
 export function convertLineString (fromProjection, coordinates) {
   const newCoords = []
   coordinates.forEach(coords => {

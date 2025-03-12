@@ -114,7 +114,7 @@ export default {
 
       this.spreadsheetLoading = true
 
-      ApiService.post(`/api/v1/streams/apportionment/export`, params, {
+      ApiService.post('/api/v1/streams/apportionment/export', params, {
         responseType: 'arraybuffer'
       }).then((res) => {
         downloadXlsx(res, 'HydraulicConnectivityAnalysis.xlsx')
@@ -157,20 +157,20 @@ export default {
       })
     },
     highlight (stream) {
-      let featureStream = stream.geojson
-      featureStream['display_data_name'] = 'freshwater_atlas_stream_networks'
-      featureStream.properties['FWA_WATERSHED_CODE'] = featureStream.properties['fwa_watershed_code']
+      const featureStream = stream.geojson
+      featureStream.display_data_name = 'freshwater_atlas_stream_networks'
+      featureStream.properties.FWA_WATERSHED_CODE = featureStream.properties.fwa_watershed_code
 
-      let featureDistanceLines = lineStringFeature(
-        [this.coordinates, stream['closest_stream_point']['coordinates']],
-        { 'title': stream['distance'].toFixed(2) + 'm' })
+      const featureDistanceLines = lineStringFeature(
+        [this.coordinates, stream.closest_stream_point.coordinates],
+        { title: stream.distance.toFixed(2) + 'm' })
 
       // let featureClosestPoint = pointFeature(stream['closest_stream_point']['coordinates'],
       //   {
       //     'title': stream['distance'].toFixed(2) + 'm'
       //   })
 
-      let streamData = {
+      const streamData = {
         display_data_name: 'hydraulic_connectivity',
         feature_collection: featureCollection(
           [featureDistanceLines]
@@ -195,16 +195,16 @@ export default {
 
       let total = 0
       this.streams.forEach(stream => {
-        stream['inverse_distance'] = getInverseDistance(stream['distance'])
-        total += stream['inverse_distance']
+        stream.inverse_distance = getInverseDistance(stream.distance)
+        total += stream.inverse_distance
       })
 
       this.streams.forEach(stream => {
-        const apportionment = (stream['inverse_distance'] / total) * 100
+        const apportionment = (stream.inverse_distance / total) * 100
         if (apportionment < 10 && this.show.removeLowApportionment === false) {
           this.show.removeLowApportionment = true
         }
-        stream['apportionment'] = apportionment
+        stream.apportionment = apportionment
       })
     },
     reloadStreams () {
@@ -216,8 +216,8 @@ export default {
       this.loading = false
     },
     deleteStream (selectedStream) {
-      let newStreamArr = this.streams.filter(stream => {
-        return stream['id'] !== selectedStream['id']
+      const newStreamArr = this.streams.filter(stream => {
+        return stream.id !== selectedStream.id
       })
       this.streams = [...newStreamArr]
       this.show.reloadAll = true
@@ -225,9 +225,9 @@ export default {
     },
     removeSelected () {
       // Remove user-selected streams
-      let selectedIds = this.selected.map(selected => selected['ogc_fid'])
-      let newStreamArr = this.streams.filter(stream => {
-        return !selectedIds.includes(stream['ogc_fid'])
+      const selectedIds = this.selected.map(selected => selected.ogc_fid)
+      const newStreamArr = this.streams.filter(stream => {
+        return !selectedIds.includes(stream.ogc_fid)
       })
       this.streams = [...newStreamArr]
       this.show.reloadAll = true
@@ -235,12 +235,12 @@ export default {
     },
     removeOverlaps () {
       // This removes overlapping streams. It keeps the first stream in the array
-      let watershedCodes = []
-      let newStreamArr = []
+      const watershedCodes = []
+      const newStreamArr = []
       this.streams.forEach(stream => {
-        if (!watershedCodes.includes(stream['fwa_watershed_code'])) {
+        if (!watershedCodes.includes(stream.fwa_watershed_code)) {
           newStreamArr.push(stream)
-          watershedCodes.push(stream['fwa_watershed_code'])
+          watershedCodes.push(stream.fwa_watershed_code)
         }
       })
       this.streams = [...newStreamArr]
@@ -251,8 +251,8 @@ export default {
     },
     removeStreamsWithLowApportionment (apportionment) {
       // Keep streams that have more than x% apportionment
-      let newStreamArr = this.streams.filter(stream => {
-        return stream['apportionment'] > apportionment
+      const newStreamArr = this.streams.filter(stream => {
+        return stream.apportionment > apportionment
       })
       this.streams = [...newStreamArr]
       this.show.removeLowApportionment = false
@@ -263,11 +263,11 @@ export default {
       // if(this.show)
     },
     highlightAll () {
-      let streamData = {
+      const streamData = {
         display_data_name: 'freshwater_atlas_stream_networks',
         feature_collection: featureCollection([])
       }
-      let distanceLines = []
+      const distanceLines = []
       // let closestPoints = []
 
       this.streams.forEach((stream) => {
@@ -278,11 +278,11 @@ export default {
         // closestPoints.push(closestPoint)
 
         const distanceLineCoordinates = [this.coordinates,
-          stream['closest_stream_point']['coordinates']
+          stream.closest_stream_point.coordinates
         ]
 
-        let distanceLine = lineStringFeature(distanceLineCoordinates, {
-          'title': stream['distance'].toFixed(2) + 'm'
+        const distanceLine = lineStringFeature(distanceLineCoordinates, {
+          title: stream.distance.toFixed(2) + 'm'
         })
         distanceLines.push(distanceLine)
       })

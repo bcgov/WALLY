@@ -10,17 +10,17 @@ import { featureCollection } from '../mapbox/features'
 
 export const FILE_TYPE_SHAPEFILE = 'shapefile'
 export const FILE_TYPES_ACCEPTED = {
-  'geojson': ['geojson', 'json'],
+  geojson: ['geojson', 'json'],
   [FILE_TYPE_SHAPEFILE]: ['shp', 'dbf', 'prj'], // add zip file
-  'csv': ['csv'],
-  'xlsx': ['xls', 'xlsx'],
-  'kml': ['kml']
+  csv: ['csv'],
+  xlsx: ['xls', 'xlsx'],
+  kml: ['kml']
 }
 
 export function groupErrorsByRow (errors) {
   // returns a new array containing a single object representing each row.
-  let rowMap = {}
-  let groupedErrors = []
+  const rowMap = {}
+  const groupedErrors = []
 
   errors.forEach(r => {
     if (!rowMap[r.index]) {
@@ -111,7 +111,7 @@ export function shapefileToGeoJSON (shpfile, dbffile = null, projection = null) 
             resolve(featureCollection(features))
             return
           }
-          let feature = result.value
+          const feature = result.value
 
           // Convert coordinates based on projection file
           if (projection && feature.geometry && feature.geometry.coordinates) {

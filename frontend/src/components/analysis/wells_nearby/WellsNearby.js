@@ -43,56 +43,67 @@ export default {
         text: 'Distance (m)',
         value: 'distance',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Well tag number',
         value: 'well_tag_number',
         align: 'start',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Reported yield (USGPM)',
         value: 'well_yield',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Static water level (ft btoc)',
         value: 'static_water_level',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Top of screen (ft bgl)',
         value: 'top_of_screen',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Finished well depth (ft bgl)',
         value: 'finished_well_depth',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'SWL to top of screen (ft)',
         value: 'swl_to_screen',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'SWL to bottom of well (ft)',
         value: 'swl_to_bottom_of_well',
         align: 'end',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Aquifer Number',
         value: 'aquifer_id',
         align: 'center',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Aquifer Lithology',
         value: 'aquifer_lithology',
         align: 'start',
-        divider: true },
+        divider: true
+      },
       {
         text: 'Aquifer Material',
         value: 'aquifer_material',
-        align: 'start' }
+        align: 'start'
+      }
     ]
   }),
   computed: {
@@ -131,7 +142,7 @@ export default {
         point: JSON.stringify(this.coordinates),
         export_wells: wellsExport
       }
-      ApiService.post(`/api/v1/wells/nearby/export`, params, { responseType: 'arraybuffer' }).then((r) => {
+      ApiService.post('/api/v1/wells/nearby/export', params, { responseType: 'arraybuffer' }).then((r) => {
         global.config.debug && console.log('[wally]', r)
         downloadXlsx(r, 'WaterReport.xlsx')
       }).catch((e) => {
@@ -170,7 +181,7 @@ export default {
       })
     }, 500),
     radiusIsValid (val) {
-      let invalid = Object.keys(this.inputRules).some((k) => {
+      const invalid = Object.keys(this.inputRules).some((k) => {
         return this.inputRules[k](val) !== true
       })
       return !invalid
@@ -195,8 +206,8 @@ export default {
       if ((!this.pointOfInterest || !this.pointOfInterest.geometry) && this.$route.query.coordinates) {
         const coordinates = this.$route.query.coordinates.map((x) => Number(x))
 
-        let data = {
-          coordinates: coordinates,
+        const data = {
+          coordinates,
           layerName: 'point-of-interest'
         }
 
@@ -206,8 +217,8 @@ export default {
     deleteWell (aquifer, selectedWell) {
       console.log(selectedWell)
       // delete selected well from well list
-      let newWellsByAquifer = this.wellsByAquifer[aquifer].filter(well => {
-        return well['well_tag_number'] !== selectedWell['well_tag_number']
+      const newWellsByAquifer = this.wellsByAquifer[aquifer].filter(well => {
+        return well.well_tag_number !== selectedWell.well_tag_number
       })
 
       this.wellsByAquifer[aquifer] = newWellsByAquifer
@@ -221,12 +232,12 @@ export default {
     },
     onMouseEnterWellItem (well) {
       // highlight well on map that corresponds to the
-      let feature = pointFeature([
+      const feature = pointFeature([
         well.longitude,
         well.latitude
       ])
       console.log('wells nearby')
-      feature['display_data_name'] = 'groundwater_wells'
+      feature.display_data_name = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
     }
   },

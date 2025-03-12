@@ -75,11 +75,11 @@ export default {
       if (!this.modelOutputs.monthlyDischarges) {
         return null
       }
-      let mds = this.modelOutputs.monthlyDischarges
-      let discharge = []
-      let volume = []
-      let percent = []
-      let hoverText = []
+      const mds = this.modelOutputs.monthlyDischarges
+      const discharge = []
+      const volume = []
+      const percent = []
+      const hoverText = []
       for (let i = 0; i < mds.length; i++) {
         discharge.push((mds[i].model_result).toFixed(2))
         volume.push((mds[i].model_result * secondsInMonth(i + 1)).toFixed(0))
@@ -108,10 +108,10 @@ export default {
       })
     },
     getReverseMonthlyDischargeItems () {
-      let mds = this.modelOutputs.monthlyDischarges
-      let rate = { 'unit': 'm³/s' }
-      let volume = { 'unit': 'm³' }
-      let percent = { 'unit': '%MAD' }
+      const mds = this.modelOutputs.monthlyDischarges
+      const rate = { unit: 'm³/s' }
+      const volume = { unit: 'm³' }
+      const percent = { unit: '%MAD' }
       for (let i = 0; i < mds.length; i++) {
         rate['m' + (i + 1)] = (mds[i].model_result).toFixed(2)
         volume['m' + (i + 1)] = (mds[i].model_result * secondsInMonth(i + 1)).toFixed(0)

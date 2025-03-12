@@ -27,14 +27,16 @@ export default {
       if (!(allocItemKey in state.allocationValues)) {
         commit('setAllocationValues', {
           key: allocItemKey,
-          values: state.defaultAllocValues })
+          values: state.defaultAllocValues
+        })
       }
     },
     initShortTermAllocationItemIfNotExists ({ state, commit, dispatch }, allocItemKey) {
       if (!(allocItemKey in state.shortTermAllocationValues)) {
         commit('setShortTermAllocationValues', {
           key: allocItemKey,
-          values: state.defaultAllocValues })
+          values: state.defaultAllocValues
+        })
       }
     },
     initWatershedDetailsAndInputs ({ state, commit }, payload) {
@@ -110,7 +112,7 @@ export default {
     },
     updateCustomScsb2016ModelData (state, payload) {
       // Change Watershed Details depending on modified input data
-      let sc = state.scsb2016ModelInputs
+      const sc = state.scsb2016ModelInputs
       // TODO: move this to set watershed details
       state.watershedDetails = {
         watershed_area: sc.drainage_area * 1e6,

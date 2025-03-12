@@ -34,7 +34,7 @@ describe('Wells Nearby', () => {
       featureSelectionExists: () => null,
       isMapReady: jest.fn()
     }
-    let map = {
+    const map = {
       namespaced: true,
       actions,
       getters,
@@ -47,7 +47,7 @@ describe('Wells Nearby', () => {
       store,
       localVue,
       propsData: {
-        record: { geometry: { 'coordinates': [-127.57192816676897, 50.53235018962306], 'type': 'Point' } }
+        record: { geometry: { coordinates: [-127.57192816676897, 50.53235018962306], type: 'Point' } }
       }
     })
   })
@@ -70,63 +70,63 @@ describe('Wells Nearby', () => {
   it('Doesn\'t display a boxplot for Aquifer 1143', async () => {
     wrapper.setData({
       wellsByAquifer: {
-        '1143': [{
-          'well_tag_number': 111,
-          'latitude': 1,
-          'longitude': -1,
-          'well_yield': 1,
-          'diameter': '1.0',
-          'well_yield_unit': 'GPM',
-          'finished_well_depth': 111,
-          'street_address': '',
-          'intended_water_use': 'Unknown Well Use',
-          'aquifer_subtype': null,
-          'aquifer_hydraulically_connected': null,
-          'aquifer_id': null,
-          'aquifer_lithology': 'Unconsolidated',
-          'aquifer': {
-            'aquifer_id': 1143,
-            'subtype': null,
-            'subtype_desc': null,
-            'material': null,
-            'material_desc': null
+        1143: [{
+          well_tag_number: 111,
+          latitude: 1,
+          longitude: -1,
+          well_yield: 1,
+          diameter: '1.0',
+          well_yield_unit: 'GPM',
+          finished_well_depth: 111,
+          street_address: '',
+          intended_water_use: 'Unknown Well Use',
+          aquifer_subtype: null,
+          aquifer_hydraulically_connected: null,
+          aquifer_id: null,
+          aquifer_lithology: 'Unconsolidated',
+          aquifer: {
+            aquifer_id: 1143,
+            subtype: null,
+            subtype_desc: null,
+            material: null,
+            material_desc: null
           },
-          'screen_set': [],
-          'top_of_screen': null,
-          'top_of_screen_type': null,
-          'distance': 500,
-          'static_water_level': 10,
-          'swl_to_screen': null,
-          'swl_to_bottom_of_well': 10
+          screen_set: [],
+          top_of_screen: null,
+          top_of_screen_type: null,
+          distance: 500,
+          static_water_level: 10,
+          swl_to_screen: null,
+          swl_to_bottom_of_well: 10
         }],
         57: [{
-          'well_tag_number': 111,
-          'latitude': 1,
-          'longitude': -1,
-          'well_yield': 1,
-          'diameter': '1.0',
-          'well_yield_unit': 'GPM',
-          'finished_well_depth': 111,
-          'street_address': '',
-          'intended_water_use': 'Unknown Well Use',
-          'aquifer_subtype': null,
-          'aquifer_hydraulically_connected': true,
-          'aquifer_id': null,
-          'aquifer_lithology': 'Unconsolidated',
-          'aquifer': {
-            'aquifer_id': 57,
-            'subtype': 'aa',
-            'subtype_desc': 'Gravel',
-            'material': 'SG',
-            'material_desc': 'Sand and Gravel'
+          well_tag_number: 111,
+          latitude: 1,
+          longitude: -1,
+          well_yield: 1,
+          diameter: '1.0',
+          well_yield_unit: 'GPM',
+          finished_well_depth: 111,
+          street_address: '',
+          intended_water_use: 'Unknown Well Use',
+          aquifer_subtype: null,
+          aquifer_hydraulically_connected: true,
+          aquifer_id: null,
+          aquifer_lithology: 'Unconsolidated',
+          aquifer: {
+            aquifer_id: 57,
+            subtype: 'aa',
+            subtype_desc: 'Gravel',
+            material: 'SG',
+            material_desc: 'Sand and Gravel'
           },
-          'screen_set': [],
-          'top_of_screen': null,
-          'top_of_screen_type': null,
-          'distance': 500,
-          'static_water_level': 10,
-          'swl_to_screen': null,
-          'swl_to_bottom_of_well': 10
+          screen_set: [],
+          top_of_screen: null,
+          top_of_screen_type: null,
+          distance: 500,
+          static_water_level: 10,
+          swl_to_screen: null,
+          swl_to_bottom_of_well: 10
         }]
       }
     })

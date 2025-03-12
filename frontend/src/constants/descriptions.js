@@ -1,7 +1,7 @@
 export const WatershedModelDescriptions = {
   drainageArea: {
     name: 'Drainage Area',
-    description: `Total area of the selected watershed measured in kilometers squared (km²).`,
+    description: 'Total area of the selected watershed measured in kilometers squared (km²).',
     url: ''
   },
   annualPrecipitation: {

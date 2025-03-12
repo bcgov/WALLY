@@ -21,7 +21,7 @@ describe('MonthlyAllocationTable Test', () => {
   let propsData
 
   beforeEach(() => {
-    let surfaceWater = {
+    const surfaceWater = {
       namespaced: true,
       getters: {
         allocationValues: () => {
@@ -36,12 +36,12 @@ describe('MonthlyAllocationTable Test', () => {
     }
 
     propsData = {
-      'allocationItems': [
-        { 'testKey': 'test 1' },
-        { 'testKey': 'test 2' },
-        { 'testKey': 'test 3' }
+      allocationItems: [
+        { testKey: 'test 1' },
+        { testKey: 'test 2' },
+        { testKey: 'test 3' }
       ],
-      'keyField': 'testKey'
+      keyField: 'testKey'
     }
 
     store = new Vuex.Store({ modules: { surfaceWater } })
@@ -54,17 +54,17 @@ describe('MonthlyAllocationTable Test', () => {
   })
 
   it('Show allocation table', () => {
-    let allocationCard = wrapper.findAll('div#allocationTable')
+    const allocationCard = wrapper.findAll('div#allocationTable')
     expect(allocationCard.length).toBe(1)
   })
 
   it('Rows for each allocation item', () => {
-    let tableRows = wrapper.findAll('table tbody tr')
+    const tableRows = wrapper.findAll('table tbody tr')
     expect(tableRows.length).toBe(propsData.allocationItems.length)
   })
 
   it('Input text fields for each alloc item for each month', () => {
-    let inputTextFields = wrapper.findAll('input[type=text]')
+    const inputTextFields = wrapper.findAll('input[type=text]')
     expect(inputTextFields.length).toBe(propsData.allocationItems.length * 12)
   })
 })

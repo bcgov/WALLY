@@ -21,7 +21,7 @@ describe('Fish Observation tests', () => {
 
   beforeEach(() => {
     console.error = jest.fn()
-    let map = {
+    const map = {
       namespaced: true
     }
 

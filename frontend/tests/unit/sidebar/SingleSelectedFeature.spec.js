@@ -22,7 +22,7 @@ describe('SingleSelectedFeature', () => {
       removeMapLayer: jest.fn(),
       resetDataMartFeatureInfo: jest.fn()
     }
-    let mapGetters = {
+    const mapGetters = {
       isMapLayerActive: state => layerId => false,
       isMapReady: () => true,
       allMapLayers: () => testLayers.layers,
@@ -34,7 +34,7 @@ describe('SingleSelectedFeature', () => {
       map: jest.fn()
     }
 
-    let map = {
+    const map = {
       namespaced: true,
       getters: mapGetters,
       mutations

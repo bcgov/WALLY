@@ -29,11 +29,11 @@ export function getDefaultFileStats (file) {
 }
 
 export function generateFileStats (file) {
-  const geojsonFc = file['data']
+  const geojsonFc = file.data
 
   const geojsonStats = {
     id: `${file.name}.${file.lastModified}`,
-    fileType: file['type'],
+    fileType: file.type,
     numFeatures: geojsonFc.features.length,
     geomType: geojsonFc.features[0].geometry.type,
     propertyFields: Object.keys(geojsonFc.features[0].properties)
@@ -43,11 +43,11 @@ export function generateFileStats (file) {
 
 export function determineFileReadMethod (fileType) {
   const methods = {
-    'geojson': 'text',
-    'csv': 'text',
-    'xlsx': 'arrayBuffer',
-    'shapefile': 'arrayBuffer',
-    'kml': 'text'
+    geojson: 'text',
+    csv: 'text',
+    xlsx: 'arrayBuffer',
+    shapefile: 'arrayBuffer',
+    kml: 'text'
   }
   return methods[fileType]
 }
@@ -57,7 +57,7 @@ export function determineFileType (filename) {
   for (const fileType of Object.keys(FILE_TYPES_ACCEPTED)) {
     if (FILE_TYPES_ACCEPTED[fileType].includes(extension)) {
       return {
-        fileType: fileType,
+        fileType,
         fileExtension: extension,
         fileSupported: true
       }

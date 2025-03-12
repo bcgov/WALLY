@@ -112,7 +112,7 @@ export default {
       return filename.split('.').pop().toLowerCase()
     },
     async deleteItem (item) {
-      let confirmed = await this.$refs.confirm.open(
+      const confirmed = await this.$refs.confirm.open(
         'Delete',
         `Are you sure<br>you want to delete this file?<br><em>${item.filename}</em>`
       )
@@ -133,6 +133,9 @@ export default {
     },
     downloadingFile (value) {
       if (!value) {
+        // This was empty before
+        // eslint-disable-next-line no-useless-return
+        return
       }
     }
   }

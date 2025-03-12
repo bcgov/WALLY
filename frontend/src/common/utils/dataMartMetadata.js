@@ -42,7 +42,7 @@ export const dataMarts = {
       }
     ]
   },
-  'HYDROMETRIC_STREAM_FLOW': {
+  HYDROMETRIC_STREAM_FLOW: {
     id: 2,
     name: 'Hydrometric Stream Flow',
     type: 'api',

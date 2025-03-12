@@ -88,7 +88,7 @@ describe('Map Utils', () => {
     }
     const layerID = 'water_rights_licences'
     const sourceLayer = 'sourceURL'
-    addMapboxLayer(map, layerID, { sourceLayer: sourceLayer })
+    addMapboxLayer(map, layerID, { sourceLayer })
     const layers = findWallyLayerArray(layerID)
     layers.forEach(layer => {
       expect(layer['source-layer']).toEqual(sourceLayer)

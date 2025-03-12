@@ -86,12 +86,12 @@ export default {
       this.allocItems = []
       // we only want to see one allocation row
       // for each approval file number (keyField)
-      let seen = []
+      const seen = []
       this.allocationItems.forEach(item => {
-        let allocItemKey = item[this.keyField].trim()
+        const allocItemKey = item[this.keyField].trim()
         if (!seen.includes(allocItemKey)) {
           seen.push(allocItemKey)
-          let defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+          const defaultAllocValues = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
           this.allocItems.push({
             name: allocItemKey,
             values: this.shortTermAllocationValues[allocItemKey] || defaultAllocValues
@@ -110,7 +110,8 @@ export default {
       this.allocItems.forEach(item => {
         this.setShortTermAllocationValues({
           key: item.name,
-          values: item.values })
+          values: item.values
+        })
       })
 
       // save to vuex store

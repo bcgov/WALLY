@@ -19,13 +19,13 @@ describe('Map Legend Test', () => {
   let store
 
   it('Is hidden on start', () => {
-    let map = {
+    const map = {
       namespaced: true,
       getters: {
         activeMapLayers: () => []
       }
     }
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
@@ -45,19 +45,19 @@ describe('Map Legend Test', () => {
   it('Is not hidden when not empty', async () => {
     await wrapper.vm.$nextTick()
     expect(wrapper.findAll('div#legend').length).toEqual(0)
-    let propsData = {
+    const propsData = {
       map: {
         getLayer: (name) => {
-          let types = {
-            'ecocat_water_related_reports': 'circle',
-            'freshwater_atlas_stream_networks': 'line'
+          const types = {
+            ecocat_water_related_reports: 'circle',
+            freshwater_atlas_stream_networks: 'line'
           }
           return types[name]
         },
         getPaintProperty: () => {}
       }
     }
-    let map = {
+    const map = {
       namespaced: true,
       getters: {
         activeMapLayers: () => [{
@@ -86,7 +86,7 @@ describe('Map Legend Test', () => {
         }]
       }
     }
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
@@ -113,19 +113,19 @@ describe('Map Legend Test', () => {
   })
 
   it('Shows the legend items for a layer that has multiple legend items', async () => {
-    let propsData = {
+    const propsData = {
       map: {
         getLayer: (name) => {
-          let types = {
-            'ecocat_water_related_reports': 'circle',
-            'freshwater_atlas_stream_networks': 'line'
+          const types = {
+            ecocat_water_related_reports: 'circle',
+            freshwater_atlas_stream_networks: 'line'
           }
           return types[name]
         },
         getPaintProperty: () => {}
       }
     }
-    let map = {
+    const map = {
       namespaced: true,
       getters: {
         activeMapLayers: () => [{
@@ -175,7 +175,7 @@ describe('Map Legend Test', () => {
         }]
       }
     }
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
@@ -191,9 +191,9 @@ describe('Map Legend Test', () => {
     })
     await wrapper.vm.$nextTick()
 
-    let layerName = wrapper.findAll('div#legend div').at(0)
+    const layerName = wrapper.findAll('div#legend div').at(0)
       .find('.layerName').text()
-    let legendItems = wrapper.findAll('div#legend').at(0)
+    const legendItems = wrapper.findAll('div#legend').at(0)
       .findAll('.legendItem')
 
     expect(layerName).toEqual('EcoCat Water-related Reports')
@@ -220,21 +220,21 @@ describe('Map Legend Test', () => {
   })
 
   it('Replaces label code', () => {
-    let propsData = {
+    const propsData = {
       item: {
         text: 'Stream Allocation Restrictions',
         type: 'line',
         color: 'blue'
       }
     }
-    let map = {
+    const map = {
       namespaced: true,
       getters: {
         activeMapLayers: () => []
       }
     }
 
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
@@ -257,10 +257,10 @@ describe('Map Legend Test', () => {
 
   it('Returns layers with a display name', async () => {
     await wrapper.vm.$nextTick()
-    let propsData = {
+    const propsData = {
       map: {
         getLayer: (name) => {
-          let types = {
+          const types = {
             'fish_obstacles.geojson.1593556874000': 'Point'
           }
           return types[name]
@@ -268,13 +268,13 @@ describe('Map Legend Test', () => {
         getPaintProperty: () => {}
       }
     }
-    let map = {
+    const map = {
       namespaced: true,
       getters: {
         activeMapLayers: () => []
       }
     }
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => ['fish_obstacles.geojson.1593556874000', '_imported-map-layers'],
@@ -299,16 +299,16 @@ describe('Map Legend Test', () => {
     })
     await wrapper.vm.$nextTick()
     expect(wrapper.findAll('div#legend').length).toEqual(1)
-    let fishObstacles = wrapper.findAll('div#legend').at(0).find('span.layerName')
+    const fishObstacles = wrapper.findAll('div#legend').at(0).find('span.layerName')
     expect(fishObstacles.text()).toEqual('Fish obstacles')
   })
 
   it('Displays the correct colors of the icon', async () => {
     const paints = {
-      'freshwater_atlas_stream_networks': {
+      freshwater_atlas_stream_networks: {
         'line-color': 'hsl(213, 78%, 55%)'
       },
-      'snow_stations': {
+      snow_stations: {
         'circle-color': 'hsl(2, 1%, 100%)',
         'circle-stroke-color': 'hsl(140, 95%, 52%)',
         'circle-stroke-width': 1
@@ -316,10 +316,10 @@ describe('Map Legend Test', () => {
     }
 
     const layers = {
-      'freshwater_atlas_stream_networks': {
+      freshwater_atlas_stream_networks: {
         type: 'line'
       },
-      'snow_stations': {
+      snow_stations: {
         type: 'circle'
       }
     }
@@ -328,7 +328,7 @@ describe('Map Legend Test', () => {
       display_name: 'FWA Stream Networks'
     }
     let mapLayers = [streamLayer]
-    let propsData = {
+    const propsData = {
       map: {
         getLayer: (name) => {
           return layers[name]
@@ -338,7 +338,7 @@ describe('Map Legend Test', () => {
         }
       }
     }
-    let map = {
+    const map = {
       namespaced: true,
       state: {
         activeMapLayers: []
@@ -352,13 +352,12 @@ describe('Map Legend Test', () => {
         }
       }
     }
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
         customLayers: () => {
-          return {
-            children: [] }
+          return { children: [] }
         }
       }
     }
@@ -391,7 +390,7 @@ describe('Map Legend Test', () => {
     expect(legendItems.length).toBe(1)
     let streamIconColor = legendItems.at(0).element.style.getPropertyValue('color')
     let streamIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
-    expect(streamIconColor).toBe(paints['freshwater_atlas_stream_networks']['line-color'])
+    expect(streamIconColor).toBe(paints.freshwater_atlas_stream_networks['line-color'])
     expect(streamIconOutlineColor).toBeFalsy()
 
     // activate a point layer and a line string layer
@@ -408,13 +407,13 @@ describe('Map Legend Test', () => {
     // 1 line, blue w/no outline
     legendItems = wrapper.findAll('div.legendItem i')
     expect(legendItems.length).toBe(2)
-    let snowIconColor = legendItems.at(0).element.style.getPropertyValue('color')
-    let snowIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
+    const snowIconColor = legendItems.at(0).element.style.getPropertyValue('color')
+    const snowIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
     streamIconColor = legendItems.at(1).element.style.getPropertyValue('color')
     streamIconOutlineColor = legendItems.at(1).element.style.getPropertyValue('-webkit-text-stroke-color')
-    expect(snowIconColor).toBe(paints['snow_stations']['circle-color'])
-    expect(snowIconOutlineColor).toBe(paints['snow_stations']['circle-stroke-color'])
-    expect(streamIconColor).toBe(paints['freshwater_atlas_stream_networks']['line-color'])
+    expect(snowIconColor).toBe(paints.snow_stations['circle-color'])
+    expect(snowIconOutlineColor).toBe(paints.snow_stations['circle-stroke-color'])
+    expect(streamIconColor).toBe(paints.freshwater_atlas_stream_networks['line-color'])
     expect(streamIconOutlineColor).toBeFalsy()
 
     // deactivate snow stations layer
@@ -428,7 +427,7 @@ describe('Map Legend Test', () => {
     streamIconColor = legendItems.at(0).element.style.getPropertyValue('color')
     streamIconOutlineColor = legendItems.at(0).element.style.getPropertyValue('-webkit-text-stroke-color')
     expect(legendItems.length).toBe(1)
-    expect(streamIconColor).toBe(paints['freshwater_atlas_stream_networks']['line-color'])
+    expect(streamIconColor).toBe(paints.freshwater_atlas_stream_networks['line-color'])
     expect(streamIconOutlineColor).toBeFalsy()
   })
 })

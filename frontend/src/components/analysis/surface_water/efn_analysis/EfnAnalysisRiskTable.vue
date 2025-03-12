@@ -145,7 +145,7 @@ export default {
         this.updateMonthRiskThresholds(riskCategory.thresholds)
         return {
           month: this.monthHeaders[idx].text,
-          mmd: mmd,
+          mmd,
           mmw: this.meanMonthlyWithdrawal(idx),
           withdrawalPercent: this.monthlyWithdrawalPercent(mmd, idx),
           sensitivity: riskCategory.sensitivity,

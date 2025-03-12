@@ -65,7 +65,7 @@ export default {
     ...mapGetters('map', ['map']),
     ...mapGetters('surfaceWater', ['availabilityPlotData', 'licencePlotData', 'shortTermLicencePlotData']),
     demandAvailabilityData () {
-      var plotConfig = []
+      const plotConfig = []
 
       if (this.licencePlotData) {
         plotConfig.push({

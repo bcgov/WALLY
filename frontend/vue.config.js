@@ -6,6 +6,9 @@ module.exports = {
     resolve: {
       alias: {
         'plotly.js': 'plotly.js/dist/plotly-basic.min.js'
+      },
+      fallback: {
+        querystring: require.resolve('querystring-es3')
       }
     },
     plugins: [

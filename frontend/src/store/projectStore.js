@@ -16,9 +16,9 @@ export default {
       ApiService.query('/api/v1/projects')
         .then((r) => {
           // set unique ids for treeview to use
-          let projects = r.data.map(project => {
+          const projects = r.data.map(project => {
             project.id = 'project-' + project.project_uuid
-            let children = project.children.map(child => {
+            const children = project.children.map(child => {
               child.id = 'document-' + child.project_document_uuid
               child.name = child.filename.split('.')[0]
               return child
@@ -62,7 +62,7 @@ export default {
         })
     },
     downloadProject ({ state, commit }) {
-      let projectUUID = state.selectedProject.project_uuid
+      const projectUUID = state.selectedProject.project_uuid
       ApiService.query(`/api/v1/projects/${projectUUID}/download`, null, { responseType: 'arraybuffer' })
         .then((r) => {
           downloadFile(r, 'project_' + projectUUID, true)

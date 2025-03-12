@@ -3,7 +3,7 @@ import L from 'leaflet'
 export const wmsBaseURL = 'https://openmaps.gov.bc.ca/geo/pub/'
 
 export function wmsParamString (payload) {
-  let params = {
+  const params = {
     request: 'GetMap',
     service: 'WMS',
     srs: 'EPSG:4326',

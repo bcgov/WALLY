@@ -163,7 +163,8 @@ export default {
 
       this.$router.push({
         query:
-          { ...this.$route.query,
+          {
+            ...this.$route.query,
             coordinates: this.pointOfInterest.geometry.coordinates
           }
       })
