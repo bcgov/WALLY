@@ -48,6 +48,7 @@ To build and run the backend on computers with Apple M1 chip use the following c
 PLATFORM=.m1 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
 PLATFORM=.m1v2 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
 ```
+For an Apple computer with an M3 chip, use the .m1v2 version.
 
 #### Access the database directly
 

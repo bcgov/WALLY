@@ -58,7 +58,7 @@ describe('Comparative Runoff Models test', () => {
     expect(cardText.find('v-card-title-stub').text()).toContain(
       'Annual normalized runoff')
     expect(cardText.find('v-card-text-stub').text()).toContain(
-      annualRunoffValue)
+      annualRunoffValue.toString())
   })
 
   it('Hides annual normalized runoff if unavailable', () => {
