@@ -13,7 +13,7 @@ includes fixtures that cover the Whistler, BC area.
 ### Prerequisites
 
 * Docker
-* Node
+* Node v22
 
 #### Environment variables
 Running WALLY locally requires the following env vars:
