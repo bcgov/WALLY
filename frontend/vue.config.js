@@ -1,15 +1,12 @@
 const CompressionPlugin = require('compression-webpack-plugin')
 // const Visualizer = require('webpack-visualizer-plugin')
-/*
-TODO: Put back in resolve after debugging issue
-      alias: {
-        'plotly.js': 'plotly.js/dist/plotly-basic.min.js'
-      },
-*/
 
 module.exports = {
   configureWebpack: {
     resolve: {
+      alias: {
+        'plotly.js': 'plotly.js/dist/plotly-basic.min.js'
+      },
       fallback: {
         querystring: require.resolve('querystring-es3')
       }

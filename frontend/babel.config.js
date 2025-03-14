@@ -6,5 +6,6 @@ module.exports = {
     test: {
       plugins: ['dynamic-import-node-babel-7']
     }
-  }
+  },
+  sourceType: 'unambiguous'
 }
