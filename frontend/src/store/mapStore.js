@@ -415,7 +415,7 @@ export default {
       })
     },
     async initHighlightLayers ({ state, commit }) {
-      await state.map.on('load', () => {
+      const init = () => {
         // initialize highlight layers
         state.map.addImage('highlight-point', HighlightPoint(state.map, 90), { pixelRatio: 2 })
         highlightSources.forEach((source) => {
@@ -429,7 +429,15 @@ export default {
         // End of cascade; map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
-      })
+      }
+
+      if (state.map.loaded()) {
+        init()
+      } else {
+        await state.map.on('load', () => {
+          init()
+        })
+      }
     },
     updateMapLayerData ({ state, commit, dispatch }, data) {
       const { source, featureData } = data
@@ -462,13 +470,21 @@ export default {
       }
     },
     async initMeasurementHighlight ({ state }, payload) {
-      await state.map.on('load', () => {
+      const init = () => {
         // initialize measurement highlight layer
         measurementSources.forEach((source) => {
           state.map.addSource(source, geojsonFC(emptyPolygon))
           addMapboxLayer(state.map, source, {})
         })
-      })
+      }
+
+      if (state.map.loaded()) {
+        init()
+      } else {
+        await state.map.on('load', () => {
+          init()
+        })
+      }
     },
     updateMeasurementHighlight ({ state, commit, dispatch }, data) {
       if (data.feature.geometry.type === 'LineString') {
