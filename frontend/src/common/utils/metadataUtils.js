@@ -1,4 +1,4 @@
-import { API_URL } from './mapUtils'
+export const API_URL = process.env.VUE_APP_AXIOS_BASE_URL
 
 // Layer Names
 export const WMS_WATER_RIGHTS_LICENSES = 'WATER_RIGHTS_LICENSES'

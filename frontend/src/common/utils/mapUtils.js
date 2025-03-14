@@ -1,8 +1,6 @@
 import * as metadata from './metadataUtils'
 import layersWally from '../mapbox/layersWally'
 
-export const API_URL = process.env.VUE_APP_AXIOS_BASE_URL
-
 export function getMapLayerItemTitle (property) {
   return metadata.LAYER_PROPERTY_NAMES[metadata.LAYER_PROPERTY_MAPPINGS[property]]
 }
