@@ -1,8 +1,6 @@
 import * as metadata from './metadataUtils'
 import layersWally from '../mapbox/layersWally'
 
-export const API_URL = process.env.VUE_APP_AXIOS_BASE_URL
-
 export function getMapLayerItemTitle (property) {
   return metadata.LAYER_PROPERTY_NAMES[metadata.LAYER_PROPERTY_MAPPINGS[property]]
 }
@@ -22,7 +20,7 @@ export const findWallyLayer = (id) => {
 }
 
 // Returns an array of wally layers
-export let findWallyLayerArray = (id) => {
+export const findWallyLayerArray = (id) => {
   const layers = layersWally[id]
   if (!Array.isArray(layers)) {
     return [layers]
@@ -32,7 +30,7 @@ export let findWallyLayerArray = (id) => {
 
 // Helper function to set a layer style for a source
 export const addMapboxLayer = (map, id, { sourceLayer, before }) => {
-  let layers = findWallyLayerArray(id)
+  const layers = findWallyLayerArray(id)
 
   layers.forEach((layer) => {
     if (sourceLayer) {

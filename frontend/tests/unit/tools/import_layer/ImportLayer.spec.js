@@ -93,8 +93,8 @@ describe('ImportLayer', () => {
     Importer.readFiles = jest.fn()
     wrapper.vm.clearAllFiles = jest.fn()
 
-    let testFile = new File([''], 'test.geojson', { type: 'application/geo+json' })
-    let testFile2 = new File([''], 'test2.geojson', { type: 'application/geo+json' })
+    const testFile = new File([''], 'test.geojson', { type: 'application/geo+json' })
+    const testFile2 = new File([''], 'test2.geojson', { type: 'application/geo+json' })
 
     wrapper.vm.handleSelectedFiles([testFile, testFile2])
     wrapper.vm.prepareFiles()
@@ -105,8 +105,8 @@ describe('ImportLayer', () => {
   })
 
   it('Hides FileDrop when processing files', async () => {
-    let testFile = new File([''], 'test.geojson', { type: 'application/geo+json' })
-    let testFile2 = new File([''], 'test2.geojson', { type: 'application/geo+json' })
+    const testFile = new File([''], 'test.geojson', { type: 'application/geo+json' })
+    const testFile2 = new File([''], 'test2.geojson', { type: 'application/geo+json' })
 
     initComponent({ queuedFiles: [testFile, testFile2] })
 
@@ -118,14 +118,16 @@ describe('ImportLayer', () => {
   })
 
   it('Shows FileDrop when processed file is invalid', async () => {
-    let testFile = new File([''], 'test.exe')
+    const testFile = new File([''], 'test.exe')
 
-    initComponent({ queuedFiles: [testFile],
+    initComponent({
+      queuedFiles: [testFile],
       processedFiles: [{
         filename: testFile.name,
         status: 'error',
-        message: `file of type .exe not supported.`
-      }] })
+        message: 'file of type .exe not supported.'
+      }]
+    })
 
     await wrapper.vm.$nextTick()
     expect(wrapper.find('filedrop-stub').exists()).toBeTruthy()
@@ -136,7 +138,7 @@ describe('FileList', () => {
   let wrapper, store
 
   beforeEach(() => {
-    let file = {
+    const file = {
       size: 11 * 1024 * 1024 // 11mb
     }
 
@@ -165,15 +167,15 @@ describe('FileListProcessed', () => {
   let wrapper
 
   it('Displays the appropriate message', async () => {
-    let fileError = {
+    const fileError = {
       status: 'error',
       message: 'test error message'
     }
-    let fileSuccess = {
+    const fileSuccess = {
       status: 'success',
       message: 'test error message'
     }
-    let fileWarn = {
+    const fileWarn = {
       status: 'warning',
       message: 'whatever warning'
     }
@@ -199,11 +201,13 @@ describe('FileListProcessed', () => {
     expect(wrapper.find('v-alert-stub').attributes('type'))
       .toBe('success')
 
-    await wrapper.setProps({ files: {
-      success: [],
-      error: [],
-      warning: [fileWarn]
-    } })
+    await wrapper.setProps({
+      files: {
+        success: [],
+        error: [],
+        warning: [fileWarn]
+      }
+    })
 
     expect(wrapper.find('#statusMessage0').text().toLowerCase())
       .toContain(fileWarn.message)

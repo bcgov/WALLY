@@ -17,7 +17,7 @@ describe('EditableModelInputs Test', () => {
   let store
 
   beforeEach(() => {
-    let surfaceWater = {
+    const surfaceWater = {
       namespaced: true,
       getters: {
         watershedDetails: () => { return {} },
@@ -49,7 +49,7 @@ describe('EditableModelInputs Test', () => {
   })
 
   it('Show editableModelCard', () => {
-    let modelCard = wrapper.findAll('div#editableModelCard')
+    const modelCard = wrapper.findAll('div#editableModelCard')
     expect(modelCard.length).toBe(1)
   })
 })

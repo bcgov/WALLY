@@ -250,22 +250,22 @@ export default {
       // see commit 46e3623097384b6cd709ff8e58f7bd22201c9b30 for the removed button code.
 
       console.log('download watershed')
-      let doc = jsPDF('p', 'in', [230, 200])
-      let width = doc.internal.pageSize.getWidth()
-      let height = doc.internal.pageSize.getHeight()
-      let filename = 'watershed--'.concat(this.watershedName) +
+      const doc = jsPDF('p', 'in', [230, 200])
+      const width = doc.internal.pageSize.getWidth()
+      const height = doc.internal.pageSize.getHeight()
+      const filename = 'watershed--'.concat(this.watershedName) +
         '--'.concat(new Date().toISOString()) + '.pdf'
 
-      let watershedContainers = [...document.getElementsByClassName('watershedInfo')]
+      const watershedContainers = [...document.getElementsByClassName('watershedInfo')]
 
-      let myPromises = []
+      const myPromises = []
       watershedContainers.forEach((container) => {
         myPromises.push(
           html2canvas(container)
             .then(canvas => {
-              let img = canvas.toDataURL('image/png')
+              const img = canvas.toDataURL('image/png')
               const imgProps = doc.getImageProperties(img)
-              let size = scaleImageToFit(width, height, imgProps.width,
+              const size = scaleImageToFit(width, height, imgProps.width,
                 imgProps.height)
               doc.addImage(img, 'PNG', 0, 0, size[0], size[1])
               doc.addPage()

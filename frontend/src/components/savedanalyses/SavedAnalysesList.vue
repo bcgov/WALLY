@@ -70,7 +70,7 @@ export default {
       items: [],
       filter: '',
       featureNames: {
-        'section': 'Cross Section',
+        section: 'Cross Section',
         'upstream-downstream': 'Upstream Downstream',
         'surface-water': 'Surface Water',
         'assign-demand': 'Hydraulic Connectivity'
@@ -103,7 +103,7 @@ export default {
       return moment(date).format('DD MMM YYYY')
     },
     async deleteItem (item) {
-      let confirmed = await this.$refs.confirm.open(
+      const confirmed = await this.$refs.confirm.open(
         'Delete',
         `Are you sure<br>you want to delete this analysis?<br><em>${item.name}</em>`
       )
@@ -113,7 +113,7 @@ export default {
     },
     runAnalysis (item) {
       this.map.fitBounds(item.map_bounds)
-      let coordinates = item.geometry.coordinates
+      const coordinates = item.geometry.coordinates
       const featureType = item.feature_type
       let params = {
         coordinates: coordinates[0]

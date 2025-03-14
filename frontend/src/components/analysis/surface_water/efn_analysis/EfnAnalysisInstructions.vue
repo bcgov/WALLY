@@ -1,4 +1,3 @@
-
 <template>
   <div id="hydraulic_connectivity" class="instructions">
     <div>

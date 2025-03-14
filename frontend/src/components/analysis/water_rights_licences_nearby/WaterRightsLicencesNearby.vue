@@ -332,7 +332,7 @@ export default {
       const applications = this.results.filter(x => !!x.APPLICATION_JOB_NUMBER)
       const subtypes = this.tableOptions.applications.subtypes
 
-      let counts = {}
+      const counts = {}
 
       // loop through the subtypes, and count the number of each type.
       for (const key of Object.keys(subtypes)) {
@@ -354,10 +354,10 @@ export default {
     },
     licenceSubtypeCounts () {
       // counts each subtype in the results
-      let licences = this.results.filter(x => !!x.LICENCE_NUMBER)
+      const licences = this.results.filter(x => !!x.LICENCE_NUMBER)
       const subtypes = this.tableOptions.licences.subtypes
 
-      let counts = {}
+      const counts = {}
 
       // loop through the subtypes, and count the number of each type.
       for (const key of Object.keys(subtypes)) {
@@ -431,7 +431,7 @@ export default {
       })
     }, 500),
     radiusIsValid (val) {
-      let invalid = Object.keys(this.inputRules).some((k) => {
+      const invalid = Object.keys(this.inputRules).some((k) => {
         return this.inputRules[k](val) !== true
       })
       return !invalid
@@ -446,7 +446,7 @@ export default {
       if (!this.radiusIsValid(this.radius)) {
         return
       }
-      ApiService.query(`/api/v1/licences/nearby`, params, { responseType: 'arraybuffer' }).then((r) => {
+      ApiService.query('/api/v1/licences/nearby', params, { responseType: 'arraybuffer' }).then((r) => {
         // default filename, and inspect response header Content-Disposition
         // for a more specific filename (if provided).
         let filename = 'WaterLicences.xlsx'
@@ -455,8 +455,8 @@ export default {
           filename = filenameData[1]
         }
 
-        let blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        let link = document.createElement('a')
+        const blob = new Blob([r.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
+        const link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
         link.download = filename
         document.body.appendChild(link)

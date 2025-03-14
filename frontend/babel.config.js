@@ -4,7 +4,7 @@ module.exports = {
   ],
   env: {
     test: {
-      plugins: ['dynamic-import-node']
+      plugins: ['dynamic-import-node-babel-7']
     }
   }
 }

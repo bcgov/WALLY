@@ -34,19 +34,19 @@ const ApiService = {
     })
   },
   hasAuthHeader () {
-    return !!axios.headers.common['Authorization']
+    return !!axios.headers.common.Authorization
   },
   authHeader (prefix, token) {
     // set auth header. Expects prefix to be "Bearer", "JWT" etc.
     // deletes auth header if called without a token (useful for logging out)
     if (prefix && token) {
-      axios.defaults.headers.common['Authorization'] = `${prefix} ${token}`
-    } else if (axios.defaults.headers.common['Authorization']) {
-      delete axios.defaults.headers.common['Authorization']
+      axios.defaults.headers.common.Authorization = `${prefix} ${token}`
+    } else if (axios.defaults.headers.common.Authorization) {
+      delete axios.defaults.headers.common.Authorization
     }
   },
   query (resource, params, options) {
-    return axios.get(resource, { ...options, params: params })
+    return axios.get(resource, { ...options, params })
   },
   get (resource, record, config) {
     return axios.get(`${resource}${record ? '/' + record : ''}`, config)
@@ -89,7 +89,7 @@ const ApiService = {
       },
       transformRequest: (data, headers) => {
         // delete Authorization header for file upload requests (credentials are via a presigned link)
-        delete headers.common['Authorization']
+        delete headers.common.Authorization
         return data
       }
     }

@@ -243,11 +243,11 @@ export default {
     },
     // These are the layers that are turned on by default for Surface Water Analysis
     layers: {
-      'hydrometric_stations': 'Hydrometric Stations',
-      'water_rights_licences': 'Water Rights Licences',
-      'water_approval_points': 'Water Approval Points',
-      'fish_observations': 'Known BC Fish Observations & Distributions',
-      'water_rights_applications': 'Water Rights Applications'
+      hydrometric_stations: 'Hydrometric Stations',
+      water_rights_licences: 'Water Rights Licences',
+      water_approval_points: 'Water Approval Points',
+      fish_observations: 'Known BC Fish Observations & Distributions',
+      water_rights_applications: 'Water Rights Applications'
     }
   }),
   watch: {
@@ -277,11 +277,15 @@ export default {
         return ''
       }
       let name = ''
-      let props = this.selectedWatershedRecord.properties
-      name = props.GNIS_NAME_1 ? props.GNIS_NAME_1
-        : props.SOURCE_NAME ? props.SOURCE_NAME
-          : props.name ? props.name
-            : props.WATERSHED_FEATURE_ID ? props.WATERSHED_FEATURE_ID
+      const props = this.selectedWatershedRecord.properties
+      name = props.GNIS_NAME_1
+        ? props.GNIS_NAME_1
+        : props.SOURCE_NAME
+          ? props.SOURCE_NAME
+          : props.name
+            ? props.name
+            : props.WATERSHED_FEATURE_ID
+              ? props.WATERSHED_FEATURE_ID
               : props.OBJECTID ? props.OBJECTID : ''
       global.config.debug && console.log('[wally] name', name)
       return name.toString()
@@ -290,7 +294,7 @@ export default {
       if (!this.selectedWatershedRecord) {
         return ''
       }
-      let id = this.selectedWatershedRecord.id
+      const id = this.selectedWatershedRecord.id
       if (id.includes('generated.')) {
         return 'Watershed estimated by combining Freshwater Atlas watershed polygons that are determined to be ' +
           'upstream of the point of interest based on their FWA_WATERSHED_CODE and LOCAL_WATERSHED_CODE properties.'
@@ -313,9 +317,9 @@ export default {
     },
     watershedOptions () {
       return this.watersheds.map((w, i) => ({
-        label: (w.properties['GNIS_NAME_1'] ||
-          w.properties['SOURCE_NAME'] ||
-          w.properties['name'] ||
+        label: (w.properties.GNIS_NAME_1 ||
+          w.properties.SOURCE_NAME ||
+          w.properties.name ||
           `Watershed ${i + 1}`).toLowerCase(),
         value: w.id
       }))
@@ -360,9 +364,11 @@ export default {
           filename = filenameData[1]
         }
 
-        let blob = new Blob([res.data], { type:
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        let link = document.createElement('a')
+        const blob = new Blob([res.data], {
+          type:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        })
+        const link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
         link.download = filename
         document.body.appendChild(link)
@@ -407,9 +413,11 @@ export default {
           filename = filenameData[1]
         }
 
-        let blob = new Blob([res.data], { type:
-            'application/zip' })
-        let link = document.createElement('a')
+        const blob = new Blob([res.data], {
+          type:
+            'application/zip'
+        })
+        const link = document.createElement('a')
         link.href = window.URL.createObjectURL(blob)
         link.download = filename
         document.body.appendChild(link)
@@ -524,23 +532,23 @@ export default {
       }
 
       if (details && details.scsb2016_model && !details.scsb2016_model.error) {
-        let outputs = details.scsb2016_model
-        let mar = outputs.find((x) => x.output_type === 'MAR')
-        let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
-        let low7q2 = outputs.find((x) => x.output_type === '7Q2')
-        let dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
-        let monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
-        let monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
+        const outputs = details.scsb2016_model
+        const mar = outputs.find((x) => x.output_type === 'MAR')
+        const mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
+        const low7q2 = outputs.find((x) => x.output_type === '7Q2')
+        const dry7q10 = outputs.find((x) => x.output_type === 'S-7Q10')
+        const monthlyDistributions = outputs.filter((x) => x.output_type === 'MD')
+        const monthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
         this.modelOutputs = {
           sourceDescription: 'Model output based on South Coast Stewardship Baseline (Sentlinger, 2016).',
           mar: mar.model_result.toFixed(2),
           mad: mad.model_result.toFixed(2),
           low7q2: low7q2.model_result.toFixed(2),
           dry7q10: dry7q10.model_result.toFixed(2),
-          monthlyDistributions: monthlyDistributions,
-          monthlyDischarges: monthlyDischarges
+          monthlyDistributions,
+          monthlyDischarges
         }
-        let availability = monthlyDischarges.map((m) => { return m.model_result * secondsInMonth(m.month) })
+        const availability = monthlyDischarges.map((m) => { return m.model_result * secondsInMonth(m.month) })
         this.setAvailabilityPlotData(availability)
       } else {
         this.setAvailabilityPlotData(null)

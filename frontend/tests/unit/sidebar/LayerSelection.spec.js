@@ -48,7 +48,7 @@ describe('LayerSelection', () => {
       })
     }
 
-    let customLayers = {
+    const customLayers = {
       namespaced: true,
       getters: {
         selectedCustomLayers: () => [],
@@ -76,7 +76,7 @@ describe('LayerSelection', () => {
   })
 
   it('calls handleSelectLayer and commits correct mutation', () => {
-    let fakeLayerName = 'fake'
+    const fakeLayerName = 'fake'
     wrapper.vm.handleSelectLayer([fakeLayerName]) // Will fail isMapLayerActive anyway
     expect(store.dispatch).toHaveBeenCalledWith(
       'map/updateActiveMapLayers',

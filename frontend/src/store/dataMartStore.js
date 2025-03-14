@@ -32,8 +32,8 @@ export default {
       const layers = payload.layers.map((x) => {
         return 'layers=' + x.display_data_name + '&'
       })
-      let polygon = payload.bounds
-      let polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
+      const polygon = payload.bounds
+      const polygonQ = `polygon=${JSON.stringify(polygon.geometry.coordinates)}&`
       const width = 'width=' + payload.size.x + '&'
       const height = 'height=' + payload.size.y + '&'
       const srs = 'srs=EPSG:4326'
@@ -42,7 +42,7 @@ export default {
       ApiService.getApi('/aggregate/?' + params)
         .then((response) => {
           // console.log('response for aggregate', response)
-          let displayData = response.data.display_data
+          const displayData = response.data.display_data
           commit('setLoadingFeature', false)
 
           // end here if no layers returned any data.

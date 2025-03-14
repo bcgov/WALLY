@@ -90,10 +90,10 @@ export default {
         // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        const stationName = `${e.features[0].properties['station_number']} - ${e.features[0].properties['station_name']}`
-        const stnStatus = this.stationStatus(e.features[0].properties['hyd_status'])
-        const realTime = Number(e.features[0].properties['real_time']) ? 'Yes' : 'No'
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const stationName = `${e.features[0].properties.station_number} - ${e.features[0].properties.station_name}`
+        const stnStatus = this.stationStatus(e.features[0].properties.hyd_status)
+        const realTime = Number(e.features[0].properties.real_time) ? 'Yes' : 'No'
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears

@@ -93,9 +93,9 @@ export default {
   }),
   methods: {
     populateBoxPlotData (wells) {
-      let yieldY = []
-      let depthY = []
-      let swlY = []
+      const yieldY = []
+      const depthY = []
+      const swlY = []
 
       this.boxPlotSWLData.data = []
       this.boxPlotYieldData.data = []

@@ -20,7 +20,7 @@ describe('Saved Analyses List Tests', () => {
     getters = {
       app: () => {}
     }
-    let mapGetters = {
+    const mapGetters = {
       isMapLayerActive: state => layerId => false,
       activeMapLayers: state => [],
       isMapReady: jest.fn(),
@@ -41,11 +41,11 @@ describe('Saved Analyses List Tests', () => {
       addFeaturePOIFromCoordinates: jest.fn(),
       updateActiveMapLayers: jest.fn()
     }
-    let mapMutations = {
+    const mapMutations = {
       setMode: jest.fn(),
       setMapReady: () => true
     }
-    let map = {
+    const map = {
       state: {
         isMapReady: true
       },
@@ -55,7 +55,7 @@ describe('Saved Analyses List Tests', () => {
       mutations: mapMutations
     }
 
-    let savedAnalyses = {
+    const savedAnalyses = {
       state: {
         savedAnalyses: []
       },
@@ -95,7 +95,7 @@ describe('Saved Analyses List Tests', () => {
   })
 
   it('sets the map bounds', () => {
-    let analysis = {
+    const analysis = {
       map_bounds: [[-123, 49], [-123.1, 49.2]],
       geometry: {
         coordinates: [[-123, 49], [-123.1, 49.2]]
@@ -111,7 +111,7 @@ describe('Saved Analyses List Tests', () => {
   })
 
   it('does not set point of interest on cross section featureType', () => {
-    let analysis = {
+    const analysis = {
       map_bounds: [[-123, 49], [-123.1, 49.2]],
       geometry: {
         coordinates: [[-123, 49], [-123.1, 49.2]]
@@ -131,7 +131,7 @@ describe('Saved Analyses List Tests', () => {
   })
 
   it('sets the point of interest on featureTypes other than cross section', () => {
-    let analysis = {
+    const analysis = {
       map_bounds: [[-123, 49], [-123.1, 49.2]],
       geometry: {
         coordinates: [[-123.1, 49.2]]
@@ -151,7 +151,7 @@ describe('Saved Analyses List Tests', () => {
   })
 
   it('sets the correct active map layers', () => {
-    let analysis = {
+    const analysis = {
       map_bounds: [[-123, 49], [-123.1, 49.2]],
       map_layers: [
         { map_layer: 'ground_water_wells' }

@@ -116,7 +116,7 @@ export default {
 
       console.log(params)
 
-      ApiService.post(`/api/v1/saved_analyses`, params)
+      ApiService.post('/api/v1/saved_analyses', params)
         .then((res) => {
           this.name = ''
           this.description = ''

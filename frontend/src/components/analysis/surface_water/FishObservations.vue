@@ -186,10 +186,10 @@ export default {
       // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let speciesName = e.features[0].properties['SPECIES_NAME']
-        let lifeStage = e.features[0].properties['LIFE_STAGE']
-        let observationDate = e.features[0].properties['OBSERVATION_DATE']
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const speciesName = e.features[0].properties.SPECIES_NAME
+        const lifeStage = e.features[0].properties.LIFE_STAGE
+        const observationDate = e.features[0].properties.OBSERVATION_DATE
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears

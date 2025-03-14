@@ -1,5 +1,6 @@
 <template>
   <v-dialog v-model="dialog" width="650">
+    <!-- eslint-disable-next-line vue/no-unused-vars -->
     <template v-slot:activator="{ on, attrs }">
       <v-icon
         v-on="on"
@@ -80,9 +81,9 @@ export default {
   methods: {
     ...mapActions(['getSavedAnalyses', 'editSavedAnalyses']),
     editSavedAnalysisRecord () {
-      let uuid = this.editAnalysis.saved_analysis_uuid
-      let name = this.editAnalysis.name
-      let description = this.editAnalysis.description
+      const uuid = this.editAnalysis.saved_analysis_uuid
+      const name = this.editAnalysis.name
+      const description = this.editAnalysis.description
       console.log(uuid, name, description)
 
       if (this.editAnalysis.name.length < 3) {
@@ -91,8 +92,8 @@ export default {
 
       this.loading = true
       const params = {
-        name: name,
-        description: description
+        name,
+        description
       }
 
       console.log(params, uuid)

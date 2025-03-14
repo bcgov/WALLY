@@ -35,29 +35,32 @@ describe('Importer', () => {
   })
 
   const testCases = [
-    { files: [
-      { name: 'test.shp' },
-      { name: 'test.dbf' },
-      { name: 'test.shx' },
-      { name: 'test.kml' },
-      { name: 'test.geojson' }
-    ],
-    readFileCount: 3,
-    readShapeFile: true
+    {
+      files: [
+        { name: 'test.shp' },
+        { name: 'test.dbf' },
+        { name: 'test.shx' },
+        { name: 'test.kml' },
+        { name: 'test.geojson' }
+      ],
+      readFileCount: 3,
+      readShapeFile: true
     },
-    { files: [
-      { name: 'test.geojson' }
-    ],
-    readFileCount: 1,
-    readShapeFile: false
+    {
+      files: [
+        { name: 'test.geojson' }
+      ],
+      readFileCount: 1,
+      readShapeFile: false
     },
-    { files: [
-      { name: 'test.dbf' },
-      { name: 'test.shx' },
-      { name: 'test.geojson' }
-    ],
-    readFileCount: 2,
-    readShapeFile: true
+    {
+      files: [
+        { name: 'test.dbf' },
+        { name: 'test.shx' },
+        { name: 'test.geojson' }
+      ],
+      readFileCount: 2,
+      readShapeFile: true
     }
   ]
 
@@ -86,9 +89,9 @@ describe('Importer', () => {
       returnObj: {
         files: [{ name: 'test.geojson' }],
         shapefiles: {
-          'shp': { name: 'test.shp' },
-          'dbf': { name: 'test.dbf' },
-          'prj': { name: 'test.prj' }
+          shp: { name: 'test.shp' },
+          dbf: { name: 'test.dbf' },
+          prj: { name: 'test.prj' }
         }
       }
     },
@@ -102,9 +105,9 @@ describe('Importer', () => {
       returnObj: {
         files: [{ name: 'test.geojson' }],
         shapefiles: {
-          'shp': { name: 'test.shp' },
-          'dbf': null,
-          'prj': { name: 'test.prj' }
+          shp: { name: 'test.shp' },
+          dbf: null,
+          prj: { name: 'test.prj' }
         }
       }
     },
@@ -118,9 +121,9 @@ describe('Importer', () => {
       returnObj: {
         files: [{ name: 'test.geojson' }],
         shapefiles: {
-          'shp': null,
-          'dbf': { name: 'test.dbf' },
-          'prj': { name: 'test.prj' }
+          shp: null,
+          dbf: { name: 'test.dbf' },
+          prj: { name: 'test.prj' }
         }
       }
     },
@@ -137,9 +140,9 @@ describe('Importer', () => {
           { name: 'test.geojson' }
         ],
         shapefiles: {
-          'shp': null,
-          'dbf': { name: 'test.dbf' },
-          'prj': null
+          shp: null,
+          dbf: { name: 'test.dbf' },
+          prj: null
         }
       }
     },
@@ -157,9 +160,9 @@ describe('Importer', () => {
           { name: 'test.prj' }
         ],
         shapefiles: {
-          'shp': null,
-          'dbf': null,
-          'prj': null
+          shp: null,
+          dbf: null,
+          prj: null
         }
       }
     },
@@ -176,9 +179,9 @@ describe('Importer', () => {
           { name: 'test.geojson' }
         ],
         shapefiles: {
-          'shp': { name: 'tester.shp' },
-          'dbf': null,
-          'prj': null
+          shp: { name: 'tester.shp' },
+          dbf: null,
+          prj: null
         }
       }
     }

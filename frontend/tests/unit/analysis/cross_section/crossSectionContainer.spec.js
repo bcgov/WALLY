@@ -20,7 +20,7 @@ describe('Wells Cross Section Container Test', () => {
     getters = {
       app: () => {}
     }
-    let mapGetters = {
+    const mapGetters = {
       isMapLayerActive: state => layerId => false,
       isMapReady: jest.fn(),
       sectionLine: jest.fn(),
@@ -42,13 +42,13 @@ describe('Wells Cross Section Container Test', () => {
       addSelectedFeature: jest.fn(),
       addMapLayer: jest.fn()
     }
-    let mapMutations = {
+    const mapMutations = {
       setMode: jest.fn(),
       replaceOldFeatures: jest.fn(),
       setInfoPanelVisibility: jest.fn(),
       setMapReady: () => true
     }
-    let map = {
+    const map = {
       state: {
         isMapReady: true
       },
@@ -58,7 +58,7 @@ describe('Wells Cross Section Container Test', () => {
       mutations: mapMutations
     }
 
-    let crossSection = {
+    const crossSection = {
       getters: {
         sectionLine: jest.fn()
       }

@@ -15,7 +15,7 @@ describe('GIS Utils', () => {
       'PARAMETER["Latitude_Of_Origin",45.0],UNIT["Meter",1.0]]'
 
     const proj = proj4(projection)
-    let geometry = {
+    const geometry = {
       type: 'Point',
       coordinates: [1246130.5397275037, 467345.93477500137]
     }

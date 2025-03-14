@@ -208,21 +208,21 @@ export default {
         return
       }
 
-      let waterLicencesLayer = findWallyLayer(SOURCE_WATER_LICENCES)(data, max)
+      const waterLicencesLayer = findWallyLayer(SOURCE_WATER_LICENCES)(data, max)
       this.map.addLayer(waterLicencesLayer, 'water_rights_licences')
 
       this.map.on('mouseenter', SOURCE_WATER_LICENCES, (e) => {
         // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let licenceNumber = e.features[0].properties['LICENCE_NUMBER']
-        let licenseeName = e.features[0].properties['PRIMARY_LICENSEE_NAME']
-        let sourceName = e.features[0].properties['SOURCE_NAME']
-        let qty = e.features[0].properties['qty_m3_yr']
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const licenceNumber = e.features[0].properties.LICENCE_NUMBER
+        const licenseeName = e.features[0].properties.PRIMARY_LICENSEE_NAME
+        const sourceName = e.features[0].properties.SOURCE_NAME
+        let qty = e.features[0].properties.qty_m3_yr
         if (qty) { qty = qty.toFixed(1) } // fix on null value
-        let purpose = e.features[0].properties['PURPOSE_USE']
-        let priorityDate = e.features[0].properties['PRIORITY_DATE']
+        const purpose = e.features[0].properties.PURPOSE_USE
+        const priorityDate = e.features[0].properties.PRIORITY_DATE
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -297,12 +297,12 @@ export default {
       }
 
       // Water Rights Licences Demand
-      let allocationY = []
+      const allocationY = []
       let allocItemKey, monthlyQty
       // Get total quantity per month based on allocation values
       for (let i = 0; i < 12; i++) {
         monthlyQty = 0
-        this.licenceData.total_qty_by_purpose.map(item => {
+        this.licenceData.total_qty_by_purpose.forEach(item => {
           allocItemKey = item.purpose.trim()
           this.initAllocationItemIfNotExists(allocItemKey)
           monthlyQty += this.computeQuantityForMonth(item.qty, this.allocationValues[allocItemKey], i + 1)

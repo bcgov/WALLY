@@ -6,10 +6,10 @@ They also include the layer styles for tilesets we have hosted on mapbox
  */
 export const defaultLayers = [
   {
-    'id': 'land',
-    'type': 'background',
-    'layout': {},
-    'paint': {
+    id: 'land',
+    type: 'background',
+    layout: {},
+    paint: {
       'background-color': [
         'interpolate',
         ['linear'],
@@ -22,13 +22,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'landcover',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'landcover',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'landcover',
-    'maxzoom': 12,
-    'layout': {},
-    'paint': {
+    maxzoom: 12,
+    layout: {},
+    paint: {
       'fill-color': [
         'match',
         ['get', 'class'],
@@ -49,14 +49,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'national-park',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'national-park',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'landuse_overlay',
-    'minzoom': 5,
-    'filter': ['==', ['get', 'class'], 'national_park'],
-    'layout': {},
-    'paint': {
+    minzoom: 5,
+    filter: ['==', ['get', 'class'], 'national_park'],
+    layout: {},
+    paint: {
       'fill-color': 'hsl(100, 58%, 76%)',
       'fill-opacity': [
         'interpolate',
@@ -72,14 +72,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'national_park-tint-band',
-    'type': 'line',
-    'source': 'composite',
+    id: 'national_park-tint-band',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'landuse_overlay',
-    'minzoom': 9,
-    'filter': ['==', ['get', 'class'], 'national_park'],
-    'layout': { 'line-cap': 'round' },
-    'paint': {
+    minzoom: 9,
+    filter: ['==', ['get', 'class'], 'national_park'],
+    layout: { 'line-cap': 'round' },
+    paint: {
       'line-color': 'hsl(100, 62%, 74%)',
       'line-width': [
         'interpolate',
@@ -112,12 +112,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'landuse',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'landuse',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'landuse',
-    'minzoom': 5,
-    'filter': [
+    minzoom: 5,
+    filter: [
       'match',
       ['get', 'class'],
       [
@@ -137,8 +137,8 @@ export const defaultLayers = [
       true,
       false
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': [
         'interpolate',
         ['linear'],
@@ -242,26 +242,26 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'pitch-outline',
-    'type': 'line',
-    'source': 'composite',
+    id: 'pitch-outline',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'landuse',
-    'minzoom': 15,
-    'filter': ['==', ['get', 'class'], 'pitch'],
-    'layout': {},
-    'paint': { 'line-color': 'hsl(75, 57%, 84%)' }
+    minzoom: 15,
+    filter: ['==', ['get', 'class'], 'pitch'],
+    layout: {},
+    paint: { 'line-color': 'hsl(75, 57%, 84%)' }
   },
   {
-    'id': 'waterway-shadow',
-    'type': 'line',
-    'source': 'composite',
+    id: 'waterway-shadow',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'waterway',
-    'minzoom': 8,
-    'layout': {
+    minzoom: 8,
+    layout: {
       'line-cap': ['step', ['zoom'], 'butt', 11, 'round'],
       'line-join': 'round'
     },
-    'paint': {
+    paint: {
       'line-color': 'hsl(215, 84%, 69%)',
       'line-width': [
         'interpolate',
@@ -294,12 +294,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'water-shadow',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'water-shadow',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'water',
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': 'hsl(215, 84%, 69%)',
       'fill-translate': [
         'interpolate',
@@ -314,16 +314,16 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'waterway',
-    'type': 'line',
-    'source': 'composite',
+    id: 'waterway',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'waterway',
-    'minzoom': 8,
-    'layout': {
+    minzoom: 8,
+    layout: {
       'line-cap': ['step', ['zoom'], 'butt', 11, 'round'],
       'line-join': 'round'
     },
-    'paint': {
+    paint: {
       'line-color': 'hsl(205, 87%, 76%)',
       'line-width': [
         'interpolate',
@@ -346,27 +346,27 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'water',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'water',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'water',
-    'layout': {},
-    'paint': { 'fill-color': 'hsl(196, 80%, 70%)' }
+    layout: {},
+    paint: { 'fill-color': 'hsl(196, 80%, 70%)' }
   },
   {
-    'id': 'wetland',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'wetland',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'landuse_overlay',
-    'minzoom': 5,
-    'filter': [
+    minzoom: 5,
+    filter: [
       'match',
       ['get', 'class'],
       ['wetland', 'wetland_noveg'],
       true,
       false
     ],
-    'paint': {
+    paint: {
       'fill-color': 'hsl(185, 43%, 74%)',
       'fill-opacity': [
         'interpolate',
@@ -380,19 +380,19 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'wetland-pattern',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'wetland-pattern',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'landuse_overlay',
-    'minzoom': 5,
-    'filter': [
+    minzoom: 5,
+    filter: [
       'match',
       ['get', 'class'],
       ['wetland', 'wetland_noveg'],
       true,
       false
     ],
-    'paint': {
+    paint: {
       'fill-color': 'hsl(185, 43%, 74%)',
       'fill-opacity': [
         'interpolate',
@@ -408,13 +408,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'hillshade',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'hillshade',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'hillshade',
-    'maxzoom': 16,
-    'layout': {},
-    'paint': {
+    maxzoom: 16,
+    layout: {},
+    paint: {
       'fill-color': [
         'match',
         ['get', 'class'],
@@ -443,14 +443,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'contour-line',
-    'type': 'line',
-    'source': 'composite',
+    id: 'contour-line',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'contour',
-    'minzoom': 11,
-    'filter': ['!=', ['get', 'index'], -1],
-    'layout': {},
-    'paint': {
+    minzoom: 11,
+    filter: ['!=', ['get', 'index'], -1],
+    layout: {},
+    paint: {
       'line-opacity': [
         'interpolate',
         ['linear'],
@@ -482,32 +482,32 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'land-structure-polygon',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'land-structure-polygon',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'structure',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['geometry-type'], 'Polygon'],
       ['==', ['get', 'class'], 'land']
     ],
-    'layout': {},
-    'paint': { 'fill-color': 'hsl(35, 12%, 89%)' }
+    layout: {},
+    paint: { 'fill-color': 'hsl(35, 12%, 89%)' }
   },
   {
-    'id': 'land-structure-line',
-    'type': 'line',
-    'source': 'composite',
+    id: 'land-structure-line',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'structure',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['geometry-type'], 'LineString'],
       ['==', ['get', 'class'], 'land']
     ],
-    'layout': { 'line-cap': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.99],
@@ -521,12 +521,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'aeroway-polygon',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'aeroway-polygon',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'aeroway',
-    'minzoom': 11,
-    'filter': [
+    minzoom: 11,
+    filter: [
       'all',
       ['==', ['geometry-type'], 'Polygon'],
       [
@@ -537,8 +537,8 @@ export const defaultLayers = [
         false
       ]
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': [
         'interpolate',
         ['linear'],
@@ -560,14 +560,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'aeroway-line',
-    'type': 'line',
-    'source': 'composite',
+    id: 'aeroway-line',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'aeroway',
-    'minzoom': 9,
-    'filter': ['==', ['geometry-type'], 'LineString'],
-    'layout': {},
-    'paint': {
+    minzoom: 9,
+    filter: ['==', ['geometry-type'], 'LineString'],
+    layout: {},
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -589,18 +589,18 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'building-outline',
-    'type': 'line',
-    'source': 'composite',
+    id: 'building-outline',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'building',
-    'minzoom': 15,
-    'filter': [
+    minzoom: 15,
+    filter: [
       'all',
       ['!=', ['get', 'type'], 'building:part'],
       ['==', ['get', 'underground'], 'false']
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'line-color': 'hsl(35, 6%, 79%)',
       'line-width': [
         'interpolate',
@@ -623,18 +623,18 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'building',
-    'type': 'fill',
-    'source': 'composite',
+    id: 'building',
+    type: 'fill',
+    source: 'composite',
     'source-layer': 'building',
-    'minzoom': 15,
-    'filter': [
+    minzoom: 15,
+    filter: [
       'all',
       ['!=', ['get', 'type'], 'building:part'],
       ['==', ['get', 'underground'], 'false']
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': [
         'interpolate',
         ['linear'],
@@ -657,13 +657,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-street-minor-low',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-street-minor-low',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -695,8 +695,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -727,13 +727,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-street-minor-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-street-minor-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -765,8 +765,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -819,13 +819,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-primary-secondary-tertiary-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-primary-secondary-tertiary-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -837,8 +837,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -862,13 +862,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-major-link-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-major-link-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -880,8 +880,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -907,20 +907,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-motorway-trunk-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-motorway-trunk-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -944,20 +944,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-construction',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-construction',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['==', ['get', 'class'], 'construction'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -984,13 +984,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-path-smooth-rough',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-path-smooth-rough',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['==', ['get', 'class'], 'path'],
@@ -1032,8 +1032,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1056,21 +1056,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-path-cycleway-piste',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-path-cycleway-piste',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['==', ['get', 'class'], 'path'],
       ['match', ['get', 'type'], ['cycleway', 'piste'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1084,20 +1084,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-steps',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-steps',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['==', ['get', 'class'], 'steps'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1124,13 +1124,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-major-link',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-major-link',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -1142,8 +1142,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1165,20 +1165,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-pedestrian',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-pedestrian',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['==', ['get', 'class'], 'pedestrian'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1201,13 +1201,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-street-minor',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-street-minor',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -1239,8 +1239,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1283,13 +1283,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-primary-secondary-tertiary',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-primary-secondary-tertiary',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -1301,8 +1301,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1316,13 +1316,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-oneway-arrow-blue',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-oneway-arrow-blue',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 15,
-    'filter': [
+    minzoom: 15,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['==', ['get', 'oneway'], 'true'],
@@ -1365,7 +1365,7 @@ export const defaultLayers = [
         ]
       ]
     ],
-    'layout': {
+    layout: {
       'symbol-placement': 'line',
       'icon-image': [
         'step',
@@ -1391,23 +1391,23 @@ export const defaultLayers = [
       'symbol-spacing': 200,
       'icon-rotation-alignment': 'map'
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'tunnel-motorway-trunk',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-motorway-trunk',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1427,13 +1427,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'tunnel-oneway-arrow-white',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855769305.6016' },
-    'source': 'composite',
+    id: 'tunnel-oneway-arrow-white',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855769305.6016' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 16,
-    'filter': [
+    minzoom: 16,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'tunnel'],
       [
@@ -1445,7 +1445,7 @@ export const defaultLayers = [
       ],
       ['==', ['get', 'oneway'], 'true']
     ],
-    'layout': {
+    layout: {
       'symbol-placement': 'line',
       'icon-image': [
         'step',
@@ -1456,17 +1456,17 @@ export const defaultLayers = [
       ],
       'symbol-spacing': 200
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'cliff',
-    'type': 'line',
-    'source': 'composite',
+    id: 'cliff',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'structure',
-    'minzoom': 15,
-    'filter': ['==', ['get', 'class'], 'cliff'],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    minzoom: 15,
+    filter: ['==', ['get', 'class'], 'cliff'],
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-opacity': [
         'interpolate',
         ['linear'],
@@ -1481,14 +1481,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'ferry',
-    'type': 'line',
-    'source': 'composite',
+    id: 'ferry',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 8,
-    'filter': ['==', ['get', 'type'], 'ferry'],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    minzoom: 8,
+    filter: ['==', ['get', 'type'], 'ferry'],
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -1517,13 +1517,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'ferry-auto',
-    'type': 'line',
-    'source': 'composite',
+    id: 'ferry-auto',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'road',
-    'filter': ['==', ['get', 'type'], 'ferry_auto'],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    filter: ['==', ['get', 'type'], 'ferry_auto'],
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -1545,13 +1545,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-path-bg',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-path-bg',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'path'],
       [
@@ -1573,8 +1573,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1596,20 +1596,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-steps-bg',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-steps-bg',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'type'], 'steps'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1624,20 +1624,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-pedestrian-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-pedestrian-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'pedestrian'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1652,13 +1652,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-street-low',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-street-low',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 11,
-    'filter': [
+    minzoom: 11,
+    filter: [
       'all',
       [
         'match',
@@ -1670,8 +1670,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1688,13 +1688,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-minor-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-minor-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       [
         'step',
@@ -1712,8 +1712,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1742,13 +1742,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-street-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-street-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 11,
-    'filter': [
+    minzoom: 11,
+    filter: [
       'all',
       [
         'match',
@@ -1760,8 +1760,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1787,12 +1787,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-secondary-tertiary-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-secondary-tertiary-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'filter': [
+    filter: [
       'all',
       [
         'match',
@@ -1804,8 +1804,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1829,19 +1829,19 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-primary-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-primary-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'filter': [
+    filter: [
       'all',
       ['==', ['get', 'class'], 'primary'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1865,13 +1865,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-major-link-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-major-link-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 10,
-    'filter': [
+    minzoom: 10,
+    filter: [
       'all',
       [
         'match',
@@ -1883,8 +1883,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1910,19 +1910,19 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-motorway-trunk-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-motorway-trunk-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'filter': [
+    filter: [
       'all',
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1952,20 +1952,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-construction',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-construction',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'construction'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -1992,13 +1992,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-path-smooth',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-path-smooth',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'path'],
       [
@@ -2030,8 +2030,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2054,13 +2054,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-path-rough',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-path-rough',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'path'],
       [
@@ -2073,8 +2073,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2099,21 +2099,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-path-cycleway-piste',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-path-cycleway-piste',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'path'],
       ['match', ['get', 'type'], ['cycleway', 'piste'], true, false],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2127,20 +2127,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-steps',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-steps',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'type'], 'steps'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2167,13 +2167,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-major-link',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-major-link',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 10,
-    'filter': [
+    minzoom: 10,
+    filter: [
       'all',
       [
         'match',
@@ -2185,8 +2185,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2208,20 +2208,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-pedestrian',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-pedestrian',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'pedestrian'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2244,13 +2244,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-pedestrian-polygon-fill',
-    'type': 'fill',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-pedestrian-polygon-fill',
+    type: 'fill',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['geometry-type'], 'Polygon'],
       [
@@ -2262,8 +2262,8 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': [
         'interpolate',
         ['linear'],
@@ -2277,13 +2277,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-pedestrian-polygon-pattern',
-    'type': 'fill',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-pedestrian-polygon-pattern',
+    type: 'fill',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['geometry-type'], 'Polygon'],
       [
@@ -2295,8 +2295,8 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': 'hsl(0, 0%, 100%)',
       'fill-outline-color': 'hsl(35, 10%, 83%)',
       'fill-pattern': 'pedestrian-polygon',
@@ -2312,13 +2312,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-polygon',
-    'type': 'fill',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-polygon',
+    type: 'fill',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['geometry-type'], 'Polygon'],
       [
@@ -2341,20 +2341,20 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'fill-color': 'hsl(0, 0%, 100%)',
       'fill-outline-color': '#d6d9e6'
     }
   },
   {
-    'id': 'road-minor',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-minor',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       [
         'step',
@@ -2372,8 +2372,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2387,13 +2387,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-street',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-street',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 11,
-    'filter': [
+    minzoom: 11,
+    filter: [
       'all',
       [
         'match',
@@ -2405,8 +2405,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2429,12 +2429,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-secondary-tertiary',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-secondary-tertiary',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'filter': [
+    filter: [
       'all',
       [
         'match',
@@ -2446,8 +2446,8 @@ export const defaultLayers = [
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2461,19 +2461,19 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-primary',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-primary',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'filter': [
+    filter: [
       'all',
       ['==', ['get', 'class'], 'primary'],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2487,13 +2487,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-oneway-arrow-blue',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-oneway-arrow-blue',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 15,
-    'filter': [
+    minzoom: 15,
+    filter: [
       'all',
       ['==', ['get', 'oneway'], 'true'],
       [
@@ -2536,7 +2536,7 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': {
+    layout: {
       'symbol-placement': 'line',
       'icon-image': [
         'step',
@@ -2562,22 +2562,22 @@ export const defaultLayers = [
       'symbol-spacing': 200,
       'icon-rotation-alignment': 'map'
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'road-motorway-trunk',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-motorway-trunk',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'filter': [
+    filter: [
       'all',
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2617,13 +2617,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-rail',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-rail',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       [
         'match',
@@ -2634,8 +2634,8 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -2657,13 +2657,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-rail-tracks',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-rail-tracks',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       [
         'match',
@@ -2674,8 +2674,8 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -2707,27 +2707,27 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'level-crossing',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'level-crossing',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 16,
-    'filter': ['==', ['get', 'class'], 'level_crossing'],
-    'layout': {
+    minzoom: 16,
+    filter: ['==', ['get', 'class'], 'level_crossing'],
+    layout: {
       'icon-image': 'level-crossing',
       'icon-allow-overlap': true
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'road-oneway-arrow-white',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855786460.0557' },
-    'source': 'composite',
+    id: 'road-oneway-arrow-white',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855786460.0557' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 16,
-    'filter': [
+    minzoom: 16,
+    filter: [
       'all',
       ['==', ['get', 'oneway'], 'true'],
       [
@@ -2739,7 +2739,7 @@ export const defaultLayers = [
       ],
       ['match', ['get', 'structure'], ['none', 'ford'], true, false]
     ],
-    'layout': {
+    layout: {
       'symbol-placement': 'line',
       'icon-image': [
         'step',
@@ -2750,33 +2750,33 @@ export const defaultLayers = [
       ],
       'symbol-spacing': 200
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'golf-hole-line',
-    'type': 'line',
-    'source': 'composite',
+    id: 'golf-hole-line',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 16,
-    'filter': ['==', ['get', 'class'], 'golf'],
-    'layout': {},
-    'paint': { 'line-color': 'hsl(100, 47%, 58%)' }
+    minzoom: 16,
+    filter: ['==', ['get', 'class'], 'golf'],
+    layout: {},
+    paint: { 'line-color': 'hsl(100, 47%, 58%)' }
   },
   {
-    'id': 'gate-fence-hedge',
-    'type': 'line',
-    'source': 'composite',
+    id: 'gate-fence-hedge',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'structure',
-    'minzoom': 16,
-    'filter': [
+    minzoom: 16,
+    filter: [
       'match',
       ['get', 'class'],
       ['gate', 'fence', 'hedge'],
       true,
       false
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-color': [
         'match',
         ['get', 'class'],
@@ -2784,27 +2784,27 @@ export const defaultLayers = [
         'hsl(100, 59%, 70%)',
         'hsl(46, 17%, 76%)'
       ],
-      'line-width': { 'base': 1, 'stops': [[16, 1], [20, 3]] },
+      'line-width': { base: 1, stops: [[16, 1], [20, 3]] },
       'line-opacity': ['match', ['get', 'class'], 'gate', 0.5, 1],
       'line-dasharray': [1, 2, 5, 2, 1, 2]
     }
   },
   {
-    'id': 'bridge-path-bg',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-path-bg',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'class'], 'path'],
       ['!=', ['get', 'type'], 'steps'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2827,20 +2827,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-steps-bg',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-steps-bg',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'type'], 'steps'],
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2855,20 +2855,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-pedestrian-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-pedestrian-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'class'], 'pedestrian'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2883,13 +2883,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-street-minor-low',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-street-minor-low',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -2921,8 +2921,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -2953,13 +2953,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-street-minor-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-street-minor-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -2991,8 +2991,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3044,13 +3044,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-primary-secondary-tertiary-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-primary-secondary-tertiary-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3062,8 +3062,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3087,13 +3087,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-major-link-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-major-link-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3106,8 +3106,8 @@ export const defaultLayers = [
       ['<=', ['get', 'layer'], 1],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3132,21 +3132,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-motorway-trunk-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-motorway-trunk-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['<=', ['get', 'layer'], 1],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3169,20 +3169,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-construction',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-construction',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'class'], 'construction'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3209,13 +3209,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-path-smooth-rough',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-path-smooth-rough',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'class'], 'path'],
@@ -3257,8 +3257,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3281,21 +3281,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-path-cycleway-piste',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-path-cycleway-piste',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'class'], 'path'],
       ['match', ['get', 'type'], ['cycleway', 'piste'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3309,20 +3309,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-steps',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-steps',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 14,
-    'filter': [
+    minzoom: 14,
+    filter: [
       'all',
       ['==', ['get', 'type'], 'steps'],
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3349,13 +3349,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-major-link',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-major-link',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3368,8 +3368,8 @@ export const defaultLayers = [
       ['<=', ['get', 'layer'], 1],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3391,20 +3391,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-pedestrian',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-pedestrian',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'class'], 'pedestrian'],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3427,13 +3427,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-street-minor',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-street-minor',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3465,8 +3465,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3503,13 +3503,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-primary-secondary-tertiary',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-primary-secondary-tertiary',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3521,8 +3521,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3536,13 +3536,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-oneway-arrow-blue',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-oneway-arrow-blue',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 15,
-    'filter': [
+    minzoom: 15,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['==', ['get', 'oneway'], 'true'],
@@ -3585,7 +3585,7 @@ export const defaultLayers = [
         ]
       ]
     ],
-    'layout': {
+    layout: {
       'symbol-placement': 'line',
       'icon-image': [
         'step',
@@ -3611,24 +3611,24 @@ export const defaultLayers = [
       'symbol-spacing': 200,
       'icon-rotation-alignment': 'map'
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'bridge-motorway-trunk',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-motorway-trunk',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['<=', ['get', 'layer'], 1],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3648,13 +3648,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-rail',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-rail',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3665,8 +3665,8 @@ export const defaultLayers = [
         false
       ]
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -3688,13 +3688,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-rail-tracks',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-rail-tracks',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3705,8 +3705,8 @@ export const defaultLayers = [
         false
       ]
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -3738,13 +3738,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-major-link-2-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-major-link-2-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['>=', ['get', 'layer'], 2],
@@ -3757,8 +3757,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3783,21 +3783,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-motorway-trunk-2-case',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-motorway-trunk-2-case',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['>=', ['get', 'layer'], 2],
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3820,13 +3820,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-major-link-2',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-major-link-2',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['>=', ['get', 'layer'], 2],
@@ -3839,8 +3839,8 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3862,21 +3862,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-motorway-trunk-2',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-motorway-trunk-2',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       ['>=', ['get', 'layer'], 2],
       ['match', ['get', 'class'], ['motorway', 'trunk'], true, false],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': { 'line-cap': 'round', 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: {
       'line-width': [
         'interpolate',
         ['exponential', 1.5],
@@ -3896,13 +3896,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'bridge-oneway-arrow-white',
-    'type': 'symbol',
-    'metadata': { 'mapbox:group': '1444855799204.86' },
-    'source': 'composite',
+    id: 'bridge-oneway-arrow-white',
+    type: 'symbol',
+    metadata: { 'mapbox:group': '1444855799204.86' },
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 16,
-    'filter': [
+    minzoom: 16,
+    filter: [
       'all',
       ['==', ['get', 'structure'], 'bridge'],
       [
@@ -3914,7 +3914,7 @@ export const defaultLayers = [
       ],
       ['==', ['get', 'oneway'], 'true']
     ],
-    'layout': {
+    layout: {
       'symbol-placement': 'line',
       'icon-image': [
         'step',
@@ -3925,24 +3925,24 @@ export const defaultLayers = [
       ],
       'symbol-spacing': 200
     },
-    'paint': {}
+    paint: {}
   },
   {
-    'id': 'mapbox-satellite',
-    'type': 'raster',
-    'source': 'mapbox://mapbox.satellite',
-    'layout': { 'visibility': 'none' },
-    'paint': {}
+    id: 'mapbox-satellite',
+    type: 'raster',
+    source: 'mapbox://mapbox.satellite',
+    layout: { visibility: 'none' },
+    paint: {}
   },
   {
-    'id': 'aerialway-bg',
-    'type': 'line',
-    'source': 'composite',
+    id: 'aerialway-bg',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': ['==', ['get', 'class'], 'aerialway'],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    minzoom: 12,
+    filter: ['==', ['get', 'class'], 'aerialway'],
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': 'hsl(0, 0%, 100%)',
       'line-width': [
         'interpolate',
@@ -3957,14 +3957,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'aerialway',
-    'type': 'line',
-    'source': 'composite',
+    id: 'aerialway',
+    type: 'line',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 12,
-    'filter': ['==', ['get', 'class'], 'aerialway'],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    minzoom: 12,
+    filter: ['==', ['get', 'class'], 'aerialway'],
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-color': 'hsl(230, 4%, 29%)',
       'line-width': [
         'interpolate',
@@ -3978,19 +3978,19 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'admin-1-boundary-bg',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444934295202.7542' },
-    'source': 'composite',
+    id: 'admin-1-boundary-bg',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444934295202.7542' },
+    source: 'composite',
     'source-layer': 'admin',
-    'filter': [
+    filter: [
       'all',
       ['==', ['get', 'admin_level'], 1],
       ['==', ['get', 'maritime'], 'false'],
       ['match', ['get', 'worldview'], ['all', 'US'], true, false]
     ],
-    'layout': { 'line-join': 'bevel' },
-    'paint': {
+    layout: { 'line-join': 'bevel' },
+    paint: {
       'line-color': [
         'interpolate',
         ['linear'],
@@ -4024,20 +4024,20 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'admin-0-boundary-bg',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444934295202.7542' },
-    'source': 'composite',
+    id: 'admin-0-boundary-bg',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444934295202.7542' },
+    source: 'composite',
     'source-layer': 'admin',
-    'minzoom': 1,
-    'filter': [
+    minzoom: 1,
+    filter: [
       'all',
       ['==', ['get', 'admin_level'], 0],
       ['==', ['get', 'maritime'], 'false'],
       ['match', ['get', 'worldview'], ['all', 'US'], true, false]
     ],
-    'layout': {},
-    'paint': {
+    layout: {},
+    paint: {
       'line-width': [
         'interpolate',
         ['linear'],
@@ -4070,19 +4070,19 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'admin-1-boundary',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444934295202.7542' },
-    'source': 'composite',
+    id: 'admin-1-boundary',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444934295202.7542' },
+    source: 'composite',
     'source-layer': 'admin',
-    'filter': [
+    filter: [
       'all',
       ['==', ['get', 'admin_level'], 1],
       ['==', ['get', 'maritime'], 'false'],
       ['match', ['get', 'worldview'], ['all', 'US'], true, false]
     ],
-    'layout': { 'line-join': 'round', 'line-cap': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
       'line-dasharray': [
         'step',
         ['zoom'],
@@ -4120,21 +4120,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'admin-0-boundary',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444934295202.7542' },
-    'source': 'composite',
+    id: 'admin-0-boundary',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444934295202.7542' },
+    source: 'composite',
     'source-layer': 'admin',
-    'minzoom': 1,
-    'filter': [
+    minzoom: 1,
+    filter: [
       'all',
       ['==', ['get', 'admin_level'], 0],
       ['==', ['get', 'disputed'], 'false'],
       ['==', ['get', 'maritime'], 'false'],
       ['match', ['get', 'worldview'], ['all', 'US'], true, false]
     ],
-    'layout': { 'line-join': 'round', 'line-cap': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round', 'line-cap': 'round' },
+    paint: {
       'line-color': 'hsl(230, 8%, 51%)',
       'line-width': [
         'interpolate',
@@ -4148,21 +4148,21 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'admin-0-boundary-disputed',
-    'type': 'line',
-    'metadata': { 'mapbox:group': '1444934295202.7542' },
-    'source': 'composite',
+    id: 'admin-0-boundary-disputed',
+    type: 'line',
+    metadata: { 'mapbox:group': '1444934295202.7542' },
+    source: 'composite',
     'source-layer': 'admin',
-    'minzoom': 1,
-    'filter': [
+    minzoom: 1,
+    filter: [
       'all',
       ['==', ['get', 'disputed'], 'true'],
       ['==', ['get', 'admin_level'], 0],
       ['==', ['get', 'maritime'], 'false'],
       ['match', ['get', 'worldview'], ['all', 'US'], true, false]
     ],
-    'layout': { 'line-join': 'round' },
-    'paint': {
+    layout: { 'line-join': 'round' },
+    paint: {
       'line-dasharray': [1.5, 1.5],
       'line-color': 'hsl(230, 8%, 51%)',
       'line-width': [
@@ -4177,17 +4177,17 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'contour-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'contour-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'contour',
-    'minzoom': 11,
-    'filter': [
+    minzoom: 11,
+    filter: [
       'any',
       ['==', ['get', 'index'], 10],
       ['==', ['get', 'index'], 5]
     ],
-    'layout': {
+    layout: {
       'text-field': '{ele} m',
       'symbol-placement': 'line',
       'text-pitch-alignment': 'viewport',
@@ -4207,19 +4207,19 @@ export const defaultLayers = [
         12
       ]
     },
-    'paint': {
+    paint: {
       'text-color': 'hsl(100, 60%, 28%)',
       'text-halo-width': 1,
       'text-halo-color': 'hsla(0, 0%, 100%, 0.5)'
     }
   },
   {
-    'id': 'building-number-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'building-number-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'housenum_label',
-    'minzoom': 17,
-    'layout': {
+    minzoom: 17,
+    layout: {
       'text-field': ['get', 'house_num'],
       'text-font': [
         'DIN Offc Pro Italic',
@@ -4229,19 +4229,19 @@ export const defaultLayers = [
       'text-max-width': 7,
       'text-size': 9.5
     },
-    'paint': {
+    paint: {
       'text-color': 'hsl(35, 2%, 69%)',
       'text-halo-color': 'hsl(35, 8%, 85%)',
       'text-halo-width': 0.5
     }
   },
   {
-    'id': 'road-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'road-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 10,
-    'filter': [
+    minzoom: 10,
+    filter: [
       'step',
       ['zoom'],
       [
@@ -4274,7 +4274,7 @@ export const defaultLayers = [
       15,
       ['match', ['get', 'class'], 'golf', false, true]
     ],
-    'layout': {
+    layout: {
       'text-size': [
         'interpolate',
         ['linear'],
@@ -4346,7 +4346,7 @@ export const defaultLayers = [
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
       'text-letter-spacing': 0.01
     },
-    'paint': {
+    paint: {
       'text-color': [
         'match',
         ['get', 'class'],
@@ -4368,12 +4368,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-number-shield',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'road-number-shield',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 6,
-    'filter': [
+    minzoom: 6,
+    filter: [
       'all',
       ['has', 'reflen'],
       ['<=', ['get', 'reflen'], 6],
@@ -4391,7 +4391,7 @@ export const defaultLayers = [
         true
       ]
     ],
-    'layout': {
+    layout: {
       'text-size': 9,
       'icon-image': [
         'concat',
@@ -4416,7 +4416,7 @@ export const defaultLayers = [
       'text-field': ['get', 'ref'],
       'text-letter-spacing': 0.05
     },
-    'paint': {
+    paint: {
       'text-color': [
         'match',
         ['get', 'shield_text_color'],
@@ -4433,13 +4433,13 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'road-exit-shield',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'road-exit-shield',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'motorway_junction',
-    'minzoom': 14,
-    'filter': ['all', ['has', 'reflen'], ['<=', ['get', 'reflen'], 9]],
-    'layout': {
+    minzoom: 14,
+    filter: ['all', ['has', 'reflen'], ['<=', ['get', 'reflen'], 9]],
+    layout: {
       'text-field': ['get', 'ref'],
       'text-size': 9,
       'icon-image': [
@@ -4449,19 +4449,19 @@ export const defaultLayers = [
       ],
       'text-font': ['DIN Offc Pro Bold', 'Arial Unicode MS Bold']
     },
-    'paint': {
+    paint: {
       'text-color': 'hsl(0, 0%, 100%)',
       'text-translate': [0, 0]
     }
   },
   {
-    'id': 'golf-hole-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'golf-hole-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'road',
-    'minzoom': 16,
-    'filter': ['==', ['get', 'class'], 'golf'],
-    'layout': {
+    minzoom: 16,
+    filter: ['==', ['get', 'class'], 'golf'],
+    layout: {
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
       'text-font': [
         'DIN Offc Pro Medium',
@@ -4469,7 +4469,7 @@ export const defaultLayers = [
       ],
       'text-size': 12
     },
-    'paint': {
+    paint: {
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-halo-width': 0.5,
       'text-halo-blur': 0.5,
@@ -4477,12 +4477,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'waterway-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'waterway-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'natural_label',
-    'minzoom': 13,
-    'filter': [
+    minzoom: 13,
+    filter: [
       'all',
       [
         'match',
@@ -4493,7 +4493,7 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': {
+    layout: {
       'text-font': [
         'DIN Offc Pro Italic',
         'Arial Unicode MS Regular'
@@ -4521,15 +4521,15 @@ export const defaultLayers = [
       'text-pitch-alignment': 'viewport',
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']]
     },
-    'paint': { 'text-color': 'hsl(230, 48%, 44%)' }
+    paint: { 'text-color': 'hsl(230, 48%, 44%)' }
   },
   {
-    'id': 'natural-line-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'natural-line-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'natural_label',
-    'minzoom': 4,
-    'filter': [
+    minzoom: 4,
+    filter: [
       'all',
       [
         'match',
@@ -4541,7 +4541,7 @@ export const defaultLayers = [
       ['==', ['geometry-type'], 'LineString'],
       ['<=', ['get', 'filterrank'], 4]
     ],
-    'layout': {
+    layout: {
       'text-size': [
         'step',
         ['zoom'],
@@ -4558,7 +4558,7 @@ export const defaultLayers = [
       'symbol-placement': 'line-center',
       'text-pitch-alignment': 'viewport'
     },
-    'paint': {
+    paint: {
       'text-halo-width': 0.5,
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-halo-blur': 0.5,
@@ -4584,12 +4584,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'natural-point-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'natural-point-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'natural_label',
-    'minzoom': 4,
-    'filter': [
+    minzoom: 4,
+    filter: [
       'all',
       [
         'match',
@@ -4601,7 +4601,7 @@ export const defaultLayers = [
       ['==', ['geometry-type'], 'Point'],
       ['<=', ['get', 'filterrank'], 4]
     ],
-    'layout': {
+    layout: {
       'text-size': [
         'step',
         ['zoom'],
@@ -4648,7 +4648,7 @@ export const defaultLayers = [
       ],
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']]
     },
-    'paint': {
+    paint: {
       'icon-opacity': [
         'step',
         ['zoom'],
@@ -4681,11 +4681,11 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'water-line-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'water-line-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'natural_label',
-    'filter': [
+    filter: [
       'all',
       [
         'match',
@@ -4696,7 +4696,7 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'LineString']
     ],
-    'layout': {
+    layout: {
       'text-size': [
         'interpolate',
         ['linear'],
@@ -4726,7 +4726,7 @@ export const defaultLayers = [
       'text-pitch-alignment': 'viewport',
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']]
     },
-    'paint': {
+    paint: {
       'text-color': [
         'match',
         ['get', 'class'],
@@ -4737,11 +4737,11 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'water-point-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'water-point-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'natural_label',
-    'filter': [
+    filter: [
       'all',
       [
         'match',
@@ -4752,7 +4752,7 @@ export const defaultLayers = [
       ],
       ['==', ['geometry-type'], 'Point']
     ],
-    'layout': {
+    layout: {
       'text-line-height': 1.3,
       'text-size': [
         'interpolate',
@@ -4789,7 +4789,7 @@ export const defaultLayers = [
         10
       ]
     },
-    'paint': {
+    paint: {
       'text-color': [
         'match',
         ['get', 'class'],
@@ -4800,12 +4800,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'poi-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'poi-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'poi_label',
-    'minzoom': 6,
-    'filter': [
+    minzoom: 6,
+    filter: [
       'let',
       'densityByClass',
       [
@@ -4838,7 +4838,7 @@ export const defaultLayers = [
         ]
       ]
     ],
-    'layout': {
+    layout: {
       'text-size': [
         'step',
         ['zoom'],
@@ -4885,7 +4885,7 @@ export const defaultLayers = [
       ],
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']]
     },
-    'paint': {
+    paint: {
       'icon-opacity': [
         'step',
         ['zoom'],
@@ -4966,12 +4966,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'transit-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'transit-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'transit_stop_label',
-    'minzoom': 12,
-    'filter': [
+    minzoom: 12,
+    filter: [
       'step',
       ['zoom'],
       [
@@ -5008,7 +5008,7 @@ export const defaultLayers = [
       19,
       true
     ],
-    'layout': {
+    layout: {
       'text-size': 12,
       'icon-image': ['get', 'network'],
       'text-font': [
@@ -5068,7 +5068,7 @@ export const defaultLayers = [
         9
       ]
     },
-    'paint': {
+    paint: {
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-color': [
         'match',
@@ -5101,12 +5101,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'airport-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'airport-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'airport_label',
-    'minzoom': 8,
-    'layout': {
+    minzoom: 8,
+    layout: {
       'text-line-height': 1.1,
       'text-size': ['step', ['get', 'sizerank'], 18, 9, 12],
       'icon-image': [
@@ -5133,25 +5133,25 @@ export const defaultLayers = [
       'text-letter-spacing': 0.01,
       'text-max-width': 9
     },
-    'paint': {
+    paint: {
       'text-color': 'hsl(230, 48%, 44%)',
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-halo-width': 1
     }
   },
   {
-    'id': 'settlement-subdivision-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'settlement-subdivision-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'place_label',
-    'minzoom': 10,
-    'maxzoom': 15,
-    'filter': [
+    minzoom: 10,
+    maxzoom: 15,
+    filter: [
       'all',
       ['==', ['get', 'class'], 'settlement_subdivision'],
       ['<=', ['get', 'filterrank'], 4]
     ],
-    'layout': {
+    layout: {
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
       'text-transform': 'uppercase',
       'text-font': [
@@ -5177,7 +5177,7 @@ export const defaultLayers = [
         ['match', ['get', 'type'], 'suburb', 17, 16]
       ]
     },
-    'paint': {
+    paint: {
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-halo-width': 1,
       'text-color': 'hsl(230, 29%, 35%)',
@@ -5185,12 +5185,12 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'settlement-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'settlement-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'place_label',
-    'maxzoom': 15,
-    'filter': [
+    maxzoom: 15,
+    filter: [
       'all',
       ['<=', ['get', 'filterrank'], 3],
       ['==', ['get', 'class'], 'settlement'],
@@ -5204,7 +5204,7 @@ export const defaultLayers = [
         ['>=', ['get', 'symbolrank'], 13]
       ]
     ],
-    'layout': {
+    layout: {
       'text-line-height': 1.1,
       'text-size': [
         'interpolate',
@@ -5408,7 +5408,7 @@ export const defaultLayers = [
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
       'text-max-width': 7
     },
-    'paint': {
+    paint: {
       'text-color': 'hsl(0, 0%, 0%)',
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-halo-width': 1,
@@ -5417,14 +5417,14 @@ export const defaultLayers = [
     }
   },
   {
-    'id': 'state-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'state-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'place_label',
-    'minzoom': 3,
-    'maxzoom': 9,
-    'filter': ['==', ['get', 'class'], 'state'],
-    'layout': {
+    minzoom: 3,
+    maxzoom: 9,
+    filter: ['==', ['get', 'class'], 'state'],
+    layout: {
       'text-size': [
         'interpolate',
         ['cubic-bezier', 0.85, 0.7, 0.65, 1],
@@ -5457,21 +5457,21 @@ export const defaultLayers = [
       'text-letter-spacing': 0.15,
       'text-max-width': 6
     },
-    'paint': {
+    paint: {
       'text-color': 'hsl(0, 0%, 0%)',
       'text-halo-color': 'hsl(0, 0%, 100%)',
       'text-halo-width': 1
     }
   },
   {
-    'id': 'country-label',
-    'type': 'symbol',
-    'source': 'composite',
+    id: 'country-label',
+    type: 'symbol',
+    source: 'composite',
     'source-layer': 'place_label',
-    'minzoom': 1,
-    'maxzoom': 10,
-    'filter': ['==', ['get', 'class'], 'country'],
-    'layout': {
+    minzoom: 1,
+    maxzoom: 10,
+    filter: ['==', ['get', 'class'], 'country'],
+    layout: {
       'text-line-height': 1.1,
       'text-size': [
         'interpolate',
@@ -5539,7 +5539,7 @@ export const defaultLayers = [
       'text-field': ['coalesce', ['get', 'name_en'], ['get', 'name']],
       'text-max-width': 6
     },
-    'paint': {
+    paint: {
       'icon-opacity': [
         'step',
         ['zoom'],
@@ -5563,22 +5563,22 @@ export const defaultLayers = [
 ]
 
 const LAYER_NORMAL_ANNUAL_RUNOFF_ISOLINES = {
-  'id': 'normal_annual_runoff_isolines',
-  'type': 'fill',
-  'source': 'composite',
-  'layout': { 'visibility': 'none' },
-  'paint': {
+  id: 'normal_annual_runoff_isolines',
+  type: 'fill',
+  source: 'composite',
+  layout: { visibility: 'none' },
+  paint: {
     'fill-color': 'hsla(205, 0%, 100%, 0.15)',
     'fill-outline-color': 'hsl(242, 100%, 56%)'
   }
 }
 
 const LAYER_HYDROMETRIC_STREAM_FLOW = {
-  'id': 'hydrometric_stream_flow',
-  'type': 'circle',
-  'source': 'composite',
-  'layout': { 'visibility': 'none' },
-  'paint': {
+  id: 'hydrometric_stream_flow',
+  type: 'circle',
+  source: 'composite',
+  layout: { visibility: 'none' },
+  paint: {
     'circle-color': '#ff8f93',
     'circle-stroke-width': 1,
     'circle-stroke-color': '#ec555a',

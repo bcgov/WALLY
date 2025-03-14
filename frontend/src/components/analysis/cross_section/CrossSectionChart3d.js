@@ -22,10 +22,10 @@ export default {
     surfaceData () {
       // this.surfacePoints
       // this.wellsLithology
-      let lines = this.surfacePoints
-      let x = []
-      let y = []
-      let z = []
+      const lines = this.surfacePoints
+      const x = []
+      const y = []
+      const z = []
       // build our surface points layer
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
@@ -34,7 +34,7 @@ export default {
         z.push(line.map(l => l[2]))
       }
       // add our lithology drop lines and markers
-      let lithologyMarkers = []
+      const lithologyMarkers = []
       this.wellsLithology.forEach(lith => {
         const marker = {
           x: [lith.lon, lith.lon],
@@ -60,9 +60,9 @@ export default {
       })
       return [
         {
-          x: x,
-          y: y,
-          z: z,
+          x,
+          y,
+          z,
           type: 'surface',
           contours: {
             z: {
@@ -78,8 +78,8 @@ export default {
     },
     surfaceLayout () {
       const emptyArr = ['', '', '']
-      let a = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][0] : emptyArr
-      let b = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
+      const a = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][0] : emptyArr
+      const b = (this.surfacePoints[2] && this.surfacePoints[2][0]) ? this.surfacePoints[2][this.surfacePoints[2].length - 1] : emptyArr
 
       return {
         title: '',

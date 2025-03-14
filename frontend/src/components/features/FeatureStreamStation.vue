@@ -119,7 +119,7 @@ export default {
     },
     yearOptions () {
       if (!this.station) { return [] }
-      let allOption = [{ label: 'Monthly average all years', value: null }]
+      const allOption = [{ label: 'Monthly average all years', value: null }]
       return allOption.concat(this.station.flow_years.map((w, i) => ({
         label: w,
         value: w

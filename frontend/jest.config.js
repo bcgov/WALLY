@@ -6,10 +6,11 @@ module.exports = {
     'vue'
   ],
   transform: {
-    '^.+\\.vue$': 'vue-jest',
+    '^.+\\.vue$': '@vue/vue2-jest',
     '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$': 'jest-transform-stub',
     '^.+\\.jsx?$': 'babel-jest'
   },
+  testEnvironment: 'jsdom',
   transformIgnorePatterns: [
     '/node_modules/(?!(@mapbox/mapbox-gl-draw)/)'
   ],
@@ -27,7 +28,7 @@ module.exports = {
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname'
   ],
-  'setupFiles': [
+  setupFiles: [
     './jest.stubs.js',
     'jest-canvas-mock'
   ]

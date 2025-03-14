@@ -16,13 +16,13 @@ import {
 } from './sourcesWally'
 
 export default {
-  'aquifers': {
-    'id': 'aquifers',
-    'type': 'fill',
-    'source': 'aquifers',
+  aquifers: {
+    id: 'aquifers',
+    type: 'fill',
+    source: 'aquifers',
     'source-layer': 'aquifers',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(190, 98%, 75%, 0.39)',
       'fill-outline-color': [
         'interpolate',
@@ -35,50 +35,50 @@ export default {
       ]
     }
   },
-  'cadastral': {
-    'id': 'cadastral',
-    'type': 'fill',
-    'source': 'cadastral',
+  cadastral: {
+    id: 'cadastral',
+    type: 'fill',
+    source: 'cadastral',
     'source-layer': 'cadastral',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(43, 98%, 55%, 0.4)',
       'fill-outline-color': 'hsl(0, 0%, 36%)'
     }
   },
-  'freshwater_atlas_watersheds': {
-    'id': 'freshwater_atlas_watersheds',
-    'type': 'fill',
-    'source': 'freshwater_atlas_watersheds',
+  freshwater_atlas_watersheds: {
+    id: 'freshwater_atlas_watersheds',
+    type: 'fill',
+    source: 'freshwater_atlas_watersheds',
     'source-layer': 'freshwater_atlas_watersheds',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(271, 100%, 99%, 0.44)',
       'fill-outline-color': 'hsla(0, 0%, 33%, 0.58)'
     }
   },
-  'freshwater_atlas_stream_directions': {
-    'id': 'freshwater_atlas_stream_directions',
-    'type': 'symbol',
-    'source': 'freshwater_atlas_stream_directions',
+  freshwater_atlas_stream_directions: {
+    id: 'freshwater_atlas_stream_directions',
+    type: 'symbol',
+    source: 'freshwater_atlas_stream_directions',
     'source-layer': 'freshwater_atlas_stream_directions',
-    'layout': {
+    layout: {
       'icon-image': 'campsite-11',
       'icon-rotate':
         ['-', 90, ['to-number', ['get', 'DOWNSTREAM_DIRECTION']]],
       'icon-rotation-alignment': 'map',
-      'visibility': 'none'
+      visibility: 'none'
     },
-    'paint': {}
+    paint: {}
   },
-  'water_licensed_works': [
+  water_licensed_works: [
     {
-      'id': 'water_licensed_works',
-      'type': 'line',
-      'source': 'water_licensed_works',
+      id: 'water_licensed_works',
+      type: 'line',
+      source: 'water_licensed_works',
       'source-layer': 'water_licensed_works',
-      'layout': { 'visibility': 'none' },
-      'paint': {
+      layout: { visibility: 'none' },
+      paint: {
         'line-color': [
           'match',
           ['get', 'FEATURE_CODE'],
@@ -113,12 +113,12 @@ export default {
         ]
       }
     }, {
-      'id': 'water_licensed_works_dash1',
-      'type': 'line',
-      'source': 'water_licensed_works',
+      id: 'water_licensed_works_dash1',
+      type: 'line',
+      source: 'water_licensed_works',
       'source-layer': 'water_licensed_works',
-      'layout': { 'visibility': 'none' },
-      'paint': {
+      layout: { visibility: 'none' },
+      paint: {
         'line-color': [
           'match',
           ['get', 'FEATURE_CODE'],
@@ -134,12 +134,12 @@ export default {
         'line-width': 2
       }
     }, {
-      'id': 'water_licensed_works_dash2',
-      'type': 'line',
-      'source': 'water_licensed_works',
+      id: 'water_licensed_works_dash2',
+      type: 'line',
+      source: 'water_licensed_works',
       'source-layer': 'water_licensed_works',
-      'layout': { 'visibility': 'none' },
-      'paint': {
+      layout: { visibility: 'none' },
+      paint: {
         'line-color': [
           'match',
           ['get', 'FEATURE_CODE'],
@@ -151,12 +151,12 @@ export default {
         'line-width': 2
       }
     }, {
-      'id': 'water_licensed_works_dash3',
-      'type': 'line',
-      'source': 'water_licensed_works',
+      id: 'water_licensed_works_dash3',
+      type: 'line',
+      source: 'water_licensed_works',
       'source-layer': 'water_licensed_works',
-      'layout': { 'visibility': 'none' },
-      'paint': {
+      layout: { visibility: 'none' },
+      paint: {
         'line-color': [
           'match',
           ['get', 'FEATURE_CODE'],
@@ -170,12 +170,12 @@ export default {
         'line-width': 2
       }
     }, {
-      'id': 'water_licensed_works_dash4',
-      'type': 'line',
-      'source': 'water_licensed_works',
+      id: 'water_licensed_works_dash4',
+      type: 'line',
+      source: 'water_licensed_works',
       'source-layer': 'water_licensed_works',
-      'layout': { 'visibility': 'none' },
-      'paint': {
+      layout: { visibility: 'none' },
+      paint: {
         'line-color': [
           'match',
           ['get', 'FEATURE_CODE'],
@@ -189,23 +189,23 @@ export default {
         'line-width': 2
       }
     }],
-  'freshwater_atlas_stream_networks': {
-    'id': 'freshwater_atlas_stream_networks',
-    'type': 'line',
-    'source': 'freshwater_atlas_stream_networks',
+  freshwater_atlas_stream_networks: {
+    id: 'freshwater_atlas_stream_networks',
+    type: 'line',
+    source: 'freshwater_atlas_stream_networks',
     'source-layer': 'freshwater_atlas_stream_networks',
-    'layout': { 'visibility': 'none' },
-    'paint': { 'line-color': 'hsl(213, 78%, 55%)' }
+    layout: { visibility: 'none' },
+    paint: { 'line-color': 'hsl(213, 78%, 55%)' }
   },
-  'streams_with_water_allocation_notations': {
-    'id': 'streams_with_water_allocation_notations',
-    'type': 'line',
-    'source': 'streams_with_water_allocation_notations',
+  streams_with_water_allocation_notations: {
+    id: 'streams_with_water_allocation_notations',
+    type: 'line',
+    source: 'streams_with_water_allocation_notations',
     'source-layer': 'streams_with_water_allocation_notations',
     // 'source': 'composite',
     // 'source-layer': 'WLS_STREAM_RESTRICTIONS_SP',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'line-color': [
         'case',
         [
@@ -276,13 +276,13 @@ export default {
       'line-opacity': 0.67
     }
   },
-  'aquifers_with_water_allocation_notations': {
-    'id': 'aquifers_with_water_allocation_notations',
-    'type': 'fill',
-    'source': 'aquifers_with_water_allocation_notations',
+  aquifers_with_water_allocation_notations: {
+    id: 'aquifers_with_water_allocation_notations',
+    type: 'fill',
+    source: 'aquifers_with_water_allocation_notations',
     'source-layer': 'aquifers_with_water_allocation_notations',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(284, 66%, 28%, 0.54)',
       'fill-outline-color': [
         'interpolate',
@@ -295,13 +295,13 @@ export default {
       ]
     }
   },
-  'bc_major_watersheds': {
-    'id': 'bc_major_watersheds',
-    'type': 'fill',
-    'source': 'bc_major_watersheds',
+  bc_major_watersheds: {
+    id: 'bc_major_watersheds',
+    type: 'fill',
+    source: 'bc_major_watersheds',
     'source-layer': 'bc_major_watersheds',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': [
         'interpolate',
         ['linear'],
@@ -314,35 +314,35 @@ export default {
       'fill-outline-color': 'hsla(0, 0%, 18%, 0.59)'
     }
   },
-  'freshwater_atlas_glaciers': {
-    'id': 'freshwater_atlas_glaciers',
-    'type': 'fill',
-    'source': 'freshwater_atlas_glaciers',
+  freshwater_atlas_glaciers: {
+    id: 'freshwater_atlas_glaciers',
+    type: 'fill',
+    source: 'freshwater_atlas_glaciers',
     'source-layer': 'freshwater_atlas_glaciers',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(210, 100%, 44%, 0.25)',
       'fill-outline-color': 'hsl(210, 100%, 50%)'
     }
   },
-  'hydrologic_zone_boundaries': {
-    'id': 'hydrologic_zone_boundaries',
-    'type': 'fill',
-    'source': 'hydrologic_zone_boundaries',
+  hydrologic_zone_boundaries: {
+    id: 'hydrologic_zone_boundaries',
+    type: 'fill',
+    source: 'hydrologic_zone_boundaries',
     'source-layer': 'hydrologic_zone_boundaries',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(175, 100%, 78%, 0.2)',
       'fill-outline-color': 'hsl(208, 100%, 56%)'
     }
   },
-  'critical_habitat_species_at_risk': {
-    'id': 'critical_habitat_species_at_risk',
-    'type': 'fill',
-    'source': 'critical_habitat_species_at_risk',
+  critical_habitat_species_at_risk: {
+    id: 'critical_habitat_species_at_risk',
+    type: 'fill',
+    source: 'critical_habitat_species_at_risk',
     'source-layer': 'critical_habitat_species_at_risk',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': [
         'interpolate',
         ['exponential', 1],
@@ -365,13 +365,13 @@ export default {
       ]
     }
   },
-  'ecocat_water_related_reports': {
-    'id': 'ecocat_water_related_reports',
-    'type': 'circle',
-    'source': 'ecocat_water_related_reports',
+  ecocat_water_related_reports: {
+    id: 'ecocat_water_related_reports',
+    type: 'circle',
+    source: 'ecocat_water_related_reports',
     'source-layer': 'ecocat_water_related_reports',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': 'hsl(192, 92%, 46%)',
       'circle-stroke-width': 1,
       'circle-stroke-color': 'hsl(207, 91%, 31%)',
@@ -404,13 +404,13 @@ export default {
       ]
     }
   },
-  'bc_wildfire_active_weather_stations': {
-    'id': 'bc_wildfire_active_weather_stations',
-    'type': 'circle',
-    'source': 'bc_wildfire_active_weather_stations',
+  bc_wildfire_active_weather_stations: {
+    id: 'bc_wildfire_active_weather_stations',
+    type: 'circle',
+    source: 'bc_wildfire_active_weather_stations',
     'source-layer': 'bc_wildfire_active_weather_stations',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': 'hsl(40, 50%, 86%)',
       'circle-stroke-width': 1,
       'circle-stroke-color': 'hsl(120, 47%, 31%)',
@@ -434,13 +434,13 @@ export default {
       ]
     }
   },
-  'automated_snow_weather_station_locations': {
-    'id': 'automated_snow_weather_station_locations',
-    'type': 'circle',
-    'source': 'automated_snow_weather_station_locations',
+  automated_snow_weather_station_locations: {
+    id: 'automated_snow_weather_station_locations',
+    type: 'circle',
+    source: 'automated_snow_weather_station_locations',
     'source-layer': 'automated_snow_weather_station_locations',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': [
         'interpolate',
         ['exponential', 1],
@@ -463,13 +463,13 @@ export default {
       ]
     }
   },
-  'water_rights_licences': {
-    'id': 'water_rights_licences',
-    'type': 'circle',
-    'source': 'water_rights_licences',
+  water_rights_licences: {
+    id: 'water_rights_licences',
+    type: 'circle',
+    source: 'water_rights_licences',
     'source-layer': 'water_rights_licences',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': [
         'match',
         ['get', 'POD_SUBTYPE'],
@@ -516,13 +516,13 @@ export default {
       ]
     }
   },
-  'groundwater_wells': {
-    'id': 'groundwater_wells',
-    'type': 'circle',
-    'source': 'groundwater_wells',
+  groundwater_wells: {
+    id: 'groundwater_wells',
+    type: 'circle',
+    source: 'groundwater_wells',
     'source-layer': 'groundwater_wells',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': 'hsl(217, 99%, 50%)',
       'circle-stroke-color': [
         'interpolate',
@@ -554,13 +554,13 @@ export default {
       ]
     }
   },
-  'water_rights_applications': {
-    'id': 'water_rights_applications',
-    'type': 'circle',
-    'source': 'water_rights_applications',
+  water_rights_applications: {
+    id: 'water_rights_applications',
+    type: 'circle',
+    source: 'water_rights_applications',
     'source-layer': 'water_rights_applications',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': 'hsl(298, 95%, 32%)',
       'circle-stroke-color': 'hsl(290, 88%, 22%)',
       'circle-stroke-width': 1,
@@ -593,13 +593,13 @@ export default {
       ]
     }
   },
-  'fn_community_locations': {
-    'id': 'fn_community_locations',
-    'type': 'circle',
-    'source': 'fn_community_locations',
+  fn_community_locations: {
+    id: 'fn_community_locations',
+    type: 'circle',
+    source: 'fn_community_locations',
     'source-layer': 'fn_community_locations',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': 'hsl(203, 80%, 35%)',
       'circle-stroke-color': 'hsl(200, 79%, 26%)',
       'circle-stroke-width': [
@@ -631,57 +631,57 @@ export default {
       ]
     }
   },
-  'fn_treaty_areas': {
-    'id': 'fn_treaty_areas',
-    'type': 'fill',
-    'source': 'fn_treaty_areas',
+  fn_treaty_areas: {
+    id: 'fn_treaty_areas',
+    type: 'fill',
+    source: 'fn_treaty_areas',
     'source-layer': 'fn_treaty_areas',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(147, 76%, 61%, 0.14)',
       'fill-outline-color': 'hsl(153, 67%, 18%)'
     }
   },
-  'fn_treaty_lands': {
-    'id': 'fn_treaty_lands',
-    'type': 'fill',
-    'source': 'fn_treaty_lands',
+  fn_treaty_lands: {
+    id: 'fn_treaty_lands',
+    type: 'fill',
+    source: 'fn_treaty_lands',
     'source-layer': 'fn_treaty_lands',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'fill-color': 'hsla(291, 80%, 23%, 0.19)',
       'fill-outline-color': 'hsl(250, 76%, 39%)'
     }
   },
-  'fish_observations': {
-    'id': 'fish_observations',
-    'type': 'symbol',
-    'source': 'fish_observations',
+  fish_observations: {
+    id: 'fish_observations',
+    type: 'symbol',
+    source: 'fish_observations',
     'source-layer': 'fish_observations',
-    'layout': { 'icon-image': 'fish-icon-orange', 'visibility': 'none' },
-    'paint': {
+    layout: { 'icon-image': 'fish-icon-orange', visibility: 'none' },
+    paint: {
       'icon-opacity': 0.8
     },
-    'filter': ['==', 'POINT_TYPE_CODE', 'Observation']
+    filter: ['==', 'POINT_TYPE_CODE', 'Observation']
   },
-  'fish_observations_summaries': {
-    'id': 'fish_observations_summaries',
-    'type': 'symbol',
-    'source': 'fish_observations',
+  fish_observations_summaries: {
+    id: 'fish_observations_summaries',
+    type: 'symbol',
+    source: 'fish_observations',
     'source-layer': 'fish_observations',
-    'layout': { 'icon-image': 'fish-icon-red', 'visibility': 'none' },
-    'paint': {
+    layout: { 'icon-image': 'fish-icon-red', visibility: 'none' },
+    paint: {
       'icon-opacity': 0.8
     },
-    'filter': ['==', 'POINT_TYPE_CODE', 'Summary']
+    filter: ['==', 'POINT_TYPE_CODE', 'Summary']
   },
-  'water_approval_points': {
-    'id': 'water_approval_points',
-    'type': 'circle',
-    'source': 'water_approval_points',
+  water_approval_points: {
+    id: 'water_approval_points',
+    type: 'circle',
+    source: 'water_approval_points',
     'source-layer': 'water_approval_points',
-    'layout': { 'visibility': 'none' },
-    'paint': {
+    layout: { visibility: 'none' },
+    paint: {
       'circle-color': [
         'match',
         ['get', 'APPROVAL_STATUS'],
@@ -722,17 +722,17 @@ export default {
       ]
     }
   },
-  'fish_obstacles': {
-    'id': 'fish_obstacles',
-    'type': 'symbol',
-    'source': 'fish_obstacles',
+  fish_obstacles: {
+    id: 'fish_obstacles',
+    type: 'symbol',
+    source: 'fish_obstacles',
     'source-layer': 'fish_obstacles',
-    'layout': {
+    layout: {
       'icon-image': 'x-btn',
       'icon-size': 0.75,
-      'visibility': 'none'
+      visibility: 'none'
     },
-    'paint': { 'icon-opacity': 0.8 }
+    paint: { 'icon-opacity': 0.8 }
   },
   /*
   Other layers not shown in layer list but used heavily within wally
@@ -742,7 +742,7 @@ export default {
     type: 'circle',
     source: {
       type: 'geojson',
-      data: data
+      data
     },
     paint: {
       'circle-color': '#00796b',
@@ -763,7 +763,7 @@ export default {
     type: 'circle',
     source: {
       type: 'geojson',
-      data: data
+      data
     },
     paint: {
       'circle-color': '#ff33d4',
@@ -772,61 +772,61 @@ export default {
     }
   }),
   [SOURCE_CUSTOM_SHAPE_DATA]: {
-    'id': 'customShape',
-    'type': 'fill',
-    'source': SOURCE_CUSTOM_SHAPE_DATA,
-    'layout': {},
-    'paint': {
+    id: 'customShape',
+    type: 'fill',
+    source: SOURCE_CUSTOM_SHAPE_DATA,
+    layout: {},
+    paint: {
       'fill-color': 'rgba(26, 193, 244, 0.08)',
       'fill-outline-color': 'rgb(8, 159, 205)'
     }
   },
   [SOURCE_HIGHLIGHT_LAYER_DATA]: {
-    'id': 'highlightLayer',
-    'type': 'fill',
-    'source': SOURCE_HIGHLIGHT_LAYER_DATA,
-    'layout': {},
-    'paint': {
+    id: 'highlightLayer',
+    type: 'fill',
+    source: SOURCE_HIGHLIGHT_LAYER_DATA,
+    layout: {},
+    paint: {
       'fill-color': 'rgba(154, 63, 202, 0.25)'
     }
   },
   [SOURCE_HIGHLIGHT_POINT_DATA]: {
-    'id': 'highlightPoint',
-    'type': 'symbol',
-    'source': SOURCE_HIGHLIGHT_POINT_DATA,
-    'layout': {
+    id: 'highlightPoint',
+    type: 'symbol',
+    source: SOURCE_HIGHLIGHT_POINT_DATA,
+    layout: {
       'icon-image': 'highlight-point'
     }
   },
   [SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT]: {
-    'id': 'measurementPolygonHighlight',
-    'type': 'fill',
-    'source': SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
-    'layout': {},
-    'paint': {
+    id: 'measurementPolygonHighlight',
+    type: 'fill',
+    source: SOURCE_MEASUREMENT_POLYGON_HIGHLIGHT,
+    layout: {},
+    paint: {
       'fill-color': 'rgba(26, 193, 244, 0.1)',
       'fill-outline-color': 'rgb(8, 159, 205)'
     }
   },
   [SOURCE_MEASUREMENT_SNAP_CIRCLE]: {
-    'id': 'measurementSnapCircle',
-    'type': 'fill',
-    'source': SOURCE_MEASUREMENT_SNAP_CIRCLE,
-    'layout': {},
-    'paint': {
+    id: 'measurementSnapCircle',
+    type: 'fill',
+    source: SOURCE_MEASUREMENT_SNAP_CIRCLE,
+    layout: {},
+    paint: {
       'fill-color': 'rgba(255, 255, 255, 0.65)',
       'fill-outline-color': 'rgb(155, 155, 155)'
     }
   },
   [SOURCE_MEASUREMENT_LINE_HIGHLIGHT]: {
-    'id': 'measurementLineHighlight',
-    'type': 'line',
-    'source': SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
-    'layout': {
+    id: 'measurementLineHighlight',
+    type: 'line',
+    source: SOURCE_MEASUREMENT_LINE_HIGHLIGHT,
+    layout: {
       'line-join': 'round',
       'line-cap': 'round'
     },
-    'paint': {
+    paint: {
       'line-color': 'rgba(26, 193, 244, 0.7)',
       'line-width': 2
     }
@@ -880,7 +880,7 @@ export default {
     type: 'circle',
     source: {
       type: 'geojson',
-      data: data
+      data
     },
     paint: {
       'circle-color': '#B22222',
@@ -893,7 +893,7 @@ export default {
     type: 'fill',
     source: {
       type: 'geojson',
-      data: data
+      data
     },
     layout: {
       visibility: 'none'
@@ -950,102 +950,102 @@ export default {
   //     'line-width': 3
   //   }
   // },
-  'upstreamSource': {
-    'id': 'upstream',
-    'type': 'line',
-    'source': 'upstreamSource',
-    'layout': {
+  upstreamSource: {
+    id: 'upstream',
+    type: 'line',
+    source: 'upstreamSource',
+    layout: {
       'line-join': 'round',
       'line-cap': 'round'
     },
-    'paint': {
+    paint: {
       'line-color': '#00ff26',
       'line-width': 3
     }
   },
-  'downstreamSource': {
-    'id': 'downstream',
-    'type': 'line',
-    'source': 'downstreamSource',
-    'layout': {
+  downstreamSource: {
+    id: 'downstream',
+    type: 'line',
+    source: 'downstreamSource',
+    layout: {
       'line-join': 'round',
       'line-cap': 'round'
     },
-    'paint': {
+    paint: {
       'line-color': '#ff4800',
       'line-width': 3
     }
   },
-  'selectedStreamBufferSource': {
-    'id': 'selectedStreamBuffer',
-    'type': 'fill',
-    'source': 'selectedStreamBufferSource',
-    'layout': {
+  selectedStreamBufferSource: {
+    id: 'selectedStreamBuffer',
+    type: 'fill',
+    source: 'selectedStreamBufferSource',
+    layout: {
     },
-    'paint': {
+    paint: {
       'fill-color': 'rgba(21, 0, 255, 0.25)'
     }
   },
-  'upstreamBufferSource': {
-    'id': 'upstreamBuffer',
-    'type': 'fill',
-    'source': 'upstreamBufferSource',
-    'layout': {
+  upstreamBufferSource: {
+    id: 'upstreamBuffer',
+    type: 'fill',
+    source: 'upstreamBufferSource',
+    layout: {
     },
-    'paint': {
+    paint: {
       'fill-color': 'rgba(0, 255, 38, 0.25)'
     }
   },
-  'downstreamBufferSource': {
-    'id': 'downstreamBuffer',
-    'type': 'fill',
-    'source': 'downstreamBufferSource',
-    'layout': {
+  downstreamBufferSource: {
+    id: 'downstreamBuffer',
+    type: 'fill',
+    source: 'downstreamBufferSource',
+    layout: {
     },
-    'paint': {
+    paint: {
       'fill-color': 'rgba(255, 72, 0, 0.25)'
     }
   },
   [SOURCE_SELECTED_STREAM]: {
-    'id': 'selectedStream',
-    'type': 'line',
-    'source': SOURCE_SELECTED_STREAM,
-    'layout': {
+    id: 'selectedStream',
+    type: 'line',
+    source: SOURCE_SELECTED_STREAM,
+    layout: {
       'line-join': 'round',
       'line-cap': 'round'
     },
-    'paint': {
+    paint: {
       'line-color': '#1500ff',
       'line-width': 3
     }
   },
   [SOURCE_STREAM_APPORTIONMENT]: [
     {
-      'id': 'closestPointsOnStream',
-      'type': 'circle',
-      'source': SOURCE_STREAM_APPORTIONMENT,
-      'layout': {},
-      'paint': {
+      id: 'closestPointsOnStream',
+      type: 'circle',
+      source: SOURCE_STREAM_APPORTIONMENT,
+      layout: {},
+      paint: {
         'circle-color': 'rgb(255,83,212)',
         'circle-radius': 2,
         'circle-stroke-width': 1
       }
     },
     {
-      'id': 'distanceLinesFromStream',
-      'type': 'line',
-      'source': SOURCE_STREAM_APPORTIONMENT,
-      'layout': {},
-      'paint': {
+      id: 'distanceLinesFromStream',
+      type: 'line',
+      source: SOURCE_STREAM_APPORTIONMENT,
+      layout: {},
+      paint: {
         'line-color': 'rgb(55,184,228)',
         'line-width': 3
       }
     },
     {
-      'id': 'distanceLinesTextFromStream',
-      'type': 'symbol',
-      'source': SOURCE_STREAM_APPORTIONMENT,
-      'layout': {
+      id: 'distanceLinesTextFromStream',
+      type: 'symbol',
+      source: SOURCE_STREAM_APPORTIONMENT,
+      layout: {
         'symbol-placement': 'line',
         'text-font': ['Open Sans Regular'],
         'text-field': '{title}',

@@ -143,10 +143,10 @@ export default {
     },
     humanReadable: (val) => humanReadable(val),
     getHighlightProperties (info) {
-      let layer = this.getMapLayer(info.display_data_name)
+      const layer = this.getMapLayer(info.display_data_name)
       if (layer != null) {
-        let highlightFields = layer.highlight_columns
-        let obj = {}
+        const highlightFields = layer.highlight_columns
+        const obj = {}
         highlightFields.forEach((field) => {
           obj[field] = info.properties[field]
         })
@@ -161,8 +161,8 @@ export default {
       }
 
       const coordinates = this.$route.query.location.split(',').map((x) => Number(x))
-      let data = {
-        coordinates: coordinates,
+      const data = {
+        coordinates,
         layerName: this.$route.query.layer
       }
 

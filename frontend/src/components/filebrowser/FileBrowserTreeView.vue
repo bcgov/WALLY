@@ -32,6 +32,7 @@
                     <span v-else>{{item.filename}}</span>
                     <!-- <v-icon v-else>{{ icons[item.extension.toLowerCase()] || icons['other'] }}</v-icon> -->
                 </template>
+                <!-- eslint-disable-next-line vue/no-unused-vars -->
                 <template v-slot:label="{ item }">
                   <span></span>
                     <!-- <v-btn
@@ -86,7 +87,7 @@ export default {
   computed: {
     ...mapGetters(['selectedProject', 'projectsList']),
     projectTree () {
-      let tree = [{
+      const tree = [{
         type: 'root',
         extension: '',
         name: 'My Projects'
@@ -119,7 +120,7 @@ export default {
         this.deselectProjects()
         return
       }
-      let uuid = tree[0]
+      const uuid = tree[0]
       const project = this.projectsList.find((p) => p.project_uuid === uuid)
       this.setSelectedProject(project)
     },

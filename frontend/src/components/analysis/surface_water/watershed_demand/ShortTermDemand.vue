@@ -133,7 +133,7 @@ export default {
       })
 
       this.map.addLayer({
-        id: id,
+        id,
         type: 'circle',
         source: 'waterApprovals',
         paint: {
@@ -155,13 +155,13 @@ export default {
       // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let approvalNumber = e.features[0].properties['APPROVAL_FILE_NUMBER']
-        let sourceName = e.features[0].properties['SOURCE']
-        let qty = e.features[0].properties['qty_m3_yr']
-        let worksDescription = e.features[0].properties['WORKS_DESCRIPTION']
-        let startDate = e.features[0].properties['APPROVAL_START_DATE']
-        let expiryDate = e.features[0].properties['APPROVAL_EXPIRY_DATE']
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const approvalNumber = e.features[0].properties.APPROVAL_FILE_NUMBER
+        const sourceName = e.features[0].properties.SOURCE
+        const qty = e.features[0].properties.qty_m3_yr
+        const worksDescription = e.features[0].properties.WORKS_DESCRIPTION
+        const startDate = e.features[0].properties.APPROVAL_START_DATE
+        const expiryDate = e.features[0].properties.APPROVAL_EXPIRY_DATE
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears
@@ -229,10 +229,10 @@ export default {
         return null
       }
 
-      let features = this.shortTermLicenceData.approvals.features
+      const features = this.shortTermLicenceData.approvals.features
 
       // Short Term Approvals Demand
-      let shortTermAllocationY = []
+      const shortTermAllocationY = []
       let allocItemKey, shortTermMonthlyQty
 
       global.config.debug && console.log('updating short term data')
@@ -244,7 +244,7 @@ export default {
       for (let i = 0; i < 12; i++) {
         shortTermMonthlyQty = 0
         features.map(item => {
-          let properties = item.properties
+          const properties = item.properties
           allocItemKey = properties.APPROVAL_FILE_NUMBER
           this.initShortTermAllocationItemIfNotExists(allocItemKey)
           shortTermMonthlyQty += this.computeQuantityForMonth(properties.qty_m3_yr || 0, this.shortTermAllocationValues[allocItemKey], i + 1)

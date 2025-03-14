@@ -1,4 +1,3 @@
-
 <template>
   <div>
     <h3>Special Consideration</h3>

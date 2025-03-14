@@ -37,13 +37,13 @@ describe('Stream apportionment tests', () => {
       setMode: jest.fn(),
       replaceOldFeatures: jest.fn()
     }
-    let map = {
+    const map = {
       namespaced: true,
       getters,
       actions,
       mutations
     }
-    let methods = {
+    const methods = {
       fetchStreams: jest.fn()
     }
     store = new Vuex.Store({ modules: { map } })
@@ -64,36 +64,36 @@ describe('Stream apportionment tests', () => {
   })
 
   it('Calculates apportionment', () => {
-    let data = [
+    const data = [
       { distance: 2, length_metre: 12.2 },
       { distance: 4, length_metre: 12.2 }
     ]
     wrapper.setData({ streams: data })
     wrapper.vm.calculateApportionment()
-    expect(wrapper.vm.streams[0]['apportionment']).toEqual(80)
-    expect(wrapper.vm.streams[1]['apportionment']).toEqual(20)
+    expect(wrapper.vm.streams[0].apportionment).toEqual(80)
+    expect(wrapper.vm.streams[1].apportionment).toEqual(20)
   })
 
   it('Can remove overlapping streams', () => {
-    let data = [
+    const data = [
       { distance: 2, fwa_watershed_code: 5555, length_metre: 12.2 },
       { distance: 7, fwa_watershed_code: 5555, length_metre: 12.2 },
       { distance: 4, fwa_watershed_code: 5556, length_metre: 12.2 }
     ]
-    let result = [
+    const result = [
       {
-        'apportionment': 80,
-        'distance': 2,
-        'length_metre': 12.2,
-        'fwa_watershed_code': 5555,
-        'inverse_distance': 0.25
+        apportionment: 80,
+        distance: 2,
+        length_metre: 12.2,
+        fwa_watershed_code: 5555,
+        inverse_distance: 0.25
       },
       {
-        'apportionment': 20,
-        'distance': 4,
-        'length_metre': 12.2,
-        'fwa_watershed_code': 5556,
-        'inverse_distance': 0.0625
+        apportionment: 20,
+        distance: 4,
+        length_metre: 12.2,
+        fwa_watershed_code: 5556,
+        inverse_distance: 0.0625
       }
     ]
     wrapper.setData({ streams: data })
@@ -103,38 +103,38 @@ describe('Stream apportionment tests', () => {
   })
 
   it('Apportionment changes based on weighting factor', () => {
-    let data = [
+    const data = [
       { distance: 2, length_metre: 12.2 },
       { distance: 4, length_metre: 12.2 }
     ]
     wrapper.setData({ streams: data, weightingFactor: 3 })
     wrapper.vm.calculateApportionment()
-    expect(Math.round(wrapper.vm.streams[0]['apportionment']))
+    expect(Math.round(wrapper.vm.streams[0].apportionment))
       .toEqual(89)
-    expect(Math.round(wrapper.vm.streams[1]['apportionment']))
+    expect(Math.round(wrapper.vm.streams[1].apportionment))
       .toEqual(11)
   })
 
   it('Removes streams if apportionment is under x percentage', () => {
-    let data = [
+    const data = [
       { distance: 2, fwa_watershed_code: 5555, length_metre: 12.2 },
       { distance: 4, fwa_watershed_code: 5555, length_metre: 12.2 },
       { distance: 40, fwa_watershed_code: 5556, length_metre: 12.2 }
     ]
-    let result = [
+    const result = [
       {
-        'apportionment': 80,
-        'distance': 2,
-        'length_metre': 12.2,
-        'fwa_watershed_code': 5555,
-        'inverse_distance': 0.25
+        apportionment: 80,
+        distance: 2,
+        length_metre: 12.2,
+        fwa_watershed_code: 5555,
+        inverse_distance: 0.25
       },
       {
-        'apportionment': 20,
-        'distance': 4,
-        'length_metre': 12.2,
-        'fwa_watershed_code': 5555,
-        'inverse_distance': 0.0625
+        apportionment: 20,
+        distance: 4,
+        length_metre: 12.2,
+        fwa_watershed_code: 5555,
+        inverse_distance: 0.0625
       }
     ]
     wrapper.setData({ streams: data })

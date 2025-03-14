@@ -16,16 +16,16 @@ export default {
         throw new Error(`handleFileMessage called with invalid file status: ${status}`)
       }
 
-      let filenamesStr = filenames.filter(Boolean).join(', ')
+      const filenamesStr = filenames.filter(Boolean).join(', ')
 
-      let processedFile = {
+      const processedFile = {
         name: filenamesStr,
-        status: status,
+        status,
         message: `${filenamesStr}: ${message}`
       }
 
       if (status === 'success') {
-        processedFile['firstFeatureCoords'] = firstFeatureCoords
+        processedFile.firstFeatureCoords = firstFeatureCoords
       }
 
       filenames.forEach(file => {

@@ -7,7 +7,7 @@ localVue.use(Vuex)
 
 describe('Cross Section Store', () => {
   let store
-  let payload = [
+  const payload = [
     [-123.123, 49.49],
     [-123.321, 49.94]
   ]
@@ -20,7 +20,7 @@ describe('Cross Section Store', () => {
     store.state = {
       sectionLine: payload
     }
-    let sectionLine = store.getters.sectionLine(store.state)
+    const sectionLine = store.getters.sectionLine(store.state)
     expect(sectionLine).toBe(payload)
   })
 

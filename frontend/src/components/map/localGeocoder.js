@@ -24,7 +24,7 @@ function coordinatesGeocoder (query) {
 
   const coord1 = Number(matches[1])
   const coord2 = Number(matches[2])
-  let geocodes = []
+  const geocodes = []
 
   if (Math.abs(coord1) > 180 || Math.abs(coord2) > 180 ||
     (Math.abs(coord1) > 90 && Math.abs(coord2) > 90)) {

@@ -30,7 +30,7 @@ describe('Map Store', () => {
       activeMapLayers: []
     }
     store.commit = jest.fn()
-    let payload = 'water_rights_licenses'
+    const payload = 'water_rights_licenses'
     store.actions.addMapLayer(store, payload)
     expect(store.state.activeMapLayers[0]).toEqual({
       display_data_name: 'water_rights_licenses'
@@ -48,7 +48,7 @@ describe('Map Store', () => {
     }
     store.dispatch = jest.fn()
     store.commit = jest.fn()
-    let payload = 'water_rights_licenses'
+    const payload = 'water_rights_licenses'
     store.actions.removeMapLayer(store, payload)
     expect(store.state.activeMapLayers.length).toBe(0)
   })
@@ -165,14 +165,16 @@ describe('Map Store', () => {
   })
 
   it('addActiveSelection commits the new feature to state', () => {
-    const testFeatureCollection = { features: [
-      {
-        id: 'testFeature',
-        geometry: {
-          type: 'Polygon' // mimic a drawn rectangle
+    const testFeatureCollection = {
+      features: [
+        {
+          id: 'testFeature',
+          geometry: {
+            type: 'Polygon' // mimic a drawn rectangle
+          }
         }
-      }
-    ] }
+      ]
+    }
 
     store.commit = jest.fn()
 
@@ -186,14 +188,16 @@ describe('Map Store', () => {
     store.state = {
       drawPointOfInterest: true
     }
-    const testFeatureCollection = { features: [
-      {
-        id: 'testFeature',
-        geometry: {
-          type: 'Point'
+    const testFeatureCollection = {
+      features: [
+        {
+          id: 'testFeature',
+          geometry: {
+            type: 'Point'
+          }
         }
-      }
-    ] }
+      ]
+    }
 
     store.commit = jest.fn()
 
@@ -206,14 +210,16 @@ describe('Map Store', () => {
     store.state = {
       drawPointOfInterest: false
     }
-    const testFeatureCollection = { features: [
-      {
-        id: 'testFeature',
-        geometry: {
-          type: 'Point'
+    const testFeatureCollection = {
+      features: [
+        {
+          id: 'testFeature',
+          geometry: {
+            type: 'Point'
+          }
         }
-      }
-    ] }
+      ]
+    }
 
     store.commit = jest.fn()
 
@@ -222,14 +228,16 @@ describe('Map Store', () => {
   })
 
   it('addActiveSelection called with a LineString creates a new cross section line', () => {
-    const testFeatureCollection = { features: [
-      {
-        id: 'testFeature',
-        geometry: {
-          type: 'LineString'
+    const testFeatureCollection = {
+      features: [
+        {
+          id: 'testFeature',
+          geometry: {
+            type: 'LineString'
+          }
         }
-      }
-    ] }
+      ]
+    }
 
     store.commit = jest.fn()
 

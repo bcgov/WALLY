@@ -41,7 +41,7 @@ describe('Surface water tests', () => {
       }
     }
 
-    let surfaceWater = {
+    const surfaceWater = {
       namespaced: true,
       getters: {
         watershedDetails: () => {},

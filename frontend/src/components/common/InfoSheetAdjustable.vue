@@ -148,7 +148,7 @@ export default {
       const infoPanelBorder = this.$el.querySelector('.draggableBorder')
       const infoPanel = this.$el.querySelector('#info-sheet .v-sheet')
 
-      let resize = (e) => {
+      const resize = (e) => {
         const windowWidth = document.body.scrollWidth
         const maxSize = (windowWidth / 3) * 2 // 2/3 of window width
 

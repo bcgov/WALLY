@@ -26,14 +26,16 @@ Vue.prototype.$auth = keycloak
 if (global.config.isProduction) {
   Sentry.init({
     dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
-    integrations: [new Integrations.Vue({ Vue,
+    integrations: [new Integrations.Vue({
+      Vue,
       attachProps: true,
-      logErrors: true })]
+      logErrors: true
+    })]
   })
   Vue.use(VueMatomo, {
     host: 'https://matomo-d1b5d2-prod.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
-    router: router,
+    router,
     domains: 'wally.nrs.gov.bc.ca'
   })
 }
@@ -42,7 +44,7 @@ if (global.config.isStaging) {
   Vue.use(VueMatomo, {
     host: 'https://matomo-d1b5d2-test.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
-    router: router,
+    router,
     domains: '*.silver.devops.gov.bc.ca'
   })
 }
@@ -52,7 +54,7 @@ if (global.config.isDevelopment && global.config.enableAnalytics) {
   Vue.use(VueMatomo, {
     host: 'https://matomo-d1b5d2-test.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
-    router: router,
+    router,
     domains: '*.silver.devops.gov.bc.ca',
     debug: true
   })
@@ -61,7 +63,7 @@ if (global.config.isDevelopment && global.config.enableAnalytics) {
 keycloak
   .init(kcInitOptions)
   .then(isAuthenticated => {
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token
+    axios.defaults.headers.common.Authorization = 'Bearer ' + keycloak.token
     new Vue({
       vuetify,
       router,
@@ -86,7 +88,7 @@ keycloak.onTokenExpired = function () {
     .then(function (refreshed) {
       if (refreshed) {
         console.log('Token was successfully refreshed')
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + keycloak.token
+        axios.defaults.headers.common.Authorization = 'Bearer ' + keycloak.token
       } else {
         console.log('Token is still valid')
       }

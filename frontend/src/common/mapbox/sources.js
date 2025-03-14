@@ -67,16 +67,16 @@ pk_freshwater_atlas_watershed-cem099
 
 export const devSources = {
   'mapbox://mapbox.satellite': {
-    'url': 'mapbox://mapbox.satellite',
-    'type': 'raster',
-    'tileSize': 256
+    url: 'mapbox://mapbox.satellite',
+    type: 'raster',
+    tileSize: 256
   },
-  'composite': {
-    'url': 'mapbox://mapbox.mapbox-streets-v8,' +
+  composite: {
+    url: 'mapbox://mapbox.mapbox-streets-v8,' +
            'mapbox.mapbox-terrain-v2,' +
            'iit-water.bf1gc2mz,' + // hydat-879a50
            'iit-water.8rt7ts1c', // glaciers_and_isolines-28fnv1
-    'type': 'vector'
+    type: 'vector'
   }
 }
 
@@ -138,15 +138,15 @@ wally_freshwater_atlas_stream-6ml1n5
  */
 export const prodSources = {
   'mapbox://mapbox.satellite': {
-    'url': 'mapbox://mapbox.satellite',
-    'type': 'raster',
-    'tileSize': 256
+    url: 'mapbox://mapbox.satellite',
+    type: 'raster',
+    tileSize: 256
   },
-  'composite': {
-    'url': 'mapbox://mapbox.mapbox-streets-v8,' +
+  composite: {
+    url: 'mapbox://mapbox.mapbox-streets-v8,' +
       'mapbox.mapbox-terrain-v2,' +
       'iit-water.31epl7h1,' + // pk-hydat-6l5sgh
       'iit-water.0tsq064k', // 0tsq064k
-    'type': 'vector'
+    type: 'vector'
   }
 }

@@ -46,7 +46,7 @@ export default {
       })
 
       dropZone.addEventListener('drop', (e) => {
-        let droppedFiles = e.dataTransfer.files // the files that were dropped
+        const droppedFiles = e.dataTransfer.files // the files that were dropped
 
         this.$emit('import:load-files', droppedFiles)
       })

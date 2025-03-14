@@ -82,7 +82,7 @@ export default {
         zoomLevel: process.env.VUE_APP_MAP_ZOOM_LEVEL ? process.env.VUE_APP_MAP_ZOOM_LEVEL : 4.7
       }
 
-      let style = getDefaultStyle()
+      const style = getDefaultStyle()
 
       global.config.debug && console.log('[wally] using style...', style)
       commit('setMap', new mapboxgl.Map({
@@ -104,7 +104,7 @@ export default {
       modes.direct_select.onTrash = this.clearSelections
 
       commit('setDraw', new MapboxDraw({
-        modes: modes,
+        modes,
         displayControlsDefault: false,
         controls: {
           // polygon: true,
@@ -280,7 +280,7 @@ export default {
       dispatch('addActiveSelection', { featureCollection: state.draw.getAll(), options: { showFeatureList: false } })
     },
     addMapLayer ({ commit, dispatch, state }, displayDataName) {
-      let mapLayer = state.mapLayers.find((layer) => {
+      const mapLayer = state.mapLayers.find((layer) => {
         return layer.display_data_name === displayDataName
       })
 
@@ -361,8 +361,8 @@ export default {
         global.config.debug && console.log('[wally]', bounds)
 
         dispatch('getDataMartFeatures', {
-          bounds: bounds,
-          size: size,
+          bounds,
+          size,
           layers: state.activeMapLayers
         }, { root: true })
       }
@@ -402,7 +402,7 @@ export default {
       })
     },
     setActiveBaseMapLayers ({ state, commit }, payload) {
-      let prev = state.selectedBaseLayers
+      const prev = state.selectedBaseLayers
       prev.filter((l) => !payload.includes(l)).forEach((l) => commit('deactivateBaseLayer', l))
       payload.filter((l) => !prev.includes(l)).forEach((l) => commit('activateBaseLayer', l))
       state.selectedBaseLayers = payload
@@ -415,7 +415,7 @@ export default {
       })
     },
     async initHighlightLayers ({ state, commit }) {
-      await state.map.on('load', () => {
+      const init = () => {
         // initialize highlight layers
         state.map.addImage('highlight-point', HighlightPoint(state.map, 90), { pixelRatio: 2 })
         highlightSources.forEach((source) => {
@@ -429,10 +429,18 @@ export default {
         // End of cascade; map is now ready
         commit('setInfoPanelVisibility', true, { root: true })
         commit('setMapReady', true)
-      })
+      }
+
+      if (state.map.loaded()) {
+        init()
+      } else {
+        await state.map.on('load', () => {
+          init()
+        })
+      }
     },
     updateMapLayerData ({ state, commit, dispatch }, data) {
-      let { source, featureData } = data
+      const { source, featureData } = data
       state.map.getSource(source).setData(featureData)
     },
     /*
@@ -456,19 +464,27 @@ export default {
       }
     },
     removeElementsByClass ({ state }, payload) {
-      let elements = document.getElementsByClassName(payload)
+      const elements = document.getElementsByClassName(payload)
       while (elements.length > 0) {
         elements[0].parentNode.removeChild(elements[0])
       }
     },
     async initMeasurementHighlight ({ state }, payload) {
-      await state.map.on('load', () => {
+      const init = () => {
         // initialize measurement highlight layer
         measurementSources.forEach((source) => {
           state.map.addSource(source, geojsonFC(emptyPolygon))
           addMapboxLayer(state.map, source, {})
         })
-      })
+      }
+
+      if (state.map.loaded()) {
+        init()
+      } else {
+        await state.map.on('load', () => {
+          init()
+        })
+      }
     },
     updateMeasurementHighlight ({ state, commit, dispatch }, data) {
       if (data.feature.geometry.type === 'LineString') {
@@ -629,8 +645,8 @@ export default {
         if (coordinates.length > 3 && lineConnects) {
           // set last coordinate equal to the first
           // because the click point is within the minimum bounds
-          let lineFeature = feature
-          let ac = lineFeature.geometry.coordinates
+          const lineFeature = feature
+          const ac = lineFeature.geometry.coordinates
           ac[ac.length - 1] = ac[0]
           lineFeature.geometry.coordinates = ac
           let perimeterMeasurement = (length(lineFeature) * 1000)
@@ -648,7 +664,7 @@ export default {
 
           let areaUnits = 'm²'
           let perimeterUnits = 'm'
-          let polygonFeature = lineToPolygon(lineFeature)
+          const polygonFeature = lineToPolygon(lineFeature)
           let areaMeasurement = area(polygonFeature)
 
           if (perimeterMeasurement >= 1000) { // if over 1000 meters, upgrade metric
@@ -661,7 +677,7 @@ export default {
           }
 
           drawnMeasurements = {
-            features: features,
+            features,
             feature: polygonFeature,
             perimeter: `${perimeterMeasurement.toFixed(2)} ${perimeterUnits}`,
             area: `${areaMeasurement.toFixed(2)} ${areaUnits}`
@@ -677,8 +693,8 @@ export default {
           }
 
           drawnMeasurements = {
-            features: features,
-            feature: feature,
+            features,
+            feature,
             snapPoint: bounds,
             distance: `${distance.toFixed(2)} ${distanceUnits}`
           }
@@ -697,11 +713,11 @@ export default {
     isMapReady: state => state.isMapReady,
     isDrawingToolActive: state => state.isDrawingToolActive,
     mapLayerName: (state) => (wmsName) => {
-      let layer = state.mapLayers.find(e => e.wms_name === wmsName)
+      const layer = state.mapLayers.find(e => e.wms_name === wmsName)
       return layer ? layer.display_name : ''
     },
     getMapLayer: (state) => (displayDataName) => {
-      let layer = state.mapLayers.find(e => e.display_data_name === displayDataName)
+      const layer = state.mapLayers.find(e => e.display_data_name === displayDataName)
       return layer || null
     },
     allMapLayers: state => state.mapLayers,
