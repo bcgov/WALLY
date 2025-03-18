@@ -44,16 +44,16 @@ export default class Importer {
    * @param returnObj
    * @returns {files: [], shapefiles: {}} object listing remaining files and shapefiles
    */
-  static findShapefiles (files, fileName, fileTypes = ['shp', 'dbf', 'prj'], returnObj = { 'files': [], 'shapefiles': {} }) {
+  static findShapefiles (files, fileName, fileTypes = ['shp', 'dbf', 'prj'], returnObj = { files: [], shapefiles: {} }) {
     if (fileTypes.length === 0) {
       return returnObj
     }
     const fileExtension = fileTypes.pop()
-    let findFile = files.filter(e => e.name === fileName + '.' + fileExtension)
+    const findFile = files.filter(e => e.name === fileName + '.' + fileExtension)
 
     files = files.filter(e => e.name !== fileName + '.' + fileExtension)
     returnObj.files = files
-    returnObj['shapefiles'][fileExtension] = findFile.length === 1 ? findFile[0] : null
+    returnObj.shapefiles[fileExtension] = findFile.length === 1 ? findFile[0] : null
 
     return Importer.findShapefiles(files, fileName, fileTypes, returnObj)
   }
@@ -77,10 +77,10 @@ export default class Importer {
     if (String(fileType) === FILE_TYPE_SHAPEFILE) {
       const returnObj = Importer.findShapefiles(files, fileName)
       groupedFiles.push({
-        'type': FILE_TYPE_SHAPEFILE,
-        'extension': null,
-        'supported': fileSupported,
-        'file': returnObj.shapefiles
+        type: FILE_TYPE_SHAPEFILE,
+        extension: null,
+        supported: fileSupported,
+        file: returnObj.shapefiles
       })
       return Importer.groupFiles(returnObj.files, groupedFiles)
     }
@@ -88,10 +88,10 @@ export default class Importer {
     files = files.filter(e => e.name !== fileName + '.' + fileExtension)
 
     groupedFiles.push({
-      'type': fileType,
-      'extension': fileExtension,
-      'supported': fileSupported,
-      'file': fileToRead
+      type: fileType,
+      extension: fileExtension,
+      supported: fileSupported,
+      file: fileToRead
     })
     return Importer.groupFiles(files, groupedFiles)
   }
@@ -146,7 +146,7 @@ export default class Importer {
    * @returns {Promise<void>}
    */
   static async processFileData (file, fileType, data) {
-    let fileInfo = {
+    const fileInfo = {
       name: file.name || '',
       size: file.size || 0,
       color: '#' + Math.floor(Math.random() * 16777215).toString(16),
@@ -160,13 +160,13 @@ export default class Importer {
     }
 
     if (fileType === 'csv') {
-      fileInfo['data'] = await Importer.readCSV(file.name, data)
+      fileInfo.data = await Importer.readCSV(file.name, data)
     } else if (fileType === 'xlsx') {
-      fileInfo['data'] = await Importer.readXLSX(file.name, data)
+      fileInfo.data = await Importer.readXLSX(file.name, data)
     } else if (fileType === 'kml') {
-      fileInfo['data'] = Importer.readKML(file.name, data)
+      fileInfo.data = Importer.readKML(file.name, data)
     } else if (fileType === 'geojson') {
-      fileInfo['data'] = Importer.readGeoJSON(file.name, data)
+      fileInfo.data = Importer.readGeoJSON(file.name, data)
     } else {
       // Unknown file type
       // this should not occur (an unsupported file error should have been caught earlier),
@@ -299,7 +299,7 @@ export default class Importer {
       return
     }
 
-    let filenamesArr = [shpFile.name]
+    const filenamesArr = [shpFile.name]
     let filesizeTotal = shpFile.size
 
     // Read file from form input
@@ -318,7 +318,7 @@ export default class Importer {
       filesizeTotal += prjFile.size
     }
 
-    let fileInfo = {
+    const fileInfo = {
       name: filenamesArr.join(', ') || '',
       size: filesizeTotal || 0,
       color: '#' + Math.floor(Math.random() * 16777215).toString(16),
@@ -336,11 +336,11 @@ export default class Importer {
       if (shpReader.readyState === DONE &&
           (dbfFile ? dbfReader.readyState === DONE : true) &&
           (prjFile ? prjReader.readyState === DONE : true)) {
-        let dbfReaderResult = (dbfFile) ? dbfReader.result : null
-        let prjReaderResult = (prjFile) ? prjReader.result : null
-        fileInfo['data'] = await shapefileToGeoJSON(shpReader.result, dbfReaderResult, prjReaderResult)
+        const dbfReaderResult = (dbfFile) ? dbfReader.result : null
+        const prjReaderResult = (prjFile) ? prjReader.result : null
+        fileInfo.data = await shapefileToGeoJSON(shpReader.result, dbfReaderResult, prjReaderResult)
 
-        let fileQueue = [shpFile]
+        const fileQueue = [shpFile]
         if (dbfFile) {
           fileQueue.push(dbfFile)
         }
@@ -368,7 +368,7 @@ export default class Importer {
    */
   static prepareLoadedFileForImport (queuedFileGroup, fileInfo) {
     // check if there are any features in the dataset
-    if (!fileInfo['data'].features) {
+    if (!fileInfo.data.features) {
       store.dispatch('importer/processFile', {
         filenames: [fileInfo.filename],
         status: 'error',
@@ -381,9 +381,9 @@ export default class Importer {
     // this helps zoom to the dataset (if desired).
     let firstFeatureCoords = null
     try {
-      firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo['data'])
+      firstFeatureCoords = Importer.validateAndReturnFirstFeatureCoords(fileInfo.data)
     } catch (e) {
-      let filenames = []
+      const filenames = []
       queuedFileGroup.forEach(file => {
         filenames.push(file.name)
       })
@@ -395,9 +395,9 @@ export default class Importer {
       return
     }
 
-    fileInfo['firstFeatureCoords'] = firstFeatureCoords
+    fileInfo.firstFeatureCoords = firstFeatureCoords
 
-    fileInfo['stats'] = generateFileStats(fileInfo)
+    fileInfo.stats = generateFileStats(fileInfo)
     global.config.debug && console.log('[wally] fileInfo ', fileInfo)
 
     store.commit('importer/addQueuedFile', fileInfo)
@@ -443,14 +443,14 @@ export default class Importer {
 
     store.dispatch('customLayers/loadCustomGeoJSONLayer',
       {
-        map: map,
+        map,
         featureCollection: geojsonFc,
         geomType: file.stats.geomType,
         color: file.color.substring(0, 7)
       })
       .then((response) => {
         fileStatus.status = 'success'
-        fileStatus.message = `file loaded`
+        fileStatus.message = 'file loaded'
         fileStatus.firstFeatureCoords = file.firstFeatureCoords
       }).catch((e) => {
         fileStatus.status = 'error'

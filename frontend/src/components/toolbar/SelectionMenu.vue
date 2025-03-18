@@ -62,6 +62,7 @@
         </v-list>
       </v-menu>
       <v-menu offset-y v-if="this.app.config && this.app.config.projects">
+        <!-- eslint-disable-next-line vue/no-unused-vars -->
         <template v-slot:activator="{ on }">
           <v-btn
             color="grey darken-3"
@@ -85,6 +86,7 @@
         </v-list> -->
       </v-menu>
       <v-menu offset-y v-if="this.app.config && this.app.config.saved_analysis">
+        <!-- eslint-disable-next-line vue/no-unused-vars -->
         <template v-slot:activator="{ on }">
           <v-btn
             color="grey darken-3"
@@ -159,9 +161,9 @@ export default {
   }),
   computed: {
     toolOptions () {
-      let newToolOptions = [...this.defaultToolOptions]
+      const newToolOptions = [...this.defaultToolOptions]
 
-      let externalImport =
+      const externalImport =
       {
         title: 'Import file or data',
         route: { name: 'import-data-layer' },

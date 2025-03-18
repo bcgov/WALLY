@@ -131,11 +131,13 @@ export default {
       // Update the section line coordinates in the URL query params.
       // This enables saving/sharing links.
       if (this.coordinates.length && this.coordinates.length > 1) {
-        this.$router.push({ query: {
-          ...this.$route.query,
-          'section_line_A': this.coordinates[0],
-          'section_line_B': this.coordinates[1]
-        } }).catch((e) => {})
+        this.$router.push({
+          query: {
+            ...this.$route.query,
+            section_line_A: this.coordinates[0],
+            section_line_B: this.coordinates[1]
+          }
+        }).catch((e) => {})
       }
 
       // Fetch wells
@@ -152,14 +154,14 @@ export default {
         this.setAnnotationMarkers()
 
         // Fetch Lithology
-        let wellIds = this.wells.map(w => w.well_tag_number).join()
+        const wellIds = this.wells.map(w => w.well_tag_number).join()
         let lithologyResults = {}
         try {
           lithologyResults = await this.fetchWellsLithology(wellIds)
         } catch (e) {
           console.error(e)
         }
-        let lithology = lithologyResults.data.results
+        const lithology = lithologyResults.data.results
         this.buildLithologyList(lithology)
 
         this.loading = false
@@ -186,7 +188,7 @@ export default {
       )
     },
     setAnnotationMarkers () {
-      let annotationGeoJson = [
+      const annotationGeoJson = [
         {
           type: 'Feature',
           geometry: {
@@ -194,7 +196,7 @@ export default {
             coordinates: this.coordinates[0]
           },
           properties: {
-            'symbol': 'A'
+            symbol: 'A'
           }
         },
         {
@@ -204,17 +206,17 @@ export default {
             coordinates: this.coordinates[1]
           },
           properties: {
-            'symbol': 'B'
+            symbol: 'B'
           }
         }
       ]
-      let mapObj = this.map
+      const mapObj = this.map
       // delete any existing markers
       this.removeElementsByClass('annotationMarker')
       // add markers to map
       annotationGeoJson.forEach(function (marker) {
         // create a HTML element for each feature
-        let el = document.createElement('div')
+        const el = document.createElement('div')
         el.className = 'annotationMarker'
         el.innerText = marker.properties.symbol
 
@@ -228,10 +230,10 @@ export default {
       return ApiService.getRaw(`https://apps.nrs.gov.bc.ca/gwells/api/v2/wells/lithology?wells=${ids}`)
     },
     buildLithologyList (results) {
-      let lithologyList = []
+      const lithologyList = []
       for (let index = 0; index < results.length; index++) {
         const wellLithologySet = results[index]
-        let well = this.wells.find(
+        const well = this.wells.find(
           x => x.well_tag_number === wellLithologySet.well_tag_number
         )
         if (well) {
@@ -265,7 +267,7 @@ export default {
       this.$store.commit('map/addShape', polygon)
     },
     downloadPlotImage () {
-      let filename = 'plot--'.concat(new Date().toISOString()) + '.png'
+      const filename = 'plot--'.concat(new Date().toISOString()) + '.png'
       html2canvas(this.$refs.crossPlot.$el).then(canvas => {
         canvas.toBlob(function (blob) {
           saveAs(blob, filename)
@@ -276,22 +278,22 @@ export default {
       this.downloadImageLoading = true
       // Custom Metrics - Screen capture
       window._paq && window._paq.push(['trackEvent', 'Cross Section', 'Download Plot', 'Plot pdf'])
-      let doc = jsPDF()
-      let width = doc.internal.pageSize.getWidth()
-      let height = doc.internal.pageSize.getHeight()
-      let filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
+      const doc = jsPDF()
+      const width = doc.internal.pageSize.getWidth()
+      const height = doc.internal.pageSize.getHeight()
+      const filename = 'plot--'.concat(new Date().toISOString()) + '.pdf'
       html2canvas(this.map._container).then(canvas1 => {
-        let img1 = canvas1.toDataURL('image/png')
+        const img1 = canvas1.toDataURL('image/png')
         const imgProps1 = doc.getImageProperties(img1)
-        let size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
-        let crossDoc = jsPDF({ orientation: 'landscape', unit: 'pt', format: [size1[0], size1[1]] })
+        const size1 = this.scaleImageToFit(width, height, imgProps1.width, imgProps1.height)
+        const crossDoc = jsPDF({ orientation: 'landscape', unit: 'pt', format: [size1[0], size1[1]] })
         crossDoc.addImage(img1, 'PNG', 0, 0, size1[0], size1[1])
-        let plotContainer = plotType === '2d' ? document.getElementById('2dPlot') : document.getElementById('3dPlot')
+        const plotContainer = plotType === '2d' ? document.getElementById('2dPlot') : document.getElementById('3dPlot')
 
         html2canvas(plotContainer).then(canvas2 => {
-          let img2 = canvas2.toDataURL('image/png')
+          const img2 = canvas2.toDataURL('image/png')
           const imgProps2 = doc.getImageProperties(img2)
-          let size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
+          const size2 = this.scaleImageToFit(width, height, imgProps2.width, imgProps2.height)
           crossDoc.addPage([size2[0], size2[1]]) // add new page for next image
           crossDoc.addImage(img2, 'PNG', 0, 0, size2[0], size2[1])
           crossDoc.save(filename)
@@ -300,15 +302,15 @@ export default {
       })
     },
     scaleImageToFit (ws, hs, wi, hi) {
-      let ri = wi / hi
-      let rs = ws / hs
-      let size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
+      const ri = wi / hi
+      const rs = ws / hs
+      const size = rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
       return size
     },
     centerImage (ws, hs, hnew, wnew) {
-      let w = (ws - wnew) / 2
-      let h = (hs - hnew) / 2
-      let pos = [w, h]
+      const w = (ws - wnew) / 2
+      const h = (hs - hnew) / 2
+      const pos = [w, h]
       return pos
     },
     lassoTool () {
@@ -317,7 +319,7 @@ export default {
       Plotly.relayout('myDiv', 'dragmode', 'lasso')
     },
     radiusIsValid (val) {
-      let invalid = Object.keys(this.inputRules).some((k) => {
+      const invalid = Object.keys(this.inputRules).some((k) => {
         return this.inputRules[k](val) !== true
       })
       return !invalid
@@ -332,16 +334,16 @@ export default {
         return
       }
       // delete selected well from well list
-      let wellsArr = this.wells.filter(well => {
-        return well['well_tag_number'] !== selectedWell['well_tag_number']
+      const wellsArr = this.wells.filter(well => {
+        return well.well_tag_number !== selectedWell.well_tag_number
       })
       // delete lithology of selected well from lithology list
-      let lithologyArr = this.wellsLithology.filter(lith => {
-        return lith['well_tag_number'] !== selectedWell['well_tag_number']
+      const lithologyArr = this.wellsLithology.filter(lith => {
+        return lith.well_tag_number !== selectedWell.well_tag_number
       })
 
-      let screensArr = this.screens.filter(screen => {
-        return screen['well_tag_number'] !== selectedWell['well_tag_number']
+      const screensArr = this.screens.filter(screen => {
+        return screen.well_tag_number !== selectedWell.well_tag_number
       })
 
       this.wells = [...wellsArr]
@@ -364,7 +366,7 @@ export default {
 
       this.xlsLoading = true
 
-      ApiService.post(`/api/v1/wells/section/export`, params, {
+      ApiService.post('/api/v1/wells/section/export', params, {
         responseType: 'arraybuffer'
       }).then((res) => {
         // default filename, and inspect response header Content-Disposition
@@ -380,7 +382,7 @@ export default {
       // highlight well on map that corresponds to the
       // hovered list item in the cross section table
       const feature = well.feature
-      feature['display_data_name'] = 'groundwater_wells'
+      feature.display_data_name = 'groundwater_wells'
       this.$store.commit('map/updateHighlightFeatureData', feature)
     },
     addWellOffsetDistanceLayer (data) {
@@ -394,9 +396,9 @@ export default {
         // Change the cursor style as a UI indicator.
         this.map.getCanvas().style.cursor = 'pointer'
 
-        let coordinates = e.features[0].geometry.coordinates.slice()
-        let offsetDistance = e.features[0].properties['distance_from_line']
-        let compassDirection = e.features[0].properties['compass_direction']
+        const coordinates = e.features[0].geometry.coordinates.slice()
+        const offsetDistance = e.features[0].properties.distance_from_line
+        const compassDirection = e.features[0].properties.compass_direction
 
         // Ensure that if the map is zoomed out such that multiple
         // copies of the feature are visible, the popup appears

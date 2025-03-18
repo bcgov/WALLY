@@ -3,8 +3,8 @@ export default (map) => {
   const maxWidth = 100 // relative pixel distance as maxwidth
   const y = map._container.clientHeight / 2
 
-  let latlng1 = map.unproject([0, y])
-  let latlng2 = map.unproject([maxWidth, y])
+  const latlng1 = map.unproject([0, y])
+  const latlng2 = map.unproject([maxWidth, y])
 
   const R = 6371000
   const rad = Math.PI / 180

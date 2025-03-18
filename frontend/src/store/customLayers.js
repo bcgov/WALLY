@@ -6,17 +6,17 @@ import { geojsonFC } from '../common/mapbox/features'
 
 function layerConfig ({ id, geomType, color }) {
   const paints = {
-    'circle': {
+    circle: {
       'circle-color': color,
       'circle-radius': 3,
       'circle-stroke-width': 1,
       'circle-stroke-color': '#333333'
     },
-    'line': {
+    line: {
       'line-color': color,
       'line-width': 1.5
     },
-    'fill': {
+    fill: {
       'fill-color': color,
       'fill-outline-color': '#333333',
       'fill-opacity': 0.33
@@ -24,22 +24,22 @@ function layerConfig ({ id, geomType, color }) {
   }
 
   const painttypes = {
-    'Point': 'circle',
-    'MultiPoint': 'circle',
-    'LineString': 'line',
-    'MultiLineString': 'line',
-    'Polygon': 'fill',
-    'MultiPolygon': 'fill'
+    Point: 'circle',
+    MultiPoint: 'circle',
+    LineString: 'line',
+    MultiLineString: 'line',
+    Polygon: 'fill',
+    MultiPolygon: 'fill'
   }
 
   const paint = painttypes[geomType]
   console.log(paints[paint])
   return {
-    'id': id,
-    'source': id,
-    'type': paint,
-    'paint': paints[paint],
-    'filter': ['match', ['geometry-type'], [geomType, 'Multi' + geomType], true, false]
+    id,
+    source: id,
+    type: paint,
+    paint: paints[paint],
+    filter: ['match', ['geometry-type'], [geomType, 'Multi' + geomType], true, false]
   }
 }
 
@@ -87,8 +87,8 @@ export default {
       const layerInfo = {
         id: featureCollection.id,
         name: featureCollection.properties.name,
-        geomType: geomType,
-        color: color
+        geomType,
+        color
       }
 
       // add the layer to the map within a promise. That way the component dispatching this action
@@ -125,7 +125,7 @@ export default {
       commit('removeCustomLayer', { map, id })
     },
     setActiveCustomLayers ({ state, commit }, payload) {
-      let prev = state.selectedCustomLayers
+      const prev = state.selectedCustomLayers
       prev
         .filter((l) => l !== '_imported-map-layers')
         .filter((l) => !payload.includes(l)).forEach((l) => commit('map/deactivateLayer', l, { root: true }))

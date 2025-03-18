@@ -7,7 +7,7 @@ localVue.use(Vuex)
 
 describe('Saved Analyses Store', () => {
   let store
-  let geometry = [
+  const geometry = [
     [-123.123, 49.49],
     [-123.321, 49.94]
   ]

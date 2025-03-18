@@ -228,10 +228,10 @@ export default {
     ...mapGetters('surfaceWater', ['watershedDetails']),
     ...mapGetters(['app']),
     watershedArea () {
-      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
+      if (!this.record || !this.record.properties.FEATURE_AREA_SQM) {
         return null
       }
-      return Number(this.record.properties['FEATURE_AREA_SQM'])
+      return Number(this.record.properties.FEATURE_AREA_SQM)
     },
     normalizedRunoffByMonth () {
       if (!this.annualNormalizedRunoff || !this.watershedArea) {
@@ -267,11 +267,11 @@ export default {
 
     annualNormalizedRunoffSource () {
       const hydroWatershed = this.allWatersheds.find((ws) => {
-        return ws.properties['ANNUAL_RUNOFF_IN_MM']
+        return ws.properties.ANNUAL_RUNOFF_IN_MM
       })
 
       if (hydroWatershed) {
-        return hydroWatershed.properties['SOURCE_NAME']
+        return hydroWatershed.properties.SOURCE_NAME
       }
       return null
     },
@@ -283,11 +283,11 @@ export default {
       // only.
 
       const hydroWatershed = this.allWatersheds.find((ws) => {
-        return ws.properties['ANNUAL_RUNOFF_IN_MM']
+        return ws.properties.ANNUAL_RUNOFF_IN_MM
       })
 
       if (hydroWatershed) {
-        return Number(hydroWatershed.properties['ANNUAL_RUNOFF_IN_MM'])
+        return Number(hydroWatershed.properties.ANNUAL_RUNOFF_IN_MM)
       }
       return null
     },

@@ -114,8 +114,8 @@ export default {
     formatBytes,
 
     async filesMap (files) {
-      let promises = Array.from(files).map(file => {
-        let result = {
+      const promises = Array.from(files).map(file => {
+        const result = {
           name: file.name,
           type: file.type,
           size: file.size,
@@ -125,7 +125,7 @@ export default {
           if (!imageMimeTypes.includes(result.type)) {
             return resolve(result)
           }
-          var reader = new FileReader()
+          const reader = new FileReader()
           reader.onload = function (e) {
             result.preview = e.target.result
             resolve(result)
@@ -138,7 +138,7 @@ export default {
     },
 
     async add (event) {
-      let files = Array.from(event.target.files)
+      const files = Array.from(event.target.files)
       this.$emit('add-files', files)
       this.$refs.inputUpload.value = ''
     },
@@ -158,16 +158,16 @@ export default {
     },
 
     async upload () {
-      let formData = new FormData()
+      const formData = new FormData()
 
       // files
-      for (let file of this.files) {
+      for (const file of this.files) {
         formData.append('files', file, file.name)
       }
 
-      let url = `/api/v1/projects/${this.selectedProject.project_uuid}/documents`
+      const url = `/api/v1/projects/${this.selectedProject.project_uuid}/documents`
 
-      let config = {
+      const config = {
         url,
         method: 'post',
         data: formData,
@@ -179,7 +179,7 @@ export default {
 
       try {
         this.uploading = true
-        let response = await ApiService.request(config)
+        const response = await ApiService.request(config)
         console.log('uploaded response', response)
         this.uploading = false
         this.$emit('uploaded')

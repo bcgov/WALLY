@@ -2,7 +2,7 @@
 // capitalizes first letter of each word
 export function humanReadable (str) {
   if (str == null || typeof str === 'number') { return }
-  let frags = str.split('_')
+  const frags = str.split('_')
   for (let i = 0; i < frags.length; i++) {
     frags[i] = frags[i].toLowerCase()
     if (i === 0) {
@@ -17,7 +17,7 @@ export function getArrayDepth (value) {
 }
 
 export function scaleImageToFit (ws, hs, wi, hi) {
-  let ri = wi / hi
-  let rs = ws / hs
+  const ri = wi / hi
+  const rs = ws / hs
   return rs > ri ? [wi * hs / hi, hs] : [ws, hi * ws / wi]
 }

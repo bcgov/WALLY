@@ -126,10 +126,10 @@ export default {
         this.watershedDetails.scsb2016_model &&
         !this.watershedDetails.scsb2016_model.error
       ) {
-        let outputs = this.watershedDetails.scsb2016_model
-        let mar = outputs.find((x) => x.output_type === 'MAR')
-        let mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
-        let meanMonthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
+        const outputs = this.watershedDetails.scsb2016_model
+        const mar = outputs.find((x) => x.output_type === 'MAR')
+        const mad = outputs.find((x) => x.output_type === 'MAD' && x.month === 0)
+        const meanMonthlyDischarges = outputs.filter((x) => x.output_type === 'MAD' && x.month !== 0)
         return {
           mar: mar.model_result.toFixed(2),
           mad: mad.model_result.toFixed(2),

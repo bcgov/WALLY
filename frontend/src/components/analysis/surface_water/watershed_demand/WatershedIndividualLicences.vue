@@ -1,4 +1,3 @@
-
 <template>
   <v-simple-table>
     <template v-slot:default>
@@ -50,7 +49,7 @@ export default {
   }),
   methods: {
     onMouseEnterListItem (feature, layerName) {
-      feature['display_data_name'] = 'water_rights_licences'
+      feature.display_data_name = 'water_rights_licences'
       this.$store.commit('map/updateHighlightFeatureData', feature)
     },
     uniqueKey (lic, i) {

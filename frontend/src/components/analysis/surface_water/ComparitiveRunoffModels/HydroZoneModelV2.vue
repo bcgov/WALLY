@@ -118,13 +118,13 @@ export default {
     ...mapGetters('surfaceWater', ['watershedDetails']),
     ...mapGetters(['app']),
     watershedArea () {
-      if (!this.record || !this.record.properties['FEATURE_AREA_SQM']) {
+      if (!this.record || !this.record.properties.FEATURE_AREA_SQM) {
         return null
       }
-      return Number(this.record.properties['FEATURE_AREA_SQM'])
+      return Number(this.record.properties.FEATURE_AREA_SQM)
     },
     meanMonthlyPlotData () {
-      var flowData = this.meanMonthlyFlows()
+      const flowData = this.meanMonthlyFlows()
       if (!flowData) {
         return null
       }
@@ -170,7 +170,7 @@ export default {
   methods: {
     meanMonthlyFlows () {
       if (this.modelData && this.modelData.mean_monthly_flows) {
-        var meanMonthlyFlows = this.modelData.mean_monthly_flows.map((flow) => {
+        const meanMonthlyFlows = this.modelData.mean_monthly_flows.map((flow) => {
           return flow.mean_monthly_flow
         })
         return meanMonthlyFlows
@@ -180,7 +180,7 @@ export default {
     fetchWatershedModel (details) {
       this.modelLoading = true
       // add year as model parameter
-      details['year'] = new Date().getFullYear()
+      details.year = new Date().getFullYear()
       ApiService.post('/api/v1/hydrological_zones/v2_watershed_drainage_model', details)
         .then(r => {
           this.modelData = r.data

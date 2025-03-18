@@ -4,20 +4,20 @@ import unionBy from 'lodash.unionby'
 export default {
   state: {
     featureCollection: {
-      'type': 'FeatureCollection',
-      'features': []
+      type: 'FeatureCollection',
+      features: []
     },
     upstreamData: {
-      'type': 'FeatureCollection',
-      'features': []
+      type: 'FeatureCollection',
+      features: []
     },
     downstreamData: {
-      'type': 'FeatureCollection',
-      'features': []
+      type: 'FeatureCollection',
+      features: []
     },
     selectedStreamData: {
-      'type': 'FeatureCollection',
-      'features': []
+      type: 'FeatureCollection',
+      features: []
     },
     upstreamBufferData: {},
     downstreamBufferData: {},
@@ -45,21 +45,21 @@ export default {
     */
     calculateStreamHighlights ({ commit, dispatch }, payload) {
       // Get selected watershed code and trim un-needed depth
-      const watershedCode = payload.stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '')
+      const watershedCode = payload.stream.properties.FWA_WATERSHED_CODE.replace(/-000000/g, '')
 
       // Build our downstream code list
       const codes = watershedCode.split('-')
-      let downstreamCodes = [codes[0]]
+      const downstreamCodes = [codes[0]]
       for (let i = 0; i < codes.length - 1; i++) {
         downstreamCodes.push(downstreamCodes[i] + '-' + codes[i + 1])
       }
 
       // loop streams to find matching cases for selected, upstream, and downstream conditions
-      let selectedFeatures = []
-      let upstreamFeatures = []
-      let downstreamFeatures = []
+      const selectedFeatures = []
+      const upstreamFeatures = []
+      const downstreamFeatures = []
       payload.streams.forEach(stream => {
-        const code = stream.properties['FWA_WATERSHED_CODE'].replace(/-000000/g, '') // remove empty stream ids
+        const code = stream.properties.FWA_WATERSHED_CODE.replace(/-000000/g, '') // remove empty stream ids
         if (code === watershedCode) { selectedFeatures.push(stream) } // selected stream condition
 
         if (code.includes(watershedCode) && code.length > watershedCode.length) { upstreamFeatures.push(stream) } // up stream condition
@@ -68,7 +68,7 @@ export default {
 
       // Clean out downstream features that are upwards water flow
       // TODO may want to toggle this based on user feedback
-      dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties['FWA_WATERSHED_CODE'] })
+      dispatch('cleanDownstreams', { streams: downstreamFeatures, code: payload.stream.properties.FWA_WATERSHED_CODE })
 
       commit('setUpstreamData', upstreamFeatures)
       commit('setSelectedStreamData', selectedFeatures)
@@ -84,27 +84,29 @@ export default {
       // Returns an array (builder) of cleaned stream segment features.
       // The BigO of this function is linear with a max of apprx. 50 due
       // to the max magnitude of a stream
-      let segment = payload.streams.find((s) => {
-        if (s.properties['LOCAL_WATERSHED_CODE']) {
-          let local = s.properties['LOCAL_WATERSHED_CODE']
-          let global = s.properties['FWA_WATERSHED_CODE']
+      const segment = payload.streams.find((s) => {
+        if (s.properties.LOCAL_WATERSHED_CODE) {
+          const local = s.properties.LOCAL_WATERSHED_CODE
+          const global = s.properties.FWA_WATERSHED_CODE
           if (local === payload.code && global !== local) {
             return s
           }
         }
+        return false
       })
       if (segment) {
-        let drm = segment.properties['DOWNSTREAM_ROUTE_MEASURE']
-        let segmentCode = segment.properties['FWA_WATERSHED_CODE']
-        let elements = payload.streams.filter((f) => {
-          if (f.properties['FWA_WATERSHED_CODE'] === segmentCode &&
-            f.properties['DOWNSTREAM_ROUTE_MEASURE'] < drm) {
+        const drm = segment.properties.DOWNSTREAM_ROUTE_MEASURE
+        const segmentCode = segment.properties.FWA_WATERSHED_CODE
+        const elements = payload.streams.filter((f) => {
+          if (f.properties.FWA_WATERSHED_CODE === segmentCode &&
+            f.properties.DOWNSTREAM_ROUTE_MEASURE < drm) {
             return f
           }
+          return false
         })
         builder = builder.concat(elements)
         // Recursive call step with current builder object and next segment selection
-        return dispatch('cleanDownstreams', { streams: payload.streams, code: segmentCode, builder: builder })
+        return dispatch('cleanDownstreams', { streams: payload.streams, code: segmentCode, builder })
       } else {
         commit('setDownstreamData', builder)
       }
@@ -112,18 +114,18 @@ export default {
   },
   mutations: {
     setUpstreamData (state, payload) {
-      let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      const collection = Object.assign({}, state.featureCollection)
+      collection.features = unionBy(payload, state.upstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.upstreamData = collection
     },
     setDownstreamData (state, payload) {
-      let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = unionBy(payload, state.downstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      const collection = Object.assign({}, state.featureCollection)
+      collection.features = unionBy(payload, state.downstreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.downstreamData = collection
     },
     setSelectedStreamData (state, payload) {
-      let collection = Object.assign({}, state.featureCollection)
-      collection['features'] = unionBy(payload, state.selectedStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
+      const collection = Object.assign({}, state.featureCollection)
+      collection.features = unionBy(payload, state.selectedStreamData.features, x => x.properties.LINEAR_FEATURE_ID + x.geometry.coordinates[0])
       state.selectedStreamData = collection
     },
     resetStreamData (state) {

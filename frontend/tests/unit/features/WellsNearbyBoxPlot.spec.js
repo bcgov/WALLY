@@ -13,7 +13,7 @@ let wrapper
 
 describe('Wells Nearby', () => {
   let mutations, getters, store
-  let well = {
+  const well = {
     aquifer: null,
     aquifer_hydraulically_connected: null,
     aquifer_subtype: null,
@@ -50,7 +50,7 @@ describe('Wells Nearby', () => {
       featureSelectionExists: () => null,
       isMapReady: jest.fn()
     }
-    let map = {
+    const map = {
       namespaced: true,
       getters,
       mutations
@@ -64,9 +64,10 @@ describe('Wells Nearby', () => {
       propsData: {
         record: {
           geometry: {
-            'coordinates': [-127.57192816676897, 50.53235018962306],
-            'type': 'Point'
-          } },
+            coordinates: [-127.57192816676897, 50.53235018962306],
+            type: 'Point'
+          }
+        },
         wells: [well]
       }
     })

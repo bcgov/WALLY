@@ -85,8 +85,8 @@ export default {
         // load feature from coordinates
         const coordinates = this.$route.query.coordinates.map((x) => Number(x))
 
-        let data = {
-          coordinates: coordinates,
+        const data = {
+          coordinates,
           layerName: 'point-of-interest'
         }
 

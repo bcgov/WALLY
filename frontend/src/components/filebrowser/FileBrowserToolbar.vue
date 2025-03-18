@@ -39,8 +39,8 @@ export default {
   computed: {
     ...mapGetters(['selectedProject']),
     selectedName () {
-      let name = this.selectedProject?.name
-      let filename = this.selectedProject?.filename
+      const name = this.selectedProject?.name
+      const filename = this.selectedProject?.filename
       if (name) {
         return name
       } else if (filename) {
@@ -61,7 +61,7 @@ export default {
       // eslint-disable-next-line
       const projectUUID = this.selectedProject?.project_uuid
       if (projectUUID) {
-        let confirmed = await this.$refs.confirmDeleteProject.open(
+        const confirmed = await this.$refs.confirmDeleteProject.open(
           'Delete',
           `Are you sure<br>you want to delete <br><b>Project: </b><em>${name}</em>`
         )

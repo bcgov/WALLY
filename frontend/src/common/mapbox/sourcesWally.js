@@ -1,4 +1,3 @@
-
 export const SOURCE_STREAM_APPORTIONMENT = 'streamApportionmentSource'
 export const SOURCE_SELECTED_STREAM = 'selectedStreamSource'
 // export const SOURCE_UPSTREAM = 'upstreamSource'

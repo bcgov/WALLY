@@ -72,18 +72,18 @@ export default {
     spreadsheetLoading: false,
     pdfReportLoading: false,
     headers: {
-      'groundwater_wells': [
+      groundwater_wells: [
         { text: 'Well Tag No.', value: 'well_tag_number', align: 'start', divider: true },
         { text: 'Well Identification Plate No.', value: 'identification_plate_number', align: 'start', divider: true },
         { text: 'Street Address', value: 'street_address', align: 'start', divider: false }
       ],
-      'aquifers': [
+      aquifers: [
         { text: 'Aquifer Number', value: 'AQUIFER_ID', align: 'center', divider: true },
         { text: 'Aquifer Name', value: 'NAME', align: 'start', divider: true },
         { text: 'Aquifer Material', value: 'MATERIAL', align: 'center', divider: true },
         { text: 'Aquifer Subtype', value: 'SUBTYPE', align: 'start', divider: false }
       ],
-      'water_rights_applications': [
+      water_rights_applications: [
         { text: 'File Number', value: 'FILE_NUMBER', align: 'start' }
       ]
     }
@@ -110,11 +110,13 @@ export default {
   },
   methods: {
     getHeaders (displayName) {
-      return displayName in this.headers ? this.headers[displayName]
+      return displayName in this.headers
+        ? this.headers[displayName]
         : [{ text: this.getMapLayer(displayName).label, value: 'col1' }]
     },
     getItems (displayName, features) {
-      return displayName in this.headers ? features.map(f => f.properties)
+      return displayName in this.headers
+        ? features.map(f => f.properties)
         : features.map((x, i) => ({ col1: x.properties[this.getMapLayer(displayName).label_column], id: i }))
     },
     setSingleListFeature (item, displayName) {
@@ -127,7 +129,7 @@ export default {
         })
     },
     onMouseEnterListItem (feature, layerName) {
-      feature['display_data_name'] = layerName
+      feature.display_data_name = layerName
       this.$store.commit('map/updateHighlightFeatureData', feature)
     },
     createSpreadsheetFromSelection () {

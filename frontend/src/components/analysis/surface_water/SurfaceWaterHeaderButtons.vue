@@ -24,9 +24,9 @@
             </v-btn>
           </template>
           <v-card class="pa-5">
-            <v-checkbox small class="mt-0"
+            <!-- eslint-disable-next-line vue/no-mutating-props -->
+            <v-checkbox small class="mt-0" v-model="layers[id]"
                         v-for="(layer, id) in layerSelection" :label="layer.name" :key="id"
-                        v-model="layers[id]"
                         @click="handleSelectLayer(id)"
             />
           </v-card>
@@ -97,9 +97,11 @@ export default {
       console.log(layerID, 'selected', this.layers[layerID])
       if (this.layers[layerID].active) {
         this.$store.dispatch('map/removeMapLayer', layerID)
+        // eslint-disable-next-line vue/no-mutating-props
         this.layers[layerID].active = false
       } else {
         this.$store.dispatch('map/addMapLayer', layerID)
+        // eslint-disable-next-line vue/no-mutating-props
         this.layers[layerID].active = true
       }
     },
@@ -119,6 +121,7 @@ export default {
   },
   mounted () {
     Object.keys(this.layers).forEach((layerID) => {
+      // eslint-disable-next-line vue/no-mutating-props
       this.layerSelection[layerID] = {
         name: this.layers[layerID],
         active: true

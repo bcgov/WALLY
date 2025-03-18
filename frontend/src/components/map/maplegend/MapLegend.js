@@ -36,22 +36,23 @@ export default {
       const paint = this.mapLayerPaint(type, layer.display_data_name)
       return {
         text: layer.display_name,
-        type: type,
+        type,
         ...paint
       }
     },
     mapLayerPaint (type, id) {
-      let color = type !== 'symbol' && this.map.getPaintProperty(id, type + '-color')
-      let strokeWidth = type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-width')
+      const color = type !== 'symbol' && this.map.getPaintProperty(id, type + '-color')
+      const strokeWidth = type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-width')
       // let strokeColor = type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-color')
-      let radius = type === 'circle' && this.map.getPaintProperty(id, type + '-radius')
-      let opacity = type === 'fill' && this.map.getPaintProperty(id, type + '-opacity')
-      let outlineColor = type === 'fill' ? this.map.getPaintProperty(id, type + '-outline-color')
+      const radius = type === 'circle' && this.map.getPaintProperty(id, type + '-radius')
+      const opacity = type === 'fill' && this.map.getPaintProperty(id, type + '-opacity')
+      const outlineColor = type === 'fill'
+        ? this.map.getPaintProperty(id, type + '-outline-color')
         : type === 'circle' && this.map.getPaintProperty(id, type + '-stroke-color')
-      let width = type === 'line' && this.map.getPaintProperty(id, type + '-width')
-      let image = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-image')
-      let rotation = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-rotate')
-      let size = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-size')
+      const width = type === 'line' && this.map.getPaintProperty(id, type + '-width')
+      const image = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-image')
+      const rotation = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-rotate')
+      const size = type === 'symbol' && this.map.getLayoutProperty(id, 'icon-size')
 
       return {
         color,
@@ -94,7 +95,7 @@ export default {
     legend () {
       // merge together wally hosted layers
       // and any custom layers that a user uploads
-      let activeCustomLayers = this.getActiveCustomLayers()
+      const activeCustomLayers = this.getActiveCustomLayers()
       return this.activeMapLayers.concat(activeCustomLayers)
     }
   }

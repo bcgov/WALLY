@@ -6,8 +6,14 @@ module.exports = {
     resolve: {
       alias: {
         'plotly.js': 'plotly.js/dist/plotly-basic.min.js'
+      },
+      fallback: {
+        querystring: require.resolve('querystring-es3')
       }
     },
+    optimization: {
+      minimize: false
+   },
     plugins: [
       new CompressionPlugin({
         filename: '[dir][name].gz[ext][query]'

@@ -23,7 +23,7 @@ describe('Comparative Runoff Models test', () => {
     console.error = jest.fn()
     console.log = jest.fn()
 
-    let map = {
+    const map = {
       namespaced: true
     }
 
@@ -58,7 +58,7 @@ describe('Comparative Runoff Models test', () => {
     expect(cardText.find('v-card-title-stub').text()).toContain(
       'Annual normalized runoff')
     expect(cardText.find('v-card-text-stub').text()).toContain(
-      annualRunoffValue)
+      annualRunoffValue.toString())
   })
 
   it('Hides annual normalized runoff if unavailable', () => {
@@ -85,17 +85,17 @@ describe('Comparative Runoff Models test', () => {
   })
 
   it('does not display Wally model if feature flag off', () => {
-    let getters = {
+    const getters = {
       app: () => ({
         config: {
           wally_model: false
         }
       })
     }
-    let map = {
+    const map = {
       namespaced: true
     }
-    let surfaceWater = {
+    const surfaceWater = {
       namespaced: true,
       getters: {
         watershedDetails: () => ({})
@@ -116,17 +116,17 @@ describe('Comparative Runoff Models test', () => {
     expect(v1.exists()).toBeFalsy()
   })
   it('displays Wally model if feature flag on', () => {
-    let getters = {
+    const getters = {
       app: () => ({
         config: {
           wally_model: true
         }
       })
     }
-    let map = {
+    const map = {
       namespaced: true
     }
-    let surfaceWater = {
+    const surfaceWater = {
       namespaced: true,
       getters: {
         watershedDetails: () => ({})

@@ -2,7 +2,7 @@ import { shallowMount, createLocalVue } from '@vue/test-utils'
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import Vuex from 'vuex'
-import WelcomeMessage from '../../src/components/WelcomeMessage'
+import WelcomeMessage from '../../src/components/WelcomeMessage.vue'
 
 Vue.use(Vuetify)
 const localVue = createLocalVue()

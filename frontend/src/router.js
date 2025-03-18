@@ -15,10 +15,8 @@ import UpstreamDownstream from './components/analysis/upstream_downstream/Upstre
 import SurfaceWaterContainer from './components/analysis/surface_water/SurfaceWaterContainer'
 import Start from './components/sidepanel/Start'
 import WellsNearbyContainer from './components/analysis/wells_nearby/WellsNearbyContainer'
-import WaterRightsLicencesNearbyContainer
-  from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
-import FirstNationsAreasNearbyContainer
-  from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
+import WaterRightsLicencesNearbyContainer from './components/analysis/water_rights_licences_nearby/WaterRightsLicencesNearbyContainer'
+import FirstNationsAreasNearbyContainer from './components/analysis/first_nations_areas_nearby/FirstNationsAreasNearbyContainer'
 import ImportLayer from './components/sidepanel/cards/ImportLayer'
 import ProjectList from './components/projects/ProjectList'
 import SavedAnalysesList from './components/savedanalyses/SavedAnalysesList'

@@ -25,7 +25,7 @@ describe('Wells Cross Section Test', () => {
     getters = {
       app: () => {}
     }
-    let mapGetters = {
+    const mapGetters = {
       isMapLayerActive: state => layerId => false,
       isMapReady: () => true,
       sectionLine: jest.fn(),
@@ -60,7 +60,7 @@ describe('Wells Cross Section Test', () => {
       addShape: jest.fn(),
       removeShapes: jest.fn()
     }
-    let map = {
+    const map = {
       state: {
         isMapReady: true
       },
@@ -70,7 +70,7 @@ describe('Wells Cross Section Test', () => {
       mutations: mapMutations
     }
 
-    let crossSection = {
+    const crossSection = {
       mutations: {
         resetSectionLine: jest.fn()
       }
@@ -96,7 +96,7 @@ describe('Wells Cross Section Test', () => {
       localVue,
       router,
       propsData: {
-        record: { geometry: { 'coordinates': [[-122.74542712943077, 50.34900300025518], [-122.76198935563441, 50.343890442681754]], 'type': 'LineString' } }
+        record: { geometry: { coordinates: [[-122.74542712943077, 50.34900300025518], [-122.76198935563441, 50.343890442681754]], type: 'LineString' } }
       },
       mocks: {
         $refs: {
@@ -157,9 +157,9 @@ describe('Wells Cross Section Test', () => {
 })
 
 const wellResults = {
-  'search_area': {
-    'type': 'Polygon',
-    'coordinates': [
+  search_area: {
+    type: 'Polygon',
+    coordinates: [
       [
         [
           -122.74496947009534,
@@ -488,470 +488,470 @@ const wellResults = {
       ]
     ]
   },
-  'wells': [
+  wells: [
     {
-      'well_tag_number': 120542,
-      'finished_well_depth': 5.486400000000001,
-      'water_depth': null,
-      'ground_elevation_from_dem': 424.29859878492414,
-      'distance_from_origin': 578.8343446625054,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': null,
-      'aquifer_lithology': null,
-      'feature': {
-        'type': 'Feature',
-        'id': '5237bf98-1f95-4da7-8700-f43c25ea3240',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      well_tag_number: 120542,
+      finished_well_depth: 5.486400000000001,
+      water_depth: null,
+      ground_elevation_from_dem: 424.29859878492414,
+      distance_from_origin: 578.8343446625054,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: null,
+      aquifer_lithology: null,
+      feature: {
+        type: 'Feature',
+        id: '5237bf98-1f95-4da7-8700-f43c25ea3240',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.7536,
             50.3479
           ]
         },
-        'properties': {
-          'well_tag_number': 120542,
-          'static_water_level': null,
-          'screen_set': '[]',
-          'well_yield': null,
-          'diameter': '',
-          'latitude': 50.3479,
-          'longitude': -122.7536,
-          'well_yield_unit': null,
-          'finished_well_depth': '18.00',
-          'street_address': '1773 REID ROAD',
-          'intended_water_use': 'Private Domestic',
-          'aquifer_lithology': null,
-          'aquifer': null,
-          'distance_from_line': 142.5032937055826,
-          'compass_direction': 'NW'
+        properties: {
+          well_tag_number: 120542,
+          static_water_level: null,
+          screen_set: '[]',
+          well_yield: null,
+          diameter: '',
+          latitude: 50.3479,
+          longitude: -122.7536,
+          well_yield_unit: null,
+          finished_well_depth: '18.00',
+          street_address: '1773 REID ROAD',
+          intended_water_use: 'Private Domestic',
+          aquifer_lithology: null,
+          aquifer: null,
+          distance_from_line: 142.5032937055826,
+          compass_direction: 'NW'
         }
       },
-      'screen_set': []
+      screen_set: []
     },
     {
-      'well_tag_number': 115626,
-      'finished_well_depth': 41.148,
-      'water_depth': null,
-      'ground_elevation_from_dem': 409.4307191556015,
-      'distance_from_origin': 220.29473326907,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': null,
-      'aquifer_lithology': 'Unknown',
-      'feature': {
-        'type': 'Feature',
-        'id': '87be8a4b-989a-4ac9-8b90-cd648fc4e505',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      well_tag_number: 115626,
+      finished_well_depth: 41.148,
+      water_depth: null,
+      ground_elevation_from_dem: 409.4307191556015,
+      distance_from_origin: 220.29473326907,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: null,
+      aquifer_lithology: 'Unknown',
+      feature: {
+        type: 'Feature',
+        id: '87be8a4b-989a-4ac9-8b90-cd648fc4e505',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.74745,
             50.34715
           ]
         },
-        'properties': {
-          'well_tag_number': 115626,
-          'static_water_level': null,
-          'screen_set': '[{"start": "135.00", "end": "195.00", "diameter": "6.00", "assembly_type": null, "slot_size": null}]',
-          'well_yield': '35.000',
-          'diameter': ' ',
-          'latitude': 50.34715,
-          'longitude': -122.74745,
-          'well_yield_unit': 'USGPM',
-          'finished_well_depth': '135.00',
-          'street_address': 'LOT 5  REID ROAD',
-          'intended_water_use': 'Private Domestic',
-          'aquifer_lithology': 'Unknown',
-          'aquifer': null,
-          'distance_from_line': 122.98469852995582,
-          'compass_direction': 'SE'
+        properties: {
+          well_tag_number: 115626,
+          static_water_level: null,
+          screen_set: '[{"start": "135.00", "end": "195.00", "diameter": "6.00", "assembly_type": null, "slot_size": null}]',
+          well_yield: '35.000',
+          diameter: ' ',
+          latitude: 50.34715,
+          longitude: -122.74745,
+          well_yield_unit: 'USGPM',
+          finished_well_depth: '135.00',
+          street_address: 'LOT 5  REID ROAD',
+          intended_water_use: 'Private Domestic',
+          aquifer_lithology: 'Unknown',
+          aquifer: null,
+          distance_from_line: 122.98469852995582,
+          compass_direction: 'SE'
         }
       },
-      'screen_set': [
+      screen_set: [
         {
-          'start': '135.00',
-          'end': '195.00',
-          'diameter': '6.00',
-          'assembly_type': null,
-          'slot_size': null
+          start: '135.00',
+          end: '195.00',
+          diameter: '6.00',
+          assembly_type: null,
+          slot_size: null
         }
       ]
     },
     {
-      'well_tag_number': 99374,
-      'finished_well_depth': 42.062400000000004,
-      'water_depth': 18.25752,
-      'ground_elevation_from_dem': 460.6982163053367,
-      'distance_from_origin': 973.3517002671781,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': {
-        'aquifer_id': 1016,
-        'subtype': '5a',
-        'subtype_desc': 'Fractured sedimentary rock',
-        'material': 'B',
-        'material_desc': 'Bedrock'
+      well_tag_number: 99374,
+      finished_well_depth: 42.062400000000004,
+      water_depth: 18.25752,
+      ground_elevation_from_dem: 460.6982163053367,
+      distance_from_origin: 973.3517002671781,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: {
+        aquifer_id: 1016,
+        subtype: '5a',
+        subtype_desc: 'Fractured sedimentary rock',
+        material: 'B',
+        material_desc: 'Bedrock'
       },
-      'aquifer_lithology': 'Bedrock',
-      'feature': {
-        'type': 'Feature',
-        'id': '58e0807c-850f-4336-a014-57e74ef6b901',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      aquifer_lithology: 'Bedrock',
+      feature: {
+        type: 'Feature',
+        id: '58e0807c-850f-4336-a014-57e74ef6b901',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.757676,
             50.345139
           ]
         },
-        'properties': {
-          'well_tag_number': 99374,
-          'static_water_level': '59.90',
-          'screen_set': '[]',
-          'well_yield': '7.000',
-          'diameter': '',
-          'latitude': 50.345139,
-          'longitude': -122.757676,
-          'well_yield_unit': 'USGPM',
-          'finished_well_depth': '138.00',
-          'street_address': '',
-          'intended_water_use': 'Private Domestic',
-          'aquifer_lithology': 'Bedrock',
-          'aquifer_hydraulically_connected': false,
-          'aquifer': 1016,
-          'distance_from_line': 9.230524429237056,
-          'compass_direction': 'SE'
+        properties: {
+          well_tag_number: 99374,
+          static_water_level: '59.90',
+          screen_set: '[]',
+          well_yield: '7.000',
+          diameter: '',
+          latitude: 50.345139,
+          longitude: -122.757676,
+          well_yield_unit: 'USGPM',
+          finished_well_depth: '138.00',
+          street_address: '',
+          intended_water_use: 'Private Domestic',
+          aquifer_lithology: 'Bedrock',
+          aquifer_hydraulically_connected: false,
+          aquifer: 1016,
+          distance_from_line: 9.230524429237056,
+          compass_direction: 'SE'
         }
       },
-      'screen_set': []
+      screen_set: []
     },
     {
-      'well_tag_number': 99385,
-      'finished_well_depth': 42.367200000000004,
-      'water_depth': 20.4216,
-      'ground_elevation_from_dem': 445.37498109257604,
-      'distance_from_origin': 879.9284487892686,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': {
-        'aquifer_id': 1016,
-        'subtype': '5a',
-        'subtype_desc': 'Fractured sedimentary rock',
-        'material': 'B',
-        'material_desc': 'Bedrock'
+      well_tag_number: 99385,
+      finished_well_depth: 42.367200000000004,
+      water_depth: 20.4216,
+      ground_elevation_from_dem: 445.37498109257604,
+      distance_from_origin: 879.9284487892686,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: {
+        aquifer_id: 1016,
+        subtype: '5a',
+        subtype_desc: 'Fractured sedimentary rock',
+        material: 'B',
+        material_desc: 'Bedrock'
       },
-      'aquifer_lithology': 'Unknown',
-      'feature': {
-        'type': 'Feature',
-        'id': '42f59aab-a93e-4ca0-a8ac-644fad219345',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      aquifer_lithology: 'Unknown',
+      feature: {
+        type: 'Feature',
+        id: '42f59aab-a93e-4ca0-a8ac-644fad219345',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.756508,
             50.345523
           ]
         },
-        'properties': {
-          'well_tag_number': 99385,
-          'static_water_level': '67.00',
-          'screen_set': '[{"start": "119.00", "end": "138.00", "diameter": "4.00", "assembly_type": "RISER_PIPE", "slot_size": "20.00"}]',
-          'well_yield': '13.000',
-          'diameter': '',
-          'latitude': 50.345523,
-          'longitude': -122.756508,
-          'well_yield_unit': 'USGPM',
-          'finished_well_depth': '139.00',
-          'street_address': '',
-          'intended_water_use': 'Private Domestic',
-          'aquifer_lithology': 'Unknown',
-          'aquifer_hydraulically_connected': false,
-          'aquifer': 1016,
-          'distance_from_line': 7.772959269308376,
-          'compass_direction': 'SE'
+        properties: {
+          well_tag_number: 99385,
+          static_water_level: '67.00',
+          screen_set: '[{"start": "119.00", "end": "138.00", "diameter": "4.00", "assembly_type": "RISER_PIPE", "slot_size": "20.00"}]',
+          well_yield: '13.000',
+          diameter: '',
+          latitude: 50.345523,
+          longitude: -122.756508,
+          well_yield_unit: 'USGPM',
+          finished_well_depth: '139.00',
+          street_address: '',
+          intended_water_use: 'Private Domestic',
+          aquifer_lithology: 'Unknown',
+          aquifer_hydraulically_connected: false,
+          aquifer: 1016,
+          distance_from_line: 7.772959269308376,
+          compass_direction: 'SE'
         }
       },
-      'screen_set': [
+      screen_set: [
         {
-          'start': '119.00',
-          'end': '138.00',
-          'diameter': '4.00',
-          'assembly_type': 'RISER_PIPE',
-          'slot_size': '20.00'
+          start: '119.00',
+          end: '138.00',
+          diameter: '4.00',
+          assembly_type: 'RISER_PIPE',
+          slot_size: '20.00'
         }
       ]
     },
     {
-      'well_tag_number': 99351,
-      'finished_well_depth': null,
-      'water_depth': null,
-      'ground_elevation_from_dem': 433.4928000931367,
-      'distance_from_origin': 775.8113082133183,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': {
-        'aquifer_id': 1016,
-        'subtype': '5a',
-        'subtype_desc': 'Fractured sedimentary rock',
-        'material': 'B',
-        'material_desc': 'Bedrock'
+      well_tag_number: 99351,
+      finished_well_depth: null,
+      water_depth: null,
+      ground_elevation_from_dem: 433.4928000931367,
+      distance_from_origin: 775.8113082133183,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: {
+        aquifer_id: 1016,
+        subtype: '5a',
+        subtype_desc: 'Fractured sedimentary rock',
+        material: 'B',
+        material_desc: 'Bedrock'
       },
-      'aquifer_lithology': 'Unknown',
-      'feature': {
-        'type': 'Feature',
-        'id': '55feb7d7-ebc5-4057-9480-928da9b10961',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      aquifer_lithology: 'Unknown',
+      feature: {
+        type: 'Feature',
+        id: '55feb7d7-ebc5-4057-9480-928da9b10961',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.755938,
             50.346925
           ]
         },
-        'properties': {
-          'well_tag_number': 99351,
-          'static_water_level': null,
-          'screen_set': '[]',
-          'well_yield': null,
-          'diameter': '',
-          'latitude': 50.346925,
-          'longitude': -122.755938,
-          'well_yield_unit': null,
-          'finished_well_depth': null,
-          'street_address': 'RIAD ROAD',
-          'intended_water_use': 'Private Domestic',
-          'aquifer_lithology': 'Unknown',
-          'aquifer_hydraulically_connected': false,
-          'aquifer': 1016,
-          'distance_from_line': 116.55393934176006,
-          'compass_direction': 'NW'
+        properties: {
+          well_tag_number: 99351,
+          static_water_level: null,
+          screen_set: '[]',
+          well_yield: null,
+          diameter: '',
+          latitude: 50.346925,
+          longitude: -122.755938,
+          well_yield_unit: null,
+          finished_well_depth: null,
+          street_address: 'RIAD ROAD',
+          intended_water_use: 'Private Domestic',
+          aquifer_lithology: 'Unknown',
+          aquifer_hydraulically_connected: false,
+          aquifer: 1016,
+          distance_from_line: 116.55393934176006,
+          compass_direction: 'NW'
         }
       },
-      'screen_set': []
+      screen_set: []
     },
     {
-      'well_tag_number': 72188,
-      'finished_well_depth': 16.764,
-      'water_depth': 10.0584,
-      'ground_elevation_from_dem': 421.66508610810325,
-      'distance_from_origin': 518.9169122356801,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': null,
-      'aquifer_lithology': 'Unknown',
-      'feature': {
-        'type': 'Feature',
-        'id': '937531c6-0693-4e0a-8c78-62d4709afacb',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      well_tag_number: 72188,
+      finished_well_depth: 16.764,
+      water_depth: 10.0584,
+      ground_elevation_from_dem: 421.66508610810325,
+      distance_from_origin: 518.9169122356801,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: null,
+      aquifer_lithology: 'Unknown',
+      feature: {
+        type: 'Feature',
+        id: '937531c6-0693-4e0a-8c78-62d4709afacb',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.751165,
             50.345898
           ]
         },
-        'properties': {
-          'well_tag_number': 72188,
-          'static_water_level': '33.00',
-          'screen_set': '[]',
-          'well_yield': '1.000',
-          'diameter': '6.0',
-          'latitude': 50.345898,
-          'longitude': -122.751165,
-          'well_yield_unit': 'GPM',
-          'finished_well_depth': '55.00',
-          'street_address': 'REID ROAD',
-          'intended_water_use': 'Not Applicable',
-          'aquifer_lithology': 'Unknown',
-          'aquifer': null,
-          'distance_from_line': 134.63601570656556,
-          'compass_direction': 'SE'
+        properties: {
+          well_tag_number: 72188,
+          static_water_level: '33.00',
+          screen_set: '[]',
+          well_yield: '1.000',
+          diameter: '6.0',
+          latitude: 50.345898,
+          longitude: -122.751165,
+          well_yield_unit: 'GPM',
+          finished_well_depth: '55.00',
+          street_address: 'REID ROAD',
+          intended_water_use: 'Not Applicable',
+          aquifer_lithology: 'Unknown',
+          aquifer: null,
+          distance_from_line: 134.63601570656556,
+          compass_direction: 'SE'
         }
       },
-      'screen_set': []
+      screen_set: []
     },
     {
-      'well_tag_number': 72189,
-      'finished_well_depth': 36.576,
-      'water_depth': 14.9352,
-      'ground_elevation_from_dem': 432.6348549724075,
-      'distance_from_origin': 761.6575652594896,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': {
-        'aquifer_id': 1016,
-        'subtype': '5a',
-        'subtype_desc': 'Fractured sedimentary rock',
-        'material': 'B',
-        'material_desc': 'Bedrock'
+      well_tag_number: 72189,
+      finished_well_depth: 36.576,
+      water_depth: 14.9352,
+      ground_elevation_from_dem: 432.6348549724075,
+      distance_from_origin: 761.6575652594896,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: {
+        aquifer_id: 1016,
+        subtype: '5a',
+        subtype_desc: 'Fractured sedimentary rock',
+        material: 'B',
+        material_desc: 'Bedrock'
       },
-      'aquifer_lithology': 'Unknown',
-      'feature': {
-        'type': 'Feature',
-        'id': 'ae374fa2-0fa9-48dc-a291-9dd644324360',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      aquifer_lithology: 'Unknown',
+      feature: {
+        type: 'Feature',
+        id: 'ae374fa2-0fa9-48dc-a291-9dd644324360',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.754918,
             50.345861
           ]
         },
-        'properties': {
-          'well_tag_number': 72189,
-          'static_water_level': '49.00',
-          'screen_set': '[]',
-          'well_yield': '4.000',
-          'diameter': '6.0',
-          'latitude': 50.345861,
-          'longitude': -122.754918,
-          'well_yield_unit': 'GPM',
-          'finished_well_depth': '120.00',
-          'street_address': '1750 REID RD',
-          'intended_water_use': 'Not Applicable',
-          'aquifer_lithology': 'Unknown',
-          'aquifer_hydraulically_connected': false,
-          'aquifer': 1016,
-          'distance_from_line': 22.29346482886155,
-          'compass_direction': 'SE'
+        properties: {
+          well_tag_number: 72189,
+          static_water_level: '49.00',
+          screen_set: '[]',
+          well_yield: '4.000',
+          diameter: '6.0',
+          latitude: 50.345861,
+          longitude: -122.754918,
+          well_yield_unit: 'GPM',
+          finished_well_depth: '120.00',
+          street_address: '1750 REID RD',
+          intended_water_use: 'Not Applicable',
+          aquifer_lithology: 'Unknown',
+          aquifer_hydraulically_connected: false,
+          aquifer: 1016,
+          distance_from_line: 22.29346482886155,
+          compass_direction: 'SE'
         }
       },
-      'screen_set': []
+      screen_set: []
     },
     {
-      'well_tag_number': 72190,
-      'finished_well_depth': 54.864000000000004,
-      'water_depth': null,
-      'ground_elevation_from_dem': 421.4625140129489,
-      'distance_from_origin': 512.2332512573602,
-      'distance_from_line': null,
-      'compass_direction': null,
-      'aquifer': {
-        'aquifer_id': 1016,
-        'subtype': '5a',
-        'subtype_desc': 'Fractured sedimentary rock',
-        'material': 'B',
-        'material_desc': 'Bedrock'
+      well_tag_number: 72190,
+      finished_well_depth: 54.864000000000004,
+      water_depth: null,
+      ground_elevation_from_dem: 421.4625140129489,
+      distance_from_origin: 512.2332512573602,
+      distance_from_line: null,
+      compass_direction: null,
+      aquifer: {
+        aquifer_id: 1016,
+        subtype: '5a',
+        subtype_desc: 'Fractured sedimentary rock',
+        material: 'B',
+        material_desc: 'Bedrock'
       },
-      'aquifer_lithology': 'Unknown',
-      'feature': {
-        'type': 'Feature',
-        'id': '07c48077-2a89-4253-b058-0cbd5c739999',
-        'geometry': {
-          'type': 'Point',
-          'coordinates': [
+      aquifer_lithology: 'Unknown',
+      feature: {
+        type: 'Feature',
+        id: '07c48077-2a89-4253-b058-0cbd5c739999',
+        geometry: {
+          type: 'Point',
+          coordinates: [
             -122.751164,
             50.346033
           ]
         },
-        'properties': {
-          'well_tag_number': 72190,
-          'static_water_level': null,
-          'screen_set': '[]',
-          'well_yield': '2.000',
-          'diameter': '6.0',
-          'latitude': 50.346033,
-          'longitude': -122.751164,
-          'well_yield_unit': 'GPM',
-          'finished_well_depth': '180.00',
-          'street_address': 'REID RD',
-          'intended_water_use': 'Not Applicable',
-          'aquifer_lithology': 'Unknown',
-          'aquifer_hydraulically_connected': false,
-          'aquifer': 1016,
-          'distance_from_line': 121.71350919828984,
-          'compass_direction': 'SE'
+        properties: {
+          well_tag_number: 72190,
+          static_water_level: null,
+          screen_set: '[]',
+          well_yield: '2.000',
+          diameter: '6.0',
+          latitude: 50.346033,
+          longitude: -122.751164,
+          well_yield_unit: 'GPM',
+          finished_well_depth: '180.00',
+          street_address: 'REID RD',
+          intended_water_use: 'Not Applicable',
+          aquifer_lithology: 'Unknown',
+          aquifer_hydraulically_connected: false,
+          aquifer: 1016,
+          distance_from_line: 121.71350919828984,
+          compass_direction: 'SE'
         }
       },
-      'screen_set': []
+      screen_set: []
     }
   ],
-  'elevation_profile': [
+  elevation_profile: [
     {
-      'distance_from_origin': 0,
-      'elevation': 407
+      distance_from_origin: 0,
+      elevation: 407
     },
     {
-      'distance_from_origin': 61.1144808803289,
-      'elevation': 400
+      distance_from_origin: 61.1144808803289,
+      elevation: 400
     },
     {
-      'distance_from_origin': 126.706315146224,
-      'elevation': 405
+      distance_from_origin: 126.706315146224,
+      elevation: 405
     },
     {
-      'distance_from_origin': 187.683110666355,
-      'elevation': 407
+      distance_from_origin: 187.683110666355,
+      elevation: 407
     },
     {
-      'distance_from_origin': 253.413744621469,
-      'elevation': 412
+      distance_from_origin: 253.413744621469,
+      elevation: 412
     },
     {
-      'distance_from_origin': 314.36421833727,
-      'elevation': 413
+      distance_from_origin: 314.36421833727,
+      elevation: 413
     },
     {
-      'distance_from_origin': 380.122288400816,
-      'elevation': 406
+      distance_from_origin: 380.122288400816,
+      elevation: 406
     },
     {
-      'distance_from_origin': 434.645376966701,
-      'elevation': 412
+      distance_from_origin: 434.645376966701,
+      elevation: 412
     },
     {
-      'distance_from_origin': 495.600456315322,
-      'elevation': 421
+      distance_from_origin: 495.600456315322,
+      elevation: 421
     },
     {
-      'distance_from_origin': 561.354593784878,
-      'elevation': 423
+      distance_from_origin: 561.354593784878,
+      elevation: 423
     },
     {
-      'distance_from_origin': 622.301393969983,
-      'elevation': 428
+      distance_from_origin: 622.301393969983,
+      elevation: 428
     },
     {
-      'distance_from_origin': 688.06526091059,
-      'elevation': 429
+      distance_from_origin: 688.06526091059,
+      elevation: 429
     },
     {
-      'distance_from_origin': 749.006729429285,
-      'elevation': 432
+      distance_from_origin: 749.006729429285,
+      elevation: 432
     },
     {
-      'distance_from_origin': 814.777221536853,
-      'elevation': 436
+      distance_from_origin: 814.777221536853,
+      elevation: 436
     },
     {
-      'distance_from_origin': 875.715037418621,
-      'elevation': 445
+      distance_from_origin: 875.715037418621,
+      elevation: 445
     },
     {
-      'distance_from_origin': 936.676535581829,
-      'elevation': 459
+      distance_from_origin: 936.676535581829,
+      elevation: 459
     },
     {
-      'distance_from_origin': 996.016722839871,
-      'elevation': 462
+      distance_from_origin: 996.016722839871,
+      elevation: 462
     },
     {
-      'distance_from_origin': 1056.95959576722,
-      'elevation': 467
+      distance_from_origin: 1056.95959576722,
+      elevation: 467
     },
     {
-      'distance_from_origin': 1122.73098376051,
-      'elevation': 468
+      distance_from_origin: 1122.73098376051,
+      elevation: 468
     },
     {
-      'distance_from_origin': 1183.67129119716,
-      'elevation': 488
+      distance_from_origin: 1183.67129119716,
+      elevation: 488
     },
     {
-      'distance_from_origin': 1249.4465203552,
-      'elevation': 492
+      distance_from_origin: 1249.4465203552,
+      elevation: 492
     },
     {
-      'distance_from_origin': 1310.38485026292,
-      'elevation': 498
+      distance_from_origin: 1310.38485026292,
+      elevation: 498
     }
   ],
-  'surface': [
+  surface: [
     [],
     [
       [
@@ -1402,415 +1402,415 @@ const wellResults = {
       ]
     ]
   ],
-  'waterbodies': [
+  waterbodies: [
     {
-      'name': 'Unnamed Stream',
-      'distance': 1134.3878592235742,
-      'elevation': 464.8719177301493,
-      'geometry': {
-        '_is_empty': false,
-        '__geom__': 140091632857968,
-        '_ndim': 3
+      name: 'Unnamed Stream',
+      distance: 1134.3878592235742,
+      elevation: 464.8719177301493,
+      geometry: {
+        _is_empty: false,
+        __geom__: 140091632857968,
+        _ndim: 3
       }
     },
     {
-      'name': 'Unnamed Stream',
-      'distance': 401.28622364062363,
-      'elevation': 401.2163622300472,
-      'geometry': {
-        '_is_empty': false,
-        '__geom__': 140091632758192,
-        '_ndim': 3
+      name: 'Unnamed Stream',
+      distance: 401.28622364062363,
+      elevation: 401.2163622300472,
+      geometry: {
+        _is_empty: false,
+        __geom__: 140091632758192,
+        _ndim: 3
       }
     }
   ]
 }
 
 const lithologyResults = {
-  'count': 8,
-  'next': null,
-  'previous': null,
-  'results': [
+  count: 8,
+  next: null,
+  previous: null,
+  results: [
     {
-      'well_tag_number': 72188,
-      'latitude': 50.345898,
-      'longitude': -122.751165,
-      'lithologydescription_set': [
+      well_tag_number: 72188,
+      latitude: 50.345898,
+      longitude: -122.751165,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '20.00',
-          'lithology_raw_data': 'EXISTING DUG WELL',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '20.00',
+          lithology_raw_data: 'EXISTING DUG WELL',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '20.00',
-          'end': '50.00',
-          'lithology_raw_data': 'COURSE TILL GRAVEL & BOULDERS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '20.00',
+          end: '50.00',
+          lithology_raw_data: 'COURSE TILL GRAVEL & BOULDERS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '50.00',
-          'end': '55.00',
-          'lithology_raw_data': 'WATER BEARING COURSE TILL & BOULDERS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '50.00',
+          end: '55.00',
+          lithology_raw_data: 'WATER BEARING COURSE TILL & BOULDERS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 72189,
-      'latitude': 50.345861,
-      'longitude': -122.754918,
-      'lithologydescription_set': [
+      well_tag_number: 72189,
+      latitude: 50.345861,
+      longitude: -122.754918,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '1.00',
-          'lithology_raw_data': 'HARD PACKED GRAVEL DRIVE WAY',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '1.00',
+          lithology_raw_data: 'HARD PACKED GRAVEL DRIVE WAY',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '1.00',
-          'end': '23.00',
-          'lithology_raw_data': 'COURSE GRAVEL & BOULDERS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '1.00',
+          end: '23.00',
+          lithology_raw_data: 'COURSE GRAVEL & BOULDERS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '23.00',
-          'end': '54.00',
-          'lithology_raw_data': 'VERY HARD STONEY GRAY CLAY',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '23.00',
+          end: '54.00',
+          lithology_raw_data: 'VERY HARD STONEY GRAY CLAY',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '54.00',
-          'end': '77.00',
-          'lithology_raw_data': 'TILLY GRAY CLAY & STONES SMALL SEAMS OF',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '54.00',
+          end: '77.00',
+          lithology_raw_data: 'TILLY GRAY CLAY & STONES SMALL SEAMS OF',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '0.00',
-          'end': '0.00',
-          'lithology_raw_data': 'WATER',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '0.00',
+          lithology_raw_data: 'WATER',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '77.00',
-          'end': '80.00',
-          'lithology_raw_data': 'BROKEN ROCK GREEN GRANITE',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '77.00',
+          end: '80.00',
+          lithology_raw_data: 'BROKEN ROCK GREEN GRANITE',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '80.00',
-          'end': '120.00',
-          'lithology_raw_data': 'HARD GREEN GRANITE SOME QUARTZ',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '80.00',
+          end: '120.00',
+          lithology_raw_data: 'HARD GREEN GRANITE SOME QUARTZ',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 72190,
-      'latitude': 50.346033,
-      'longitude': -122.751164,
-      'lithologydescription_set': [
+      well_tag_number: 72190,
+      latitude: 50.346033,
+      longitude: -122.751164,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '7.00',
-          'lithology_raw_data': 'SANDY GRAVEL & BOULDERS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '7.00',
+          lithology_raw_data: 'SANDY GRAVEL & BOULDERS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '7.00',
-          'end': '52.00',
-          'lithology_raw_data': 'COURSE TILL GRAVEL BOUDLERS & CLAY',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '7.00',
+          end: '52.00',
+          lithology_raw_data: 'COURSE TILL GRAVEL BOUDLERS & CLAY',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '0.00',
-          'end': '0.00',
-          'lithology_raw_data': 'OLD SLIDE',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '0.00',
+          lithology_raw_data: 'OLD SLIDE',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '52.00',
-          'end': '95.00',
-          'lithology_raw_data': 'COURSE TILL GRAY CLAY BROKEN ROCK BOULDE',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '52.00',
+          end: '95.00',
+          lithology_raw_data: 'COURSE TILL GRAY CLAY BROKEN ROCK BOULDE',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '95.00',
-          'end': '100.00',
-          'lithology_raw_data': 'FRACTURED ROCK',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '95.00',
+          end: '100.00',
+          lithology_raw_data: 'FRACTURED ROCK',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '100.00',
-          'end': '112.00',
-          'lithology_raw_data': 'HARD GREEN SHALE SOME CRACKS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '100.00',
+          end: '112.00',
+          lithology_raw_data: 'HARD GREEN SHALE SOME CRACKS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '112.00',
-          'end': '118.00',
-          'lithology_raw_data': 'SOFT GREEN GRANITE & QUARTZ',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '112.00',
+          end: '118.00',
+          lithology_raw_data: 'SOFT GREEN GRANITE & QUARTZ',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '118.00',
-          'end': '120.00',
-          'lithology_raw_data': 'PURPLE SANDSTONE',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '118.00',
+          end: '120.00',
+          lithology_raw_data: 'PURPLE SANDSTONE',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '120.00',
-          'end': '180.00',
-          'lithology_raw_data': 'GRAY SHALE WITH QUARTZ LAYERS OF SANDSTO',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '120.00',
+          end: '180.00',
+          lithology_raw_data: 'GRAY SHALE WITH QUARTZ LAYERS OF SANDSTO',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '0.00',
-          'end': '0.00',
-          'lithology_raw_data': 'SOME FRACTURES',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '0.00',
+          lithology_raw_data: 'SOME FRACTURES',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '0.00',
-          'end': '0.00',
-          'lithology_raw_data': '1/2 GPM AT 100-120FT',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '0.00',
+          lithology_raw_data: '1/2 GPM AT 100-120FT',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '0.00',
-          'end': '0.00',
-          'lithology_raw_data': '1 1/2 GPM AT 120-140FT',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '0.00',
+          lithology_raw_data: '1 1/2 GPM AT 120-140FT',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 99351,
-      'latitude': 50.346925,
-      'longitude': -122.755938,
-      'lithologydescription_set': [
+      well_tag_number: 99351,
+      latitude: 50.346925,
+      longitude: -122.755938,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '27.00',
-          'lithology_raw_data': 'SAND & GRAVEL WITH COBBLES',
-          'lithology_colour': 'brown',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '27.00',
+          lithology_raw_data: 'SAND & GRAVEL WITH COBBLES',
+          lithology_colour: 'brown',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '207.00',
-          'end': '360.00',
-          'lithology_raw_data': null,
-          'lithology_colour': 'brown',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '207.00',
+          end: '360.00',
+          lithology_raw_data: null,
+          lithology_colour: 'brown',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '27.00',
-          'end': '43.00',
-          'lithology_raw_data': null,
-          'lithology_hardness': 'Soft',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '27.00',
+          end: '43.00',
+          lithology_raw_data: null,
+          lithology_hardness: 'Soft',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '360.00',
-          'end': '520.00',
-          'lithology_raw_data': 'ROCK GRANITE',
-          'lithology_colour': 'green',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '360.00',
+          end: '520.00',
+          lithology_raw_data: 'ROCK GRANITE',
+          lithology_colour: 'green',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '43.00',
-          'end': '207.00',
-          'lithology_raw_data': null,
-          'lithology_colour': 'green',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '43.00',
+          end: '207.00',
+          lithology_raw_data: null,
+          lithology_colour: 'green',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 99374,
-      'latitude': 50.345139,
-      'longitude': -122.757676,
-      'lithologydescription_set': [
+      well_tag_number: 99374,
+      latitude: 50.345139,
+      longitude: -122.757676,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '36.00',
-          'lithology_raw_data': 'BROWN SILTY SAND & LARGE BOULDERS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '36.00',
+          lithology_raw_data: 'BROWN SILTY SAND & LARGE BOULDERS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '36.00',
-          'end': '73.00',
-          'lithology_raw_data': null,
-          'lithology_colour': 'grey',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '36.00',
+          end: '73.00',
+          lithology_raw_data: null,
+          lithology_colour: 'grey',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '73.00',
-          'end': '77.00',
-          'lithology_raw_data': 'BROKEN ROCK',
-          'lithology_colour': 'green',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '73.00',
+          end: '77.00',
+          lithology_raw_data: 'BROKEN ROCK',
+          lithology_colour: 'green',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '77.00',
-          'end': '138.00',
-          'lithology_raw_data': 'STONE',
-          'lithology_colour': 'green',
-          'lithology_observation': "FRACTURED 130-134' 7 GPM",
-          'water_bearing_estimated_flow': null
+          start: '77.00',
+          end: '138.00',
+          lithology_raw_data: 'STONE',
+          lithology_colour: 'green',
+          lithology_observation: "FRACTURED 130-134' 7 GPM",
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 99385,
-      'latitude': 50.345523,
-      'longitude': -122.756508,
-      'lithologydescription_set': [
+      well_tag_number: 99385,
+      latitude: 50.345523,
+      longitude: -122.756508,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '39.00',
-          'lithology_raw_data': 'BROWN SAND SILTY WITH BOULDERS',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '39.00',
+          lithology_raw_data: 'BROWN SAND SILTY WITH BOULDERS',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '133.00',
-          'end': '137.00',
-          'lithology_raw_data': null,
-          'lithology_observation': 'FRACTURED, WB',
-          'water_bearing_estimated_flow': null
+          start: '133.00',
+          end: '137.00',
+          lithology_raw_data: null,
+          lithology_observation: 'FRACTURED, WB',
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '137.00',
-          'end': '139.00',
-          'lithology_raw_data': null,
-          'lithology_colour': 'green',
-          'lithology_observation': 'HOLE CAVING',
-          'water_bearing_estimated_flow': null
+          start: '137.00',
+          end: '139.00',
+          lithology_raw_data: null,
+          lithology_colour: 'green',
+          lithology_observation: 'HOLE CAVING',
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '39.00',
-          'end': '77.00',
-          'lithology_raw_data': null,
-          'lithology_colour': 'grey',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '39.00',
+          end: '77.00',
+          lithology_raw_data: null,
+          lithology_colour: 'grey',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '77.00',
-          'end': '90.00',
-          'lithology_raw_data': 'BROKEN ROCK & BROWN SILT',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '77.00',
+          end: '90.00',
+          lithology_raw_data: 'BROKEN ROCK & BROWN SILT',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '90.00',
-          'end': '133.00',
-          'lithology_raw_data': 'STONE',
-          'lithology_colour': 'green',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '90.00',
+          end: '133.00',
+          lithology_raw_data: 'STONE',
+          lithology_colour: 'green',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 115626,
-      'latitude': 50.34715,
-      'longitude': -122.74745,
-      'lithologydescription_set': [
+      well_tag_number: 115626,
+      latitude: 50.34715,
+      longitude: -122.74745,
+      lithologydescription_set: [
         {
-          'start': '0.00',
-          'end': '28.00',
-          'lithology_raw_data': 'BOULDERS, COBBLES AND LARGE GRAVEL',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '0.00',
+          end: '28.00',
+          lithology_raw_data: 'BOULDERS, COBBLES AND LARGE GRAVEL',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '28.00',
-          'end': '75.00',
-          'lithology_raw_data': 'FINE SILTY SAND AND GRAVEL',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '28.00',
+          end: '75.00',
+          lithology_raw_data: 'FINE SILTY SAND AND GRAVEL',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '75.00',
-          'end': '77.00',
-          'lithology_raw_data': 'FINE SILTY SAND AND GRAVEL',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '75.00',
+          end: '77.00',
+          lithology_raw_data: 'FINE SILTY SAND AND GRAVEL',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '77.00',
-          'end': '93.00',
-          'lithology_raw_data': 'CEMENTED SAND AND GRAVEL',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '77.00',
+          end: '93.00',
+          lithology_raw_data: 'CEMENTED SAND AND GRAVEL',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '93.00',
-          'end': '96.00',
-          'lithology_raw_data': 'W/B FINE SILTY SAND',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '93.00',
+          end: '96.00',
+          lithology_raw_data: 'W/B FINE SILTY SAND',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '96.00',
-          'end': '126.00',
-          'lithology_raw_data': 'CEMENTED SAND AND GRAVEL',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '96.00',
+          end: '126.00',
+          lithology_raw_data: 'CEMENTED SAND AND GRAVEL',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '126.00',
-          'end': '135.00',
-          'lithology_raw_data': 'CASED SOFT BEDROCK',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '126.00',
+          end: '135.00',
+          lithology_raw_data: 'CASED SOFT BEDROCK',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         },
         {
-          'start': '135.00',
-          'end': '195.00',
-          'lithology_raw_data': '6" OPEN BEDROCK HOLE',
-          'lithology_observation': null,
-          'water_bearing_estimated_flow': null
+          start: '135.00',
+          end: '195.00',
+          lithology_raw_data: '6" OPEN BEDROCK HOLE',
+          lithology_observation: null,
+          water_bearing_estimated_flow: null
         }
       ]
     },
     {
-      'well_tag_number': 120542,
-      'latitude': 50.3479,
-      'longitude': -122.7536,
-      'lithologydescription_set': []
+      well_tag_number: 120542,
+      latitude: 50.3479,
+      longitude: -122.7536,
+      lithologydescription_set: []
     }
   ]
 }

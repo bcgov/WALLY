@@ -51,13 +51,15 @@ export default {
       return this.bufferData && this.bufferData.upstream_features
         ? this.bufferData.upstream_features.features.map((x) => {
           return x.properties
-        }) : []
+        })
+        : []
     },
     downstreamData () {
       return this.bufferData && this.bufferData.downstream_features
         ? this.bufferData.downstream_features.features.map((x) => {
           return x.properties
-        }) : []
+        })
+        : []
     }
   }
 }
