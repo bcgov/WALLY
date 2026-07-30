@@ -1,10 +1,9 @@
-name: "Openshift - Test Authentication"
+name: "Openshift - Test Authentication - Tools Namespace"
 
 on:
-  # push:
-  #   branches:
-  #       - WO-2026-030-repo-config
-  workflow_dispatch:
+  push:
+    branches:
+        - WO-2026-030-repo-config
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: true
@@ -18,6 +17,6 @@ jobs:
     steps:
       - uses: bcgov/action-oc-runner@v1.2.2
         with:
-          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_namespace: ${{ secrets.OC_TOOLS_NAMESPACE }}
           oc_server: ${{ vars.OC_SERVER }}
-          oc_token: ${{ secrets.OC_TOKEN }}
+          oc_token: ${{ secrets.OC_TOOLS_TOKEN }}
