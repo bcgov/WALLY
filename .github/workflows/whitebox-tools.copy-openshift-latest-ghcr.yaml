@@ -27,4 +27,4 @@ jobs:
           oc_token: ${{ secrets.OC_TOOLS_TOKEN }}
           commands: |
             oc image mirror \
-              image-registry.openshift-image-registry.svc:5000/${{ secrets.OC_TOOLS_NAMESPACE }}/whiteboxtools:latest=ghcr.io/bcgov/wally/whiteboxtools-builder:legacy-2023
+              image-registry.apps.silver.devops.gov.bc.ca/${{ secrets.OC_TOOLS_NAMESPACE }}/whiteboxtools:latest=ghcr.io/bcgov/wally/whiteboxtools-builder:legacy-2023
