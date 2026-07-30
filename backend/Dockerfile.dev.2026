@@ -1,0 +1,32 @@
+ARG DOCKER_TAG=latest
+
+FROM whitebox-builder:legacy-2023 AS builder
+
+FROM python:3.7
+
+COPY --from=builder /wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools /usr/local/bin/
+
+WORKDIR /app/
+
+RUN useradd wally -M -G root -u 1021 && chmod -R 775 /app \
+  && chown -R wally:root /app \
+  && apt-get update && apt-get -y install ca-certificates libgdal-dev gdal-bin
+
+RUN pip install pygdal=="`gdal-config --version`.*"
+
+COPY ./requirements.txt.dev /
+
+RUN pip install -r /requirements.txt.dev
+
+COPY . /app
+ENV PYTHONPATH=/app
+COPY --from=builder /wbt/whitebox_tools.py /app/
+
+RUN pytest /app/tests/ -W ignore::DeprecationWarning
+
+EXPOSE 8000
+USER 1021
+
+# Run the start script, it will check for an /app/prestart.sh script (e.g. for migrations)
+# And then will start Gunicorn with Uvicorn
+CMD ["/app/start.sh"]
