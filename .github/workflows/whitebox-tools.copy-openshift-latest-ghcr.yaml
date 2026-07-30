@@ -11,12 +11,20 @@ concurrency:
 permissions: {}
 
 jobs:
-  login:
-    name: Login Only
+  mirror-whitebox-tools-image:
+    name: Mirror Image
     runs-on: ubuntu-24.04
     steps:
+      - name: Log in to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io \
+            -u "${{ github.actor }}" --password-stdin
+
       - uses: bcgov/action-oc-runner@v1.2.2
         with:
           oc_namespace: ${{ secrets.OC_TOOLS_NAMESPACE }}
           oc_server: ${{ vars.OC_SERVER }}
           oc_token: ${{ secrets.OC_TOOLS_TOKEN }}
+          commands: |
+            oc image mirror \
+              image-registry.openshift-image-registry.svc:5000/${{ secrets.OC_TOOLS_NAMESPACE }}/whiteboxtools:latest=ghcr.io/bcgov/wally/whiteboxtools-builder:legacy-2023
