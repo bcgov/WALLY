@@ -26,5 +26,6 @@ jobs:
           oc_server: ${{ vars.OC_SERVER }}
           oc_token: ${{ secrets.OC_TOOLS_TOKEN }}
           commands: |
+            oc whoami -t | docker login -u unused --password-stdin image-registry.apps.silver.devops.gov.bc.ca
             oc image mirror \
               image-registry.apps.silver.devops.gov.bc.ca/${{ secrets.OC_TOOLS_NAMESPACE }}/whiteboxtools:latest=ghcr.io/bcgov/wally/whiteboxtools-builder:legacy-2023
