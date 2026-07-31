@@ -43,5 +43,6 @@ jobs:
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
       db_user: app-${{ github.event.number }}
-      directory: ./charts/app
-      values: values.dev.yaml
+      directory: ./charts
+      values_crunchy: crunchy/values.dev.yaml
+      # values_application: app/values.dev.yaml

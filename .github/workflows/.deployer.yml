@@ -55,7 +55,12 @@ on:
         default: 10
         required: false
         type: number
-      values:
+      values_crunchy:
+        description: 'Values file'
+        default: 'values.yaml'
+        required: false
+        type: string
+      values_dev:
         description: 'Values file'
         default: 'values.yaml'
         required: false
@@ -84,9 +89,9 @@ jobs:
     name: Stack
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-24.04
-    # outputs:
-    #   tag: ${{ inputs.tag || steps.pr.outputs.pr }}
-    #   triggered: ${{ steps.deploy.outputs.triggered }}
+    outputs:
+      tag: ${{ inputs.tag || steps.pr.outputs.pr }}
+      # triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
       - uses: bcgov/action-crunchy@v2.0.0
         name: Deploy Crunchy
@@ -95,53 +100,53 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           environment: ${{ inputs.environment }}
-          values_file: ${{inputs.directory}}/${{ inputs.values }}
+          values_file: ${{inputs.directory}}/${{ inputs.values_crunchy }}
           triggers: ${{ inputs.triggers }}
 
-      # # Variables
-      # - if: inputs.tag  == ''
-      #   id: pr
-      #   uses: bcgov/action-get-pr@21f9351425cd55a98e869ee28919a512aa30647d # v0.0.1
+      # Variables
+      - if: inputs.tag  == ''
+        id: pr
+        uses: bcgov/action-get-pr@21f9351425cd55a98e869ee28919a512aa30647d # v0.0.1
 
-      # - id: vars
-      #   run: |
-      #     # Vars: tag and release
+      - id: vars
+        run: |
+          # Vars: tag and release
 
-      #     # Tag defaults to PR number, but can be overridden by inputs.tag
-      #     tag=${{ inputs.tag || steps.pr.outputs.pr }}
+          # Tag defaults to PR number, but can be overridden by inputs.tag
+          tag=${{ inputs.tag || steps.pr.outputs.pr }}
 
-      #     # Release name includes run numbers to ensure uniqueness
-      #     release=${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || inputs.tag }}
+          # Release name includes run numbers to ensure uniqueness
+          release=${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || inputs.tag }}
 
-      #     # version, to support helm packaging for non-pr based releases (workflow_dispatch). default to 1.0.0+github run number
-      #     version=1.0.0+${{ github.run_number }}
+          # version, to support helm packaging for non-pr based releases (workflow_dispatch). default to 1.0.0+github run number
+          version=1.0.0+${{ github.run_number }}
 
-      #       # Summary
-      #     echo "tag=${tag}"
-      #     echo "release=${release}"
-      #     echo "version=${version}"
+            # Summary
+          echo "tag=${tag}"
+          echo "release=${release}"
+          echo "version=${version}"
 
-      #     # Output
-      #     echo "tag=${tag}" >> $GITHUB_OUTPUT
-      #     echo "release=${release}" >> $GITHUB_OUTPUT
-      #     echo "version=${version}" >> $GITHUB_OUTPUT
+          # Output
+          echo "tag=${tag}" >> $GITHUB_OUTPUT
+          echo "release=${release}" >> $GITHUB_OUTPUT
+          echo "version=${version}" >> $GITHUB_OUTPUT
 
-      # - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
-      #   if: github.event_name == 'pull_request'
-      #   uses: bcgov/action-oc-runner@8e5c7737c90e5854c8378555aa933a8eb119ad83 # v1.2.0
-      #   with:
-      #     oc_namespace: ${{ secrets.oc_namespace }}
-      #     oc_token: ${{ secrets.oc_token }}
-      #     oc_server: ${{ vars.oc_server }}
-      #     triggers: ${{ inputs.triggers }}
-      #     commands: |
-      #       # Interrupt any previous deployments (PR only)
-      #       PREVIOUS=$(helm status ${{ steps.vars.outputs.release }} -o json | jq .info.status || true)
-      #       if [[ ${PREVIOUS} =~ pending ]]; then
-      #         echo "Rollback triggered"
-      #         helm rollback ${{ steps.vars.outputs.release }} || \
-      #           helm uninstall ${{ steps.vars.outputs.release }}
-      #       fi
+      - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
+        if: github.event_name == 'pull_request'
+        uses: bcgov/action-oc-runner@8e5c7737c90e5854c8378555aa933a8eb119ad83 # v1.2.0
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+          triggers: ${{ inputs.triggers }}
+          commands: |
+            # Interrupt any previous deployments (PR only)
+            PREVIOUS=$(helm status ${{ steps.vars.outputs.release }} -o json | jq .info.status || true)
+            if [[ ${PREVIOUS} =~ pending ]]; then
+              echo "Rollback triggered"
+              helm rollback ${{ steps.vars.outputs.release }} || \
+                helm uninstall ${{ steps.vars.outputs.release }}
+            fi
 
       # - uses: actions/checkout@v4
       # - name: Debug Values File

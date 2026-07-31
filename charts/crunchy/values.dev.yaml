@@ -1,0 +1,97 @@
+global:
+  config:
+    dbName: wally-crunchy
+crunchy:
+  enabled: true
+  postgresVersion: 18
+  postGISVersion: "3.6"
+  imagePullPolicy: IfNotPresent
+  image: "artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres-gis:ubi9-18.1-3.6-2547"
+  clone:
+    enabled: false
+    s3:
+      enabled: false
+    pvc:
+      enabled: false
+
+  restore:
+    enabled: false
+  instances:
+    name: db
+    replicas: 1
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9187'
+    dataVolumeClaimSpec:
+      storage: 1GB
+      storageClassName: netapp-block-standard
+      walStorage: 256Mi
+    requests:
+      cpu: 50m
+      memory: 256Mi
+    replicaCertCopy:
+      requests:
+        cpu: 1m
+        memory: 32Mi
+  pgBackRest:
+    enabled: false
+    s3:
+      enabled: false
+  patroni:
+    postgresql:
+      pg_hba:
+        - "host all all 0.0.0.0/0 md5"
+        - "host all all ::1/128 md5"
+      parameters:
+        shared_buffers: 16MB # default is 128MB; a good tuned default for shared_buffers is 25% of the memory allocated to the pod
+        wal_buffers: "64kB" # this can be set to -1 to automatically set as 1/32 of shared_buffers or 64kB, whichever is larger
+        min_wal_size: 32MB
+        max_wal_size: 64MB # default is 1GB
+        max_slot_wal_keep_size: 128MB # default is -1, allowing unlimited wal growth when replicas fall behind
+        work_mem: 2MB # a work_mem value of 2 MB
+        log_min_duration_statement: 1000ms # log queries taking more than 1 second to respond.
+        effective_io_concurrency: 20 #If the underlying disk can handle multiple simultaneous requests, then you should increase the effective_io_concurrency value and test what value provides the best application performance. All BCGov clusters have SSD.
+
+  proxy:
+    enabled: true
+    pgBouncer:
+      image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+      replicas: 1
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      maxConnections: 10 # make sure less than postgres max connections
+
+  # Postgres Cluster resource values:
+  pgmonitor:
+    enabled: true
+    exporter:
+      image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
+      requests:
+        cpu: 10m
+        memory: 32Mi
+  # Custom users section. This section defines database users and their associated configurations.
+  # Each user entry can include the following fields:
+  # - name: The username. Can use template interpolation (e.g., {{ .Values.global.config.dbName }}).
+  # - databases: A list of databases the user has access to. Can include template-interpolated values.
+  # - options: A string specifying user privileges (e.g., "SUPERUSER CREATEDB CREATEROLE"). Ensure the options are valid PostgreSQL roles.
+  # For more details, refer to the Crunchy Postgres Operator documentation:
+  # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/user-management
+  users:
+    - name: '{{ .Values.global.config.dbName }}'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+      options: "SUPERUSER CREATEDB CREATEROLE"
+    - name: 'postgres'
+      databases:
+        - 'postgres'
+        - '{{ .Values.global.config.dbName }}'
+    - name: '{{ .Values.global.config.dbName }}proxy'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+        - 'postgres'
+    - name: '{{ .Values.global.config.dbName }}proxytest'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+        - 'postgres'
