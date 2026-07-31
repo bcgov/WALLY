@@ -95,7 +95,7 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           environment: ${{ inputs.environment }}
-          values_file: ${{ inputs.values }}
+          values_file: ${{inputs.directory}}/${{ inputs.values }}
           triggers: ${{ inputs.triggers }}
 
       # # Variables
