@@ -36,6 +36,8 @@ crunchy:
         memory: 32Mi
   pgBackRest:
     enabled: false
+    s3:
+      enabled: false
   patroni:
     postgresql:
       pg_hba:
