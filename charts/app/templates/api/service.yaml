@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-api
+  labels:
+    app: {{ .Release.Name }}
+    component: api
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Release.Name }}
+    component: api
+  ports:
+    - name: http
+      port: 8000
+      protocol: TCP
+      targetPort: 8000
+  sessionAffinity: None

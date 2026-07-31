@@ -1,0 +1,17 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ .Release.Name }}-frontend
+  labels:
+    app: {{ .Release.Name }}
+    component: frontend
+spec:
+  host: {{ .Values.frontend.host | quote }}
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+  to:
+    kind: Service
+    name: {{ .Release.Name }}
+    weight: 100
+  wildcardPolicy: None

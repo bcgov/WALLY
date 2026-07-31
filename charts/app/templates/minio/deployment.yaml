@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-minio
+  labels:
+    app: {{ .Release.Name }}
+    component: minio
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      component: minio
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        component: minio
+    spec:
+      containers:
+        - name: minio
+          image: "{{ .Values.minio.image.repository }}:{{ .Values.minio.image.tag }}"
+          imagePullPolicy: Always
+          command:
+            - /bin/sh
+            - -c
+          args:
+            - /minio-entrypoint.sh server /opt/minio/s3/data
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.minio.secretName }}
+                  key: minioAccessKey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.minio.secretName }}
+                  key: minioSecretKey
+            - name: MINIO_DATA_DIR
+              value: /opt/minio/s3/data
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 20m
+            limits:
+              cpu: 250m
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: minio-vol
+              mountPath: /opt/minio/s3/data
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: minio-vol
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-minio

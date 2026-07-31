@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-gatekeeper-config
+  labels:
+    app: {{ .Release.Name }}
+    component: authentication
+data:
+  config.yaml: |
+    enable-default-deny: true
+    listen: :3000
+    resources:
+    - uri: /*
+      roles:
+      - {{ .Values.gatekeeper.requiredRole }}
+  forbidden-page.html: |-
+{{ .Files.Get "files/gatekeeper/forbidden-page.html" | indent 4 }}
