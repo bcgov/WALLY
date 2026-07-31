@@ -1,6 +1,6 @@
 ARG DOCKER_TAG=latest
 
-FROM whitebox-builder:legacy-2023 AS builder
+FROM ghcr.io/bcgov/wally/whiteboxtools-builder:legacy-2023 AS builder
 
 FROM python:3.7
 
