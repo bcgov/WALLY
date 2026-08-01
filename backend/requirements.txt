@@ -50,7 +50,7 @@ py==1.10.0
 pycodestyle==2.5.0
 pycparser==2.19
 pydantic==1.6.2
-PyJWT[crypto]==2.6.0
+PyJWT[crypto]==2.13.0
 pylint==2.3.1
 pyparsing==2.4.2
 pytest==5.0.1
