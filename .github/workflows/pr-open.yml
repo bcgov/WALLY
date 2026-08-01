@@ -14,35 +14,33 @@ permissions: {}
 jobs:
   # unit_tests:
   #   uses: ./.github/workflows/.unit-tests.yml
-  # builds:
-  #   name: Build Matrix
-  #   needs: [unit_tests]
-  #   permissions:
-  #     packages: write
-  #   runs-on: ubuntu-24.04
-  #   strategy:
-  #     matrix:
-  #       package: [backend, client, pdf-generator]
-  #   timeout-minutes: 10
-  #   steps:
-  #     - uses: bcgov/action-builder-ghcr@v4.0.0
-  #       with:
-  #         keep_versions: 50
-  #         package: ${{ matrix.package }}
-  #         tags: ${{ github.event.number }}
-  #         build_args:
-  #           CLIENT_URL=https://${{ github.event.repository.name }}-${{ github.event.number }}-frontend.apps.silver.devops.gov.bc.ca
+  builds:
+    name: Build Matrix
+    # needs: [unit_tests]
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backend, frontend]
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov/action-builder-ghcr@v4.0.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: ${{ github.event.number }}
 
   # https://github.com/bcgov/quickstart-openshift-helpers
-  deploys:
-    name: Deploys Build (${{ github.event.number }})
-    # needs: [builds]
-    uses: ./.github/workflows/.deployer.yml
-    secrets:
-      oc_namespace: ${{ secrets.OC_NAMESPACE }}
-      oc_token: ${{ secrets.OC_TOKEN }}
-    with:
-      db_user: app-${{ github.event.number }}
-      directory: ./charts
-      values_crunchy: crunchy/values.dev.yaml
-      # values_application: app/values.dev.yaml
+  # deploys:
+  #   name: Deploys Build (${{ github.event.number }})
+  #   needs: [builds]
+  #   uses: ./.github/workflows/.deployer.yml
+  #   secrets:
+  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
+  #     oc_token: ${{ secrets.OC_TOKEN }}
+  #   with:
+  #     db_user: app-${{ github.event.number }}
+  #     directory: ./charts
+  #     values_crunchy: crunchy/values.dev.yaml
+  #     # values_application: app/values.dev.yaml

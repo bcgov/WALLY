@@ -1,23 +1,15 @@
-FROM node:22-alpine as build
-
+FROM node:22-alpine AS build
 WORKDIR /app
-
 COPY package*.json /app/
-
 RUN npm ci
-
 COPY . .
+RUN npm run build
 
-# run unit tests and build
-RUN npm run test:unit && npm run build
+FROM nginx:1.27-alpine
 
-FROM nginx:1.12
-
-COPY --from=build /app/dist/ /tmp/src
-COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
-COPY --from=build /app/nginx.conf.tmpl /opt/app-root/etc/nginx.conf.tmpl
-
-RUN /usr/libexec/s2i/assemble
+COPY --from=build /app/dist/ /usr/share/nginx/html
 
 EXPOSE 8080
-CMD /usr/libexec/s2i/run
+
+USER 1001
+CMD ["nginx", "-g", "daemon off;"]

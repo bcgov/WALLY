@@ -4,7 +4,7 @@ services:
     platform: linux/amd64
     build:
       context: ./frontend
-      dockerfile: "Dockerfile.2026"
+      dockerfile: "Dockerfile"
     env_file:
       - frontend/.env.development
       - frontend/.env.production
