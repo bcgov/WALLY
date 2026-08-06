@@ -1,17 +1,16 @@
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
-  name: {{ .Release.Name }}-minio
+  name: {{ include "minio.fullname" . }}
   labels:
-    app: {{ .Release.Name }}
-    component: minio
+    {{- include "minio.labels" . | nindent 4 }}
 spec:
   host: {{ .Values.minio.host | quote }}
   port:
     targetPort: minio
   to:
     kind: Service
-    name: {{ .Release.Name }}-minio
+    name: {{ include "minio.fullname" . }}
     weight: 100
   wildcardPolicy: None
   tls:

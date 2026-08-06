@@ -1,18 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "frontend.fullname" . }}
   labels:
-    app: {{ .Release.Name }}
-    component: frontend
+    {{- include "frontend.labels" . | nindent 4 }}
 spec:
   type: ClusterIP
   selector:
-    app: {{ .Release.Name }}
-    component: frontend
+    {{- include "frontend.selectorLabels" . | nindent 4 }}
   ports:
     - name: http
       port: 8080
       protocol: TCP
       targetPort: 8080
-  sessionAffinity: None

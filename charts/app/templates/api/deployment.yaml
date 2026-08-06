@@ -21,6 +21,7 @@ spec:
       labels:
         {{- include "backend.labels" . | nindent 8 }}
     spec:
+      {{- $pgSecret := printf "%s-pguser-%s" .Values.global.databaseAlias .Values.global.config.databaseUser }}
       initContainers:
         - name: {{ include "backend.fullname" . }}-run-migrations
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend:{{ .Values.global.tag | default .Chart.AppVersion }}"
@@ -29,20 +30,23 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: wally-psql
-                  key: app-db-username
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: wally-psql
-                  key: app-db-password
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: password
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: wally-psql
-                  key: app-db-name
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: dbname
             - name: POSTGRES_SERVER
-              value: "{{ .Values.postgres.host }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: pgbouncer-host
             - name: WALLY_ENV
               value: {{ .Values.environment | quote }}
       containers:
@@ -86,18 +90,23 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: wally-psql
-                  key: app-db-username
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: wally-psql
-                  key: app-db-password
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: password
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: wally-psql
-                  key: app-db-name
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: dbname
+            - name: POSTGRES_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.pgSecretName" . }}
+                  key: pgbouncer-host
             - name: MINIO_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
@@ -115,16 +124,14 @@ spec:
                 secretKeyRef:
                   name: wally-debug
                   key: WATERSHED_DEBUG
-            - name: POSTGRES_SERVER
-              value: "{{ .Values.postgres.host }}"
             - name: WALLY_ENV
-              value: {{ .Values.environment | quote }}
+              value: {{ .Values.global.environment | quote }}
             - name: WALLY_VERSION
-              value: {{ .Values.wallyVersion | quote }}
+              value: {{ .Values.global.wallyVersion | quote }}
             - name: WALLY_BUILD
-              value: {{ .Values.wallyBuild | quote }}
+              value: {{ .Values.global.wallyBuild | quote }}
             - name: API_VERSION
-              value: {{ .Values.apiVersion | quote }}
+              value: {{ .Values.backend.apiVersion | quote }}
             - name: GDAL_DATA
               value: "/usr/share/gdal/"
             - name: AUTH_WELL_KNOWN_ENDPOINT
@@ -172,7 +179,7 @@ spec:
             - name: wally-config
               mountPath: /app/.config/
         - name: promtail
-          image: "{{ .Values.promtail.image }}"
+          image: "{{ .Values.backend.promtail.image }}"
           args:
             - -config.file=/etc/promtail/promtail.yaml
             - -client.url=http://loki:3100/api/prom/push

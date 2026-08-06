@@ -1,27 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-minio
+  name: {{ include "minio.fullname" . }}
   labels:
-    app: {{ .Release.Name }}
-    component: minio
+    {{- include "minio.labels" . | nindent 4 }}
 spec:
   replicas: 1
   strategy:
     type: Recreate
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
-      component: minio
+      {{- include "minio.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
-        component: minio
+        {{- include "minio.labels" . | nindent 8 }}
     spec:
       containers:
-        - name: minio
-          image: "{{ .Values.minio.image.repository }}:{{ .Values.minio.image.tag }}"
+        - name: {{ include "minio.name" . }}
+          image: "{{ .Values.global.registry }}/{{ .Values.global.repository }}/minio:{{ .Values.global.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
           command:
             - /bin/sh
@@ -59,4 +56,4 @@ spec:
       volumes:
         - name: minio-vol
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-minio
+            claimName: {{ include "minio.fullname" . }}

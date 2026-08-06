@@ -14,8 +14,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
-        component: frontend
+        {{- include "frontend.labels" . | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/port: "4040"
@@ -58,7 +57,7 @@ spec:
             - name: shared-data
               mountPath: /var/opt/rh/rh-nginx112/log/nginx/
         - name: wally
-          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/frontend:{{ .Values.global.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -67,8 +66,12 @@ spec:
             - name: WALLY_BACKEND_SERVICE
               value: "{{ .Release.Name }}-api"
           resources:
-            requests: { cpu: 100m, memory: 128Mi }
-            limits: { cpu: 100m, memory: 128Mi }
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
           volumeMounts:
