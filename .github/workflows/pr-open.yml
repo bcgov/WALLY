@@ -32,15 +32,15 @@ jobs:
           tags: ${{ github.event.number }}
 
   # https://github.com/bcgov/quickstart-openshift-helpers
-  # deploys:
-  #   name: Deploys Build (${{ github.event.number }})
-  #   needs: [builds]
-  #   uses: ./.github/workflows/.deployer.yml
-  #   secrets:
-  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
-  #     oc_token: ${{ secrets.OC_TOKEN }}
-  #   with:
-  #     db_user: app-${{ github.event.number }}
-  #     directory: ./charts
-  #     values_crunchy: crunchy/values.dev.yaml
-  #     # values_application: app/values.dev.yaml
+  deploys:
+    name: Deploys Build (${{ github.event.number }})
+    needs: [builds]
+    uses: ./.github/workflows/.deployer.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+    with:
+      db_user: app-${{ github.event.number }}
+      directory: ./charts
+      values_crunchy: crunchy/values.dev.yaml
+      values_application: app/values.dev.yaml

@@ -60,7 +60,7 @@ on:
         default: 'values.yaml'
         required: false
         type: string
-      values_dev:
+      values_application:
         description: 'Values file'
         default: 'values.yaml'
         required: false
@@ -91,7 +91,7 @@ jobs:
     runs-on: ubuntu-24.04
     outputs:
       tag: ${{ inputs.tag || steps.pr.outputs.pr }}
-      # triggered: ${{ steps.deploy.outputs.triggered }}
+      triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
       - uses: bcgov/action-crunchy@v2.0.0
         name: Deploy Crunchy
@@ -106,7 +106,7 @@ jobs:
       # Variables
       - if: inputs.tag  == ''
         id: pr
-        uses: bcgov/action-get-pr@21f9351425cd55a98e869ee28919a512aa30647d # v0.0.1
+        uses: bcgov/action-get-pr@v0.0.1
 
       - id: vars
         run: |
@@ -148,44 +148,44 @@ jobs:
                 helm uninstall ${{ steps.vars.outputs.release }}
             fi
 
-      # - uses: actions/checkout@v4
-      # - name: Debug Values File
-      #   if: inputs.debug == 'true'
-      #   run: ls -l charts/crunchy/values.yml
+      - uses: actions/checkout@v4
+      - name: Debug Values File
+        if: inputs.debug == 'true'
+        run: ls -l charts/crunchy/values.yml
 
-      # - name: Helm Deploy
-      #   id: deploy
-      #   uses: bcgov/action-oc-runner@8e5c7737c90e5854c8378555aa933a8eb119ad83 # v1.2.0
-      #   with:
-      #     oc_namespace: ${{ secrets.oc_namespace }}
-      #     oc_token: ${{ secrets.oc_token }}
-      #     oc_server: ${{ vars.oc_server }}
-      #     triggers: ${{ inputs.triggers }}
-      #     ref: ${{ github.ref }}
-      #     commands: |
-      #       # Deploy
+      - name: Helm Deploy
+        id: deploy
+        uses: bcgov/action-oc-runner@8e5c7737c90e5854c8378555aa933a8eb119ad83 # v1.2.0
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+          triggers: ${{ inputs.triggers }}
+          ref: ${{ github.ref }}
+          commands: |
+            # Deploy
 
-      #       # If directory provided, cd to it
-      #       [ -z "${{ inputs.directory }}" ]|| cd ${{ inputs.directory }}
+            # If directory provided, cd to it
+            [ -z "${{ inputs.directory }}" ]|| cd ${{ inputs.directory }}
 
-      #       # Helm package
-      #       sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
-      #       helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
-      #       # print the values.yaml file to see the values being used
-      #       # Helm upgrade/rollout
-      #       helm upgrade \
-      #         --set-string global.repository=${{ github.repository }} \
-      #         --set-string global.tag="${{ steps.vars.outputs.tag }}" \
-      #         --set-string global.config.databaseUser="${{ inputs.db_user }}" \
-      #         --set-string global.databaseAlias="${{ steps.deploy_crunchy.outputs.release }}-crunchy" \
-      #         ${{ inputs.params }} \
-      #         --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
-      #         --timeout ${{ inputs.timeout-minutes }}m \
-      #         --values ${{ inputs.values }} \
-      #         ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
+            # Helm package
+            sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
+            helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
+            # print the values.yaml file to see the values being used
+            # Helm upgrade/rollout
+            helm upgrade \
+              --set-string global.repository=${{ github.repository }} \
+              --set-string global.tag="${{ steps.vars.outputs.tag }}" \
+              --set-string global.config.databaseUser="${{ inputs.db_user }}" \
+              --set-string global.databaseAlias="${{ steps.deploy_crunchy.outputs.release }}-crunchy" \
+              ${{ inputs.params }} \
+              --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
+              --timeout ${{ inputs.timeout-minutes }}m \
+              --values ${{ inputs.values_application }} \
+              ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
-      #       # Helm release history
-      #       helm history ${{ steps.vars.outputs.release }}
+            # Helm release history
+            helm history ${{ steps.vars.outputs.release }}
 
-      #       # Completed pod cleanup
-      #       oc delete po --field-selector=status.phase==Succeeded || true
+            # Completed pod cleanup
+            oc delete po --field-selector=status.phase==Succeeded || true
