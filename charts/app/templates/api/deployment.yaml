@@ -43,7 +43,7 @@ spec:
           - name: FLYWAY_PLACEHOLDERS_APPUSER
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecret" . }}
+                name: {{ include "backend.pgSecretName" . }}
                 key: user
 
       - name: {{ include "backend.fullname" . }}-seed-db
