@@ -1,7 +1,7 @@
 name: Build Crunchy Postgres - PLR Base Image
 on:
   push:
-    branches: [WO-2026-030]
+    branches: [WO-2026-030-repo-config]
 
 permissions: {}
 
