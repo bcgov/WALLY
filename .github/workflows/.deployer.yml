@@ -12,9 +12,14 @@ on:
         default: false
         required: false
         type: boolean
-      directory:
-        description: Chart directory
+      directory_application:
+        description: Chart directory - Application
         default:  'charts/app'
+        required: false
+        type: string
+      directory_crunchy:
+        description: Chart directory - Crunchy
+        default:  'charts/crunchy'
         required: false
         type: string
       environment:
@@ -100,7 +105,7 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           environment: ${{ inputs.environment }}
-          values_file: ${{inputs.directory}}/${{ inputs.values_crunchy }}
+          values_file: ${{inputs.directory_crunchy}}/${{ inputs.values_crunchy }}
           triggers: ${{ inputs.triggers }}
 
       # Variables
@@ -166,7 +171,7 @@ jobs:
             # Deploy
 
             # If directory provided, cd to it
-            [ -z "${{ inputs.directory }}" ]|| cd ${{ inputs.directory }}
+            [ -z "${{ inputs.directory_application }}" ]|| cd ${{ inputs.directory_application }}
 
             # Helm package
             sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
