@@ -172,7 +172,7 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values_application }} \
-              --set minio.host=wally-minio-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.apps.silver.devops.gov.bc.ca
+              --set minio.host=wally-minio-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.apps.silver.devops.gov.bc.ca \
               ./${{ steps.repo_lc.outputs.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
