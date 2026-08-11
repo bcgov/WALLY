@@ -48,11 +48,6 @@ on:
         required: false
         default: 'app'
         type: string
-      debug:
-        description: Debug mode
-        default: false
-        required: false
-        type: boolean
 
       ### Usually a bad idea / not recommended
       timeout-minutes:
@@ -153,10 +148,11 @@ jobs:
                 helm uninstall ${{ steps.vars.outputs.release }}
             fi
 
-      - uses: actions/checkout@v4
-      - name: Debug Values File
-        if: inputs.debug == 'true'
-        run: ls -l charts/crunchy/values.yml
+
+      - id: repo_lc
+        run: |
+          echo "name=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "full=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Helm Deploy
         id: deploy
@@ -174,12 +170,11 @@ jobs:
             [ -z "${{ inputs.directory_application }}" ]|| cd ${{ inputs.directory_application }}
 
             # Helm package
-            sed -i 's/^name:.*/name: ${{ github.event.repository.name }}/' Chart.yaml
+            sed -i 's/^name:.*/name: ${{ steps.repo_lc.outputs.name }}/' Chart.yaml
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
-            # print the values.yaml file to see the values being used
-            # Helm upgrade/rollout
+
             helm upgrade \
-              --set-string global.repository=${{ github.repository }} \
+              --set-string global.repository=${{ steps.repo_lc.outputs.full }} \
               --set-string global.tag="${{ steps.vars.outputs.tag }}" \
               --set-string global.config.databaseUser="${{ inputs.db_user }}" \
               --set-string global.databaseAlias="${{ steps.deploy_crunchy.outputs.release }}-crunchy" \
@@ -187,7 +182,7 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values_application }} \
-              ./${{ github.event.repository.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
+              ./${{ steps.repo_lc.outputs.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history
             helm history ${{ steps.vars.outputs.release }}
