@@ -30,22 +30,22 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.pgSecretAdmin" . }}
                   key: user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.pgSecretAdmin" . }}
                   key: password
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.pgSecretAdmin" . }}
                   key: dbname
             - name: POSTGRES_SERVER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.pgSecretAdmin" . }}
                   key: pgbouncer-host
             - name: WALLY_ENV
               value: {{ .Values.environment | quote }}

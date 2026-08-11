@@ -32,3 +32,10 @@ Secrets
 {{- printf "%s-pguser-%s" .Values.global.databaseAlias .Values.global.config.databaseUser -}}
 {{- end }}
 
+{{/*
+Secrets
+*/}}
+{{- define "backend.pgSecretAdmin" -}}
+{{- printf "%s-pguser-postgres" .Values.global.databaseAlias -}}
+{{- end }}
+
