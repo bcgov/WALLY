@@ -93,6 +93,10 @@ jobs:
       tag: ${{ inputs.tag || steps.pr.outputs.pr }}
       triggered: ${{ steps.deploy.outputs.triggered }}
     steps:
+      - id: repo_lc
+        run: |
+          echo "name=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "full=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
       - uses: bcgov/action-crunchy@v2.0.0
         name: Deploy Crunchy
         id: deploy_crunchy
@@ -110,23 +114,14 @@ jobs:
 
       - id: vars
         run: |
-          # Vars: tag and release
-
-          # Tag defaults to PR number, but can be overridden by inputs.tag
           tag=${{ inputs.tag || steps.pr.outputs.pr }}
-
-          # Release name includes run numbers to ensure uniqueness
-          release=${{ github.event.repository.name }}-${{ inputs.environment || steps.pr.outputs.pr || inputs.tag }}
-
-          # version, to support helm packaging for non-pr based releases (workflow_dispatch). default to 1.0.0+github run number
+          release=${{ steps.repo_lc.outputs.name }}-${{ inputs.environment || steps.pr.outputs.pr || inputs.tag }}
           version=1.0.0+${{ github.run_number }}
 
-            # Summary
           echo "tag=${tag}"
           echo "release=${release}"
           echo "version=${version}"
 
-          # Output
           echo "tag=${tag}" >> $GITHUB_OUTPUT
           echo "release=${release}" >> $GITHUB_OUTPUT
           echo "version=${version}" >> $GITHUB_OUTPUT
@@ -147,12 +142,6 @@ jobs:
               helm rollback ${{ steps.vars.outputs.release }} || \
                 helm uninstall ${{ steps.vars.outputs.release }}
             fi
-
-
-      - id: repo_lc
-        run: |
-          echo "name=$(echo '${{ github.event.repository.name }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
-          echo "full=$(echo '${{ github.repository }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
 
       - name: Helm Deploy
         id: deploy
