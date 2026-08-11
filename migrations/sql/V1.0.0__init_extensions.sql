@@ -1,0 +1,11 @@
+create extension if not exists postgis;
+create extension if not exists postgis_topology;
+create extension if not exists postgis_raster;
+create extension if not exists fuzzystrmatch;
+create extension if not exists postgis_tiger_geocoder;
+create extension if not exists pg_stat_statements;
+create extension if not exists pgaudit;
+create extension if not exists plr;
+create extension if not exists ltree;
+create extension if not exists pg_trgm;
+create extension if not exists hstore;
