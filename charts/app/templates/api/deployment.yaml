@@ -46,9 +46,9 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: {{ include "backend.pgSecretAdmin" . }}
-                  key: pgbouncer-host
+                  key: host
             - name: WALLY_ENV
-              value: {{ .Values.environment | quote }}
+              value: {{ .Values.global.environment | quote }}
       containers:
         - name: {{ include "backend.fullname" . }}
           image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend:{{ .Values.global.tag | default .Chart.AppVersion }}"
