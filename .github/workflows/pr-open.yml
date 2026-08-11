@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, frontend]
+        package: [backend, frontend, minio]
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v4.0.0
