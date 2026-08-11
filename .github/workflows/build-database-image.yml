@@ -1,3 +1,4 @@
+name: Build Crunchy Postgres - PLR Base Image
 on:
   push:
     branches: [WO-2026-030]
