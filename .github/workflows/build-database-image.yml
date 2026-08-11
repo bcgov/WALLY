@@ -1,0 +1,27 @@
+on:
+  push:
+    branches: [WO-2026-030]
+
+permissions: {}
+
+jobs:
+  # unit_tests:
+  #   uses: ./.github/workflows/.unit-tests.yml
+
+
+  builds:
+    name: Build Matrix
+    # needs: [unit_tests]
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [crunchy]
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov/action-builder-ghcr@v4.0.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: latest
