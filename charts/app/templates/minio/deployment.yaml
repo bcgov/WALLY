@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: {{ include "minio.name" . }}
-          image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-minio:latest
+          image: "{{ .Values.global.registry }}/{{ .Values.global.repository }}/minio:{{ .Values.global.tag | default .Chart.AppVersion }}"
           imagePullPolicy: Always
           command:
             - /bin/sh
