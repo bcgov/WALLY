@@ -55,6 +55,8 @@ spec:
               secretKeyRef:
                 name: {{ include "backend.PGApplicationUser" . }}
                 key: user
+          - name: FLYWAY_VALIDATE_MIGRATION_NAMING
+            value: "true"
 
       - name: {{ include "backend.fullname" . }}-seed-db
         image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend:{{ .Values.global.tag | default .Chart.AppVersion }}"
