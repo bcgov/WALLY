@@ -6,7 +6,7 @@ crunchy:
   postgresVersion: 16
   postGISVersion: "3.4"
   imagePullPolicy: IfNotPresent
-  image: "artifacts.developer.gov.bc.ca/bcgov-docker-local/crunchy-postgres-gis:ubi9-16.11-3.4-2550"
+  image: "ghcr.io/bcgov/wally/crunchy:latest"
   clone:
     enabled: false
     s3:
