@@ -75,5 +75,26 @@ alter default privileges in schema whse_basemapping grant all on tables to "${ap
 grant create on schema public to "${appUser}";
 grant select, insert, update, delete on all tables in schema public to "${appUser}";
 alter default privileges in schema public grant select, insert, update, delete on tables to "${appUser}";
-grant usage on all sequences in schema public to "${appUser}";
+
+-- =====================================================================
+-- SEQUENCE usage (all schemas, one block) - covers serial/identity columns
+-- on any table ${appUser} inserts into (e.g. fasstr_flows_id_seq)
+-- =====================================================================
+grant usage on all sequences in schema hydat, dem, hydrosheds, metadata,
+  modeling, prism, tiger, tiger_data, topology, fasstr, postgis_ftw,
+  whse_basemapping, public
+  to "${appUser}";
+
+alter default privileges in schema hydat grant usage on sequences to "${appUser}";
+alter default privileges in schema dem grant usage on sequences to "${appUser}";
+alter default privileges in schema hydrosheds grant usage on sequences to "${appUser}";
+alter default privileges in schema metadata grant usage on sequences to "${appUser}";
+alter default privileges in schema modeling grant usage on sequences to "${appUser}";
+alter default privileges in schema prism grant usage on sequences to "${appUser}";
+alter default privileges in schema tiger grant usage on sequences to "${appUser}";
+alter default privileges in schema tiger_data grant usage on sequences to "${appUser}";
+alter default privileges in schema topology grant usage on sequences to "${appUser}";
+alter default privileges in schema fasstr grant usage on sequences to "${appUser}";
+alter default privileges in schema postgis_ftw grant usage on sequences to "${appUser}";
+alter default privileges in schema whse_basemapping grant usage on sequences to "${appUser}";
 alter default privileges in schema public grant usage on sequences to "${appUser}";
