@@ -1,0 +1,250 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backend.fullname" . }}
+  labels:
+    {{- include "backend.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.backend.deploymentStrategy }}
+  replicas: {{ .Values.backend.replicaCount  }}
+  selector:
+    matchLabels:
+      {{- include "backend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '8000'
+        prometheus.io/path: '/api/metrics'
+      labels:
+        {{- include "backend.labels" . | nindent 8 }}
+    spec:
+      initContainers:
+      - name: {{ include "backend.fullname" . }}-run-migrations
+        image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations:{{ .Values.global.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            export FLYWAY_URL="jdbc:postgresql://${PGHOST}:5432/${PGDATABASE}"
+            exec flyway info migrate repair
+        env:
+          - name: PGHOST
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGSuperUser" . }}
+                key: host
+          - name: PGDATABASE
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGApplicationUser" . }}
+                key: dbname
+          - name: FLYWAY_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGSuperUser" . }}
+                key: user
+          - name: FLYWAY_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGSuperUser" . }}
+                key: password
+          - name: FLYWAY_PLACEHOLDERS_APPUSER
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGApplicationUser" . }}
+                key: user
+          - name: FLYWAY_VALIDATE_MIGRATION_NAMING
+            value: "true"
+
+      - name: {{ include "backend.fullname" . }}-seed-db
+        image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend:{{ .Values.global.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
+        command: ["/bin/bash", "/app/prestart.sh"]
+        env:
+          - name: POSTGRES_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGSuperUser" . }}
+                key: user
+          - name: POSTGRES_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGSuperUser" . }}
+                key: password
+          - name: POSTGRES_DB
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGApplicationUser" . }}
+                key: dbname
+          - name: POSTGRES_SERVER
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGSuperUser" . }}
+                key: host
+          - name: WALLY_ENV
+            value: {{ .Values.global.environment | quote }}
+      containers:
+        - name: {{ include "backend.fullname" . }}
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          env:
+            - name: COMMON_DOCGEN_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: common-docgen
+                  key: COMMON_DOCGEN_CLIENT_ID
+            - name: COMMON_DOCGEN_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: common-docgen
+                  key: COMMON_DOCGEN_CLIENT_SECRET
+            - name: COMMON_DOCGEN_SSO_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: common-docgen
+                  key: COMMON_DOCGEN_SSO_ENDPOINT
+            - name: COMMON_DOCGEN_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: common-docgen
+                  key: COMMON_DOCGEN_ENDPOINT
+            - name: MAPBOX_ACCESS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: mapbox-access-token
+                  key: MAPBOX_ACCESS_TOKEN
+            - name: MAPBOX_STYLE
+              valueFrom:
+                secretKeyRef:
+                  name: mapbox-access-token
+                  key: MAPBOX_STYLE
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.PGApplicationUser" . }}
+                  key: user
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.PGApplicationUser" . }}
+                  key: password
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.PGApplicationUser" . }}
+                  key: dbname
+            - name: POSTGRES_SERVER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "backend.PGApplicationUser" . }}
+                  key: pgbouncer-host
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: minioAccessKey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: minioSecretKey
+            - name: MINIO_HOST_URL
+              value: "{{ .Release.Name }}-minio:9000"
+            - name: WATERSHED_DEBUG
+              valueFrom:
+                secretKeyRef:
+                  name: wally-debug
+                  key: WATERSHED_DEBUG
+            - name: WALLY_ENV
+              value: {{ .Values.global.environment | quote }}
+            - name: WALLY_VERSION
+              value: {{ .Values.global.wallyVersion | quote }}
+            - name: WALLY_BUILD
+              value: {{ .Values.global.wallyBuild | quote }}
+            - name: API_VERSION
+              value: {{ .Values.backend.apiVersion | quote }}
+            - name: GDAL_DATA
+              value: "/usr/share/gdal/"
+            - name: AUTH_WELL_KNOWN_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: wally-api-keycloak
+                  key: AUTH_WELL_KNOWN_ENDPOINT
+            - name: AUTH_CLIENT
+              valueFrom:
+                secretKeyRef:
+                  name: wally-api-keycloak
+                  key: AUTH_CLIENT
+          resources:
+            requests:
+              cpu: 100m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: logging
+              mountPath: /app/.log/
+            - name: wally-config
+              mountPath: /app/.config/
+        - name: promtail
+          image: "{{ .Values.backend.promtail.image }}"
+          args:
+            - -config.file=/etc/promtail/promtail.yaml
+            - -client.url=http://loki:3100/api/prom/push
+            - -client.external-labels=pod=$(PODNAME)
+          env:
+            - name: PODNAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+          ports:
+            - containerPort: 3111
+              protocol: TCP
+          volumeMounts:
+            - name: logging
+              mountPath: /app/.log/
+            - name: promtail-config
+              mountPath: /etc/promtail
+      volumes:
+        - name: logging
+          emptyDir: {}
+        - name: promtail-config
+          configMap:
+            name: promtail-config
+        - name: wally-config
+          configMap:
+            name: wally-config
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30

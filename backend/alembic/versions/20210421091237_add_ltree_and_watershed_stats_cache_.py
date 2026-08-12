@@ -111,7 +111,7 @@ def upgrade():
     """)
 
     # hydrosheds data from hydrosheds.org (WWF)
-    op.execute("create schema hydrosheds")
+    op.execute("create schema if not exists hydrosheds")
     op.create_table('hybas_lev12_v1c',
                     sa.Column('hybas_id', sa.BIGINT(),
                               autoincrement=False, nullable=False),

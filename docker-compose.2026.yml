@@ -1,0 +1,106 @@
+version: '3.3'
+services:
+  frontend:
+    platform: linux/amd64
+    build:
+      context: ./frontend
+      dockerfile: "Dockerfile"
+    env_file:
+      - frontend/.env.development
+      - frontend/.env.production
+    environment:
+      - VUE_APP_AXIOS_BASE_URL=http://backend:8000
+    volumes:
+      - ./frontend/nginx.conf.local:/etc/nginx/nginx.conf:ro
+    ports:
+      - '8080:8080'
+    depends_on:
+      - backend
+  backend:
+    platform: linux/amd64
+    build:
+      context: ./backend
+      dockerfile: "Dockerfile.dev.2026"
+      args:
+        env: dev
+    networks:
+      default:
+        aliases:
+          - ${DOMAIN}
+    command: /app/start-reload.sh
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /app
+        consistency: cached
+    env_file:
+      - env-postgres.env
+      - env-backend.env
+    environment:
+      PORT: 8000
+      MAPBOX_ACCESS_TOKEN: "${MAPBOX_ACCESS_TOKEN}"
+      MAPBOX_STYLE: "${MAPBOX_STYLE}"
+      COMMON_DOCGEN_CLIENT_ID: "${COMMON_DOCGEN_CLIENT_ID}"
+      COMMON_DOCGEN_CLIENT_SECRET: "${COMMON_DOCGEN_CLIENT_SECRET}"
+      COMMON_DOCGEN_SSO_ENDPOINT: "${COMMON_DOCGEN_SSO_ENDPOINT}"
+      COMMON_DOCGEN_ENDPOINT: "${COMMON_DOCGEN_ENDPOINT}"
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-minio}" # default to the minio service defined below.
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-minio123}"
+      MINIO_HOST_URL: "${MINIO_HOST_URL:-minio:9000}"
+      # GDAL_DATA: /usr/share/gdal/
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+  db:
+    platform: linux/amd64
+    build: database
+    env_file:
+      - env-postgres.env
+    volumes:
+      - pgdata-volume:/pgdata:z
+      - type: bind
+        source: ./database/pgconf/setup.sql
+        target: /pgconf/setup.sql
+        consistency: cached
+      - type: bind
+        source: ./database/scripts
+        target: /scripts/
+        consistency: cached
+    ports:
+      - '6432:5432'
+  tileserv:
+    platform: linux/amd64
+    hostname: tileserv
+    depends_on:
+      - db
+    image: pramsey/pg_tileserv:latest
+    environment:
+      DATABASE_URL: postgres://ftw_reader:test_pw@db:5432/wally
+    ports:
+      - "7800:7800"
+    entrypoint: sh -c "sleep 10; /app/pg_tileserv"
+  minio:
+    image: minio/minio:RELEASE.2021-04-22T15-44-28Z
+    volumes:
+      - minio-volume:/data:z
+      - type: bind
+        source: ./scripts/minio-dev.sh
+        target: /mnt/minio-dev.sh
+        consistency: cached
+    ports:
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    entrypoint: /mnt/minio-dev.sh
+    command: server /data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+volumes:
+  pgdata-volume:
+  minio-volume:

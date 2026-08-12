@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "frontend.fullname" . }}
+  labels:
+    {{- include "frontend.labels" . | nindent 4 }}
+spec:
+  strategy:
+    type: {{ .Values.frontend.deploymentStrategy }}
+  replicas: {{ .Values.frontend.replicaCount  }}
+  selector:
+    matchLabels:
+      {{- include "frontend.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "frontend.labels" . | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "4040"
+    spec:
+      volumes:
+        - name: shared-data
+          emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: {{ .Release.Name }}-frontend-nginx
+      containers:
+        - name: nginx-log-exporter
+          image: "{{ .Values.frontend.nginxLogExporter.image }}"
+          ports:
+            - containerPort: 4040
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 4040
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 4040
+              scheme: HTTP
+            initialDelaySeconds: 3
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+            failureThreshold: 3
+          resources:
+            requests: { cpu: 50m, memory: 64Mi }
+            limits: { cpu: 50m, memory: 128Mi }
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: shared-data
+              mountPath: /var/opt/rh/rh-nginx112/log/nginx/
+        - name: wally
+          image: "{{.Values.global.registry}}/{{.Values.global.repository}}/frontend:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: WALLY_BACKEND_SERVICE
+              value: "{{ .Release.Name }}-api"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+            - name: shared-data
+              mountPath: /var/opt/rh/rh-nginx112/log/nginx/
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30

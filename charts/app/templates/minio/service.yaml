@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "minio.fullname" . }}
+  labels:
+    {{- include "minio.labels" . | nindent 4 }}
+spec:
+  selector:
+    {{- include "minio.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: minio
+      port: 9000
+      protocol: TCP
+      targetPort: 9000

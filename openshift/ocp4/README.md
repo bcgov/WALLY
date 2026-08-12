@@ -11,13 +11,17 @@ Note for migrating: Most resources that need to be created in the environments b
 ## Create or import secrets/configmaps
 
 ### Tools namespace
+
 #### Secrets
+
 * wally-at-github (GitHub SSH key)
 * wally-github-token (GitHub token)
 * apitest-test-creds (test account for CI/CD API tests)
 
 ### Dev namespace
+
 #### Secrets
+
 * common-docgen
 * wally-psql
 * minio
@@ -27,15 +31,16 @@ Note for migrating: Most resources that need to be created in the environments b
 * mapbox-access-token
 
 #### ConfigMaps
+
 * gatekeeper-config
 * promtail-config
 * loki-config
 * wally-config
 
-
 ### Test
 
 #### Secrets
+
 * common-docgen
 * wally-psql
 * minio
@@ -44,6 +49,7 @@ Note for migrating: Most resources that need to be created in the environments b
 * mapbox-access-token
 
 #### ConfigMaps
+
 * gatekeeper-config
 * promtail-config
 * loki-config
@@ -59,6 +65,7 @@ Note for migrating: Most resources that need to be created in the environments b
 ### Prod
 
 #### Secrets
+
 * common-docgen
 * wally-psql
 * minio
@@ -67,6 +74,7 @@ Note for migrating: Most resources that need to be created in the environments b
 * mapbox-access-token
 
 #### ConfigMaps
+
 * gatekeeper-config
 * promtail-config
 * loki-config
@@ -84,7 +92,7 @@ Note for migrating: Most resources that need to be created in the environments b
 The following external/community images don't have BuildConfigs and need to be imported:
 Example import command: `oc -n d1b5d2-tools import-image --from=python:3.7 python:3.7 --reference-policy=local --confirm`
 
-Note: see https://github.com/BCDevOps/OpenShift4-Migration/issues/51.  With Artifactory credentials the `--from=python:3.7` above can be replaced
+Note: see <https://github.com/BCDevOps/OpenShift4-Migration/issues/51>.  With Artifactory credentials the `--from=python:3.7` above can be replaced
 with `--from=docker-remote.artifacts.developer.gov.bc.ca`
 
 * `python:3.7`
@@ -92,7 +100,7 @@ with `--from=docker-remote.artifacts.developer.gov.bc.ca`
 * `promtail:v1.3.0` - Log exporter for Loki
 * `apitest` - Warning: technical debt: this image needs a BuildConfig to be built using source code from github.com/stephenhillier/apitest onto a Red Hat Jenkins agent image.  The current image was transferred from OCP3.
 
-Refer to https://github.com/BCDevOps/OpenShift4-Migration/issues/51 for instructions on how to enable pull secrets for builds using Docker Hub images.
+Refer to <https://github.com/BCDevOps/OpenShift4-Migration/issues/51> for instructions on how to enable pull secrets for builds using Docker Hub images.
 
 ## Set up NetworkPolicy
 
@@ -111,6 +119,7 @@ to a new platform environment.
 Wally requires data from the Freshwater Atlas, PRISM, Hydat (Water Survey of Canada database), and the 12 arcsecond CDEM.
 
 These files need to be uploaded to Minio:
+
 ```
 /geojson/freshwater_atlas_watersheds.zip
 /geojson/freshwater_atlas_stream_networks.zip
@@ -120,39 +129,41 @@ These files need to be uploaded to Minio:
 ```
 
 `freshwater_atlas_watersheds.zip` - Freshwater Atlas Watersheds:
+
 * Download from the GeoBC ftp site: `ftp://ftp.gdbc.gov.bc.ca/sections/outgoing/bmgs/FWA_Public/FWA_WATERSHEDS_POLY.gdb/`
 * Rename to `freshwater_atlas_watersheds.gdb/`.  This step helps the script match the file to the WALLY database table "freshwater_atlas_watersheds".
 * zip: `zip -r freshwater_atlas_watersheds freshwater_atlas_watersheds.gdb`
 * Upload to the `geojson` bucket.  This isn't a geojson file, but the bucket for data dumps was previously named geojson. TODO: rename to a more general name.
 
 `freshwater_atlas_stream_networks.zip` - Freshwater Atlas Stream Networks:
+
 * Download from `ftp://ftp.gdbc.gov.bc.ca/sections/outgoing/bmgs/FWA_Public/FWA_STREAM_NETWORKS_SP.gdb/`
 * rename to `freshwater_atlas_stream_networks.gdb` and zip
 * follow rest of instructions as above.
 
 `prism_pr.asc` and `prism_pr.prj` - PRISM precipitation.
+
 * Download from Pacific Climate Impacts Consortium
 * upload to the `raster` bucket.
 
 `BC_Area_CDEM.tif`:
+
 * Download from `https://ftp.maps.canada.ca/pub/nrcan_rncan/elevation/cdem_mnec/archive/`.
 * 12 second is sufficient for the functions that use the DEM directly
 * Reproject to EPSG:4326 and crop to approximate BC area (TODO: add a command e.g. `gdalwarp -t_srs EPSG:4326 -te <xmin ymin xmax ymax> cdem.tif`).
 * Ensure that enough of Alberta, NWT, Yukon are included since some watersheds originate outside BC. (TODO: confirm bounds required to not clip any watersheds that drain to BC)
 
-
 ## Populate databases
 
 The following needs to be done for both staging and prod.
 
-
 ### Layer data
 
 Most layer data (e.g. point of interest, polygon search etc) pull directly from DataBC except for the following
+
 * First Nations treaty areas
 * First Nations communities
 * First Nations treaty lands
-
 
 ```sh
 # job to automatically download and store on Minio
@@ -167,6 +178,7 @@ oc process -f import.job.yaml -p JOB_NAME=fntreatylands -p MINIO_HOST_URL=http:/
 ```
 
 ### Freshwater Atlas
+
 Freshwater Atlas watersheds and stream networks need to be loaded. This takes time (possibly several hours).
 
 **Warning:**
@@ -211,8 +223,10 @@ oc process -f import.job.yaml -p JOB_NAME=hydrosheds -p ENV_NAME=staging -p LAYE
 ```
 
 ### Prod data
+
 This is an abbreviated version of the above for PROD.  Refer to the above for instructions. The same files need
 to be on Minio in the prod namespace.
+
 ```sh
 oc process -f import.job.yaml -p JOB_NAME=watersheds -p ENV_NAME=production -p LAYER_NAME=freshwater_atlas_watersheds \
    -p SCRIPT_PATH=/dataload/load_fwa.sh -p MINIO_HOST_URL=http://wally-minio-production:9000 | oc apply -f -
