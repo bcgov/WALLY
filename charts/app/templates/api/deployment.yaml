@@ -24,26 +24,36 @@ spec:
       initContainers:
       - name: {{ include "backend.fullname" . }}-run-migrations
         image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations:{{ .Values.global.tag | default .Chart.AppVersion }}"
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            export FLYWAY_URL="jdbc:postgresql://${PGHOST}:5432/${PGDATABASE}"
+            exec flyway info migrate repair
         env:
-          - name: FLYWAY_URL
+          - name: PGHOST
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
-                key: jdbc-uri
+                name: {{ include "backend.PGSuperUser" . }}
+                key: host
+          - name: PGDATABASE
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGApplicationUser" . }}
+                key: dbname
           - name: FLYWAY_USER
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
+                name: {{ include "backend.PGSuperUser" . }}
                 key: user
           - name: FLYWAY_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
+                name: {{ include "backend.PGSuperUser" . }}
                 key: password
           - name: FLYWAY_PLACEHOLDERS_APPUSER
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretName" . }}
+                name: {{ include "backend.PGApplicationUser" . }}
                 key: user
 
       - name: {{ include "backend.fullname" . }}-seed-db
@@ -53,22 +63,22 @@ spec:
           - name: POSTGRES_USER
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
+                name: {{ include "backend.PGSuperUser" . }}
                 key: user
           - name: POSTGRES_PASSWORD
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
+                name: {{ include "backend.PGSuperUser" . }}
                 key: password
           - name: POSTGRES_DB
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
+                name: {{ include "backend.PGApplicationUser" . }}
                 key: dbname
           - name: POSTGRES_SERVER
             valueFrom:
               secretKeyRef:
-                name: {{ include "backend.pgSecretAdmin" . }}
+                name: {{ include "backend.PGSuperUser" . }}
                 key: host
           - name: WALLY_ENV
             value: {{ .Values.global.environment | quote }}
@@ -113,22 +123,22 @@ spec:
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.PGApplicationUser" . }}
                   key: user
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.PGApplicationUser" . }}
                   key: password
             - name: POSTGRES_DB
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.PGApplicationUser" . }}
                   key: dbname
             - name: POSTGRES_SERVER
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "backend.pgSecretName" . }}
+                  name: {{ include "backend.PGApplicationUser" . }}
                   key: pgbouncer-host
             - name: MINIO_ACCESS_KEY
               valueFrom:

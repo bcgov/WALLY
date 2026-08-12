@@ -28,14 +28,14 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{/*
 Secrets
 */}}
-{{- define "backend.pgSecretName" -}}
+{{- define "backend.PGApplicationUser" -}}
 {{- printf "%s-pguser-%s" .Values.global.databaseAlias .Values.global.config.databaseUser -}}
 {{- end }}
 
 {{/*
 Secrets
 */}}
-{{- define "backend.pgSecretAdmin" -}}
+{{- define "backend.PGSuperUser" -}}
 {{- printf "%s-pguser-postgres" .Values.global.databaseAlias -}}
 {{- end }}
 
