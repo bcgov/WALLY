@@ -172,6 +172,9 @@ jobs:
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values_application }} \
               --set minio.host=wally-minio-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.apps.silver.devops.gov.bc.ca \
+              --set global.wallyVersion=${{ steps.vars.outputs.tag }} \
+              --set global.wallyBuild=${{ steps.vars.outputs.tag }} \
+              --set backend.apiVersion=${{ steps.vars.outputs.tag }} \
               ./${{ steps.repo_lc.outputs.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
             # Helm release history

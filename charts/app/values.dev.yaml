@@ -1,5 +1,5 @@
 global:
-  environment: dev
+  environment: DEV
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level.
   repository: bcgov/wally
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level. default is ghcr.io
@@ -20,13 +20,13 @@ global:
   domain: "apps.silver.devops.gov.bc.ca" # it is apps.gold.devops.gov.bc.ca for gold cluster
   databaseAlias: wally-crunchy
   # Api Env Vars - Globally Set
-  wallyVersion: local
-  wallyBuild: local
+  wallyVersion: DEV
+  wallyBuild: DEV
 backend:
   #-- enable or disable backend
   enabled: true
   #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
-  apiVersion: local
+  apiVersion: DEV
   deploymentStrategy: Recreate
   #-- the number of replicas
   replicaCount: 1
