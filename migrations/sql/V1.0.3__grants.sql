@@ -12,6 +12,9 @@ grant select on all tables in schema tiger to "${appUser}";
 grant select on all tables in schema tiger_data to "${appUser}";
 grant select on all tables in schema topology to "${appUser}";
 
+-- Grant Insert necessary for seeding DB (hydat fixture)
+grant insert on fasstr.fasstr_flows to "${appUser}";
+
 -- Grants for the app's own DB user against fasstr and postgis_ftw.
 -- ${appUser} is a Flyway placeholder - resolved per-environment at migrate time
 -- (see flyway.conf / -placeholders.appUser=... below). Pull the value from
