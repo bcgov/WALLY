@@ -24,6 +24,7 @@ spec:
       initContainers:
       - name: {{ include "backend.fullname" . }}-run-migrations
         image: "{{.Values.global.registry}}/{{.Values.global.repository}}/migrations:{{ .Values.global.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
         command: ["/bin/sh", "-c"]
         args:
           - |
@@ -60,6 +61,7 @@ spec:
 
       - name: {{ include "backend.fullname" . }}-seed-db
         image: "{{.Values.global.registry}}/{{.Values.global.repository}}/backend:{{ .Values.global.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: Always
         command: ["/bin/bash", "/app/prestart.sh"]
         env:
           - name: POSTGRES_USER
