@@ -87,6 +87,10 @@ crunchy:
       databases:
         - 'postgres'
         - '{{ .Values.global.config.dbName }}'
+    - name: 'ftw_reader'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+        - 'postgres'
     - name: '{{ .Values.global.config.dbName }}proxy'
       databases:
         - '{{ .Values.global.config.dbName }}'
