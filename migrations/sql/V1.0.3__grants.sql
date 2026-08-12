@@ -19,8 +19,8 @@ grant all on schema postgis_ftw to "${appUser}";
 grant all on all tables in schema postgis_ftw to "${appUser}";
 alter default privileges in schema postgis_ftw grant all on tables to "${appUser}";
 
-grant usage on schema postgis_ftw to ftw_reader;
-alter default privileges in schema postgis_ftw grant select on tables to ftw_reader;
+grant usage on schema postgis_ftw to "ftw-reader";
+alter default privileges in schema postgis_ftw grant select on tables to "ftw-reader";
 
 -- whse_basemapping - previously had zero grants anywhere.
 grant all on schema whse_basemapping to "${appUser}";
