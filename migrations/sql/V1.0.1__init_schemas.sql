@@ -6,4 +6,4 @@ create schema if not exists metadata;
 create schema if not exists modeling;
 create schema if not exists prism;
 create schema if not exists dem;
-create schema if not exists hydroshed;
+create schema if not exists hydrosheds;
