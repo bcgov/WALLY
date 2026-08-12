@@ -1,3 +1,17 @@
+-- Reference/open-data schemas the app reads from at runtime (confirmed via
+-- the fasstr population query, which joins against hydat). These are
+-- read-only external datasets, not app-owned data - SELECT only, no writes.
+grant usage on schema hydat, dem, hydrosheds, metadata, modeling, prism, tiger, tiger_data, topology to "${appUser}";
+grant select on all tables in schema hydat to "${appUser}";
+grant select on all tables in schema dem to "${appUser}";
+grant select on all tables in schema hydrosheds to "${appUser}";
+grant select on all tables in schema metadata to "${appUser}";
+grant select on all tables in schema modeling to "${appUser}";
+grant select on all tables in schema prism to "${appUser}";
+grant select on all tables in schema tiger to "${appUser}";
+grant select on all tables in schema tiger_data to "${appUser}";
+grant select on all tables in schema topology to "${appUser}";
+
 -- Grants for the app's own DB user against fasstr and postgis_ftw.
 -- ${appUser} is a Flyway placeholder - resolved per-environment at migrate time
 -- (see flyway.conf / -placeholders.appUser=... below). Pull the value from
