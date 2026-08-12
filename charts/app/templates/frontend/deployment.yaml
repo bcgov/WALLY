@@ -22,6 +22,9 @@ spec:
       volumes:
         - name: shared-data
           emptyDir: {}
+        - name: nginx-conf
+          configMap:
+            name: {{ .Release.Name }}-frontend-nginx
       containers:
         - name: nginx-log-exporter
           image: "{{ .Values.frontend.nginxLogExporter.image }}"
@@ -77,6 +80,9 @@ spec:
           volumeMounts:
             - name: shared-data
               mountPath: /var/opt/rh/rh-nginx112/log/nginx/
+            - name: nginx-conf
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
