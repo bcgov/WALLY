@@ -54,7 +54,7 @@ jobs:
         id: slot
         run: |
           NAMESPACE="${{ secrets.oc_namespace }}"
-          RELEASE_NAME="wally-pr-${{ github.event.number }}"
+          RELEASE_NAME="wally-${{ github.event.number }}"
           TOTAL_SLOTS="${{ inputs.total_slots }}"
           PREFIX="${{ inputs.slot_prefix }}"
 
