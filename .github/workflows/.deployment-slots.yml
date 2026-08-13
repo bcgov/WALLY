@@ -1,0 +1,94 @@
+name: .Deployment Slots
+
+on:
+  workflow_call:
+    inputs:
+      total_slots:
+        description: Total number of available deployment slots
+        default: 10
+        required: false
+        type: number
+      slot_prefix:
+        description: Hostname prefix used for each slot (e.g. wally-slot)
+        default: wally-slot
+        required: false
+        type: string
+
+    outputs:
+      slot:
+        description: 'The claimed/reused slot number'
+        value: ${{ jobs.find_deployment_slot.outputs.slot }}
+      route:
+        description: 'The bare route/path for the claimed slot (no domain suffix)'
+        value: ${{ jobs.find_deployment_slot.outputs.route }}
+      available:
+        description: 'Whether a slot was successfully found/claimed'
+        value: ${{ jobs.find_deployment_slot.outputs.available }}
+
+    secrets:
+      oc_namespace:
+        description: OpenShift namespace
+        required: true
+      oc_token:
+        description: OpenShift token
+        required: true
+
+jobs:
+  find_deployment_slot:
+    name: Find or claim slot
+    runs-on: ubuntu-24.04
+    outputs:
+      slot: ${{ steps.slot.outputs.slot }}
+      route: ${{ steps.slot.outputs.route }}
+      available: ${{ steps.slot.outputs.available }}
+    steps:
+      - name: Login to OpenShift
+        uses: redhat-actions/oc-login@v1
+        with:
+          openshift_server_url: ${{ vars.oc_server }}
+          openshift_token: ${{ secrets.oc_token }}
+          namespace: ${{ secrets.oc_namespace }}
+          insecure_skip_tls_verify: true
+
+      - name: Find or claim deployment slot
+        id: slot
+        run: |
+          NAMESPACE="${{ secrets.oc_namespace }}"
+          RELEASE_NAME="wally-pr-${{ github.event.number }}"
+          TOTAL_SLOTS="${{ inputs.total_slots }}"
+          PREFIX="${{ inputs.slot_prefix }}"
+
+          # 1. Reuse existing slot if this PR already has a deployed frontend Route.
+          EXISTING_HOST=$(oc get route -n "$NAMESPACE" \
+            -l "app.kubernetes.io/instance=${RELEASE_NAME}" \
+            -o jsonpath='{.items[0].spec.host}' 2>/dev/null || true)
+
+          if [ -n "$EXISTING_HOST" ]; then
+            SLOT=$(echo "$EXISTING_HOST" | grep -oP "${PREFIX}-\K[0-9]+")
+            ROUTE="${PREFIX}-${SLOT}"
+            echo "Reusing existing slot: $SLOT ($ROUTE)"
+            echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
+            echo "route=$ROUTE" >> "$GITHUB_OUTPUT"
+            echo "available=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # 2. Collect all slot numbers currently in use across every route.
+          USED_SLOTS=$(oc get routes -n "$NAMESPACE" \
+            -o jsonpath='{.items[*].spec.host}' | \
+            grep -oP "${PREFIX}-\K[0-9]+" | sort -u || true)
+
+          # 3. Claim the first free slot.
+          for i in $(seq 1 "$TOTAL_SLOTS"); do
+            if ! echo "$USED_SLOTS" | grep -qx "$i"; then
+              ROUTE="${PREFIX}-${i}"
+              echo "Claiming free slot: $i"
+              echo "slot=$i" >> "$GITHUB_OUTPUT"
+              echo "route=$ROUTE" >> "$GITHUB_OUTPUT"
+              echo "available=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+
+          echo "No free slots available (all $TOTAL_SLOTS in use)"
+          echo "available=false" >> "$GITHUB_OUTPUT"

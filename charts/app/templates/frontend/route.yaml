@@ -1,0 +1,23 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "frontend.fullname" . }}
+  labels:
+    {{- include "frontend.labels" . | nindent 4 }}
+  annotations:
+    haproxy.router.openshift.io/timeout: 300s
+    {{- if .Values.frontend.route.annotations }}
+    {{- toYaml .Values.frontend.route.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  host: {{ printf "%s.%s" .Values.frontend.route.host .Values.global.domain }}
+  to:
+    kind: Service
+    name: {{ include "frontend.fullname" . }}
+  port:
+    targetPort: 80
+  tls:
+    insecureEdgeTerminationPolicy: Redirect
+    termination: edge
+{{- end }}

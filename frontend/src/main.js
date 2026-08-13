@@ -33,7 +33,7 @@ if (global.config.isProduction) {
     })]
   })
   Vue.use(VueMatomo, {
-    host: 'https://matomo-d1b5d2-prod.apps.silver.devops.gov.bc.ca/',
+    host: 'https://wally-matomo.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router,
     domains: 'wally.nrs.gov.bc.ca'
@@ -42,7 +42,7 @@ if (global.config.isProduction) {
 
 if (global.config.isStaging) {
   Vue.use(VueMatomo, {
-    host: 'https://matomo-d1b5d2-test.apps.silver.devops.gov.bc.ca/',
+    host: 'https://wally-matomo-staging.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router,
     domains: '*.silver.devops.gov.bc.ca'
@@ -52,7 +52,7 @@ if (global.config.isStaging) {
 if (global.config.isDevelopment && global.config.enableAnalytics) {
   // To test matomo actions locally, turn on enableAnalytics
   Vue.use(VueMatomo, {
-    host: 'https://matomo-d1b5d2-test.apps.silver.devops.gov.bc.ca/',
+    host: 'https://wally-matomo-dev.apps.silver.devops.gov.bc.ca/',
     siteId: 1,
     router,
     domains: '*.silver.devops.gov.bc.ca',

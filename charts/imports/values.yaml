@@ -1,8 +1,8 @@
 global:
   environment: DEV
-  databaseSuperUser: wally-crunchy-super-user
-  databaseApplicationUser: wally-crunchy-user
-  databaseAlias: wally-crunchy
+  databaseSuperUser: wally-super-user
+  databaseApplicationUser: wally
+  databaseAlias: wally
 importer:
   image: "ghcr.io/bcgov/wally/imports:latest"
   minioHostUrl: http://minio:9000

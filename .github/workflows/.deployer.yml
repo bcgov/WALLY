@@ -48,7 +48,6 @@ on:
         required: false
         default: 'app'
         type: string
-
       ### Usually a bad idea / not recommended
       timeout-minutes:
         description: 'Timeout minutes'
@@ -64,6 +63,21 @@ on:
         description: 'Values file'
         default: 'values.yaml'
         required: false
+        type: string
+      route:
+        description: The bare route/path the frontend deployment is available at (domain appended automatically)
+        required: true
+        default: "wally-deployment"
+        type: string
+      minio_host:
+        description: The bare route/path for minio (domain appended automatically)
+        required: false
+        default: ""
+        type: string
+      matomo_host:
+        description: The bare route/path for matomo - only used by staging/prod
+        required: false
+        default: ""
         type: string
 
     outputs:
@@ -155,10 +169,8 @@ jobs:
           commands: |
             # Deploy
 
-            # If directory provided, cd to it
             [ -z "${{ inputs.directory_application }}" ]|| cd ${{ inputs.directory_application }}
 
-            # Helm package
             sed -i 's/^name:.*/name: ${{ steps.repo_lc.outputs.name }}/' Chart.yaml
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
 
@@ -171,14 +183,14 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values_application }} \
-              --set minio.host=wally-minio-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.apps.silver.devops.gov.bc.ca \
+              --set frontend.route.host=${{ inputs.route }} \
+              ${{ inputs.minio_host != '' && format('--set minio.host={0}', inputs.minio_host) || '' }} \
+              ${{ inputs.matomo_host != '' && format('--set matomo.host={0}', inputs.matomo_host) || '' }} \
               --set global.wallyVersion=${{ steps.vars.outputs.tag }} \
               --set global.wallyBuild=${{ steps.vars.outputs.tag }} \
               --set backend.apiVersion=${{ steps.vars.outputs.tag }} \
               ./${{ steps.repo_lc.outputs.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
-            # Helm release history
             helm history ${{ steps.vars.outputs.release }}
 
-            # Completed pod cleanup
             oc delete po --field-selector=status.phase==Succeeded || true

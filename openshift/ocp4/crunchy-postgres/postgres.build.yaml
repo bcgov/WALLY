@@ -2,8 +2,8 @@ apiVersion: build.openshift.io/v1
 kind: BuildConfig
 metadata:
   labels:
-    name: wally-crunchy-postgres
-  name: wally-crunchy-postgres
+    name: wally-postgres
+  name: wally-postgres
   namespace: d1b5d2-tools
 spec:
   output:

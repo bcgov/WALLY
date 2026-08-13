@@ -41,10 +41,18 @@ jobs:
           package: ${{ matrix.package }}
           tags: ${{ github.event.number }}
 
+  find_deployment_slot:
+    name: Find Deployment Slot
+    needs: [builds]
+    uses: ./.github/workflows/.deployment-slots.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploys:
     name: Deploys Build (${{ github.event.number }})
-    needs: [builds]
+    needs: [find_deployment_slot]
     uses: ./.github/workflows/.deployer.yml
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
@@ -55,3 +63,5 @@ jobs:
       directory_crunchy: ./charts/crunchy
       values_application: values.dev.yaml
       values_crunchy: values.dev.yaml
+      route: ${{ needs.find_deployment_slot.outputs.route }}
+      minio_host: wally-minio-${{ github.event.number }}
