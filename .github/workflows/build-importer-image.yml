@@ -1,4 +1,4 @@
-name: Build Crunchy Postgres - PLR Base Image
+name: Build Importer Image
 on:
   workflow_dispatch:
 
@@ -7,13 +7,12 @@ permissions: {}
 jobs:
   builds:
     name: Build Matrix
-    # needs: [unit_tests]
     permissions:
       packages: write
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [crunchy]
+        package: [imports]
     timeout-minutes: 30
     steps:
       - name: Login to Artifactory

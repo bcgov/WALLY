@@ -1,0 +1,65 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "wally-importer.fullname" . }}-cdem-{{ .Release.Revision }}-{{ randAlphaNum 5 | lower }}
+  labels:
+    component: importer
+    job: cdem
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  parallelism: 1
+  completions: 1
+  template:
+    metadata:
+      name: {{ include "wally-importer.fullname" . }}-cdem
+    spec:
+      containers:
+      - name: importer
+        image: "{{ .Values.importer.image }}"
+        command: ['/dataload/load_cdem.sh']
+        resources:
+          requests:
+            cpu: 200m
+            memory: 4Gi
+          limits:
+            cpu: '1'
+            memory: 4Gi
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" . }}
+              key: user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" . }}
+              key: password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" . }}
+              key: dbname
+        - name: POSTGRES_SERVER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" . }}
+              key: host
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: minioAccessKey
+              name: minio
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: minioSecretKey
+              name: minio
+        - name: MINIO_HOST_URL
+          value: "{{ .Values.importer.minioHostUrl }}"
+      restartPolicy: Never
