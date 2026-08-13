@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         package: [backend, frontend, migrations, minio, matomoproxy]
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
 
       - name: Login to Artifactory
