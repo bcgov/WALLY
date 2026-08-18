@@ -1,6 +1,6 @@
 # FROM docker-remote.artifacts.developer.gov.bc.ca/osgeo/gdal:ubuntu-small-latest
 
-FROM artifacts.developer.gov.bc.ca/osgeo/gdal:ubuntu-small-latest
+FROM artifacts.developer.gov.bc.ca/docker-remote/osgeo/gdal:ubuntu-small-latest
 
 WORKDIR /dataload
 
