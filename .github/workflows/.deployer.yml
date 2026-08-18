@@ -142,7 +142,7 @@ jobs:
 
       - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
         if: github.event_name == 'pull_request'
-        uses: bcgov/action-oc-runner@v1.2.0 # v1.2.0
+        uses: bcgov/action-oc-runner@v1.7.0 # v1.2.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
@@ -159,7 +159,7 @@ jobs:
 
       - name: Helm Deploy
         id: deploy
-        uses: bcgov/action-oc-runner@v1.2.0 # v1.2.0
+        uses: bcgov/action-oc-runner@v1.7.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
@@ -174,6 +174,16 @@ jobs:
             sed -i 's/^name:.*/name: ${{ steps.repo_lc.outputs.name }}/' Chart.yaml
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
 
+            # Build up optional --set flags as plain bash, rather than
+            # GitHub Actions expression ternaries embedded in the command
+            # string - much easier to read and debug.
+            MINIO_HOST="${{ inputs.minio_host }}"
+            MATOMO_HOST="${{ inputs.matomo_host }}"
+
+            EXTRA_ARGS=""
+            [ -n "$MINIO_HOST" ] && EXTRA_ARGS="$EXTRA_ARGS --set minio.host=$MINIO_HOST"
+            [ -n "$MATOMO_HOST" ] && EXTRA_ARGS="$EXTRA_ARGS --set matomo.host=$MATOMO_HOST"
+
             helm upgrade \
               --set-string global.repository=${{ steps.repo_lc.outputs.full }} \
               --set-string global.tag="${{ steps.vars.outputs.tag }}" \
@@ -183,9 +193,8 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values_application }} \
-              --set frontend.route.host=${{ inputs.route }} \
-              ${{ inputs.minio_host != '' && format('--set minio.host={0}', inputs.minio_host) || '' }} \
-              ${{ inputs.matomo_host != '' && format('--set matomo.host={0}', inputs.matomo_host) || '' }} \
+              --set frontend.route.host="${{ inputs.route }}" \
+              $EXTRA_ARGS \
               --set global.wallyVersion=${{ steps.vars.outputs.tag }} \
               --set global.wallyBuild=${{ steps.vars.outputs.tag }} \
               --set backend.apiVersion=${{ steps.vars.outputs.tag }} \

@@ -15,15 +15,9 @@ on:
         type: string
 
     outputs:
-      slot:
-        description: 'The claimed/reused slot number'
-        value: ${{ jobs.find_deployment_slot.outputs.slot }}
       route:
-        description: 'The bare route/path for the claimed slot (no domain suffix)'
+        description: 'The bare route/path for the claimed or reused slot (no domain suffix)'
         value: ${{ jobs.find_deployment_slot.outputs.route }}
-      available:
-        description: 'Whether a slot was successfully found/claimed'
-        value: ${{ jobs.find_deployment_slot.outputs.available }}
 
     secrets:
       oc_namespace:
@@ -38,13 +32,11 @@ jobs:
     name: Find or claim slot
     runs-on: ubuntu-24.04
     outputs:
-      slot: ${{ steps.slot.outputs.slot }}
-      route: ${{ steps.slot.outputs.route }}
-      available: ${{ steps.slot.outputs.available }}
+      route: ${{ steps.slot.outputs.commands }}
     steps:
       - name: Find or claim deployment slot
         id: slot
-        uses: bcgov/action-oc-runner@v1.2.2
+        uses: bcgov/action-oc-runner@v1.7.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_server: ${{ vars.oc_server }}
@@ -55,37 +47,26 @@ jobs:
             TOTAL_SLOTS="${{ inputs.total_slots }}"
             PREFIX="${{ inputs.slot_prefix }}"
 
-            # 1. Reuse existing slot if this PR already has a deployed frontend Route.
             EXISTING_HOST=$(oc get route -n "$NAMESPACE" \
               -l "app.kubernetes.io/instance=${RELEASE_NAME}" \
               -o jsonpath='{.items[0].spec.host}' 2>/dev/null || true)
 
             if [ -n "$EXISTING_HOST" ]; then
               SLOT=$(echo "$EXISTING_HOST" | grep -oP "${PREFIX}-\K[0-9]+")
-              ROUTE="${PREFIX}-${SLOT}"
-              echo "Reusing existing slot: $SLOT ($ROUTE)"
-              echo "slot=$SLOT" >> "$GITHUB_OUTPUT"
-              echo "route=$ROUTE" >> "$GITHUB_OUTPUT"
-              echo "available=true" >> "$GITHUB_OUTPUT"
+              echo "${PREFIX}-${SLOT}" >> "$GITHUB_OUTPUT"
               exit 0
             fi
 
-            # 2. Collect all slot numbers currently in use across every route.
             USED_SLOTS=$(oc get routes -n "$NAMESPACE" \
               -o jsonpath='{.items[*].spec.host}' | \
               grep -oP "${PREFIX}-\K[0-9]+" | sort -u || true)
 
-            # 3. Claim the first free slot.
             for i in $(seq 1 "$TOTAL_SLOTS"); do
               if ! echo "$USED_SLOTS" | grep -qx "$i"; then
-                ROUTE="${PREFIX}-${i}"
-                echo "Claiming free slot: $i"
-                echo "slot=$i" >> "$GITHUB_OUTPUT"
-                echo "route=$ROUTE" >> "$GITHUB_OUTPUT"
-                echo "available=true" >> "$GITHUB_OUTPUT"
+                echo "${PREFIX}-${i}" >> "$GITHUB_OUTPUT"
                 exit 0
               fi
             done
 
-            echo "No free slots available (all $TOTAL_SLOTS in use)"
-            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::error::No free deployment slots available (all $TOTAL_SLOTS in use)"
+            exit 1
