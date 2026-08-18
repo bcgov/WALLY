@@ -1,8 +1,8 @@
 global:
   environment: DEV
-  databaseSuperUser: wally-super-user
+  databaseSuperUser: postgres
   databaseApplicationUser: wally
-  databaseAlias: wally
+  databaseAlias: pg-e5a12179-crunchy
 importer:
   image: "ghcr.io/bcgov/wally/imports:latest"
   minioHostUrl: http://minio:9000
