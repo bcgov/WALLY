@@ -16,35 +16,43 @@ jobs:
   #   uses: ./.github/workflows/.unit-tests.yml
 
 
-  builds:
-    name: Build Matrix
-    # needs: [unit_tests]
-    permissions:
-      packages: write
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        package: [backend, frontend, migrations, minio]
-    timeout-minutes: 10
-    steps:
+  # builds:
+  #   name: Build Matrix
+  #   # needs: [unit_tests]
+  #   permissions:
+  #     packages: write
+  #   runs-on: ubuntu-24.04
+  #   strategy:
+  #     matrix:
+  #       package: [backend, frontend, migrations, minio]
+  #   timeout-minutes: 30
+  #   steps:
 
-      - name: Login to Artifactory
-        if: matrix.package == 'minio'
-        uses: docker/login-action@v3
-        with:
-          registry: artifacts.developer.gov.bc.ca
-          username: ${{ secrets.ARTIFACTORY_USERNAME }}
-          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      - uses: bcgov/action-builder-ghcr@v4.0.0
-        with:
-          keep_versions: 50
-          package: ${{ matrix.package }}
-          tags: ${{ github.event.number }}
+  #     - name: Login to Artifactory
+  #       if: matrix.package == 'minio'
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: artifacts.developer.gov.bc.ca
+  #         username: ${{ secrets.ARTIFACTORY_USERNAME }}
+  #         password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+  #     - uses: bcgov/action-builder-ghcr@v4.0.0
+  #       with:
+  #         keep_versions: 50
+  #         package: ${{ matrix.package }}
+  #         tags: ${{ github.event.number }}
+
+  find_deployment_slot:
+    name: Find Deployment Slot
+    # needs: [builds]
+    uses: ./.github/workflows/.deployment-slots.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
 
   # https://github.com/bcgov/quickstart-openshift-helpers
   deploys:
     name: Deploys Build (${{ github.event.number }})
-    needs: [builds]
+    needs: [find_deployment_slot]
     uses: ./.github/workflows/.deployer.yml
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
@@ -55,3 +63,5 @@ jobs:
       directory_crunchy: ./charts/crunchy
       values_application: values.dev.yaml
       values_crunchy: values.dev.yaml
+      route: ${{ needs.find_deployment_slot.outputs.route }}
+      minio_host: wally-minio-${{ github.event.number }}

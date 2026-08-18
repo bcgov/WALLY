@@ -1,0 +1,63 @@
+name: Merge
+
+on:
+  push:
+    branches: [WO-2026-030]
+    paths-ignore:
+      - '*.md'
+      - '.github/**'
+      - '.github/graphics/**'
+      - '!.github/workflows/**'
+
+  workflow_dispatch:
+    # Image built is always test
+concurrency:
+  # Do not interrupt previous workflows
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  builds:
+    name: Build Matrix
+    # needs: [unit_tests]
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backend, frontend, migrations, minio, matomoproxy]
+    timeout-minutes: 30
+    steps:
+
+      - name: Login to Artifactory
+        if: matrix.package == 'minio' || matrix.package == 'matomoproxy'
+        uses: docker/login-action@v3
+        with:
+          registry: artifacts.developer.gov.bc.ca
+          username: ${{ secrets.ARTIFACTORY_USERNAME }}
+          password: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      - uses: bcgov/action-builder-ghcr@v4.0.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: staging
+
+  # https://github.com/bcgov/quickstart-openshift-helpers
+  deploys:
+    name: Deploy Application (TEST)
+    needs: [builds]
+    uses: ./.github/workflows/.deployer.yml
+    secrets: inherit
+    with:
+      environment: staging
+      db_user: wally
+      directory_application: ./charts/app
+      directory_crunchy: ./charts/crunchy
+      values_application: values.staging.yaml
+      values_crunchy: values.staging.yaml
+      route: wally-staging
+      minio_host: wally-minio-staging
+      matomo_host: wally-matomo-staging
+

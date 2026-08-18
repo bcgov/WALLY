@@ -1,3 +1,4 @@
+{{- if .Values.minio.enabled }}
 apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
@@ -5,7 +6,7 @@ metadata:
   labels:
     {{- include "minio.labels" . | nindent 4 }}
 spec:
-  host: {{ .Values.minio.host | quote }}
+  host: {{ printf "%s.%s" .Values.minio.host .Values.global.domain | quote }}
   port:
     targetPort: minio
   to:
@@ -16,3 +17,4 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
+{{- end }}

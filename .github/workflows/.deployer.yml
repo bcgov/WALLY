@@ -48,7 +48,6 @@ on:
         required: false
         default: 'app'
         type: string
-
       ### Usually a bad idea / not recommended
       timeout-minutes:
         description: 'Timeout minutes'
@@ -64,6 +63,21 @@ on:
         description: 'Values file'
         default: 'values.yaml'
         required: false
+        type: string
+      route:
+        description: The bare route/path the frontend deployment is available at (domain appended automatically)
+        required: true
+        default: "wally-deployment"
+        type: string
+      minio_host:
+        description: The bare route/path for minio (domain appended automatically)
+        required: false
+        default: ""
+        type: string
+      matomo_host:
+        description: The bare route/path for matomo - only used by staging/prod
+        required: false
+        default: ""
         type: string
 
     outputs:
@@ -128,7 +142,7 @@ jobs:
 
       - name: Stop pre-existing deployments on PRs (status = pending-upgrade)
         if: github.event_name == 'pull_request'
-        uses: bcgov/action-oc-runner@v1.2.0 # v1.2.0
+        uses: bcgov/action-oc-runner@v1.7.0 # v1.2.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
@@ -145,7 +159,7 @@ jobs:
 
       - name: Helm Deploy
         id: deploy
-        uses: bcgov/action-oc-runner@v1.2.0 # v1.2.0
+        uses: bcgov/action-oc-runner@v1.7.0
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
@@ -155,12 +169,20 @@ jobs:
           commands: |
             # Deploy
 
-            # If directory provided, cd to it
             [ -z "${{ inputs.directory_application }}" ]|| cd ${{ inputs.directory_application }}
 
-            # Helm package
             sed -i 's/^name:.*/name: ${{ steps.repo_lc.outputs.name }}/' Chart.yaml
             helm package -u . --app-version="tag-${{ steps.vars.outputs.tag }}_run-${{ github.run_number }}" --version=${{ steps.pr.outputs.pr || steps.vars.outputs.version }}
+
+            # Build up optional --set flags as plain bash, rather than
+            # GitHub Actions expression ternaries embedded in the command
+            # string - much easier to read and debug.
+            MINIO_HOST="${{ inputs.minio_host }}"
+            MATOMO_HOST="${{ inputs.matomo_host }}"
+
+            EXTRA_ARGS=""
+            [ -n "$MINIO_HOST" ] && EXTRA_ARGS="$EXTRA_ARGS --set minio.host=$MINIO_HOST"
+            [ -n "$MATOMO_HOST" ] && EXTRA_ARGS="$EXTRA_ARGS --set matomo.host=$MATOMO_HOST"
 
             helm upgrade \
               --set-string global.repository=${{ steps.repo_lc.outputs.full }} \
@@ -171,14 +193,13 @@ jobs:
               --install --wait ${{ inputs.atomic && '--atomic' || '' }} ${{ steps.vars.outputs.release }} \
               --timeout ${{ inputs.timeout-minutes }}m \
               --values ${{ inputs.values_application }} \
-              --set minio.host=wally-minio-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.apps.silver.devops.gov.bc.ca \
+              --set frontend.route.host="${{ inputs.route }}" \
+              $EXTRA_ARGS \
               --set global.wallyVersion=${{ steps.vars.outputs.tag }} \
               --set global.wallyBuild=${{ steps.vars.outputs.tag }} \
               --set backend.apiVersion=${{ steps.vars.outputs.tag }} \
               ./${{ steps.repo_lc.outputs.name }}-${{ steps.pr.outputs.pr || steps.vars.outputs.version }}.tgz
 
-            # Helm release history
             helm history ${{ steps.vars.outputs.release }}
 
-            # Completed pod cleanup
             oc delete po --field-selector=status.phase==Succeeded || true

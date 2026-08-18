@@ -1,0 +1,97 @@
+{{- if .Values.matomo.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "matomo.fullname" . }}
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "matomo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "matomo.labels" . | nindent 8 }}
+    spec:
+      volumes:
+        - name: matomo-source
+          emptyDir: {}
+        - name: matomo-config
+          persistentVolumeClaim:
+            claimName: {{ include "matomo.fullname" . }}-config
+      imagePullSecrets:
+        - name: artifactory-secret
+      containers:
+        - name: matomo
+          image: "{{ .Values.matomo.image }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9000
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 9000
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 9000
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: {{ .Values.matomo.resources.requests.cpu }}
+              memory: {{ .Values.matomo.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.matomo.resources.limits.cpu }}
+              memory: {{ .Values.matomo.resources.limits.memory }}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: matomo-source
+            - mountPath: /var/www/html/config
+              name: matomo-config
+        - name: matomo-proxy
+          image: "{{ .Values.matomo.proxyImage }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 1
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: 8080
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: {{ .Values.matomo.resources.requests.cpu }}
+              memory: {{ .Values.matomo.resources.requests.memory }}
+            limits:
+              cpu: {{ .Values.matomo.resources.limits.cpu }}
+              memory: {{ .Values.matomo.resources.limits.memory }}
+          terminationMessagePath: /dev/termination-log
+          volumeMounts:
+            - mountPath: /var/www/html
+              name: matomo-source
+{{- end }}

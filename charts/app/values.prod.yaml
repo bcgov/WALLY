@@ -1,5 +1,5 @@
 global:
-  environment: DEV
+  environment: PRODUCTION
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level.
   repository: bcgov/wally
   #-- the registry where the images are stored. override during runtime for other registry at global level or individual level. default is ghcr.io
@@ -20,16 +20,16 @@ global:
   domain: "apps.silver.devops.gov.bc.ca" # it is apps.gold.devops.gov.bc.ca for gold cluster
   databaseAlias: wally
   # Api Env Vars - Globally Set
-  wallyVersion: DEV
-  wallyBuild: DEV
+  wallyVersion: PRODUCTION
+  wallyBuild: PRODUCTION
 backend:
   #-- enable or disable backend
   enabled: true
   #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
-  apiVersion: DEV
+  apiVersion: PRODUCTION
   deploymentStrategy: Recreate
   #-- the number of replicas
-  replicaCount: 1
+  replicaCount: 3
   #-- vault, for injecting secrets from vault. it is optional and is an object. it creates an initContainer which reads from vault and app container can source those secrets. for referring to a working example with vault follow this link: https://github.com/bcgov/onroutebc/blob/main/charts/onroutebc/values.yaml#L171-L186
   vault:
     #-- enable or disable vault.
@@ -66,7 +66,7 @@ frontend:
   # -- the deployment strategy, can be "Recreate" or "RollingUpdate"
   deploymentStrategy: Recreate
   #-- the number of replicas
-  replicaCount: 1
+  replicaCount: 3
   #-- the service for the component. for inter namespace communication, use the service name as the hostname.
   service:
     #-- enable or disable the service.
@@ -104,7 +104,7 @@ frontend:
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
 minio:
   enabled: true
-  host: wally-minio-dev.apps.silver.devops.gov.bc.ca
+  host: wally-minio.apps.silver.devops.gov.bc.ca
   secretName: minio
   persistence:
     size: 1Gi
@@ -113,9 +113,9 @@ minio:
   image:
     tag: latest
 matomo:
-  enabled: false
+  enabled: true
   fullnameOverride: ""
-  host: "wally-matomo-dev.apps.silver.devops.gov.bc.ca"
+  host: "wally-matomo.apps.silver.devops.gov.bc.ca"
   image: "artifacts.developer.gov.bc.ca/docker-remote/matomo:3.14.0-fpm"
   proxyImage: "ghcr.io/bcgov/wally/matomoproxy:latest"
   adminUser: "admin"
@@ -130,7 +130,7 @@ matomo:
       cpu: "500m"
       memory: "512Mi"
 mariadb:
-  enabled: false
+  enabled: true
   fullnameOverride: ""
   image: "registry.access.redhat.com/rhscl/mariadb-102-rhel7:latest"
   database: "matomo"
