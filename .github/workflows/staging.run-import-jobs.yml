@@ -1,8 +1,8 @@
 name: Import Jobs (Staging)
 
 on:
-  # push:
-    # branches: [WO-2026-030-import-staging]
+  push:
+    branches: [WO-2026-030-import-staging]
   workflow_dispatch:
     # Manual trigger only - these jobs hit external APIs (DataBC, GWELLS)
     # and load real data, so they shouldn't fire automatically on every
