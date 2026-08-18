@@ -41,7 +41,6 @@ jobs:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_server: ${{ vars.oc_server }}
           oc_token: ${{ secrets.oc_token }}
-          triggers: "."
           commands: |
             find_slot() {
               NAMESPACE="${{ secrets.oc_namespace }}"
