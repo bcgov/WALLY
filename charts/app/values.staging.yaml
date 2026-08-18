@@ -111,13 +111,13 @@ minio:
     accessMode: ReadWriteMany
     storageClassName: netapp-file-standard
   image:
-    tag: latest
+    tag: staging
 matomo:
   enabled: true
   fullnameOverride: ""
   host: "wally-matomo-staging.apps.silver.devops.gov.bc.ca"
   image: "artifacts.developer.gov.bc.ca/docker-remote/matomo:3.14.0-fpm"
-  proxyImage: "ghcr.io/bcgov/wally/matomoproxy:latest"
+  proxyImage: "ghcr.io/bcgov/wally/matomoproxy:staging"
   adminUser: "admin"
   adminPassword: ""
   persistentVolumeSize: "1Gi"
