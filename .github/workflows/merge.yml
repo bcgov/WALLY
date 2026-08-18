@@ -52,6 +52,7 @@ jobs:
     secrets: inherit
     with:
       environment: staging
+      tag: staging
       db_user: wally
       directory_application: ./charts/app
       directory_crunchy: ./charts/crunchy
