@@ -1,7 +1,3 @@
-# FROM docker-remote.artifacts.developer.gov.bc.ca/osgeo/gdal:ubuntu-small-latest
-
-# FROM artifacts.developer.gov.bc.ca/docker-remote/osgeo/gdal:ubuntu-small-latest
-
 FROM osgeo/gdal:ubuntu-small-3.6.3
 
 WORKDIR /dataload
@@ -16,7 +12,11 @@ COPY ./hydrosheds/*.sh /dataload/
 
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /dataload \
   && chown -R wally:root /dataload \
-  && apt-get update && apt-get install -y jq curl git zip unzip sqlite3 binutils libproj-dev postgis python3 python3-pip \
+  && ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime \
+  && echo "Etc/UTC" > /etc/timezone \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get update \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y tzdata \
+  && DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get install -y jq curl git zip unzip sqlite3 binutils libproj-dev postgis python3 python3-pip \
                                           build-essential libsqlite3-dev zlib1g-dev postgresql-client \
                                           sbcl make gawk freetds-dev libzip-dev \
   && rm -rf /var/lib/apt/lists/* \
