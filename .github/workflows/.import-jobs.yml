@@ -1,0 +1,68 @@
+name: .Import Jobs
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: Environment name (e.g. staging, prod)
+        required: true
+        type: string
+      directory_application:
+        description: Chart directory
+        default: './charts/imports'
+        required: false
+        type: string
+      values_application:
+        description: Values file
+        default: 'values.yaml'
+        required: false
+        type: string
+      timeout:
+        description: Helm timeout for the initial install/upgrade to resolve (hook Jobs continue running in the cluster regardless)
+        default: '45m'
+        required: false
+        type: string
+      oc_server:
+        default: https://api.silver.devops.gov.bc.ca:6443
+        description: OpenShift server
+        required: false
+        type: string
+
+    secrets:
+      oc_namespace:
+        description: OpenShift namespace
+        required: true
+      oc_token:
+        description: OpenShift token
+        required: true
+
+permissions: {}
+
+jobs:
+  import:
+    name: Run Import Jobs (${{ inputs.environment }})
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy Import Jobs
+        uses: bcgov/action-oc-runner@v1.7.0
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ inputs.oc_server }}
+          ref: ${{ github.ref }}
+          commands: |
+            cd ${{ inputs.directory_application }}
+
+            helm package .
+
+            helm upgrade \
+              --install \
+              --timeout ${{ inputs.timeout }} \
+              --values ${{ inputs.values_application }} \
+              wally-importer-${{ inputs.environment }} \
+              ./wally-importer-*.tgz
+
+            echo "Deploy submitted - hook Jobs are now running in the cluster."
+            echo "This workflow does not wait for them to finish."
+            echo "Check progress with: oc get jobs -n <namespace> -w"
