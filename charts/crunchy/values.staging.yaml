@@ -79,13 +79,12 @@ crunchy:
   # For more details, refer to the Crunchy Postgres Operator documentation:
   # https://access.crunchydata.com/documentation/postgres-operator/latest/tutorials/basic-setup/user-management
   users:
-    - name: '{{ .Values.global.config.dbName }}'
-      databases:
-        - '{{ .Values.global.config.dbName }}'
-      options: "SUPERUSER CREATEDB CREATEROLE"
     - name: 'postgres'
       databases:
         - 'postgres'
+        - '{{ .Values.global.config.dbName }}'
+    - name: '{{ .Values.global.config.dbName }}'
+      databases:
         - '{{ .Values.global.config.dbName }}'
     - name: 'ftw-reader'
       databases:
