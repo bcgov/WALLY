@@ -1,75 +1,70 @@
-apiVersion: template.openshift.io/v1
-kind: Template
+{{- range .Values.importer.prismJobs }}
+apiVersion: batch/v1
+kind: Job
 metadata:
-  name: wally-prism-job
-parameters:
-- description: Environment name (staging or production)
-  displayName: Environment name
-  name: ENV_NAME
-  value: staging
-- description: Dataset layer name. Refer to load_prism.sh to add datasets.
-  displayName: Layer name
-  name: DATASET_NAME
-  value: 'pr'
-- name: MINIO_HOST_URL
-  value: "http://minio:9000"
-objects:
-  - apiVersion: batch/v1
-    kind: Job
+  name: wally-prism-{{ .datasetName | replace "_" "-" | lower }}-{{ $.Release.Revision }}-{{ randAlphaNum 5 | lower }}
+  labels:
+    component: importer
+    job: prism-{{ .datasetName | replace "_" "-" | lower }}
+    name: wally-prism-{{ .datasetName | replace "_" "-" | lower }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+spec:
+  backoffLimit: 3
+  parallelism: 1
+  completions: 1
+  template:
     metadata:
-      name: wally-prism-${DATASET_NAME}
-      labels:
-        component: importer
-        job: prism-${DATASET_NAME}
-        name: wally-prism-${DATASET_NAME}
+      name: wally-prism-{{ .datasetName | replace "_" "-" | lower }}
     spec:
-      backoffLimit: 3
-      parallelism: 1    
-      completions: 1    
-      template:         
-        metadata:
-          name: wally-prism-${DATASET_NAME}
-        spec:
-          containers:
-          - name: importer
-            image: image-registry.openshift-image-registry.svc:5000/d1b5d2-tools/wally-importer:latest
-            command: ['/dataload/load_prism.sh']
-            args: ['${DATASET_NAME}']
-            resources:
-              requests:
-                cpu: 200m
-                memory: 4Gi
-              limits:
-                cpu: '1'
-                memory: 4Gi
-            env:
-            - name: POSTGRES_USER
-              valueFrom:
-                secretKeyRef:
-                  key: app-db-username
-                  name: wally-psql
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  key: app-db-password
-                  name: wally-psql
-            - name: POSTGRES_DB
-              valueFrom:
-                secretKeyRef:
-                  key: app-db-name
-                  name: wally-psql
-            - name: MINIO_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: minioAccessKey
-                  name: minio
-            - name: MINIO_SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  key: minioSecretKey
-                  name: minio
-            - name: POSTGRES_SERVER
-              value: wally-psql-${ENV_NAME}
-            - name: MINIO_HOST_URL
-              value: "${MINIO_HOST_URL}"
-          restartPolicy: Never
+      containers:
+      - name: importer
+        image: "{{ $.Values.importer.image }}"
+        command: ['/dataload/load_prism.sh']
+        args: ['{{ .datasetName }}']
+        resources:
+          requests:
+            cpu: 200m
+            memory: 4Gi
+          limits:
+            cpu: '1'
+            memory: 4Gi
+        env:
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" $ }}
+              key: user
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" $ }}
+              key: password
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGApplicationUser" $ }}
+              key: dbname
+        - name: POSTGRES_SERVER
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "backend.PGSuperUser" $ }}
+              key: host
+        - name: MINIO_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              key: minioAccessKey
+              name: minio
+        - name: MINIO_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              key: minioSecretKey
+              name: minio
+        - name: MINIO_HOST_URL
+          value: "{{ $.Values.importer.minioHostUrl }}"
+      restartPolicy: Never
+---
+{{- end }}

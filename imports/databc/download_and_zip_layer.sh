@@ -1,7 +1,7 @@
 #!/bin/bash
 # download_and_zip_layer.sh
 # Use for downloading GeoJSON layer data and then zipping contents when link is available. The zip file
-# will be stored in the s3 storage (configured below - see Setting up Minio host) as <layer_table_name>.zip. 
+# will be stored in the s3 storage (configured below - see Setting up Minio host) as <layer_table_name>.zip.
 #
 # USAGE: ./download_and_zip_layer.sh <layer_name> <url>
 # use the layer name from the Wally DB table that the data should be loaded into. You can check the database
@@ -20,7 +20,7 @@ set -e
 cd /dataload
 
 echo "Setting up Minio host"
-./mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+mc --config-dir=./.mc alias set minio "${MINIO_HOST_URL}" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 echo "downloading $1 from $2"
 curl -Lo "$1.geojson" "$2"

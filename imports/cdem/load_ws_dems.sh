@@ -9,7 +9,7 @@ cdem_file="Burned_CDEM_4326.tif"
 srtm_file="Burned_SRTM_3005.tif"
 
 echo "(1/3) Setting up Minio host"
-mc --config-dir=./.mc config host add minio "${MINIO_HOST_URL}" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+mc --config-dir=./.mc alias set minio "${MINIO_HOST_URL}" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 mc --config-dir=./.mc cp "minio/raster/$cdem_file" "/waterdata/rasters"
 echo "Burned CDEM loaded to /waterdata/rasters/$cdem_file"

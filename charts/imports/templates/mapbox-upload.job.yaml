@@ -63,6 +63,8 @@ spec:
             secretKeyRef:
               key: minioSecretKey
               name: minio
+        - name: MINIO_HOST_URL
+          value: "{{ $.Values.importer.minioHostUrl }}"
         - name: MAPBOX_UPLOAD_TOKEN
           valueFrom:
             secretKeyRef:

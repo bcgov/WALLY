@@ -19,7 +19,7 @@ declare -a layers=($(psql -X -A -t "postgres://wally:$POSTGRES_PASSWORD@$POSTGRE
 # for l in "${layers[@]}"; do layer_files+=("$l.mbtiles"); done
 
 echo "Setting up Minio host"
-mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+mc --config-dir=./.mc alias set minio "${MINIO_HOST_URL}" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 for layer in "${layers[@]}"
 do

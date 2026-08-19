@@ -63,7 +63,7 @@ echo "using zoom level for $mapbox_layer_name: $tippecanoe_zoom_level"
 echo "using extra arguments for $mapbox_layer_name: $extra_args"
 
 echo "Setting up Minio host"
-mc --config-dir=./.mc config host add minio http://minio:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+mc --config-dir=./.mc alias set minio "${MINIO_HOST_URL}" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 
 echo "Copying layer from Minio storage..."
 mc --config-dir=./.mc cp "minio/geojson/$1.zip" "./"
@@ -75,7 +75,7 @@ echo "Converting to mbtiles using layer name $mapbox_layer_name"
 # --force: overwrite existing mbtiles file
 # -X: exclude all properties
 # -y: include specific property
-# -r1: prevent auto-grouping points 
+# -r1: prevent auto-grouping points
 unzip -p "./$1.zip" | tippecanoe "$tippecanoe_zoom_level" --force --layer="$mapbox_layer_name" -o "./$1.mbtiles" -r1 "$extra_args"
 
 echo "Copying $1.mbtiles to Minio storage..."

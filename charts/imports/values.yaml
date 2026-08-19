@@ -5,7 +5,7 @@ global:
   databaseAlias: pg-e5a12179-crunchy
 importer:
   image: "ghcr.io/bcgov/wally/imports:latest"
-  minioHostUrl: http://minio:9000
+  minioHostUrl: http://wally-staging-minio:9000
   downloadJobs:
     - jobName: "wells"
       layerName: "ground_water_wells"
@@ -102,3 +102,5 @@ importer:
       layerName: "water_approval_points"
     - jobName: "bcmajorwatersheds"
       layerName: "bc_major_watersheds"
+  prismJobs:
+    - datasetName: "pr"
