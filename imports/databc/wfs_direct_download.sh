@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # USAGE: ./wfs_direct_download.sh <wally database table name>
-# 
+#
 # Sort key is needed for WFS pagination, which is likely required except for small (<10000 features) datasets,
 # and will be looked up from the metadata.data_source table.
 #
@@ -59,7 +59,7 @@ do
   curl -s -o "./.$DATABC_LAYER_NAME/$index.geojson" "https://openmaps.gov.bc.ca/geo/pub/wfs?SERVICE=WFS&VERSION=2.0.0&REQUEST=GetFeature&outputFormat=json&srsName=epsg:4326&typeNames=$DATABC_LAYER_NAME&count=10000&startIndex=$downloaded&sortBy=$SORT_KEY"
   retrieved_this_iter=$(jq '.numberReturned' "./.$DATABC_LAYER_NAME/$index.geojson")
   let downloaded=downloaded+retrieved_this_iter
-  
+
 done
 echo "Downloaded $downloaded of $matched."
 echo "Combining files..."
@@ -80,7 +80,7 @@ echo "Zipping layer $DATABC_LAYER_NAME into $WALLY_LAYER_NAME.zip"
 zip "./out/$WALLY_LAYER_NAME.zip" "./out/$DATABC_LAYER_NAME.geojson"
 
 echo "Copying zipped layer to Minio storage..."
-./mc --config-dir=./.mc config host add minio "$MINIO_HOST_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
+./mc --config-dir=./.mc alias set minio "$MINIO_HOST_URL" "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY"
 ./mc --config-dir=./.mc cp "./out/$WALLY_LAYER_NAME.zip" "minio/geojson"
 
 rm "./out/$DATABC_LAYER_NAME.geojson"
