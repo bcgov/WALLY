@@ -1,5 +1,7 @@
 name: Build Importer Image
 on:
+  push:
+    branches: [WO-2026-030-import-staging]
   workflow_dispatch:
 
 permissions: {}
