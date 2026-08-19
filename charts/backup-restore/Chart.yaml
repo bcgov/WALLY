@@ -1,6 +1,6 @@
 apiVersion: v2
-name: wally-importer
-description: Jobs for importing our test/production databases
+name: wally-backup-restore
+description: Search for data, reports and other information to support water allocation decision making.
 icon: https://www.nicepng.com/png/detail/521-5211827_bc-icon-british-columbia-government-logo.png
 type: application
 version: 1.0.0
