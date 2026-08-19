@@ -1,6 +1,5 @@
 image: ghcr.io/bcgov/wally/backup-restore:latest
 timestamp: "2026-08-19"
-
 psql:
   backupFile: "2026-08-19-wally.dump"
   source:
@@ -17,4 +16,4 @@ minio:
     minioHost: wally-minio-production
   target:
     namespace: d1b5d2-test
-    minioHost: wally-minio-staging
+    minioHost: wally-staging-minio

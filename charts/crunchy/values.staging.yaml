@@ -26,10 +26,10 @@ crunchy:
     dataVolumeClaimSpec:
       storage: 50Gi
       storageClassName: netapp-block-standard
-      walStorage: 256Mi
+      walStorage: 5Gi
     requests:
-      cpu: 50m
-      memory: 256Mi
+      cpu: 256m
+      memory: 2Gi
     replicaCertCopy:
       requests:
         cpu: 1m

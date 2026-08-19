@@ -1,9 +1,10 @@
+---
 # Source: wally-backup-restore/templates/minio.restore.job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: restore-minio-from-s3-2026-08-19
-  namespace: d1b5d2-test
+  namespace: d1b5d2-prod
 spec:
   backoffLimit: 0
   template:
@@ -29,7 +30,7 @@ spec:
                   name: minio
                   key: minioSecretKey
             - name: MINIO_HOST_URL
-              value: "http://wally-staging-minio:9000"
+              value: "http://wally-production-minio:9000"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

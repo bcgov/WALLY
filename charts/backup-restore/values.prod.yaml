@@ -1,22 +1,18 @@
 image: ghcr.io/bcgov/wally/backup-restore:latest
 timestamp: "2026-08-19"
-
 psql:
   backupFile: "2026-08-19-wally.dump"
   source:
     namespace: d1b5d2-prod
     dbSecretSuperUser: wally-psql-backup-restore-credentials
-
   target:
     namespace: d1b5d2-prod
     dbSecretSuperUser: pg-e5a12179-crunchy-pguser-postgres
     dbSecretApplication: pg-e5a12179-crunchy-pguser-wally
-
 minio:
   source:
     namespace: d1b5d2-prod
     minioHost: wally-minio-production
-
   target:
     namespace: d1b5d2-prod
-    minioHost: wally-minio-production
+    minioHost: wally-production-minio
