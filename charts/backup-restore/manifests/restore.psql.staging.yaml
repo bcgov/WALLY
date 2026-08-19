@@ -1,0 +1,71 @@
+# Source: wally-backup-restore/templates/psql.restore.job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restore-psql-2026-08-19
+  namespace: d1b5d2-test
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        role: restore-psql
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: restore-psql
+          image: "ghcr.io/bcgov/wally/backup-restore:latest"
+          imagePullPolicy: Always
+          command: ["python3", "psql/restore.py"]
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: pg-e5a12179-crunchy-pguser-postgres
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: pg-e5a12179-crunchy-pguser-postgres
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: pg-e5a12179-crunchy-pguser-wally
+                  key: dbname
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: pg-e5a12179-crunchy-pguser-postgres
+                  key: user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: pg-e5a12179-crunchy-pguser-postgres
+                  key: password
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: access_key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: secret_key
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: bucket
+            - name: AWS_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: endpoint
+            - name: BACKUP_FILE
+              value: "2026-08-19-wally.dump"
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi

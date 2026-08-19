@@ -1,0 +1,58 @@
+# Source: wally-backup-restore/templates/minio.backup.job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: backup-minio-into-s3-2026-08-19
+  namespace: d1b5d2-prod
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        role: backup-minio
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: backup-minio
+          image: "ghcr.io/bcgov/wally/backup-restore:latest"
+          imagePullPolicy: Always
+          command: ["python3", "minio/backup.py"]
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: minioAccessKey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: minioSecretKey
+            - name: MINIO_HOST_URL
+              value: "http://wally-minio-production:9000"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: access_key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: secret_key
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: bucket
+            - name: AWS_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: endpoint
+            - name: S3_PREFIX
+              value: "wally-minio-2026-08-19"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi
