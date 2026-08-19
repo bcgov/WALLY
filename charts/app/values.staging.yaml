@@ -107,7 +107,7 @@ minio:
   host: wally-minio-staging.apps.silver.devops.gov.bc.ca
   secretName: minio
   persistence:
-    size: 1Gi
+    size: 20Gi
     accessMode: ReadWriteMany
     storageClassName: netapp-file-standard
   image:
