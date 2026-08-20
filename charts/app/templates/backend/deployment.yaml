@@ -57,6 +57,11 @@ spec:
               secretKeyRef:
                 name: {{ include "backend.PGApplicationUser" . }}
                 key: user
+          - name: FLYWAY_PLACEHOLDERS_FTWREADERPASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "backend.PGFTWReaderUser" . }}
+                key: password
           - name: FLYWAY_VALIDATE_MIGRATION_NAMING
             value: "true"
 

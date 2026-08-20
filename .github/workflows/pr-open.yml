@@ -65,3 +65,18 @@ jobs:
       values_crunchy: values.dev.yaml
       route: ${{ needs.find_deployment_slot.outputs.route }}
       minio_host: wally-minio-${{ github.event.number }}
+
+
+  comment:
+    name: Specify Route
+    needs: [find_deployment_slot, deploys]
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: peter-evans/create-or-update-comment@v5
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            ${{format('Deployment available at: https://{0}.apps.silver.devops.gov.bc.ca', needs.find_deployment_slot.outputs.route)}}
+
