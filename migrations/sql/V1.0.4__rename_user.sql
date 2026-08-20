@@ -1,1 +1,1 @@
-ALTER ROLE 'ftw-reader' RENAME TO 'ftw_reader';
+ALTER ROLE "ftw-reader" RENAME TO "ftw_reader";
