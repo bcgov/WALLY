@@ -9,8 +9,7 @@ concurrency:
   group: ${{ github.event.number }}
   cancel-in-progress: true
 
-permissions:
-  pull-requests: write
+permissions: {}
 
 jobs:
   # unit_tests:
@@ -71,7 +70,6 @@ jobs:
   comment:
     name: Specify Route
     needs: [find_deployment_slot, deploys]
-    if: always()
     runs-on: ubuntu-24.04
     permissions:
       pull-requests: write
