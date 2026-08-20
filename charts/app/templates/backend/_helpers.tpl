@@ -35,6 +35,13 @@ Secrets
 {{/*
 Secrets
 */}}
+{{- define "backend.PGFTWReaderUser" -}}
+{{- printf "%s-pguser-ftw-reader" .Values.global.databaseAlias -}}
+{{- end }}
+
+{{/*
+Secrets
+*/}}
 {{- define "backend.PGSuperUser" -}}
 {{- printf "%s-pguser-postgres" .Values.global.databaseAlias -}}
 {{- end }}

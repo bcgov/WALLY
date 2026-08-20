@@ -53,12 +53,28 @@ grant all on all functions in schema fasstr to "${appUser}";
 alter default privileges in schema fasstr grant execute on functions to "${appUser}";
 
 -- =====================================================================
--- postgis_ftw - app user needs its own access, not just ftw_reader.
+-- postgis_ftw - app user needs its own access, not just ftw-reader.
 -- =====================================================================
 grant all on all tables in schema postgis_ftw to "${appUser}";
 alter default privileges in schema postgis_ftw grant all on tables to "${appUser}";
 
 alter default privileges in schema postgis_ftw grant select on tables to "ftw-reader";
+
+-- =====================================================================
+-- ftw_reader - app user needs its own access, not just ftw_reader.
+-- =====================================================================
+
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'ftw_reader') THEN
+    CREATE USER ftw_reader WITH PASSWORD '${ftwReaderPassword}';
+  END IF;
+END
+$$;
+
+grant usage on schema postgis_ftw to ftw_reader;
+grant select on all tables in schema postgis_ftw to ftw_reader;
+alter default privileges in schema postgis_ftw grant select on tables to ftw_reader;
 
 -- =====================================================================
 -- whse_basemapping - previously had zero grants anywhere.
