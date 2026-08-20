@@ -14,18 +14,18 @@ permissions: {}
 jobs:
   cleanup:
     name: Cleanup and Image Promotion
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.pr-close.yml@v0.9.0
+    uses: ./.github/workflows/.helm-uninstall.yml
     permissions:
       packages: write
     secrets:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
-      cleanup: helm
       packages: backend frontend migrations minio
 
   cleanup_db: # TODO move it off to another action later.
     name: Remove DB User from Crunchy
+    needs: [cleanup]
     runs-on: ubuntu-24.04
     steps:
       - uses: bcgov/action-crunchy@v2.0.0
