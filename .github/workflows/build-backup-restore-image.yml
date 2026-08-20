@@ -1,8 +1,5 @@
-name: Build ackup Restore Importer Image
+name: Build Backup Restore Importer Image
 on:
-  push:
-    branches:
-      - WO-2026-030-dump-restore-from-prod
   workflow_dispatch:
 
 permissions: {}
