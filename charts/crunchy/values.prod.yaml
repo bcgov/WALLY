@@ -18,13 +18,13 @@ crunchy:
     enabled: false
   instances:
     name: db
-    replicas: 1
+    replicas: 2
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
         prometheus.io/port: '9187'
     dataVolumeClaimSpec:
-      storage: 1Gi
+      storage: 50Gi
       storageClassName: netapp-block-standard
       walStorage: 5Gi
     requests:
@@ -57,7 +57,7 @@ crunchy:
     enabled: true
     pgBouncer:
       image: # it's not necessary to specify an image as the images specified in the Crunchy Postgres Operator will be pulled by default
-      replicas: 1
+      replicas: 2
       requests:
         cpu: 5m
         memory: 32Mi

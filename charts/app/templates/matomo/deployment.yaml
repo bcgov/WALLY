@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- include "matomo.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.matomo.replicaCount  }}
   strategy:
-    type: RollingUpdate
+    type: {{ .Values.matomo.deploymentStrategy }}
   selector:
     matchLabels:
       {{- include "matomo.selectorLabels" . | nindent 6 }}

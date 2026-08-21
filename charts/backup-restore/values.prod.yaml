@@ -15,4 +15,4 @@ minio:
     minioHost: wally-minio-production
   target:
     namespace: d1b5d2-prod
-    minioHost: wally-production-minio
+    minioHost: wally-production-minio-v2

@@ -7,7 +7,7 @@
 {{- if .Values.backend.fullnameOverride }}
 {{- .Values.backend.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s-v2" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 
