@@ -106,7 +106,7 @@ minio:
   enabled: true
   replicaCount: 3
   deploymentStrategy: RollingUpdate
-  host: wally-minio.apps.silver.devops.gov.bc.ca
+  host: wally-minio
   secretName: minio
   persistence:
     size: 20Gi
@@ -119,34 +119,34 @@ matomo:
   replicaCount: 3
   deploymentStrategy: RollingUpdate
   fullnameOverride: ""
-  host: "wally-matomo.apps.silver.devops.gov.bc.ca"
-  image: "artifacts.developer.gov.bc.ca/docker-remote/matomo:3.14.0-fpm"
-  proxyImage: "ghcr.io/bcgov/wally/matomoproxy:latest"
-  adminUser: "admin"
+  host: wally-matomo
+  image: artifacts.developer.gov.bc.ca/docker-remote/matomo:3.14.0-fpm
+  proxyImage: ghcr.io/bcgov/wally/matomoproxy:latest
+  adminUser: admin
   adminPassword: ""
-  persistentVolumeSize: "1Gi"
-  persistentVolumeClass: "netapp-file-standard"
+  persistentVolumeSize: 1Gi
+  persistentVolumeClass: netapp-file-standard
   resources:
     requests:
-      cpu: "100m"
-      memory: "100Mi"
+      cpu: 100m
+      memory: 100Mi
     limits:
-      cpu: "500m"
-      memory: "512Mi"
+      cpu: 500m
+      memory: 512Mi
 mariadb:
   enabled: true
   replicaCount: 3
   deploymentStrategy: RollingUpdate
   fullnameOverride: ""
-  image: "registry.access.redhat.com/rhscl/mariadb-102-rhel7:latest"
-  database: "matomo"
-  mountPath: "/var/lib/mysql/data"
-  persistentVolumeSize: "5Gi"
-  persistentVolumeClass: "netapp-file-standard"
+  image: registry.access.redhat.com/rhscl/mariadb-102-rhel7:latest
+  database: matomo
+  mountPath: /var/lib/mysql/data
+  persistentVolumeSize: 5Gi
+  persistentVolumeClass: netapp-file-standard
   resources:
     requests:
-      cpu: "100m"
-      memory: "100Mi"
+      cpu: 100m
+      memory: 100Mi
     limits:
-      cpu: "250m"
-      memory: "512Mi"
+      cpu: 250m
+      memory: 512Mi

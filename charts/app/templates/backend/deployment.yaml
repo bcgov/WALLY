@@ -161,7 +161,7 @@ spec:
                   name: minio
                   key: minioSecretKey
             - name: MINIO_HOST_URL
-              value: "{{ .Release.Name }}-minio:9000"
+              value: "{{ .Release.Name }}-minio-v2:9000"
             - name: WATERSHED_DEBUG
               valueFrom:
                 secretKeyRef:
