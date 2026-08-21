@@ -1,4 +1,3 @@
----
 # Source: wally-backup-restore/templates/minio.restore.job.yaml
 apiVersion: batch/v1
 kind: Job
@@ -30,7 +29,7 @@ spec:
                   name: minio
                   key: minioSecretKey
             - name: MINIO_HOST_URL
-              value: "http://wally-production-minio:9000"
+              value: "http://wally-production-minio-v2:9000"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

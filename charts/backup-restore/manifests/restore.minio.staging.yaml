@@ -29,7 +29,7 @@ spec:
                   name: minio
                   key: minioSecretKey
             - name: MINIO_HOST_URL
-              value: "http://wally-staging-minio:9000"
+              value: "http://wally-staging-minio-v2:9000"
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:

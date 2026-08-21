@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- include "minio.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.minio.replicaCount  }}
   strategy:
-    type: Recreate
+    type: {{ .Values.minio.deploymentStrategy }}
   selector:
     matchLabels:
       {{- include "minio.selectorLabels" . | nindent 6 }}

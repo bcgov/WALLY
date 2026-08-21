@@ -27,7 +27,7 @@ backend:
   enabled: true
   #-- the deployment strategy, can be "Recreate" or "RollingUpdate"
   apiVersion: STAGING
-  deploymentStrategy: Recreate
+  deploymentStrategy: RollingUpdate
   #-- the number of replicas
   replicaCount: 1
   #-- vault, for injecting secrets from vault. it is optional and is an object. it creates an initContainer which reads from vault and app container can source those secrets. for referring to a working example with vault follow this link: https://github.com/bcgov/onroutebc/blob/main/charts/onroutebc/values.yaml#L171-L186
@@ -64,7 +64,7 @@ frontend:
   # -- enable or disable a component deployment.
   enabled: true
   # -- the deployment strategy, can be "Recreate" or "RollingUpdate"
-  deploymentStrategy: Recreate
+  deploymentStrategy: RollingUpdate
   #-- the number of replicas
   replicaCount: 1
   #-- the service for the component. for inter namespace communication, use the service name as the hostname.
@@ -104,6 +104,8 @@ frontend:
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
 minio:
   enabled: true
+  replicaCount: 1
+  deploymentStrategy: RollingUpdate
   host: wally-minio-staging.apps.silver.devops.gov.bc.ca
   secretName: minio
   persistence:
@@ -114,6 +116,8 @@ minio:
     tag: staging
 matomo:
   enabled: true
+  replicaCount: 1
+  deploymentStrategy: RollingUpdate
   fullnameOverride: ""
   host: "wally-matomo-staging.apps.silver.devops.gov.bc.ca"
   image: "artifacts.developer.gov.bc.ca/docker-remote/matomo:3.14.0-fpm"
@@ -131,6 +135,8 @@ matomo:
       memory: "512Mi"
 mariadb:
   enabled: true
+  replicaCount: 1
+  deploymentStrategy: RollingUpdate
   fullnameOverride: ""
   image: "registry.access.redhat.com/rhscl/mariadb-102-rhel7:latest"
   database: "matomo"

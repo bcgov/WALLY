@@ -16,4 +16,4 @@ minio:
     minioHost: wally-minio-production
   target:
     namespace: d1b5d2-test
-    minioHost: wally-staging-minio
+    minioHost: wally-staging-minio-v2

@@ -15,7 +15,7 @@ If release name contains chart name it will be used as a full name.
 {{- if .Values.frontend.fullnameOverride }}
 {{- .Values.frontend.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
-{{- printf "%s-%s" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
+{{- printf "%s-%s-v2" .Release.Name $componentName | trunc 63 | trimSuffix "-" }}
 {{- end }}
 {{- end }}
 

@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- include "mariadb.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.mariadb.replicaCount  }}
   strategy:
-    type: Recreate
+    type: {{ .Values.mariadb.deploymentStrategy }}
   selector:
     matchLabels:
       {{- include "mariadb.selectorLabels" . | nindent 6 }}
