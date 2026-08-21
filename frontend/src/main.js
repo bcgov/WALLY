@@ -33,7 +33,8 @@ if (global.config.isProduction) {
     })]
   })
   Vue.use(VueMatomo, {
-    host: 'https://wally-matomo.apps.silver.devops.gov.bc.ca/',
+    // host: 'https://wally-matomo.apps.silver.devops.gov.bc.ca/',
+    host: 'https://wally-matomo-prod-v2.silver.devops.bc.ca/',
     siteId: 1,
     router,
     domains: 'wally.nrs.gov.bc.ca'
