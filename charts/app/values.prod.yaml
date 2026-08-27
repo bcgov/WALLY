@@ -121,7 +121,7 @@ matomo:
   fullnameOverride: ""
   host: wally-matomo
   image: artifacts.developer.gov.bc.ca/docker-remote/matomo:3.14.0-fpm
-  proxyImage: ghcr.io/bcgov/wally/matomoproxy:latest
+  proxyImage: ghcr.io/bcgov/wally/matomoproxy:prod
   adminUser: admin
   adminPassword: ""
   persistentVolumeSize: 1Gi
