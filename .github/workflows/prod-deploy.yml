@@ -58,7 +58,7 @@ jobs:
       directory_crunchy: ./charts/crunchy
       values_application: values.prod.yaml
       values_crunchy: values.prod.yaml
-      route: wally-production-v2
+      route: wally
       minio_host: wally-minio-prod-v2
       matomo_host: wally-matomo-prod-v2
 
