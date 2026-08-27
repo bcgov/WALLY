@@ -104,7 +104,7 @@ frontend:
     minAvailable: 1 # the minimum number of pods that must be available during the disruption budget.
 minio:
   enabled: true
-  replicaCount: 3
+  replicaCount: 2
   deploymentStrategy: RollingUpdate
   host: wally-minio
   secretName: minio
@@ -116,7 +116,7 @@ minio:
     tag: latest
 matomo:
   enabled: true
-  replicaCount: 3
+  replicaCount: 1
   deploymentStrategy: RollingUpdate
   fullnameOverride: ""
   host: wally-matomo
@@ -135,7 +135,7 @@ matomo:
       memory: 512Mi
 mariadb:
   enabled: true
-  replicaCount: 3
+  replicaCount: 1
   deploymentStrategy: RollingUpdate
   fullnameOverride: ""
   image: registry.access.redhat.com/rhscl/mariadb-102-rhel7:latest
