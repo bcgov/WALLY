@@ -63,7 +63,7 @@ crunchy:
         memory: 32Mi
       maxConnections: "25" # make sure less than postgres max connections
       clientTlsSslmode: disable
-      poolMode: session
+      poolMode: transaction
 
   # Postgres Cluster resource values:
   pgmonitor:
