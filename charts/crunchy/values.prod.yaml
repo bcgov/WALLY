@@ -61,7 +61,9 @@ crunchy:
       requests:
         cpu: 5m
         memory: 32Mi
-      maxConnections: 10 # make sure less than postgres max connections
+      maxConnections: "25" # make sure less than postgres max connections
+      clientTlsSslmode: disable
+      poolMode: session
 
   # Postgres Cluster resource values:
   pgmonitor:
