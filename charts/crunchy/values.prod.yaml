@@ -18,7 +18,7 @@ crunchy:
     enabled: false
   instances:
     name: db
-    replicas: 1
+    replicas: 2
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
@@ -43,7 +43,7 @@ crunchy:
       retention: "7"
       retentionFullType: count
       fullBackupSchedule: "0 8 * * *"
-      incrementalBackupSchedule: "0 */4 * * *"
+      incrementalBackupSchedule: "0 */6 * * *"
       volume:
         accessModes: ReadWriteOnce
         storage: 20Gi
