@@ -18,7 +18,7 @@ crunchy:
     enabled: false
   instances:
     name: db
-    replicas: 2
+    replicas: 1
     metadata:
       annotations:
         prometheus.io/scrape: 'true'
@@ -36,7 +36,7 @@ crunchy:
         memory: 32Mi
 
   pgBackRest:
-    enabled: true
+    enabled: false
     s3:
       enabled: false            # PVC-only (repo1), no object storage
     pvc:
