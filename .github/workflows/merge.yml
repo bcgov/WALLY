@@ -27,12 +27,12 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, frontend, migrations, minio, matomoproxy]
+        package: [backend, frontend, migrations, matomoproxy]
     timeout-minutes: 30
     steps:
 
       - name: Login to Artifactory
-        if: matrix.package == 'minio' || matrix.package == 'matomoproxy'
+        if: matrix.package == 'matomoproxy'
         uses: docker/login-action@v3
         with:
           registry: artifacts.developer.gov.bc.ca
