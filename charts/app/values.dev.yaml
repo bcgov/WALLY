@@ -113,7 +113,7 @@ minio:
     accessMode: ReadWriteMany
     storageClassName: netapp-file-standard
   image:
-    tag: latest
+    tag: staging # using legacy, pre build minio image
 matomo:
   enabled: false
   replicaCount: 0
