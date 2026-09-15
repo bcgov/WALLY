@@ -79,7 +79,7 @@ crunchy:
     enabled: true
     pgBouncer:
       image:
-      replicas: 2
+      replicas: 1
       requests:
         cpu: 5m
         memory: 32Mi
