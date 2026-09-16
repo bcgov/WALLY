@@ -40,13 +40,13 @@ crunchy:
     s3:
       enabled: false            # PVC-only (repo1), no object storage
     pvc:
-      retention: "7"
+      retention: "3"
       retentionFullType: count
       fullBackupSchedule: "0 8 * * *"
       incrementalBackupSchedule: "0 */6 * * *"
       volume:
         accessModes: ReadWriteOnce
-        storage: 20Gi
+        storage: 50Gi
         storageClassName: netapp-block-standard
     repoHost:
       requests:
