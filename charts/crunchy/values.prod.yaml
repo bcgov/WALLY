@@ -36,7 +36,7 @@ crunchy:
         memory: 32Mi
 
   pgBackRest:
-    enabled: false
+    enabled: true
     s3:
       enabled: false            # PVC-only (repo1), no object storage
     pvc:
