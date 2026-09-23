@@ -1,0 +1,106 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-frontend-nginx
+  labels:
+    {{- include "frontend.labels" . | nindent 4 }}
+data:
+  nginx.conf: |
+    worker_processes auto;
+    error_log /dev/stderr;
+    pid /tmp/nginx.pid;
+
+    events {
+        worker_connections  1024;
+    }
+
+    http {
+        log_format main '$remote_addr - $remote_user [$time_local] '
+                        '"$request" $status $body_bytes_sent '
+                        '"$http_referer" "$http_user_agent" '
+                        'rt=$request_time uct="$upstream_connect_time" uht="$upstream_header_time" urt="$upstream_response_time"';
+
+        access_log  /dev/stdout  main;
+
+        client_body_temp_path /tmp/client_temp;
+        proxy_temp_path       /tmp/proxy_temp;
+        fastcgi_temp_path     /tmp/fastcgi_temp;
+        uwsgi_temp_path       /tmp/uwsgi_temp;
+        scgi_temp_path        /tmp/scgi_temp;
+
+        sendfile        on;
+        tcp_nopush      on;
+        tcp_nodelay     on;
+        keepalive_timeout  65;
+        types_hash_max_size 2048;
+        resolver_timeout 45s;
+
+        gzip on;
+        gzip_static on;
+        gzip_http_version  1.0;
+        gzip_comp_level    5;
+        gzip_min_length    256;
+        gzip_proxied       any;
+        gzip_vary          on;
+        gzip_buffers 16 8k;
+        gzip_types
+          application/atom+xml
+          application/javascript
+          application/x-javascript
+          text/xml
+          application/xml+rss
+          text/javascript
+          application/json
+          application/rss+xml
+          application/vnd.ms-fontobject
+          application/x-font-ttf
+          application/x-web-app-manifest+json
+          application/xhtml+xml
+          application/xml
+          font/opentype
+          image/svg+xml
+          image/x-icon
+          text/css
+          text/plain
+          text/x-component;
+
+        include       /etc/nginx/mime.types;
+        default_type  application/octet-stream;
+
+        server {
+            listen       8080 default_server;
+            listen       [::]:8080 default_server;
+            server_name  _;
+            root         /usr/share/nginx/html;
+
+            location /api {
+                proxy_pass http://{{ include "backend.fullname" . }}:8000;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+
+            location /docs {
+                proxy_pass http://{{ include "backend.fullname" . }}:8000;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+            }
+
+            location / {
+                try_files $uri $uri/ /index.html;
+                add_header Cache-Control "no-store, no-cache, must-revalidate";
+            }
+
+            location ~* \.(?:jpg|jpeg|gif|png|ico|cur|gz|svg|svgz|mp4|ogg|ogv|webm|htc)$ {
+              expires 1M;
+              access_log off;
+              add_header Cache-Control "public";
+            }
+
+            location ~* \.(?:css|js)$ {
+                try_files $uri =404;
+                expires 1y;
+                access_log off;
+                add_header Cache-Control "public";
+            }
+        }
+    }

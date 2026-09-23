@@ -1,0 +1,117 @@
+global:
+  config:
+    dbName: wally
+crunchy:
+  enabled: true
+  postgresVersion: 16
+  postGISVersion: "3.4"
+  imagePullPolicy: IfNotPresent
+  image: "ghcr.io/bcgov/wally/crunchy:latest"
+  clone:
+    enabled: false
+    s3:
+      enabled: false
+    pvc:
+      enabled: false
+
+  restore:
+    enabled: false
+  instances:
+    name: db
+    replicas: 2
+    metadata:
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/port: '9187'
+    dataVolumeClaimSpec:
+      storage: 50Gi
+      storageClassName: netapp-block-standard
+      walStorage: 15Gi
+    requests:
+      cpu: 256m
+      memory: 4Gi
+    replicaCertCopy:
+      requests:
+        cpu: 1m
+        memory: 32Mi
+
+  pgBackRest:
+    enabled: true
+    s3:
+      enabled: false            # PVC-only (repo1), no object storage
+    pvc:
+      retention: "3"
+      retentionFullType: count
+      fullBackupSchedule: "0 8 * * *"
+      incrementalBackupSchedule: "0 */6 * * *"
+      volume:
+        accessModes: ReadWriteOnce
+        storage: 50Gi
+        storageClassName: netapp-block-standard
+    repoHost:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+    sidecars:
+      requests:
+        cpu: 5m
+        memory: 32Mi
+    jobs:
+      requests:
+        cpu: 20m
+        memory: 64Mi
+  patroni:
+    postgresql:
+      pg_hba:
+        - "host all all 0.0.0.0/0 md5"
+        - "host all all ::1/128 md5"
+      parameters:
+        shared_buffers: 1GB
+        wal_buffers: "64kB"
+        min_wal_size: 512MB
+        max_wal_size: 2GB
+        max_slot_wal_keep_size: 1GB
+        work_mem: 4MB
+        log_min_duration_statement: 1000ms
+        effective_io_concurrency: 20
+
+  proxy:
+    enabled: true
+    pgBouncer:
+      image:
+      replicas: 1
+      requests:
+        cpu: 5m
+        memory: 32Mi
+      maxConnections: "25"
+      clientTlsSslmode: disable
+      poolMode: transaction
+
+  pgmonitor:
+    enabled: true
+    exporter:
+      image:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+
+  users:
+    - name: 'postgres'
+      databases:
+        - 'postgres'
+        - '{{ .Values.global.config.dbName }}'
+    - name: '{{ .Values.global.config.dbName }}'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+    - name: 'ftw-reader'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+        - 'postgres'
+    - name: '{{ .Values.global.config.dbName }}proxy'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+        - 'postgres'
+    - name: '{{ .Values.global.config.dbName }}proxytest'
+      databases:
+        - '{{ .Values.global.config.dbName }}'
+        - 'postgres'

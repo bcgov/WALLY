@@ -1,0 +1,22 @@
+name: Build Backup Restore Importer Image
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  builds:
+    name: Build Matrix
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backup-restore]
+    timeout-minutes: 30
+    steps:
+      - uses: bcgov/action-builder-ghcr@v4.0.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: latest

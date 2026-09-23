@@ -1,0 +1,20 @@
+{{- if .Values.matomo.enabled }}
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: {{ include "matomo.fullname" . }}
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  host: {{ printf "%s.%s" .Values.matomo.host .Values.global.domain | quote }}
+  port:
+    targetPort: 8080-tcp
+  to:
+    kind: Service
+    name: {{ include "matomo.fullname" . }}
+    weight: 100
+  wildcardPolicy: None
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
+{{- end }}

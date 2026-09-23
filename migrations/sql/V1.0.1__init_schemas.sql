@@ -1,0 +1,9 @@
+create schema if not exists postgis_ftw;
+create schema if not exists whse_basemapping;
+create schema if not exists fasstr;
+create schema if not exists hydat;
+create schema if not exists metadata;
+create schema if not exists modeling;
+create schema if not exists prism;
+create schema if not exists dem;
+create schema if not exists hydrosheds;

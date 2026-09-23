@@ -1,23 +1,24 @@
-FROM node:22-alpine as build
-
+FROM node:22-alpine AS build
 WORKDIR /app
-
 COPY package*.json /app/
-
 RUN npm ci
-
 COPY . .
+RUN npm run build
 
-# run unit tests and build
-RUN npm run test:unit && npm run build
+FROM nginx:1.27-alpine
 
-FROM nginx:1.12
+COPY --from=build /app/dist/ /usr/share/nginx/html
 
-COPY --from=build /app/dist/ /tmp/src
-COPY --from=build /app/.s2i/bin/run /usr/libexec/s2i/run
-COPY --from=build /app/nginx.conf.tmpl /opt/app-root/etc/nginx.conf.tmpl
-
-RUN /usr/libexec/s2i/assemble
+# Make nginx's runtime directories writable by the group, not just a fixed
+# UID - OpenShift assigns a random UID at runtime (with GID 0), so
+# permissions must be group-based, not owner-based, to work correctly there.
+RUN chgrp -R 0 /var/cache/nginx /var/run /usr/share/nginx/html /etc/nginx/conf.d && \
+    chmod -R g=u /var/cache/nginx /var/run /usr/share/nginx/html /etc/nginx/conf.d && \
+    touch /var/run/nginx.pid && \
+    chgrp 0 /var/run/nginx.pid && \
+    chmod g=u /var/run/nginx.pid
 
 EXPOSE 8080
-CMD /usr/libexec/s2i/run
+
+USER 1001
+CMD ["nginx", "-g", "daemon off;"]

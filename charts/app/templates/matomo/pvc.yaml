@@ -1,0 +1,15 @@
+{{- if .Values.matomo.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "matomo.fullname" . }}-config
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  storageClassName: {{ .Values.matomo.persistentVolumeClass }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.matomo.persistentVolumeSize }}
+{{- end }}

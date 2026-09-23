@@ -1,0 +1,18 @@
+{{- if .Values.matomo.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "matomo.fullname" . }}
+  labels:
+    {{- include "matomo.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    {{- include "matomo.selectorLabels" . | nindent 4 }}
+  type: ClusterIP
+  sessionAffinity: None
+{{- end }}

@@ -1,0 +1,57 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restore-minio-from-s3-{{ .Values.timestamp }}
+  namespace: {{ .Values.minio.target.namespace }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        role: restore-minio
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: restore-minio
+          image: "{{ .Values.image }}"
+          imagePullPolicy: Always
+          command: ["python3", "minio/restore.py"]
+          env:
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: minioAccessKey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio
+                  key: minioSecretKey
+            - name: MINIO_HOST_URL
+              value: "http://{{ .Values.minio.target.minioHost }}:9000"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: access_key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: secret_key
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: bucket
+            - name: AWS_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: endpoint
+            - name: S3_PREFIX
+              value: "wally-minio-{{ .Values.timestamp }}"
+          resources:
+            requests:
+              cpu: 500m
+              memory: 1Gi

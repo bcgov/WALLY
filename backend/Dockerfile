@@ -1,26 +1,35 @@
-FROM python:3.8
+FROM ghcr.io/bcgov/wally/whiteboxtools-builder:legacy-2023 AS builder
+
+# Pinning GDAL to 2.4.0 rather than use floating tag
+FROM python:3.7-buster
 
 WORKDIR /app/
 
-# whitebox_tools is added to the context dir by the BuildConfig, which
-# copies it from the whiteboxtools:latest imagestream.
-# the BuildConfig also copies whitebox_tools.py (WBT Python bindings)
-# into the context dir so it gets copied by the COPY directive below.
-COPY /wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools /usr/local/bin/
-COPY /wbt/whitebox_tools.py /app/
+COPY --from=builder /wbt/target/x86_64-unknown-linux-musl/release/whitebox_tools /usr/local/bin/
+COPY --from=builder /wbt/whitebox_tools.py /app/
+
+# Buster is EOL - deb.debian.org no longer serves it. Redirect to the
+# archive, and drop buster/updates (security repo) since it's not mirrored
+# on archive.debian.org in the same way.
+RUN sed -i 's|deb.debian.org/debian |archive.debian.org/debian |g; s|deb.debian.org/debian-security|archive.debian.org/debian-security|g' /etc/apt/sources.list && \
+    sed -i '/buster-updates/d' /etc/apt/sources.list && \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid
+
 
 RUN useradd wally -M -G root -u 1021 && chmod -R 775 /app \
-  && chown -R wally:root /app \ 
+  && chown -R wally:root /app \
   && apt-get update && apt-get -y install ca-certificates libgdal-dev gdal-bin
+
+RUN pip install pygdal=="`gdal-config --version`.*"
 
 COPY ./requirements.txt /
 
 RUN pip install -r /requirements.txt
 
-
 COPY . /app
-
 ENV PYTHONPATH=/app
+COPY --from=builder /wbt/whitebox_tools.py /app/
+
 RUN pytest /app/tests/ -W ignore::DeprecationWarning
 
 EXPOSE 8000

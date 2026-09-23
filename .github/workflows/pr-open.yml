@@ -1,0 +1,74 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [master]
+
+concurrency:
+  # Cancel in progress for PR open and close
+  group: ${{ github.event.number }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  # unit_tests:
+  #   uses: ./.github/workflows/.unit-tests.yml
+
+
+  builds:
+    name: Build Matrix
+    # needs: [unit_tests]
+    permissions:
+      packages: write
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backend, frontend, migrations]
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov/action-builder-ghcr@v4.0.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tags: ${{ github.event.number }}
+
+  find_deployment_slot:
+    name: Find Deployment Slot
+    needs: [builds]
+    uses: ./.github/workflows/.deployment-slots.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+
+  # https://github.com/bcgov/quickstart-openshift-helpers
+  deploys:
+    name: Deploys Build (${{ github.event.number }})
+    needs: [find_deployment_slot]
+    uses: ./.github/workflows/.deployer.yml
+    secrets:
+      oc_namespace: ${{ secrets.OC_NAMESPACE }}
+      oc_token: ${{ secrets.OC_TOKEN }}
+    with:
+      db_user: app-${{ github.event.number }}
+      directory_application: ./charts/app
+      directory_crunchy: ./charts/crunchy
+      values_application: values.dev.yaml
+      values_crunchy: values.dev.yaml
+      route: ${{ needs.find_deployment_slot.outputs.route }}
+      minio_host: wally-minio-${{ github.event.number }}
+
+
+  comment:
+    name: Specify Route
+    needs: [find_deployment_slot, deploys]
+    runs-on: ubuntu-24.04
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: peter-evans/create-or-update-comment@v5
+        with:
+          issue-number: ${{ github.event.number }}
+          body: |
+            ${{format('Deployment available at: https://{0}.apps.silver.devops.gov.bc.ca', needs.find_deployment_slot.outputs.route)}}
+

@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directories:
+      - "/backend"
+    schedule:
+      interval: "weekly"
+    # Disable Dependabot PR creation
+    open-pull-requests-limit: 0
+  - package-ecosystem: "npm"
+    directories:
+      - "/frontend"
+    schedule:
+      interval: "weekly"
+    # Disable Dependabot PR Creation
+    open-pull-requests-limit: 0

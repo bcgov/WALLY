@@ -1,0 +1,70 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: restore-psql-{{ .Values.timestamp }}
+  namespace: {{ .Values.psql.target.namespace }}
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        role: restore-psql
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: restore-psql
+          image: "{{ .Values.image }}"
+          imagePullPolicy: Always
+          command: ["python3", "psql/restore.py"]
+          env:
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.psql.target.dbSecretSuperUser }}
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.psql.target.dbSecretSuperUser }}
+                  key: port
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.psql.target.dbSecretApplication }}
+                  key: dbname
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.psql.target.dbSecretSuperUser }}
+                  key: user
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.psql.target.dbSecretSuperUser }}
+                  key: password
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: access_key
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: secret_key
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: bucket
+            - name: AWS_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: s3-secrets
+                  key: endpoint
+            - name: BACKUP_FILE
+              value: "{{ .Values.psql.backupFile }}"
+          resources:
+            requests:
+              cpu: 1000m
+              memory: 2Gi
