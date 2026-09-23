@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: {{ include "minio.name" . }}
-          image: "{{ .Values.global.registry }}/{{ .Values.global.repository }}/minio:{{ .Values.global.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.global.registry }}/{{ .Values.global.repository }}/minio:{{ .Values.minio.image.tag }}"
           imagePullPolicy: Always
           command:
             - /bin/sh
