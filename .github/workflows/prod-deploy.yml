@@ -1,14 +1,6 @@
 name: Production Deployment
 
 on:
-  push:
-    branches: [WO-2026-030-prod]
-    paths-ignore:
-      - '*.md'
-      - '.github/**'
-      - '.github/graphics/**'
-      - '!.github/workflows/**'
-
   workflow_dispatch:
     # Image built is always test
 concurrency:

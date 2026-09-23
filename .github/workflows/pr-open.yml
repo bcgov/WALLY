@@ -2,7 +2,7 @@ name: PR
 
 on:
   pull_request:
-    branches: [WO-2026-030]
+    branches: [master]
 
 concurrency:
   # Cancel in progress for PR open and close
