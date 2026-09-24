@@ -1,9 +1,11 @@
-# Water Allocation Data Library 
+# Water Allocation Data Library
 
 1. [Working on WALLY (Getting started)](#working-on-wally-getting-started)
 1. [Application architecture](#application-architecture)
 1. [Feature-specific documentation](#feature-specific-documentation)
 1. [Contributing / Code of Conduct](#contributing)
+
+## Building & Deploying
 
 ## Working on WALLY (Getting started)
 
@@ -16,6 +18,7 @@ includes fixtures that cover the Whistler, BC area.
 * Node v22
 
 #### Environment variables
+
 Running WALLY locally requires the following env vars:
 
 `MAPBOX_ACCESS_TOKEN` (required): a token from mapbox.com for making Mapbox API requests (e.g. requesting tiles and map images).
@@ -25,30 +28,9 @@ Running WALLY locally requires the following env vars:
 The backend uses [Pydantic's settings management](https://github.com/bcgov-c/wally/blob/0dc732c241bff5e8d8ce72d40ab88b9286e4566c/backend/api/config.py#L61-L82)
 Create a file called `dev.env` under `backend/.config/` to test your feature flags and other settings.
 
-### Running the backend services
-Start the backend API and database stack with Docker Compose:
+### Running the application
 
-```bash
-docker-compose up -d
-```
-
-This will start up Wally's Python backend, PostGIS, and Minio services.
-
-Database fixtures will be loaded automatically using the `backend/api/initial_data.py` script. Raster fixtures are also
-automatically copied to the Minio container. This script is only run on local and PR dev environments.
-
-When building locally use the following command for logging into Artifactory private registry:
-```bash
-docker login -u <svc-usn> -p <svc-pwd> artifacts.developer.gov.bc.ca/wd1b-wbt-docker-local
-```
-Replace svc-usn and svc-pwd with Artifactory service account credentials obtained from Openshift (under ally-tools secrets)
-
-To build and run the backend on computers with Apple M1 chip use the following command:
-```bash
-PLATFORM=.m1 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
-PLATFORM=.m1v2 docker-compose build --pull --no-cache --progress=plain backend && docker compose up -d
-```
-For an Apple computer with an M3 chip, use the .m1v2 version.
+Bee boo baa boo
 
 #### Access the database directly
 
@@ -58,21 +40,21 @@ The database is exposed at `localhost:5432`.  For a shortcut to launch the psql 
 make psql
 ```
 
-
 #### Browse the backend API documentation
 
-The backend's Swagger API documentation is available at http://localhost:8000/docs.
-
+The backend's Swagger API documentation is available at <http://localhost:8000/docs>.
 
 ### Running the frontend web app
+
 Start the frontend development server:
+
 ```bash
 cd frontend
 npm install
 npm run serve
 ```
 
-The frontend will be deployed at http://localhost:8080/.  It requires the backend docker-compose stack to also be running.
+The frontend will be deployed at <http://localhost:8080/>.  It requires the backend docker-compose stack to also be running.
 
 ## Application architecture
 
@@ -89,7 +71,6 @@ nginx also proxies requests to other services based on the `nginx.conf.templ` fi
 PostGIS is used for querying the Freshwater Atlas and HYDAT data as well as storing user project data.
 
 * Minio - WALLY uses Minio to host spatial data raster files, store Freshwater Atlas data, and store uploaded user files. See the configuration in `openshift/ocp4/minio`.
-
 
 ### WALLY and OpenShift
 
@@ -138,7 +119,7 @@ of loading an extent.  The shapefile that represents the DEM extent needs to be 
 
 ### Province wide data
 
-WALLY local dev environments comes with enough data to demo all features in Whistler. 
+WALLY local dev environments comes with enough data to demo all features in Whistler.
 To get province wide data in a local environment (or a new server environment), the following steps need to be taken:
 
 **Load all HYDAT stations**
@@ -148,11 +129,11 @@ the rest of the `POSTGRES_` variables as shown in the `backend.env` file in the 
 
 **Load raster data**
 
-Any province wide raster data can be copied over the fixture raster data in `backend/fixtures/raster`.  The next time you use `docker-compose up`, 
+Any province wide raster data can be copied over the fixture raster data in `backend/fixtures/raster`.  The next time you use `docker-compose up`,
 these files will be copied to the Minio docker instance automatically.  Try not to accidently commit large files.
 
 Get the existing province wide raster data from WALLY's Staging Minio instances (if you have access),
-or regenerate them using the instructions in [the Watersheds README](backend/api/v1/watersheds/README.md).  If you regenerate stream-burned DEMs, make sure you 
+or regenerate them using the instructions in [the Watersheds README](backend/api/v1/watersheds/README.md).  If you regenerate stream-burned DEMs, make sure you
 update the DEM tile extents in the `dem.stream_burned_cdem_tile` database table.
 
 **Load FWA data**

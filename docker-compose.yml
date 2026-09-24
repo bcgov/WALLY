@@ -1,10 +1,26 @@
 version: '3.3'
 services:
+  frontend:
+    platform: linux/amd64
+    build:
+      context: ./frontend
+      dockerfile: "Dockerfile"
+    env_file:
+      - frontend/.env.development
+      - frontend/.env.production
+    environment:
+      - VUE_APP_AXIOS_BASE_URL=http://backend:8000
+    volumes:
+      - ./frontend/nginx.conf.local:/etc/nginx/nginx.conf:ro
+    ports:
+      - '8080:8080'
+    depends_on:
+      - backend
   backend:
     platform: linux/amd64
     build:
       context: ./backend
-      dockerfile: "Dockerfile.dev${PLATFORM}"
+      dockerfile: "Dockerfile.dev.2026"
       args:
         env: dev
     networks:
@@ -29,7 +45,7 @@ services:
       COMMON_DOCGEN_SSO_ENDPOINT: "${COMMON_DOCGEN_SSO_ENDPOINT}"
       COMMON_DOCGEN_ENDPOINT: "${COMMON_DOCGEN_ENDPOINT}"
       MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY:-minio}" # default to the minio service defined below.
-      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-minio123}" 
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY:-minio123}"
       MINIO_HOST_URL: "${MINIO_HOST_URL:-minio:9000}"
       # GDAL_DATA: /usr/share/gdal/
     ports:
@@ -84,7 +100,7 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
-  
+
 volumes:
   pgdata-volume:
   minio-volume:
