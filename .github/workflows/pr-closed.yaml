@@ -21,9 +21,9 @@ jobs:
       oc_namespace: ${{ secrets.OC_NAMESPACE }}
       oc_token: ${{ secrets.OC_TOKEN }}
     with:
-      packages: backend frontend migrations minio
+      packages: backend frontend migrations
 
-  cleanup_db: # TODO move it off to another action later.
+  cleanup_db:
     name: Remove DB User from Crunchy
     needs: [cleanup]
     runs-on: ubuntu-24.04
