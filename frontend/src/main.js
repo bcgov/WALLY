@@ -23,43 +23,43 @@ Vue.config.productionTip = false
 const keycloak = getKeycloakInstance()
 Vue.prototype.$auth = keycloak
 
-if (global.config.isProduction) {
-  Sentry.init({
-    dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
-    integrations: [new Integrations.Vue({
-      Vue,
-      attachProps: true,
-      logErrors: true
-    })]
-  })
-  Vue.use(VueMatomo, {
-    // host: 'https://wally-matomo.apps.silver.devops.gov.bc.ca/',
-    host: 'https://wally-matomo-prod-v2.apps.silver.devops.gov.bc.ca/',
-    siteId: 1,
-    router,
-    domains: 'wally.nrs.gov.bc.ca'
-  })
-}
+// if (global.config.isProduction) {
+//   Sentry.init({
+//     dsn: 'https://d636fc688f55441f877594a1bf2bac89@sentry.io/1835746',
+//     integrations: [new Integrations.Vue({
+//       Vue,
+//       attachProps: true,
+//       logErrors: true
+//     })]
+//   })
+//   Vue.use(VueMatomo, {
+//     // host: 'https://wally-matomo.apps.silver.devops.gov.bc.ca/',
+//     host: 'https://wally-matomo-prod-v2.apps.silver.devops.gov.bc.ca/',
+//     siteId: 1,
+//     router,
+//     domains: 'wally.nrs.gov.bc.ca'
+//   })
+// }
 
-if (global.config.isStaging) {
-  Vue.use(VueMatomo, {
-    host: 'https://wally-matomo-staging.apps.silver.devops.gov.bc.ca/',
-    siteId: 1,
-    router,
-    domains: '*.silver.devops.gov.bc.ca'
-  })
-}
+// if (global.config.isStaging) {
+//   Vue.use(VueMatomo, {
+//     host: 'https://wally-matomo-staging.apps.silver.devops.gov.bc.ca/',
+//     siteId: 1,
+//     router,
+//     domains: '*.silver.devops.gov.bc.ca'
+//   })
+// }
 
-if (global.config.isDevelopment && global.config.enableAnalytics) {
-  // To test matomo actions locally, turn on enableAnalytics
-  Vue.use(VueMatomo, {
-    host: 'https://wally-matomo-dev.apps.silver.devops.gov.bc.ca/',
-    siteId: 1,
-    router,
-    domains: '*.silver.devops.gov.bc.ca',
-    debug: true
-  })
-}
+// if (global.config.isDevelopment && global.config.enableAnalytics) {
+//   // To test matomo actions locally, turn on enableAnalytics
+//   Vue.use(VueMatomo, {
+//     host: 'https://wally-matomo-dev.apps.silver.devops.gov.bc.ca/',
+//     siteId: 1,
+//     router,
+//     domains: '*.silver.devops.gov.bc.ca',
+//     debug: true
+//   })
+// }
 
 keycloak
   .init(kcInitOptions)

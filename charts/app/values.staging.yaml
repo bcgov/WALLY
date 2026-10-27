@@ -115,7 +115,7 @@ minio:
   image:
     tag: preserved-2026
 matomo:
-  enabled: true
+  enabled: false
   replicaCount: 1
   deploymentStrategy: RollingUpdate
   fullnameOverride: ""
@@ -134,7 +134,7 @@ matomo:
       cpu: 500m
       memory: 512Mi
 mariadb:
-  enabled: true
+  enabled: false
   replicaCount: 1
   deploymentStrategy: RollingUpdate
   fullnameOverride: ""
